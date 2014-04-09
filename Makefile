@@ -191,3 +191,6 @@ ifdef SDCARD
 else
 	@echo "Error: No SDCARD defined."
 endif
+
+.profile:   etc/root/dot.profile
+		cp etc/root/dot.profile .profile

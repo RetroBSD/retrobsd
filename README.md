@@ -128,3 +128,9 @@ Run it:
     ./pic32
 
 Configuration of simulated board is stored in file `pic32_max32.conf`.
+
+Build packages
+==============
+
+apt-get install byacc libelf-dev
+

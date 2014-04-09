@@ -1,0 +1,5 @@
+NOTE
+====
+
+This device configuration is not currently supported by the
+rdisk system.  A new driver is needed for the SD card chip.

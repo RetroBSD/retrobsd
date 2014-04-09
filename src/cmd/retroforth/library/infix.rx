@@ -1,0 +1,75 @@
+( Infix Math for Retro ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+chain: infix'
+{{
+  : common getToken toNumber .data ;
+---reveal---
+  : add  ( n"-n ) common ` + ; immediate
+  : sub  ( n"-n ) common ` - ; immediate
+  : mul  ( n"-n ) common ` * ; immediate
+  : div  ( n"-n ) common ` / ; immediate
+  : xmod ( n"-n ) common ` mod ; immediate
+  : dmod ( n"-n ) common ` /mod ; immediate
+  : ^    ( n"-n ) common ` pow ; immediate
+}}
+  &add rename: +
+  &sub rename: -
+  &mul rename: *
+  &xmod rename: mod
+  &div rename: /
+  &dmod rename: /mod
+;chain
+
+doc{
+==========
+Infix Math
+==========
+
+--------
+Overview
+--------
+This library provides a vocabulary for supporting simple infix math.
+
+Expressions are processed from left to right.
+
+
+Loading
+=======
+The following should suffice:
+
+::
+
+  needs infix'
+
+
+Examples
+========
+
+::
+
+  with infix'
+
+  1 + 2 putn
+  4 * 2 + 3 putn
+
+
+Functions
+=========
+
++----------+-----------+--------------+
+| Name     | Stack     | Usage        |
++==========+===========+==============+
+| ``+``    | ( x"-y  ) | ``1 + 2``    |
++----------+-----------+--------------+
+| ``-``    | ( x"-y  ) | ``2 - 1``    |
++----------+-----------+--------------+
+| ``*``    | ( x"-y  ) | ``3 * 3``    |
++----------+-----------+--------------+
+| ``/``    | ( x"-y  ) | ``4 / 2``    |
++----------+-----------+--------------+
+| ``mod``  | ( x"-y  ) | ``5 % 2``    |
++----------+-----------+--------------+
+| ``/mod`` | ( x"-qr ) | ``5 /mod 2`` |
++----------+-----------+--------------+
+| ``^``    | ( x"-n )  | ``5 ^ 2``    |
++----------+-----------+--------------+
+}doc

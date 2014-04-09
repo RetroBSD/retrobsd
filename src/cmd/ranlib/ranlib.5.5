@@ -1,0 +1,70 @@
+.\" Copyright (c) 1990, 1991 The Regents of the University of California.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"	This product includes software developed by the University of
+.\"	California, Berkeley and its contributors.
+.\" 4. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"     @(#)ranlib.5.5	5.2 (Berkeley) 5/10/91
+.\"
+.TH RANLIB 5 "May 10, 1991"
+.AT 3
+.UC 6
+.SH NAME
+ranlib \- archive (library) table-of-contents format
+.SH SYNOPSIS
+.nf
+.ft B
+#include <ranlib.h>
+.fi
+.ft R
+.SH DESCRIPTION
+The archive table-of-contents command
+.I ranlib
+creates a table of contents for archives, containing object files, to
+be used by the link-editor
+.IR ld (1) .
+It operates on archives created with the utility
+.IR ar (1) .
+.PP
+The
+.I Ranlib
+function
+prepends a new file to the archive which has two separate parts.
+The first part is a standard archive header, which has a special name
+field,  "__.SYMDEF".
+.PP
+The second part is a list of ranlib structures of variable size.
+Each of the ranlib structures consists of a sequence of records, terminated
+by 1, 2, 3 or 4 zero bytes (to align to word boundary).
+.PP
+Every record consists of a byte with name length, a word specifying an offset
+from the beginning of the archive to the start of the archive file which defines the symbol,
+and a symbol name of given length.
+.SH SEE ALSO
+.IR ar (1) ,
+.IR ranlib (1)

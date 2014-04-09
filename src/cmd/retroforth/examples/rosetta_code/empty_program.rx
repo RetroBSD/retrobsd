@@ -1,0 +1,7 @@
+An empty file is the smallest valid program.
+
+To save a turnkey application doing nothing, you need to do a bit more
+work though:
+
+&bye is boot
+save

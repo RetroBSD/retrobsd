@@ -1,0 +1,9 @@
+Retro has a time function returning the current time in seconds. This
+can be used to build a simple timing function:
+
+: .runtime ( a- ) time [ do time ] dip - "\n%d\n" puts ;
+
+: test 20000 [ putn space ] iterd ;
+&test .runtime
+
+Finer measurements are not possible with the standard implementation.

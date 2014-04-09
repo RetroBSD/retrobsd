@@ -1,0 +1,430 @@
+/*
+ * This version of nm will use a disk file, rather than trying to store
+ * the entire symbol table in memory.  Useful for some sites.
+ *
+ * 11/25/90 - The ASCII version of archives has been implemented, but this
+ * program was NOT updated.  the normal version of 'nm' not only handles
+ * .a files correctly but can even process /unix. so this program is of even
+ * less value than before, this program is extremely slow even for cases
+ * which the regular 'nm' works well.
+ */
+
+/*
+ *  print symbol tables for
+ *  object or archive files
+ *
+ *  nm [-fgoprun] [name ...]
+*/
+
+#include    <sys/param.h>
+#include    <ar.h>
+#include    <a.out.h>
+#include    <stdio.h>
+#include    <signal.h>
+#include    <ctype.h>
+#include    <fcntl.h>
+#include    <sys/file.h>
+
+struct  nnlist {    /* symbol table entry */
+    char        n_name[8];  /* symbol name */
+    char        nn_type;    /* type flag */
+    char        nn_ovno;
+    unsigned int    n_value;    /* value */
+};
+#define SYMFILE "/tmp/nm.sym.XXXXXX"
+#define SELECT  arch_flg ? arp.ar_name : *argv
+int numsort_flg;
+int undef_flg;
+int revsort_flg = 1;
+int globl_flg;
+int nosort_flg;
+int arch_flg;
+int prep_flg;
+int file_flg;
+struct  ar_hdr  arp;
+struct  exec    exp;
+FILE    *fi;
+long    off;
+long    ftell();
+char    *malloc();
+char    *realloc();
+char    *mktemp();
+int     symfile = -1;
+char    *symfname;
+long    lseek();
+long    save_sym();
+struct  nnlist *get_sym();
+int cleanup();
+
+main(argc, argv)
+char **argv;
+{
+    int narg;
+    int compare();
+    int fcompare();
+
+    signal(SIGINT,cleanup);
+    signal(SIGHUP,cleanup);
+    signal(SIGTERM,cleanup);
+    signal(SIGQUIT,cleanup);
+
+    if (--argc>0 && argv[1][0]=='-' && argv[1][1]!=0) {
+        argv++;
+        while (*++*argv) switch (**argv) {
+        case 'n':       /* sort numerically */
+            numsort_flg++;
+            continue;
+
+        case 'g':       /* globl symbols only */
+            globl_flg++;
+            continue;
+
+        case 'u':       /* undefined symbols only */
+            undef_flg++;
+            continue;
+
+        case 'r':       /* sort in reverse order */
+            revsort_flg = -1;
+            continue;
+
+        case 'p':       /* don't sort -- symbol table order */
+            nosort_flg++;
+            continue;
+
+        case 'o':       /* prepend a name to each line */
+            prep_flg++;
+            continue;
+
+        case 'f':       /* use a file insted of memory  - slow */
+            file_flg++;
+            continue;
+
+        default:        /* oops */
+            fprintf(stderr, "nm: invalid argument -%c\n", *argv[0]);
+            cleanup(1);
+        }
+        argc--;
+    }
+    if (argc == 0) {
+        argc = 1;
+        argv[1] = "a.out";
+    }
+    narg = argc;
+    while(argc--) {
+        fi = fopen(*++argv,"r");
+        if (fi == NULL) {
+            fprintf(stderr, "nm: cannot open %s\n", *argv);
+            continue;
+        }
+        off = sizeof(exp.a_magic);
+        fread((char *)&exp, 1, sizeof(exp.a_magic), fi);    /* get magic no. */
+        if (exp.a_magic == ARMAG)
+            arch_flg++;
+        else if (N_BADMAG(exp)) {
+            fprintf(stderr, "nm: %s-- bad format\n", *argv);
+            continue;
+        }
+        fseek(fi, 0L, L_SET);
+        if (arch_flg) {
+            (void) nextel(fi);
+            if (narg > 1)
+                printf("\n%s:\n", *argv);
+        }
+        do {
+            long o;
+            register i, n, c;
+            struct nnlist sym;
+            struct nnlist *symp = NULL;
+            long *idxsymfile = NULL;
+            unsigned ovsizes[1 + NOVL];
+
+            fread((char *)&exp, 1, sizeof(struct exec), fi);
+            if (N_BADMAG(exp))      /* archive element not in  */
+                continue;   /* proper format - skip it */
+            if (exp.a_magic == A_MAGIC5 || exp.a_magic == A_MAGIC6) {
+                fread((char *)ovsizes, 1, sizeof ovsizes, fi);
+                o   = 0L;
+                for (i = 1; i <= NOVL; i++)
+                    o   += (long) ovsizes[i];
+                fseek(fi, o, L_INCR);
+            }
+            o = (long)exp.a_text + exp.a_data;
+            if ((exp.a_flag & 01) == 0)
+                o *= 2;
+            fseek(fi, o, L_INCR);
+            if (file_flg)
+                set_sym();
+            i = 0;
+            while (fread((char *)&sym, sizeof(sym), 1, fi) == 1) {
+                if (globl_flg && (sym.nn_type&N_EXT)==0)
+                    continue;
+                switch (sym.nn_type&N_TYPE) {
+                    case N_UNDF:
+                        c = 'u';
+                        if (sym.n_value)
+                            c = 'c';
+                        break;
+
+                    default:
+                    case N_ABS:
+                        c = 'a';
+                        break;
+
+                    case N_TEXT:
+                        c = 't';
+                        break;
+
+                    case N_DATA:
+                        c = 'd';
+                        break;
+
+                    case N_BSS:
+                        c = 'b';
+                        break;
+
+                    case N_FN:
+                        c = 'f';
+                        break;
+                }
+                if (undef_flg && c!='u')
+                    continue;
+                if (sym.nn_type&N_EXT)
+                    c = toupper(c);
+                sym.nn_type = c;
+                if (file_flg) {
+                    if (idxsymfile==NULL)
+                        idxsymfile = (long *)malloc(sizeof(long));
+                    else
+                        idxsymfile = (long *)realloc(idxsymfile, (i+1)*sizeof(long));
+                } else {
+                    if (symp==NULL)
+                        symp = (struct nnlist *)malloc(sizeof(struct nnlist));
+                    else
+                        symp = (struct nnlist *)realloc(symp, (i+1)*sizeof(struct nnlist));
+                }
+                if (file_flg) {
+                    if (idxsymfile == NULL) {
+                    fprintf(stderr, "nm: out of memory on %s\n", *argv);
+                    cleanup(2);
+                    }
+                } else {
+                    if (symp == NULL) {
+                    fprintf(stderr, "nm: try using the '-f' option.\n");
+                    cleanup(2);
+                    }
+                }
+                if (file_flg)
+                    idxsymfile[i++] = save_sym(&sym);
+                else
+                    symp[i++] = sym;
+            }
+            if (i == 0) {
+                fprintf(stderr, "nm: %s-- no name list\n", SELECT);
+                continue;
+            }
+            if (nosort_flg==0)
+                if (file_flg)
+                qsort(idxsymfile, i, sizeof(long), fcompare);
+                else
+                qsort(symp, i, sizeof(struct nnlist), compare);
+            if ((arch_flg || narg>1) && prep_flg==0)
+                printf("\n%s:\n", SELECT);
+            for (n=0; n<i; n++) {
+                struct nnlist *tt;
+                if (prep_flg) {
+                    if (arch_flg)
+                        printf("%s:", *argv);
+                    printf("%s:", SELECT);
+                }
+                if (file_flg) {
+                    tt = get_sym(idxsymfile[n]);
+                    c = tt->nn_type;
+                } else
+                    c = symp[n].nn_type;
+                if (!undef_flg) {
+                    if (c=='u' || c=='U')
+                        printf("        ");
+                    else {
+                        if (file_flg)
+                        printf("%08x", tt->n_value);
+                        else
+                        printf("%08x", symp[n].n_value);
+                    }
+                    printf(" %c ", c);
+                }
+                if (file_flg) {
+                    if (tt->nn_ovno)
+                    printf("%-8.8s %d", tt->n_name,
+                       tt->nn_ovno);
+                    else
+                    printf("%.8s", tt->n_name);
+                } else {
+                    if (symp[n].nn_ovno)
+                    printf("%-8.8s %d", symp[n].n_name,
+                       symp[n].nn_ovno);
+                    else
+                    printf("%.8s", symp[n].n_name);
+                }
+                printf("\n");
+                if (file_flg)
+                    free(tt);
+            }
+            if (file_flg)
+                if (idxsymfile)
+                free((char *)idxsymfile);
+            else
+                if (symp)
+                free((char *)symp);
+        } while(arch_flg && nextel(fi));
+        fclose(fi);
+    }
+    cleanup(0);
+}
+
+compare(p1, p2)
+register struct nnlist *p1, *p2;
+{
+    register i;
+
+    if (numsort_flg) {
+        if (p1->n_value > p2->n_value)
+            return(revsort_flg);
+        if (p1->n_value < p2->n_value)
+            return(-revsort_flg);
+    }
+    for(i=0; i<sizeof(p1->n_name); i++)
+        if (p1->n_name[i] != p2->n_name[i]) {
+            if (p1->n_name[i] > p2->n_name[i])
+                return(revsort_flg);
+            else
+                return(-revsort_flg);
+        }
+    return(0);
+}
+
+nextel(af)
+register FILE *af;
+{
+    register r;
+
+    fseek(af, off, L_SET);
+    r = fread((char *)&arp, 1, sizeof(struct ar_hdr), af);  /* read archive header */
+    if (r <= 0)
+        return(0);
+    if (arp.ar_size & 1)
+        ++arp.ar_size;
+    off = ftell(af) + arp.ar_size;  /* offset to next element */
+    return(1);
+}
+
+fcompare(fi1, fi2)
+register long *fi1, *fi2;
+{
+    register i;
+    register struct nnlist *p1, *p2;
+
+    p1 = get_sym(*fi1);
+    p2 = get_sym(*fi2);
+    if (numsort_flg) {
+        if (p1->n_value > p2->n_value) {
+            free((char *)p1);
+            free((char *)p2);
+            return(revsort_flg);
+        }
+        if (p1->n_value < p2->n_value) {
+            free((char *)p1);
+            free((char *)p2);
+            return(-revsort_flg);
+        }
+    }
+    for(i=0; i<sizeof(p1->n_name); i++)
+        if (p1->n_name[i] != p2->n_name[i]) {
+            if (p1->n_name[i] > p2->n_name[i]) {
+                free((char *)p1);
+                free((char *)p2);
+                return(revsort_flg);
+            } else {
+                free((char *)p1);
+                free((char *)p2);
+                return(-revsort_flg);
+            }
+        }
+    free((char *)p1);
+    free((char *)p2);
+    return(0);
+}
+
+/*
+ * Save a symbol in symfile
+ */
+
+long
+save_sym(sym)
+struct nlist *sym;
+{
+    long ret_val;
+
+    if ((ret_val = lseek(symfile,0L,L_INCR)) < 0) {
+        perror("lseek:save_sym");
+        cleanup(1);
+    }
+
+    if (write(symfile,sym,sizeof(struct nlist)) < 0) {
+        perror("write:save_sym");
+        cleanup(1);
+    }
+    return(ret_val);
+}
+
+/*
+ * Retrieve a symbol from symfile
+ */
+
+struct nnlist *
+get_sym(offset)
+long offset;
+{
+    struct nnlist *temp;
+
+    if(lseek(symfile,offset,L_SET) < 0) {
+        perror("lseek:get_sym");
+        cleanup(1);
+    }
+
+    temp = (struct nnlist *) malloc(sizeof(struct nnlist));
+    if(read(symfile,temp,sizeof(struct nnlist)) != sizeof (struct nnlist)) {
+        perror("read:get_sym");
+        cleanup(1);
+    }
+
+    return(temp);
+}
+
+/*
+ * Open The symfile
+ */
+
+set_sym()
+{
+    if (symfile != -1)
+    close(symfile);
+    else
+    symfname = mktemp(SYMFILE);
+    if ((symfile = open(symfname,O_CREAT|O_RDWR|O_TRUNC,0666)) < 0) {
+    perror("open:symfile");
+    cleanup(1);
+    }
+}
+
+/*
+ * Cleanup Routine
+ */
+
+int
+cleanup(n)
+int n;
+{
+    if (file_flg)
+        unlink(symfname);
+    exit(n);
+}

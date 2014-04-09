@@ -1,0 +1,334 @@
+.\" Copyright (c) 1980 Regents of the University of California.
+.\" All rights reserved.  The Berkeley software License Agreement
+.\" specifies the terms and conditions for redistribution.
+.\"
+.\"	@(#)ld.1	6.4 (2.11BSD GTE) 1995/05/08
+.\"
+.TH LD 1 "May 08, 1995"
+.UC 2
+.SH NAME
+ld \- link editor (2BSD)
+.SH SYNOPSIS
+.B ld
+[ option ] ... file ...
+.SH DESCRIPTION
+.I Ld
+combines several
+object programs into one, resolves external
+references, and searches libraries.
+In the simplest case several object
+.I files
+are given, and
+.I ld
+combines them, producing
+an object module which can be either executed or
+become the input for a further
+.I ld
+run.
+(In the latter case, the
+.B \-r
+option must be given
+to preserve the relocation bits.)\ 
+The output of
+.I ld
+is left on
+.BR a.out .
+This file is made executable
+only if no errors occurred during the load.
+.PP
+The argument routines are concatenated in the order
+specified.  The entry point of the output is the
+beginning of the first routine (unless the \fB\-e\fP option is specified).
+.PP
+If any argument is a library, it is searched exactly once
+at the point it is encountered in the argument list.
+Only those routines defining an unresolved external
+reference are loaded.
+If a routine from a library
+references another routine in the library,
+and the library has not been processed by
+.IR ranlib (1),
+the referenced routine must appear after the
+referencing routine in the library.
+Thus the order of programs within libraries
+may be important.
+The first member of a library
+should be a file named `\_\^\_.SYMDEF',
+which is understood to be a dictionary for the library as produced by
+.IR ranlib (1);
+the dictionary is searched iteratively to satisfy as many references as
+possible.
+.PP
+The symbols `\_etext', `\_edata' and `\_end'
+(`etext', `edata' and `end' in C)
+are reserved, and if referred to,
+are set to the first location above the program,
+the first location above initialized data,
+and the first location above all data respectively.
+It is erroneous to define these symbols.
+.PP
+.I Ld
+understands several options.
+Except for
+.BR \-l ,
+they should appear before the file names.
+.TP
+.B \-D
+Take the next argument as a decimal number and pad the data segment
+with zero bytes to the indicated length.
+.TP 
+.B  \-d
+Force definition of common storage
+even if the
+.B \-r
+flag is present.
+.TP
+.B \-e
+The following argument is taken to be the
+name of the entry point of the loaded
+program; location 0 is the default.
+.TP
+.BI \-L dir
+Add
+.I dir
+to the list of directories in which libraries are searched for.
+Directories specified with 
+.B \-L
+are searched before the standard directories.
+.TP 
+.BI \-l x
+This
+option is an abbreviation for the library name
+.RI `lib x .a',
+where
+.I x
+is a string.
+.I Ld
+searches for libraries first in any directories
+specified with
+.B \-L
+options, then in the standard directories `/lib', `/usr/lib', and
+`/usr/local/lib'.
+A library is searched when its name is encountered,
+so the placement of a
+.B  \-l
+is significant.
+.TP
+.B \-M
+produce a primitive load map, listing the names of the files
+which will be loaded.
+.TP 
+.B  \-n
+Arrange (by giving the output file a 0410 "magic number") that
+when the output file is executed,
+the text portion will be read-only and shared
+among all users executing the file.
+This involves moving the data areas up to the first
+possible 8K byte boundary following the
+end of the text.
+This option creates a `pure executable'
+format.
+.TP 
+.B  \-i
+When the output file is executed, the program
+text and data areas will live in separate address spaces.
+The only difference between this option
+and
+.B \-n
+is that here the text and data segments are in separate address spaces
+and both start at location 0.
+This option creates
+a `separate executable' format.
+.TP
+.B  \-z
+This option is a synonym for the
+.B \-i
+option.  On other systems (4.3BSD for example) the
+.B \-z
+option causes a demand paged executable to be built.  This option
+was added to 2.11BSD because some systems (those which use gcc)
+do not safely ignore (with a warning) the
+.B \-i
+option.  Adding the
+.B \-z
+option to 2.11BSD allows makefiles to be copied freely between multiple 
+platforms once again.
+.TP
+.B \-O
+This is a text replacement overlay file; only the text segment
+will be replaced by
+.IR execve (2).
+Shared data must have the same size as
+the program overlaid, otherwise the 
+.IR execve (2)
+will fail.
+The entry point to the overlay may be defined with the
+.B \-e
+option.
+This option allows the creation of a `replacement executable'
+format.
+.TP 
+.B  \-o
+The
+.I name
+argument after
+.B \-o
+is used as the name of the
+.I ld
+output file, instead of
+.BR a.out .
+.TP 
+.B  \-r
+Generate relocation bits in the output file
+so that it can be the subject of another
+.I ld
+run.
+This flag also prevents final definitions from being
+given to common symbols,
+and suppresses the `undefined symbol' diagnostics.
+(Note that this option cannot be used with overlays (\fB-Z\fP)
+since they cannot be reloaded.)
+.TP 
+.B  \-s
+`Strip' the output, that is, remove the symbol table
+and relocation bits to save space (but impair the
+usefulness of the debuggers).
+This information can also be removed by
+.IR  strip (1).
+.TP
+.B \-q
+("quiet") Suppress the reporting of undefined symbols.  Normally only
+used when building networked kernels \- the large number of undefined
+symbols is normal (due to the three phase link proceedure) but can be 
+distracting none the less.
+.TP
+.B \-t
+("trace")  Print the name of each file as it is processed.
+.TP 
+.B  \-u
+Take the following argument as a symbol and enter
+it as undefined in the symbol table.  This is useful
+for loading wholly from a library, since initially the symbol
+table is empty and an unresolved reference is needed
+to force the loading of the first routine.
+.TP
+.B \-v
+("verbose")  Print the VM statistics.  Printing out the number of
+pages swapped to and from the VM tmp file is now optional and only
+used when a problem is suspected (or if you are voyeuristic).
+.TP 
+.B  \-X
+Save local symbols
+except for those whose names begin with `L'.
+This option is used by
+.IR cc (1)
+to discard internally-generated labels while
+retaining symbols local to routines.
+.TP 
+.B  \-x
+Do not preserve local
+(non-.globl) symbols in the output symbol table; only enter
+external symbols.
+This option saves some space in the output file.
+It also allows
+temporary labels  to be discarded to prevent redefinition in
+sucessive \fBld\fP's.
+Warning: \fIadb\fP uses these local symbols,
+especially when debugging overlaid programs,
+so some debugging information is necessarily lost if this option is used.
+.TP
+.B \-Z
+Indicate the creation of an automatic-overlay format.  In addition a
+.B \-i
+or
+.B \-n
+must be present as overlays only work with shared text objects.  Repeated
+instances of
+.B -Z
+bracket the modules that will be loaded into a given overlay.  Modules before
+the first
+.B \-Z
+or after the concluding
+.B \-Y
+will be loaded into the non-overlaid text (base) area.  Note that there may be
+a maximum of NOVL (currently 15) overlays.  This option produces the `overlaid
+pure executable' and the `overlaid separate executable' formats.  The loader
+creates a small entry interface in the base segment for each subroutine in an
+overlay.  This interface ("thunk") arranges for the correct overlay to be
+present before the actual routine is entered.
+.TP
+.B \-Y
+Terminate text overlays.  This allows any remaining modules or libraries to be
+loaded into the base area.  Note that the
+.B \-Y
+option used to be
+.IR \-L ,
+but had to be changed when the loader was brought up to date with the
+.I 4.3BSD
+loader which uses
+.I -L
+to indicate a directory to be searched for library references.
+.SH "AUTOMATIC TEXT OVERLAY EXAMPLE"
+To set up an automatic text overlay object with the loader, use a command of
+the form:
+.IP
+.nf
+\fBld \-n \-X\fP /lib/crt0.o base.o base2.o
+\fB\-Z\fP ov1a.o ov1b.o ...
+\fB\-Z\fP ov2a.o ov2b.o ...
+...
+\fB\-Y\fP base3.o ... \-lovc
+.fi
+.PP
+Assembly source code must be compiled using the assembler overlay flags:
+\*(lq\fIas \-V\fP prog.s\*(rq which causes the assembler to leave certain
+symbols unresolved so that
+.I ld
+may rearrange them.  The various system compilers automatically use this
+option.
+.PP
+When arranging modules into overlays, the following rules control the maximum
+sizes for an executable file.  The magic numbers are due to the granularity of
+PDP-11 segmentation registers (there are 8 registers, each controlling an
+8192-byte segment).  The program is made up of four areas: base text, overlay
+text, data + bss, and stack sections.  The size of the overlay section is
+controlled by the size of the largest of the overlays.  Each section starts at
+an address that is a multiple of 8Kb, thus the size of each section is rounded
+up to a multiple of 8Kb.
+.PP
+In the case of separate overlaid executable files, the text and overlays share
+one 64Kb byte address space; and the data + bss and stack share the other.
+Thus, the total of the base text size (rounded up to an 8Kb boundary) plus the
+maximum overlay size (similarly rounded) must be less than or equal to 64Kb.
+Or, put another way, since there are only 8 segmentation registers available,
+the number of segmentation registers needed for an overlaid object must be
+less than or equal to 8.  As an example, if the base text segment has 36800
+bytes and the largest overlay takes 14144, the base will fit in 5 segments and
+the overlays in 2 segments; leaving one to spare.  The data and bss together
+must fit in 7 segments (56K bytes), leaving one 8Kb segment for the stack.  All
+of the limits can be checked by using
+.IR checkobj (1).
+.PP
+For pure overlaid programs, the rules are similar except that all four
+sections share one 64K-byte address space.  The number of segments required by
+the text, overlay, data + bss and stack are calculated in the same way.  The
+sum of the segments required, including one for the stack, must be less than
+or equal to 8.  Example: a program has 8128 bytes of base text, the largest
+overlay is 16248 bytes, and the data and bss total 19500.  The text requires 1
+8Kb segment, the overlays 2, and data and bss use 4, leaving one for the stack.
+.SH FILES
+.ta \w'/usr/local/lib/lib*.a\ \ 'u
+/lib/lib*.a	libraries
+.br
+/usr/lib/lib*.a	more libraries
+.br
+/usr/local/lib/lib*.a	still more libraries
+.br
+a.out	output file
+.SH "SEE ALSO"
+adb(1), ar(1), as(1), cc(1), checkobj(1), f77(1), file(1), ranlib(1),
+size(1), a.out(5)
+.SH BUGS
+The text overlay scheme presented is unique to the PDP-11 and 2BSD.  The
+\-i, \-P, \-Z, \-Y options are specific to 2BSD.  The \-q and \-v options
+are new with 2.11BSD.

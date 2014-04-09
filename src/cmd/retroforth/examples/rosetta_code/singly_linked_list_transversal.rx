@@ -1,0 +1,9 @@
+: traverse ( l- ) repeat @ 0; again ;
+
+Or, using combinators:
+
+last [ drop ] ^types'LIST each@
+
+With combinators you can also perform an operation on each element in a linked list:
+
+last [ @d->name puts space ] ^types'LIST each@

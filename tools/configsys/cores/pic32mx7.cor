@@ -1,0 +1,16 @@
+machine 
+    root pic32
+end machine
+
+always
+    define PIC32MX7
+    require kernel
+end always
+
+option cpu_khz
+    define CPU_KHZ %1
+end option
+
+option bus_khz
+    define BUS_KHZ %1
+end option

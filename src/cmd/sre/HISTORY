@@ -1,0 +1,45 @@
+Rev 3	3/17/11
+Fixed crash when trying to put an empty cut or pick buffer.
+Rev 4 3/26/11
+Fixed problem with delete char if the line was not in
+memory & the line had tabs making it look shorter than it was.
+Fixed problem where file was not marked modified on a cut
+when lines were marked with mark command.
+Added ability to start program with up to 4 files in the window
+buffer.
+
+Rev 5 4/19/11
+Don't allow modifying files that have a mode that does not
+permit it. Transfer the access mode to any new files written
+based on the original file.
+Preserve insertmode and search key in init file
+Add a variable bell, to control if a beep is made on errors.
+(set bell 0, set bell 1 on command line)
+Add new command "match" assigned to keypad key "5", which
+matches [], {}, and (). Just put cursor over the [], {}, or ()
+and press the 5 keypad key. The matching bracket, brace or paren
+will be the new cursor location. A matched failed message is
+returned if no match is available.
+
+Rev 6 6/1/11
+Add "range" command to limit editing to a range of lines
+within a file. Easiest way to use is to first set a mark
+over the beginning brace of a function, hit ^G, then
+keypad 5 to jump to the matching end brace of the function,
+then ^space to get command prompt, then enter range, and the
+marked area is now the range of the cursor. All commands
+obey the range with the exception of a goto. So a goto 1
+will always goto line 1. Turn off the range with the -range
+command. You can have multiple windows open. The range applies to
+only the specified window and only the file active when range
+is enabled.
+
+Rev 7 bug fix
+Did not reset cursorLine ptr in open/cut/uncut commands.
+Caused crashes and other wird things...
+
+Rev 8 minor tweaks 7/19/11
+Add a new "repl /xxx/yy/" command to globally replace
+strings. Also fix minor nuisance of hitting escape
+by accident requiring entering some keys to simulate
+a multi-byte function key.

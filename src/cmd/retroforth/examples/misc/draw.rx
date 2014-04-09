@@ -1,0 +1,44 @@
+needs canvas'
+with canvas'
+
+create colors
+  &black ,      &white ,       &blue ,
+  &green ,      &cyan ,        &red ,
+  &purple ,     &brown ,       &gray ,
+  &darkGray ,   &brightBlue ,  &brightGreen ,
+  &brightCyan , &brightRed ,   &magenta ,
+  &yellow ,
+
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+( Draw the menu of colors at the bottom                     )
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+: (draw ( n- ) over @fh 50 - 50 50 solid box ;
+: advance) ( aa-aa ) swap 50 + swap ;
+: menu ( - )
+  0 colors 16 [ @+ do (draw advance) ] times 2drop ;
+: ui ( - )
+  clear 0 0 dimensions white solid box menu ;
+
+
+: region: ( "- )
+   ` within ` [ ` drop ' , ` 0 ` ] ` ifTrue ; compile-only
+
+: check ( -f )
+  mouse @fh 50 - > [
+  dup   0  49 region: black       dup  50  99 region: white
+  dup 100 149 region: blue        dup 150 199 region: green
+  dup 200 249 region: cyan        dup 250 299 region: red
+  dup 300 349 region: purple      dup 350 399 region: brown
+  dup 400 449 region: gray        dup 450 499 region: darkgray
+  dup 500 549 region: brightblue  dup 550 599 region: brightgreen
+  dup 600 649 region: brightcyan  dup 650 699 region: brightred
+  dup 700 749 region: magenta     dup 750 799 region: yellow
+  ] [ drop -1 ] if ;
+
+
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+( The main application loop                                 )
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+: (draw) click? 0; drop check 0; drop mouse pixel ;
+: draw ui black repeat (draw) again ;
+

@@ -1,0 +1,409 @@
+.\" Copyright (c) 1983 Regents of the University of California.
+.\" All rights reserved.  The Berkeley software License Agreement
+.\" specifies the terms and conditions for redistribution.
+.\"
+.\"	@(#)stty.1	6.4.1 (2.11BSD) 1997/5/2
+.\"
+.TH STTY 1 "March 27, 1997"
+.UC 4
+.SH NAME
+stty \- set terminal options
+.SH SYNOPSIS
+.B stty
+[\fB\-a | \-e\fP]
+[\fB-f\fP \fIfile\fP]
+[operands]
+.SH DESCRIPTION
+.I Stty
+sets certain I/O options on the current output terminal,
+placing its output on the diagnostic output.
+With no argument, it reports the speed of the terminal and the
+settings of the options which are different from their defaults.
+.PP
+The following options are available:
+.TP 10
+\fB\-a\fP
+Display everything \fIstty\fP knows.  This has the same effect
+as using the operand \fBall\fP or \fBeverything\fP.  The distinction between
+\fBall\fP and \fBeverything\fP has been removed.
+.TP 10
+\fB\-e\fP
+Same a \fB\-a\fP above.
+.TP 10
+\fB\-f\fP
+Open and use the terminal named by \fIfile\fP rather than using standard
+output.  The file is opened using the O_NONBLOCK flag of \fBopen\fP(),
+making it possible to set or display settings on a terminal that might
+otherwise block on the open.
+.PP
+The following operands are special:
+.TP 12
+.B all
+Everything
+.I stty
+knows about is printed.
+.TP 12
+.B everything
+Same as \fBall\fP above.
+.TP 12
+.B flushout
+Flush the queues for the device.  This is most useful when an exiting
+process is stuck waiting for terminal output to drain.
+.TP 12
+.B speed
+The terminal speed alone is printed on the standard output.
+.TP 12
+.B size
+The terminal (window) sizes are printed on the standard output,
+first rows and then columns.
+.PP
+\fIOperands\fP are selected from the following:
+.TP  10
+.B even 
+allow even parity input
+.br
+.ns
+.TP 10
+.B \-even 
+disallow even parity input
+.TP 10
+.B odd 
+allow odd parity input
+.br
+.ns
+.TP 10
+.B \-odd 
+disallow odd parity input
+.TP 10
+.B raw 
+raw mode input
+(\fBno\fR input processing (erase, kill, interrupt, ...); parity bit passed back)
+.br
+.ns
+.TP 10
+.B \-raw 
+negate raw mode
+.TP 10
+.B cooked 
+same as `\-raw'
+.TP 10
+.B cbreak
+make each character available to
+.IR read (2)
+as received; no erase and kill processing,
+but all other processing (interrupt, suspend, ...) is performed
+.br
+.ns
+.TP 10
+.B \-cbreak
+make characters available to 
+.I read
+only when newline is received
+.TP 10
+.B \-nl 
+allow carriage return for new-line,
+and output CR-LF for carriage return or new-line
+.br
+.ns
+.TP 10
+.B nl 
+accept only new-line to end lines
+.TP 10
+.B echo 
+echo back every character typed
+.br
+.ns
+.TP 10
+.B \-echo 
+do not echo characters
+.TP 10
+.B tandem
+enable inbound software (xon/xoff) flow control, so that the system sends 
+out the stop character when
+its internal queue is in danger of overflowing on input, and sends the
+start character when it is ready to accept further input
+.br
+.ns
+.TP 10
+.B \-tandem
+disable inbound software (xon/xoff) flow control
+.TP 10
+.B \-tabs 
+replace tabs by spaces when printing
+.br
+.ns
+.TP 10
+.B tabs 
+preserve tabs
+.br
+.PP
+For the following commands which take a character argument \fIc\fR,
+you may also specify \fIc\fR as ``undef'', to set the value
+to be undefined.  A value of ``^x'', a 2 character sequence, is also
+interpreted as a control character, with ``^?'' representing delete.
+.TP 10
+.BI erase \ c\fR
+set erase character to
+.I c
+(default `#', but often reset to ^H.)
+.br
+.ns
+.TP 10
+.BI kill \ c\fR
+set kill character to
+.I c
+(default `@', but often reset to ^U.)
+.br
+.ns
+.TP 10
+.BI intr \ c\fR
+set interrupt character to
+.I c
+(default DEL or ^? (delete), but often reset to ^C.)
+.br
+.ns
+.TP 10
+.BI quit \ c\fR
+set quit character to
+.I c
+(default control \e.)
+.br
+.ns
+.TP 10
+.BI start \ c\fR
+set start character to
+.I c
+(default control Q.)
+.br
+.ns
+.TP 10
+.BI stop \ c\fR
+set stop character to
+.I c
+(default control S.)
+.br
+.ns
+.TP 10
+.BI eof \ c\fR
+set end of file character to
+.I c
+(default control D.)
+.br
+.ns
+.TP 10
+.BI brk \ c\fR
+set break character to
+.I c
+(default undefined.)
+This character is an additional character causing wakeup.
+.br
+.ns
+.TP 10
+.B dec
+set all modes suitable for Digital Equipment Corp. operating systems
+users; (erase, kill, and interrupt characters to ^?, ^U, and ^C,
+decctlq and ``newcrt''.)
+.ns
+.TP 10
+.B 0 
+hang up phone line immediately
+.br
+.ns
+.TP 10
+.B  "50 75 110 134 150 200 300 600 1200 1800 2400 4800 9600 exta extb"
+.br
+Set terminal baud rate to the number given, if possible.
+(These are the speeds supported by the DH-11 interface).
+.TP 10
+.BI rows \ n\fR
+The terminal size is recorded as having
+.I n
+rows.
+.TP 10
+.BI columns \ n\fR
+The terminal size is recorded as having
+.I n
+columns.
+.TP 10
+.BI cols \ n\fR
+is an alias for
+.IR columns .
+.PP
+A teletype driver which supports the job control processing of
+.IR csh (1)
+and more functionality than the basic driver is fully described in
+.IR tty (4).
+The following options apply only to it.
+.TP 10
+.B new
+Use new driver (switching flushes typeahead).
+.br
+.ns
+.TP 10
+.B crt
+Set options for a CRT (crtbs, ctlecho and, if >= 1200 baud,
+crterase and crtkill.)
+.TP 10
+.B crtbs
+Echo backspaces on erase characters.
+.TP 10
+.B prterase
+For printing terminal echo erased characters backwards within ``\e'' and ``/''.
+.TP 10
+.B crterase
+Wipe out erased characters with ``backspace-space-backspace.''
+.br
+.ns
+.TP 10
+.B \-crterase
+Leave erased characters visible; just backspace.
+.TP 10
+.B crtkill
+Wipe out input on like kill ala \fBcrterase\fP.
+.br
+.ns
+.TP 10
+.B \-crtkill
+Just echo line kill character and a newline on line kill.
+.TP 10
+.B ctlecho
+Echo control characters as ``^\fIx\fR'' (and delete as ``^?''.)
+Print two backspaces following the EOT character (control D).
+.br
+.ns
+.TP 10
+.B \-ctlecho
+Control characters echo as themselves; in cooked mode EOT (control-D)
+is not echoed.
+.TP 10
+.B decctlq
+After output is suspended (normally by ^S), only a start character
+(normally ^Q) will restart it.  This is compatible with DEC's vendor
+supplied systems.
+.br
+.ns
+.TP 10
+.B \-decctlq
+After output is suspended, any character typed will restart it;
+the start character will restart output without providing any input.
+(This is the default.)
+.TP 10
+.B tostop
+Background jobs stop if they attempt terminal output.
+.br
+.ns
+.TP 10
+.B \-tostop
+Output from background jobs to the terminal is allowed.
+.TP 10
+.B flusho
+Output is being discarded usually because user hit control O (internal state bit).
+.br
+.ns
+.TP 10
+.B \-flusho
+Output is not being discarded.
+.TP 10
+.B pendin
+Input is pending after a switch from cbreak to cooked 
+and will be re-input when a read becomes pending or more input arrives
+(internal state bit).
+.br
+.ns
+.TP 10
+.B \-pendin
+Input is not pending.
+.TP 10
+.B pass8
+Passes all 8 bits through on input, in any mode.
+.br
+.ns
+.TP 10
+.B \-pass8
+Strips the 0200 bit on input except in raw mode.
+.TP 10
+.B mdmbuf
+Start/stop output on carrier transitions (not implemented).
+.br
+.ns
+.TP 10
+.B \-mdmbuf
+Return error if write attempted after carrier drops.
+.TP 10
+.B litout
+Send output characters without any processing.
+.br
+.ns
+.TP 10
+.B \-litout
+Do normal output processing, inserting delays, etc.
+.TP 10
+.B nohang
+Don't send hangup signal if carrier drops.
+.br
+.ns
+.TP 10
+.B \-nohang
+Send hangup signal to control process group when carrier drops.
+.PP
+The following special characters are applicable only to the new
+teletype driver
+and are not normally changed.
+.TP 10
+.BI susp \ c\fR
+set suspend process character to \fIc\fR (default control Z).
+.br
+.ns
+.TP 10
+.BI dsusp \ c\fR
+set delayed suspend process character to \fIc\fR (default control Y).
+.br
+.ns
+.TP 10
+.BI rprnt \ c\fR
+set reprint line character to \fIc\fR (default control R).
+.br
+.ns
+.TP 10
+.BI flush \ c\fR
+set flush output character to \fIc\fR (default control O).
+.br
+.ns
+.TP 10
+.BI werase \ c\fR
+set word erase character to \fIc\fR (default control W).
+.br
+.ns
+.TP 10
+.BI lnext \ c\fR
+set literal next character to \fIc\fR (default control V).
+.PP
+.B Modem Control Status:
+.sp
+These display the current state of modem control.
+They are only displayed for actual tty lines and not for pseudo tty
+lines (more precisely, it is only displayed for lines which support
+the TIOCMGET ioctl.  See tty(4).
+.br
+.ns
+While it is possible to change the state of the modem control lines,
+the hardware or other software may prevent the change from actually
+taking place,
+or may cause the state to immediately revert to the original state.
+.TP 15
+\fBdcd\fP (\fB\-dcd\fP)
+State of Data Carrier Detect.
+.TP 15
+\fBdsr\fP (\fB\-dsr\fP)
+State of Data Set Ready.
+.TP 15
+\fBdtr\fP (\fB\-dtr\fP)
+State of Data Terminal Ready.
+.TP 15
+\fBcts\fP (\fB\-cts\fP)
+State of Clear To Send.
+.TP 15
+\fBrts\fP (\fB\-rts\fP)
+State of Request To Send.
+.SH "SEE ALSO"
+ioctl(2), tabs(1), tset(1), tty(4)

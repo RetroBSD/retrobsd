@@ -1,0 +1,14 @@
+# Fubarino configuration file
+
+core pic32mx7 
+mapping fubarino
+linker bootloader
+
+device kernel led=21 cpu_khz=80000 bus_khz=80000
+device console device=tty1
+device uart2 baud=115200
+device sd0 port=2 cs=SS
+device adc
+device glcd
+device oc
+device gpio

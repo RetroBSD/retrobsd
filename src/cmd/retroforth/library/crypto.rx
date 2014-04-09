@@ -1,0 +1,156 @@
+needs array'
+
+chain: crypto'
+
+{{
+  variable offset
+  : rotate  ( cb-c ) tuck - @offset + 26 mod + ;
+  : rotate? (  c-c )
+    dup 'a 'z within [ 'a rotate ] ifTrue
+    dup 'A 'Z within [ 'A rotate ] ifTrue ;
+---reveal---
+  : ceaser  (  $n-$ )
+    !offset dup [ [ @ rotate? ] sip ! ] ^types'STRING each@ ;
+}}
+
+: rot13   (  $-$ ) 13 ceaser ;
+
+{{
+  create tapCodes
+    'a , 'b , 'c , 'd , 'e ,
+    'f , 'g , 'h , 'i , 'j ,
+    'l , 'm , 'n , 'o , 'p ,
+    'q , 'r , 's , 't , 'u ,
+
+  : getIndex  ( c-n )
+    tapCodes [ [ @ over <> ] sip 1+ swap ] while nip tapCodes - ;
+
+  : encrypt  ( c-cr )
+    [  6 < ] [ 1 swap ] when
+    [ 11 < ] [ 2 swap 5 - ] when
+    [ 16 < ] [ 3 swap 10 - ] when
+    [ 21 < ] [ 4 swap 15 - ] when ;
+
+  : tapToChar  ( rc-c )
+    [ 1- ] bi@ swap 5 * tapCodes + + @ ;
+
+---reveal---
+  : tapcode:encrypt   ( $-a )
+    ^strings'toLower
+    withLength here ^buffer'set 2 * 1+ allot withLength 2 * ^buffer'add
+    [ @ getIndex encrypt swap ^buffer'add ^buffer'add ] ^types'STRING each@
+    ^buffer'start ;
+
+  : tapcode:decrypt  ( a-$ )
+    "" tempString ^buffer'set
+    @+ 2 / [ @+ swap @+ swap [ tapToChar ^buffer'add ] dip ] times drop
+    ^buffer'start ;
+}}
+
+{{
+  create pens 26 allot
+  : pig:  ( $"- )  keepString getToken @ 'a - pens + ! ;
+
+  "_|"   pig: a    "|_|"  pig: b
+  "|_"   pig: c    "]"    pig: d
+  "[]"   pig: e    "["    pig: f
+  "-|"   pig: g    "|-|"  pig: h
+  "|-"   pig: i    ":|"   pig: j
+  "|:|"  pig: k    "|:"   pig: l
+  ".]"   pig: m    "[.]"  pig: n
+  "[."   pig: o    "=|"   pig: p
+  "|=|"  pig: q    "|="   pig: r
+  "\/"   pig: s    ">"    pig: t
+  "<"    pig: u    "/\"   pig: v
+  "\./"  pig: w    ".>"   pig: x
+  "<."   pig: y    "/.\"  pig: z
+
+  : decrypt  ( $-c )
+    pens [ [ @ over compare not ] sip 1+ swap ] while nip pens - 'a + 1- ;
+---reveal---
+  : pigpen:encrypt  ( $-a )
+    withLength "" tempString ^buffer'set ^buffer'add
+    [ @ 'a - pens + @ ^buffer'add ] ^types'STRING each@
+    ^buffer'start ;
+
+  : pigpen:decrypt  ( a-$ )
+    "" tempString ^buffer'set [ decrypt ^buffer'add ] ^array'apply ^buffer'start ;
+}}
+
+
+
+{{
+  create keystream
+    27 allot
+
+  : alphabet  ( -$ )
+    "_abcdefghijklmnopqrstuvwxyz" ;
+
+  : encode  ( c-c )
+    'a - keystream + @ ;
+
+  : getIndex  ( c-n )
+    keystream [ [ @ over <> ] sip 1+ swap ] while nip keystream - ;
+
+  : decode  ( c-c )
+    getIndex alphabet + @ ;
+---reveal---
+  : keyword:setKey  ( $- )
+    keystream 26 copy ;
+
+  : keyword:encode  ( $-$ )
+    dup [ [ @ encode ] sip ! ] ^types'STRING each@ ;
+
+  : keyword:decode  ( $-$ )
+    dup [ [ @ decode ] sip ! ] ^types'STRING each@ ;
+}}
+;chain
+
+
+doc{
+======
+Crypto
+======
+
+--------
+Overview
+--------
+I enjoy dabbling with logic puzzles and classical forms of encryption.
+This vocabulary is intended to be a tool to help with these diversions.
+
+
+---------
+Functions
+---------
+
++-----------------+-------+----------------------------------------------------+
+| Name            | Stack | Usage                                              |
++=================+=======+====================================================+
+| ceaser          | $n-$  | Encrypt (or decrypt) a string using the ceaser     |
+|                 |       | algorithm. The value n is the number of            |
+|                 |       | characters to shift the alphabet by.               |
++-----------------+-------+----------------------------------------------------+
+| rot13           | $-$   | Encrypt or decrypt a string using rot13. This      |
+|                 |       | is a trivial variant of the ceaser algorithm.      |
++-----------------+-------+----------------------------------------------------+
+| tapcode:encrypt | $-a   | Encrypt a string into a tapcode array              |
++-----------------+-------+----------------------------------------------------+
+| tapcode:decrypt | a-$   | Decrypt a tapcode array into a string              |
++-----------------+-------+----------------------------------------------------+
+| pigpen:encrypt  | $-a   | Convert a string into a pigpen encoded array.      |
+|                 |       | To display the pigpen sequence, try:               |
+|                 |       |                                                    |
+|                 |       | ::                                                 |
+|                 |       |                                                    |
+|                 |       |   "ab" ^crypto'toPigpen [ puts space ] ^array'apply|
++-----------------+-------+----------------------------------------------------+
+| pigpen:decrypt  | a-$   | Decode a pigpen encoded array into a string        |
++-----------------+-------+----------------------------------------------------+
+| keyword:setKey  | $-    | Set the key to use for keyword encryption. This    |
+|                 |       | should be 26 characters long.                      |
++-----------------+-------+----------------------------------------------------+
+| keyword:encrypt | $-$   | Encrypt a string using keyword encryption          |
++-----------------+-------+----------------------------------------------------+
+| keyword:decrypt | $-$   | Decrypt a string using keyword encryption          |
++-----------------+-------+----------------------------------------------------+
+}doc

@@ -1,0 +1,91 @@
+=== ADB Summary ===
+
+== Command Summary ==
+
+a) formatted printing
+
+|| ? format || print from ''a.out'' file according to format ||
+|| / format || print from ''core'' file according to format ||
+|| = format || print the value of dot ||
+|| ?w expr  || write expression into ''a.out'' file ||
+|| /w expr  || write expression into ''core'' file ||
+|| ?l expr  || locate expression in ''a.out'' file ||
+
+b) breakpoint and program control
+
+|| :b || set breakpoint at dot ||
+|| :c || continue running program ||
+|| :d || delete breakpoint ||
+|| :k || kill the program being debugged ||
+|| :r || run ''a.out'' file under ADB control ||
+|| :s || single step ||
+
+c) miscellaneous printing
+
+|| $b || print current breakpoints ||
+|| $c || C stack trace ||
+|| $e || external variables ||
+|| $f || floating registers ||
+|| $m || print ADB segment maps ||
+|| $q || exit from ADB ||
+|| $r || general registers ||
+|| $s || set offset for symbol match ||
+|| $v || print ADB variables ||
+|| $w || set output line width ||
+
+d) calling the shell
+
+|| !  || call shell to read rest of line ||
+
+e)   assignment to variables
+
+|| >name || assign dot to variable or register name ||
+
+
+== Format Summary ==
+
+|| a     || the value of dot ||
+|| b     || one byte in octal ||
+|| c     || one byte as a character ||
+|| d     || one word in decimal ||
+|| f     || two words in floating point ||
+|| i     || PDP 11 instruction ||
+|| o     || one word in octal ||
+|| n     || print a newline ||
+|| r     || print a blank space ||
+|| s     || a null terminated character string ||
+|| nt    || move to next n space tab ||
+|| u     || one word as unsigned integer ||
+|| x     || hexadecimal ||
+|| Y     || date ||
+|| ^     || backup dot ||
+|| "..." || print string ||
+
+
+== Expression Summary ==
+
+a) expression components
+
+|| decimal integer || e.g. 256 ||
+|| octal integer   || e.g. 0277 ||
+|| hexadecimal     || e.g. #ff ||
+|| symbols         || e.g. flag  _main  main.argc ||
+|| variables       || e.g. <b ||
+|| registers       || e.g. <pc <r0 ||
+|| (expression)    || expression grouping ||
+
+b) dyadic operators
+
+|| + || add ||
+|| - || subtract ||
+|| * || multiply ||
+|| % || integer division ||
+|| & || bitwise and ||
+|| | || bitwise or ||
+|| # || round up to the next multiple ||
+
+c) monadic operators
+
+|| ~ || not ||
+|| * || contents of location ||
+|| - || integer negate ||

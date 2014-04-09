@@ -1,0 +1,32 @@
+needs assertion'
+needs values'
+
+with| assertion' values' |
+
+[ [ "passed" ] [ "failed" ] if "%s\n" puts ] is postCond
+
+value a
+value b
+
+: a0
+  "Testing value : " puts
+  a 0 assert= b 0 assert= ; assertion
+
+: a1
+  "Testing to : " puts
+  100 to a
+   80 to b
+  a b + 180 assert=
+  a 100 assert=
+  b  80 assert= ; assertion
+
+: a2
+  "Testing .value : " puts
+  &a &.value withClass 100 assert=
+  to 3100 &a &.value withClass
+  &a &.value withClass 3100 assert= ; assertion
+
+: go
+  cr a0 a1 a2 bye ;
+
+go

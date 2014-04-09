@@ -1,0 +1,88 @@
+( Retro ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+( Copyright [c] 2008 - 2011, Charles Childers                                 )
+( Copyright [c] 2009 - 2010, Luke Parrish                                     )
+( Copyright [c] 2010,        Marc Simpson                                     )
+( Copyright [c] 2010,        Jay Skeer                                        )
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+
+( Assembler and Metacompiler ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+: IMAGE-SIZE 2560 ;
+
+: for      ( n-   )  here 5 , ;  ' .macro last @ d->class !
+: next     (  -   )  6 , 7 , , ; ' .macro last @ d->class !
+: [']      ( "-a  ) ' .data ;    ' .macro last @ d->class !
+: elements ( n"-  ) for create 0 , next ;
+
+( Assembler ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+8 elements target origin 'WORD 'MACRO 'DATA 'PRIM link chain
+: m,  ( n-  ) target @ !+ target ! ;
+: vm: ( n"- ) ['] : do .data ['] m, , ['] ; do ;
+   0 vm: nop,          1 vm: lit,          2 vm: dup,
+   3 vm: drop,         4 vm: swap,         5 vm: push,
+   6 vm: pop,          7 vm: loop,         8 vm: jump,
+   9 vm: ;,           10 vm: >jump,       11 vm: <jump,
+  12 vm: !jump,       13 vm: =jump,       14 vm: @,
+  15 vm: !,           16 vm: +,           17 vm: -,
+  18 vm: *,           19 vm: /mod,        20 vm: and,
+  21 vm: or,          22 vm: xor,         23 vm: <<,
+  24 vm: >>,          25 vm: 0;           26 vm: 1+,
+  27 vm: 1-,          28 vm: in,          29 vm: out,
+  30 vm: wait,
+
+: t-here      (  -n ) target @ origin @ - ;
+: pad         ( -   ) 32 origin @ + target ! ;
+: endKernel   (  -  ) ;
+: main:       (  -  ) t-here origin @ 1+ ! ;
+: label:      ( "-  ) t-here constant ;
+: #           ( n-  ) lit, m, ;
+: $,          ( $-  ) withLength for @+ m, next 0 m, drop ;
+
+( Metacompiler ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+: t: ( "-  ) label: nop, nop, ['] m, last @ d->class ! ;
+
+{{
+  : cond ( -a ) target @ 0 m, ;
+---reveal---
+  : =if  ( -a ) !jump, cond ;
+  : <if  ( -a ) >jump, cond ;
+  : >if  ( -a ) <jump, cond ;
+  : !if  ( -a ) =jump, cond ;
+  : then ( a- ) t-here swap ! ;
+}}
+
+: jump:  ( "-  ) jump, ' m, ;
+: repeat (  -a ) t-here ;
+: again  ( a-  ) jump, m, ;
+
+: variable: ( n"- ) label: m, ;
+: variable  (  "- ) 0 variable: ;
+: elements  ( n"- ) for variable next ;
+: entry     ( a"- ) t-here link @ m, link ! m, m, getToken $, ;
+: word:     ( a"- ) 'WORD  @ entry ;
+: macro:    ( a"- ) 'MACRO @ entry ;
+: data:     ( a"- ) 'DATA  @ entry ;
+: prim:     ( a"- ) 'PRIM  @ entry ;
+: patch     (   - ) link @ chain @ ! ;
+: mark      (   - ) target @ chain ! ;
+: setClass  ( aa- ) ! ;
+
+( Image Relocator ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+{{
+  : for      ( n-   )  here 5 , ; compile-only
+  : next     (  -   )  6 , 7 , , ; compile-only
+  : @+       ( a-ac )  dup 1+ swap @ ;
+  : !+       ( ca-a )  dup 1+ push ! pop ;
+  : copy     ( aan- )  for push @+ pop !+ next drop drop ;
+  : wait     ( - )     0 0 out [[ 30 , ]] ;
+  : save     ( - )     1 4 out 0 0 out wait ;
+  : relocate ( - )     origin @ 0 IMAGE-SIZE copy ;
+---reveal---
+  : bootNew  ( - )     relocate save 0 push ;
+}}
+
+( Setup target memory for new image ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+: ; ( - ) ;, ;, ;; [[
+here dup target ! origin !
+IMAGE-SIZE allot
+jump, 0 m,
+reset

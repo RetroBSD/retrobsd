@@ -1,0 +1,9 @@
+<html>
+<head>
+  <link rel="stylesheet" href="%u/css">
+</head>
+<body>
+  <p class="header">incision: a pastebin in retro</p>
+  <hr>
+  <p class="nav"><a href="%u/index">new paste</a></p>
+

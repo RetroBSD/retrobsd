@@ -1,0 +1,8 @@
+e y.tab.h
+1,$g!/#define /d
+1,$s/# *define *//
+1,$s/^/{"/
+1,$s/ /", /
+1,$s/$/},/
+w! token.h
+q

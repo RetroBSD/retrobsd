@@ -1,0 +1,22 @@
+Build directories:
+
+max32       - chipKIT Max32 board.
+
+ubw32       - Sparkfun UBW32 board, USB console.
+
+ubw32-uart  - Sparkfun UBW32 board, UART console.
+
+maximite    - Maximite computer.
+
+explorer16  - Microchip Explorer 16 board, with
+              PIC32 CAN-USB plug-in module and SD & MMC pictail.
+
+starter-kit - Microchip PIC32 USB or Ethernet Starter Kit,
+              with I/O Expansion board and SD & MMC pictail.
+
+dip         - eflightworks.net PIC32-on-DIP board.
+              (work in progress)
+
+meb         - Microchip Multimedia Expansion board with
+              Microchip PIC32 USB or Ethernet Starter Kit.
+              (work in progress)

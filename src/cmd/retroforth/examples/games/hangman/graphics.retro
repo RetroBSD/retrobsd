@@ -1,0 +1,41 @@
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+( Hangman for Retro Console                                    )
+(  * Drawing routines.                                         )
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+( Copyright [c] 2010-11, Marc Simpson                          )
+( License: ISC                                                 )
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+
+needs console'
+
+( --[ Drawing Routines ]-------------------------------------- )
+
+: bar ( xyn- ) [ ^console'at-xy ] dip [ '- putc ] times ;
+: col ( xyn- ) [ 2over ^console'at-xy '| putc 1+ ] times 2drop ;
+
+( --[ Stages ]------------------------------------------------ )
+
+( NOTE: 13 is FIXED unless we add more drawing XTs )
+
+13 constant stages
+
+create graphics stages allot
+graphics variable: current-graphic
+
+: graphic, @current-graphic ! current-graphic ++ ;
+
+[ 20 15 15                 bar ]   graphic,
+[ 20  5 10                 col ]   graphic,
+[ 20  5 15                 bar ]   graphic,
+[ 21  6 ^console'at-xy '/ putc ]   graphic,
+[ 30  6  2                 col ]   graphic,
+[ 30  8 ^console'at-xy '@ putc ]   graphic,
+[ 30  9  1                 col ]   graphic,
+[ 29  9 ^console'at-xy '/ putc ]   graphic,
+[ 31  9 ^console'at-xy '\ putc ]   graphic,
+[ 30  9  1                 col ]   graphic,
+[ 30 10  1                 col ]   graphic,
+[ 29 11 ^console'at-xy '/ putc ]   graphic,
+[ 31 11 ^console'at-xy '\ putc ]   graphic,
+
+( ============================================================ )

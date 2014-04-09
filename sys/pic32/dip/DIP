@@ -1,0 +1,22 @@
+#
+# eflightworks DIP board
+# ======================
+#
+# Console on USB
+# For Windows, use the driver: http://www.schmalzhaus.com/UBW32/FW/UBW32inf.zip
+
+core pic32mx7
+mapping generic
+linker bare
+
+device kernel led=E5
+
+device console device=ttyUSB0 led=E6
+device uartusb
+
+device rdisk led=E4 swap=E7
+device sd0 port=3 cs=D4
+
+device gpio
+
+device bootloader button=D6 jump=0x9d000000 led=E7 invled2=E6 clear=E4 clear2=E5

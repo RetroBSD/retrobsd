@@ -1,0 +1,68 @@
+chain: combinators'
+{{
+  variable xt
+---reveal---
+  : loopd   ( seq- )
+    2rot 2over <
+    [ [ [ [ &do sip ] dip ] dip 1- 2over < ] while ] ifTrue
+    2drop drop ;
+
+  : indexd ( -n )
+    2pop 2pop 2pop 2pop 2pop
+    dup !xt
+    2push 2push 2push 2push 2push @xt ;
+
+  : loopi   ( seq- )
+    2rot 2over <
+    [ [ [ [ &do sip ] dip 1+ ] dip 2over < ] while ] ifTrue
+    2drop drop ;
+
+  : indexi  ( -n )
+    2pop 2pop 2pop pop
+    dup !xt
+    2push 2push 2push push @xt ;
+}}
+;chain
+
+doc{
+===========
+Combinators
+===========
+
+
+--------
+Overview
+--------
+This library serves as a home to various combinators that are useful, but not
+essential to the core Retro language.
+
+
+-------
+Loading
+-------
+::
+
+  needs combinators'
+
+
+---------
+Functions
+---------
++----------+---------+------------------------------------------------+
+| Function | Stack   | Used For                                       |
++==========+=========+================================================+
+| loopd    | seq-    | Execute a loop. Index starts at high value (e) |
+|          |         | and decrements to low value (s). The loop body |
+|          |         | is quote (q).                                  |
++----------+---------+------------------------------------------------+
+| indexd   | -n      | Return the current index for a decrementing    |
+|          |         | loop.                                          |
++----------+---------+------------------------------------------------+
+| loopi    | seq-    | Execute a loop. Index starts at low value (s)  |
+|          |         | and increments to high value (e). The loop body|
+|          |         | is quote (q).                                  |
++----------+---------+------------------------------------------------+
+| indexi   | -n      | Return the current index for an incrementing   |
+|          |         | loop.                                          |
++----------+---------+------------------------------------------------+
+}doc

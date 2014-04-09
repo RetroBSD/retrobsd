@@ -1,0 +1,67 @@
+needs assertion'
+needs stack'
+
+with assertion'
+
+[ [ "passed" ] [ "failed" ] if "%s\n" puts ] is postCond
+
+^stack'new: foo
+^stack'new: bar
+
+: a0
+  "Testing new: : " puts
+  foo bar <> assert ; assertion
+
+variable a
+variable b
+
+: a1
+  "Testing new : " puts
+  ^stack'new ^stack'get !a
+  ^stack'new ^stack'get !b
+  @a @b <> assert
+  @a foo <> assert
+  @b bar <> assert ; assertion
+
+: a2
+  "Testing get : " puts
+  ^stack'get @b assert= ; assertion
+
+: a3
+  "Testing set : " puts
+  @a ^stack'set
+  @a ^stack'get assert=
+  foo ^stack'set
+  bar ^stack'get <> assert ; assertion
+
+: a4
+  "Testing push : " puts
+  @a ^stack'set
+  100 200 ^stack'push depth 1 assert=
+          ^stack'push depth 0 assert=
+  bar ^stack'set
+  400 300 ^stack'push depth 1 assert=
+          ^stack'push depth 0 assert= ; assertion
+
+: a5
+  "Testing pop : " puts
+  @a ^stack'set
+  ^stack'pop 100 assert=
+  ^stack'pop 200 assert=
+  bar ^stack'set
+  ^stack'pop 400 assert=
+  ^stack'pop 300 assert= ; assertion
+
+: a6
+  "Testing depth : " puts
+  @a ^stack'set
+  100 200 ^stack'push depth 1 assert=
+          ^stack'push depth 0 assert=
+  ^stack'depth 2 assert=
+  ^stack'pop 100 assert=
+  ^stack'depth 1 assert= ; assertion
+
+: go
+  cr a0 a1 a2 a3 a4 a5 a6 bye ;
+
+go

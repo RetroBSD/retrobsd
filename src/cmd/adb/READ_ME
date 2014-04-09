@@ -1,0 +1,73 @@
+    The makefile can be adjusted to make a version of adb for
+nonseparate I/D machines.  Change the -DNUM_VM_PAGES value to
+something like 6 to 8, this will use less real memory (and cause
+adb to run a bit slower) and allow adb to run on a non-split I/D 
+machine.  
+
+Changes for overlaid processes are intended to work in the most obvious way
+and are:
+
+     1.	There is an additional map for an overlay (430 or 431) object
+	file, described by the triple (bo,eo,fo).  bo is initialized
+	on startup, and the others are changed on setting an overlay.
+	This is done automatically if there is an appropriate corefile
+	or when a traced subprocess stops, and can be done manually
+	(described below).
+
+     2.	There are two additional internal variables set for overlay objects.
+	The variable o is the sum of the overlay sizes.  c is the current
+	overlay number.  It is set automatically as described above,
+	and can be changed manually (#>c).  This changes the overlay
+	map (eo and fo) to map in the named overlay.  This affects only
+	adb's mapping.
+
+     3.	Although the variable c controls the overlay map, the "register"
+	variable "ov" reflects the overlay actually mapped when the
+	process stopped (or dumped core).  This value is shown as "ov" 
+	in the register list ($r).  It may also be used as other register
+	variables, in the "<" and ">" commands.  In the latter case,
+	this actually causes the kernel to remap the subprocess, and the
+	correct overlay must be mapped to restart the process.  NOTE:
+	the kernel routine procxmt must support overlay changes for this
+	to work.  The (1982) 2bsd distribution includes the necessary
+	changes.
+
+     4.	For text symbols in overlaid objects, the default symbol
+	used to find "name" is "~name" rather than "_name".  This
+	means that the actual subroutine, rather than its thunk, is
+	found.  To examine a thunk, use "_name" explicitly.
+
+     5.	In the overlaid segment, only symbols in the current overlay
+	(c) are used in symbolic addresses.  In order to find these
+	overlay numbers, the new version of (ov)ld must be used.
+	The reason for this is that the previous version of ovld put 
+	the overlay number only in symbols for thunks, 
+	not in local text symbols.
+
+     6. In order to support breakpoints in overlaid segments, the
+	strategy used by adb has been changed slightly.  Breakpoints
+	are written into the subprocess immediately when a ":b"
+	command is executed, and deleted immediately with ":d".
+
+Changes to support overlaid kernels:
+
+     1.	The user's saved registers are in different places in the
+	kernel stack.  They are found relative to the entry u.u_ar0
+	in the core file if there is one, with offsets from <sys/reg.h>
+	and <sys/user.h>.  If there is no core file,a default is
+	used.  This default is defined as UAR0 in defs.h.
+*******	UAR0 should be checked whenever the user structure changes.
+
+     2.	There is a new command-line flag, -k, which sets things
+	appropriately for the kernel.
+        It sets the mapping of the core file appropriately
+	for 407, 411 and 430 kernels, and changes the debugger's idea of
+	saved register locations.  Thus, $r will print the register
+	values saved by dump, and $c will use the saved r5 from low core.
+
+In addition, a number of minor bugs have been fixed.
+
+				Mike Karels
+				ucbvax!virus!mike
+				Department of Molecular Biology
+				University of California, Berkeley

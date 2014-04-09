@@ -1,0 +1,23 @@
+  ____________________________  ______________________________
+  |  F1 |  F2  |  F3  |  F4  |  |  F5  |  F6   |  F7  |  F8  |
+  |     |      | Next |      |  |      |       |      |      |
+  | Cmd | Save | File |Filter|  | Copy | Paste |Search| Goto |
+  |_____|______|______|______|  |______|_______|______|______|
+
+                                              ____________________________
+  ^N     - Help, New/Next File                |        |        |        |
+  ^X ^C  - Exit wih Saving                    | Insert |  Home  |  Page  |
+  ^A     - Arguments                          |        |        |  Up    |
+  ^A qa <Enter> - Exit without Saving         |________|________|________|
+  ^F, ^B - Search Forward, Backward           |        |        |        |
+  ^D     - Delete symbol                      | Delete |  End   |  Page  |
+  ^Y     - Delete line/block                  |        |        |  Down  |
+  ^C     - Copy line/block                    |________|________|________|
+  ^V     - Paste line/block                            |        |
+  ^P     - Quote next symbol                           |   ^    |
+  ^X i   - Insert Mode                                 |   |    |
+  ^L     - Refresh screen                     _________|________|_________
+  ^X f   - Shift view to right                |        |        |        |
+  ^X b   - Shift view to left                 | <--    |   |    |  -->   |
+  ^A >x <Enter> - Create Macro                |        |   V    |        |
+  ^A $x  - Use Macro                          |________|________|________|

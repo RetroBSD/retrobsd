@@ -1,0 +1,177 @@
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+( Copyright [c] 2010, Marc Simpson                             )
+( Copyright [c] 2011, Charles Childers                         )
+( License: ISC                                                 )
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+needs math'
+
+chain: array'
+{{
+  variables| quote flag |
+
+  : addElements ( "-n )
+    repeat getToken "}" compare if; tib toNumber , again ;
+---reveal---
+  : new{ ( "-a )
+    here 0 , addElements here over 1+ - over ! ;
+
+  : map ( aq- )
+    !quote [ [ @ @quote do ] sip ! ] ^types'ARRAY each@ ;
+
+  : apply ( aq- )
+    !quote [ @ @quote do ] ^types'ARRAY each@ ;
+
+  : sum  ( a-n )
+    0 swap [ + ] apply ;
+
+  : length  ( a-n )  @ ;
+
+  : reverse ( a- )
+    @+ 2over
+    heap [ [ @+ , ] times drop here 1- ] preserve
+    swap [ [ @ over ! 1+ ] sip 1- ] times 2drop ;
+
+  : append ( aa-a )
+    here 0 , [ swap @+ [ @+ , ] times drop @+ [ @+ , ] times drop ] dip
+    here over 1+ - over ! ;
+
+  : fromQuote ( q-a )
+    depth &do dip here 0 , [ depth - abs &, times ] dip
+    here over 1+ - over ! dup reverse ;
+
+  : toQuote ( a-q )
+    [ ` [ ] dip [ 1 , , ] apply ` ] ;
+
+  : in?  ( na-f )
+    -1 !flag
+    [ over <> @flag and !flag ] apply drop @flag not ;
+
+  : stringIn?  ( $a-f )
+    -1 !flag
+    [ over compare not @flag and !flag ] apply drop @flag not ;
+
+  : display ( a- )
+    cr [ putn space ] apply ;
+}}
+
+{{
+  variables| a c n |
+
+  : pair ( -aa )
+    @n @a + dup 1+ ;
+
+  : exchange  ( aa- )
+    2over [ @ ] bi@ [ swap ! ] dip swap ! ;
+
+  : contrast  ( aa-f )
+    [ @ ] bi@ > ;
+---reveal---
+  : sort:bubble  ( a- )
+    @+ !c !a
+    @c @c *
+    [ @c @a length ^math'even? + [ !n pair contrast [ pair exchange ] ifTrue ] iter ] times ;
+}}
+;chain
+
+doc{
+======
+Arrays
+======
+
+
+--------
+Overview
+--------
+This library provides a vocabulary for working with arrays.
+
+
+--------------
+Implementation
+--------------
+Arrays are stored as a linear sequence of values. In memory, they
+are represented like:
+
+::
+
+  +---+--------------------+
+  | 0 | number of elements |
+  +---+--------------------+
+  | 1 | first value        |
+  +---+--------------------+
+  | 2 | second value       |
+  +---+--------------------+
+  | n | ... nth value ...  |
+  +---+--------------------+
+
+
+
+-------
+Loading
+-------
+The following should suffice:
+
+::
+
+  needs array'
+
+
+--------
+Examples
+--------
+
+::
+
+  ( Create an array with four elements )
+  ^array'new{ 1 2 3 4 } constant a
+
+  ( Add 10 to each element in an array )
+  a [ 10 + ] ^array'map
+
+  ( Display an array )
+  a ^array'display
+
+  ( Average the values in an array )
+  ^array'new{ 1 2 3 4 5 } [ ^array'sum ] [ ^array'length ] bi /
+
+
+---------
+Functions
+---------
+
++-------------+-----------+------------------------------------------------+
+| Name        | Stack     | Usage                                          |
++=============+===========+================================================+
+| new{        | "-a       | Create a new array. Parses and adds numbers to |
+|             |           | the array until "}" is reached. Returns a      |
+|             |           | pointer to the new array.                      |
++-------------+-----------+------------------------------------------------+
+| display     | a-        | Display all values in the array                |
++-------------+-----------+------------------------------------------------+
+| in?         | na-       | Returns -1 if value (n) is a value in the array|
++-------------+-----------+------------------------------------------------+
+| stringIn?   | $n-       | Returns -1 if string ($) is a string in the    |
+|             |           | array                                          |
++-------------+-----------+------------------------------------------------+
+| map         | aq-       | Apply quote to each item in the array. Updates |
+|             |           | the array with the values returned by the quote|
++-------------+-----------+------------------------------------------------+
+| apply       | aq-       | Apply quote to each item in the array. Does not|
+|             |           | modify the array contents.                     |
++-------------+-----------+------------------------------------------------+
+| sum         | a-n       | Add all values in an array                     |
++-------------+-----------+------------------------------------------------+
+| length      | a-n       | Get the number of items in an array            |
++-------------+-----------+------------------------------------------------+
+| reverse     | a-        | Reverse the order of all elements in an array  |
++-------------+-----------+------------------------------------------------+
+| append      | aa-a      | Append two arrays and return a new one         |
++-------------+-----------+------------------------------------------------+
+| fromQuote   | q-a       | Generate an array from the values returned by a|
+|             |           | quote                                          |
++-------------+-----------+------------------------------------------------+
+| toQuote     | a-q       | Generate a quote from the values stored in an  |
+|             |           | array                                          |
++-------------+-----------+------------------------------------------------+
+| sort:bubble | a-        | Sort the items in an array using bubble sort   |
++-------------+-----------+------------------------------------------------+
+}doc

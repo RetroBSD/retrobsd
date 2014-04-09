@@ -1,0 +1,44 @@
+needs assertion'
+needs bad'
+
+with assertion'
+
+[ [ "passed" ] [ "failed" ] if "%s\n" puts ] is postCond
+
+: a0 ( - )
+  "Testing: ^bad'pool and ^bad'newPool : " puts
+  100 ^bad'pool !
+  ^bad'pool @ 100 assert=
+  50 ^bad'newPool
+  ^bad'pool @ 100 <> assert ; assertion
+
+: a1 ( - )
+  "Testing: ^bad'pack : " puts
+  'a 'b 'c 'd ^bad'pack 1684234849 assert= ; assertion
+
+: a2 ( - )
+  "Testing: ^bad'unpack : " puts
+   1684234849 ^bad'unpack
+  'd assert= 'c assert= 'b assert= 'a assert= ; assertion
+
+: a3 ( - )
+  "Testing: ^bad'b! and ^bad'b@ : " puts
+  'a 0 ^bad'b!
+  'b 1 ^bad'b!
+  0 ^bad'b@ 'a assert=
+  1 ^bad'b@ 'c = not assert
+  1 ^bad'b@ 'b assert= ; assertion
+
+: a4 ( - )
+  "Testing: ^bad'b@+ : " puts
+  0 ^bad'b@+ 'a assert= ^bad'b@+ 'b assert= drop ; assertion
+
+: a5 ( - )
+  "Testing: ^bad'b!+ : " puts
+  'c 'd 'e 0 3 [ ^bad'b!+ ] times
+  0 ^bad'b@+ 'e assert= ^bad'b@+ 'd assert= ^bad'b@ 'c assert= ; assertion
+
+: go ( - )
+  cr a0 a1 a2 a3 a4 a5 bye ;
+
+go

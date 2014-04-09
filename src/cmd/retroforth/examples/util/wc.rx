@@ -1,0 +1,28 @@
+{{
+  3 elements content lines words
+
+  : clean ( $- )
+    withLength
+    [ dup @ 10 13 within [ 999 swap &! sip ] ifTrue 1+ ] times drop ;
+
+  : remaining ( $-n )
+    32 ^strings'splitAtChar ^strings'chop drop ;
+
+  : getLine ( $-$$ )
+    999 ^strings'splitAtChar ^strings'chop ;
+
+  : countWords ( $- )
+    [ words ++ remaining dup 1 <> ] while drop ;
+
+  : loadSourceData ( $- )
+    here swap ^files'slurp here !content heap +! 32 , 0 ,
+    @content clean ;
+
+  : countLines ( $- )
+    [ getLine lines ++ countWords dup 1 <> ] while drop ;
+---reveal---
+  : wc ( $-nnn )
+    lines words [ 0 swap ! ] bi@
+    heap [ loadSourceData @content countLines ] preserve
+    @lines @words @content getLength [ 1- ] tri@ ;
+}}

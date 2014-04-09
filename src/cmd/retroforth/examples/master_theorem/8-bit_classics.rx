@@ -1,0 +1,13 @@
+( For 8-bit Classics )
+( Each screencap corresponds to a character. There are eight screens )
+( and each of them contains eight bits hidden in the picture.        )
+
+needs array'
+
+binary
+^array'new{ 01100111  01100001
+            01101101  01100101
+            01101111  01110110
+            01100101  01110010 } [ putc ] ^array'apply
+
+

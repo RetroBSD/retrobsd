@@ -1,0 +1,74 @@
+( Support functions: basic input, output, and data pointer support )
+:wait
+  #0 #0 out,
+  wait,
+  ret,
+
+:bye
+  #-9 #5 out,
+  ret,
+
+:dp 32768 m,
+
+:bf_>
+  dp # @,
+  1+,
+  dp # !,
+  ret,
+
+:bf_<
+  dp # @,
+  1-,
+  dp # !,
+  ret,
+
+:bf_+
+  dp # @, @,
+  1+,
+  dp # @, !,
+  ret,
+
+:bf_-
+  dp # @, @,
+  1-,
+  dp # @, !,
+  ret,
+
+:bf_.
+  dp # @, @,
+  #1 #2 out,
+  call wait
+  #0 #3 out,
+  ret,
+
+:bf_,
+  #1 #1 out,
+  call wait
+  #1 in,
+  dp # @, !,
+  ret,
+
+( Actual BrainF*** compiler )
+variable ip
+
+: run
+  t-here putn space @ip @ putc cr
+  @ip @ ip ++
+  [ '> = ] [ drop bf_> m, ] when
+  [ '< = ] [ drop bf_< m, ] when
+  [ '+ = ] [ drop bf_+ m, ] when
+  [ '- = ] [ drop bf_- m, ] when
+  [ '. = ] [ drop bf_. m, ] when
+  [ ', = ] [ drop bf_, m, ] when
+  [ '[ = ] [ drop t-here dp # @, @, lit, 0 m, =jump, @target 0 m, ] when
+  [ '] = ] [ drop swap jump, m, t-here swap ! ] when
+  drop ;
+
+: do
+  [ run @ip @ ] while ;
+
+: bf: ( "- )
+  '~ accept tib keepString !ip cr do ;
+
+( Start Compilation of BrainF*** code after this )
+:main

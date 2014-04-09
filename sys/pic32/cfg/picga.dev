@@ -1,0 +1,14 @@
+always
+    file picga.o
+    require spibus
+    define PICGA_ENABLED YES
+end always
+
+option bus
+    define PICGA_BUS %1
+end option
+
+option cs
+    define PICGA_CS_PORT $TRIS(%1)
+    define PICGA_CS_PIN  $PIN(%1)
+end option

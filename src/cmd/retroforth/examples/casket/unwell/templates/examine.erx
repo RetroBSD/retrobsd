@@ -1,0 +1,14 @@
+<script>
+function unwell()
+{
+  window.location = '%u/examine/' + encodeURIComponent(document.forms[0].code.value);
+}
+</script>
+<form action='javascript:unwell()'>
+  <p>Code to examine: <input name='code'></p>
+</form>
+<p>Press enter or click <a href='javascript:unwell()'>examine</a> to
+   display decompilation of your code.</p>
+
+<p>Do <b>not</b> provide a colon definition; the pasted code will be
+   compiled inside a quote and displayed.</p>

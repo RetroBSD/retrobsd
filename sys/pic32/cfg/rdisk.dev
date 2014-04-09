@@ -1,0 +1,25 @@
+always
+    file rdisk.o
+end always
+
+option led
+    define LED_DISK_PORT    $TRIS(%1)
+    define LED_DISK_PIN     $PIN(%1)
+end option
+
+option invled
+    define LED_DISK_PORT    $TRIS(%1)
+    define LED_DISK_PIN     $PIN(%1)
+    define LED_DISK_INVERT  YES
+end option
+
+option swap
+    define LED_SWAP_PORT    $TRIS(%1)
+    define LED_SWAP_PIN     $PIN(%1)
+end option
+
+option invswap
+    define LED_SWAP_PORT    $TRIS(%1)
+    define LED_SWAP_PIN     $PIN(%1)
+    define LED_SWAP_INVERT  YES
+end option

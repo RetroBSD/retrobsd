@@ -1,0 +1,71 @@
+'\" t
+.TH RELOC 1 "3 MAy 1997"
+.SH NAME
+reloc \- examine NetBSD/sparc symbol table and relocation information
+.SH SYNOPSIS
+.B reloc
+[
+.B \-h
+.B \-x
+.B \-d
+.B \-t
+.B \-s
+.B \-c
+.B \-n
+.B \-a
+]
+.I infile
+.SH DESCRIPTION
+.B reloc
+examines NetBSD/sparc object and executable files (a.out format files)
+and prints a.out header, symbol table and relocation information in
+a human-readable form on stdout.
+.PP
+Performs a function similar to the
+.B nm
+system utility, but prints more of the information contained in an a.out
+file.
+.PP
+.SH OPTIONS
+.TP 10
+.B \-h
+Print a representation of the a.out ``exec'' header.
+.TP
+.B \-x
+Print extra information derivable from, but not directly contained by
+the a.out header.
+.TP
+.B \-d
+Print a representation of the ``.data'' segment relocation information.
+.TP
+.B \-t
+Print a representation of the ``.text'' segment relocation information.
+.TP
+.B \-s
+Print a representation of the symbol table information.
+.TP
+.B \-c
+When printing relocation information, show the correspondence of the
+relocations to symbol table entries.
+.TP
+.B \-c
+When printing symbol table, don't print symbol names
+.TP
+.B \-a
+Show everything: equivalent to ``-h -d -t -s -c -x''
+.SH FILES
+.I infile
+must be specified.
+.SH BUGS
+.PP
+The output format is awkward.
+.SH "SEE ALSO"
+.PD
+a.out(5), stab(5), nm(1), nlist(3)
+.SH AUTHOR
+Bruce Ediger, bediger@csn.net
+.PP
+Permission to use, copy, modify, and distribute this software and its
+documentation for any purpose and without fee is hereby granted,
+without any conditions or restrictions.  This software is provided ``as
+is'' without express or implied warranty.

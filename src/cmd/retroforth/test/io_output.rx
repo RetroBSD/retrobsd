@@ -1,0 +1,48 @@
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+global
+4 elements tested current passed failed
+3 elements checked ignored io
+3 elements total tpassed tfailed
+
+: TEST: getToken keepString !tested 0 [ !passed ] [ !failed ] bi checked ++ ;
+: OMIT: getToken "\nNot Tested: %s" puts ignored ++ ;
+: IO:   getToken "\nNot Tested (IO): %s" puts io ++ ;
+
+: summary
+  @tfailed @tpassed @total
+  "\n%d tests run: %d passed, %d failed." puts
+  @io @ignored @checked
+  "\n%d words checked, %d words unchecked, %d i/o words ignored.\n" puts ;
+
+: check
+  repeat
+    getToken
+    "}" over compare if;
+    toNumber <> [ 0 !current ] ifTrue
+  again ;
+
+: expected:
+  -1 !current do
+  getToken drop check drop
+  @current [ passed ++ ] [ failed ++ ] if ;
+
+: testedWith:
+  getToken drop passed ++ ;
+
+: results
+  @failed @passed @tested "\nTested: %s\n  %d passed, %d failed" puts
+  @passed @failed + +total
+  @failed +tfailed
+  @passed +tpassed ;
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+: foo
+  update off
+  3 1 2 .s cr cr
+  'a putc
+  "abc" <puts> space "def" <puts>
+  "%d + %d = %d\n" puts
+  update on
+  redraw ;
+foo
+bye
+

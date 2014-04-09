@@ -1,0 +1,26 @@
+rm -f swap
+ln ra0a swap
+chgrp kmem swap
+chmod 640 swap
+
+rm -f ttyi6 ttyd0;	mknod ttyd0 c 3 22
+rm -f ttyi7 ttyd1;	mknod ttyd1 c 3 23
+rm -f ttyi8 ttyd2;	mknod ttyd2 c 3 24
+rm -f ttyi9 ttyd3;	mknod ttyd3 c 3 25
+rm -f ttyia ttyd4;	mknod ttyd4 c 3 26
+rm -f ttyic ttyd5;	mknod ttyd5 c 3 156
+
+rm -f ttyh1 dir-shasta;	mknod dir-shasta c 3 1
+rm -f ttyh6 dir-rose;	mknod dir-rose   c 3 6
+rm -f ttyh7 dir-namsan;	mknod dir-namsan c 3 7
+rm -f ttyid dir-ps;	mknod dir-ps     c 3 157
+rm -f ttyie cua0;	mknod cua0       c 3 158
+rm -f ttyif dir-scgl;	mknod dir-scgl   c 3 159
+chown uucp dir-*
+chmod 660 dir-*
+# Cua* can't be owned by anyone real who wants to use the dialer if the mode
+# 060 below and the dialer group is to work.  Note that the uucp programs
+# must be in the dialer group.
+chown 32767 cua*
+chgrp dialer cua*
+chmod 060 cua*

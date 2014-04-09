@@ -1,0 +1,5 @@
+This information is provided by Retro in the ch (height) and cw (width) variables.
+You can manually obtain the values by using I/O ports:
+
+-3 5 out wait 5 in !cw
+-4 5 out wait 5 in !ch

@@ -1,0 +1,63 @@
+This puzzle involves finding a hidden message, encoded using a series of digits in various
+numeric bases.
+
+Given M's habit of hiding subtle clues in the article text, there are a number of references to
+*basement*. It's rather opaque, but the only real significance is that the puzzle somehow
+involves work with various bases.
+
+There are two parts to the puzzle: a column of shapes on the left, and a series of colored
+and/or shaped tiles on the right. Each row is in a different base. The shape on the left tells
+which base (count the number of sides), the tiles on the right encode the digits of each
+number.
+
+Solid colored tiles are zero, the others are the number of sides in the priamry shape.
+
+So:
+
+  : convertToDecimal:  ( n"-n )
+    base ! getNumber decimal ;
+
+Pass this a base, and it'll parse a number and return the decimal form.
+
+With this, we can convert the numbers:
+
+  5 convertToDecimal: 0032
+  8 convertToDecimal: 0025
+  3 convertToDecimal: 0100
+  2 convertToDecimal: 1110
+  6 convertToDecimal: 0001
+  4 convertToDecimal: 0102
+  7 convertToDecimal: 0034
+
+Now to translate to ASCII. First, a string containing the letters. This has an _ as the first
+character. Since the results of M's puzzles have thus far been using an index of 1 rather than
+0, this lets us avoid incrementing each value by 1.
+
+  : alpha   ( -$ )
+    "_abcdefghijklmnopqrstuzwxyz" ;
+
+Next up is a function to translate an integer into an ASCII character. Simply add the integer
+to the address returned by alpha, and fetch the stored character.
+
+  : toAlpha ( n-c )
+    alpha + @ ;
+
+Easy enough. Now to simplify building a string. We'll use the buffer' vocabulary for this.
+First, create a temporary string and then set it as the buffer.
+
+  "" tempString ^buffer'set
+
+Next, translate each value returned by convertToDecimal: to an ASCII code and add it to the
+buffer:
+
+  depth [ toAlpha ^buffer'add ] times
+
+And finally display the result:
+
+  ^buffer'start puts
+
+At this point, the resulting string is "yraniuq", which is reversed from what we want. So to
+fix it:
+
+  ^buffer'start ^strings'reverse puts
+

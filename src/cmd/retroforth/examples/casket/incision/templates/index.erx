@@ -1,0 +1,4 @@
+  <form action="%u/post" method="get">
+    <textarea rows="10" cols="60" name="content"></textarea><br>
+    <input type="submit">
+  </form>

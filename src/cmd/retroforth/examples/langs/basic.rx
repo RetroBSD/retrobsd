@@ -1,0 +1,284 @@
+( rxBASIC ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+( This is a minimalistic BASIC compiler. It's written in Retro and runs on    )
+( Ngaro virtual machine.                                                      )
+(                                                                             )
+( The implemenation was first described on the Corpse blog in post #98:       )
+( http://rx-core.org/dev/corpse/article/98                                    )
+(                                                                             )
+( There are string variables and numeric variables. Twenty six of each, named )
+( A$ - Z$ for the string variables and A# to Z# for the integer variables.    )
+(                                                                             )
+( Valid Syntax Forms:                                                         )
+(   0000  CLS                                                                 )
+(   0000  PRINT <variable>[type]                                              )
+(   0000  PRINT "string"                                                      )
+(   0000  INPUT <variable>[type]                                              )
+(   0000  GOTO  <line>                                                        )
+(   0000  LET   <variable>[type] = value                                      )
+(   0000  LET   <variable>[type] += <variable>[type]                          )
+(   0000  LET   <variable>#      -= <variable>#                               )
+(   0000  LET   <variable>#      *= <variable>#                               )
+(   0000  LET   <variable>#      /= <variable>#                               )
+(   0000  LET   <variable>#      %= <variable>#                               )
+(   0000  IF    <variable>[type] <cond> <variable>[type] THEN <statement>     )
+(   0000  END                                                                 )
+(   0000  RUN                                                                 )
+(   0000  QUIT                                                                )
+(   0000  REM   text                                                          )
+(                                                                             )
+( With regards to the implementation, line numbers are required. We have an   )
+( array of 4k lines. Each element points to a subroutine. So RxBASIC will     )
+( compile each line as a separate subroutine. RUN will cycle through each     )
+( the array, executing the subroutine for each line.                          )
+(                                                                             )
+( All commands and variables must be UPPERCASE.                               )
+(                                                                             )
+(                                                                             )
+( Copyright [c] 2011, Charles Childers.  Use under the ISC License            )
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+
+create lines
+  4096 allot
+
+create svars
+  27 allot
+
+create nvars
+  27 allot
+
+
+: error ( n- )
+  [ 1 = ] [ "\nE1: Invalid line number\n" puts ] whend
+  [ 2 = ] [ "\nE2: Unknown keyword\n"     puts ] whend
+  [ 3 = ] [ "\nE3: Invalid LET form\n"    puts ] whend
+  drop ;
+
+: setCurrentLine ( "- )
+  "\n> " puts here getNumber
+    dup 0 4000 within [ lines + ! ] [ 2drop 1 error setCurrentLine ] if ;
+
+: handleKeyword  ( "- ) ;
+
+: basic ( - )
+  clear "rxBASIC\n" puts
+  repeat setCurrentLine handleKeyword again ;
+
+
+( Helper Functions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+: # ( n- ) 1 , , ;
+
+: getVariable ( "-af )
+  getc dup putc 'A - getc dup putc '$ = [ svars + -1 ] [ nvars + 0 ] if ;
+
+
+( RxBASIC Commands ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+: do_cls    ( - )
+  &clear , &; do ;
+
+: do_print  ( "- )
+  getc dup putc
+  dup '" = [ drop '" accept tib keepString # &puts , ]
+           [ 'A - getc dup putc '$ = [ svars + # &@ , &puts , ]
+                                     [ nvars + # &@ , &putn , ] if ] if
+  &; do ;
+
+{{
+  : readString ( "-$ ) remapping [ remapping off 10 accept tib ] preserve ;
+---reveal---
+  : do_input  ( "- )
+    getVariable [ &readString , &keepString ]
+                [ &getToken ,   &toNumber   ] if , # &! , &; do ;
+  : do_rem  ( "- ) readString drop &; do ;
+}}
+
+: do_goto   ( "- )
+  8 , getNumber lines + , &; do ;
+
+{{
+  : strPrepend ^strings'prepend ;
+  : assignValue ( af"- )
+    [ eatLeading? off getc putc '" accept tib keepString eatLeading? on ]
+    [ getNumber ] if 2# &! , &; do ;
+  : addVariable  ( af"- )
+    [ getVariable drop over # &@ , # &@ , &strPrepend , # &! , &; do ]
+    [ getVariable drop over # &@ , # &@ , &+ ,          # &! , &; do ] if ;
+  : subVariable  ( af"- )
+    [ "\nERROR\n" puts ]
+    [ getVariable drop over # &@ , # &@ , swap, &- ,    # &! , &; do ] if ;
+  : mulVariable  ( af"- )
+    [ "\nERROR\n" puts ]
+    [ getVariable drop over # &@ , # &@ , swap, &* ,    # &! , &; do ] if ;
+  : divVariable  ( af"- )
+    [ "\nERROR\n" puts ]
+    [ getVariable drop over # &@ , # &@ , swap, &/ ,    # &! , &; do ] if ;
+  : modVariable  ( af"- )
+    [ "\nERROR\n" puts ]
+    [ getVariable drop over # &@ , # &@ , swap, &mod ,  # &! , &; do ] if ;
+---reveal---
+  : do_let    ( - )
+    getVariable
+    getToken
+    [ "="  compare ] [ assignValue ] whend
+    [ "+=" compare ] [ addVariable ] whend
+    [ "-=" compare ] [ subVariable ] whend
+    [ "*=" compare ] [ mulVariable ] whend
+    [ "/=" compare ] [ divVariable ] whend
+    [ "%=" compare ] [ modVariable ] whend
+    drop 3 error ;
+}}
+
+{{
+  : ifString
+    # &@ , getToken getVariable drop # &@ ,
+    &compare , "<>" compare [ &not , ] ifTrue ;
+  : ifNumber
+    # &@ , getToken getVariable drop # &@ ,
+    find drop @d->xt , ;
+---reveal---
+  : do_if     ( - )
+    getVariable
+    &ifString &ifNumber if getToken drop 25 , &drop , handleKeyword &; do ;
+}}
+
+
+{{
+  variable continue
+  : done? dup lines 4000 + > [ continue off ] ifTrue ;
+---reveal---
+  : do_end    ( - )
+    continue # &off , &; do ;
+  : do_run    ( - )
+    continue on &; do cr lines [ @+ [ 0; do ] do done? @continue ] while ;
+}}
+
+( Patch the handleKeyword stub to process the RxBASIC commands ~~~~~~~~~~~~~~ )
+: dispatch ( "- )
+  getToken
+    [ "CLS"   compare ] [ do_cls   ] whend
+    [ "PRINT" compare ] [ do_print ] whend
+    [ "INPUT" compare ] [ do_input ] whend
+    [ "GOTO"  compare ] [ do_goto  ] whend
+    [ "LET"   compare ] [ do_let   ] whend
+    [ "IF"    compare ] [ do_if    ] whend
+    [ "END"   compare ] [ do_end   ] whend
+    [ "RUN"   compare ] [ do_run   ] whend
+    [ "QUIT"  compare ] [ bye      ] whend
+    [ "REM"   compare ] [ do_rem   ] whend
+  drop 2 error ;
+&dispatch is handleKeyword
+
+( Documentation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+doc{
+=========================
+RxBASIC Programming Guide
+=========================
+
+
+------------
+Introduction
+------------
+RxBASIC is a minimalistic dialect of the BASIC language. It is not
+intended to be used for anything other than simple experiments.
+
+
+------------
+The Language
+------------
+
+Line Numbers
+============
+RxBASIC requires each keyword to be prefixed by a line number. The
+implementation provides 4,000 lines for your use.
+
+
+Variables
+=========
+There are two types of variables: numeric and string. Strings can
+hold textual data, while numeric variables can only hold numbers.
+(Note that the numbers could represent other data types, such as
+characters if desired).
+
+RxBASIC provides twenty six of each variable type, named after each
+letter in the English alphabet. A suffix (either $ or #) denotes
+the type. $ is used for string variables, and # for numeric
+variables.
+
+
+Keywords
+========
+RxBASIC recognizes a small number of keywords. These are: CLS,
+PRINT, INPUT, GOTO, LET, IF, THEN, END, RUN, QUIT, and REM. The usage
+of each is shown in the table below.
+
++-------+-----------------------------------------------------------+
+| CLS   |                                                           |
++-------+-----------------------------------------------------------+
+| PRINT | <variable>[type]                                          |
++-------+-----------------------------------------------------------+
+| PRINT | "string"                                                  |
++-------+-----------------------------------------------------------+
+| INPUT | <variable>[type]                                          |
++-------+-----------------------------------------------------------+
+| GOTO  | <line>                                                    |
++-------+-----------------------------------------------------------+
+| LET   | <variable>[type] = value                                  |
++-------+-----------------------------------------------------------+
+| LET   | <variable>[type] += <variable>[type]                      |
++-------+-----------------------------------------------------------+
+| LET   | <variable>#      -= <variable>#                           |
++-------+-----------------------------------------------------------+
+| LET   | <variable>#      *= <variable>#                           |
++-------+-----------------------------------------------------------+
+| LET   | <variable>#      /= <variable>#                           |
++-------+-----------------------------------------------------------+
+| LET   | <variable>#      %= <variable>#                           |
++-------+-----------------------------------------------------------+
+| IF    | <variable>[type] <cond> <variable>[type] THEN <statement> |
++-------+-----------------------------------------------------------+
+| END   |                                                           |
++-------+-----------------------------------------------------------+
+| RUN   |                                                           |
++-------+-----------------------------------------------------------+
+| QUIT  |                                                           |
++-------+-----------------------------------------------------------+
+| REM   | text                                                      |
++-------+-----------------------------------------------------------+
+
+All commands *must* be specified in uppercase.
+
+
+----------
+Techniques
+----------
+
+Combining Strings
+=================
+
+::
+
+  0001 LET A$ = "HELLO, "
+  0002 LET B$ = "WORLD!"
+  0003 LET A$ += B$
+
+
+Copy The Value Of One Variable To Another
+=========================================
+
+::
+
+  0001 LET A$ = ""
+  0002 LET B$ = "foo"
+  0003 LET A$ += B$
+
+
+Conditional
+===========
+
+::
+
+  0001 LET A$ = "100"
+  0002 LET B$ = "200"
+  0003 IF A$ = B$ THEN PRINT "MATCH"
+}doc
+
+basic

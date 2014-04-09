@@ -1,0 +1,39 @@
+<div style="position: absolute; top: 2em; right: 4em;">
+<script>
+   function pad (p) {
+   if (p < 10)
+     return '0' + p;
+   else
+     return p;
+   }
+  d = new Date(%s);
+  b = new Date()
+  b.setTime(d.getTime() - 86400000);
+  var cd = b.getDate();
+  var cm = b.getMonth();
+  var cy = b.getFullYear();
+  if (cd == 30 && cm == 0)
+  {
+    cy = cy - 1;
+    cm = 12;
+    cd = 31;
+  }
+  var req = cy + '.' + pad(cm) + '.' + pad(cd);
+  document.write('<p><a href="%u/log/' + req.substr(2) + '">previous</a> | ');
+
+  c = new Date()
+  c.setTime(d.getTime() + 86400000);
+  cd = c.getDate();
+  cm = c.getMonth();
+  cy = c.getFullYear();
+  if (cd == 12 && cm == 31)
+  {
+    cy = cy + 1;
+    cm = 01;
+    cd = 01;
+  }
+  var req = cy + '.' + pad(cm) + '.' + pad(cd);
+  req = cy + '.' + pad(cm) + '.' + pad(cd);
+  document.write('<a href="%u/log/' + req.substr(2) + '">next</a></p>');
+</script>
+</div>

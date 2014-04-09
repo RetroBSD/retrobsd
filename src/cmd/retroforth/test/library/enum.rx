@@ -1,0 +1,37 @@
+needs assertion'
+needs enum'
+
+with| assertion' enum' |
+
+[ [ "passed" ] [ "failed" ] if "%s\n" puts ] is postCond
+
+1 enum a enum b enum c drop
+
+: a0
+  "Testing enum : " puts
+  a 1 assert=
+  b 2 assert=
+  c 3 assert= ; assertion
+
+1 enum| d e f |
+
+: a1
+  "Testing enum| : " puts
+  d 1 assert=
+  e 2 assert=
+  f 3 assert= ; assertion
+
+[ 10 + ] is step
+0 enum| g h i |
+
+: a2
+  "Testing step : " puts
+  g 00 assert=
+  h 10 assert=
+  i 20 assert= ; assertion
+
+
+: go
+  cr a0 a1 a2 bye ;
+
+go

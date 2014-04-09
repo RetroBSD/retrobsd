@@ -1,0 +1,11 @@
+body    { background: #fefefe; color: black; }
+p, li   { font-family: serif; }
+pre     { background: #efefef; overflow: auto; }
+a:link  { color: #0B0080; }
+a:visited { color: #0645AD; }
+a:hover { color: #3366BB; }
+h1, h2, h3, h4 { color: #0B0080; font-family: sans-serif; font-variant: small-caps; }
+.header { font-size: large; text-transform: lowercase; text-align: left; }
+.nav    { position: absolute; top: 0; right: 0; }
+.footer { border-top: 1px solid black; text-align: right; }
+.older  { background: #eeeeee; border-top: 3px solid black; text-align: right; }

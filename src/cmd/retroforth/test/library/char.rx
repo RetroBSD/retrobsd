@@ -1,0 +1,65 @@
+needs assertion'
+needs char'
+
+with assertion'
+
+[ [ "passed" ] [ "failed" ] if "%s\n" puts ] is postCond
+
+: a0
+  "Testing isChar? : " puts
+  'a ^char'isChar? assert
+  '1 ^char'isChar? not assert
+  'z ^char'isChar? assert
+  231 ^char'isChar? not assert ; assertion
+
+: a1
+  "Testing isUpper? : " puts
+  'a ^char'isUpper? not assert
+  'A ^char'isUpper? assert
+  'z ^char'isUpper? not assert
+  'Z ^char'isUpper? assert ; assertion
+
+: a2
+  "Testing isLower? : " puts
+  'a ^char'isLower? assert
+  'A ^char'isLower? not assert
+  'z ^char'isLower? assert
+  'Z ^char'isLower? not assert ; assertion
+
+: a3
+  "Testing isNumeric? : " puts
+  'a ^char'isNumeric? not assert
+  'Z ^char'isNumeric? not assert
+  'q ^char'isNumeric? not assert
+  42 ^char'isNumeric? not assert
+  '1 ^char'isNumeric? assert
+  '2 ^char'isNumeric? assert
+  '6 ^char'isNumeric? assert
+  '8 ^char'isNumeric? assert
+  '0 ^char'isNumeric? assert ; assertion
+
+: a4
+  "Testing isWhitespace? : " puts
+  32 ^char'isWhitespace? assert
+   9 ^char'isWhitespace? assert
+  10 ^char'isWhitespace? assert
+  13 ^char'isWhitespace? assert
+  'a ^char'isWhitespace? not assert
+  43 ^char'isWhitespace? not assert ; assertion
+
+: a5
+  "Testing toUpper : " puts
+  '1 ^char'toUpper '1 assert=
+  'a ^char'toUpper 'A assert=
+  'A ^char'toUpper 'A assert= ; assertion
+
+: a6
+  "Testing toLower : " puts
+  '1 ^char'toLower '1 assert=
+  'a ^char'toLower 'a assert=
+  'A ^char'toLower 'a assert= ; assertion
+
+: go
+  cr a0 a1 a2 a3 a4 a5 a6 bye ;
+
+go

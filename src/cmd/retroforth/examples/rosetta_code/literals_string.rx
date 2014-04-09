@@ -1,0 +1,5 @@
+Strings are enclosed in double quotes, and can contain anything other than a double quote.
+ASCII characters are prefixed by a single quote.
+
+'c
+"hello, world!"

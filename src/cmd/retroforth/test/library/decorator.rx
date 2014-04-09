@@ -1,0 +1,23 @@
+needs assertion'
+needs decorator'
+
+with assertion'
+
+[ [ "passed" ] [ "failed" ] if "%s\n" puts ] is postCond
+
+: foo
+  12 ;
+
+: a0
+  foo 12 assert=
+  &foo [ 14 ] ^decorator'decorate
+  foo 12 assert= 14 assert= ; assertion
+
+: a1
+  &foo ^decorator'undecorate
+  foo 12 assert= ; assertion
+
+: go
+  cr a0 a1 bye ;
+
+go

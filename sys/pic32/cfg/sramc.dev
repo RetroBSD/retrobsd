@@ -1,0 +1,26 @@
+always
+    file rd_sramc.o
+    require rdisk
+    define SRAMC_ENABLED YES
+end always
+
+option data
+    define SW_DATA_PORT $TRIS(%1)
+    define SW_DATA_PIN $PIN(%1)
+end option
+
+option lda
+    define SW_LDA_PORT $TRIS(%1)
+    define SW_LDA_PIN  $PIN(%1)
+end option
+
+option rd
+    define SW_RD_PORT $TRIS(%1)
+    define SW_RD_PIN  $PIN(%1)
+end option 
+
+option wr
+    define SW_WR_PORT $TRIS(%1)
+    define SW_WR_PIN  $PIN(%1)
+end option
+

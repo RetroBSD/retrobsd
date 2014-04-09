@@ -1,0 +1,75 @@
+( Dissect ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+( Copyright [c] 2010 - 2011, Charles Childers                                 )
+( Copyright [c] 2011, Marc Simpson                                            )
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+
+chain: dissect'
+{{
+  : case
+    [ over = ] dip swap
+    [ nip do -1 ] [ drop 0 ] if 0; pop drop ;
+---reveal---
+  : lookupOpcode ( n-$ff )
+     0 [ "nop   "  0 ] case     1 [ "lit   " -1 ] case
+     2 [ "dup   "  0 ] case     3 [ "drop  "  0 ] case
+     4 [ "swap  "  0 ] case     5 [ "push  "  0 ] case
+     6 [ "pop   "  0 ] case     7 [ "loop  " -1 ] case
+     8 [ "jump  " -1 ] case     9 [ ";     "  0 ] case
+    10 [ ">jump " -1 ] case    11 [ "<jump " -1 ] case
+    12 [ "!jump " -1 ] case    13 [ "=jump " -1 ] case
+    14 [ "@     "  0 ] case    15 [ "!     "  0 ] case
+    16 [ "+     "  0 ] case    17 [ "-     "  0 ] case
+    18 [ "*     "  0 ] case    19 [ "/mod  "  0 ] case
+    20 [ "and   "  0 ] case    21 [ "or    "  0 ] case
+    22 [ "xor   "  0 ] case    23 [ "<<    "  0 ] case
+    24 [ ">>    "  0 ] case    25 [ "0;    "  0 ] case
+    26 [ "1+    "  0 ] case    27 [ "1-    "  0 ] case
+    28 [ "in    "  0 ] case    29 [ "out   "  0 ] case
+    30 [ "wait  "  0 ] case
+    toString 0 0 ;
+}}
+
+{{
+  variable this
+  : following  @this @ toString this ++ ;
+  : instr      (  n-af  )
+    this ++ lookupOpcode
+    [ [ "call  " ^strings'prepend ] dip ] ifFalse ;
+---reveal---
+  : decompile ( a-a$ )
+    dup !this @ instr [ following ^strings'append ] ifTrue @this swap ;
+}}
+
+: endOfWord? ( a-f ) @+ swap @ [ 9 = ] bi@ and ;
+;chain
+
+doc{
+=======
+Dissect
+=======
+
+
+--------
+Overview
+--------
+This vocabulary provides a basic decompiler for the Ngaro instruction set.
+
+
+-----
+Usage
+-----
+
+
+---------
+Functions
+---------
++--------------+-------+-------------------------------------------------+
+| Name         | Stack | Usage                                           |
++==============+=======+=================================================+
+| lookupOpcode | n-$ff |                                                 |
++--------------+-------+-------------------------------------------------+
+| decompile    | a-a$  |                                                 |
++--------------+-------+-------------------------------------------------+
+| endOfWord?   | a-f   |                                                 |
++--------------+-------+-------------------------------------------------+
+}doc

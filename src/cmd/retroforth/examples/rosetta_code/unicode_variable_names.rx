@@ -1,0 +1,8 @@
+This has been tested on Retro 11.0 running under OS X.
+
+  variable Δ
+  1 !Δ
+  @Δ putn
+  1 +Δ
+  @Δ putn
+

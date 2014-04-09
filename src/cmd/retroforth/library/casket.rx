@@ -1,0 +1,236 @@
+( casket ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+chain: casket'
+{{
+  variable :options
+  : KiB            ( n-n ) 1024 * ;
+---reveal---
+  : casket:path    ( -$ ) @memory  8 KiB - ;
+  : casket:options ( -$ ) @:options ;
+  : casket:buffer  ( -$ ) @memory 16 KiB - ;
+  : casket:form    ( -$ ) @memory 32 KiB - ;
+  : casket:root    ( -$ ) "./" ;
+  : casket:url     ( -$ ) "http://domain.com/path/to/cgi" ;
+  : getRequest     ( -$ )
+    casket:path dup "PATH_INFO" getEnv
+    withLength 0 <> [ dup 1+ '/ ^strings'findChar 1+ !:options ]
+                    [ "/" swap 2 copy casket:path 0 !:options ] if ;
+}}
+  ( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+  : Content-type:    ( "- )
+    "Content-type: " getToken ^strings'append "\n\n" ^strings'append
+     keepString .data ` puts ; immediate
+  ( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+: tputs ;
+  {{
+    : withBase ( n$q-$ ) [ swap ] dip base &do preserve ;
+    : char ( $-$ )
+      @+ [ 'n = ] [ cr      ] whend
+         [ '' = ] [ '" putc ] whend
+         [ '[ = ] [ 27 putc putc ] when
+      putc ;
+    : obj  ( $-$ )
+      @+ [ 'd = ] [ [ decimal putn ] withBase ] whend
+         [ 'o = ] [ [ octal   putn ] withBase ] whend
+         [ 'x = ] [ [ hex     putn ] withBase ] whend
+         [ 'c = ] [ swap putc                 ] whend
+         [ 's = ] [ &tputs dip                ] whend
+         [ 'S = ] [ [ [ @ "&#x%x;" puts ] ^types'STRING each@ ] dip ] whend
+         [ 'q = ] [ &do dip                   ] whend
+         [ 'u = ] [ casket:url puts           ] whend
+      putc ;
+    : complex ( $-n )
+      repeat
+        @+ 0;
+        dup '\ = [ drop char 0 ] ifTrue
+        dup '% = [ drop obj  0 ] ifTrue
+        putc
+      again ;
+    [ complex drop ] is tputs
+  }}
+  ( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+  {{
+    : withBase ( n$q-$ ) [ swap ] dip base &do preserve ;
+    : other ( c- )
+         [ '< = ] [ "&lt;" puts ] whend
+         [ '> = ] [ "&gt;" puts ] whend
+         [ '& = ] [ "&amp;" puts ] whend
+      putc ;
+    : complex ( $-n )
+      repeat @+ 0; other again ;
+  ---reveal---
+    : eputs complex drop ;
+  }}
+  ( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+  {{
+    create buffer  ( -a )
+      16 1024 * allot
+    : casket:templates ( -$ ) casket:root "templates/" ^strings'append ;
+  ---reveal---
+    : withTemplate ( $- )
+      buffer 0 16 1024 * fill
+      casket:templates ^strings'prepend buffer swap ^files'slurp drop
+      buffer tputs ;
+    : withFile ( $- )
+      buffer 0 16 1024 * fill
+      casket:templates ^strings'prepend buffer swap ^files'slurp drop
+      buffer [ @ putc ] ^types'STRING each@ ;
+  }}
+
+: /404
+  Content-type: text/html
+  "<html><body><h1>404</h1></body></html>" tputs cr bye ;
+: /
+  Content-type: text/html
+  "<html><body><h1>casket</h1></body></html>" tputs cr bye ;
+
+: doBeforeDispatch ;
+
+: dispatch
+  doBeforeDispatch
+  getRequest 1+
+  [ @+ [ 0 <> ] [ '/ <> ] bi and ] while 1- 0 swap !
+  casket:path find [ @d->xt do ] [ drop /404 ] if bye ;
+
+{{
+  create bit 5 allot
+  : extract  ( $c-$a ) drop @+ bit ! @+ bit 1+ ! bit ;
+  : render   ( $c-$n )
+    dup '+ = [ drop 32 ] ifTrue
+    dup 13 = [ drop 32 ] ifTrue
+    dup 10 = [ drop 32 ] ifTrue
+    dup '% = [ extract hex toNumber decimal ] ifTrue ;
+  : <decode> (  $-$  ) repeat @+ 0; render ^buffer'add again ;
+---reveal---
+  : decode   (  $-   ) casket:buffer ^buffer'set <decode> drop ;
+}}
+
+: serve: ( """- )
+  getToken dup
+  "/" ^strings'prepend header
+  compiler on
+  keepString .data getToken drop
+  ` Content-type: ` withTemplate ` ; &.word reclass ;
+
+: getFormData    ( -$ )
+  casket:form "QUERY_STRING" getEnv
+  casket:form decode casket:buffer withLength casket:form swap 1+ copy
+  casket:form ;
+;chain
+
+doc{
+======
+Casket
+======
+
+--------
+Overview
+--------
+Casket is a lightweight framework intended to simplify the development of
+web apps in Retro.
+
+Casket grew out of my work on the Corpse blog and later through work on the
+Rancid IRC log viewer.
+
+
+---------
+Functions
+---------
++------------------+-------+--------------------------------------------------+
+| Name             | Stack | Usage                                            |
++==================+=======+==================================================+
+| serve:           | """-  | Serve a file with a specific mime type           |
++------------------+-------+--------------------------------------------------+
+| decode           | $-    | Decode a URL encoded string                      |
++------------------+-------+--------------------------------------------------+
+| dispatch         | ``-`` | Look for a view handler (e.g., /index) and call  |
+|                  |       | it, or call **/404** if none is found            |
++------------------+-------+--------------------------------------------------+
+| doBeforeDispatch | ``-`` | Code to execute before processing paths. This is |
+|                  |       | always called before **dispatch**.               |
++------------------+-------+--------------------------------------------------+
+| /                | ``-`` | Default index page                               |
++------------------+-------+--------------------------------------------------+
+| /404             | ``-`` | Default 404 error page                           |
++------------------+-------+--------------------------------------------------+
+| withTemplate     | $-    | Include and render a template file using the     |
+|                  |       | **tputs** function                               |
++------------------+-------+--------------------------------------------------+
+| withFile         | $-    | Include and render a raw file                    |
++------------------+-------+--------------------------------------------------+
+| tputs            | ...$- | This is a replacement for **puts**, which adds   |
+|                  |       | additional escape sequences for use with the     |
+|                  |       | templates.                                       |
++------------------+-------+--------------------------------------------------+
+| eputs            | $-    | This is a replacement for **puts**, which escapes|
+|                  |       | html entities for use with <pre> and such        |
++------------------+-------+--------------------------------------------------+
+| Content-type:    | "-    | Generate a MIME header for a file or view        |
++------------------+-------+--------------------------------------------------+
+| getFormData      | -$    | Process a form and return the elements as a text |
+|                  |       | string                                           |
++------------------+-------+--------------------------------------------------+
+| getRequest       | ``-`` | Internal: Read the PATH_INFO environment variable|
+|                  |       | and parse for **casket:path** and                |
+|                  |       | **casket:options**                               |
++------------------+-------+--------------------------------------------------+
+| casket:url       | -a    | Function returning application url               |
++------------------+-------+--------------------------------------------------+
+| casket:root      | -a    | Function returning path to application root      |
++------------------+-------+--------------------------------------------------+
+| casket:form      | -a    | Internal buffer for form data                    |
++------------------+-------+--------------------------------------------------+
+| casket:buffer    | -a    | Internal buffer                                  |
++------------------+-------+--------------------------------------------------+
+| casket:options   | -a    | Returns optional data following view)            |
++------------------+-------+--------------------------------------------------+
+| casket:path      | -a    | Returns requested view (e.g., /index)            |
++------------------+-------+--------------------------------------------------+
+
+
+-------
+Example
+-------
+
+application.rx
+==============
+::
+
+  needs casket'
+  with casket'
+
+ : /index
+    Content-type: text/html
+    "index.erx" withTemplate ;
+
+  : /test
+    Content-type: text/html
+    casket:options "test.erx" withTemplate ;
+
+  [ ( -$ ) "/path/to/app/" ] is casket:root
+  [ ( -$ ) "http://domain.ext/path/to/cgi" ] is casket:url
+  &/index is /
+  &dispatch is boot
+  save bye
+
+
+index.erx
+=========
+::
+
+  <html>
+  <body><h1>Test of Casket</h1>
+  <p><a href='%u/test/apple'>test apple</a>
+     or <a href='%u/test/banana'>test banana</a>.</p>
+  </body></html>
+
+
+test.erx
+========
+::
+
+  <html>"  tputs
+  <body><h1>You requested...</h1>
+  <p>An %s.</p>
+  </body></html>
+
+}doc

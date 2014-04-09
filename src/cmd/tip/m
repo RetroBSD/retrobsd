@@ -1,0 +1,5 @@
+cd aculib; make 
+make[1]: Entering directory `/home/matt/retrobsd/src/cmd/tip/aculib'
+make[1]: Nothing to be done for `all'.
+make[1]: Leaving directory `/home/matt/retrobsd/src/cmd/tip/aculib'
+/usr/local/pic32-tools/bin/pic32-gcc -mips32r2 -EL -nostdinc -fshort-double -I/home/matt/retrobsd/include -I/usr/local/pic32-tools/lib/gcc/pic32mx/4.5.1/include  -o tip acu.o acutab.o cmds.o cmdtab.o cu.o hunt.o log.o partab.o remcap.o remote.o tip.o tipout.o uucplock.o value.o vars.o aculib/aculib.a

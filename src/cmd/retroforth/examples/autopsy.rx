@@ -1,0 +1,517 @@
+( Autopsy ------------------------------------------------------------------- )
+( Copyright [c] 2010 - 2011, Charles Childers                                 )
+( Copyright [c] 2011, Marc Simpson                                            )
+( License: ISC                                                                )
+( --------------------------------------------------------------------------- )
+needs dissect'
+
+chain: autopsy'
+  : decompile  ( a-a )  [ ^dissect'decompile ] sip "%d %s\n" puts ;
+
+( --[ Box Drawing Code ]----------------------------------------------------- )
+
+( --[ Box geometry ]------------------------------------------ )
+16 variable: boxWidth
+ 4 variable: boxMargin
+ 4 variable: box/line
+
+{{
+  ( --[ Core ]------------------------------------------------ )
+
+  : putcs    ( cn-  )   [ dup putc ] times drop ;
+
+  : padCount  ( n-n )   @boxWidth @boxMargin - swap - ;
+  : .pad      ( n-n )   padCount 32 swap putcs ;
+  : .pads     ( $-  )   withLength swap puts .pad ;
+  : .number   ( n-  )   toString .pads ;
+
+  : .boxedn   ( n-  )   '| putc space .number space '| putc ;
+  : .empty    (  -  )   '| putc -2 .pad '| putc ;
+
+  : xt->name  ( $-$ )   toNumber xt->d dup [ d->name ] [ drop "" ] if ;
+
+  variable escCell
+  : lookup    ( a-$ )
+    @escCell
+    [ toString escCell off ]
+    [ ^dissect'lookupOpcode [ [ escCell on ] ifTrue ] [ drop xt->name ] if ] if ;
+  : .lookup   ( a-  ) '| putc space lookup .pads space '| putc ;
+
+  : .fill     ( c-  ) @boxWidth @boxMargin 2 - - putcs ;
+  : .edge     (  -  ) '+ putc '- .fill '+ putc ;
+  : .rule     (  -  ) '| putc '- .fill '| putc ;
+
+  ( --[ Diagram for N contiguous cells ]---------------------- )
+
+  6 constant boxRows                 create boxtbl boxRows allot
+
+  boxtbl variable: currentRow
+  : boxRow, @currentRow ! currentRow ++ ;
+
+  [ ( a- ) .edge drop   ; ] boxRow,
+  [ ( a- ) .boxedn      ; ] boxRow,
+  [ ( a- ) .rule drop   ; ] boxRow,
+  [ ( a- ) @ .boxedn    ; ] boxRow,
+  [ ( a- ) @ .lookup    ; ] boxRow,
+  [ ( a- ) .edge drop   ; ] boxRow,
+
+  : (.row)  ( aqn-aqn )
+    repeat dup 0 = if;
+    [ over 1+ [ tuck do ] dip swap ] dip 1- again ;
+
+  : .row    ( aqn-    ) cr (.row) 2drop drop ;
+
+  : (.cells) ( an- )
+    0 repeat dup boxRows = if; dup 1+
+    [ ( ann ) boxtbl + @ ( anq ) [ 2over ] dip swap .row ( an ) ] dip again ;
+
+  ( --[ Utility words for finding the RET opcode ]------------ )
+
+  : findRet ( a-na )  1 swap repeat dup ^dissect'endOfWord? if; &1+ bi@ again ;
+---reveal---
+
+  : .cells ( an- )
+    dup @box/line >
+    [ @box/line - [ @box/line (.cells) drop + ] dip .cells ]
+    [ (.cells) 2drop drop ] if ;
+
+  : .cell   ( a- )  1 .cells ;
+  : .thread ( a- )  dup findRet drop .cells ;
+}}
+
+( --[ "see" and "explore" ]-------------------------------------------------- )
+variable vertical
+{{
+  : help  ( - )
+    clear
+    "Autposy is a tool for exploring images interactively.\n\n" puts
+    "+---+----------------------------------+\n" puts
+    "| i | Backtrack display by one address |\n" puts
+    "+---+----------------------------------+\n" puts
+    "| j | Backtrack display by one screen  |\n" puts
+    "+---+----------------------------------+\n" puts
+    "| k | Advance display by one address   |\n" puts
+    "+---+----------------------------------+\n" puts
+    "| l | Advance display by one screen    |\n" puts
+    "+---+----------------------------------+\n" puts
+    "| z | Quit Autospy                     |\n" puts
+    "+---+----------------------------------+\n" puts
+    "| ? | Display this help screen         |\n" puts
+    "+---+----------------------------------+\n" puts
+    "| 1 | Jump to address                  |\n" puts
+    "+---+----------------------------------+\n" puts
+    "\nPress any key to return to autospy.\n"    puts
+    getc drop ;
+
+  2 elements x more?
+
+  : goToAddress ( "- )
+    clear "Address to jump to: " puts getNumber !x ;
+  : rows @ch 2 - ;
+  : cols @cw 1 - ;
+  : handle
+    cols [ '- putc ] times cr
+    getc
+      [ 'i = ] [ x --        ] whend
+      [ 'k = ] [ x ++        ] whend
+      [ 'j = ] [ rows -x     ] whend
+      [ 'l = ] [ rows +x     ] whend
+      [ '? = ] [ help        ] whend
+      [ '1 = ] [ goToAddress ] whend
+      [ 'z = ] [ more? off   ] whend
+    drop ;
+  : browse     (  - )
+    [ clear @x rows &decompile times drop handle @more? ] while ;
+  : getAddress ( "- )
+    getToken dup find [ nip @d->xt ] [ drop toNumber ] if ;
+---reveal---
+  : :see    ( a- )
+    cr @vertical
+    [ [ decompile dup 1- ^dissect'endOfWord? not ] while drop ] &.thread if ;
+  : see     ( "- ) getAddress :see ;
+  : explore ( "- ) getAddress !x more? on browse ;
+}}
+
+( Single Step Debugger ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+{{
+  variable buffer
+  variable ptr
+  : terminate (  -  ) 0 @ptr ! ;
+  : start     (  -a ) @buffer  ;
+  : end       (  -a ) @ptr     ;
+  : add       ( c-  ) end ! ptr ++ terminate ;
+  : get       (  -c ) ptr -- end @ terminate ;
+  : empty     (  -  ) start !ptr   terminate ;
+  : size      (  -n ) end start -   ;
+  : set       ( a-  ) !buffer empty ;
+
+  : image here 16 1025 * + ;
+
+  variable ip
+  create    port 13 allot
+  create handler 13 allot
+
+  create rs
+    1024 allot
+  rs set
+
+  variable fid
+
+  : readByte ( -n )
+    @fid ^files'read ;
+
+  : readCell ( -n )
+    readByte
+    readByte  8 << +
+    readByte 16 << +
+    readByte 24 << + ;
+
+  : loadImage ( $- )
+    ^files':R ^files'open !fid
+    image @fid ^files'size 4 / [ readCell swap !+ ] times drop
+    @fid ^files'close drop ;
+
+  : writeByte ( n- )
+    @fid ^files'write drop ;
+
+  : applyMask ( n- )
+    %00000000000000000000000011111111 and ;
+
+  : writeCell ( n- )
+         dup applyMask writeByte
+    8 >> dup applyMask writeByte
+    8 >> dup applyMask writeByte
+    8 >>     applyMask writeByte ;
+
+  : saveImage ( $- )
+    ^files':W ^files'open !fid
+    image image 3 + @ [ @+ writeCell ] times drop
+    @fid ^files'close drop ;
+
+  : ip++    ` 1  ` ip   ` +!  ; immediate
+  : rs>     get ;
+  : >rs     add ;
+  : >image  image + ;
+
+  : register: ( p"- ) ' swap handler + ! ;
+  : (ready) 1 !port ;
+  : >port   port + ;
+  : port?   0 12 1+ within ;
+
+  : port[   ` >port ` dup ` push ` @ ; immediate
+  : ]port   ` pop ` ! ` (ready) ; immediate
+
+  : reader  getc ;
+  : input   port[ 1 = [ reader ] [ 0 ] if ]port ;
+  1 register: input
+
+  : output  port[ 1 = [ putc ] ifTrue 0 ]port ;
+  2 register: output
+
+  : files
+    [ -1 = ] [ [ >image ] dip ^files'open ] whend
+    [ -2 = ] [ ^files'read   ] whend
+    [ -3 = ] [ ^files'write  ] whend
+    [ -4 = ] [ ^files'close  ] whend
+    [ -5 = ] [ ^files'pos    ] whend
+    [ -6 = ] [ ^files'seek   ] whend
+    [ -7 = ] [ ^files'size   ] whend
+    [ -8 = ] [ >image ^files'delete     ] whend
+    [  1 = ] [ "retroImage" saveImage 0 ] whend
+    [  2 = ] [ >image :include 0    ] whend
+    drop 0 ;
+
+  : vm-files port[ files ]port ;
+  4 register: vm-files
+
+  : query
+    [  -1 = ] [ 32768                ] whend
+    [  -5 = ] [ depth                ] whend
+    [  -6 = ] [ size                 ] whend
+    [  -8 = ] [ time                 ] whend
+    [  -9 = ] [ 32768 !ip 0          ] whend
+    [ -10 = ] [ &>image bi@ getEnv 0 ] whend
+  drop 0 ( default ) ;
+
+  : vm-info port[ query ]port ;
+  5 register: vm-info
+
+  : handle  dup handler + @ dup [ 0; do ] [ 2drop ] if ;
+  : ?handle dup >port @ &handle &drop if ;
+  : i/o     12 [ 0; ?handle ] iterd ;
+
+  : (jmp)     ` ip ` @ ` >image ` @ ` 1- ` ip ` ! ; immediate
+
+  : vm_nop ;
+  : vm_lit    ip++ ip @ >image @ ;
+  ( Native dup, drop, swap )
+  : vm_push   >rs ;
+  : vm_pop    rs> ;
+  : vm_loop   ip++ 1- dup 0 > [ (jmp) ] [ drop ] if ;
+  : vm_jmp    ip++ (jmp) ;
+  : vm_ret    rs> !ip ;
+  : vm_>jmp   ip++  > [ (jmp) ] ifTrue ;
+  : vm_<jmp   ip++  < [ (jmp) ] ifTrue ;
+  : vm_<>jmp  ip++ <> [ (jmp) ] ifTrue ;
+  : vm_=jmp   ip++  = [ (jmp) ] ifTrue ;
+  : vm_@      >image @ ;
+  : vm_!      >image ! ;
+  ( Native +, -, *, )
+  : vm_/mod   2over [ 0 = ] bi@ or [ 32768 !ip "\nError: divide by zero detected\n" puts ] [ /mod ] if  ;
+  ( Native and, or, xor, shl , shr )
+  : vm_0exit  dup 0 = [ drop rs> ip ! ] ifTrue ;
+  ( Native inc [1+], dec [1-] )
+  : vm_in     >port dup [ @ 0 ] dip ! ;
+  : vm_out    dup port? [ >port ! ] [ 2drop ] if ;
+  : vm_wait   port @ 1 <> &i/o ifTrue ;
+
+  create opcodes
+    &vm_nop     ,    &vm_lit   ,   &dup      ,
+    &drop       ,    &swap     ,   &vm_push  ,
+    &vm_pop     ,    &vm_loop  ,   &vm_jmp   ,
+    &vm_ret     ,    &vm_>jmp  ,   &vm_<jmp  ,
+    &vm_<>jmp   ,    &vm_=jmp  ,   &vm_@     ,
+    &vm_!       ,    &+        ,   &-        ,
+    &*          ,    &vm_/mod  ,   &and      ,
+    &or         ,    &xor      ,   &<<       ,
+    &>>         ,    &vm_0exit ,   &1+       ,
+    &1-         ,    &vm_in    ,   &vm_out   ,
+    &vm_wait    ,
+
+  create counts
+    32 allot
+  variable calls
+
+  : process
+    @ip >image @ dup 0 30 within
+    [ 1 over counts + +! opcodes + @ do ]
+    [ calls ++ @ip >rs 1- !ip ] if ;
+
+  : ---  ( - )
+    24 [ '- putc ] times cr ;
+
+  : display  ( q- )
+    cr --- do --- ;
+
+  : registers  ( - )
+    depth size @ip "IP: %d  RSP: %d  SP: %d" puts .s cr ;
+
+  : instruction  ( - )
+    @ip decompile drop ;
+
+  : atEndOfMemory?  ( -f )
+    @ip 32768 > ;
+
+  : atEndOfFunction?  ( -f )
+    size 0 < ;
+
+  variable (steps)
+---reveal---
+  : step  ( - )
+    atEndOfMemory? if;
+    atEndOfFunction? if;
+    [ registers instruction ] display
+    (steps) ++ process ip ++ ;
+
+  : steps ( n- )
+    &step times ;
+
+  : debug: ( "- )
+    counts 0 31 fill
+    0 !calls
+    0 image here 1+ copy
+    empty 0 !(steps) ' !ip ;
+
+  : stats ( - )
+    @(steps) "\nTotal instructions processed: %d\n" puts
+    @calls "\n%d calls\n" puts
+    counts @+ "NOP:    %d\n" puts
+           @+ "LIT:    %d\n" puts
+           @+ "DUP:    %d\n" puts
+           @+ "DROP:   %d\n" puts
+           @+ "SWAP:   %d\n" puts
+           @+ "PUSH:   %d\n" puts
+           @+ "POP:    %d\n" puts
+           @+ "LOOP:   %d\n" puts
+           @+ "JUMP:   %d\n" puts
+           @+ "RET:    %d\n" puts
+           @+ ">JUMP:  %d\n" puts
+           @+ "<JUMP:  %d\n" puts
+           @+ "<>JUMP: %d\n" puts
+           @+ "=JUMP:  %d\n" puts
+           @+ "@:      %d\n" puts
+           @+ "!:      %d\n" puts
+           @+ "+:      %d\n" puts
+           @+ "-:      %d\n" puts
+           @+ "*:      %d\n" puts
+           @+ "/MOD:   %d\n" puts
+           @+ "AND:    %d\n" puts
+           @+ "OR:     %d\n" puts
+           @+ "XOR:    %d\n" puts
+           @+ "<<:     %d\n" puts
+           @+ ">>:     %d\n" puts
+           @+ "0;:     %d\n" puts
+           @+ "1+:     %d\n" puts
+           @+ "1-:     %d\n" puts
+           @+ "IN:     %d\n" puts
+           @+ "OUT:    %d\n" puts
+           @  "WAIT:   %d\n" puts ;
+}}
+
+: runtime ( q- )
+  time [ do ] dip time swap - "\nExecution took %d seconds.\n" puts ;
+;chain
+
+global with autopsy'
+
+doc{
+=======
+Autopsy
+=======
+
+--------
+Overview
+--------
+Traditionally Retro has had only limited debugging capabilities. There's
+the typical **.s** to display the stack, and various releases have provided
+*see* for decompiling functions. For 11.0, we want something more powerful.
+The solution is Autopsy.
+
+
+-----
+Tools
+-----
+
+Decompiler
+==========
+This allows you to examine the compiled code for a function in a readable
+manner.
+
+The decompiler has two display modes. The default, written by Marc Simpson,
+displays each memory cell as a box, in a clean, very readable manner. This
+is the *horizontal* mode, and is the default.
+
+::
+
+  ok  see cr
+
+  +--------------++--------------++--------------++--------------+
+  | 403          || 404          || 405          || 406          |
+  |--------------||--------------||--------------||--------------|
+  | 0            || 0            || 1            || 10           |
+  | nop          || nop          || lit          || 10           |
+  +--------------++--------------++--------------++--------------+
+  +--------------++--------------+
+  | 407          || 408          |
+  |--------------||--------------|
+  | 391          || 9            |
+  | putc         || ;            |
+  +--------------++--------------+
+
+There is also a *vertical* mode. In this mode, the **cr** disassembly appears
+as:
+
+::
+
+  403 nop
+  404 nop
+  405 lit   10
+  407 call  391
+  408 ;
+
+To toggle the modes, use the **vertical** variable.
+
+::
+
+  vertical on   ( use vertical mode   )
+  vertical off  ( use horizontal mode )
+
+
+Memory Explorer
+===============
+The memory explorer lets you examine memory interactively, starting at an
+address or a specific function.
+
+::
+
+  explore address
+  explore function
+
+The key bindings are:
+
++-----+----------------------------------+
+| Key | Usage                            |
++=====+==================================+
+| i   | Backtrack display by one address |
++-----+----------------------------------+
+| j   | Backtrack display by one screen  |
++-----+----------------------------------+
+| k   | Advance display by one address   |
++-----+----------------------------------+
+| l   | Advance display by one screen    |
++-----+----------------------------------+
+| z   | Quit Autospy                     |
++-----+----------------------------------+
+| ?   | Display this help screen         |
++-----+----------------------------------+
+| 1   | Jump to address                  |
++-----+----------------------------------+
+
+
+
+Single Stepper
+==============
+This is a new tool. It combines a virtualized Ngaro implementation and allows
+watching execution progress step by step.
+
+To allow for debugging in a sandboxed environment, the single stepper makes
+a copy of the current image in memory (located at roughly 16k cells above
+**here**), and provides for a private address stack. The data stack is shared
+between Retro and the sandboxed image.
+
+Exection of an instruction can be done using **step**. To execute multiple
+instructions, use **steps**.
+
+There is guard code to stop further execution when the function exits.
+
+Output
+``````
+When **step** is executed, Autopsy will display the current IP, RSP, SP,
+the data stack contents, and the instruction being executed. E.g.:
+
+::
+
+  ok  step
+  ------------------------
+  IP: 405  RSP: 0  SP: 0
+  <0>
+  405 lit   10
+  ------------------------
+
+  ok  step
+  ------------------------
+  IP: 407  RSP: 0  SP: 1
+  <1> 10
+  407 call  391
+  ------------------------
+
+
+Functions
+`````````
++----------+-------+---------------------------------+
+| Function | Stack | Notes                           |
++==========+=======+=================================+
+| step     | ``-`` | Execute a single instruction    |
++----------+-------+---------------------------------+
+| steps    | n-    | Execute multiple instructions   |
++----------+-------+---------------------------------+
+| debug:   | "-    | Set a function as the one to be |
+|          |       | debugged                        |
++----------+-------+---------------------------------+
+| stats    | ``-`` | Display number of instructions  |
+|          |       | processed                       |
++----------+-------+---------------------------------+
+| runtime  | q-    | Display the number of seconds   |
+|          |       | needed to run a function        |
++----------+-------+---------------------------------+
+}doc

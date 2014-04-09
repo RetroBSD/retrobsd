@@ -1,0 +1,20 @@
+Retro allows for insertion of documentation blocks. The contents of these can be
+in any format desired, though the standard Retro system uses Restructured Text for
+all embedded and external documentation.
+
+  doc{
+  =============
+  Function: foo
+  =============
+
+  Stack
+  ----
+  a1 a2 - b
+
+  Usage
+  -----
+  Adds a1 to a2 returning b.
+  }doc
+
+  : foo ( aa-b ) + ;
+

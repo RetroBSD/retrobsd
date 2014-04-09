@@ -1,0 +1,16 @@
+Rosetta Code
+============
+Rosetta Code is a website that provides comparisons in implementation of common
+tasks across a variety of languages. This directory contains the Retro code for
+these examples.
+
+Please note that many of these will have textual comments added; they are intended
+for study, not running directly.
+
+If you make changes here, please update the appropriate pages on the rosettacode.org
+site to reflect them.
+
+Legal
+=====
+The code here is dual licensed under ISC (for inclusion in Retro) and GFDL (for
+posting to Rosetta Code).

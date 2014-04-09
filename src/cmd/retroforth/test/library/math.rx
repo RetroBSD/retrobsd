@@ -1,0 +1,30 @@
+needs assertion'
+needs math'
+
+with assertion'
+
+[ [ "passed" ] [ "failed" ] if "%s\n" puts ] is postCond
+
+: a0
+  "Testing squareRoot : " puts
+  144 ^math'squareRoot 12 assert=
+   36 ^math'squareRoot  6 assert= ; assertion
+
+: a1
+  "Testing gcd : " puts
+  36 12 ^math'gcd 12 assert=
+  44 55 ^math'gcd 11 assert= ; assertion
+
+: a2
+  "Testing lcm : " puts
+  96 144 ^math'lcm 288 assert= ; assertion
+
+: a3
+  "Testing divisor? : " puts
+  100 25 ^math'divisor? -1 assert=
+  100 31 ^math'divisor?  0 assert= ; assertion
+
+: go
+  cr a0 a1 a2 a3 bye ;
+
+go

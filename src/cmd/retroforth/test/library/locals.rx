@@ -1,0 +1,24 @@
+needs assertion'
+needs locals'
+
+with| assertion' locals' |
+
+[ [ "passed" ] [ "failed" ] if "%s\n" puts ] is postCond
+
+: foo
+  locals{ a b c }
+  @c @b + @a * ;
+
+: bar
+  locals{ a b c }
+  @c @b - @a + ;
+
+: a0
+  "Testing locals: " puts
+  1 2 3 foo 9 assert=
+  2 4 6 bar 4 assert= ; assertion
+
+: go
+  cr a0 bye ;
+
+go

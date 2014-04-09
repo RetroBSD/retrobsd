@@ -1,0 +1,15 @@
+Taking the numbers from the stack:
+
+: example ( ab- )
+  cons
+  [ do > [ "A > B\n" puts ] ifTrue ]
+  [ do < [ "A < B\n" puts ] ifTrue ]
+  [ do = [ "A = B\n" puts ] ifTrue ] tri ;
+
+Or, to parse for numbers:
+
+: example ( ab- )
+  getToken getToken &toNumber bi@ cons
+  [ do > [ "A > B\n" puts ] ifTrue ]
+  [ do < [ "A < B\n" puts ] ifTrue ]
+  [ do = [ "A = B\n" puts ] ifTrue ] tri ;

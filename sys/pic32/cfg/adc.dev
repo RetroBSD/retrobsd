@@ -1,0 +1,4 @@
+always
+    file adc.o
+    define ADC_ENABLED YES
+end always

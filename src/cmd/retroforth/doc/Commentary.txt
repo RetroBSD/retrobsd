@@ -1,0 +1,2009 @@
+Building Retro
+--------------
+The process of building a new retroImage is a straightforward, though not
+trivial, process. It involves several stages, and some tricks. This is
+a commentary on the code, which should help make the process easier to
+understand.
+
+
+Stage 1: The Metacompiler
+=========================
+The first of the three stages of Retro is the metacompiler. This comprises
+the assembler, and secondary compiler, and is used to create a new image.
+There are some tricky things:
+
+1) The target memory is allocated
+2) But all pointers compiled in it need to be adjusted to be relative to
+   zero, so it'll continue working after replacing the old image
+3) We can't know the locations of the class handler until we are finished
+   laying down a fair portion of the new kernel
+4) When we move the image to overwrite the old one, we can't rely on any
+   code locations in either image
+
+So let's begin.
+
+  2560 constant IMAGE-SIZE
+
+This just specifies how much memory to set aside for the initial kernel built
+by the metacompiler. If you need to increase, it's safer to increase in small
+increments and rebuild rather than trying a big jump. (Large increases can
+cause the new image to overwrite the bootNew routine, which is an easy way
+to generate a badly corrupted image.)
+
+  7 elements target origin 'WORD 'MACRO 'DATA link chain
+
+A list of variables used by the metacompiler.
+
++--------+----------------------------------------------------------+
+| target | Holds a pointer to the next free address in the target   |
+|        | memory. This is similar to "heap"                        |
++--------+----------------------------------------------------------+
+| origin | Holds a pointer to the start of the target memory        |
++--------+----------------------------------------------------------+
+| 'WORD  | Holds a pointer to the .word class                       |
++--------+----------------------------------------------------------+
+| 'MACRO | Holds a pointer to the .macro class                      |
++--------+----------------------------------------------------------+
+| 'DATA  | Holds a pointer to the .data class                       |
++--------+----------------------------------------------------------+
+| link   | Holds pointer to prior entry (for initial dictionary)    |
++--------+----------------------------------------------------------+
+| chain  | Holds pointer to variable that will become "last"        |
++--------+----------------------------------------------------------+
+
+  : m,  ( n-  ) @target !+ !target ;
+
+This is like "," but it writes the value to the target memory instead
+of the standard heap. Each time it's called, "target" is increased by
+one.
+
+  : vm: ( n"- ) ` : .data ` m, ` ; ;
+
+This is used to build functions that lay down opcodes into the target
+memory space. Functionally the following forms would be equivilent:
+
+  0 vm: nop,
+  : nop, 0 m, ;
+
+The use of "vm:" helps keep things a bit more readable though, so it
+is preferred to do it this way.
+
+     0 vm: nop,          1 vm: lit,          2 vm: dup,
+     3 vm: drop,         4 vm: swap,         5 vm: push,
+     6 vm: pop,          7 vm: loop,         8 vm: jump,
+     9 vm: ;,           10 vm: >jump,       11 vm: <jump,
+    12 vm: !jump,       13 vm: =jump,       14 vm: @,
+    15 vm: !,           16 vm: +,           17 vm: -,
+    18 vm: *,           19 vm: /mod,        20 vm: and,
+    21 vm: or,          22 vm: xor,         23 vm: <<,
+    24 vm: >>,          25 vm: 0;           26 vm: 1+,
+    27 vm: 1-,          28 vm: in,          29 vm: out,
+    30 vm: wait,
+
+Create functions for laying down each opcode. This is pretty easy
+to grasp. The number is the opcode number (in decimal), and the names
+all end with a comma to distinguish them from higher-level functions.
+
+  : pad         ( -   ) 32 @origin + !target ;
+
+Used to ensure that function addresses are greater than the number of
+opcodes.
+
+  : t-here      (  -n ) @target @origin - ;
+
+Like "here", but returns a pointer in the target buffer. The pointer
+is set relative to zero, not the physical start of the target buffer.
+
+  : endKernel   (  -  )
+    t-here "\nKernel ends @ %d\n" puts
+    IMAGE-SIZE t-here - "%d cells free" puts
+    depth 1 >= [ "\nError in stack depth!: " puts .s ] ifTrue ;
+
+This is called at the end of the initial kernel. It does some sanity checks
+on the stack depth and displays some statistics on the size of the kernel.
+
+  : main:       (  -  ) t-here [ "\nMAIN @ %d" puts ] [ @origin 1+ ! ] bi ;
+
+This is called to mark the main entry point in the image. It replaces the
+jump at the image start with a jump to the code that follows it.
+
+  : label:      ( "-  ) t-here constant ;
+
+Create a symbolic name pointing to something in the target space, with the
+pointer being relative to zero.
+
+  : #           ( n-  ) lit, m, ;
+
+This is used to compile a value as a literal. In normal definitons you'd just
+do:
+
+  : foo 1 2 + ;
+
+However, the classes are not aware of the target image. So we manually tell
+Retro to compile them.
+
+  : foo 1 # 2 # + ;
+
+This continues with the next function:
+
+  : __#         ( $-  ) lit, toNumber m, ; parsing
+
+This is a parsing prefix; it serves as a shortcut for numbers. Instead of
+doing:
+
+  1 # 2 #
+
+We can do:
+
+  #1 #2
+
+Which I find a bit cleaner.
+
+  : $,          ( $-  ) withLength [ @+ m, ] times 0 m, drop ;
+
+Copy a string from the current image into the target memory space.
+
+The above finishes off what I consider the core of the assembler. The code
+then moves on to extend this into a target compiler and machine forth
+dialect.
+
+  : t: ( "-  ) label: nop, nop, &m, reclass ;
+
+Since : creates a dictionary header in the current image, we can't use it to
+create functions in the target. We define "t:" (for "target :") to create a
+label, compile two nop instructions, and then change the label's class to call
+"m,"
+
+Since the Retro VM is direct threaded, this basically makes a function in the
+target compile a call to itself when referenced. The following forms would
+be functionally identical:
+
+  ( without t: or # )
+  label: foo  lit, 1 m, lit, 2 m, ;, ;,
+  label: bar ' foo m, ;, ;,
+
+  ( with t: and # )
+  t: foo #1 #2 ;, ;,
+  t: bar foo ;, ;,
+
+As can be seen, the second is much more compact and readable.
+
+Note the double ;, at the end of the functions. Retro 11 expects colon
+definitions to end in a double return. This could be stripped out to save
+space, but some of the debugging tools (such as dissect' and autopsy.rx)
+require this to locate the end of a function in memory.
+
+Later on a modified ";" is defined to do this for us.
+
+  {{
+    : cond ( -a ) @target 0 m, ;
+  ---reveal---
+    : =if  ( -a ) !jump, cond ;
+    : <if  ( -a ) >jump, cond ;
+    : >if  ( -a ) <jump, cond ;
+    : !if  ( -a ) =jump, cond ;
+    : then ( a- ) t-here swap ! ;
+  }}
+
+Primitive conditionals mapping to the VM conditional jumps. Since the
+initial kernel does not support quotes, this is used to allow for any
+required comparision or flow control.
+
+  : jump:  ( "-  ) jump, ' m, ;
+
+Compile a jump instruction into the target memory. This is used in a
+couple of places to keep the address stack shallow, and to improve
+performance slightly.
+
+  : repeat (  -a ) t-here ;
+  : again  ( a-  ) jump, m, ;
+
+We redefine repeat/again to work in the target memory instead of the
+current image.
+
+  : variable: ( n"- ) label: m, ;
+  : variable  (  "- ) 0 variable: ;
+  : elements  ( n"- ) &variable times ;
+
+Create labels pointing to data in the target image. These correspond
+to the identically named functions in the current image.
+
+  : entry     ( a"- ) t-here @link m, !link m, m, getToken $, ;
+  : word:     ( a"- ) @'WORD  entry ;
+  : macro:    ( a"- ) @'MACRO entry ;
+  : data:     ( a"- ) @'DATA  entry ;
+  : patch     (   - ) @link [ @chain ! ] [ "\nLast header at %d" puts ] bi ;
+  : mark      (   - ) @target !chain ;
+  : setClass  ( aa- ) ! ;
+
+A big round of functions used to create the initial dictionary in the new
+kernel. Taking these one at a time:
+
+  entry
+
+Given a pointer, a class, and a string with the name, create a new header.
+Generally this should not be used directly; instead use "word:", "macro:",
+and "data:"
+
+ word:
+
+Given a pointer, parse for a name and create a header with a class of ".word"
+
+  macro:
+
+Given a pointer, parse for a name and create a header with a class of ".macro"
+
+  data:
+
+Given a pointer, parse for a name and create a header with a class of ".data"
+
+  setClass
+
+Now we run into a problem. We can create headers, but the class locations
+aren't easily knowable. We get around this by using "setClass" to assign
+the 'WORD  'MACRO  and  'DATA variables to the class handlers we create.
+
+Two more left...
+
+  mark
+
+Mark the cell at t-here as the variable that will corespond with "last". This
+variable is set later by...
+
+  patch
+
+You should call "patch" at the end of the kernel source to seal the initial
+dictionary. Once that's done, relocation should be possible.
+
+  {{
+    : for      ( n-   )  here 5 , ; compile-only
+    : next     (  -   )  6 , 7 , , ; compile-only
+    : @+       ( a-ac )  dup 1+ swap @ ;
+    : !+       ( ca-a )  dup 1+ push ! pop ;
+    : copy     ( aan- )  for push @+ pop !+ next drop drop ;
+    : wait     ( - )     0 0 out [[ 30 , ]] ;
+    : save     ( - )     1 4 out 0 0 out wait ;
+    : relocate ( - )     origin @ 0 IMAGE-SIZE copy ;
+  ---reveal---
+    : bootNew  ( - )     cr relocate save 0 push ;
+  }}
+
+This bit is hairy. Once the target image is created, we need to replace the
+original image with the new one. This involves reading it cell by cell, and
+writing it to the main memory, starting at address zero. Pretty straightforward.
+
+However there is a catch. Since the new image will (generally) differ from the
+old one, **this code can not call anything in the old or new images**.
+
+So, to make this work, I define all needed factors using only primitives and
+macros that inline raw Ngaro bytecode. The mechanics here are murky, but I've
+not found a better solution yet.
+
+Once "bootNew" finishes relocating the kernel it saves the new image file and
+uses a trick ("0 push ;") to jump to the new image. Assuming that there are
+no serious bugs, the new image should be ready to extend.
+
+If anything does go wrong you may have to manually kill the VM and restore
+the image from a clean backup.
+
+  : ; ( - ) ;, ;, ;; [[
+
+Ok, now this one is the last definition in the metacompiler. We redefine ";"
+to lay down two return instructions (";,"), and then end the definition and
+exit the compiler manually (using ";; [[").
+
+TIP:
+
+  If you are pressed for space, you can save a fair amount of memory by
+  removing the second ";," here.
+
+One final bit:
+
+  here [ !target ] [ !origin ] bi IMAGE-SIZE allot
+  jump, 0 m,
+  reset
+
+Starting at "here", allocate space for the new image, set "target" and "origin"
+to point to it, then compile a jump instruction, with a target of zero. This
+will be modified later, by "main:". And finally, "reset" to ensure the data
+stack is in a clean state.
+
+
+Stage 2: The Kernel
+===================
+At this point the metacompiler functions are created, there is space set aside
+for a new image, and things are ready to proceed. So on to the kernel.
+
+  IMAGE-SIZE  constant CORE
+  CORE 0000 + constant TIB
+  TIB   512 + constant HEAP
+
+Create a few constants, which determine the basic memory layout. It looks like:
+
++----------------+----------------------------------------------------+
+| 0              | Start of memory. The kernel goes here              |
++----------------+----------------------------------------------------+
+| 0 + IMAGE-SIZE | End of kernel, start of TIB (text input buffer)    |
++----------------+----------------------------------------------------+
+| TIB + 512      | Start of heap. This is set to TIB + 512 by default |
++----------------+----------------------------------------------------+
+
+If you need to save memory, reducing the TIB is a quick and easy way to do so.
+I'd leave it at least 81 characters long, but making it a bit longer than the
+longest strings you'll be creating is a good idea.
+
+WARNING:
+
+  If you make TIB too small, you can overwrite non-kernel code as you type
+  long strings. If you overwrite memory, you may need to exit and reload, or
+  even restore the image from a backup in some cases.
+
+Moving on:
+
+  mark variable last  ( Pointer to the most recent dictionary header            )
+  HEAP variable: heap ( Starting address of the data/code heap                  )
+  variable compiler   ( Is the compiler on or off?                              )
+  variable which      ( Pointer to dictionary header of the most recently       )
+                      ( looked up word                                          )
+These should be pretty easy to grasp. Note the use of "mark" to flag the "last"
+variable, which will be updated afterthe initial dictionary is created.
+
+  pad
+  label: copytag   "Retro" $,
+  label: version   "11.1" $,
+  label: build     time toString $,
+  label: okmsg     "ok  " $,
+
+Ngaro assumes that addresses of functions will be greater than the number of
+opcodes. The "pad" function injects a bunch of NOP's to make sure that things
+are setup correctly.
+
+Some strings. "copytag" and "version" and "build" are displayed when Retro
+starts, while "okmsg" serves as the prompt for the listener.
+
+The padding isn't always needed, but seems to help keep the rebuilds more
+stable if you are making changes to the kernel. (Specifically, it's there
+to ensure that no functions are located at addresses reserved for Ngaro
+bytecodes.)
+
+  t: dup  (  n-nn )  dup,  ;      t: 1+   (  n-n  )  1+,   ;
+  t: 1-   (  n-n  )  1-,   ;      t: swap ( xy-yx )  swap, ;
+  t: drop (  n-   )  drop, ;      t: and  ( xy-n  )  and,  ;
+  t: or   ( xy-n  )  or,   ;      t: xor  ( xy-n  )  xor,  ;
+  t: @    (  a-n  )  @,    ;      t: !    ( na-   )  !,    ;
+  t: +    ( xy-n  )  +,    ;      t: -    ( xy-n  )  -,    ;
+  t: *    ( xy-n  )  *,    ;      t: /mod ( xy-qr )  /mod, ;
+  t: <<   ( xy-n  )  <<,   ;      t: >>   ( xy-n  )  >>,   ;
+  t: out  ( np-   )  out,  ;      t: in   (  p-n  )  in,   ;
+
+These are functions that map directly to Ngaro instructions. We will use the
+instructions directly in most cases (to save some overhead), but this serves
+to allow normal definitions to use them if desired.
+
+  t: wait (   -   )  #0 #0 out, wait, ;
+
+The "wait," instruction needs a bit of extra help to actually trigger an I/O
+event. This provides it.
+
+  t: over  (  xy-xyx )  push, dup, pop, swap, ;
+  t: not   (   x-y   )  #-1 xor, ;
+  t: on    (   a-    )  #-1 swap, !, ;
+  t: off   (   a-    )   #0 swap, !, ;
+  t: /     (  xy-q   )  /mod, swap, drop, ;
+  t: mod   (  xy-r   )  /mod, drop, ;
+  t: negate (  x-y   )  #-1 *, ;
+
+Additional stack, variable, and math functions that are quite useful.
+
+  t: do    (   a-    )  1-, push, ;
+
+This is used to invoke a function. The 1-, is used to account for the way the
+VM increments the instruction pointer.
+
+  t: @+    (   a-ac  )  dup, 1+, swap, @, ;
+  t: !+    (  ca-a   )  dup, 1+, push, !, pop, ;
+
+Rather handy functions for "fetch from and return next" and "store to and
+return next". This allows easy access to linear arrays or strings:
+
+  ( an example of using @+ )
+  create array 1 , 2 , 3 ,
+  array @+ putn @+ putn @+ putn drop
+
+Continuing on, we now have the core of the actual colon compiler:
+
+  t: here     (  -a )  heap # @, ;
+  t: ,        ( n-  )  here !+ heap # !, ;
+
+Note the use of "!+" in ",". This is a clean way of implementing this
+functionality.
+
+  t: ;;       (  -  )  #9 , ;
+  t: t-;      (  -  )  ;; ;; compiler # off ;
+
+For terminating definitions. These are exposed as ";;" and ";", respectively.
+We allow the "t-" prefix to avoid confusion with the ";" provided by the
+metacompiler.
+
+TIP:
+
+  If you are pressed for space, you can save a fair amount of memory by
+  removing the second ";;" here.
+
+And back to the code:
+
+  t: ($,)     ( a-a )  repeat @+ 0; , again ;
+  t: $        ( a-  )  ($,) drop, #0 , ;
+
+This is used to compile a string into memory. We'll see how it is used
+when we get to ":".
+
+Since we lack any counted loops, the "($,)" has been factored out into a
+separate definition.
+
+
+  t: push     ( n-  )  #5 , ;
+  t: pop      (  -n )  #6 , ;
+
+These are exposed as macros; they lay down push, and pop, instructions when
+executed.
+
+  t: (if)     ( -a            )  , here #0 , ;
+  t: t-=if    ( R: xy-  C: -a )  #12 jump: (if)
+  t: t->if    ( R: xy-  C: -a )  #11 jump: (if)
+  t: t-<if    ( R: xy-  C: -a )  #10 jump: (if)
+  t: t-!if    ( R: xy-  C: -a )  #13 jump: (if)
+  t: t-then   ( R: -    C: a- )  here swap, !, ;
+  t: t-0;     ( n-n   ||   n- )  #25 , ;
+  t: t-repeat ( R: -    C: -a )  here ;
+  t: t-again  ( R: -    C: a- )  #8 , , ;
+
+Primitive flow control and conditionals. At this point we have to use
+these, as there's no quotes in the initial kernel.
+
+Note the continued use of "t-" as a prefix to avoid confusion with the
+functions in the metacompiler.
+
+Most of these will be hidden at the end of the core.rx source.
+
+  t: withClass ( ac- ) 1-, push, ;
+
+This is identical (by default) to "do", but serves as a hook for gaining
+more control over how classes are handled.
+
+  t: .word     (  a- ) compiler # @, #0 !if , ; then jump: do
+
+The class handler for normal functions. If interpreting, execute the xt
+of the function. If the compiler is active, lay down a call to the xt
+instead.
+
+  t: .macro    (  a- ) jump: do
+
+The core class for compiler macros. Basically "immediate" functions; this
+always calls the xt.
+
+  t: .data     (  a- ) compiler # @, 0; drop, #1 , , ;
+
+The class handler for data structures. It either leaves the xt on the stack
+(if interpreting), or compiles it as a literal.
+
+  ' .word  'WORD  setClass
+  ' .macro 'MACRO setClass
+  ' .data  'DATA  setClass
+
+This bit assigns the classes to the variables that the metacompiler will later
+use when creating the initial dictionary. Without this, we'd have no easy way
+to reference the classes in the new kernel.
+
+  -1 variable: update
+
+This variable is used to control whether or not the display is updated. On
+some VM implementations, you can improve performance by turning it "off" before
+writing large amounts of text to the screen, then "on" when done.
+
+  t: redraw (  -  ) update # @, 0; drop, #0 #3 out, ;
+
+Attempt to flush the output buffers.
+
+  t: putc   ( c-  ) 0; #1 #2 out, wait redraw ;
+
+Display an ASCII (or possibly unicode) character.
+
+  t: cr     (  -  ) #10 putc ;
+
+Move the text cursor to the start of the next line.
+
+  t: (puts) ( a-a ) repeat @+ 0; putc again ;
+  t: <puts> ( a-  ) (puts) drop, ;
+  t: puts   ( a-  ) <puts> ;
+
+These are used to display a string. "(puts)" is not exposed to the global
+dictionary, but the others are. "<puts>" is replaced in stage 3 with code
+allowing for formatted output. Generally, user code should only call "puts".
+
+  variable break                           ( Holds the delimiter for 'accept' )
+  -1 variable: remapping                   ( Allow extended whitespace?       )
+  -1 variable: eatLeading?                 ( Eat leading delimiters?          )
+  -1 variable: tabAsWhitespace
+
+These should be understandable by the comments.
+
+  t: tib ( -a ) TIB # ;
+
+Return a pointer to the text input buffer. This allows for temporary (or long
+term) moving of the TIB to allow for longer strings.
+
+  t: remapKeys ( c-c ) ;
+
+A hook to allow runtime remapping of one character to another during input.
+
+  t: ws        ( c-c )
+     dup, #127 =if drop,  #8 then
+     dup,  #13 =if drop, #10 then
+     remapping # @, 0; drop,
+     dup, #10 =if drop, #32 then
+     tabAsWhitespace # @, #0 !if dup,  #9 =if drop, #32 then then ;
+
+Remapping of whitespace. Generally, this will take care of backspaces on OS X,
+cr/lf pairs under Windows, and optionally turn tabs into spaces.
+
+  t: <getc> (  -c ) #1 #1 out, wait #1 in, ;
+  t: getc   (  -c ) repeat <getc> remapKeys dup #0 !if ws ; then drop, again ;
+
+Read a key from the keyboard. This is exposed as "getc", and calls "remapKeys"
+and "ws" to remap things before returning them on the stack.
+
+  t: putc?  ( n-n ) dup, #8 =if drop, break # @, ; then dup, putc ;
+
+Display a character if not backspace.
+
+  t: eat    ( a-a )
+     eatLeading? # @, 0; drop
+     repeat getc putc? dup, break # @, !if swap, !+ ; then drop, again ;
+
+If we want to discard leading delimiters, this will ignore input until it
+encounters a non-delimiter character.
+
+  t: guard? ( n-n ) dup, 1+, tib <if drop, tib ; then #8 putc ;
+
+This is used to prevent backspaces from going before the start of the TIB.
+
+  t: (accept) ( a-a )
+     repeat
+       getc
+       dup, #8 =if drop, 1-, guard? jump: (accept) then
+       dup, putc
+       dup, break # @, =if drop, ; then
+       swap, !+
+     again ;
+  t: accept ( c- ) break # !, tib eat (accept) #0 swap, !+ drop, ;
+
+Read input into the TIB, ending when the delimiter is encountered.
+
+  t: d->class ( a-a )  1+, ;
+  t: d->xt    ( a-a )  1+, 1+, ;
+  t: d->name  ( a-a )  1+, 1+, 1+, ;
+
+These are dictionary field accessors. Our dictionary is a linked list, with
+a structure of:
+
++----+------------------+
+| 0  | link to previous |
++----+------------------+
+| 1  | class handler    |
++----+------------------+
+| 2  | xt               |
++----+------------------+
+| 3+ | name of function |
++----+------------------+
+
+The accessors give us a clean, and portable, way to access the various fields.
+
+  t: header   ( $-  )  push, here        ( Entry Start      )
+                       last # @, ,       ( Link to previous )
+                       last # !,         ( Set as newest    )
+                       ' .data # ,       ( Class = .data    )
+                       here #0 ,         ( XT               )
+                       pop, $            ( Name             )
+                       here swap, !, ;   ( Patch XT to HERE )
+
+Given a string, this creates a header pointing the xt to the cell following
+the header, and assigning a class of ".data" to it. This is used by:
+
+  t: create   ( "-  )  #32 accept tib header ;
+
+"create" which parses for a name, then creates the header. Note here that
+"accept" does not return a pointer to the tib; that is up to you to obtain
+if needed.
+
+  t: (:)      (  -  )  last # @, d->class !, compiler # on #0 , #0 , ;
+  t: :        ( "-  )  create ' .word # (:) ;
+
+The colon compiler in all it's glory. "create" a header, assign it a class of
+".word", lay down two nop's (for revectoring purposes), and set the compiler
+to "on".
+
+At this point we no longer need the old ":" from the old image, so we can
+reuse the name here, rather than start it off with a "t-" prefix.
+
+  t: t-(      ( "-  )  ') # accept ;
+
+Allow for comments. Eats everything up to a ")", and then exits.
+
+( Quotes ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+  t: [        (    -naa ) compiler # @, #8 , here #0 , here compiler # on ;
+  t: ]        ( naa-q   ) push, ;; here swap, !, compiler # !, pop, .data ;
+
+Quotes are anonymous blocks of code. We create them using "[" and "]". The
+way they work is this:
+
+[ does:
+
+  1) get a copy of the current compiler state
+  2) compile a jump to 0, leaving a pointer to the jump target on the stack
+  3) leave a pointer to the actual code start (after the jump) on the stack
+  4) turn the compiler on
+
+] does:
+
+  1) move the pointer to the code in the quote out of the way
+  2) compile an exit (";;")
+  3) patch the jump ("here swap !")
+  4) restore the compiler to the saved state ("compiler !")
+  5) restore the pointer to the code in the quote, and call ".data"
+
+And now on to the base set of combinators...
+
+  t: empty    (    -    ) ;
+
+This serves as an empty quote, for use in cases where we may not have an
+actual action (e.g., "ifTrue", and "ifFalse")
+
+  t: if       ( fqq-    )
+     push, swap, pop, swap, #0 !if drop, do ; then swap, drop, do ;
+  t: ifTrue   (  fq-    ) ' empty # if ;
+  t: ifFalse  (  fq-    ) ' empty # swap, if ;
+
+Higher level conditional flow control. These execute quotes based on a flag
+left by a conditional function. (The conditional functions will be defined
+soon)
+
+  t: dip      (  nq-n   ) swap, push, do pop, ;
+
+The "dip" combinator replaces direct use of "push" and "pop" in many cases.
+E.g.,
+
+  ( without dip )
+  1 2 push 3 + pop
+
+  ( with dip )
+  1 2 [ 3 + ] dip
+
+Moving on:
+
+  t: sip      (  nq-n   ) over ' do # dip ;
+
+This replaces a "dup push ... pop" sequence:
+
+  ( without sip )
+  1 dup push 3 + pop
+
+  ( with sip )
+  1 [ 3 + ] sip
+
+And now for the promised conditionals:
+
+  t: =    ( xy-f  ) =if #-1 ; then #0 ;
+  t: <>   ( xy-f  ) !if #-1 ; then #0 ;
+  t: >=   ( xy-f  ) >if #-1 ; then #0 ;
+  t: <=   ( xy-f  ) <if #-1 ; then #0 ;
+  t: <    ( xy-f  ) >if  #0 ; then #-1 ;
+  t: >    ( xy-f  ) <if  #0 ; then #-1 ;
+
+All pretty simple, and with names that should be familiar. Note that these
+are built using the VM instructions via the functions in the metacompiler.
+
+  t: compare  ( $$-f )
+     repeat
+       dup, @, push, 1+, swap,
+      dup, @, push, 1+, pop, dup, pop,
+        !if drop, drop, dup, xor, ; then
+     #0 12 m, m,
+     drop, drop, #-1 ;
+
+Compare two strings. Yes, this is hairy. But it is much faster than a higher
+level implementation, and as one of the most heavily used functions in Retro,
+this pays off.
+
+  t: count       ( a-a ) repeat @+ 0; drop, again ;
+  t: getLength   ( a-n ) dup, count 1-, swap, -, ;
+  t: withLength  ( a-an ) dup, getLength ;
+
+Obtain the length of a string. "count" is not exposed, but the others are.
+Note here that "withLength" is the same as "dup getLength"; it was factored
+out to help reduce stack noise elesewhere.
+
+  t: keepString  ( a-a ) withLength #3 +, here +, #8 , , here swap, $ ;
+
+Another tricky one. Get the length of a string, compile a jump to the address
+that would follow the string, and inline it after the jump.
+
+  4 elements #value num negate? flag
+  10 variable: base
+  label: numbers "0123456789ABCDEF" $,
+
+These are used in parsing (and later, in display) of numbers. The "base" holds
+the current numeric base, and "numbers" is a string of characters that are
+valid for parsing as numbers.
+
+  t: nums     ( -a ) numbers # ;
+
+Return the "numbers" string. This an be revectored to allow for adding more
+bases later.
+
+  t: (digits) nums +, @, over =if num # on then ;
+  t: digits   1- repeat dup, push, (digits) pop, 0; 1- again ;
+  t: valid?   base # @, dup, #16 <if digits ; then drop, ;
+  t: digit?   num # off valid? drop, num # @, ;
+  t: toDigit  ( c-n ) '0 # -, base # @, #16 =if dup, #16 >if #7 -, then then ;
+
+Various helpers.
+
+  t: isNegative? ( a-a )
+     dup, @, '- # =if -1 # negate? # !, 1+, ; then #1 negate? # !, ;
+
+If a number is negative, set the "negate?" variable to -1, otherwise set it
+to 1. After conversion, we multiply by this to change the sign as needed.
+
+  t: (convert)
+     repeat
+       dup, @, 0; toDigit #value # @, base # @, *, +, #value # !, 1+,
+     again ;
+  t: toNumber ( $-n )
+     isNegative? #0 #value # !, (convert) drop, #value # @, negate? # @, *, ;
+
+Convert a string to a number.
+
+  t: (isnumber)
+     repeat dup, @, 0; digit? flag # @, and, flag # !, 1+, again ;
+  t: isNumber? ( $-f ) isNegative? #-1 flag # !, (isnumber) drop, flag # @, ;
+
+Check to see if a string is a valid number.
+
+  6 elements memory fb fw fh cw ch
+
+Variables that hold information about the memory size and displays(s) being
+provided.
+
+  t: boot         (  -  )
+     copytag # puts #32 putc version # puts
+     #32 putc #40 putc build # puts #41 putc cr ;
+
+This is called on startup. By default it displays a little info about
+Retro, but can be revectored to do other tasks.
+
+  t: query        ( n-n ) #5 out, wait, #5 in, ;
+  t: run-on-boot  (  -  )
+     #-1 query memory # !,  ( Memory Size     )
+     #-2 query fb #     !,  ( Canvas Present? )
+     #-3 query fw #     !,  ( Canvas Width    )
+     #-4 query fh #     !,  ( Canvas Height   )
+     #-11 query cw #    !,  ( Console Width   )
+     #-12 query ch #    !,  ( Console Height  )
+     boot ;
+
+Each time the VM starts, this requeries the VM to update the variables. It
+is not exposed to the dictionary.
+
+Now we move on to searching the dictionary. This is pretty simple:
+
+1) take the most recent entry, see if the name field matches the string
+   provided
+2) if so, set "which" to the dictionary header start, and return the header
+   and a true flag
+3) If not found, get the next header and repeat
+4) If not found at all, return a bogus pointer and a false flag
+
+  2 elements name found
+
+Variables used by the searching, other than "which".
+
+  t: prepare  ( a-a  ) found # off name # !, last # @, ;
+
+This resets the variables.
+
+  t: done     (  -af ) which # @, found # @, ;
+
+This returns a pointer to a header and the flag.
+
+  t: match?   ( $-$f ) dup, d->name name # @, compare ;
+
+Compare the requested string with the name field of a header.
+
+  t: <search> ( $-   )
+     repeat match? #0 !if which # !, found # on ; then @ 0; again ;
+
+Loop through, looking for a match.
+
+  t: find     ( $-af ) prepare <search> done ;
+
+Wrap it all up. This is exposed to the dictionary.
+
+  t: t-'      ( "-a  ) #32 accept tib find #0 !if d->xt @, ; then drop, #0 ;
+
+Read a name from the input, and return either a zero, or the contents of
+the xt field that corresponds to the name. This is exposed as ' in the
+dictionary.
+
+Now to the word prefixes...
+
+  label: ___   "___" $,
+
+This sets up a small string providing a template for the prefix names. In
+Retro, all prefixes are named with two leading underscores. This template
+will be modified by the remaining prefix code.
+
+  t: get      ( $-$  ) dup, @, ___ # #2 +, !, 1+, ;
+
+Given a string, take the first character, modify the prefix template, and
+return the string sans the first character.
+
+  t: xt:class ( d-aa ) dup, d->xt @, swap, d->class @, ;
+
+Given a dictionary header, return an xt and class.
+
+  t: try      (  -   )
+     tib get find #0
+     !if d->xt @, ___ # find
+        #0 !if xt:class withClass #0 ; then drop,
+     then drop, #-1 ;
+
+See if the token starts with a prefix. If so, invoke the prefix and return 0.
+If not, return -1.
+
+  t: <notFound> ( -f ) tib getLength #2 >if try then ;
+  t: notFound   ( -  ) <notFound> 0; drop cr tib puts #32 putc '? # putc cr ;
+
+These are called when a token is not found in the dictionary. They display
+an error message. Also, they invoke the prefix handlers first. Later the
+"<notFound>" portion is extended to allow for an additional type of prefix:
+parsing prefixes.
+
+Now on to the listener itself...
+
+  t: ok      (   - ) compiler # @, not 0; drop, cr okmsg # puts ;
+
+If the compiler is off, this displays the prompt in "okmsg". It can be
+altered later if you want different action.
+
+  t: word    (  d- ) xt:class jump: withClass
+
+Handle functions. Basically get the xt and class pair, and then invoke
+"withClass" to call the class handler.
+
+  t: build#  (   - ) tib toNumber ' .data # withClass ;
+
+Convert the string in TIB to a number, then invoke the ".data" class via
+"withClass".
+
+  t: number  (   - ) tib isNumber? #0 !if build# ; then notFound ;
+
+Check the string in TIB. If it's a number, then "build#", otherwise run
+"notFound".
+
+  t: process ( af- ) #0 !if word ; then drop number ;
+
+If a string in TIB corresponds to a name, execute "word"; otherwise
+execute "number".
+
+  t: listen  (   - ) repeat ok #32 accept tib find process again ;
+
+The listener itself. Display the prompt, read a whitespace delimited token,
+search the dictionary for it, and call "process" to handle it. Then repeat,
+forever. (Or until "bye" is called)
+
+Now we're nearly done the second stage. We still need build the initial
+dictinary:
+
+  ' 1+           word: 1+            ' 1-           word: 1-
+  ' swap         word: swap          ' drop         word: drop
+  ' and          word: and           ' or           word: or
+  ' xor          word: xor           ' @            word: @
+  ' !            word: !             ' +            word: +
+  ' -            word: -             ' *            word: *
+  ' /mod         word: /mod          ' <<           word: <<
+  ' >>           word: >>            ' tib          word: tib
+  ' dup          word: dup           ' in           word: in
+  ' out          word: out           ' accept       word: accept
+  ' here         word: here          ' ,            word: ,
+  ' create       word: create
+  ' :            word: :             ' header       word: header
+  ' cr           word: cr            ' putc         word: putc
+  ' remapKeys    word: remapKeys     ' <puts>       word: <puts>
+  ' over         word: over
+  ' not          word: not           ' on           word: on
+  ' off          word: off           ' /            word: /
+  ' mod          word: mod           ' negate       word: negate
+  ' do           word: do            ' nums         word: numbers
+  ' wait         word: wait          ' t-'          word: '
+  ' @+           word: @+            ' !+           word: !+
+  ' keepString   word: keepString    ' getLength    word: getLength
+  ' withLength   word: withLength
+  ' withClass    word: withClass     ' .word        word: .word
+  ' .macro       word: .macro        ' .data        word: .data
+  ' d->class     word: d->class      ' d->xt        word: d->xt
+  ' d->name      word: d->name       ' boot         word: boot
+  ' toNumber     word: toNumber      ' isNumber?    word: isNumber?
+  ' ok           word: ok            ' listen       word: listen
+  ' getc         word: getc          ' find         word: find
+  ' notFound     word: notFound      ' <notFound>   word: <notFound>
+  ' puts         word: puts          ' compare      word: compare
+  ' redraw       word: redraw        ' if           word: if
+  ' ifTrue       word: ifTrue        ' ifFalse      word: ifFalse
+  ' dip          word: dip           ' sip          word: sip
+  ' =            word: =             ' <>           word: <>
+  ' <            word: <             ' >            word: >
+  ' <=           word: <=            ' >=           word: >=
+
+  ' t-;          macro: ;            ' ;;           macro: ;;
+  ' t-=if        macro: =if          ' t->if        macro: >if
+  ' t-<if        macro: <if          ' t-!if        macro: !if
+  ' t-then       macro: then         ' t-repeat     macro: repeat
+  ' t-again      macro: again        ' t-0;         macro: 0;
+  ' push         macro: push         ' pop          macro: pop
+  ' [            macro: [            ' ]            macro: ]
+  ' t-(          macro: (
+
+    last         data: last          compiler     data: compiler
+    fb           data: fb            fw           data: fw
+    fh           data: fh            memory       data: memory
+    cw           data: cw            ch           data: ch
+    heap         data: heap          which        data: which
+    remapping    data: remapping     eatLeading?  data: eatLeading?
+    base         data: base          update       data: update
+    version      data: version       build        data: build
+    tabAsWhitespace data: tabAsWhitespace
+
+Well, that's done. Not too hard, thanks to the dictionary building stuff
+from the metacompiler. When the new image is started by "bootNew", the list
+above is *all* that you have access to. Complete enough to allow for a lot
+to be done, but still small enough to be easily managed.
+
+  patch
+
+This seals off the initial dictionary. It updates the variable flagged by
+"mark" (which becomes "last") to point to the final entry created, leaving us
+with a useable dictionary.
+
+  main: run-on-boot jump: listen
+
+The last actual bit of code in stage 2: the main entry point. This calles
+"run-on-boot" to update the memory and display variables, and then jumps
+to the listener.
+
+  endKernel bootNew
+
+Display some statistics on the new kernel for diagnostic purposes.
+
+"bootNew" will copy the target memory over the old image, and then jump to it.
+Once "bootNew" is called, there is no going back. The old image is replaced by
+the new one, so be sure to keep a backup handy in case changes break things.
+
+
+Stage 3: Extend The Language
+
+  ( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+  ( Ok, at this point the new image should be in control so we have a normal,   )
+  ( though brutally minimal Retro system from here on.                          )
+  ( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+
+As noted by the comment above, at this point we have only the basic set of
+functions and variables available. We start by defining more stack and variable
+operations.
+
+  : nip   (  xy-y    ) swap drop ;
+  : rot   ( xyz-yzx  ) push swap pop swap ;
+  : tuck  (  xy-yxy  ) dup rot rot ;
+  : +!    (  na-     ) dup push @ + pop ! ;
+  : -!    (  na-     ) dup push @ swap - pop ! ;
+  : ++    (   a-     ) 1 swap +! ;
+  : --    (   a-     ) 1 swap -! ;
+
+Then the scope functions:
+
+  create list  ( -a )  0 , 0 ,
+  : {{ ( - )  last @ dup list ! list 1+ ! ;
+  : ---reveal--- ( - ) last @ list 1+ ! ;
+  : }} ( - )
+    list @ list 1+ @ =if list @ last ! ;; then
+    list @ [ last repeat @ dup @ list 1+ @ =if ;; then again ] do ! ;
+
+These are hairy, but basically involve relinking the dictionary chain. The
+simplest case:
+
+  : foo 1 2 + ;
+  {{
+    : bar foo foo * ;
+  }}
+
+Would leave "foo" visible, and hide "bar". This is pretty easy to do, but the
+scope control goes a bit further:
+
+  : foo 1 2 + ;
+  {{
+    : bar foo foo * ;
+  ---reveal---
+    : big bar putn ;
+  }}
+
+Would leave "foo" and "big" visible, but hide "bar". This is done by locating
+the header of "big", and pointing its link field to the header of "foo".
+
+  : :devector ( a-  ) dup 0 swap ! 1+ 0 swap ! ;
+  : :is       ( aa- ) dup 8 swap ! 1+ ! ;
+  : devector  ( "-  ) ' 0; :devector ;
+  : is        ( a"- ) ' 0; :is ;
+
+Retro allows for functions created via the colon compiler to be revectored.
+This provides support for altering existing functionality at a later time and
+is done by replacing the two nop's at the start of each colon definition with
+a jump to the new function.
+
+Devectoring is done by replacing the jump with two nop's.
+
+  : default:  ( "-  ) ' 2 + , ; ' .macro last @ d->class !
+
+This compiles a call to a default definition, skipping the possible revectoring.
+It's useful for extending an existing function.
+
+{{
+  create a 0 , create b 0 , create c 0 , create xt 0 ,
+  : skim       ( a-a )
+    last repeat @ over over d->xt @ =if nip ;; then 0; again ;
+  : getHeaders ( $-  )
+    xt ! 0 a ! 0 b ! 0 c !
+    last repeat @ 0; dup d->xt @ xt @ =if dup b ! @ a ! ;; then dup c ! again ;
+  : <hide>     ( a-  ) getHeaders b @ 0; drop a @ c @ ! ;
+  ---reveal---
+  : d'         ( "-a ) ' drop which @ ;
+  : xt->d      ( a-d || a-0 ) dup skim over over = [ - ] [ nip ] if ;
+  : :hide      ( a-  )
+    dup xt->d last @ = [ drop last @ @ last ! ] [ <hide> ] if ;
+  : hide       ( "-  ) ' 0; :hide ;
+}}
+
+This set of functions is used to access and manipulate the dictionary.
+
+  d'
+
+This acts like ' but returns a dictionary header rather than the contents of
+the xt field. If you look here, you'll see that it uses ' to do the search,
+discards the xt, and pulls the actual header address out of "which".
+
+  xt->d
+
+If you have an xt, this will try to find a dictionary header that corresponds
+to it. If it fails, it'll return a zero.
+
+  :hide
+  hide
+
+These relink the dictionary to hide a single header. You can either provide
+an xt or parse for a name.
+
+  hide list
+
+Hide a factor used in the creation of scopes.
+
+  : reclass      (  a- ) last @ d->class ! ;
+
+Change the class of the most recently defined function to the specified class.
+
+  : reclass:     ( a"- ) d' d->class ! ;
+
+Change the class of a function to the specified class. Parses for the function
+name.
+
+  {{
+    : xt:class ( a-aa ) dup xt->d 0; d->class @ withClass ;
+  ---reveal---
+    : __&  ( a-  ) .data              ;     &.macro reclass
+    : __@  ( a-n ) xt:class &@  .word ;     &.macro reclass
+    : __!  ( na- ) xt:class &!  .word ;     &.macro reclass
+    : __+  ( na- ) xt:class &+! .word ;     &.macro reclass
+    : __-  ( na- ) xt:class &-! .word ;     &.macro reclass
+    : __2  ( a-  ) &xt:class sip xt:class ; &.macro reclass
+  }}
+
+The initial set of prefixes. Note that we redefine "xt:class" here. It's
+slightly different than the non-exposed one in the kernel.
+
++---+------------------------------------------------------+
+| & | Return the address (xt) of a named item              |
++---+------------------------------------------------------+
+| @ | Fetch a value from a variable                        |
++---+------------------------------------------------------+
+| ! | Store a value to a variable                          |
++---+------------------------------------------------------+
+| + | Add a value to the value stored in a variable        |
++---+------------------------------------------------------+
+| - | Subtract a value from the value stored in a variable |
++---+------------------------------------------------------+
+| 2 | Execute a function twice.                            |
++---+------------------------------------------------------+
+
+At this point we only have basic prefixes; support for parsing prefixes will
+be created later.
+
+  : .primitive   (  a- ) dup @ 0 = [ @compiler [ 2 + @ ] ifTrue ] ifTrue .word ;
+  : .compiler    (  a- ) @compiler &do &drop if ;
+
+In the kernel, we have three classes: .word, .macro, and .data. Here we define
+two additionals.
+
+  .primitive
+
+This is used for the handful of functions that map to a single Ngaro
+instruction. If the function is not revectored, and the compiler is active,
+it will inline the instruction rather than laying down a call. Otherwise, it
+acts the same as the ".word" class.
+
+  .compiler
+
+This provides an alternative to ".macro" for things that are only intended
+to be used inside a definition. At the interpreter, things with this class
+are silently ignored.
+
+  : immediate    (   - ) &.macro reclass ;
+
+Change the class of the most recent function to ".macro"
+
+  : compile-only (  "- ) &.compiler reclass ;
+
+Change the class of the most recent function to ".compiler".
+
+Now that we have some new classes, let's change the class of some existing
+functions to ".primitive" to improve performance:
+
+  : p: ( "- ) &.primitive reclass: ;
+  p: 1+     p: 1-     p: swap   p: drop  p: and    p: or     p: xor    p: @
+  p: !      p: +      p: -      p: *     p: /mod   p: <<     p: >>     p: dup
+  p  : in     p: out
+  hide p:
+
+And a couple of things to ".compiler" for safety.:
+
+  : c: ( "- ) &.compiler reclass: ;
+  c: pop    c: push   c: 0;     c: ;;    c: ;      c: repeat c: again
+  hide c:
+
+Ok, now on to backtick:
+
+  : `     ( "-  )
+    ' dup 0 !if .data @which @d->class , ;; then
+    drop tib isNumber? -1
+    =if tib toNumber .data &.data , ;; then
+    notFound ; compile-only
+
+This is similar to "postpone", but with a subtle difference. We use it in cases
+where we wish to create state-aware macros. This is probably best seen with an
+example.
+
+  ( A function to inline "1 2 +" into a definition )
+  : foo  1 , 1 , 1 , 2 , 16 , ; compile-only
+
+Ouch. Too many magic numbers. We could clean this up with the classes:
+
+  ( A function to inline "1 2 +" into a definition )
+  : foo  1 .data 2 .data &+ .primitive ; compile-only
+
+Longer, but more readable. With backtick we can do this instead:
+
+  ( A function to inline "1 2 +" into a definition )
+  : foo  ` 1 ` 2 ` + ; compile-only
+
+This is identical in functionality to the version using classes, but much
+more compact and readable.
+
+  : jump: ( "- ) ' 0; 8 , , ; compile-only
+
+Compile a jump to a named function.
+
+  : [[    (  - ) compiler off ; immediate
+
+Turn the compiler off.
+
+  : ]]    (  - ) compiler on  ;
+
+Turn the compiler on.
+
+Now for more combinators.
+
+  : []      (    -    ) ` [ ` ] ; immediate
+
+Create an empty quote.
+
+  : while   (   q-    ) [ repeat dup dip swap 0; drop again ] do drop ;
+
+Execute quote until quote returns a flag of 0
+
+  : curry   (  nq-q   ) [ [ ` [ ] dip .data ] dip , ` ] ;
+
+Bind data and an action into a new quote. E.g., the following forms are
+identical in functionality:
+
+  5 [ putn ] curry
+  [ 5 [ putn ] do ]
+
+  : take    (  qq-q   ) swap [ [ ` [ ] dip , ] dip .data ` ] ;
+
+Bind data and an action into a new quote. This is dlightly different
+than "curry" in that these forms are identical:
+
+  5 [ putn ] curry
+  [ [ putn ] do 5 ]
+
+  : bi      (  xqq-   ) &sip dip do ;
+
+Apply each quote to a copy of x
+
+  : bi*     ( xyqq-   ) &dip dip do ;
+
+Apply q1 to x and q2 to y
+
+  : bi@     (  xyq-   ) dup bi* ;
+
+Apply q to x and y
+
+  : tri     ( xqqq-   ) [ &sip dip sip ] dip do ;
+
+Apply each quote to a copy of x
+
+  : tri*    ( xyzqqq- ) [ [ swap &dip dip ] dip dip ] dip do ;
+
+Apply q1 to x, q2 to y, and q3 to z
+
+  : tri@    ( xyzq-   ) 2dup tri* ;
+
+Apply q to x, y, and z
+
+  : cons    (  ab-q   ) 2push ` [ 2pop &.data bi@ ` ] ;
+
+Create a quote returning two data elements. These forms are
+identical:
+
+  1 2 cons
+  [ 1 2 ]
+
+  : preserve ( aq-    ) swap [ @ ] sip [ [ do ] dip ] dip ! ;
+
+Given a variable (a) and a quote (q), preserve the contents of (a) while
+executing the quote, and restore the original contents of (a) after
+execution completes.
+
+(a) is removed from the stack before (q) is executed.
+
+We'll see this in use later.
+
+  : when    (  nqq-n  )
+    [ over swap do ] dip swap
+    [ do -1 ] [ drop 0 ] if 0; pop 2drop ;
+
+Execute q1, with a copy of n on the stack. If q1 returns a true flag, run q2
+and exit caller. If not, discard q2 and return to caller. q2 is permitted to
+discard n, which will alter the stack effect.
+
+  {{
+    : for   ( R: n-  C: -a ) here ` push ; compile-only
+    : next  ( R: -   C: a- ) ` pop 7 , , ; compile-only
+    : i 2pop pop 2over 2push swap - swap push ;
+    : tors  (    -n ) ` pop ` dup ` push ; compile-only
+
+Internal factors used to build the next three combinators.
+
+  ---reveal---
+
+    : times (  nq-  )
+      over 1 >= [ swap for dup dip next drop ] [ 2drop ] if ;
+
+The "times" combinator runs a quote (n) times
+
+    : iterd (  nq-  )
+      over 1 >= [ swap for tors swap dup dip next drop ] [ 2drop ] if ;
+
+The "iterd" combinartor runs a quote (n) times and push counter to stack each time. Counts down.
+
+    : iter  (  nq-  )
+      over 1 >= [ swap dup push for i swap dup dip next pop 2drop ] [ 2drop ] if ;
+
+The "iter" combinator runs a quote (n) times and push counter to stack each time. Counts up.
+
+  }}
+
+And now onto "each@". This one is a complex combinator, in that it has
+differing stack effects based on the data types being passed to it. First the
+code:
+
+  {{
+    : <each> (  qa- ) [ dup [ swap dup &do dip ] dip 1+ ] times 2drop ;
+    : array  (  aq- ) swap @+ dup 1 > [ <each> ] [ 2drop ] if ;
+    : buffer ( anq- ) 2rot <each> ;
+    : list   (  lq- ) [ &@ dip 2over [ [ do ] dip ] dip over @ ] while 2drop ;
+  ---reveal---
+    : <each@> ( ...t- ) drop ;
+    : each@   ( ...t- )
+      [ 0  ( ARRAY  ) = ] [ drop array                  ] when
+      [ 1  ( BUFFER ) = ] [ drop buffer                 ] when
+      [ 2  ( STRING ) = ] [ drop &withLength dip buffer ] when
+      [ 3  ( LIST   ) = ] [ drop list                   ] when
+      <each@> ;
+  }}
+
+And the notes from the documentation:
+
+  <each@>         ( ...t-     )  Hook into __each@__ for adding additional types
+  each@           ( ...t-     )  Supercombinator for applying quote to each item
+                                 in various data structures. Also provide on the
+                                 stack:
+
+                                  ARRAY:    aq-
+                                  BUFFER:  anq-
+                                  STRING:   $q-
+                                   LIST:     lq-
+
+                                 The quote is given the address of the current
+                                 element each time it is invoked.
+
+We'll see this in use later.
+
+  : copy   ( aan-  ) [ &@+ dip !+ ] times 2drop ;
+
+This is used to copy a block of memory from one location to another. It is
+not intended for moving blocks backwards, and overlaps may be troublesome.
+
+  : fill   ( ann-  ) swap !here [ @here swap !+ ] times drop ;
+
+Fill a block of memory with a value. We use "here" to hold this value.
+
+  : ahead  (   -a  ) 8 , here 0 , ;
+
+Compile a branch to 0, leaving a pointer to the branch target that we can set
+later.
+
+  : if;    (  f-   ) ` not ` 0; ` drop ; compile-only
+
+Exits a function if TOS is not zero. Useful in unconditional loops.
+
+  : within ( xlu-f ) &over dip <= &>= dip and ;
+
+Attempt to see if a value is within lower and upper bounds. This is inclusive.
+E.g.,
+
+  1 1 3 within
+
+Would return true, as the upper and lower bounds are included in the set
+checked.
+
+  : variable:  ( n"-  ) create , ;
+  : variable   (  "-  ) 0 variable: ;
+
+Variables are created using these. The first form takes an initial value from
+the stack; the second initializes the variable to zero.
+
+  : constant   ( n"-  ) create @last !d->xt ;
+
+Here we abuse the classes to create constants. We alter the xt field to hold
+the value of the constant, and let ".data" take care of the details. Trying to
+execute a constant is not possible.
+
+  : allot      (  n-  ) dup 0 < [ +heap ] [ repeat 0; 1- 0 , again ] if ;
+
+Allocate (or free) space in the heap. Pass a negative value to free, or a
+positive one to allocate space. This will zero out memory when allocating, but
+not when freeing.
+
+TIP:
+
+  If you don't need the zeroing out, you can save space by doing:
+    : allot ( n- ) +heap ;
+  Instead.
+
+Now for a beautiful thing from Like (docl in #retro):
+
+  {{
+    : list     (  n-a ) here swap allot ;
+    : element  (  a-a ) create dup @last !d->xt 1+ ;
+  ---reveal---
+    : elements ( n"-  ) dup list swap &element times drop ;
+  }}
+
+Elements are like a series of variables, but with an important twist:
+the data is sequential in memory, not broken up by the headers. So the
+following can be done to create a simple array with named items:
+
+  3 elements A B C
+  100 200 300 A !+ !+ !+ drop
+  A @+ putn @+ putn @+ putn drop
+
+As can be seen, this can be useful if you need easy access to an array of
+data.
+
+  : decimal ( - ) 10 !base ;
+  : hex     ( - ) 16 !base ;
+  : octal   ( - )  8 !base ;
+  : binary  ( - )  2 !base ;
+
+Change the current base. Nothing fancy here.
+
+  {{
+    create buf   32 allot
+    2 elements digits pos
+    : split    (   n-... )
+      repeat @base /mod swap numbers + @ swap digits ++ 0; again ;
+    : build    ( ...-    )
+      buf @pos [ @pos swap !+ ] ifTrue
+      @digits [ !+ ] times 0 swap ! ;
+    : negate?  (   n-n   ) dup 0 >= if; negate 45 !pos ;
+  ---reveal---
+    : toString (   n-$   ) 0 [ !pos ] [ !digits ] bi negate? split build buf ;
+  }}
+
+Convert a number into a string. This uses "numbers" from the kernel.
+
+  : clear (  - ) -1 putc ;
+
+Clear the display.
+
+  : space (  - ) 32 putc ;
+
+Display a space character.
+
+  : putn  ( n- ) toString puts ;
+
+Display a number. This does not add a trailing space.
+
+  : .parse  (  a- ) do ;
+  : parsing (   - ) &.parse reclass ;
+  {{
+    : number ( a- ) base [ do toNumber .data ] preserve ;
+  ---reveal---
+    : __$   ( $-n ) &hex     number ; parsing
+    : __#   ( $-n ) &decimal number ; parsing
+    : __%   ( $-n ) &binary  number ; parsing
+    : __'   ( $-n ) @ .data         ; parsing
+  }}
+
+Parsing prefixes from Luke. These aren't functional yet, but will a little
+later in the source.
+
++---+------------------------------------------------------+
+| $ | Parse a number as hexadecimal                        |
++---+------------------------------------------------------+
+| # | Parse a number as decimal                            |
++---+------------------------------------------------------+
+| % | Parse a number as binary                             |
++---+------------------------------------------------------+
+| ' | Parse and return first character                     |
++---+------------------------------------------------------+
+
+Notice that the "number" code uses "preserve" to save and restore the "base"
+for us.
+
+And now for vocabularies. This is where things get trickier.
+
+  create dicts 64 allot
+
+We allow up to 64 active vocabularies. This could be reduced to save space.
+
+  {{
+    2 elements active prior
+    create "|" 124 ,  0 ,
+    create "%%" 37 , 37 , 0 ,
+
+Some variables and string constants. We don't have a string parser yet, so
+have to build the strings manually.
+
+  : seal   (  - ) last repeat @ 0; @active over @ =if 0 swap ! ;; then again ;
+
+Close off a vocabulary.
+
+  : revert (  - ) @prior 0; !last 0 !prior ;
+
+Revert to the prior vocabulary.
+
+  : safety (  - ) "%%" header immediate &revert @last !d->xt ;
+
+Create an initial word in every vocabulary named "%%" that will revert us to
+the prior (hopefully global) vocabulary. This gives us a saftey net to help
+recover from mistakes...
+
+  ---reveal---
+
+The above stuff is hidden away from the global dictionary...
+
+  : %%     (  - ) revert ;
+
+Top-level version of "%%".
+
+  : <%>    ( a- ) @last !prior !last ;
+
+Save the current vocabulary, and open a new one. This does not nest.
+
+  : .chain ( a- ) @dicts &drop &<%> if ;
+
+The class for handling vocabularies. You shouldn't need to use this directly.
+
+  : chain: ( "- ) create 0 , &.chain reclass @last !active safety ;
+
+Create a new vocabulary. This is not nestable. The global dictionary is still
+visible when a new vocabulary is created, so you can still access everything
+defined prior to this.
+
+  : ;chain (  - ) seal @last @active [ !last ] [ !d->xt ] bi ;
+
+Close off a vocabulary, hiding its contents from the global dictionary.
+
+  : :with  ( a- ) 0; @dicts 1+ dicts + ! dicts ++ ;
+
+Given an xt of a vocabulary, add it to the search order.
+
+  : with   ( "- ) ' :with ;
+
+Parse for a vocabulary name and add it to the search order.
+
+  : without ( - ) @dicts 0; 1- !dicts ;
+
+Remove the most recently added vocabulary from the search order.
+
+  : global  ( - ) 0 !dicts ;
+
+Remove all vocabularies from the search order.
+
+  : findInChain ( $a-df ) :with find without ;
+
+Search for a name in a specific vocabulary. Returns a dictionary header
+and a flag.
+
+  : with|  ( "- )
+    global
+    repeat
+      32 accept tib "|" compare if;
+      tib find [ @d->xt :with ] &drop if
+    again ;
+
+Add a series of vocabularies to the search order. This stops when a | is
+encountered.
+
+  }}
+
+  : rename: ( a"- )
+     create dup xt->d swap :hide
+     [ @d->xt @last !d->xt ] [ @d->class @last !d->class ] bi ;
+
+Hide a header and create a new one.
+
+With the above, we can create and search in dictionaries. Next we replace the
+original "find" and "xt->d" functions with new ones that make use of the search
+order.
+
+  {{
+    5 elements flag dt name safety xt
+    : search  (  -   ) @dicts repeat 0; dup dicts + <%> @xt do 1- again ;
+    : (chains ( $-   ) !name 0 [ !dt ] [ !flag ] bi @last !safety ;
+    : back)   (   -  ) @safety !last ;
+    : seek    ( na-n ) @name default: find [ !dt flag on drop 1 ] [ drop ] if ;
+    : lookup  ( $-af )
+      &seek !xt (chains search back)
+      @flag [ @dt @flag ] [ @name default: find ] if ;
+    &lookup is find
+
+    : seek    (   -  )
+      @name default: xt->d dup [ !dt flag on drop 1 ] [ drop ] if ;
+    : lookup  (  a-d )
+      &seek !xt (chains search back)
+      @flag [ @dt ] [ @name default: xt->d ] if ;
+    &lookup is xt->d
+  }}
+
+These use "default:" to fall back into the original definitions as neccessary.
+
+With this covered, the code moves on to replace the simple prefix handler with
+one aware of Luke's parsing prefixes:
+
+  {{
+    4 elements xt class name flag
+    create ___ 95 , 95 , 95 , 0 ,
+
+    ( Split Token into Prefix and Name ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+    : action   (  -   ) @xt @class withClass ;
+    : (split   (  -a  ) @+ ___ tuck 1+ 1+ ! swap !name ;
+    : prefix)  ( $-f  )
+      find [ [ @d->class !class ] [ @d->xt !xt ] bi -1 ] [ 0 ] if ;
+
+    ( Prefix Handling ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+    : handle   (  -   )
+      @class &.parse =
+      [ flag off @name action ]
+      [ @name find [ @d->xt action flag off ] [ drop ] if ]
+      if ;
+
+    ( Main Wrapper ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+    : try      (  -   )
+      flag on tib (split prefix) [ handle ] [ drop ] if @flag ;
+    &try is <notFound>
+  }}
+
+The main difference here is that we check to see if the class is ".parse", and
+act differently if it is. So once this is done, we get to define string parsing.
+
+  {{
+    : buffers ( -a ) 2048 here + ;
+    variable next
+  ---reveal---
+    : tempString ( $-$ )
+      withLength 1+
+      @next 12 =if 0 !next then
+      @next 512 * buffers + [ swap copy ] sip
+      next ++ ;
+  }}
+
+First up, a rotating string buffer for holding temporary strings. We place
+these at 2k above here, so it's a floating buffer, and allocate 512 chars
+per string. Up to 12 can be created, after which, this cycles back, with
+newer strings replacing older ones.
+
+  {{
+    variable end
+    : pad     (  -a ) 1024 here + ;
+    : keep    (  -  ) @compiler &keepString &tempString if .data ;
+    : >pad    ( $-$ ) pad over getLength 1+ copy pad keep ;
+    : chop    ( $-$ ) end -- 0 @end ! ;
+    : >$      ( n-  ) dup 8 = [ chop drop ] [ @end !+ !end ] if ;
+    : end?    ( $-$ ) @end @1- '" = [ chop >pad -1 ] [ 0 ] if ;
+    : noEat   ( q-  ) eatLeading? off do eatLeading? on ;
+    : withPad ( q-  ) 32 pad 1- ! &pad &tib :is noEat &tib :devector ;
+    : get     (  -c ) getc dup putc ;
+  ---reveal---
+    : __"  ( "-a )
+      dup withLength + !end
+      end? [ 32 >$ [ end? [ 0 ] [ get >$ -1 ] if ] while ] ifFalse ; parsing
+    : "    ( "-$ ) [ '" accept pad 1- keep ] withPad ; immediate
+  }}
+
+All of this to get two functions.
+
+  __"
+
+Our new parsing prefix. This will let us create strings in a more natural
+feeling manner:
+
+  "hello, world!"
+
+For strings with leading spaces, we have:
+
+  "
+
+Which is used like:
+
+  "   <-- 3 spaces"
+
+The actual mechanics are a bit tricky, but it works quite well in practice.
+
+Next up: a more flexible output function.
+
+  -1 variable: formatted
+
+This is a variable controlling whether to use the complex output or the
+default, simpler output.
+
+  {{
+    : withBase ( n$q-$ ) [ swap ] dip base [ do ] preserve ;
+
+A helper; this saves and restores the base when displaying numbers.
+
+    : char ( $-$ )
+      @+ [ 'n = ] [ drop cr      ] when
+         [ '' = ] [ drop '" putc ] when
+         [ '[ = ] [ 27 putc putc ] when
+      putc ;
+
+This is the helper routine for displaying character escape sequences like
+"\n" and "\'".
+
+    : obj  ( $-$ )
+      @+ [ 'd = ] [ drop [ decimal putn ] withBase ] when
+         [ 'o = ] [ drop [ octal   putn ] withBase ] when
+         [ 'x = ] [ drop [ hex     putn ] withBase ] when
+         [ 'c = ] [ drop swap putc                 ] when
+         [ 's = ] [ drop &puts dip                 ] when
+         putc ;
+
+This is the helper routine for carrying out actions like displaying numbers,
+characters, or other strings. It handles sequences like:
+"%s", "%d", and so on.
+
+    : complex ( $-n )
+      repeat
+        @+ 0;
+        dup '\ = [ drop char 0 ] ifTrue
+        dup '% = [ drop obj  0 ] ifTrue
+        putc
+      again ;
+
+Display a string, dispatching escape sequences to either "char" or "obj" as
+needed.
+
+    : simple ( $- ) [ @ putc ] 2 ( STRING ) each@ ;
+
+And here we have an example of that "each@" combinator. This applies a quote
+("[ @ putc ]") to each item in a string (data type 2). Really, it's a nice
+clean way to do things like this.
+
+    : defer  ( q- ) update off do update on redraw ;
+
+For performance, disable screen updates until the text is written to the
+output buffers. Won't hurt anything, and makes redraws much faster on some
+VM implementations.
+
+    [ [ @formatted [ complex drop ] &simple if ] defer ] is <puts>
+  }}
+
+And wrap that all up.
+
+Just about done...
+
+  : depth   (    -n ) -5 5 out wait 5 in ;
+
+Gets the stack depth.
+
+  : reset   ( ...-  ) depth repeat 0; 1- nip again ;
+
+Remove all items on the data stack. This is useful after experimenting to
+get back to clean stack quickly.
+
+: .s      (    -  )
+  depth [ "\n<%d> " puts ] sip 0;
+  heap  [ dup [ swap , ] times
+              [ here 1- @ dup putn space -1 allot ] times ] preserve ;
+
+Display the stack. I'd love a better way of doing this, but so far this seems
+to work ok.
+
+  {{
+    : list    ( a-  ) [ d->name puts space ] 3 ( LIST ) each@ ;
+    : others  (  -  ) @dicts repeat 0; cr dup dicts + list 1- again ;
+  ---reveal---
+    : words   (  -  ) cr formatted dup [ off others cr last list ] preserve ;
+  }}
+
+Display all names in the dictionary, and any active vocabuaries.
+
+  : save     (  -  ) 1 4 out wait ;
+
+Save the image (if the VM supports it)
+
+  : bye      (  -  ) cr -9 5 out wait ;
+
+Shut down the VM
+
+  : getToken ( "-$ ) 32 accept tib tempString ;
+
+Read a whitespace delimited token, and add it to the temporary string buffer.
+
+  : :include ( $-  ) 2 4 out wait ;
+  : include  ( "-  ) getToken :include ;
+
+If you VM supports reading input from files, these will let you include
+files directly.
+
+  : time     (  -n ) -8 5 out wait 5 in ;
+
+Returns the current time (or a bogus value) as Unix epoch time.
+
+  : delay    ( n-  ) time + [ dup time > ] while drop ;
+
+If your VM supports the time query, this will allow you to delay execution
+for approximately the number of seconds specified.
+
+  : getEnv   ( a$- ) -10 5 out wait ;
+
+If your VM supports access to the host environment, this will let you query
+it.
+
+  : later    (  -  ) 2pop swap 2push ;
+
+A fun thing. Defer execution until the caller returns. For instance,
+
+  : a 1 putn later 2 putn ;
+  : b 3 putn a 4 putn ;
+  b
+
+With this, the core language is done. If you don't want/need the extra
+vocabularies, you can save and exit here, or continue on to define what
+you want.
+
+  : doc{     ( "-  ) repeat getToken "}doc" compare if; again ;
+
+This is used to allow embedding of documentation into the source files. An
+example of its usage:
+
+  doc{
+  | **foo**
+  | This function adds 471 to any variable passed to it.
+  }doc
+
+  : foo 471 swap +! ;
+
+These bits of documenation can be extracted into a separate file later with
+little effort.
+
+
+=======[ UNCOMMENTED ]========================================================
+
+
+( Math Operations ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+: pow  ( bp-n ) 1 swap [ over * ] times nip ;
+: abs  (  n-n ) dup 0 < &negate ifTrue ;
+: min  ( ab-c ) 2over < &drop &nip  if ;
+: max  ( ab-c ) 2over < &nip  &drop if ;
+{{
+  2 elements w z
+  : seeds?   ( -  ) @w @z and ;
+  : seed     ( -  ) time [ 62903 and !w ] [ 78578 and !z ] bi ;
+  : ?seed    ( -  ) repeat seeds? 0 <> if; seed again ;
+  : (random) ( -x )
+    36969 z @ 65535 and * @z 16 >> + !z
+    18000 w @ 65535 and * @w 16 >> + !w
+    @z 16 << @w + ;
+---reveal---
+  : random     (  -x ) ?seed (random) abs ;
+}}
+
+( Generic Buffer ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+global
+chain: buffer'
+{{
+  variable buffer
+  variable ptr
+  : terminate (  -  ) 0 @ptr ! ;
+---reveal---
+  : start     (  -a ) @buffer  ;
+  : end       (  -a ) @ptr     ;
+  : add       ( c-  ) end ! ptr ++ terminate ;
+  : get       (  -c ) ptr -- end @ terminate ;
+  : empty     (  -  ) start !ptr   terminate ;
+  : size      (  -n ) end start -   ;
+  : set       ( a-  ) !buffer empty ;
+}}
+;chain
+
+( Text Strings ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+with| buffer' |
+chain: strings'
+{{
+  7 elements len needle haystack flag right left src
+  : buffer (  -a ) here 8192 + ;
+  : trim   ( $-$ )
+    dup withLength + 1- dup @ 32 =if 0 swap ! dup 1- -- trim ;; then drop ;
+  : place  ( $$n- ) [ copy 0 ] sip here + ! ;
+  : prep   (  $$- ) swap !haystack [ getLength !len ] [ !needle ] bi 0 !flag ;
+  : move   (    - ) @haystack here @len place haystack ++ ;
+  : cmp    (    - )
+    @flag 0 <> if; @needle here compare [ @haystack 1- !flag ] ifTrue ;
+---reveal---
+  : search   ( $$-f )
+    flag off prep @haystack getLength [ move cmp ] times @flag ;
+  : findChar ( $c-a )
+    !needle
+    repeat @+
+      dup 0   =if 2drop 0 ;; then
+      @needle =if 1-      ;; then
+    again ;
+  : getSubset ( $nn-$ )
+    buffer 0 1024 fill
+    !right !left !src
+    @src @left + @right buffer swap copy buffer ;
+  : trimLeft  ( $-$ ) [ @+ [ 32 = ] [ 0 <> ] bi = ] while 1- ;
+  : trimRight ( $-$ )
+    buffer [ 0 1024 fill ] [ over getLength copy ] [ trim ] tri ;
+  : prepend ( $$-$ )
+    buffer 0 1024 fill
+    withLength buffer swap dup &copy dip
+    &withLength dip buffer + swap copy buffer tempString ;
+  : append ( $$-$ ) swap prepend ;
+  : toLower ( $-$ )
+    withLength 1+
+    [ buffer + [ @+ dup 'A 'Z within [ 'a + 'A - ] ifTrue ] dip ! ] iter
+    drop buffer tempString ;
+  : toUpper ( $-$ )
+    withLength 1+
+    [ buffer + [ @+ dup 'a 'z within [ 'A + 'a - ] ifTrue ] dip ! ] iter
+    drop buffer tempString ;
+}}
+  : reverse ( $-$ )
+    dup tempString set
+    [ getLength ] [ withLength + 1- ] bi swap
+    [ dup @ add 1- ] times drop
+    start ;
+  : split ( $n-$$ )
+    over over 0 swap getSubset [ + ] dip ;
+  : splitAtChar ( $c-$$ )
+    2over over swap findChar over - 1+ 0 swap getSubset [ findChar 1+ ] dip ;
+  : splitAtChar: ( $"-$$ )
+    32 accept tib @ .data ` splitAtChar ; immediate
+;chain
+
+( Access Words Within Chains Directly ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+with strings'
+: __^  ( "- )
+  splitAtChar: ' find
+  [ @d->xt findInChain [ [ @d->xt ] [ @d->class ] bi do ] &drop if ]
+  &drop if ; parsing
+
+{{
+  variable old
+  : cut withLength over + 1- 0 swap ! ;
+---reveal---
+  : needs ( "- )
+    @last !old
+    getToken dup find nip
+    &drop [ "library/" prepend cut ".rx" append :include ] if ;
+}}
+global
+
+( Files ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+chain: files'
+{{
+  3 elements fid fsize active
+  : io     (  n-f )  4 out wait 4 in ;
+  : done   ( nn-  )  2drop active off ;
+---reveal---
+  0 constant :R
+  1 constant :W
+  2 constant :A
+  3 constant :M
+  : open   (  $m-h ) -1 io ;
+  : read   (   h-f ) -2 io ;
+  : write  (  ch-f ) -3 io ;
+  : close  (   h-f ) -4 io ;
+  : pos    (   h-n ) -5 io ;
+  : seek   (  nh-f ) -6 io ;
+  : size   (   h-n ) -7 io ;
+  : delete (   $-n ) -8 io ;
+  : slurp  (  a$-n )
+    :R open !fid
+    @fid size !fsize
+    @fsize [ @fid read swap !+ ] times 0 swap !
+    @fid close drop @fsize ;
+  : spew   (  an$-n )
+    :W open !fid
+    @fid !fsize [ @+ @fid write drop fsize ++ ] times drop
+    @fid close drop @fsize ;
+  : readLine ( h-a )
+    tib repeat
+      over read dup
+      10 13 within 0 !if drop 0 !swap drop tib tempString ;; then !over 1+
+    again ;
+  : writeLine ( $h- )
+    !fid active on
+    [ @+ dup 0 = &done [ @fid write drop ] if @active ] while ;
+}}
+;chain
+
+( types' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+chain: types'
+  0 constant ARRAY  ( -n )
+  1 constant BUFFER ( -n )
+  2 constant STRING ( -n )
+  3 constant LIST   ( -n )
+;chain
+
+( cleanup ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+hide =if
+hide !if
+hide >if
+hide <if
+hide then
+
+global .s save bye
+

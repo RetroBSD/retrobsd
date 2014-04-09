@@ -1,0 +1,9 @@
+if ../src/sccvax -c $1.c
+    then
+        if as -o $1.o $1.s
+            then
+                rm $1.s
+                ld -o $1 ../crunvax/crt0.o $1.o ../libc/vaxlibc.a
+../crunvax/libl.a
+        fi
+fi

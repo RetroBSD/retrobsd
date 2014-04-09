@@ -1,0 +1,133 @@
+.\" Copyright (c) 1980 Regents of the University of California.
+.\" All rights reserved.  The Berkeley software License Agreement
+.\" specifies the terms and conditions for redistribution.
+.\"
+.\"	@(#)reboot.8	2.2 (2.11BSD) 1996/11/16
+.\"
+.TH REBOOT 8 "May 24, 1996"
+.UC 2
+.SH NAME
+reboot \- stopping and restarting the system
+.SH SYNOPSIS
+.B /sbin/reboot
+[
+.B \-lqnhdarsfRD
+]
+.br
+.B /sbin/halt
+[
+.B \-lqndars
+]
+.br
+.B /sbin/fastboot
+[
+.B \-lqndarsRD
+]
+.SH DESCRIPTION
+2.11BSD is started by placing it in memory at location zero and transferring to
+its entry point.  Since the system is not reentrant, it is necessary to read
+it in from disk or tape each time it is to be boot strapped.
+.PP
+.B "Rebooting a running system:"
+When the system is running and a reboot is desired,
+.IR shutdown (8)
+is normally used to stop time sharing and put the system into single user
+mode.  If there are no users then
+.B /sbin/reboot
+can be used without shutting the system down first.
+.PP
+Reboot normally causes the disks to be synced and allows the system to
+perform other shutdown activities such as resynchronizing hardware
+time-of-day clocks.  A multi-user reboot (as described below) is then
+initiated.  This causes a system to be booted and an automatic disk check
+to be performed.  If all this succeeds without incident, the system is then
+brought up for multi-user operation.
+.PP
+Options to reboot are:
+.TP
+.B \-l
+Don't try to tell
+.IR syslogd (8)
+what's about to happen.
+.TP
+.B \-q
+Reboot quickly and ungracefully, without shutting down running processes
+first.
+.TP
+.B \-n
+Don't sync before rebooting.  This can be used if a disk or the processor
+is on fire.
+.TP
+.B \-h
+Don't reboot, simply halt the processor.
+.TP
+.B \-d
+Dump memory onto the dump device, usually part of swap, before rebooting.
+The dump is done in the same way as after a panic.
+.TP
+.B \-a
+Have the system booter ask for the name of the system to be booted, rather
+than immediately booting the default system (/unix).
+.TP
+.B \-r
+Mount the root file system as
+.I "read only"
+when the system reboots.  This is not supported by the kernel in 2.11BSD.
+.TP
+.B \-s
+Don't enter multi-user mode after system has rebooted \- stay in single
+user mode.
+.TP
+.B \-f
+Fast reboot.  Omit the automatic file system consistency check when the system
+reboots and goes multi-user.  This is accomplished by passing a
+.I fast reboot
+flag on to the rebooting kernel.  This currently prevents the use of
+.B \-f
+flag in conjunction with the
+.B \-h
+(halt) flag.
+.TP
+.B \-D
+Set the
+.IR autoconfig (8)
+debug flag.  This is normally not used unless one is debugging the
+.I autoconfig
+program.
+.TP
+.B \-R
+Tells the kernel to use the compiled in root device.  Normally the system
+uses the device from which it was booted as the root/swap/pipe/dump device.
+.PP
+.I Reboot
+normally places a shutdown record in the login accounting file
+/usr/adm/wtmp.  This is inhibited if the
+.B \-q
+or
+.B \-n
+options are present.
+Note that the
+.B \-f
+(fast reboot) and
+.B \-n
+(don't sync)
+options are contradictory; the request for a fast reboot is ignored in this
+case.
+.PP
+.I Halt
+and
+.I fastboot
+are synonymous with ``\fBreboot \-h\fP'' and ``\fBreboot \-f\fP'', respectively.
+.PP
+.B "Power fail and crash recovery:"
+Normally, the system will reboot itself at power-up or after crashes
+\fBif\fP the contents of low memory are intact.
+An automatic consistency check of the file systems will be
+performed, and unless this fails, the system will resume multi-user
+operations.
+.SH "SEE ALSO"
+autoconfig(8),
+sync(2),
+utmp(8),
+shutdown(8),
+syslogd(8)

@@ -1,0 +1,29 @@
+needs assertion'
+needs hash'
+
+with assertion'
+
+[ [ "passed" ] [ "failed" ] if "%s\n" puts ] is postCond
+
+: a0
+  "Testing hash-prime : " puts
+  ^hash'hash-prime @ 389 assert= ; assertion
+
+: a1
+  "Testing djb2 : " puts
+  "hello" ^hash'djb2 261238937 assert=
+  "world" ^hash'djb2 279393645 assert=
+  "foobar" ^hash'djb2 35364674 assert= ; assertion
+
+: a2
+  "Testing hash : " puts
+  "hello" ^hash'hash 152 assert=
+  "world" ^hash'hash 230 assert=
+  "booya" ^hash'hash 329 assert= ; assertion
+
+: go
+  cr a0 a1 a2 bye ;
+
+go
+
+

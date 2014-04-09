@@ -1,0 +1,23 @@
+( Plenty of words in the text, but some stand out. The ones with )
+( colors have sounds in common with various numbers.             )
+
+( The trick to this puzzle is to group by color, and add the     )
+( numeric values up. So:                                         )
+
+( red     altitude foresight              2  4       ->  6       )
+( purple  intended wonder foreground     10  1  4    -> 15       )
+( blue    before to to tension            4  2  2 10 -> 18       )
+( green   attention pretend              10 10       -> 20       )
+( yellow  magnitude elated tenderly once  2  8 10  1 -> 21       )
+( gray    fate fortitude                  8  4  2    -> 14       )
+( pink    tonight to someones             2  2  1    ->  5       )
+
+( And then we can map the final values to alphabetic characters: )
+
+needs array'
+
+( remap so that 1 = a, 2 = b, and so on )
+: toAlpha ( n-c )
+  96 + ;
+
+^array'new{ 6 15 18 20 21 14 5 } [ toAlpha putc ] ^array'apply

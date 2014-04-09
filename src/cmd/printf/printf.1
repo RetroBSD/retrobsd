@@ -1,0 +1,294 @@
+.\" Copyright (c) 1989, 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" This code is derived from software contributed to Berkeley by
+.\" the Institute of Electrical and Electronics Engineers, Inc.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"	This product includes software developed by the University of
+.\"	California, Berkeley and its contributors.
+.\" 4. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"	@(#)printf.1	8.1.1 (2.11BSD) 1995/05/02
+.\"
+.TH PRINTF 1 "May 2, 1995"
+.UC 4
+.SH NAME
+printf \- formatted output
+.SH SYNOPSIS
+.B printf format [ arguments  ... ]
+.SH DESCRIPTION
+.B Printf
+formats and prints its arguments, after the first, under control
+of the
+.IR format  .
+The
+.I format
+is a character string which contains three types of objects: plain characters,
+which are simply copied to standard output, character escape sequences which
+are converted and copied to the standard output, and format specifications,
+each of which causes printing of the next successive
+.IR argument  .
+.PP
+The
+.I arguments
+after the first are treated as strings if the corresponding format is
+either
+.B c
+or
+.BR s ;
+otherwise it is evaluated as a C constant, with the following extensions:
+.TP
+.B \(bu
+A leading plus or minus sign is allowed.
+.TP
+.B \(bu
+If the leading character is a single or double quote, or not a digit,
+plus, or minus sign, the value is the ASCII code of the next character.
+.PP
+The format string is reused as often as necessary to satisfy the
+.IR arguments  .
+Any extra format specifications are evaluated with zero or the null
+string.
+.PP
+Character escape sequences are in backslash notation as defined in the
+draft proposed
+ANSI C
+Standard
+X3J11.
+The characters and their meanings
+are as follows:
+.br
+.po +0.5i
+.TP 10
+.B \ea
+Write a <bell> character.
+.TP 10
+.B \eb
+Write a <backspace> character.
+.TP 10
+.B \ef
+Write a <form-feed> character.
+.TP 10
+.B \en
+Write a <new-line> character.
+.TP 10
+.B \er
+Write a <carriage return> character.
+.TP 10
+.B \et
+Write a <tab> character.
+.TP 10
+.B \ev
+Write a <vertical tab> character.
+.TP 10
+.B \e\'
+Write a <single quote> character.
+.TP 10
+.B \e\e
+Write a backslash character.
+.TP 10
+.B \e\fInum\fP
+Write an 8-bit character whose
+ASCII
+value is the 1-, 2-, or 3-digit
+octal number
+.IR num .
+.br
+.po -0.5i
+.PP
+Each format specification is introduced by the percent character
+(``%'').
+The remainder of the format specification includes,
+in the following order:
+.sp
+"Zero or more of the following flags:"
+.sp
+.po +0.5i
+.TP 10
+.B #
+A `#' character
+specifying that the value should be printed in an ``alternate form''.
+For
+.BR c  ,
+.BR d ,
+and
+.BR s  ,
+formats, this option has no effect.  For the
+.B o
+formats the precision of the number is increased to force the first
+character of the output string to a zero.  For the
+.B x
+(\fBX\fP)
+format, a non-zero result has the string
+0x
+(0X)
+prepended to it.  For
+.BR e  ,
+.BR E ,
+.BR f  ,
+.BR g ,
+and
+.BR G  ,
+formats, the result will always contain a decimal point, even if no
+digits follow the point (normally, a decimal point only appears in the
+results of those formats if a digit follows the decimal point).  For
+.B g
+and
+.B G
+formats, trailing zeros are not removed from the result as they
+would otherwise be;
+.TP 10
+.B \-
+A minus sign `\-' which specifies
+.I left adjustment
+of the output in the indicated field;
+.TP 10
+.B +
+A `+' character specifying that there should always be
+a sign placed before the number when using signed formats.
+.TP 10
+.B \` \'
+A space specifying that a blank should be left before a positive number
+for a signed format.  A `+' overrides a space if both are used;
+.TP 10
+.B 0
+A zero `0' character indicating that zero-padding should be used
+rather than blank-padding.  A `\-' overrides a `0' if both are used;
+.po -0.5i
+.TP
+Field Width:
+An optional digit string specifying a
+.IR "field width" ;
+if the output string has fewer characters than the field width it will
+be blank-padded on the left (or right, if the left-adjustment indicator
+has been given) to make up the field width (note that a leading zero
+is a flag, but an embedded zero is part of a field width);
+.TP
+Precision:
+An optional period,
+\fB\.\fP,
+followed by an optional digit string giving a
+.I precision
+which specifies the number of digits to appear after the decimal point,
+for
+.B e
+and 
+.B f
+formats, or the maximum number of characters to be printed
+from a string; if the digit string is missing, the precision is treated
+as zero;
+.TP
+Format:
+.br
+A character which indicates the type of format to use (one of
+.BR diouxXfwEgGcs ).
+.PP
+A field width or precision may be
+.B *
+instead of a digit string.
+In this case an
+.I argument
+supplies the field width or precision.
+.PP
+The format characters and their meanings are:
+.TP 10
+.B diouXx
+The
+.I argument
+is printed as a signed decimal (d or i), unsigned decimal, unsigned octal,
+or unsigned hexadecimal (X or x), respectively.
+.TP 10
+.B f
+The
+.I argument
+is printed in the style `[\-]ddd.ddd' where the number of d's
+after the decimal point is equal to the precision specification for
+the argument.
+If the precision is missing, 6 digits are given; if the precision
+is explicitly 0, no digits and no decimal point are printed.
+.TP 10
+.B eE
+The
+.I argument
+is printed in the style
+.B e
+\.`[-]d.ddd Ns \(+-dd\' 
+where there
+is one digit before the decimal point and the number after is equal to
+the precision specification for the argument; when the precision is
+missing, 6 digits are produced.
+An upper-case E is used for an `E' format.
+.TP 10
+.B gG
+The
+.I argument
+is printed in style
+.B f
+or in style
+.B e
+(\fBE\fP)
+whichever gives full precision in minimum space.
+.TP 10
+.B c
+The first character of
+.I argument
+is printed.
+.TP 10
+.B s
+Characters from the string
+.I argument
+are printed until the end is reached or until the number of characters
+indicated by the precision specification is reached; however if the
+precision is 0 or missing, all characters in the string are printed.
+.TP 10
+.B %
+Print a \`%\'; no argument is used.
+.PP
+In no case does a non-existent or small field width cause truncation of
+a field; padding takes place only if the specified field width exceeds
+the actual width.
+.SH RETURN VALUES
+.B Printf
+exits 0 on success, 1 on failure.
+.SH SEE ALSO
+.IR printf (3)
+.SH HISTORY
+The
+.B printf
+command appeared in
+.BR 4.3\-Reno .
+It is modeled
+after the standard library function,
+.BR printf (3).
+.SH BUGS
+Since the floating point numbers are translated from
+ASCII
+to floating-point and
+then back again, floating-point precision may be lost.
+.PP
+ANSI
+hexadecimal character constants were deliberately not provided.

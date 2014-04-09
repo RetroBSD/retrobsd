@@ -1,0 +1,2 @@
+echo '"hello\n" puts bye' | ./retro
+

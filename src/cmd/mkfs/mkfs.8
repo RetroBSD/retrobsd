@@ -1,0 +1,87 @@
+.\" Copyright (c) 1980 Regents of the University of California.
+.\" All rights reserved.  The Berkeley software License Agreement
+.\" specifies the terms and conditions for redistribution.
+.\"
+.\"	@(#)mkfs.8	2.2 (2.11BSD) 1996/11/16
+.\"
+.TH MKFS 8 "November 16, 1996"
+.UC 2
+.SH NAME
+mkfs \- construct a file system
+.SH SYNOPSIS
+.B /sbin/mkfs
+[
+.B \-i bytes
+]
+[
+.B \-s size
+]
+[
+.B \-m gap
+]
+[
+.B \-n modulus
+]
+.B special
+.SH DESCRIPTION
+.B N.B.:
+file systems are normally created with the
+.IR newfs (8)
+command.
+.PP
+.I Mkfs
+constructs a file system
+by writing on the special file
+.IR special .
+The size of the filesystem in logical blocks is specified by the 
+\fB\-s\fP
+.I size
+option.
+Logical blocks are 1K (2 sectors) under 2.11BSD.
+.PP
+.in +0.5i
+\fBNOTE:\fP The 
+.BR newfs (8)
+program's \fB\-s\fP option is in units of \fBsectors\fP.    
+.BR Newfs (8)
+converts this to filesystem (logical) blocks for
+.BR mkfs (8) .
+.br
+.in -0.5i
+.PP
+The number of inodes is calculated based on the argument
+.I bytes
+to the 
+.B \-i
+option.  The default is 4096.  If more inodes are desired in a filesystem
+(there is an absolute maximum of 65500) then a lower value for \fIbytes\fP
+should be used, perhaps 3072 or even 2048.
+.PP
+The flags 
+.B \-m
+.I gap
+and
+.B \-n
+.I modulus
+determine the block interleaving
+of the freelist that will be constructed,
+where \fIgap\fP is the distance between successive 1024-byte blocks,
+and \fImodulus\fP is the number of blocks before the pattern repeats,
+typically one cylinder.
+The optimal values for
+these parameters vary with the speed and geometry of the disk,
+as well as the speed of the processor.  
+.BR Newfs (8)
+will calculate the correct values in almost all cases from the disklabel.
+.SH "SEE ALSO"
+fs(5),
+dir(5),
+disklabel(8),
+fsck(8),
+mkproto(8)
+newfs(8)
+.SH BUGS
+The
+.I lost+found
+directory is created but the boot block is left uninitialized (see
+.BR disklabel (8).)

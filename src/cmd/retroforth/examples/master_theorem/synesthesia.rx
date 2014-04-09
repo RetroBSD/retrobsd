@@ -1,0 +1,183 @@
+( The first part of the puzzle is a table, with six rows of six )
+( characters. We'll create a table to hold this data:           )
+
+  : table:  ( n"- )
+    create [ getToken @ , ] times ;
+
+( First up, a helper function that'll parse and build the tables. )
+( Pass it a count, and follow it by the table name, then a        )
+( whitespace delimited series of tokens.                          )
+
+  36 table: initial   A B C D E F
+                      G H I J K L
+                      M N O P Q R
+                      S T U V W X
+                      Y Z 0 1 2 3
+                      4 5 6 7 8 9
+
+( The initial table. This is an exact match to the table shown.   )
+
+  36 table: colors    1 2 3 4 2 5
+                      6 7 8 6 3 1
+                      9 5 0 5 7 A
+                      B C Q C D 4
+                      8 7 0 4 B 3
+                      7 D Q 5 A 9
+
+( The table of characters has colors. Each color is matched to )
+( two characters. We have a second table with values that      )
+( represent the color arrangement.                             )
+
+
+  : clue  ( -$ )
+    "25 BACON BITS VANILLA 29 BROWNIES AND ALLSPICE 2" ;
+
+( Below the table is a string of text that encodes the answer to )
+( this puzzle. We create a string named "clue" to hold this.     )
+
+  : withToken ( $q- )
+   [ " " ^strings'prepend " " ^strings'append ] dip
+   [ [ 32 ^strings'splitAtChar ^strings'chop ] dip [ do ] sip over 1 <> ] while 2drop ;
+
+( You aren't expected to understand this. Breaking it down: )
+
+   [ " " ^strings'prepend " " ^strings'append ] dip
+
+( Adds a space before and after the string passed to the          )
+( withToken function. This simplifies the following bits of code. )
+
+   [ [ 32 ^strings'splitAtChar ^strings'chop ] dip [ do ] sip over 1 <> ] while 2drop ;
+
+( This isn't too complex. Breaking it down further:        )
+
+   [ .... ] while 2drop
+
+( Everything is inside a while loop. The 2drop removes the )
+( pointers when execution is finished.                     )
+
+   [ 32 ^strings'splitAtChar ^strings'chop ] dip
+
+( Inside the loop, this temporarily hides the quote, splits )
+( a whitespace delimited token off the string, and removes  )
+( the trailing space with ^strings'chop.                    )
+
+  [ do ] sip
+
+( Execute the quote, keeping a copy of the pointer on the stack after  )
+( execution completes.                                                 )
+
+  over 1 <>
+
+( The condition for the while loop. When no tokens remain, the pointer )
+( value will be returned as "1". So if not 1, there are more tokens to )
+( process.                                                             )
+
+( In actual use, this is pretty nice. It means you can do things like: )
+
+  "hello 123 again" [ "Token: %s\n" puts ] withToken
+
+( The quote will be executed once for each word in the string. Now,    )
+( back to the solution.                                                )
+
+  : append
+    dup isNumber? [ [ @ ^buffer'add ] ^types'STRING each@ ]
+                  [ @ ^buffer'add ] if ;
+
+( This is a factor of the simplify function which we'll look at next.  )
+( It looks at a token to see if it's a number or a word. If it's a     )
+( number, each character in the string is added to a buffer. If it's a )
+( word, then only the first character is added.                        )
+
+( Note the use of each@, another combinator which allows a quote to be )
+( executed for each item in a data structure.                          )
+
+  : simplify ( $-$ )
+    heap [ here ^buffer'set 128 allot
+           &append withToken ] preserve
+    ^buffer'start ;
+
+( The rules of the puzzle dictate that each numeric digit has a color, )
+( and each word has a color. simplify compresses a string into just the)
+( relevant subset. To break this down:                                 )
+
+  heap [ ... ] preserve
+
+( We'll use the heap as a buffer. Encasing the code using this buffer  )
+( in a preservation quote cleans up any allocations when we are done.  )
+
+  here ^buffer'set
+
+( Sets the buffer to the heap.                                         )
+
+  128 allot
+
+( Allocates space for our buffer. This will be rolled back after       )
+( preserve is executed.                                                )
+
+  &append withToken
+
+( Applies the append function to each token in a string. We could also )
+( have specified this as:                                              )
+
+  [ append ] withToken
+
+( The & syntax is a shortcut for single-function quotes.               )
+
+  ^buffer'start
+
+( When execution of simplify finishes, we'll return a pointer to the   )
+( buffer we created.                                                   )
+
+  : getIndex  ( c-n )
+    initial [ [ @ over <> ] sip 1+ swap ] while nip initial - 1- ;
+
+( Lookup a character in the initial array, and return the index value  )
+( for later use.                                                       )
+
+  : colorize  ( $-$ )
+    simplify
+    "" tempString ^buffer'set
+    [ @ getIndex colors + @ ^buffer'add ] ^types'STRING each@ ^buffer'start ;
+
+( Convert a raw string into a colored one.                             )
+
+  simplify
+
+( Start by reducing to just the relevant data.                         )
+
+  "" tempString ^buffer'set
+
+( Create an empty string to use as a buffer.                           )
+
+  [ @ getIndex colors + @ ^buffer'add ] ^types'STRING each@
+
+( Use each@ to apply a quote to each character in the simplified       )
+( string. For each character, we find the index, lookup the            )
+( corresponding character in the colors array, and add that to the new )
+( string.                                                              )
+
+  ^buffer'start
+
+( Returns the colored string.                                          )
+
+( We're almost there. All we need to do is decode the colored string.  )
+
+  : match? ( n-nf )
+    [ colors + @ over = ] sip swap ;
+  : matches
+    [ @ 36 [ match? [ initial + @ putc ] [ drop ] if ] iter drop space ] ^types'STRING each@ ;
+
+( This is a quick hack to remap a color to all matching characters.    )
+( Since each color corresponds to two characters, this will display    )
+( pairs of characters.                                                 )
+
+( With this, we can do:                                                )
+
+  clue colorize matches
+
+( And we get the following output:                                     )
+(  S2 W5 BE BE TV S2 M9 BE AL AL S2                                    )
+( From this, it's easy to deduce the solution:                         )
+(  S  W   E  E T  S  M   E  L  L S                                     )
+( Or:                                                                  )
+(  SWEET SMELLS                                                        )

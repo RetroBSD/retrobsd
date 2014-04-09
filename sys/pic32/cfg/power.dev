@@ -1,0 +1,19 @@
+always
+    file power_control.o
+end always
+
+option led
+    define POWER_LED_PORT   $PORT(%1)
+    define POWER_LED_PIN    $PIN(%1)
+end option
+
+option switch
+    define POWER_SWITCH_PORT    $PORT(%1)
+    define POWER_SWITCH_PIN     $PIN(%1)
+end option
+
+option control
+    define POWER_CONTROL_PORT   $PORT(%1)
+    define POWER_CONTROL_PIN    $PIN(%1)
+end option
+

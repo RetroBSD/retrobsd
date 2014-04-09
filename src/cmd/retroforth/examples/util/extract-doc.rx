@@ -1,0 +1,20 @@
+2 elements in out
+
+: seekDocBlock ( - )
+  [ @in ^files'readLine "doc{" compare not ] while ;
+
+: extractDocBlock ( - )
+  [ @in ^files'readLine dup
+    "}doc" compare [ drop 0 ] [ @out ^files'writeLine -1 ] if ] while ;
+
+: changeSuffix ( $-$ )
+  3 [ ^strings'chop ] times ".rst" ^strings'append ;
+
+: extractDocs ( $- )
+  dup ^files':R ^files'open !in changeSuffix ^files':W ^files'open !out
+  seekDocBlock
+  extractDocBlock
+  @in @out [ ^files'close drop ] bi@ ;
+
+: extractDocsFrom ( "- )
+  getToken extractDocs ;

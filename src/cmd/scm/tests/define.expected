@@ -1,0 +1,11 @@
+(define p (lambda () (pair 2))) --> <closure-51c6>
+(define pair (lambda (x) (cons x x))) --> <closure-51b8>
+(p) --> (2 . 2)
+(current-environment) --> ()
+(pair 'z) --> (z . z)
+(pair 'x) --> (x . x)
+(let ((y (+ 2 3))) (pair y)) --> (5 . 5)
+(define x 5) --> 5
+x --> 5
+(set! x 6) --> 6
+x --> 6

@@ -1,0 +1,32 @@
+TEST|Double-Precision Whetstone
+FLAVOR|Linux
+/home/matt/retrobsd/retrobsd-partition/src/cmd/unixbench/pgms/whetstone-double: 1: Syntax error: "(" unexpected
+Command exited with non-zero status 2
+        0.00 real        0.00 user        0.00 sys
+/home/matt/retrobsd/retrobsd-partition/src/cmd/unixbench/pgms/whetstone-double: 1: Syntax error: "(" unexpected
+Command exited with non-zero status 2
+        0.00 real        0.00 user        0.00 sys
+/home/matt/retrobsd/retrobsd-partition/src/cmd/unixbench/pgms/whetstone-double: 1: Syntax error: "(" unexpected
+Command exited with non-zero status 2
+        0.00 real        0.00 user        0.00 sys
+/home/matt/retrobsd/retrobsd-partition/src/cmd/unixbench/pgms/whetstone-double: 1: Syntax error: "(" unexpected
+Command exited with non-zero status 2
+        0.00 real        0.00 user        0.00 sys
+/home/matt/retrobsd/retrobsd-partition/src/cmd/unixbench/pgms/whetstone-double: 1: Syntax error: "(" unexpected
+Command exited with non-zero status 2
+        0.00 real        0.00 user        0.00 sys
+/home/matt/retrobsd/retrobsd-partition/src/cmd/unixbench/pgms/whetstone-double: 1: Syntax error: "(" unexpected
+Command exited with non-zero status 2
+        0.00 real        0.00 user        0.00 sys
+/home/matt/retrobsd/retrobsd-partition/src/cmd/unixbench/pgms/whetstone-double: 1: Syntax error: "(" unexpected
+Command exited with non-zero status 2
+        0.00 real        0.00 user        0.00 sys
+/home/matt/retrobsd/retrobsd-partition/src/cmd/unixbench/pgms/whetstone-double: 1: Syntax error: "(" unexpected
+Command exited with non-zero status 2
+        0.00 real        0.00 user        0.00 sys
+/home/matt/retrobsd/retrobsd-partition/src/cmd/unixbench/pgms/whetstone-double: 1: Syntax error: "(" unexpected
+Command exited with non-zero status 2
+        0.00 real        0.00 user        0.00 sys
+/home/matt/retrobsd/retrobsd-partition/src/cmd/unixbench/pgms/whetstone-double: 1: Syntax error: "(" unexpected
+Command exited with non-zero status 2
+        0.00 real        0.00 user        0.00 sys

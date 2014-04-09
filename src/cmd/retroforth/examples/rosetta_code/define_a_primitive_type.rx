@@ -1,0 +1,17 @@
+{{
+  variable update
+---reveal---
+  : .limited @update &! &@ if update off ;
+  : to       dup 1 10 within [ update on ] [ drop "Out of bounds\n" puts ] if ;
+  : limited: create 1 , &.limited reclass ;
+}}
+
+This creates a data element that returns a value from 1 to 10. Alteration
+of the value is possible using to.
+
+limited: foo
+1 to foo
+foo .s
+51 to foo
+foo .s
+bye

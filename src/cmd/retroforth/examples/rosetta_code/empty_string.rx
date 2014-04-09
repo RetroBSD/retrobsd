@@ -1,0 +1,23 @@
+Create an empty string and assign it to a variable. In these keepString is
+used to ensure that the string is permanent.
+
+  ( by creating a variable )
+  "" keepString variable: foo
+
+  ( by setting an existing variable 'foo' )
+  "" keepString !foo
+
+Checking that a string is empty. A string with a length of zero is assumed to be empty.
+
+  : emtpy? ( $-f )  getLength 0 = ;
+
+  "" empty? putn
+  "hello" empty? putn
+
+Check that a string is not empty.
+
+  : notEmpty? ( $-f ) getLength 0 > ;
+
+  "" notEmpty? putn
+  "hello" notEmpty? putn
+

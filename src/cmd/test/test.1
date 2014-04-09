@@ -1,0 +1,284 @@
+.\" Copyright (c) 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" This code is derived from software contributed to Berkeley by
+.\" the Institute of Electrical and Electronics Engineers, Inc.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"	This product includes software developed by the University of
+.\"	California, Berkeley and its contributors.
+.\" 4. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"     @(#)test.1	8.1.2 (2.11BSD) 1995/03/13
+.\"	test.1,v 1.2 1994/09/24 02:59:14 davidg Exp
+.\"
+.TH TEST 1 "March 13, 1995"
+.AT 3
+.SH NAME
+test \- condition evaluation utility
+.SH SYNOPSIS
+.B test
+.I expression
+.SH DESCRIPTION
+The
+.I test
+utility evaluates the expression and, if it evaluates
+to true, returns a zero (true) exit status; otherwise
+it returns 1 (false).
+If there is no expression, test also
+returns 1 (false).
+.PP
+All operators and flags are separate arguments to the
+.I test
+utility.
+.PP
+The following primaries are used to construct expression:
+.TP
+\fB \-b \fP \fI file \fP
+True if
+.I file
+exists and is a block special
+file.
+.TP
+\fB \-c \fP \fI file \fP
+True if
+.I file
+exists and is a character
+special file.
+.TP
+\fB \-d \fP \fI file \fP
+True if
+.I file
+exists and is a directory.
+.TP
+\fB \-e \fP \fI file \fP
+True if
+.I file
+exists (regardless of type).
+.TP
+\fB \-f \fP \fI file \fP
+True if
+.I file
+exists and is a regular file.
+.TP
+\fB \-g \fP \fI file \fP
+True if
+.I file
+exists and its set group ID flag
+is set.
+.TP
+\fB \-h \fP \fI file \fP
+True if
+.I file
+exists and is a symbolic link.
+.TP
+\fB \-n \fP \fI string \fP
+True if the length of
+.I string
+is nonzero.
+.TP
+\fB \-p \fP \fI file \fP
+True if
+.I file
+is a named pipe
+.Po Tn FIFO Pc .
+.TP
+\fB \-r \fP \fI file \fP
+True if
+.I file 
+exists and is readable.
+.TP
+\fB \-s \fP \fI file \fP
+True if
+.I file
+exists and has a size greater
+than zero.
+.TP
+\fB \-t \fp \fI [file_descriptor] \fP
+True if the file whose file descriptor number
+is
+.I file_descriptor
+(default 1) is open and is
+associated with a terminal.
+.TP
+\fB \-u \fP \fI file \fP
+True if
+.I file
+exists and its set user ID flag
+is set.
+.TP
+\fB \-w \fP \fI file \fP
+True if
+.I file
+exists and is writable.
+True indicates only that the write flag is on.
+The file is not writable on a read-only file
+system even if this test indicates true.
+.TP
+\fB \-x \fP \fI file \fP
+True if
+.I file
+exists and is executable.
+True indicates only that the execute flag is on.
+If
+.I file
+is a directory, true 
+indicates that
+.I file
+can be searched.
+.TP
+\fB \-z \fP \fI string \fP
+True if the length of
+.I string
+is zero.
+.TP
+\fI string \fP
+True if
+.I string
+is not the null
+string.
+.TP
+\fI s1 \fP \fB = \fP \fI s2 \fP
+True if the strings
+.I s1
+and
+.I s2
+are identical.
+.TP
+\fI s1 \fP \fB != \fP \fI s2 \fP
+True if the strings
+.I s1
+and
+.I s2
+are not identical.
+.TP
+\fI n1 \fP \fB \-eq \fP \fI n2 \fP
+True if the integers
+.I n1
+and
+.I n2
+are algebraically
+equal.
+.TP
+\fI n1 \fP \fB \-ne \fP \fI n2 \fP
+True if the integers
+.I n1
+and
+.I n2
+are not
+algebraically equal.
+.TP
+\fI n1 \fP \fB \-gt \fP \fI n2 \fP
+True if the integer
+.I n1
+is algebraically
+greater than the integer
+.I n2 .
+.TP
+\fI n1 \fP \fB \-ge \fP \fI n2 \fP
+True if the integer
+.I n1
+is algebraically
+greater than or equal to the integer
+.I n2 .
+.TP
+\fI n1 \fP \fB \-lt \fP \fI n2 \fP
+True if the integer
+.I n1
+is algebraically less
+than the integer
+.I n2 .
+.TP
+\fI n1 \fP \fB \-le \fP \fI n2 \fP
+True if the integer
+.I n1
+is algebraically less
+than or equal to the integer
+.I n2 .
+.TP
+.PP
+These primaries can be combined with the following operators:
+.TP
+.B ! expression
+True if
+.I expression
+is false.
+.TP
+\fI expression1 \fP \fB \-a \fP \fI expression2 \fP
+True if both
+.I expression1
+and
+.I expression2
+are true.
+.TP
+\fI expression1 \fP \fB \-o \fP \fI expression2 \fP
+True if either
+.I expression1
+or
+.I expression2
+are true.
+.TP
+\fI (expression) \fP
+True if expression is true.
+.TP
+.PP
+The
+.B \-a
+operator has higher precedence than the
+.B \-o
+operator.
+.SH GRAMMAR AMBIGUITY
+The 
+.B test
+grammar is inherently ambiguous.  In order to assure a degree of consistency,
+the cases described in the 
+IEEE Std 1003.2 ("POSIX"), 
+section D11.2/4.62.4, standard
+are evaluated consistently according to the rules specified in the
+standards document.  All other cases are subject to the ambiguity in the
+command semantics.
+.SH RETURN VALUES
+The
+.B test
+utility exits with one of the following values:
+.TP
+.B 0
+expression evaluated to true.
+.TP
+.B 1
+expression evaluated to false or expression was
+missing.
+.TP
+.B >1
+An error occurred.
+.SH BUGS
+Named pipes are not implemented in 2.11BSD.
+.SH STANDARDS
+The
+.B test
+function is expected to be
+IEEE Std 1003.2 ("POSIX")
+compatible.

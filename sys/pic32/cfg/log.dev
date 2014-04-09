@@ -1,0 +1,4 @@
+always
+    file subr_log.o
+    define LOG_ENABLED YES
+end always

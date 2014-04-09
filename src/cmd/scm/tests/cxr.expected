@@ -1,0 +1,31 @@
+(define l '((((1 2) 3 4) (5 6) 7 8) ((9 10) 11 12) (13 14) 15 16)) --> ((((1 2) 3 4) (5 6) 7 8) ((9 10) 11 12) (13 14) 15 16)
+(car l) --> (((1 2) 3 4) (5 6) 7 8)
+(cdr l) --> (((9 10) 11 12) (13 14) 15 16)
+(caar l) --> ((1 2) 3 4)
+(cadr l) --> ((9 10) 11 12)
+(cdar l) --> ((5 6) 7 8)
+(cddr l) --> ((13 14) 15 16)
+(caaar l) --> (1 2)
+(caadr l) --> (9 10)
+(cadar l) --> (5 6)
+(caddr l) --> (13 14)
+(cdaar l) --> (3 4)
+(cdadr l) --> (11 12)
+(cddar l) --> (7 8)
+(cdddr l) --> (15 16)
+(caaaar l) --> 1
+(caaadr l) --> 9
+(caadar l) --> 5
+(caaddr l) --> 13
+(cadaar l) --> 3
+(cadadr l) --> 11
+(caddar l) --> 7
+(cadddr l) --> 15
+(cdaaar l) --> (2)
+(cdaadr l) --> (10)
+(cdadar l) --> (6)
+(cdaddr l) --> (14)
+(cddaar l) --> (4)
+(cddadr l) --> (12)
+(cdddar l) --> (8)
+(cddddr l) --> (16)

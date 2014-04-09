@@ -1,0 +1,87 @@
+doc{
+===============
+Chess for Retro
+===============
+
+
+--------
+Overview
+--------
+This is a simple console-based chess game for two human players. It was
+inspired by Ray St. Marie's c4thches3 for colorForth, and draws a bit from
+"RetroChess" and "RetroChess for Reva", which were earlier implementations.
+
+
+--------
+Gameplay
+--------
+The game starts with **new**:
+
+::
+
+  new
+
+This will display a board:
+
+::
+
+      0 1 2 3 4 5 6 7
+    +-----------------+
+  0 | r n b q k b n r |
+  1 | p p p p p p p p |
+  2 | . . . . . . . . |
+  3 | . . . . . . . . |
+  4 | . . . . . . . . |
+  5 | . . . . . . . . |
+  6 | P P P P P P P P |
+  7 | R N B Q K B N R |
+    +-----------------+
+      0 1 2 3 4 5 6 7
+
+Then you can move a piece by using **move**:
+
+::
+
+  move 1,0 3,0
+
+This would then display:
+
+::
+
+      0 1 2 3 4 5 6 7
+    +-----------------+
+  0 | r n b q k b n r |
+  1 | . p p p p p p p |
+  2 | . . . . . . . . |
+  3 | p . . . . . . . |
+  4 | . . . . . . . . |
+  5 | . . . . . . . . |
+  6 | P P P P P P P P |
+  7 | R N B Q K B N R |
+    +-----------------+
+      0 1 2 3 4 5 6 7
+
+Moves are specified as a starting row and column and an ending row and
+column. The game does not do any checks to ensure that moves are valid.
+We assume that you know how to play and will only make valid moves.
+}doc
+
+
+{{
+
+  "rnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR" string BLANK
+
+  create board
+    64 allot
+
+  : ---  (  -  ) "  +-----------------+\n" puts ;
+  : ###  (  -  ) "    0 1 2 3 4 5 6 7 \n" puts ;
+  : row  ( a-a ) "%d | " puts 8 [ @+ putc space ] times "|\n" puts ;
+
+  : r,c  ( ""-nn ) ', accept tib toNumber getNumber swap ;
+  : get  ( ""-a  )  r,c 8 * board 2+ ;
+---reveal---
+  : display  (   - ) cr ### ---  board 8 [ row ] iter drop --- ### cr ;
+  : new      (   - ) BLANK board 64 copy display ;
+  : move     ( ""- ) get dup @ [ '. swap ! ] dip get ! display ;
+}}

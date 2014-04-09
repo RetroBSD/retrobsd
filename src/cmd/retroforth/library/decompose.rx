@@ -1,0 +1,107 @@
+( templates for casket ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+
+needs casket'
+with casket'
+
+chain: decompose'
+
+variable attrs
+variable src
+
+: buildString ( q-$ )
+  depth [ do ] dip depth swap - 1- [ ^strings'append ] times ;
+
+: attr:reset ( - )  attrs off ;
+: attr:first? @attrs [ "" !attrs ] ifFalse ;
+
+: <attr ( "- )
+  '> accept
+  ` attr:first?
+  ` src ` ! ` [ ` attrs ` @ tib keepString .data "='" .data ` src ` @ ` "'" .data ` ]
+  ` buildString ` keepString ` attrs ` ! ; immediate
+
+: :id      ( $- )  <attr id>     ;
+: :name    ( $- )  <attr name>   ;
+: :class   ( $- )  <attr class>  ;
+: :width   ( $- )  <attr width>  ;
+: :height  ( $- )  <attr height> ;
+: :href    ( $- )  <attr href>   ;
+
+: getAttrs ( -$ )  @attrs attr:reset ;
+
+: stylesheet ( q- )
+  "<link rel='stylesheet' href='" tputs do tputs "'>" tputs ;
+: br     ( - )   "<br>" tputs ;
+: hr     ( - )   "<hr>" tputs ;
+
+: <tag   ( "- )
+  '> accept
+  ` attrs ` @ ` [ ` getAttrs [ "<" tib " %s>" ] buildString keepString .data ` ]
+  ` [ [ "<" tib ">" ] buildString keepString .data ` ] ` if ` tputs
+  ` do ` depth ` 0 ` > ` [ ` tputs ` ] ` ifTrue
+  [ "</" tib ">" ] buildString keepString .data ` tputs ` 0 ` attrs ` ! ; immediate
+
+: a      ( q- )  <tag a>      ;
+: b      ( q- )  <tag b>      ;
+: i      ( q- )  <tag i>      ;
+: u      ( q- )  <tag u>      ;
+: pre    ( q- )  <tag pre>    ;
+: p      ( q- )  <tag p>      ;
+: h1     ( q- )  <tag h1>     ;
+: h2     ( q- )  <tag h2>     ;
+: h3     ( q- )  <tag h3>     ;
+: h4     ( q- )  <tag h4>     ;
+: div    ( q- )  <tag div>    ;
+: span   ( q- )  <tag span>   ;
+: head   ( q- )  <tag head>   ;
+: table  ( q- )  <tag table>  ;
+: tr     ( q- )  <tag tr>     ;
+: td     ( q- )  <tag td>     ;
+: html   ( q- )  <tag html>   ;
+: head   ( q- )  <tag head>   ;
+: body   ( q- )  <tag body>   ;
+: title  ( q- )  <tag title>  ;
+;chain
+
+
+without
+
+doc{
+=======================
+Casket: HTML Generation
+=======================
+
+
+--------
+Overview
+--------
+The core Casket framework provides minimal templating, but no easy way to
+generate HTML from code.
+
+
+This vocabulary provides support for generating HTML using a series of
+combinators. Textual data returned will be displayed (using **^casket'tputs**),
+and various attributes are supported.
+
+
+-------
+Loading
+-------
+::
+
+  needs decompose'
+
+
+-------
+Example
+-------
+::
+
+  : /index
+    Content-type: text/html
+    [ [ [ "Hello" ] title ] head
+      [ [ "Welcome" ] h1
+        [ "This is a paragraph." ] p ] body ] html ;
+
+}doc
+

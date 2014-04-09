@@ -1,0 +1,142 @@
+.\" No copyright (1993) - Steven M. Schultz (sms@wlv.iipo.gtegsc.com)
+.\" @(#)vmf.3	3.0 (2.11BSD) 9/24/93
+.\"
+.TH VMF 3 "September 24, 1993"
+.UC 6
+.SH NAME
+vminit, vmopen, vmclose, vmmapseg, vmmodify, vmlock, vmunlock, vmclrseg, vmflush, \- disk based virtual memory routines
+.SH SYNOPSIS
+.nf
+.PP
+.ft B
+#include <vmf.h>
+.PP
+.ft B
+struct vspace {
+	int     v_fd;           /* file for swapping */
+	off_t   v_foffset;      /* offset for computing file addresses */
+	int     v_maxsegno;     /* number of segments in this space */
+	};
+.PP
+.ft B
+struct	vseg {                    /* structure of a segment in memory */
+	struct	dlink	s_link;		/* for linking into lru list */
+	int	s_segno;        	/* segment number */
+	struct	vspace	*s_vspace;      /* which virtual space */
+	int	s_lock_count;
+	int     s_flags;
+	union
+		{
+		int	_winfo[WORDSPERSEG];	/* the actual segment */
+		char	_cinfo[BYTESPERSEG];
+		} v_un;
+	};
+#define	s_winfo	v_un._winfo
+#define	s_cinfo	v_un._cinfo
+.PP
+.ft B
+int	vminit(nseg);
+	int nseg;
+.PP
+.ft B
+int	vmopen(space, filename);
+	struct vspace *space;
+	char	*filename;
+.PP
+.ft B
+struct	vseg	*vmmapseg(space, segno);
+	struct	vspace	*space;
+	int	segno;
+.PP
+.ft B
+void	vmlock(seg);
+	struct	vseg *seg;
+.PP
+.ft B
+void	vmunlock(seg);
+	struct	vseg *seg;
+.PP
+.ft B
+void	vmclrseg(seg);
+	struct	vseg *seg;
+.PP
+.ft B
+void	vmmodify(seg);
+.PP
+.ft B
+void	vmflush();
+.PP
+.ft B
+void	vmclose(space);
+	struct	vspace *space;
+.fi
+.bp
+.SH DESCRIPTION
+This library provides a standard set
+of routines for managing large virtual memory spaces.  It supports
+creation of multiple concurrent virtual spaces, mapping of virtual
+pages into real memory, a lock/unlock mechanism, and a capability to
+clear specified virtual pages.
+.PP
+.IR vminit\ -
+This routine initializes the virtual memory system by setting up the
+pool of in-memory segment buffers.  The argument to this function is
+the number of memory segments to allocate (typically 4 to 8 but can be 
+higher as long as memory can be malloc'd).
+It must be called before any
+other "libvmf" routine is called.
+.PP
+.IR vmopen\ -
+For each virtual space that a program uses, the program must 
+allocate an instance of the space structure ('struct vspace').  
+This routine is used to initialize
+a virtual space structure using the specified address of a
+space structure and the name of the file that will serve as 
+swap file for the space.  If the second argument is \fBNULL\fP
+an invisible temporary file is used rather than a named (permanent)
+file.
+.PP
+.IR vmclose\ -
+This routine is used to close the UNIX file descriptor associated
+with the swap file for a virtual space.  Any modified in-memory segments
+belonging to the specified address space are flushed to the paging file.
+.PP
+.IR vmmapseg\ -
+This routine is the primary interface to the virtual memory mechanism.
+It is executed with a specified virtual space address and a segment
+number (between 0 and 511), and returns a pointer to an in-memory
+page containing the specified segment.
+.PP
+.IR vmmodify\ -
+Whenever a program modifies the data of a segment, it is the program's
+responsibility to inform the virtual memory system of the modification.
+This function is also available as a macro
+(\fBVMMODIFY\fP) for use in-line.
+.PP
+.IR vmlock\ -
+This routine increments the lock count of the specified segment buffer.
+A buffer with a nonzero lock count is
+.I locked
+and cannot be swapped out.
+.PP
+.IR vmunlock\ -
+This routine decrements the lock count of the specified buffer.  It is
+a serious error to decrement the count below zero (lock underflow).
+.PP
+.IR vmclrseg\ -
+This routine clears the user data area (page) of the specified segment buffer.
+.IR vmflush\ -
+This routine simply swaps out all segments that are marked as
+modified.
+.SH BUGS
+Not as transparent (or as fast) as a larger hardware address space.
+.PP
+There is no automatic segment crossing capability, the application must
+check if a
+.I virtual address
+crosses page/segment boundaries and perform a
+.I vmmapseg
+call.
+.SH SEE ALSO
+There is a nroff document (using the \-ms macros) in the \fIlibvmf\fP source 
+directory which goes into more details about the \fBvm\fP functions.

@@ -1,0 +1,39 @@
+needs assertion'
+needs infix'
+
+with| assertion' infix' |
+
+[ [ "passed" ] [ "failed" ] if "%s\n" puts ] is postCond
+
+: a0
+  "Testing + : " puts
+  1 + 2 + 3 6 assert= ; assertion
+
+: a1
+  "Testing - : " puts
+  6 - 4 2 assert= ; assertion
+
+: a2
+  "Testing * : " puts
+  2 * 3 6 assert= ; assertion
+
+: a3
+  "Testing / : " puts
+  6 / 2 3 assert= ; assertion
+
+: a4
+  "Testing mod : " puts
+  7 mod 2 1 assert= ; assertion
+
+: a5
+  "Testing /mod : " puts
+  7 /mod 2 3 assert= 1 assert= ; assertion
+
+: a6
+  "Testing ^ : " puts
+  2 ^ 3 8 assert= ; assertion
+
+: go
+  cr a0 a1 a2 a3 a4 a5 a6 bye ;
+
+go

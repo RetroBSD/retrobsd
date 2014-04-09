@@ -1,0 +1,40 @@
+with canvas'
+
+3 elements mx my color
+
+: toggle dup @ not swap ! ;
+: player @color [ red ] [ blue ] if color toggle ;
+
+: drawBoard  ( - )
+  0 0 @fh @fw white solid box
+    0  50 150 black hline
+    0 100 150 black hline
+   50   0 150 black vline
+  100   0 150 black vline ;
+
+: top     ( n- )   5 40 40 player solid box ;
+: middle  ( n- )  55 40 40 player solid box ;
+: bottom  ( n- ) 105 40 40 player solid box ;
+
+: column  ( nn- )
+  swap
+  [   0  50 within ] [ top    ] whend
+  [  50 100 within ] [ middle ] whend
+  [ 100 150 within ] [ bottom ] whend
+  2drop ;
+
+: row  ( nn- )
+  [   0  50 within ] [   5 column ] whend
+  [  50 100 within ] [  55 column ] whend
+  [ 100 150 within ] [ 105 column ] whend
+  2drop ;
+
+: moved?  ( nn-nnf )
+  2over @mx = [ @my = ] dip and [ 2over [ !my ] [ !mx ] bi* ] dip ;
+
+: process  ( - )
+  click? [ mouse swap moved? [ row ] [ 2drop ] if ] ifTrue ;
+
+: tic-tac-toe  ( - )
+  clear drawBoard repeat process again ;
+

@@ -1,0 +1,50 @@
+
+
+# CPU frequency 80 MHz.
+DEFS		+= -DCPU_KHZ=80000
+DEFS		+= -DBUS_KHZ=80000
+
+DEFS            += -DSRAMC_ENABLED
+
+DEFS 		+= -DPARTITION="sramc0:sa@1500,fs@2572"
+
+#DEFS            += -DROOT='makedev(0,1)'
+#DEFS            += -DSWAP='makedev(0,2)'
+
+#
+# Fubarino SD board
+# =================
+#
+# Console on UART2
+DEFS            += -DCONSOLE_UART2 -DCONSOLE_BAUD=115200
+
+# SD/MMC card driver on SPI2
+# /CS0 at pin G9
+DEFS            += -DSD0_PORT=2
+DEFS            += -DSD0_CS_PORT=TRISG -DSD0_CS_PIN=9
+
+# LED at pin C14
+DEFS            += -DLED_KERNEL_PORT=TRISC -DLED_KERNEL_PIN=14 -DLED_KERNEL_INVERT
+
+# Swap on external device, 2 Mbytes
+#   data at E0-E7
+#     rd at F1
+#     wr at F0
+# ldaddr at C13
+DEFS            += -DSWAPDEV=0x0100 -DSWAPSZ=2048
+DEFS            += -DSW_DATA_PORT=TRISE -DSW_DATA_PIN=0
+DEFS            += -DSW_RD_PORT=TRISF   -DSW_RD_PIN=1
+DEFS            += -DSW_WR_PORT=TRISF   -DSW_WR_PIN=0
+DEFS            += -DSW_LDA_PORT=TRISC  -DSW_LDA_PIN=13
+
+# Include or exclude drivers
+DRIVER_GPIO         = yes
+# General Purpose I/O
+DRIVER_ADC          = yes
+# Basic ADC interface
+DRIVER_SPI          = yes
+# Generic SPI interface
+DRIVER_OC           = yes
+# Output Compare driver
+
+

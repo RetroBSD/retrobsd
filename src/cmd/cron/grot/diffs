@@ -1,0 +1,1933 @@
+diff -c -r /tmp/cron/Makefile cron/Makefile
+*** /tmp/cron/Makefile	Fri Jun 18 19:37:52 1999
+--- cron/Makefile	Tue Jun 15 20:53:11 1999
+***************
+*** 45,96 ****
+  #
+  #	there's more configuration info in config.h; edit that first!
+  
+- #################################### begin configurable stuff
+- #<<DESTROOT is assumed to have ./etc, ./bin, and ./man subdirectories>>
+  DESTROOT	=	$(DESTDIR)/usr
+  DESTSBIN	=	$(DESTROOT)/sbin
+  DESTBIN		=	$(DESTROOT)/bin
+! DESTMAN		=	$(DESTROOT)/share/man
+! #<<need bitstring.h>>
+  INCLUDE		=	-I.
+- #INCLUDE	=
+- #<<need getopt()>>
+  LIBS		=
+! #<<optimize or debug?>>
+! #OPTIM		=	-O
+! OPTIM		=	-g
+! #<<ATT or BSD or POSIX?>>
+! # (ATT untested)
+! #COMPAT		=	-DATT
+! #(BSD is only needed if <sys/params.h> does not define it, as on ULTRIX)
+! #COMPAT		=	-DBSD
+! # (POSIX)
+! #COMPAT		=	-DPOSIX
+  #<<lint flags of choice?>>
+! LINTFLAGS	=	-hbxa $(INCLUDE) $(COMPAT) $(DEBUGGING)
+! #<<want to use a nonstandard CC?>>
+! #CC		=	vcc
+! #<<manifest defines>>
+  DEFS		=
+! #(SGI IRIX systems need this)
+! #DEFS		=	-D_BSD_SIGNALS -Dconst=
+! #<<the name of the BSD-like install program>>
+! #INSTALL = installbsd
+! INSTALL = install
+! #<<any special load flags>>
+! LDFLAGS		=
+  #################################### end configurable stuff
+  
+  SHELL		=	/bin/sh
+! CFLAGS		=	$(OPTIM) $(INCLUDE) $(COMPAT) $(DEFS)
+  
+- INFOS		=	README CHANGES FEATURES INSTALL CONVERSION THANKS MAIL
+- MANPAGES	=	bitstring.3 crontab.5 crontab.1 cron.8 putman.sh
+- HEADERS		=	bitstring.h cron.h config.h pathnames.h \
+- 			externs.h compat.h
+- SOURCES		=	cron.c crontab.c database.c do_command.c entry.c \
+- 			env.c job.c user.c popen.c misc.c compat.c
+- SHAR_SOURCE	=	$(INFOS) $(MANPAGES) Makefile $(HEADERS) $(SOURCES)
+  LINT_CRON	=	cron.c database.c user.c entry.c compat.c \
+  			misc.c job.c do_command.c env.c popen.c
+  LINT_CRONTAB	=	crontab.c misc.c entry.c env.c compat.c
+--- 45,68 ----
+  #
+  #	there's more configuration info in config.h; edit that first!
+  
+  DESTROOT	=	$(DESTDIR)/usr
+  DESTSBIN	=	$(DESTROOT)/sbin
+  DESTBIN		=	$(DESTROOT)/bin
+! DESTMAN		=	$(DESTROOT)/man
+  INCLUDE		=	-I.
+  LIBS		=
+! OPTIM		=	-O
+  #<<lint flags of choice?>>
+! LINTFLAGS	=	-hbxa $(INCLUDE)
+! CC		=	cc
+  DEFS		=
+! INSTALL 	= install
+! LDFLAGS		= -i
+  #################################### end configurable stuff
+  
+  SHELL		=	/bin/sh
+! CFLAGS		=	$(OPTIM) $(INCLUDE) $(DEFS)
+  
+  LINT_CRON	=	cron.c database.c user.c entry.c compat.c \
+  			misc.c job.c do_command.c env.c popen.c
+  LINT_CRONTAB	=	crontab.c misc.c entry.c env.c compat.c
+***************
+*** 98,128 ****
+  			misc.o env.o popen.o compat.o
+  CRONTAB_OBJ	=	crontab.o misc.o entry.o env.o compat.o
+  
+! all		:	cron crontab
+  
+! lint		:
+! 			lint $(LINTFLAGS) $(LINT_CRON) $(LIBS) \
+! 			|grep -v "constant argument to NOT" 2>&1
+! 			lint $(LINTFLAGS) $(LINT_CRONTAB) $(LIBS) \
+! 			|grep -v "constant argument to NOT" 2>&1
+  
+! cron		:	$(CRON_OBJ)
+! 			$(CC) $(LDFLAGS) -o cron $(CRON_OBJ) $(LIBS)
+  
+! crontab		:	$(CRONTAB_OBJ)
+! 			$(CC) $(LDFLAGS) -o crontab $(CRONTAB_OBJ) $(LIBS)
+  
+! install		:	all
+! 			$(INSTALL) -c -m  111 -o root -s cron    $(DESTSBIN)/
+! 			$(INSTALL) -c -m 4111 -o root -s crontab $(DESTBIN)/
+! 			sh putman.sh crontab.1 $(DESTMAN)
+! 			sh putman.sh cron.8    $(DESTMAN)
+! 			sh putman.sh crontab.5 $(DESTMAN)
+  
+! clean		:;	rm -f *.o cron crontab a.out core tags *~ #*
+! 
+! kit		:	$(SHAR_SOURCE)
+! 			makekit -m -s99k $(SHAR_SOURCE)
+  
+  $(CRON_OBJ)	:	cron.h compat.h config.h externs.h pathnames.h Makefile
+  $(CRONTAB_OBJ)	:	cron.h compat.h config.h externs.h pathnames.h Makefile
+--- 70,98 ----
+  			misc.o env.o popen.o compat.o
+  CRONTAB_OBJ	=	crontab.o misc.o entry.o env.o compat.o
+  
+! all:	cron crontab
+  
+! lint:
+! 	lint $(LINTFLAGS) $(LINT_CRON) $(LIBS) \
+! 		|grep -v "constant argument to NOT" 2>&1
+! 	lint $(LINTFLAGS) $(LINT_CRONTAB) $(LIBS) \
+! 		|grep -v "constant argument to NOT" 2>&1
+  
+! cron:	$(CRON_OBJ)
+! 	$(CC) $(LDFLAGS) -o cron $(CRON_OBJ) $(LIBS)
+  
+! crontab:	$(CRONTAB_OBJ)
+! 	$(CC) $(LDFLAGS) -o crontab $(CRONTAB_OBJ) $(LIBS)
+  
+! install:	all
+! 	$(INSTALL) -c -m  111 -o root -s cron    $(DESTSBIN)/cron
+! 	$(INSTALL) -c -m 4111 -o root -s crontab $(DESTBIN)/crontab
+! 	sh putman.sh crontab.1 $(DESTMAN)
+! 	sh putman.sh cron.8    $(DESTMAN)
+! 	sh putman.sh crontab.5 $(DESTMAN)
+  
+! clean:
+! 	rm -f *.o cron crontab a.out core tags *~ #*
+  
+  $(CRON_OBJ)	:	cron.h compat.h config.h externs.h pathnames.h Makefile
+  $(CRONTAB_OBJ)	:	cron.h compat.h config.h externs.h pathnames.h Makefile
+diff -c -r /tmp/cron/compat.c cron/compat.c
+*** /tmp/cron/compat.c	Fri Jun 18 19:37:52 1999
+--- cron/compat.c	Tue Jun 15 22:04:11 1999
+***************
+*** 25,233 ****
+  
+  
+  #include "cron.h"
+- #ifdef NEED_GETDTABLESIZE
+- # include <limits.h>
+- #endif
+- #if defined(NEED_SETSID) && defined(BSD)
+- # include <sys/ioctl.h>
+- #endif
+- #include <errno.h>
+  
+  
+! /* the code does not depend on any of vfork's
+!  * side-effects; it just uses it as a quick
+!  * fork-and-exec.
+!  */
+! #ifdef NEED_VFORK
+! PID_T
+! vfork() {
+! 	return (fork());
+! }
+! #endif
+! 
+! 
+! #ifdef NEED_STRDUP
+! char *
+! strdup(str)
+! 	char	*str;
+! {
+! 	char	*temp;
+! 
+! 	temp = malloc(strlen(str) + 1);
+! 	(void) strcpy(temp, str);
+! 	return temp;
+! }
+! #endif
+! 
+! 
+! #ifdef NEED_STRERROR
+! char *
+! strerror(error)
+! 	int error;
+! {
+! 	extern char *sys_errlist[];
+! 	extern int sys_nerr;
+! 	static char buf[32];
+! 
+! 	if ((error <= sys_nerr) && (error > 0)) {
+! 		return sys_errlist[error];
+! 	}
+! 
+! 	sprintf(buf, "Unknown error: %d", error);
+! 	return buf;
+! }
+! #endif
+! 
+! 
+! #ifdef NEED_STRCASECMP
+  int
+- strcasecmp(left, right)
+- 	char	*left;
+- 	char	*right;
+- {
+- 	while (*left && (MkLower(*left) == MkLower(*right))) {
+- 		left++;
+- 		right++;
+- 	}
+- 	return MkLower(*left) - MkLower(*right);
+- }
+- #endif
+- 
+- 
+- #ifdef NEED_SETSID
+- int
+  setsid()
+  {
+  	int	newpgrp;
+! # if defined(BSD)
+! 	int	fd;
+! #  if defined(POSIX)
+! 	newpgrp = setpgid((pid_t)0, getpid());
+! #  else
+  	newpgrp = setpgrp(0, getpid());
+! #  endif
+! 	if ((fd = open("/dev/tty", 2)) >= 0)
+! 	{
+  		(void) ioctl(fd, TIOCNOTTY, (char*)0);
+  		(void) close(fd);
+! 	}
+! # else /*BSD*/
+! 	newpgrp = setpgrp();
+! 
+! 	(void) close(STDIN);	(void) open("/dev/null", 0);
+! 	(void) close(STDOUT);	(void) open("/dev/null", 1);
+! 	(void) close(STDERR);	(void) open("/dev/null", 2);
+! # endif /*BSD*/
+  	return newpgrp;
+  }
+- #endif /*NEED_SETSID*/
+- 
+- 
+- #ifdef NEED_GETDTABLESIZE
+- int
+- getdtablesize() {
+- #ifdef _SC_OPEN_MAX
+- 	return sysconf(_SC_OPEN_MAX);
+- #else
+- 	return _POSIX_OPEN_MAX;
+- #endif
+- }
+- #endif
+- 
+- 
+- #ifdef NEED_FLOCK
+- /* The following flock() emulation snarfed intact *) from the HP-UX
+-  * "BSD to HP-UX porting tricks" maintained by
+-  * system@alchemy.chem.utoronto.ca (System Admin (Mike Peterson))
+-  * from the version "last updated: 11-Jan-1993"
+-  * Snarfage done by Jarkko Hietaniemi <Jarkko.Hietaniemi@hut.fi>
+-  * *) well, almost, had to K&R the function entry, HPUX "cc"
+-  * does not grok ANSI function prototypes */
+-  
+- /*
+-  * flock (fd, operation)
+-  *
+-  * This routine performs some file locking like the BSD 'flock'
+-  * on the object described by the int file descriptor 'fd',
+-  * which must already be open.
+-  *
+-  * The operations that are available are:
+-  *
+-  * LOCK_SH  -  get a shared lock.
+-  * LOCK_EX  -  get an exclusive lock.
+-  * LOCK_NB  -  don't block (must be ORed with LOCK_SH or LOCK_EX).
+-  * LOCK_UN  -  release a lock.
+-  *
+-  * Return value: 0 if lock successful, -1 if failed.
+-  *
+-  * Note that whether the locks are enforced or advisory is
+-  * controlled by the presence or absence of the SETGID bit on
+-  * the executable.
+-  *
+-  * Note that there is no difference between shared and exclusive
+-  * locks, since the 'lockf' system call in SYSV doesn't make any
+-  * distinction.
+-  *
+-  * The file "<sys/file.h>" should be modified to contain the definitions
+-  * of the available operations, which must be added manually (see below
+-  * for the values).
+-  */
+- 
+- /* this code has been reformatted by vixie */
+- 
+- int
+- flock(fd, operation)
+- 	int fd;
+- 	int operation;
+- {
+- 	int i;
+- 
+- 	switch (operation) {
+- 	case LOCK_SH:		/* get a shared lock */
+- 	case LOCK_EX:		/* get an exclusive lock */
+- 		i = lockf (fd, F_LOCK, 0);
+- 		break;
+- 
+- 	case LOCK_SH|LOCK_NB:	/* get a non-blocking shared lock */
+- 	case LOCK_EX|LOCK_NB:	/* get a non-blocking exclusive lock */
+- 		i = lockf (fd, F_TLOCK, 0);
+- 		if (i == -1)
+- 			if ((errno == EAGAIN) || (errno == EACCES))
+- 				errno = EWOULDBLOCK;
+- 		break;
+- 
+- 	case LOCK_UN:		/* unlock */
+- 		i = lockf (fd, F_ULOCK, 0);
+- 		break;
+-  
+- 	default:		/* can't decipher operation */
+- 		i = -1;
+- 		errno = EINVAL;
+- 		break;
+- 	}
+-  
+- 	return (i);
+- }
+- #endif /*NEED_FLOCK*/
+- 
+- 
+- #ifdef NEED_SETENV
+- int
+- setenv(name, value, overwrite)
+- 	char *name, *value;
+- 	int overwrite;
+- {
+- 	char *tmp;
+- 
+- 	if (overwrite && getenv(name))
+- 		return -1;
+- 
+- 	if (!(tmp = malloc(strlen(name) + strlen(value) + 2))) {
+- 		errno = ENOMEM;
+- 		return -1;
+- 	}
+- 
+- 	sprintf("%s=%s", name, value);
+- 	return putenv(tmp);	/* intentionally orphan 'tmp' storage */
+- }
+- #endif
+--- 25,57 ----
+  
+  
+  #include "cron.h"
+  
++ #include <fcntl.h>
++ #include <sys/ioctl.h>
+  
+! /*
+!  * Ripped off from daemon(3) - differences are this sets the process group
+!  * and does not fork (because that has been done already).
+! */
+  int
+  setsid()
+  {
+  	int	newpgrp;
+! 	register int	fd;
+! 
+  	newpgrp = setpgrp(0, getpid());
+! 	if	((fd = open(_PATH_TTY, 2)) >= 0)
+! 		{
+  		(void) ioctl(fd, TIOCNOTTY, (char*)0);
+  		(void) close(fd);
+! 		}
+! 	if	((fd = open(_PATH_DEVNULL, O_RDWR, 0)) != -1)
+! 		{
+! 		(void)dup2(fd, 0);
+! 		(void)dup2(fd, 1);
+! 		(void)dup2(fd, 2);
+! 		if	(fd > 2)
+! 			(void)close(fd);
+! 		}
+  	return newpgrp;
+  }
+diff -c -r /tmp/cron/compat.h cron/compat.h
+*** /tmp/cron/compat.h	Fri Jun 18 19:37:52 1999
+--- cron/compat.h	Tue Jun 15 20:32:58 1999
+***************
+*** 20,137 ****
+   */
+  
+  #ifndef __P
+! # ifdef __STDC__
+! #  define __P(x) x
+! # else
+! #  define __P(x) ()
+! #  define const
+! # endif
+  #endif
+  
+- #if defined(UNIXPC) || defined(unixpc)
+- # define UNIXPC 1
+- # define ATT 1
+- #endif
+- 
+- #if defined(hpux) || defined(_hpux) || defined(__hpux)
+- # define HPUX 1
+- # define seteuid(e) setresuid(-1,e,-1)
+- # define setreuid(r,e)	setresuid(r,e,-1)
+- #endif
+- 
+- #if defined(_IBMR2)
+- # define AIX 1
+- #endif
+- 
+- #if defined(__convex__)
+- # define CONVEX 1
+- #endif
+- 
+- #if defined(sgi) || defined(_sgi) || defined(__sgi)
+- # define IRIX 1
+- /* IRIX 4 hdrs are broken: one cannot #include both <stdio.h>
+-  * and <stdlib.h> because they disagree on system(), perror().
+-  * Therefore we must zap the "const" keyword BEFORE including
+-  * either of them.
+-  */
+- # define const
+- #endif
+- 
+- #if defined(_UNICOS)
+- # define UNICOS 1
+- #endif
+- 
+- #ifndef POSIX
+- # if (BSD >= 199103) || defined(__linux) || defined(ultrix) || defined(AIX) ||\
+- 	defined(HPUX) || defined(CONVEX) || defined(IRIX)
+- #  define POSIX
+- # endif
+- #endif
+- 
+- #ifndef BSD
+- # if defined(ultrix)
+- #  define BSD 198902
+- # endif
+- #endif
+- 
+  /*****************************************************************/
+  
+! #if !defined(BSD) && !defined(HPUX) && !defined(CONVEX) && !defined(__linux)
+! # define NEED_VFORK
+! #endif
+! 
+! #if (!defined(BSD) || (BSD < 198902)) && !defined(__linux) && \
+! 	!defined(IRIX) && !defined(NeXT) && !defined(HPUX)
+! # define NEED_STRCASECMP
+! #endif
+! 
+! #if (!defined(BSD) || (BSD < 198911)) && !defined(__linux) &&\
+! 	!defined(IRIX) && !defined(UNICOS) && !defined(HPUX)
+! # define NEED_STRDUP
+! #endif
+! 
+! #if (!defined(BSD) || (BSD < 198911)) && !defined(POSIX) && !defined(NeXT)
+! # define NEED_STRERROR
+! #endif
+! 
+! #if defined(HPUX) || defined(AIX) || defined(UNIXPC)
+! # define NEED_FLOCK
+! #endif
+! 
+! #ifndef POSIX
+! # define NEED_SETSID
+! #endif
+! 
+! #if (defined(POSIX) && !defined(BSD)) && !defined(__linux)
+! # define NEED_GETDTABLESIZE
+! #endif
+! 
+! #if (BSD >= 199103)
+! # define HAVE_SAVED_UIDS
+! #endif
+! 
+! #if !defined(ATT) && !defined(__linux) && !defined(IRIX) && !defined(UNICOS)
+! # define USE_SIGCHLD
+! #endif
+! 
+! #if !defined(AIX) && !defined(UNICOS)
+! # define SYS_TIME_H 1
+! #else
+! # define SYS_TIME_H 0
+! #endif
+! 
+! #if defined(BSD) && !defined(POSIX)
+! # define USE_UTIMES
+! #endif
+! 
+! #if defined(AIX) || defined(HPUX) || defined(IRIX)
+! # define NEED_SETENV
+! #endif
+! 
+! #if !defined(UNICOS) && !defined(UNIXPC)
+! # define HAS_FCHOWN
+! #endif
+! 
+! #if !defined(UNICOS) && !defined(UNIXPC)
+! # define HAS_FCHMOD
+! #endif
+--- 20,31 ----
+   */
+  
+  #ifndef __P
+! #define __P(x) ()
+! #define const
+  #endif
+  
+  /*****************************************************************/
+  
+! #define	WAIT_T	union wait
+! #define	PID_T	pid_t
+! #define	TIME_T	time_t
+diff -c -r /tmp/cron/cron.c cron/cron.c
+*** /tmp/cron/cron.c	Fri Jun 18 19:37:52 1999
+--- cron/cron.c	Tue Jun 15 21:11:15 1999
+***************
+*** 25,45 ****
+  
+  #include "cron.h"
+  #include <sys/signal.h>
+! #if SYS_TIME_H
+! # include <sys/time.h>
+! #else
+! # include <time.h>
+! #endif
+  
+- 
+  static	void	usage __P((void)),
+  		run_reboot_jobs __P((cron_db *)),
+  		cron_tick __P((cron_db *)),
+  		cron_sync __P((void)),
+  		cron_sleep __P((void)),
+- #ifdef USE_SIGCHLD
+  		sigchld_handler __P((int)),
+- #endif
+  		sighup_handler __P((int)),
+  		parse_args __P((int c, char *v[]));
+  
+--- 25,38 ----
+  
+  #include "cron.h"
+  #include <sys/signal.h>
+! #include <sys/time.h>
+  
+  static	void	usage __P((void)),
+  		run_reboot_jobs __P((cron_db *)),
+  		cron_tick __P((cron_db *)),
+  		cron_sync __P((void)),
+  		cron_sleep __P((void)),
+  		sigchld_handler __P((int)),
+  		sighup_handler __P((int)),
+  		parse_args __P((int c, char *v[]));
+  
+***************
+*** 60,77 ****
+  
+  	ProgramName = argv[0];
+  
+- #if defined(BSD)
+  	setlinebuf(stdout);
+  	setlinebuf(stderr);
+- #endif
+  
+  	parse_args(argc, argv);
+  
+- #ifdef USE_SIGCHLD
+  	(void) signal(SIGCHLD, sigchld_handler);
+- #else
+- 	(void) signal(SIGCLD, SIG_IGN);
+- #endif
+  	(void) signal(SIGHUP, sighup_handler);
+  
+  	acquire_daemonlock(0);
+--- 53,64 ----
+***************
+*** 78,86 ****
+  	set_cron_uid();
+  	set_cron_cwd();
+  
+- #if defined(POSIX)
+  	setenv("PATH", _PATH_DEFPATH, 1);
+- #endif
+  
+  	/* if there are no debug flags turned on, fork as a daemon should.
+  	 */
+--- 65,71 ----
+***************
+*** 244,250 ****
+  }
+  
+  
+- #ifdef USE_SIGCHLD
+  static void
+  sigchld_handler(x) {
+  	WAIT_T		waiter;
+--- 229,234 ----
+***************
+*** 251,261 ****
+  	PID_T		pid;
+  
+  	for (;;) {
+- #ifdef POSIX
+  		pid = waitpid(-1, &waiter, WNOHANG);
+- #else
+- 		pid = wait3(&waiter, WNOHANG, (struct rusage *)0);
+- #endif
+  		switch (pid) {
+  		case -1:
+  			Debug(DPROC,
+--- 235,241 ----
+***************
+*** 272,279 ****
+  		}
+  	}
+  }
+- #endif /*USE_SIGCHLD*/
+- 
+  
+  static void
+  sighup_handler(x) {
+--- 252,257 ----
+diff -c -r /tmp/cron/cron.h cron/cron.h
+*** /tmp/cron/cron.h	Fri Jun 18 19:37:52 1999
+--- cron/cron.h	Tue Jun 15 20:31:36 1999
+***************
+*** 112,119 ****
+  			;
+  #endif /* DEBUGGING */
+  
+- #define	MkLower(ch)	(isupper(ch) ? tolower(ch) : ch)
+- #define	MkUpper(ch)	(islower(ch) ? toupper(ch) : ch)
+  #define	Set_LineNum(ln)	{Debug(DPARS|DEXT,("linenum=%d\n",ln)); \
+  			 LineNumber = ln; \
+  			}
+--- 112,117 ----
+diff -c -r /tmp/cron/crontab.c cron/crontab.c
+*** /tmp/cron/crontab.c	Fri Jun 18 19:48:38 1999
+--- cron/crontab.c	Tue Jun 15 21:11:42 1999
+***************
+*** 33,52 ****
+  #include <fcntl.h>
+  #include <sys/file.h>
+  #include <sys/stat.h>
+! #ifdef USE_UTIMES
+! # include <sys/time.h>
+! #else
+! # include <time.h>
+! # include <utime.h>
+! #endif
+! #if defined(POSIX)
+! # include <locale.h>
+! #endif
+  
+- 
+  #define NHEADER_LINES 3
+  
+- 
+  enum opt_t	{ opt_unknown, opt_list, opt_delete, opt_edit, opt_replace };
+  
+  #if DEBUGGING
+--- 33,42 ----
+  #include <fcntl.h>
+  #include <sys/file.h>
+  #include <sys/stat.h>
+! #include <sys/time.h>
+  
+  #define NHEADER_LINES 3
+  
+  enum opt_t	{ opt_unknown, opt_list, opt_delete, opt_edit, opt_replace };
+  
+  #if DEBUGGING
+***************
+*** 95,107 ****
+  	Pid = getpid();
+  	ProgramName = argv[0];
+  
+- #if defined(POSIX)
+- 	setlocale(LC_ALL, "");
+- #endif
+- 
+- #if defined(BSD)
+  	setlinebuf(stderr);
+! #endif
+  	parse_args(argc, argv);		/* sets many globals, opens a file */
+  	set_cron_uid();
+  	set_cron_cwd();
+--- 85,92 ----
+  	Pid = getpid();
+  	ProgramName = argv[0];
+  
+  	setlinebuf(stderr);
+! 
+  	parse_args(argc, argv);		/* sets many globals, opens a file */
+  	set_cron_uid();
+  	set_cron_cwd();
+***************
+*** 242,248 ****
+  static void
+  list_cmd() {
+  	char	n[MAX_FNAME];
+! 	FILE	*f;
+  	int	ch;
+  
+  	log_it(RealUser, Pid, "LIST", User);
+--- 227,233 ----
+  static void
+  list_cmd() {
+  	char	n[MAX_FNAME];
+! 	register FILE	*f;
+  	int	ch;
+  
+  	log_it(RealUser, Pid, "LIST", User);
+***************
+*** 293,300 ****
+  static void
+  edit_cmd() {
+  	char		n[MAX_FNAME], q[MAX_TEMPSTR], *editor;
+! 	FILE		*f;
+! 	int		ch, t, x;
+  	struct stat	statbuf;
+  	time_t		mtime;
+  	WAIT_T		waiter;
+--- 278,286 ----
+  static void
+  edit_cmd() {
+  	char		n[MAX_FNAME], q[MAX_TEMPSTR], *editor;
+! 	register FILE	*f;
+! 	register int	ch;
+! 	int		t, x;
+  	struct stat	statbuf;
+  	time_t		mtime;
+  	WAIT_T		waiter;
+***************
+*** 320,330 ****
+  		perror(Filename);
+  		goto fatal;
+  	}
+- #ifdef HAS_FCHOWN
+  	if (fchown(t, getuid(), getgid()) < 0) {
+- #else
+- 	if (chown(Filename, getuid(), getgid()) < 0) {
+- #endif
+  		perror("fchown");
+  		goto fatal;
+  	}
+--- 306,312 ----
+***************
+*** 490,497 ****
+  static int
+  replace_cmd() {
+  	char	n[MAX_FNAME], envstr[MAX_ENVSTR], tn[MAX_FNAME];
+! 	FILE	*tmp;
+! 	int	ch, eof;
+  	entry	*e;
+  	time_t	now = time(NULL);
+  	char	**envp = env_init();
+--- 472,480 ----
+  static int
+  replace_cmd() {
+  	char	n[MAX_FNAME], envstr[MAX_ENVSTR], tn[MAX_FNAME];
+! 	register FILE	*tmp;
+! 	register int	ch;
+! 	int	eof;
+  	entry	*e;
+  	time_t	now = time(NULL);
+  	char	**envp = env_init();
+***************
+*** 557,583 ****
+  		return (-1);
+  	}
+  
+- #ifdef HAS_FCHOWN
+  	if (fchown(fileno(tmp), ROOT_UID, -1) < OK)
+! #else
+! 	if (chown(tn, ROOT_UID, -1) < OK)
+! #endif
+! 	{
+  		perror("chown");
+  		fclose(tmp);  unlink(tn);
+  		return (-2);
+! 	}
+  
+- #ifdef HAS_FCHMOD
+  	if (fchmod(fileno(tmp), 0600) < OK)
+! #else
+! 	if (chmod(tn, 0600) < OK)
+! #endif
+! 	{
+  		perror("chown");
+  		fclose(tmp);  unlink(tn);
+  		return (-2);
+! 	}
+  
+  	if (fclose(tmp) == EOF) {
+  		perror("fclose");
+--- 540,558 ----
+  		return (-1);
+  	}
+  
+  	if (fchown(fileno(tmp), ROOT_UID, -1) < OK)
+! 		{
+  		perror("chown");
+  		fclose(tmp);  unlink(tn);
+  		return (-2);
+! 		}
+  
+  	if (fchmod(fileno(tmp), 0600) < OK)
+! 		{
+  		perror("chown");
+  		fclose(tmp);  unlink(tn);
+  		return (-2);
+! 		}
+  
+  	if (fclose(tmp) == EOF) {
+  		perror("fclose");
+***************
+*** 603,613 ****
+  
+  static void
+  poke_daemon() {
+- #ifdef USE_UTIMES
+  	struct timeval tvs[2];
+- 	struct timezone tz;
+  
+! 	(void) gettimeofday(&tvs[0], &tz);
+  	tvs[1] = tvs[0];
+  	if (utimes(SPOOL_DIR, tvs) < OK) {
+  		fprintf(stderr, "crontab: can't update mtime on spooldir\n");
+--- 578,586 ----
+  
+  static void
+  poke_daemon() {
+  	struct timeval tvs[2];
+  
+! 	(void) gettimeofday(&tvs[0], NULL);
+  	tvs[1] = tvs[0];
+  	if (utimes(SPOOL_DIR, tvs) < OK) {
+  		fprintf(stderr, "crontab: can't update mtime on spooldir\n");
+***************
+*** 614,624 ****
+  		perror(SPOOL_DIR);
+  		return;
+  	}
+- #else
+- 	if (utime(SPOOL_DIR, NULL) < OK) {
+- 		fprintf(stderr, "crontab: can't update mtime on spooldir\n");
+- 		perror(SPOOL_DIR);
+- 		return;
+- 	}
+- #endif /*USE_UTIMES*/
+  }
+--- 587,590 ----
+diff -c -r /tmp/cron/database.c cron/database.c
+*** /tmp/cron/database.c	Fri Jun 18 19:37:52 1999
+--- cron/database.c	Sat Jun 12 16:04:08 1999
+***************
+*** 44,50 ****
+  	DIR		*dir;
+  	struct stat	statbuf;
+  	struct stat	syscron_stat;
+! 	DIR_T   	*dp;
+  	cron_db		new_db;
+  	user		*u, *nu;
+  
+--- 44,50 ----
+  	DIR		*dir;
+  	struct stat	statbuf;
+  	struct stat	syscron_stat;
+! 	register DIR_T   *dp;
+  	cron_db		new_db;
+  	user		*u, *nu;
+  
+***************
+*** 145,152 ****
+  
+  void
+  link_user(db, u)
+! 	cron_db	*db;
+! 	user	*u;
+  {
+  	if (db->head == NULL)
+  		db->head = u;
+--- 145,152 ----
+  
+  void
+  link_user(db, u)
+! 	register cron_db	*db;
+! 	register user	*u;
+  {
+  	if (db->head == NULL)
+  		db->head = u;
+***************
+*** 160,167 ****
+  
+  void
+  unlink_user(db, u)
+! 	cron_db	*db;
+! 	user	*u;
+  {
+  	if (u->prev == NULL)
+  		db->head = u->next;
+--- 160,167 ----
+  
+  void
+  unlink_user(db, u)
+! 	register cron_db	*db;
+! 	register user	*u;
+  {
+  	if (u->prev == NULL)
+  		db->head = u->next;
+***************
+*** 178,187 ****
+  user *
+  find_user(db, name)
+  	cron_db	*db;
+! 	char	*name;
+  {
+  	char	*env_get();
+! 	user	*u;
+  
+  	for (u = db->head;  u != NULL;  u = u->next)
+  		if (!strcmp(u->name, name))
+--- 178,187 ----
+  user *
+  find_user(db, name)
+  	cron_db	*db;
+! 	register char	*name;
+  {
+  	char	*env_get();
+! 	register user	*u;
+  
+  	for (u = db->head;  u != NULL;  u = u->next)
+  		if (!strcmp(u->name, name))
+***************
+*** 201,207 ****
+  {
+  	struct passwd	*pw = NULL;
+  	int		crontab_fd = OK - 1;
+! 	user		*u;
+  
+  	if (strcmp(fname, "*system*") && !(pw = getpwnam(uname))) {
+  		/* file doesn't have a user in passwd file.
+--- 201,207 ----
+  {
+  	struct passwd	*pw = NULL;
+  	int		crontab_fd = OK - 1;
+! 	register user		*u;
+  
+  	if (strcmp(fname, "*system*") && !(pw = getpwnam(uname))) {
+  		/* file doesn't have a user in passwd file.
+diff -c -r /tmp/cron/do_command.c cron/do_command.c
+*** /tmp/cron/do_command.c	Fri Jun 18 19:37:56 1999
+--- cron/do_command.c	Tue Jun 15 21:24:29 1999
+***************
+*** 19,39 ****
+  static char rcsid[] = "$Id: do_command.c,v 2.12 1994/01/15 20:43:43 vixie Exp $";
+  #endif
+  
+- 
+  #include "cron.h"
+  #include <sys/signal.h>
+- #if defined(sequent)
+- # include <sys/universe.h>
+- #endif
+  #if defined(SYSLOG)
+  # include <syslog.h>
+  #endif
+  
+  
+- static void		child_process __P((entry *, user *)),
+- 			do_univ __P((user *));
+- 
+- 
+  void
+  do_command(e, u)
+  	entry	*e;
+--- 19,32 ----
+  static char rcsid[] = "$Id: do_command.c,v 2.12 1994/01/15 20:43:43 vixie Exp $";
+  #endif
+  
+  #include "cron.h"
+  #include <sys/signal.h>
+  #if defined(SYSLOG)
+  # include <syslog.h>
+  #endif
+  
++ static void		child_process __P((entry *, user *));
+  
+  void
+  do_command(e, u)
+  	entry	*e;
+***************
+*** 76,82 ****
+  	int		stdin_pipe[2], stdout_pipe[2];
+  	register char	*input_data;
+  	char		*usernm, *mailto;
+! 	int		children = 0;
+  
+  	Debug(DPROC, ("[%d] child_process('%s')\n", getpid(), e->cmd))
+  
+--- 69,76 ----
+  	int		stdin_pipe[2], stdout_pipe[2];
+  	register char	*input_data;
+  	char		*usernm, *mailto;
+! 	register int ch;
+! 	int		children = 0, escaped;
+  
+  	Debug(DPROC, ("[%d] child_process('%s')\n", getpid(), e->cmd))
+  
+***************
+*** 83,101 ****
+  	/* mark ourselves as different to PS command watchers by upshifting
+  	 * our program name.  This has no effect on some kernels.
+  	 */
+! 	/*local*/{
+! 		register char	*pch;
+  
+- 		for (pch = ProgramName;  *pch;  pch++)
+- 			*pch = MkUpper(*pch);
+- 	}
+- 
+  	/* discover some useful and important environment settings
+  	 */
+  	usernm = env_get("LOGNAME", e->envp);
+  	mailto = env_get("MAILTO", e->envp);
+  
+- #ifdef USE_SIGCHLD
+  	/* our parent is watching for our death by catching SIGCHLD.  we
+  	 * do not care to watch for our children's deaths this way -- we
+  	 * use wait() explictly.  so we have to disable the signal (which
+--- 77,90 ----
+  	/* mark ourselves as different to PS command watchers by upshifting
+  	 * our program name.  This has no effect on some kernels.
+  	 */
+! 	for (input_data = ProgramName;  ch = *input_data;  input_data++)
+! 		*input_data = (islower(ch) ? toupper(ch) : ch);
+  
+  	/* discover some useful and important environment settings
+  	 */
+  	usernm = env_get("LOGNAME", e->envp);
+  	mailto = env_get("MAILTO", e->envp);
+  
+  	/* our parent is watching for our death by catching SIGCHLD.  we
+  	 * do not care to watch for our children's deaths this way -- we
+  	 * use wait() explictly.  so we have to disable the signal (which
+***************
+*** 102,114 ****
+  	 * was inherited from the parent).
+  	 */
+  	(void) signal(SIGCHLD, SIG_IGN);
+- #else
+- 	/* on system-V systems, we are ignoring SIGCLD.  we have to stop
+- 	 * ignoring it now or the wait() in cron_pclose() won't work.
+- 	 * because of this, we have to wait() for our children here, as well.
+- 	 */
+- 	(void) signal(SIGCLD, SIG_DFL);
+- #endif /*BSD*/
+  
+  	/* create some pipes to talk to our future child
+  	 */
+--- 91,96 ----
+***************
+*** 123,146 ****
+  	 * the command.  Subsequent %'s will be transformed into newlines,
+  	 * but that happens later.
+  	 */
+! 	/*local*/{
+! 		register int escaped = FALSE;
+! 		register int ch;
+! 
+! 		for (input_data = e->cmd;  ch = *input_data;  input_data++) {
+! 			if (escaped) {
+! 				escaped = FALSE;
+! 				continue;
+! 			}
+! 			if (ch == '\\') {
+! 				escaped = TRUE;
+! 				continue;
+! 			}
+! 			if (ch == '%') {
+! 				*input_data++ = '\0';
+! 				break;
+! 			}
+  		}
+  	}
+  
+  	/* fork again, this time so we can exec the user's command.
+--- 105,124 ----
+  	 * the command.  Subsequent %'s will be transformed into newlines,
+  	 * but that happens later.
+  	 */
+! 	escaped = FALSE;
+! 	for (input_data = e->cmd;  ch = *input_data;  input_data++) {
+! 		if (escaped) {
+! 			escaped = FALSE;
+! 			continue;
+  		}
++ 		if (ch == '\\') {
++ 			escaped = TRUE;
++ 			continue;
++ 		}
++ 		if (ch == '%') {
++ 			*input_data++ = '\0';
++ 			break;
++ 		}
+  	}
+  
+  	/* fork again, this time so we can exec the user's command.
+***************
+*** 197,215 ****
+  		close(stdin_pipe[READ_PIPE]);
+  		close(stdout_pipe[WRITE_PIPE]);
+  
+- 		/* set our login universe.  Do this in the grandchild
+- 		 * so that the child can invoke /usr/lib/sendmail
+- 		 * without surprises.
+- 		 */
+- 		do_univ(u);
+- 
+  		/* set our directory, uid and gid.  Set gid first, since once
+  		 * we set uid, we've lost root privledges.
+  		 */
+  		setgid(e->gid);
+- # if defined(BSD)
+  		initgroups(env_get("LOGNAME", e->envp), e->gid);
+- # endif
+  		setuid(e->uid);		/* we aren't root after this... */
+  		chdir(env_get("HOME", e->envp));
+  
+--- 175,185 ----
+***************
+*** 460,501 ****
+  			Debug(DPROC, (", dumped core"))
+  		Debug(DPROC, ("\n"))
+  	}
+- }
+- 
+- 
+- static void
+- do_univ(u)
+- 	user	*u;
+- {
+- #if defined(sequent)
+- /* Dynix (Sequent) hack to put the user associated with
+-  * the passed user structure into the ATT universe if
+-  * necessary.  We have to dig the gecos info out of
+-  * the user's password entry to see if the magic
+-  * "universe(att)" string is present.
+-  */
+- 
+- 	struct	passwd	*p;
+- 	char	*s;
+- 	int	i;
+- 
+- 	p = getpwuid(u->uid);
+- 	(void) endpwent();
+- 
+- 	if (p == NULL)
+- 		return;
+- 
+- 	s = p->pw_gecos;
+- 
+- 	for (i = 0; i < 4; i++)
+- 	{
+- 		if ((s = strchr(s, ',')) == NULL)
+- 			return;
+- 		s++;
+- 	}
+- 	if (strcmp(s, "universe(att)"))
+- 		return;
+- 
+- 	(void) universe(U_ATT);
+- #endif
+  }
+--- 430,433 ----
+diff -c -r /tmp/cron/entry.c cron/entry.c
+*** /tmp/cron/entry.c	Fri Jun 18 19:37:56 1999
+--- cron/entry.c	Tue Jun 15 21:11:55 1999
+***************
+*** 55,61 ****
+  
+  void
+  free_entry(e)
+! 	entry	*e;
+  {
+  	free(e->cmd);
+  	env_free(e->envp);
+--- 55,61 ----
+  
+  void
+  free_entry(e)
+! 	register entry	*e;
+  {
+  	free(e->cmd);
+  	env_free(e->envp);
+***************
+*** 70,76 ****
+  load_entry(file, error_func, pw, envp)
+  	FILE		*file;
+  	void		(*error_func)();
+! 	struct passwd	*pw;
+  	char		**envp;
+  {
+  	/* this function reads one crontab entry -- the next -- from a file.
+--- 70,76 ----
+  load_entry(file, error_func, pw, envp)
+  	FILE		*file;
+  	void		(*error_func)();
+! 	register struct passwd	*pw;
+  	char		**envp;
+  {
+  	/* this function reads one crontab entry -- the next -- from a file.
+***************
+*** 87,93 ****
+  	 */
+  
+  	ecode_e	ecode = e_none;
+! 	entry	*e;
+  	int	ch;
+  	char	cmd[MAX_COMMAND];
+  	char	envstr[MAX_ENVSTR];
+--- 87,93 ----
+  	 */
+  
+  	ecode_e	ecode = e_none;
+! 	register entry	*e;
+  	int	ch;
+  	char	cmd[MAX_COMMAND];
+  	char	envstr[MAX_ENVSTR];
+***************
+*** 262,271 ****
+  	}
+  	sprintf(envstr, "%s=%s", "LOGNAME", pw->pw_name);
+  	e->envp = env_set(e->envp, envstr);
+- #if defined(BSD)
+  	sprintf(envstr, "%s=%s", "USER", pw->pw_name);
+  	e->envp = env_set(e->envp, envstr);
+- #endif
+  
+  	Debug(DPARS, ("load_entry()...about to parse command\n"))
+  
+--- 262,269 ----
+***************
+*** 309,315 ****
+  	int		low, high;	/* bounds, impl. offset for bitstr */
+  	char		*names[];	/* NULL or *[] of names for these elements */
+  	int		ch;		/* current character being processed */
+! 	FILE		*file;		/* file being read */
+  {
+  	register int	done;
+  
+--- 307,313 ----
+  	int		low, high;	/* bounds, impl. offset for bitstr */
+  	char		*names[];	/* NULL or *[] of names for these elements */
+  	int		ch;		/* current character being processed */
+! 	register FILE		*file;		/* file being read */
+  {
+  	register int	done;
+  
+***************
+*** 355,361 ****
+  	bitstr_t	*bits;		/* one bit per flag, default=FALSE */
+  	int		low, high;	/* bounds, impl. offset for bitstr */
+  	char		*names[];	/* NULL or names of elements */
+! 	int		ch;		/* current character being processed */
+  	FILE		*file;		/* file being read */
+  {
+  	/* range = number | number "-" number [ "/" number ]
+--- 353,359 ----
+  	bitstr_t	*bits;		/* one bit per flag, default=FALSE */
+  	int		low, high;	/* bounds, impl. offset for bitstr */
+  	char		*names[];	/* NULL or names of elements */
+! 	register int	ch;		/* current character being processed */
+  	FILE		*file;		/* file being read */
+  {
+  	/* range = number | number "-" number [ "/" number ]
+***************
+*** 440,446 ****
+  	int	*numptr;	/* where does the result go? */
+  	int	low;		/* offset applied to result if symbolic enum used */
+  	char	*names[];	/* symbolic names, if any, for enums */
+! 	int	ch;		/* current character */
+  	FILE	*file;		/* source */
+  {
+  	char	temp[MAX_TEMPSTR], *pc;
+--- 438,444 ----
+  	int	*numptr;	/* where does the result go? */
+  	int	low;		/* offset applied to result if symbolic enum used */
+  	char	*names[];	/* symbolic names, if any, for enums */
+! 	register int	ch;	/* current character */
+  	FILE	*file;		/* source */
+  {
+  	char	temp[MAX_TEMPSTR], *pc;
+diff -c -r /tmp/cron/env.c cron/env.c
+*** /tmp/cron/env.c	Fri Jun 18 19:48:38 1999
+--- cron/env.c	Sat Jun 12 16:11:43 1999
+***************
+*** 37,43 ****
+  env_free(envp)
+  	char	**envp;
+  {
+! 	char	**p;
+  
+  	for (p = envp;  *p;  p++)
+  		free(*p);
+--- 37,43 ----
+  env_free(envp)
+  	char	**envp;
+  {
+! 	register char	**p;
+  
+  	for (p = envp;  *p;  p++)
+  		free(*p);
+***************
+*** 47,53 ****
+  
+  char **
+  env_copy(envp)
+! 	register char	**envp;
+  {
+  	register int	count, i;
+  	register char	**p;
+--- 47,53 ----
+  
+  char **
+  env_copy(envp)
+! 	char	**envp;
+  {
+  	register int	count, i;
+  	register char	**p;
+***************
+*** 162,169 ****
+  
+  char *
+  env_get(name, envp)
+! 	register char	*name;
+! 	register char	**envp;
+  {
+  	register int	len = strlen(name);
+  	register char	*p, *q;
+--- 162,169 ----
+  
+  char *
+  env_get(name, envp)
+! 	char	*name;
+! 	char	**envp;
+  {
+  	register int	len = strlen(name);
+  	register char	*p, *q;
+diff -c -r /tmp/cron/externs.h cron/externs.h
+*** /tmp/cron/externs.h	Fri Jun 18 19:37:52 1999
+--- cron/externs.h	Tue Jun 15 20:32:34 1999
+***************
+*** 15,145 ****
+   * Paul Vixie          <paul@vix.com>          uunet!decwrl!vixie!paul
+   */
+  
+! #if defined(POSIX) || defined(ATT)
+! # include <stdlib.h>
+! # include <unistd.h>
+! # include <string.h>
+! # include <dirent.h>
+! # define DIR_T	struct dirent
+! # define WAIT_T	int
+! # define WAIT_IS_INT 1
+! extern char *tzname[2];
+! # define TZONE(tm) tzname[(tm).tm_isdst]
+! #endif
+  
+! #if defined(UNIXPC)
+! # undef WAIT_T
+! # undef WAIT_IS_INT
+! # define WAIT_T	union wait
+! #endif
+  
+- #if defined(POSIX)
+- # define SIG_T	sig_t
+- # define TIME_T	time_t
+- # define PID_T pid_t
+- #endif
+- 
+- #if defined(ATT)
+- # define SIG_T	void
+- # define TIME_T	long
+- # define PID_T int
+- #endif
+- 
+- #if !defined(POSIX) && !defined(ATT)
+- /* classic BSD */
+- extern	time_t		time();
+- extern	unsigned	sleep();
+- extern	struct tm	*localtime();
+- extern	struct passwd	*getpwnam();
+- extern	int		errno;
+- extern	void		perror(), exit(), free();
+- extern	char		*getenv(), *strcpy(), *strchr(), *strtok();
+- extern	void		*malloc(), *realloc();
+- # define SIG_T	void
+- # define TIME_T	long
+- # define PID_T int
+- # define WAIT_T	union wait
+- # define DIR_T	struct direct
+- # include <sys/dir.h>
+- # define TZONE(tm) (tm).tm_zone
+- #endif
+- 
+- /* getopt() isn't part of POSIX.  some systems define it in <stdlib.h> anyway.
+-  * of those that do, some complain that our definition is different and some
+-  * do not.  to add to the misery and confusion, some systems define getopt()
+-  * in ways that we cannot predict or comprehend, yet do not define the adjunct
+-  * external variables needed for the interface.
+-  */
+- #if (!defined(BSD) || (BSD < 198911)) && !defined(ATT) && !defined(UNICOS)
+- int	getopt __P((int, char * const *, const char *));
+- #endif
+- 
+- #if (!defined(BSD) || (BSD < 199103))
+- extern	char *optarg;
+- extern	int optind, opterr, optopt;
+- #endif
+- 
+- #if WAIT_IS_INT
+- # ifndef WEXITSTATUS
+- #  define WEXITSTATUS(x) (((x) >> 8) & 0xff)
+- # endif
+- # ifndef WTERMSIG
+- #  define WTERMSIG(x)	((x) & 0x7f)
+- # endif
+- # ifndef WCOREDUMP
+- #  define WCOREDUMP(x)	((x) & 0x80)
+- # endif
+- #else /*WAIT_IS_INT*/
+- # ifndef WEXITSTATUS
+- #  define WEXITSTATUS(x) ((x).w_retcode)
+- # endif
+- # ifndef WTERMSIG
+- #  define WTERMSIG(x)	((x).w_termsig)
+- # endif
+- # ifndef WCOREDUMP
+- #  define WCOREDUMP(x)	((x).w_coredump)
+- # endif
+- #endif /*WAIT_IS_INT*/
+- 
+- #ifndef WIFSIGNALED
+- #define WIFSIGNALED(x)	(WTERMSIG(x) != 0)
+- #endif
+- #ifndef WIFEXITED
+- #define WIFEXITED(x)	(WTERMSIG(x) == 0)
+- #endif
+- 
+- #ifdef NEED_STRCASECMP
+- extern	int		strcasecmp __P((char *, char *));
+- #endif
+- 
+- #ifdef NEED_STRDUP
+- extern	char		*strdup __P((char *));
+- #endif
+- 
+- #ifdef NEED_STRERROR
+- extern	char		*strerror __P((int));
+- #endif
+- 
+- #ifdef NEED_FLOCK
+- extern	int		flock __P((int, int));
+- # define LOCK_SH 1
+- # define LOCK_EX 2
+- # define LOCK_NB 4
+- # define LOCK_UN 8
+- #endif
+- 
+- #ifdef NEED_SETSID
+  extern	int		setsid __P((void));
+- #endif
+- 
+- #ifdef NEED_GETDTABLESIZE
+- extern	int		getdtablesize __P((void));
+- #endif
+- 
+- #ifdef NEED_SETENV
+- extern	int		setenv __P((char *, char *, int));
+- #endif
+- 
+- #ifdef NEED_VFORK
+- extern	PID_T		vfork __P((void));
+- #endif
+--- 15,28 ----
+   * Paul Vixie          <paul@vix.com>          uunet!decwrl!vixie!paul
+   */
+  
+! #include <stdlib.h>
+! #include <unistd.h>
+! #include <string.h>
+! #include <sys/dir.h>
+  
+! #define DIR_T struct direct
+! #define	WEXITSTATUS(x)	((x).w_retcode)
+! #define	WTERMSIG(x)	((x).w_termsig)
+! #define	WCOREDUMP(x)	((x).w_coredump)
+  
+  extern	int		setsid __P((void));
+diff -c -r /tmp/cron/misc.c cron/misc.c
+*** /tmp/cron/misc.c	Fri Jun 18 19:37:56 1999
+--- cron/misc.c	Fri Jun 18 20:55:14 1999
+***************
+*** 25,35 ****
+  
+  
+  #include "cron.h"
+! #if SYS_TIME_H
+! # include <sys/time.h>
+! #else
+! # include <time.h>
+! #endif
+  #include <sys/file.h>
+  #include <sys/stat.h>
+  #include <errno.h>
+--- 25,31 ----
+  
+  
+  #include "cron.h"
+! #include <sys/time.h>
+  #include <sys/file.h>
+  #include <sys/stat.h>
+  #include <errno.h>
+***************
+*** 44,57 ****
+  #define LOG_CRON LOG_DAEMON
+  #endif
+  
+- 
+  static int		LogFD = ERR;
+  
+- 
+  int
+  strcmp_until(left, right, until)
+! 	char	*left;
+! 	char	*right;
+  	int	until;
+  {
+  	register int	diff;
+--- 40,51 ----
+  #define LOG_CRON LOG_DAEMON
+  #endif
+  
+  static int		LogFD = ERR;
+  
+  int
+  strcmp_until(left, right, until)
+! 	register char	*left;
+! 	register char	*right;
+  	int	until;
+  {
+  	register int	diff;
+***************
+*** 76,84 ****
+   */
+  int
+  strdtb(s)
+! 	char	*s;
+  {
+! 	char	*x = s;
+  
+  	/* scan forward to the null
+  	 */
+--- 70,78 ----
+   */
+  int
+  strdtb(s)
+! 	register char	*s;
+  {
+! 	register char	*x = s;
+  
+  	/* scan forward to the null
+  	 */
+***************
+*** 120,126 ****
+  
+  #else /* DEBUGGING */
+  
+! 	char	*pc = flags;
+  
+  	DebugFlags = 0;
+  
+--- 114,120 ----
+  
+  #else /* DEBUGGING */
+  
+! 	register char	*pc = flags;
+  
+  	DebugFlags = 0;
+  
+***************
+*** 173,189 ****
+  void
+  set_cron_uid()
+  {
+- #if defined(BSD) || defined(POSIX)
+  	if (seteuid(ROOT_UID) < OK) {
+  		perror("seteuid");
+  		exit(ERROR_EXIT);
+  	}
+- #else
+- 	if (setuid(ROOT_UID) < OK) {
+- 		perror("setuid");
+- 		exit(ERROR_EXIT);
+- 	}
+- #endif
+  }
+  
+  
+--- 167,176 ----
+***************
+*** 302,310 ****
+   */
+  int
+  get_char(file)
+! 	FILE	*file;
+  {
+! 	int	ch;
+  
+  	ch = getc(file);
+  	if (ch == '\n')
+--- 289,297 ----
+   */
+  int
+  get_char(file)
+! 	register FILE	*file;
+  {
+! 	register int	ch;
+  
+  	ch = getc(file);
+  	if (ch == '\n')
+***************
+*** 317,324 ****
+   */
+  void
+  unget_char(ch, file)
+! 	int	ch;
+! 	FILE	*file;
+  {
+  	ungetc(ch, file);
+  	if (ch == '\n')
+--- 304,311 ----
+   */
+  void
+  unget_char(ch, file)
+! 	register int	ch;
+! 	register FILE	*file;
+  {
+  	ungetc(ch, file);
+  	if (ch == '\n')
+***************
+*** 334,345 ****
+   */
+  int
+  get_string(string, size, file, terms)
+! 	char	*string;
+  	int	size;
+  	FILE	*file;
+  	char	*terms;
+  {
+! 	int	ch;
+  
+  	while (EOF != (ch = get_char(file)) && !strchr(terms, ch)) {
+  		if (size > 1) {
+--- 321,332 ----
+   */
+  int
+  get_string(string, size, file, terms)
+! 	register char	*string;
+  	int	size;
+  	FILE	*file;
+  	char	*terms;
+  {
+! 	register int	ch;
+  
+  	while (EOF != (ch = get_char(file)) && !strchr(terms, ch)) {
+  		if (size > 1) {
+***************
+*** 359,367 ****
+   */
+  void
+  skip_comments(file)
+! 	FILE	*file;
+  {
+! 	int	ch;
+  
+  	while (EOF != (ch = get_char(file))) {
+  		/* ch is now the first character of a line.
+--- 346,354 ----
+   */
+  void
+  skip_comments(file)
+! 	register FILE	*file;
+  {
+! 	register int	ch;
+  
+  	while (EOF != (ch = get_char(file))) {
+  		/* ch is now the first character of a line.
+***************
+*** 475,481 ****
+  #if defined(LOG_FILE)
+  	/* we assume that MAX_TEMPSTR will hold the date, time, &punctuation.
+  	 */
+! 	msg = malloc(strlen(username)
+  		     + strlen(event)
+  		     + strlen(detail)
+  		     + MAX_TEMPSTR);
+--- 462,468 ----
+  #if defined(LOG_FILE)
+  	/* we assume that MAX_TEMPSTR will hold the date, time, &punctuation.
+  	 */
+! 	msg = (char *)malloc(strlen(username)
+  		     + strlen(event)
+  		     + strlen(detail)
+  		     + MAX_TEMPSTR);
+***************
+*** 518,528 ****
+  		 * our client may not be our own.  therefore we want to
+  		 * print the pid ourselves.
+  		 */
+- # ifdef LOG_DAEMON
+  		openlog(ProgramName, LOG_PID, LOG_CRON);
+- # else
+- 		openlog(ProgramName, LOG_PID);
+- # endif
+  		syslog_open = TRUE;		/* assume openlog success */
+  	}
+  
+--- 505,511 ----
+***************
+*** 555,561 ****
+  char *
+  first_word(s, t)
+  	register char *s;	/* string we want the first word of */
+! 	register char *t;	/* terminators, implicitly including \0 */
+  {
+  	static char retbuf[2][MAX_TEMPSTR + 1];	/* sure wish C had GC */
+  	static int retsel = 0;
+--- 538,544 ----
+  char *
+  first_word(s, t)
+  	register char *s;	/* string we want the first word of */
+! 	char *t;		/* terminators, implicitly including \0 */
+  {
+  	static char retbuf[2][MAX_TEMPSTR + 1];	/* sure wish C had GC */
+  	static int retsel = 0;
+***************
+*** 617,626 ****
+   */
+  char *
+  mkprints(src, len)
+! 	register unsigned char *src;
+! 	register unsigned int len;
+  {
+! 	register char *dst = malloc(len*4 + 1);
+  
+  	mkprint(dst, src, len);
+  
+--- 600,609 ----
+   */
+  char *
+  mkprints(src, len)
+! 	unsigned char *src;
+! 	unsigned int len;
+  {
+! 	register char *dst = (char *)malloc(len*4 + 1);
+  
+  	mkprint(dst, src, len);
+  
+***************
+*** 653,664 ****
+  }
+  #endif /*MAIL_DATE*/
+  
+- 
+- #ifdef HAVE_SAVED_SUIDS
+  static int save_euid;
+! int swap_uids() { save_euid = geteuid(); return seteuid(getuid()); }
+! int swap_uids_back() { return seteuid(save_euid); }
+! #else /*HAVE_SAVED_UIDS*/
+! int swap_uids() { return setreuid(geteuid(), getuid()); }
+! int swap_uids_back() { return swap_uids(); }
+! #endif /*HAVE_SAVED_UIDS*/
+--- 636,649 ----
+  }
+  #endif /*MAIL_DATE*/
+  
+  static int save_euid;
+! int swap_uids()
+! 	{
+! 	save_euid = geteuid();
+! 	return(seteuid(getuid()));
+! 	}
+! 
+! int swap_uids_back()
+! 	{
+! 	return(seteuid(save_euid));
+! 	}
+diff -c -r /tmp/cron/pathnames.h cron/pathnames.h
+*** /tmp/cron/pathnames.h	Fri Jun 18 19:37:52 1999
+--- cron/pathnames.h	Fri Jun 18 20:56:50 1999
+***************
+*** 19,27 ****
+   * $Id: pathnames.h,v 1.3 1994/01/15 20:43:43 vixie Exp $
+   */
+  
+! #if (defined(BSD)) && (BSD >= 199103) || defined(__linux) || defined(AIX)
+! # include <paths.h>
+! #endif /*BSD*/
+  
+  #ifndef CRONDIR
+  			/* CRONDIR is where crond(8) and crontab(1) both chdir
+--- 19,25 ----
+   * $Id: pathnames.h,v 1.3 1994/01/15 20:43:43 vixie Exp $
+   */
+  
+! #include <paths.h>
+  
+  #ifndef CRONDIR
+  			/* CRONDIR is where crond(8) and crontab(1) both chdir
+***************
+*** 49,55 ****
+  			 */
+  #define	ALLOW_FILE	"allow"		/*-*/
+  #define DENY_FILE	"deny"		/*-*/
+! #define LOG_FILE	"log"		/*-*/
+  
+  			/* where should the daemon stick its PID?
+  			 */
+--- 47,53 ----
+  			 */
+  #define	ALLOW_FILE	"allow"		/*-*/
+  #define DENY_FILE	"deny"		/*-*/
+! #undef	LOG_FILE			/* "log" */
+  
+  			/* where should the daemon stick its PID?
+  			 */
+diff -c -r /tmp/cron/putman.sh cron/putman.sh
+*** /tmp/cron/putman.sh	Fri Jun 18 19:37:52 1999
+--- cron/putman.sh	Tue Jun 15 21:04:25 1999
+***************
+*** 9,23 ****
+  DIR=$2
+  
+  SECT=`expr $PAGE : '[a-z]*.\([0-9]\)'`
+  
+! [ -d $DIR/man$SECT ] && {
+! 	set -x
+! 	cp $PAGE $DIR/man$SECT/$PAGE
+! 	set +x
+! } || {
+! 	set -x
+! 	nroff -man $PAGE >$DIR/cat$SECT/`basename $PAGE .$SECT`.0
+! 	set +x
+! }
+  
+  exit 0
+--- 9,26 ----
+  DIR=$2
+  
+  SECT=`expr $PAGE : '[a-z]*.\([0-9]\)'`
++ MDIR="$DIR/cat$SECT"
++ DEST="$MDIR/`basename $PAGE .$SECT`.0"
+  
+! set -x
+! if [ ! -d $MDIR ]; then
+! 	rm -f $MDIR
+! 	mkdir -p $MDIR
+! 	chmod 755 $MDIR
+! fi
+! 
+! nroff -man $PAGE >$DEST
+! chmod 444 $DEST
+! set +x
+  
+  exit 0
+diff -c -r /tmp/cron/user.c cron/user.c
+*** /tmp/cron/user.c	Fri Jun 18 19:37:52 1999
+--- cron/user.c	Sat Jun 12 16:16:24 1999
+***************
+*** 30,36 ****
+  free_user(u)
+  	user	*u;
+  {
+! 	entry	*e, *ne;
+  
+  	free(u->name);
+  	for (e = u->crontab;  e != NULL;  e = ne) {
+--- 30,36 ----
+  free_user(u)
+  	user	*u;
+  {
+! 	register entry	*e, *ne;
+  
+  	free(u->name);
+  	for (e = u->crontab;  e != NULL;  e = ne) {
+***************
+*** 49,56 ****
+  {
+  	char	envstr[MAX_ENVSTR];
+  	FILE	*file;
+! 	user	*u;
+! 	entry	*e;
+  	int	status;
+  	char	**envp;
+  
+--- 49,56 ----
+  {
+  	char	envstr[MAX_ENVSTR];
+  	FILE	*file;
+! 	register user	*u;
+! 	register entry	*e;
+  	int	status;
+  	char	**envp;
+  

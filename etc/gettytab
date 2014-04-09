@@ -1,0 +1,164 @@
+# Copyright (c) 1980 Regents of the University of California.
+# All rights reserved.  The Berkeley software License Agreement
+# specifies the terms and conditions for redistribution.
+#
+#	@(#)gettytab	5.7.2 (2.11BSD GTE) 1997/3/28
+#
+#
+# Most of the table entries here are just copies of the
+# old getty table, it is by no means certain, or even likely,
+# then any of them are optimal for any purpose whatever.
+# Nor is it likely that more than a couple are even correct
+#
+
+#
+# The default gettytab entry, used to set defaults for all other
+# entries, and in cases where getty is called with no table name
+#
+default:\
+	:ap:im=\r\n\r\n2.11 BSD UNIX (%h) (%t)\r\n\r\r\n\r:sp#1200:
+
+#
+# Fixed speed entries
+#
+#	The "std.NNN" names are known to the special case
+#	portselector code in getty, however they can
+#	be assigned to any table desired.
+#	The "NNN-baud" names are known to the special case
+#	autobaud code in getty, and likewise can
+#	be assigned to any table desired (hopefully the same speed).
+#
+a|std.50|50-baud:\
+	:sp#50:
+b|std.75|75-baud:\
+	:ep:sp#75:ht:nl:
+1|std.150|150-baud:\
+	:ep:sp#150:ht:nl:lm=\E\72\6\6\17login\72 :
+c|std.300|300-baud:\
+	:sp#300:
+d|std.600|600-baud:\
+	:sp#600:
+f|std.1200|1200-baud:\
+	:sp#1200:
+6|std.2400|2400-baud:\
+	:sp#2400:ht:
+7|std.4800|4800-baud:\
+	:sp#4800:ht:
+2|std.9600|9600-baud:\
+	:sp#9600:
+g|std.19200|19200-baud:\
+	:sp#19200:
+h|std.38400|38400-baud:\
+	:sp#38400:
+i|std.57600|57600-baud:\
+	:sp#57600:
+j|std.115200|115200-baud:\
+	:sp#115200:
+k|std.230400|230400-baud:\
+	:sp#230400:
+l|std.460800|460800-baud:\
+	:sp#460800:
+m|std.500000|500000-baud:\
+        :sp#500000:
+n|std.576000|576000-baud:\
+        :sp#576000:
+o|std.921600|921600-baud:\
+        :sp#921600:
+p|std.1000000|1000000-baud:\
+        :sp#1000000:
+q|std.1152000|1152000-baud:\
+        :sp#1152000:
+r|std.1500000|1500000-baud:\
+        :sp#1500000:
+s|std.2000000|2000000-baud:\
+        :sp#2000000:
+t|std.2500000|2500000-baud:\
+        :sp#2500000:
+u|std.3000000|3000000-baud:\
+        :sp#3000000:
+v|std.3500000|3500000-baud:\
+        :sp#3500000:
+w|std.4000000|4000000-baud:\
+        :sp#4000000:
+x|std.default|default-baud:\
+    :sp#0:
+
+
+#
+# Hardware flow control lines
+#
+t9600-hf:hf:sp#9600
+t19200-hf:hf:sp#19200
+t38400-hf:hf:sp#38400
+
+#
+# Dial in rotary tables, speed selection via 'break'
+#
+0|d300|Dial-300:\
+	:nx=d1200:sp#300:
+d1200|Dial-1200:\
+	:nx=d150:sp#1200:
+d150|Dial-150:\
+	:nx=d110:lm@:tc=150-baud:
+d110|Dial-110:\
+	:nx=d300:tc=300-baud:
+
+#
+# Odd special case terminals
+#
+-|tty33|asr33|Pity the poor user of this beast:\
+	:tc=110-baud:
+
+4|Console|Console Decwriter II:\
+	:rw:tc=300-baud:
+
+e|Console-1200|Console Decwriter III:\
+	:rw:tc=1200-baud:
+
+l|lsi chess terminal:\
+	:sp#300:
+
+X|Xwindow|X window system:\
+	:rw:sp#9600:
+
+#
+# Fast dialup terminals, 2400/1200/300 rotary (can start either way)
+#
+D2400|Fast-Dial-2400:\
+	:nx=D1200:tc=2400-baud:
+3|D1200|Fast-Dial-1200:\
+	:nx=D300:tc=1200-baud:
+5|D300|Fast-Dial-300:\
+	:nx=D2400:tc=300-baud:
+
+#
+# Wierdo special case for fast crt's with hardcopy devices
+#
+8|T9600|CRT with hardcopy:\
+	:nx=T300:tc=9600-baud:
+9|T300|CRT with hardcopy (300):\
+	:nx=T9600:tc=300-baud:
+
+#
+# Plugboard, and misc other terminals
+#
+p|P9600|Plugboard-9600:\
+	:nx=P300:tc=9600-baud:
+q|P300|Plugboard-300:\
+	:nx=P1200:tc=300-baud:
+r|P1200|Plugboard-1200:\
+	:nx=P9600:tc=1200-baud:
+
+#
+# XXXX Port selector
+#
+s|DSW|Port Selector:\
+	:ps:sp#2400:
+
+#
+# Auto-baud speed detect entry for Micom 600.
+# Special code in getty will switch this out
+# to one of the NNN-baud entries.
+#
+A|Auto-baud:\
+	:ab:sp#2400:f0#040:

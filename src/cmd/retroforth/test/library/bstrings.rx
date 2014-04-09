@@ -1,0 +1,43 @@
+needs assertion'
+needs bstrings'
+
+with assertion'
+
+[ [ "passed" ] [ "failed" ] if "%s\n" puts ] is postCond
+
+: a0
+  "Testing pack : " puts
+  "hello" ^bstrings'pack @ 'h = not assert ; assertion
+
+: a1
+  "Testing getLength : " puts
+  "hello" ^bstrings'pack ^bstrings'getLength 5 assert= ; assertion
+
+: a2
+  "Testing unpack : " puts
+  "hello" ^bstrings'pack dup @ 'h = not assert
+  ^bstrings'unpack @ 'h assert= ; assertion
+
+: a3
+  "Testing withLength : " puts
+  "hello" ^bstrings'pack dup ^bstrings'withLength
+  5 assert=
+  = assert ; assertion
+
+: a4
+  "Not testing puts [io related] : " puts ; assertion
+
+: a5
+  "Testing toLower : " puts
+  "HeLLo123#" ^bstrings'pack ^bstrings'toLower ^bstrings'unpack
+  "hello123#" compare assert ; assertion
+
+: a6
+  "Testing toUpper : " puts
+  "HeLLo123#" ^bstrings'pack ^bstrings'toUpper ^bstrings'unpack
+  "HELLO123#" compare assert ; assertion
+
+: go
+  cr a0 a1 a2 a3 a4 a5 a6 bye ;
+
+go

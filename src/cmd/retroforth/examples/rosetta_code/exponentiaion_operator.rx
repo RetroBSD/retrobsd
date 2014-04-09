@@ -1,0 +1,9 @@
+etro has no floating point support in the standard VM.
+
+From the math' vocabulary:
+
+: pow  ( bp-n ) 1 swap [ over * ] times nip ;
+
+And in use:
+
+2 5 ^math'pow

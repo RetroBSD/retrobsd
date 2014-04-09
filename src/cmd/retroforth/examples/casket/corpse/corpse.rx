@@ -1,0 +1,135 @@
+( corpse, a weblog in forth ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+
+needs casket'
+with casket'
+
+( Setup App-specific Paths ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+: ARTICLES  (  -$ ) casket:root "articles/"  ^strings'append ;
+: CURRENT   (  -$ ) casket:root "current"    ^strings'append ;
+
+( variables and buffers ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+: article   (  -n ) @memory 65535 - ;
+3 elements current requested this
+
+( support code ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+: getCurrent   ( - )
+  article CURRENT ^files'slurp drop article toNumber !current ;
+
+: setRequest   ( - )
+  casket:options toNumber !requested ;
+
+: commonHeader ( - )
+  Content-type: text/html
+  "header.html" withTemplate ;
+
+: commonFooter ( - )
+  "footer.html" withTemplate ;
+
+: navbar       ( - )
+  @requested 1- dup [ "<a href='%u/article/%d'>prior</a>" tputs ] &drop if
+  @requested 1- dup
+    [ @current @requested <> [ 1+ "&nbsp;|&nbsp;" tputs ] ifTrue ] ifTrue
+  @requested dup @current <
+    [ 1+ "<a href='%u/article/%d'>next</a>" tputs ] &drop if
+  @requested "&nbsp;|&nbsp;<a href='%u/comments/%d'>comments</a>" tputs
+  @requested "&nbsp;|&nbsp;<a href='%u/article/%d'>permalink</a>" tputs ;
+
+( paths ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+{{
+  : articleNavigationBar
+    setRequest
+    "<p class='nav'>" tputs
+    "<a href='%u'>front page</a> | <a href='%u/all'>view all posts</a></p>"
+    tputs
+    &navbar @current @requested "<p class='older'>Post %d of %d: %q</p>" tputs ;
+  : displayArticle
+      article ARTICLES @requested toString ^strings'append ^files'slurp drop
+      article formatted off puts formatted on ;
+---reveal---
+  : /article
+    commonHeader
+      articleNavigationBar
+      displayArticle
+      @current "<hr><p><a href='%u/comments/%d'>View comments for this article</a></p>" tputs
+    commonFooter ;
+  : /comments
+    commonHeader
+      articleNavigationBar
+      displayArticle
+      "discuss.erx" withTemplate
+    commonFooter ;
+}}
+
+: /css
+  Content-type: text/css
+  "corpse.css" withTemplate ;
+
+{{
+  : findHeader ( h-h$ )
+    repeat
+      dup ^files'readLine
+      dup 0 4 ^strings'getSubset "<h2>" compare if; drop
+    again ;
+  : getHeader  ( h-$  )
+    findHeader nip 4 over getLength 9 - ^strings'getSubset ;
+  : displayLink ( $n- )
+    dup "<li>Post #%d: <a href='%u/article/%d'>%s</a></li>" tputs ;
+---reveal---
+  : /all
+    commonHeader
+    "<p class='older'>Index of All Posts</p>" tputs
+    "<ul>" tputs
+    @current dup !this
+    [ ARTICLES swap toString ^strings'append ^files':R ^files'open
+      [ getHeader @this displayLink ] sip ^files'close drop this -- ] iterd
+    "</ul>" tputs
+    commonFooter ;
+}}
+
+{{
+  : findHeader ( h-h$ )
+    repeat
+      dup ^files'readLine
+      dup 0 4 ^strings'getSubset "<h2>" compare if; drop
+    again ;
+  : getHeader  ( h-$  )
+    findHeader nip 4 over getLength 9 - ^strings'getSubset ;
+  : displayLink ( $n- )
+    swap
+    "<item><title>%s</title>" tputs
+    "<link>%u/article/%d</link>" tputs
+    ( "<description>n/a</description>" ) "</item>" tputs ;
+---reveal---
+  : /rss
+    Content-type: application/rss+xml
+    "rss" withTemplate
+    @current dup !this
+    [ ARTICLES swap toString ^strings'append ^files':R ^files'open
+      [ getHeader @this displayLink ] sip ^files'close drop this -- ] iterd
+    "</channel></rss>" tputs ;
+}}
+
+: /index
+  commonHeader
+    @current @requested
+    "<p class='nav'><a href='%u'>front page</a> | " tputs
+    "<a href='%u/all'>view all posts</a></p>" tputs
+  4 [
+      &navbar @current @requested "<p class='older'>Post %d of %d: %q</p>"
+      tputs space
+      article ARTICLES @requested toString ^strings'append ^files'slurp drop
+      article tputs
+      requested --
+    ] times
+  commonFooter ;
+
+( Define Index ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+[ @current !requested /index ] is /
+
+( Casket Configuration ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+[ ( -$ ) "/path/to/corpse/directory/" ] is casket:root
+[ ( -$ ) "http://corpse/url" ] is casket:url
+&getCurrent is doBeforeDispatch
+&dispatch is boot
+
+.s save bye

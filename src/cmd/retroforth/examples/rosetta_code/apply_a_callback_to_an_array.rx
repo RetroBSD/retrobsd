@@ -1,0 +1,8 @@
+Using the array' library to multiply each value in an array by 10 and display the results:
+
+  [ 1 2 3 4 5 ] ^array'fromQuote [ 10 * ] ^array'map ^array'display
+
+Retro also provides ^array'apply for use when you don't want to alter the contents of the array:
+
+  [ "Hello" "World" "Foo" ] ^array'fromQuote [ "%s " puts ] ^array'apply
+

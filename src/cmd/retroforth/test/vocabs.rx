@@ -1,0 +1,168 @@
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+global
+4 elements tested current passed failed
+3 elements checked ignored io
+3 elements total tpassed tfailed
+
+: TEST: getToken keepString !tested 0 [ !passed ] [ !failed ] bi checked ++ ;
+: OMIT: getToken "\nNot Tested: %s" puts ignored ++ ;
+: IO:   getToken "\nNot Tested (IO): %s" puts io ++ ;
+
+: summary
+  @tfailed @tpassed @total
+  "\n%d tests run: %d passed, %d failed." puts
+  @io @ignored @checked
+  "\n%d words checked, %d words unchecked, %d i/o words ignored.\n" puts ;
+
+: check
+  repeat
+    getToken
+    "}" over compare if;
+    toNumber <> [ 0 !current ] ifTrue
+  again ;
+
+: expected:
+  -1 !current do
+  getToken drop check drop
+  @current [ passed ++ ] [ failed ++ ] if ;
+
+: testedWith:
+  getToken drop passed ++ ;
+
+: results
+  @failed @passed @tested "\nTested: %s\n  %d passed, %d failed" puts
+  @passed @failed + +total
+  @failed +tfailed
+  @passed +tpassed ;
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+
+TEST: ^buffer'add
+  create buf 100 allot
+  [ 12 &buf ^buffer'set ] expected: { 12 }
+  [ ^buffer'end &buf =  ] expected: { -1 }
+  [ 12 1 ^buffer'add    ] expected: { 12 }
+  [ 12 2 ^buffer'add    ] expected: { 12 }
+  [ 12 3 ^buffer'add    ] expected: { 12 }
+  [ ^buffer'size        ] expected: { 3 }
+  [ ^buffer'end &buf 3 + = ] expected: { -1 }
+  [ ^buffer'get         ] expected: { 3 }
+  [ ^buffer'get         ] expected: { 2 }
+  [ ^buffer'get         ] expected: { 1 }
+  [ ^buffer'size        ] expected: { 0 }
+  [ ^buffer'start buf = ] expected: { -1 }
+results
+
+TEST: ^buffer'get
+  testedWith: ^buffer'add
+results
+
+TEST: ^buffer'end
+  testedWith: ^buffer'add
+results
+
+TEST: ^buffer'size
+  testedWith: ^buffer'add
+results
+
+TEST: ^buffer'empty
+  testedWith: ^buffer'add
+results
+
+TEST: ^buffer'set
+  testedWith: ^buffer'add
+results
+
+TEST: ^buffer'start
+  testedWith: ^buffer'add
+results
+
+TEST: ^strings'search
+  [ "abcdefghi" "efg" ^strings'search "efghi" compare ] expected: { -1 }
+  [ "abcdefghi" "qz1" ^strings'search "efghi" compare ] expected: { 0 }
+results
+
+TEST: ^strings'findChar
+  [ "abcdefg" 'h ^strings'findChar ] expected: { 0 }
+  [ "abcdefg" dup 'd ^strings'findChar swap 3 + = ] expected: { -1 }
+results
+
+TEST: ^strings'chop
+  [ "abcdef" ^strings'chop "abcde" compare ] expected: { -1 }
+  [ "abcdefg" ^strings'chop "abcde" compare ] expected: { 0 }
+results
+
+TEST: ^strings'getSubset
+  [ "abcdefghi" 2 3 ^strings'getSubset "cde" compare ] expected: { -1 }
+results
+
+TEST: ^strings'trimLeft
+  [ "   abc  " ^strings'trimLeft "abc  "    compare ] expected: { -1 }
+  [ "   abc  " ^strings'trimLeft "   abc  " compare ] expected: { 0 }
+results
+
+TEST: ^strings'trimRight
+  [ "   abc  " ^strings'trimRight "   abc"   compare ] expected: { -1 }
+  [ "   abc  " ^strings'trimRight "   abc  " compare ] expected: { 0 }
+results
+
+TEST: ^strings'append
+  [ "abc"  "def" ^strings'append "abcdef" compare ] expected: { -1 }
+  [ "abcd" "efg" ^strings'append "abcdef" compare ] expected: { 0 }
+results
+
+TEST: ^strings'appendChar
+  [ "abc"  'a ^strings'appendChar "abca" compare ] expected: { -1 }
+  [ "abcd" 'e ^strings'appendChar 'f ^strings'appendChar dup puts "abcdef" compare ] expected: { -1 }
+results
+
+TEST: ^strings'prepend
+  testedWith: ^strings'append
+results
+
+TEST: ^strings'toLower
+  [ "ABC"    ^strings'toLower "abc"    compare ] expected: { -1 }
+  [ "aBc"    ^strings'toLower "abc"    compare ] expected: { -1 }
+  [ "A12Bcd" ^strings'toLower "a12bcd" compare ] expected: { -1 }
+results
+
+TEST: ^strings'toUpper
+  [ "abc"    ^strings'toUpper "ABC"    compare ] expected: { -1 }
+  [ "aBc"    ^strings'toUpper "ABC"    compare ] expected: { -1 }
+  [ "A12Bcd" ^strings'toUpper "A12BCD" compare ] expected: { -1 }
+results
+
+TEST: ^strings'reverse
+  [ "abc"     ^strings'reverse "cba"    compare ] expected: { -1 }
+  [ "12abc3"  ^strings'reverse "3cba21" compare ] expected: { -1 }
+results
+
+TEST: ^strings'split
+  [ "abcdef" 3 ^strings'split "abc" compare swap "def" compare ] expected: { -1 -1 }
+results
+
+TEST: ^strings'splitAtChar
+  [ "abcdef" 'c ^strings'splitAtChar "abc" compare swap "def" compare ] expected: { -1 -1 }
+results
+
+TEST: ^strings'splitAtChar:
+  [ "abcdef" ^strings'splitAtChar: c "abc" compare swap "def" compare ] expected: { -1 -1 }
+results
+
+TEST: ^types'ARRAY
+  [ ^types'ARRAY ] expected: { 0 }
+results
+
+TEST: ^types'BUFFER
+  [ ^types'BUFFER ] expected: { 1 }
+results
+
+TEST: ^types'STRING
+  [ ^types'STRING ] expected: { 2 }
+results
+
+TEST: ^types'LIST
+  [ ^types'LIST ] expected: { 3 }
+results
+
+summary
+bye

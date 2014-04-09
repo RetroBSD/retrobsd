@@ -1,0 +1,73 @@
+#!/bin/sh
+HOME=/; export HOME
+PATH=/bin:/sbin; export PATH
+exec >/dev/console 2>&1
+
+/sbin/devupdate
+
+if test "$1" != "autoboot"; then
+    #
+    # Switch from single-user to multi-user mode.
+    #
+    echo
+
+    # Halt the processor.
+    #reboot -l -h
+    exit 0
+fi
+
+#
+# Entering multiuser mode: check filesystems
+#
+# This will *only* work if fsck can do your root file system
+# without a temporary file, and if the root file system is
+# checked alone in a pass by itself -- be careful!  This can
+# *seriously* mess you up.
+#
+fsck -p
+case $? in
+0)
+    # Filesystems are clean
+    ;;
+2)
+    echo "--- Critical errors detected: run fsck to repair manually"
+    exit 1 ;;
+4)
+    # Root filesystem modified: NO SYNC!
+    echo "--- Errors repaired, rebooting..."
+    reboot -n ;;
+8)
+    echo "--- Filesystem check failed... help!"
+    exit 1 ;;
+12)
+    echo "--- Interrupted by user"
+    exit 1 ;;
+*)
+    echo "--- Unknown error in fsck"
+    exit 1 ;;
+esac
+
+hostname "pic32"
+
+#
+# First umount everything in case the system is going back into multiuser
+# mode.  If the system is being booted for the first time nothing is mounted
+# except the root filesystem and umount ignores attempts to unmount /.
+#
+umount -a
+
+#
+# Now mount everything mentioned in /etc/fstab *except* filesystems with the
+# 'na' (noauto) option.
+#
+mount -a
+
+rm -f /etc/nologin
+
+echo -n "Starting daemons:"
+update && echo -n "update"
+cron && echo -n "cron"
+echo
+
+#/etc/rc.local
+exit 0

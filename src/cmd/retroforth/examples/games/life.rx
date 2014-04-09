@@ -1,0 +1,95 @@
+( Conway's Game of Life                )
+( Copyright [c] 2011, charles Childers )
+
+create world
+  20 20 * allot
+
+create next
+  20 20 * allot
+
+( Assumes anything outside the bounds is "dead" )
+{{
+  variable surrounding
+  : get   ( rc- )
+    2over [ 0 19 within ] bi@ and
+    [ world + [ 20 * ] dip + @ ] [ 2drop 0 ] if ;
+  : neighbor?  ( rc- )  get +surrounding ;
+  : NW  ( rc-rc )  2over [ 1- ] bi@     neighbor? ;
+  : NN  ( rc-rc )  2over [ 1- ] dip     neighbor? ;
+  : NE  ( rc-rc )  2over [ 1- ] dip 1+  neighbor? ;
+  : WW  ( rc-rc )  2over 1-             neighbor? ;
+  : EE  ( rc-rc )  2over 1+             neighbor? ;
+  : SW  ( rc-rc )  2over [ 1+ ] dip 1-  neighbor? ;
+  : SS  ( rc-rc )  2over [ 1+ ] dip     neighbor? ;
+  : SE  ( rc-rc )  2over [ 1+ ] bi@     neighbor? ;
+  : count    ( rc-rcn )
+    0 !surrounding
+    NW NN NE
+    WW    EE
+    SW SS SE @surrounding ;
+  : alive  ( rc-n )
+    count
+    [ 0 1 within ] [ drop 0 ] when
+    [ 4 8 within ] [ drop 0 ] when
+    [ 2 3 within ] [ drop 1 ] when ;
+  : dead   ( rc-n )
+    count
+    [ 3 =        ] [ drop 1 ] when
+    [ 0 2 within ] [ drop 0 ] when
+    [ 4 8 within ] [ drop 0 ] when ;
+  : newState  ( rc-n )
+    2over get 1 = [ alive ] [ dead ] if ;
+  : set   ( nrc- )  next + [ 20 * ] dip + ! ;
+  : cols  ( r- )
+    20 [ over swap newState 2rot set ] iter drop ;
+  : output  ( n- )  [ 'o ] [ '. ] if putc space ;
+---reveal---
+  : display  ( - )
+    cr world 20 [ 20 [ @+ output ] times cr ] times drop ;
+  : gen      ( - )
+    20 [ cols ] iter  next world 20 20 * copy ;
+  : delay  ( - )  time 1+ [ time over <= ] while drop ;
+  : generations  ( n- )
+    [ delay clear gen display ] times ;
+}}
+
+
+
+{{
+  2 elements line column
+  : toLine    20 * world + ;
+
+  ( check boundaries ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+  : top ( - )  0 !line ;
+  : bot ( - ) 19 !line ;
+  : beg ( - )  0 !column ;
+  : end ( - ) 19 !column ;
+  : bounds ( - )
+    @column -1 = [ end line -- ] ifTrue
+    @column 20 = [ beg line ++ ] ifTrue
+    @line   -1 = [ top ] ifTrue
+    @line   20 = [ bot ] ifTrue ;
+
+  ( display a block ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+  : rows    20 [ 20 [ @+ [ 'o ] [ '. ] if putc space ] times cr ] times ;
+  : vb      world rows drop ;
+  : (v)     (   -   ) clear vb ;
+  : pos     (   -cl ) @column @line ;
+  : get     ( cl-a  ) toLine + ;
+  : va      (  a-va ) dup @ swap ;
+  : c!      (  a-   ) '@ swap ! ;
+  : show    ( va-   ) dup c! (v) ! ;
+  : display (   -   ) bounds pos get va show ;
+
+  : keys
+    [ 'i = ] [ drop line --   -1 ] when
+    [ 'k = ] [ drop line ++   -1 ] when
+    [ 'j = ] [ drop column -- -1 ] when
+    [ 'l = ] [ drop column ++ -1 ] when
+    [ 32 = ] [ drop @line toLine @column + dup @ [ 0 ] [ 1 ] if swap ! -1 ] when
+    [ 'z = ] [ drop            0 ] when ;
+---reveal---
+  : edit
+    [ display getc keys ] while ;
+}}
+

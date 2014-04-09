@@ -1,0 +1,18 @@
+
+
+core pic32mx7
+linker bootloader
+mapping generic
+
+device kernel cpu_khz=80000 bus_khz=80000 led=D2
+
+device console device=ttyUSB0 led=D0
+device uartusb
+
+device rdisk led=D1
+device sd0 port=1 cs=A9
+
+device gpio
+
+#device adc
+#device bootloader button=A10 crystal=8 jump=0x9d000000 invled=A0 invled2=A1 invled3=D9 clear=D2

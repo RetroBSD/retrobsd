@@ -1,0 +1,138 @@
+1) Floats
+2) Strings
+3) Vectors
+4) Tail recursion
+5) Garbage collection
+6) Delays
+
+f acos
+f angle
+f asin
+f atan
+
+  call-with-current-continuation
+  call-with-input-file
+  call-with-output-file
+  call/cc
+  case
+  catch
+f ceiling
+  char->integer
+  char-alphabetic?
+  char-ci<=?
+  char-ci<?
+  char-ci=?
+  char-ci>=?
+  char-ci>?
+  char-downcase
+  char-lower-case?
+  char-numeric?
+  char-ready
+  char-ready?
+  char-upcase
+  char-upper-case?
+  char-whitespace?
+  char<=?
+  char<?
+  char=?
+  char>=?
+  char>?
+  char?
+  close-input-port
+  close-output-port
+  complex?
+f cos
+  current-input-port
+  current-output-port
+
+  delay
+f denominator
+  do
+
+  #e
+  eof-object?
+f exact->inexact
+f exact?
+f exactness
+f exp
+
+f floor
+  force
+
+  #i
+  imag-part
+f inexact-exact
+f inexact?
+  input-port?
+f int
+  integer->char
+
+s list->string
+v list->vector
+  load
+f log
+
+f magnitude
+f make-polar
+f make-rectangular
+s make-string
+v make-vector
+
+s number->string
+f numerator
+
+  open-input-file
+  open-output-file
+  output-port?
+
+f polar
+
+f rational?
+f rationalize
+  read-char
+f real-part
+f real?
+  return
+f round
+
+f sin
+f sqrt
+s string->list
+s string->number
+s string->symbol
+s string-append
+s string-ci<=?
+s string-ci<?
+s string-ci=?
+s string-ci>=?
+s string-ci>?
+s string-copy
+s string-fill!
+s string-length
+s string-ref
+s string-set!
+s string<=?
+s string<?
+s string=?
+s string>=?
+s string>?
+s string?
+s substring
+s symbol->string
+
+f tan
+  transcript-off
+  transcript-on
+  truncate
+
+v vector
+v vector->list
+v vector-fill!
+v vector-length
+v vector-ref
+v vector-set!
+v vector?
+
+  with-input-from-file
+  with-output-to-file
+  write-char

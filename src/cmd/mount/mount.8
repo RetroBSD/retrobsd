@@ -1,0 +1,276 @@
+.\" Copyright (c) 1980, 1989, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"	This product includes software developed by the University of
+.\"	California, Berkeley and its contributors.
+.\" 4. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"     @(#)mount.8	8.7.3 (2.11BSD) 1997/7/3
+.\"
+.TH MOUNT 8 "November 16, 1996"
+.UC 7
+.SH NAME
+\fBmount\fP \- mount file systems
+.SH SYNOPSIS
+.B mount
+[ \fB\-adfruvw\fP ]
+[ \fB\-t\fP \fIufs\fP | \fIexternal_type\fP ]
+.br
+.B mount
+[ \fB\-dfruvw\fP ]
+\fIspecial\fP | \fInode\fP
+.br
+.B mount
+[ \fB\-dfruvw\fP ]
+[ \fB\-o\fP \fIoptions\fP ]
+[ \fB\-t\fP \fIufs\fP | \fIexternal_type\fP ]
+.I special node
+.SH DESCRIPTION
+The
+.B mount
+command
+calls the
+mount(2)
+system call to prepare and graft a
+.I "special device"
+on to the file system tree at the point
+.IR node .
+If either
+.I special
+or
+.I node
+are not provided, the appropriate information is taken from the
+fstab(5)
+file.
+.PP
+The system maintains a list of currently mounted file systems.
+If no arguments are given to
+.BR mount ,
+this list is printed.
+.PP
+The options are as follows:
+.sp
+.TP 10
+\fB\-a\fP
+Causes everything to be done except for the actual system call.
+This option is useful in conjunction with the
+.TP 10
+\fB\-v\fP
+flag to
+determine what the
+.B mount
+command is trying to do.
+.TP 10
+\fB\-f\fP
+Forces the revocation of write access when trying to downgrade
+a filesystem mount status from read-write to read-only.  For 2.11BSD this
+flag is currently not implemented.
+.TP 10
+\fB\-o\fP
+Options are specified with a \fB\-o\fP
+flag followed by a comma separated string of options.
+The following options are available:
+.sp
+.RS 1.0i
+.TP 10
+async
+All I/O
+to the file system should be done asynchronously.
+
+.B This is a dangerous flag to set,
+.B and should not be used unless you are prepared to recreate the file
+.B system should your system crash.
+.TP 10
+force
+The same as
+\fB\-f\fP;
+forces the revocation of write access when trying to downgrade
+a filesystem mount status from read-write to read-only.   This is not
+(and likely never will be) supported in 2.11BSD.
+.TP 10
+noaccesstime
+File access times are not updated.
+
+.B This is a performance optimization for filesystems used for largely
+.B read-only, short-lived data, e.g., news.
+.TP 10
+noauto
+This filesystem should be skipped when mount is run with the \fB\-a\fP flag.
+.TP 10
+na
+Same as noauto.
+.TP 10
+nodev
+Do not interpret character or block special devices on the file system.
+This option is useful for a server that has file systems containing
+special devices for architectures other than its own.
+.TP 10
+noexec
+Do not allow execution of any binaries on the mounted file system.
+This option is useful for a server that has file systems containing
+binaries for architectures other than its own.
+.TP 10
+nosuid
+Do not allow set-user-identifier or set-group-identifier bits to take effect.
+.TP 10
+rdonly
+The same as
+\fB\-r\fP;
+mount the file system read-only (even the super-user may not write it).
+.TP 10
+sync
+All I/O
+to the file system should be done synchronously.
+.TP 10
+update
+The same as
+\fB\-u\fP;
+indicate that the status of an already mounted file system should be changed.
+.PP
+Any additional options specific to a filesystem type that is not
+one of the internally known types (see the
+\fB\-t\fP
+option) may be passed as a comma separated list; these options are
+distinguished by a leading
+\&- (dash).
+Options that take a value are specified using the syntax -option=value.
+At present no 2.11BSD mount options use the following form, the example
+has been retained for illustrative purposes only.
+For example, the mount command:
+.sp
+mount -t mfs -o nosuid,-N,-s=4000 /dev/dk0b /tmp
+.PP
+causes
+.B mount
+to execute the equivalent of:
+.sp
+/sbin/mount_mfs -o nosuid -N -s 4000 /dev/dk0b /tmp
+.br
+.RE 1.0i
+.TP 10
+\fB\-r\fP
+The file system is to be mounted read-only.
+Mount the file system read-only (even the super-user may not write it).
+The same as the
+``rdonly''
+argument to the
+\fB\-o\fP
+option.
+.TP 10
+\fB\-t\fP "\fIufs\fP | \fIexternal type\fP"
+The argument following the
+\fB\-t\fP
+is used to indicate the file system type.
+The type
+.I ufs
+is the default.  \fIUfs\fP is also the only value supported by 2.11BSD other 
+than \fIswap\fP.  Thus
+the \fB\-t\fP will rarely be used.
+The \fB\-t\fP option can be used
+to indicate that the actions should only be taken on
+filesystems of the specified type.
+More than one type may be specified in a comma separated list.
+The list of filesystem types can be prefixed with
+``no''
+to specify the filesystem types for which action should
+.I not
+be taken.
+For example, the
+.B mount
+command:
+.sp
+mount -a -t nonfs,mfs
+.sp
+mounts all filesystems except those of type
+NFS
+and
+MFS.
+.sp
+If the type is not one of the internally known types,
+mount will attempt to execute a program in
+.I /sbin/mount_XXX
+where
+.I XXX
+is replaced by the type name.
+For example, mfs filesystems are mounted by the program
+.IR /sbin/mount_mfs .
+.TP 10
+\fB\-u\fP
+The
+\fB\-u\fP
+flag indicates that the status of an already mounted file
+system should be changed.
+Any of the options discussed above (the
+\fB\-o\fP
+option)
+may be changed;
+also a file system can be changed from read-only to read-write
+or vice versa.
+An attempt to change from read-write to read-only will fail if any
+files on the filesystem are currently open for writing unless the
+\fB\-f\fP
+flag is also specified.
+This is currently not implemented in 2.11BSD.
+The ability to change the flags (nodev, nosuid, etc) is however supported.
+The set of options is determined by first extracting the options
+for the file system from the
+.I fstab
+table,
+then applying any options specified by the
+\fB\-o\fP
+argument,
+and finally applying the
+\fB\-r\fP
+or
+\fB\-w\fP
+option.
+.TP 10
+\fB\-v\fP
+Verbose mode.
+.TP 10
+\fB\-w\fP
+The file system object is to be read and write.
+.SH FILES
+.TP 10
+/etc/fstab
+file system table
+.SH SEE ALSO
+mount(2),
+fstab(5),
+umount(8)
+.SH BUGS
+It is possible for a corrupted file system to cause a crash.
+.PP
+.B mount
+and this manpage were ported from 4.4BSD-Lite to 2.11BSD to gain the
+ability to set the various flags such as \fBnodev\fP, \fBnosuid\fP and
+so on.   Multiple filesystem types are not supported and several of the
+options and flags are not implemented.
+.SH HISTORY
+A
+.B mount
+command appeared in Version 6 AT&T UNIX.

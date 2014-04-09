@@ -1,0 +1,175 @@
+#!/bin/sh -
+#
+# Copyright (c) 1980 Regents of the University of California.
+# All rights reserved.  The Berkeley software License Agreement
+# specifies the terms and conditions for redistribution.
+#
+#	@(#)MAKEDEV	4.27.6 (2.11BSD) 1999/2/19
+#
+# Device "make" file.  Valid arguments:
+#	std	standard devices
+#	local	configuration specific devices
+#	fd	file descriptor driver
+# Tapes:
+#	ht*	unibus tu77 & te16
+#	tm*	unibus tm11 & te10 emulations (e.g. Emulex tc-11)
+#	ts*	unibus ts11
+#	tu*	tmscp (tk50/tu81)
+# Disks:
+#	br*	unibus Eaton br1538 or br1711
+#	hk*	unibus rk06 and rk07
+#	ra*	unibus uda50 w/ ra??
+#	rk*	unibus rk05
+#	rl*	unibus rl01/rl02
+#	rx*	unibus rx02
+#	si*	unibus cdc 9766 w/ si 9500
+#	xp*	unibus rm02/03/05, rp04/05/06, diva, eagle, cdc9766, fuji 160.
+# Terminal multiplexors:
+#	dl*	dl-11 units other than the console
+#	dz*	unibus dz11 and dz32
+#	dh*	unibus dh11 and emulations (e.g. Able dmax, Emulex cs-11)
+#	dmf*	unibus dmf32
+#	dhu*    unibus dhu11
+#	dmz*    unibus dmz32
+#	dhv*    qbus dhv11
+# Pseudo terminals:
+#	pty*	set of 16 master and slave pseudo terminals
+# Printers:
+#	lp*	unibus lp11 parallel interface
+#	va*	unibus varian parallel interface
+#	vp*	unibus versatec parallel interface
+# Call units:
+# Special purpose devices:
+#	dr*		unibus dr11
+#	ram*		memory disk
+#	dn*		dn11 dialer
+#	ingreslock	Ingres lock driver.
+
+PATH=/etc:/sbin:/usr/sbin:/bin:/usr/bin
+umask 77
+for i
+do
+case $i in
+
+std)
+	mknod console		c 0 0
+	mknod mem		c 1 0	; chmod 640 mem ; chgrp kmem mem
+	mknod kmem		c 1 1	; chmod 640 kmem ; chgrp kmem kmem
+	mknod null		c 1 2	; chmod 666 null
+	mknod zero		c 1 3	; chmod 444 zero
+	mknod tty		c 2 0	; chmod 666 tty
+ 	mknod klog		c 3 0	; chmod 600 klog
+	;;
+
+fd)
+	umask 0
+	rm -rf fd
+	rm -f stdin stdout stderr
+	mkdir fd
+	chmod 755 fd
+	mknod stdin c 4 0
+	mknod stdout c 4 1
+	mknod stderr c 4 2
+	eval `echo "" | awk '{ for (i = 0; i < 32; i++)
+			printf("mknod fd/%d c 4 %d; ",i,i); }'`
+	;;
+
+rd)
+	umask 2
+	rm -f rd[0123] rd[0123][abcd]
+	mknod rd0  b 0 0
+	mknod rd0a b 0 1
+	mknod rd0b b 0 2
+	mknod rd0c b 0 2
+	mknod rd0d b 0 2
+	mknod rd1  b 1 0
+	mknod rd1a b 1 1
+	mknod rd1b b 1 2
+	mknod rd1c b 1 2
+	mknod rd1d b 1 2
+	mknod rd2  b 2 0
+	mknod rd2a b 2 1
+	mknod rd2b b 2 2
+	mknod rd2c b 2 2
+	mknod rd2d b 2 2
+	mknod rd3  b 3 0
+	mknod rd3a b 3 1
+	mknod rd3b b 3 2
+	mknod rd3c b 3 2
+	mknod rd3d b 3 2
+	chgrp operator rd[0123]
+	chgrp operator rd[0123][abcd]
+	chmod 640 rd[0123][abcd]
+	chmod 640 rd[0123]
+	;;
+
+gpio)
+	umask 0
+	rm -f port[abcdefg] conf[abcdef]
+	mknod	porta	c 5 0
+	mknod	portb	c 5 1
+	mknod	portc	c 5 2
+	mknod	portd	c 5 3
+	mknod	porte	c 5 4
+	mknod	portf	c 5 5
+	mknod	portg	c 5 6
+	mknod	confa	c 5 64
+	mknod	confb	c 5 65
+	mknod	confc	c 5 66
+	mknod	confd	c 5 67
+	mknod	confe	c 5 68
+	mknod	conff	c 5 69
+	mknod	confg	c 5 70
+	;;
+
+adc)
+	umask 0
+	rm -f adc[0123456789] adc1[012345]
+	mknod	adc0	c 6 0
+	mknod	adc1	c 6 1
+	mknod	adc2	c 6 2
+	mknod	adc3	c 6 3
+	mknod	adc4	c 6 4
+	mknod	adc5	c 6 5
+	mknod	adc6	c 6 6
+	mknod	adc7	c 6 7
+	mknod	adc8	c 6 8
+	mknod	adc9	c 6 9
+	mknod	adc10	c 6 10
+	mknod	adc11	c 6 11
+	mknod	adc12	c 6 12
+	mknod	adc13	c 6 13
+	mknod	adc14	c 6 14
+	mknod	adc15	c 6 15
+	;;
+
+spi)
+	umask 0
+	rm -f spi[1234]
+	mknod	spi1	c 7 0
+	mknod	spi2	c 7 1
+	mknod	spi3	c 7 2
+	mknod	spi4	c 7 3
+	;;
+
+glcd)
+	umask 0
+	rm -f glcd0
+	mknod glcd0	c 8 0
+	;;
+
+oc)
+	umask 0
+	rm -f oc[12345]
+	mknod	oc1	c 9 0
+	mknod	oc2	c 9 1
+	mknod	oc3	c 9 2
+	mknod	oc4	c 9 3
+	mknod	oc5	c 9 4
+	;;
+
+local)
+	sh MAKEDEV.local
+	;;
+esac
+done

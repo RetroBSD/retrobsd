@@ -1,0 +1,5 @@
+always
+    file tty.o
+    file tty_subr.o
+    file tty_tty.o
+end always

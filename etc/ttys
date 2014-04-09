@@ -1,0 +1,16 @@
+#
+# name	getty                           type	status		comments
+#
+console	"/libexec/getty std.default"	vt100	on secure	#special
+
+# Enable some of these for additional logins.  Do NOT enable the same one as the
+# console port, or strange things will happen.  You can turn off the console port
+# if you would rather use the getty on the real tty - it's up to you.
+
+tty0	"/libexec/getty std.default"	vt100	off secure
+tty1	"/libexec/getty std.default"	vt100	off secure
+tty2	"/libexec/getty std.default"	vt100	off secure
+tty3	"/libexec/getty std.default"	vt100	off secure
+tty4	"/libexec/getty std.default"	vt100	off secure
+tty5	"/libexec/getty std.default"	vt100	off secure
+ttyUSB0	"/libexec/getty std.default"	vt100	off secure

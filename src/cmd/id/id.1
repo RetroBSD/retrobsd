@@ -1,0 +1,135 @@
+.\" Copyright (c) 1991, 1993, 1994
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" This code is derived from software contributed to Berkeley by
+.\" the Institute of Electrical and Electronics Engineers, Inc.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"	This product includes software developed by the University of
+.\"	California, Berkeley and its contributors.
+.\" 4. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"	@(#)id.1	8.2.1 (2.11BSD) 1997/6/25
+.\"
+.TH ID 1 "June 25, 1997"
+.UC 4
+.SH NAME
+id \- return user identity
+.SH SYNOPSIS
+\fBid\fP [\fIuser\fP]
+.br
+.B id \-G 
+[\fB\-n\fP]
+[\fIuser\fP]
+.br
+.B id \-g
+[\fB\-nr\fP]
+[\fIuser\fP]
+.br
+.B id \-p
+.br
+.B id \-u
+[\fB\-nr\fP]
+[\fIuser\fP]
+.SH DESCRIPTION
+The
+.B id
+utility displays the user and group names and numeric IDs, of the
+calling process, to the standard output.
+If the real and effective IDs are different, both are displayed,
+otherwise only the real ID is displayed.
+.PP
+If a
+.I user
+(login name or user ID)
+is specified, the user and group IDs of that user are displayed.
+In this case, the real and effective IDs are assumed to be the same.
+.PP
+The options are as follows:
+.TP 10
+.B \-G
+Display the different group IDs (effective, real and supplementary)
+as white-space separated numbers, in no particular order.
+.TP 10
+.B \-g
+Display the effective group ID as a number.
+.TP 10
+.B \-n
+Display the name of the user or group ID for the
+\fB\-G\P, \fB\-g\fP and \fB\-u\fP
+options instead of the number.
+If any of the ID numbers cannot be mapped into names, the number will be
+displayed as usual.
+.TP 10
+.B \-p
+Make the output human-readable.
+If the user name returned by
+getlogin(2)
+is different from the login name referenced by the user ID, the name
+returned by
+getlogin(2)
+is displayed, preceded by the keyword ``login''.
+The user ID as a name is displayed, preceded by the keyword ``uid''.
+If the effective user ID is different from the real user ID, the real user
+ID is displayed as a name, preceded by the keyword ``euid''.
+If the effective group ID is different from the real group ID, the real group
+ID is displayed as a name, preceded by the keyword ``rgid''.
+The list of groups to which the user belongs is then displayed as names,
+preceded by the keyword ``groups''.
+Each display is on a separate line.
+.TP 10
+.B \-r
+Display the real ID for the \fB\-g\fP and \fB\-u\fP
+options instead of the effective ID.
+.TP 10
+.B \-u
+Display the effective user ID as a number.
+.PP
+The
+.B id
+utility exits 0 on success, and >0 if an error occurs.
+.SH SEE ALSO
+who(1)
+.SH STANDARDS
+The
+.B id
+function is expected to conform to
+IEEE Std1003.2 (``POSIX'').
+.SH HISTORY
+The
+historic
+groups(1) command is equivalent to
+``\fBid \-Gn\fP [\fBuser\fP]''.
+.PP
+The
+historic
+whoami(1)
+command is equivalent to
+``\fBid \-un\fP''.
+.PP
+The
+.B id
+command first appeared in 4.4BSD.

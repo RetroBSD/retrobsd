@@ -1,0 +1,114 @@
+( Calculations Involving Time and Date ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+needs math'
+
+chain: calendar'
+
+( Useful Constants; Avoid Magic Numbers )
+10080 constant MINUTES/WEEK
+ 1440 constant MINUTES/DAY
+   60 constant MINUTES/HOUR
+
+   24 constant HOURS/DAY
+
+    7 constant DAYS/WEEK
+  365 constant DAYS/YEAR
+
+   52 constant WEEKS/YEAR
+
+   60 constant SECONDS/MINUTE
+ 3600 constant SECONDS/HOUR
+86400 constant SECONDS/DAY
+
+{{
+  create name 4 allot
+  create days
+    31 , 28 , 31 , 30 , 31 , 30 ,
+    31 , 31 , 30 , 31 , 30 , 31 ,
+---reveal---
+  : dayToName       ( n-$ )
+    3 * "SunMonTueWedThuFriSat" + name 3 copy name ;
+  : daysPerMonth    ( m-n )
+    days + @ ;
+  : secondsPerMonth ( m-n )
+    daysPerMonth SECONDS/DAY * ;
+  : isLeapYear? ( y-f )
+    dup 400 mod 0 = [ drop -1 0 ] [ 1 ] if 0; drop
+    dup 100 mod 0 = [ drop  0 0 ] [ 1 ] if 0; drop
+    4 mod 0 = ;
+  : secondsPerYear ( y-n )
+    isLeapYear? [ 31622400 ] [ 31536000 ] if ;
+}}
+
+
+: toJulian  ( dmy-j )
+  [ 3 - dup 0 < dup ] dip +
+  [ 12 and + 306 * 5 + 10 / + ] dip
+  dup [ 1461 4 ^math'*/ + dup 578053 > ] dip
+  swap [ [ 3 + ] dip [ 100 / - ] sip 400 / + ] ifTrue 1721116 + ;
+
+: toDayOfWeek  ( dmy-n )
+  toJulian 7 mod 1+ dup 7 = [ drop 0 ] ifTrue ;
+
+;chain
+
+doc{
+========================
+Time & Date Calculations
+========================
+
+
+--------
+Overview
+--------
+This vocabulary provides support for doing calculations involving time
+and dates.
+
+
+---------
+Functions
+---------
++-----------------+-------+--------------------------------------+
+| Function        | Stack | Used For                             |
++=================+=======+======================================+
+| MINUTES/WEEK    | -n    | Number of minutes in a week          |
++-----------------+-------+--------------------------------------+
+| MINUTES/DAY     | -n    | Number of minutes in a day           |
++-----------------+-------+--------------------------------------+
+| MINUTES/HOUR    | -n    | Number of minutes in an hour         |
++-----------------+-------+--------------------------------------+
+| HOURS/DAY       | -n    | Number of hours in a day             |
++-----------------+-------+--------------------------------------+
+| DAYS/WEEK       | -n    | Number of days in a week             |
++-----------------+-------+--------------------------------------+
+| DAYS/YEAR       | -n    | Number of days in a typical year     |
++-----------------+-------+--------------------------------------+
+| WEEKS/YEAR      | -n    | Number of weeks in a year            |
++-----------------+-------+--------------------------------------+
+| SECONDS/MINUTE  | -n    | Number of seconds in a minute        |
++-----------------+-------+--------------------------------------+
+| SECONDS/HOUR    | -n    | Number of seconds in an hour         |
++-----------------+-------+--------------------------------------+
+| SECONDS/DAY     | -n    | Number of seconds in a day           |
++-----------------+-------+--------------------------------------+
+| dayToName       | n-$   | Convert the number of a day to a     |
+|                 |       | three letter abbreviation            |
++-----------------+-------+--------------------------------------+
+| daysPerMonth    | m-n   | Return the number of days in a given |
+|                 |       | month                                |
++-----------------+-------+--------------------------------------+
+| secondsPerMonth | m-n   | Return the number of seconds in a    |
+|                 |       | given month                          |
++-----------------+-------+--------------------------------------+
+| isLeapYear?     | y-f   | Return true (-1) if the year is a    |
+|                 |       | leap year or false (0) otherwise     |
++-----------------+-------+--------------------------------------+
+| secondsPerYear  | y-n   | Return the number of seconds in a    |
+|                 |       | given year                           |
++-----------------+-------+--------------------------------------+
+| toJulian        | dmy-j | Convert a date into a Julian day     |
++-----------------+-------+--------------------------------------+
+| toDayOfWeek     | dmy-n | Convert a date to the numeric day of |
+|                 |       | the week                             |
++-----------------+-------+--------------------------------------+
+
+}doc

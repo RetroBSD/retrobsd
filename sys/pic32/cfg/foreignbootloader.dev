@@ -1,0 +1,3 @@
+always
+    nofile devcfg.o
+end always

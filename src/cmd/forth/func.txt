@@ -1,0 +1,302 @@
+Portable Forth interpreter.
+
+Copyright (C) 1990-2012 Serge Vakulenko, <serge@vak.ru>
+
+(
+    Start a comment which is ended by a ")" or newline.
+\
+    Start a comment to end of line.
+dup ( x -- x x )
+    Duplicate the top item.
+?dup ( x -- x x )
+    Duplicate the top item if nonzero.
+2dup ( x y -- x y x y )
+    Duplicate the top two words.
+drop ( x -- )
+    Drop the top of stack.
+2drop ( x y -- )
+    Drop the top two items from the stack.
+over ( x y -- x y x )
+    Copy second to top
+2over ( x y z w -- x y z w x y )
+    Copy second to top
+rot ( x y z -- y z x )
+    Move the third element to the top.
+2rot ( x x y y z z -- y y z z x x )
+    Move the third element to the top.
+-rot ( y z x -- x y z )
+    Move the top element to the third.
+swap ( x y -- y x )
+    Exchange the top two items.
+2swap ( w x y z -- y z w x )
+    Swap the top two words with the second-to-the-top two words.
+pick ( an, an-1, a0, n -- an, an-1, a0, an )
+    Get the "n"th word on the opstack (zero-based, starting
+    from the word below "n") to the top of stack.
+roll ( an, an-1, a0, n -- an-1, a0, an )
+    Roll n words on the opstack (zero-based, starting
+    from the word below "n").
+sempty
+    Empty data stack.
+/, f/, *, f*, -, f-, +, f+ ( x y -- d )
+    Return the result of the applied binary operation to the
+    two arguments. Dividing by zero is undefined.
+mod ( x y -- r )
+    Return the remainder of x/y. This is explicitly calculated
+    as x-int(x/y)*x.
+/mod ( x y -- r d )
+    Return x/y and the remainder of x/y.
+abs, fabs ( x -- |x| )
+    Change sign of top of stack if it's negative
+negate, fnegate ( x -- -x )
+    Replace top of stack with its negation.
+1+, 1-, 2+, 2-, 2*, 2/ ( x -- op(x) )
+    Perform unary op.
+* / ( x y z -- w )
+    Return x*y/z.
+* /mod ( x y z -- r w )
+    Return x*y%z, x*y/z.
+true, false ( -- b )
+    Push the boolean true and false values onto the stack. These
+    values are used uniformly by all of forth.
+or, and, xor, not
+    Bitwise OR and AND operations. These will work with "true"
+    and "false" to provide logical functionality.
+=, f= ( x y -- b )
+    Return whether x is equal to y.
+>, f> ( x y -- b )
+    Return whether x is greater than y.
+<, f< ( x y -- b )
+    Return whether x is less than y.
+u< ( x y -- b )
+    Return whether unsigned x is less than unsigned y.
+max, fmax ( x y -- max(x,y) )
+    Take the greater of the top two elements
+min, fmin (x y -- min(x,y) )
+    Take the lesser of the top two elements
+i->f ( i -- f )
+    Convert the integer_t "i" to the equivalent floating format "f".
+f->i ( f -- i )
+    Convert the floating number "f" to the equivalent integer_t "i".
+    Integer portions of "f" will be truncated; for details, refer to the
+    "cvtfl" instruction in the VAX architecture handbook.
+f. ( f -- )
+    Print the floating-point number.
+. ( i -- )
+    Print the integer_t.
+.s ( -- )
+    Print the stack.
+halt
+    Exit back to OS.
+quit
+    Start interpreting from the keyboard again,
+    don't clean the data stack.
+:
+    Start compilation mode for the next word in the stream.
+;
+    End compilation mode, unsmudge the entry.
+immediate
+    Set 'immediate' mode for last compiled word
+constant
+fconstant
+    Like variable, but later references to this word return the
+    numerical constant. Thus
+            42 constant ascii_star
+            ascii_star emit
+    will print a star to the current output device.
+variable
+    Take the next word and add it to the dictionary
+    as a variable. Subsequent references to this name
+    will return an address which is the word allocated
+    to this variable. Uses such as
+            variable foobar 400 allot
+    will make "foobar" return the address of a 404-byte array
+    (the initially allocated longword, 4 bytes, plus
+    the allot'ed 400 bytes).
+create
+    Take the next word and add it to the dictionary
+    as a variable. Subsequent references to this name
+    will return current value of 'here'.
+forget
+    Take the next word and forget all words, defined later
+    than given one.  Depth is limited by 'freezedict'.
+empty
+    Forget all words, defined after 'freezedict'.
+freezedict
+    Update low margin of dictionary.
+    All words, defined up to moment, would not be
+    destroyed by 'forget'.
+here ( -- a )
+    Push the address of the next open memory location in the
+    dictionary to stack.
+allot ( d -- )
+    Add "d" to HERE, effectively moving the bottom of the dictionary
+    forward "d" bytes.
+alloc ( d -- )
+    Alloc d words.
+align ( -- )
+    Align 'here' on word boundary.
+@ ( a -- x )
+    Fetch a word at address "a".
+! ( x a -- )
+    Store a word at address "a".
+c@ ( a -- d)
+    Fetch the byte quantity "d" from byte address "a".
+c! ( d a -- )
+    Store the byte quantity "d" at byte address "a".
+fill ( a n d -- )
+    Fill "n" bytes of memory starting at "a" with the value "d".
+type ( a n -- )
+    Type string on stdout.
+expect ( a n -- )
+    Read string from stdin.
+, ( d -- )
+    Move the word "d" into the next open dictionary word,
+    advancing HERE.
+c, ( d -- )
+    As ",", but only a byte operation is done.
+allwords
+    List all user defined words.
+words
+    List words, defined after 'freezedict'.
+list
+    Take the next word in the input stream as a name of word.
+    If this word is user defined, print it's definition.
+fsqrt ( f -- s )
+    Compute square root of f, both f and s are float.
+flog ( f -- s )
+    Compute logarithm of f.
+fexp ( f -- s )
+    Compute e to the f power.
+sin ( i -- s )
+    "i" is a degree measure; "s" is sin(i)*10000.
+fsin ( f -- s )
+    "f" is the radian measure; "s" is the sin() value.
+cos, fcos
+    As sin, fsin, but for cos() values.
+tan, ftan
+    As sin, fsin, but for tan() values.
+fasin ( s -- f )
+    Compute asin(s) in radians (float).
+    Return value is in range -pi/2..pi/2.
+facos
+    As fasin, but for acos() values.
+    Return value is in range 0..pi.
+fatan
+    As fasin, but for atan() values.
+    Return value is in range -pi/2..pi/2.
+fsinh ( f -- s )
+    Compute hyperbolic sine function.
+fcosh
+    As fsinh, but for cosh() values.
+ftanh
+    As fsinh, but for tanh() values.
+key ( -- c )
+    Read character from input stream.
+    All characters codes are non-negative, -1 means EOF.
+emit ( c -- )
+    Print the specified character to the current output unit.
+cr
+    Print a newline sequence to the current output unit.
+space
+    Print a space to the current output unit.
+spaces ( n -- )
+    Print n spaces to the current output unit.
+outpop
+    Close the current output file & start using the previous output
+    file. This is a no-op if this is the first output file.
+output
+    Take the next word in the input stream & try to open it
+    for writing. If you can't, call "abort". Otherwise, make
+    it the current output file, pushing the current output
+    onto a stack so that a later "outpop" will close
+    this file & continue with the old one.
+input
+    As output, but open for reading. There is no corresponding
+    "inpop", as EOF status will cause the equivalent action.
+count ( a -- a n )
+    Count characters in string a.
+word ( c -- a )
+    Input word to delimiter c, placing it 'here'. Return address
+    of 'here'.
+<#
+    Begin format processing, set 'hld' to 'pad'.
+hold ( c -- )
+    Add character to pad.
+# ( x -- x/base )
+    Add remainder as a character to format string.
+#s ( x -- 0 )
+    Add ascii representation of unsigned value
+    to format string. If value is zero, add '0'.
+sign ( x -- )
+    Add minus to format string if value is negative.
+#> ( x -- a n )
+    Close format processing, return address and length.
+.(
+    Print the string immediately (in interpretive mode) or compile
+    code which will print the string (in compilation mode).
+."
+    Print the string immediately (in interpretive mode) or compile
+    code which will print the string (in compilation mode).
+"
+    Place string in data area. 'Here' will point on it.
+ascii ( -- c )
+    Get the next word and push in stack the ascii value
+    of the first character.
+ncompile ( n -- )
+    Get the integer_t value from stack and compile the code
+    generating that value.
+fcompile ( f -- )
+    Get the float value from stack and compile the code
+    generating that value.
+compile xxx ( -- )
+    Compile the code for executing given symbol.
+execute ( i -- )
+    Get the index of symbol from stack and execute it.
+latest ( -- i )
+    Push in stack the index of current symbol under definition.
+find ( a -- i )
+    Stack contains the address of string with the name of symbol.
+    Find this symbol in dictionary and return it's index.
+base
+    A variable which holds the current base.
+bl
+    A constant which holds the code for blank character.
+hld
+    A variable which holds the address of pad.
+pad
+    A constant which holds the end address of memory.
+state
+    A variable which holds the current state; 0 = interpreting,
+    non-0 means compiling.
+if ... [ else ] ... endif
+    The conditional structure. Note "endif", not "then".
+    'endif' is equivalent to 'then'.
+begin ... again
+    Unconditional looping structure.
+    'again' is equivalent to 'repeat'.
+begin ... until
+    Conditional looping--will loop until the "until" receives a
+    boolean "true" on the stack.
+begin ... while ... repeat
+    Looping structure where the test is at the "while" word.
+do ... loop
+    Counting loop.
+do ... +loop
+    As do...loop, but +loop takes the amount to increment by.
+?do
+    The same as do, but does not execute loop if upper and lower
+    bounds are aqual.
+leave
+    Causes the innermost loop to reach its exit condition. The
+    next execution of "loop" or "+loop" will fall through.
+i, j, k
+    The loop indices of (respectively) the innermost, second, and
+    third loops.
+myself
+recurse
+    Compile address of function under definition.
+    Results in calling function by itself.
+    For example,
+            : hihi ." Hi! " recurse ;
+    calls itself indefinitely.

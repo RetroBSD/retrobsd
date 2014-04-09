@@ -1,0 +1,8 @@
+always
+    file kern_glob.o
+    define GLOB_ENABLED YES
+end always
+
+option globsz
+    define GLOBSZ %1
+end option

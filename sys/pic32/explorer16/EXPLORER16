@@ -1,0 +1,18 @@
+#
+# Explorer16 board
+# ================
+#
+
+core pic32mx7
+linker bare
+mapping generic
+
+device kernel cpu_khz=80000 bus_khz=80000 led=A1
+
+device console led=A2 device=tty1
+device uart2 baud=115200
+
+device rdisk led=A0 swap=A3
+device sd0 port=1 cs=B1 mhz=10
+
+device gpio

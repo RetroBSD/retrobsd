@@ -1,0 +1,23 @@
+#
+# Copyright (c) 1983 Regents of the University of California,
+# All rights reserved.  Redistribution permitted subject to
+# the terms of the Berkeley Software License Agreement.
+#
+
+CFLAGS		+= -g -O -DEXT_MESSAGE_FILE -Werror -Wall
+
+OBJS            = battlestar.o cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o cmd7.o \
+		  init.o cypher.o getcom.o parse.o room.o save.o fly.o misc.o \
+		  _globals.o _dayfile.o _nightfile.o dayobjs.o nightobjs.o words.o
+LIBS            = -lncurses
+
+all:            battle_strings battlestar
+
+battlestar:     ${OBJS}
+		${CC} ${LDFLAGS} -o $@ ${OBJS} ${LIBS}
+
+battle_strings _globals.c _dayfile.c _nightfile.c: mkstr globals.c dayfile.c nightfile.c
+		./mkstr battle_strings _ globals.c dayfile.c nightfile.c
+
+clean:
+		rm -f *.o battlestar mkstr *~ battle_strings _globals.c _dayfile.c _nightfile.c

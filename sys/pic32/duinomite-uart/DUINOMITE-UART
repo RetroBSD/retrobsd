@@ -1,0 +1,20 @@
+#
+# Duinomite and Duinomite-Mega boards
+# ===================================
+#
+# Console on UART5
+
+core pic32mx7
+mapping generic
+linker bootloader-maximite
+
+device kernel cpu_khz=80000 bus_khz=80000 led=B15
+
+device console device=tty4
+device uart5 baud=115200 power=B13
+
+device rdisk led=B12
+device sd0 port=3 cs=D5 power=B13
+
+device gpio
+device foreignbootloader

@@ -1,0 +1,84 @@
+always
+    define MRAMS_ENABLED
+    file rd_mrams.o
+    require rdisk
+    require spibus
+    define MRAMS_CHIPSIZE   512
+end always
+
+option chips 
+    define MRAMS_CHIPS %1
+end option
+
+option port
+    define MRAMS_PORT %1
+end option
+
+option chipsize
+    define MRAMS_CHIPSIZE %1
+end option
+
+option mhz
+    define MRAMS_MHZ %1
+end option
+
+option cs0 
+    define MRAMS_CS0_PORT   $TRIS(%1)
+    define MRAMS_CS0_PIN    $PIN(%1)
+end option
+
+option cs1 
+    define MRAMS_CS1_PORT   $TRIS(%1)
+    define MRAMS_CS1_PIN    $PIN(%1)
+end option
+
+option cs2 
+    define MRAMS_CS2_PORT   $TRIS(%1)
+    define MRAMS_CS2_PIN    $PIN(%1)
+end option
+
+option cs3 
+    define MRAMS_CS3_PORT   $TRIS(%1)
+    define MRAMS_CS3_PIN    $PIN(%1)
+end option
+
+option cs4 
+    define MRAMS_CS4_PORT   $TRIS(%1)
+    define MRAMS_CS4_PIN    $PIN(%1)
+end option
+
+option cs5 
+    define MRAMS_CS5_PORT   $TRIS(%1)
+    define MRAMS_CS5_PIN    $PIN(%1)
+end option
+
+option led0
+    define MRAMS_LED0_PORT  $TRIS(%1)
+    define MRAMS_LED0_PIN   $PIN(%1)
+end option
+
+option led1
+    define MRAMS_LED1_PORT  $TRIS(%1)
+    define MRAMS_LED1_PIN   $PIN(%1)
+end option
+
+option led2
+    define MRAMS_LED2_PORT  $TRIS(%1)
+    define MRAMS_LED2_PIN   $PIN(%1)
+end option
+
+option led3
+    define MRAMS_LED3_PORT  $TRIS(%1)
+    define MRAMS_LED3_PIN   $PIN(%1)
+end option
+
+option led4
+    define MRAMS_LED4_PORT  $TRIS(%1)
+    define MRAMS_LED4_PIN   $PIN(%1)
+end option
+
+option led5
+    define MRAMS_LED5_PORT  $TRIS(%1)
+    define MRAMS_LED5_PIN   $PIN(%1)
+end option
+

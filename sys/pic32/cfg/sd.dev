@@ -1,0 +1,23 @@
+always
+    file rd_sd.o
+    require spibus
+    require rdisk
+end always
+
+option port
+    define SD%0_PORT %1
+end option
+
+option cs
+    define SD%0_CS_PORT $TRIS(%1)
+    define SD%0_CS_PIN  $PIN(%1)
+end option
+
+option mhz
+    define SD%0_MHZ %1
+end option
+
+option power
+    define SD%0_ENA_PORT $TRIS(%1)
+    define SD%0_ENA_PIN $PIN(%1)
+end option

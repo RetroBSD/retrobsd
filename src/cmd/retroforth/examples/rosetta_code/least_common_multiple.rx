@@ -1,0 +1,4 @@
+This is from the math extensions library included with Retro.
+
+: gcd ( ab-n ) [ tuck mod dup ] while drop ;
+: lcm ( ab-n ) 2over gcd [ * ] dip / ;

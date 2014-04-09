@@ -1,0 +1,11 @@
+<script>
+function unwell()
+{
+  window.location = '%u/eval/' + encodeURIComponent(document.forms[0].code.value);
+}
+</script>
+<form action='javascript:unwell()'>
+  <p>Code to evaluate: <input name='code'></p>
+</form>
+<p>Press enter or click <a href='javascript:unwell()'>evaluate</a> to
+   run your code.</p>

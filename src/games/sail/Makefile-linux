@@ -1,0 +1,21 @@
+#
+# Copyright (c) 1980 Regents of the University of California.
+# All rights reserved.  The Berkeley software License Agreement
+# specifies the terms and conditions for redistribution.
+#
+#	@(#)Makefile	5.2 (Berkeley) 9/17/85
+#
+CFLAGS          = -O -Werror -Wall
+
+OBJS            = main.o pl_main.o pl_1.o pl_2.o pl_3.o pl_4.o pl_5.o pl_6.o pl_7.o \
+                  dr_main.o dr_1.o dr_2.o dr_3.o dr_4.o dr_5.o lo_main.o \
+                  assorted.o game.o globals.o misc.o parties.o sync.o version.o
+LIBS            = -lcurses -ltermcap
+
+all:            sail sail.0
+
+sail:           $(OBJS)
+		$(CC) -o sail $(OBJS) $(LIBS)
+
+clean:
+		rm -f *.o *~ sail sail.0

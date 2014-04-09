@@ -1,0 +1,13 @@
+always
+    file ufs_alloc.o
+    file ufs_bio.o
+    file ufs_bmap.o
+    file ufs_dsort.o
+    file ufs_fio.o
+    file ufs_inode.o
+    file ufs_mount.o
+    file ufs_namei.o
+    file ufs_subr.o
+    file ufs_syscalls.o
+    file ufs_syscalls2.o
+end always

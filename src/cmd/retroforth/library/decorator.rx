@@ -1,0 +1,60 @@
+( Decorator Concept for Retro ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+( Notes:                                                                      )
+(  - the VM is a hybrid bytecode/direct threaded model, so:                   )
+(    1.  ,      compiles a call to the decorator word                         )
+(    2.  2 + ,  skip over the vector header of the original word and compile  )
+(               a call to it                                                  )
+(    3.  9 ,    compile a return instruction                                  )
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+
+chain: decorator'
+  : decorate ( aa- )
+    here [ , dup 2 + , 9 , ] dip swap :is ;
+
+  : undecorate ( a- )
+    :devector ;
+;chain
+
+doc{
+=================
+Decorator Concept
+=================
+
+
+--------
+Overview
+--------
+A decorator extends an existing function by appending ocde that will be
+executed before (and possibly after) execution of the original function.
+
+
+-----
+Usage
+-----
+::
+
+  ok  : foo + putn cr ;
+  ok  1
+  ok  2
+  ok  foo 3
+  ok  : demo 2over "%d + %d = " puts ;
+  ok  &foo
+  ok  &demo
+  ok  decorate
+  ok  1
+  ok  2
+  ok  foo 2 + 1 = 3
+  ok
+
+
+---------
+Functions
+---------
++------------+-------+----------------------------------------+
+| Name       | Stack | Usage                                  |
++============+=======+========================================+
+| decorate   | aa-   | Apply decoration (a2) to function (a1) |
++------------+-------+----------------------------------------+
+| undecorate | a-    | Remove a decoration from a function    |
++------------+-------+----------------------------------------+
+}doc

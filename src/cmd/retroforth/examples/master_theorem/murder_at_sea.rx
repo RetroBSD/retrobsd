@@ -1,0 +1,48 @@
+Flag semaphores are at the heart of this puzzle. In the text,
+M provides a series of times. These correspond to flag semaphore
+positions. If you picture the flag positions as the hands on an
+analog clock, this should become clear.
+
+So:
+
+  715 130 625 730 925 745 730 915 700
+
+These are our times.
+
+  : display ( n- )
+    [ 730 = ] [ drop 'A putc ] when
+    [ 130 = ] [ drop 'E putc ] when
+    [ 625 = ] [ drop 'G putc ] when
+    [ 745 = ] [ drop 'H putc ] when
+    [ 700 = ] [ drop 'K putc ] when
+    [ 715 = ] [ drop 'M putc ] when
+    [ 915 = ] [ drop 'R putc ] when
+    [ 925 = ] [ drop 'S putc ] when ;
+
+Less elegant than a lookup table, but suitable for this
+quick and dirty solution. Map each time to a character
+and display them.
+
+  "" ^buffer'set
+
+Setup a temporary string as a buffer.
+
+  depth [ ^buffer'add ] times
+
+Adds all of the times to the buffer.
+
+  ^buffer'start ^strings'reverse
+
+Reverse the order of the buffer, and leave a pointer...
+
+  [ @ display ] ^types'STRING each@
+
+And apply a quote to each item in the buffer. This is pretty
+simple: fetch the item, and give it to the display function.
+
+This yields the answer: MEGASHARK
+
+All in all, a boring puzzle. Once you figure out that M wants
+you to use flag semaphores in place of times, it's easy to find
+the answer.
+

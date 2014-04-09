@@ -1,0 +1,23 @@
+( Body Mass Index Calculator   )
+( Ported from Ron Aaron's Reva )
+
+variables| height weight |
+
+"BMI Calculator 1.1\n"     string VERSION
+"height, in centimeters" string HEIGHT
+"weight, in kilograms"   string WEIGHT
+
+: get  ( a$- )
+  "\nPlease enter your %s: " puts getNumber swap ! ;
+: getHeight  height HEIGHT get ;
+: getWeight  weight WEIGHT get ;
+: showBMI
+  @weight 100000 @height dup * &* dip / 10 /mod
+  @height @weight
+  "\nFor a weight of %d kg, and a height of %d cm, the BMI is %d.%d\n" puts ;
+
+: getBMI
+  VERSION puts getHeight getWeight showBMI bye ;
+
+getBMI
+

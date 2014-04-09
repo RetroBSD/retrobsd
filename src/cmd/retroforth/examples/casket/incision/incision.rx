@@ -1,0 +1,55 @@
+( incision, a pastebin ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+
+needs casket'
+with casket'
+
+: CUTS      (  -$ ) casket:root "cuts/"    ^strings'append ;
+: CURRENT   (  -$ ) casket:root "current"  ^strings'append ;
+
+
+variable current
+
+create scratch
+  32 allot
+
+create query
+  8192 allot
+
+: getCurrent   ( - )
+  scratch CURRENT ^files'slurp drop scratch toNumber !current ;
+
+: /view
+  Content-type: text/html
+  "header.erx" withTemplate
+    query 0 8129 fill
+    query CUTS casket:options ^strings'append ^files'slurp
+    query "<pre>%s</pre>" puts
+  "footer.erx" withTemplate ;
+
+: /post
+  Content-type: text/html
+  "header.erx" withTemplate
+    @current 1+ "<p><a href='%u/view/%d'>permalink</a>" tputs
+    getFormData 8 + [ "<pre>%s</pre>" puts ] sip
+    withLength CUTS @current 1+ toString ^strings'append ^files'spew drop
+    @current 1+ toString withLength CURRENT ^files'spew drop
+  "footer.erx" withTemplate ;
+
+: /css
+  Content-type: text/css
+  "incision.css" withTemplate ;
+
+: /index
+  Content-type: text/html
+  "header.erx" withTemplate
+    "index.erx" withTemplate
+  "footer.erx" withTemplate ;
+
+
+[ /index ] is /
+[ ( -$ ) "/path/to/incision/" ] is casket:root
+[ ( -$ ) "http://url/for/incision" ] is casket:url
+&getCurrent is doBeforeDispatch
+&dispatch is boot
+
+.s save bye

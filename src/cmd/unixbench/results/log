@@ -1,0 +1,13 @@
+|  BYTE UNIX Benchmarks (Version 4.1.0)
+|  System -- Linux laptop01 3.0.0-12-generic #20-Ubuntu SMP Fri Oct 7 14:50:42 UTC 2011 i686 i686 i386 GNU/Linux
+|  Start Benchmark Run: Thu Oct  4 12:49:17 BST 2012
+|   3 interactive users.
+|   12:49:17 up  2:43,  3 users,  load average: 0.07, 0.03, 0.05
+|  lrwxrwxrwx 1 root root 4 2012-04-20 13:35 /bin/sh -> dash
+|  /bin/sh: symbolic link to `dash'
+|  /dev/sda1            303701360 143403600 144870640  50% /
+
+Double-Precision Whetstone|  no measured results|
+
+End Benchmark Run: Thu Oct  4 12:49:49 BST 2012
+  3 interactive users.

@@ -1,0 +1,20 @@
+/*
+ * Chip configuration.
+ */
+#include "machine/pic32mx.h"
+
+PIC32_DEVCFG ( 
+    0| DC0_DEBUG | DC0_ICE,
+
+    0| DC1_FNOSC | DC1_SOSC | DC1_IESO | DC1_POSCMOD |
+    DC1_OSCIOFNC | DC1_PBDIV | DC1_CKM | DC1_CKS |
+    DC1_WDTPS | DC1_WDTEN,           
+
+    0| DC2_PLLIDIV | DC2_PLLMUL | DC2_UPLLIDIV | DC2_UPLL |
+    DC2_PLLODIV,
+
+    0| DEVCFG3_USERID(DC3_USERID) | DC3_SRS | DC3_MII |
+    DC3_ETH | DC3_CAN | DC3_USBID | DC3_VBUSON
+);
+
+

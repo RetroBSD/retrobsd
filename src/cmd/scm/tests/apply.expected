@@ -1,0 +1,12 @@
+(apply + '(1 2 3)) --> 6
+(define hypot (lambda (a b) (+ (* a a) (* b b)))) --> <closure-51b6>
+(apply hypot '(3 4)) --> 25
+q 1
+w 2
+e 3
+r 4
+t 5
+y 6
+(for-each (lambda (x y) (display x y) (newline)) '(q w e r t y) '(1 2 3 4 5 6)) --> ()
+(map (lambda (n) (expt n n)) '(1 2 3 4 5 6)) --> (1 4 27 256 3125 46656)
+(map + '(1 2 3) '(4 5 6)) --> (5 7 9)

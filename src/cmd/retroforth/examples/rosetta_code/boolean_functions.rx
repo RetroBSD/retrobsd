@@ -1,0 +1,2 @@
+( Zero is false and non-zero is true. Comparison functions return -1 for )
+( true and 0 for false.                                                  )

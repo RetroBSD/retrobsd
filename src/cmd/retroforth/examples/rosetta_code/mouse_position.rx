@@ -1,0 +1,4 @@
+This currently requires a VM with support for the canvas device.
+
+needs canvas'
+^canvas'mouse

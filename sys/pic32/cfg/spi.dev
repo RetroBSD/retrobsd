@@ -1,0 +1,5 @@
+always
+    file spi.o
+    require spibus
+    define SPI_ENABLED YES
+end always

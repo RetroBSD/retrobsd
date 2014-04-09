@@ -1,0 +1,4 @@
+with canvas'
+: spots
+  clear
+  repeat click? [ mouse 4 solid red circle ] ifTrue again ;

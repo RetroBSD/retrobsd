@@ -1,0 +1,32 @@
+chain: variations'
+{{
+  : ignore  ( - )   repeat getToken "}" compare if; again ;
+---reveal---
+  : size    ( -n )  -13 5 out wait 5 in dup 0 = [ drop 32 ] ifTrue ;
+  : endian  ( -n )  -14 5 out wait 5 in ;
+  : bits{  ( n"- )  size <> &ignore ifTrue ;
+  : bigEndian{    ( n"- )  endian 1 = &ignore ifTrue ;
+  : littleEndian  ( n"- )  endian 0 = &ignore ifTrue ;
+  : }  ( - )  ; immediate
+}}
+;chain
+
+
+doc{
++--------------+-------+------------------------------------------------+
+| Function     | Stack | Usage                                          |
++==============+=======+================================================+
+| size         | -n    | Return the number of bits per cell             |
++--------------+-------+------------------------------------------------+
+| endian       | -n    | Return 0 for little endian or 1 for big endian |
++--------------+-------+------------------------------------------------+
+| bits{        | n"-   | Execute code up to **}** if the bits per cell  |
+|              |       | matches *n*                                    |
++--------------+-------+------------------------------------------------+
+| bigEndian    | "-    | Execute code up to **}** if endian is big      |
++--------------+-------+------------------------------------------------+
+| littleEndian | "-    | Execute code up to **}** if endian is little   |
++--------------+-------+------------------------------------------------+
+| }            | ``-`` | Does nothing                                   |
++--------------+-------+------------------------------------------------+
+}doc

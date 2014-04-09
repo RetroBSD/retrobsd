@@ -1,0 +1,2 @@
+defineKey ^Q exit nosave
+defineKey [4~ pageDn ""

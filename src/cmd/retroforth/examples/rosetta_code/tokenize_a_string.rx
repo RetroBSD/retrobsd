@@ -1,0 +1,22 @@
+{{
+  : char     (  -$  )   " " ;
+  : tokenize ( $-$$ )
+    @char ^strings'splitAtChar withLength 1- over + 0 swap ! tempString ;
+  : action   ( $-   )
+    keepString ^buffer'add ;
+---reveal---
+  : split    ( $cb- )
+    ^buffer'set !char
+    char ^strings'append
+    [ tokenize action dup 1 <> ] while drop
+    ^buffer'get drop ;
+}}
+
+This will suffice to split a string into an array of substrings. It is used like this:
+create strings 100 allot
+
+"Hello,How,Are,You,Today" ', strings split
+
+Since the buffer' vocabulary creates a zero-terminated buffer, we can display it using the each@ combinator and a simple quote:
+
+strings [ @ "%s." puts ] ^types'STRING each@

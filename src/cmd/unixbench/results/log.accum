@@ -1,0 +1,21 @@
+|  BYTE UNIX Benchmarks (Version 4.1.0)
+|  System -- Linux laptop01 3.0.0-12-generic #20-Ubuntu SMP Fri Oct 7 14:50:42 UTC 2011 i686 i686 i386 GNU/Linux
+|  Start Benchmark Run: Thu Oct  4 12:48:34 BST 2012
+|   3 interactive users.
+|   12:48:34 up  2:42,  3 users,  load average: 0.00, 0.01, 0.05
+|  lrwxrwxrwx 1 root root 4 2012-04-20 13:35 /bin/sh -> dash
+|  /bin/sh: symbolic link to `dash'
+|  /dev/sda1            303701360 143403604 144870636  50% /
+
+Dhrystone 2 using register variables|  no measured results|
+
+Terminated during iteration 2
+Double-Precision Whetstone|  no measured results|
+
+**************************
+* Benchmark Aborted .... *
+**************************
+
+  3 interactive users.
+
+End Benchmark Run (Thu Oct  4 12:49:11 BST 2012) ....

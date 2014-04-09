@@ -1,0 +1,57 @@
+# $Header: Makefile.SH,v 1.1 87/07/03 01:45:30 games Exp $
+#
+# Revision 7.0.1.1a 87/26/08  03:45:03	games
+# Fix minor shell continuation bug and put in a pdp-11 overlay scheme.
+#
+# Revision 7.0.1.1  86/12/12  16:54:03  lwall
+# Frozen for net release.
+#
+# Revision 7.0  86/10/08  15:11:42  lwall
+# Split into separate files.  Added amoebas and pirates.
+#
+#
+CFLAGS          = -g -O -Werror -DTERMIO #-Wall
+LDFLAGS         =
+PRIVLIB         = /usr/games/lib/warp
+LIBS            = -ltermcap -lm
+
+PRIVATE         = warp.doc smap.0 smap.1 smap.2 smap.3 smap.4 smap.5 smap.6 smap.7
+
+OBJ             = bang.o init.o intrp.o move.o \
+                  object.o play.o score.o \
+                  sig.o term.o them.o us.o \
+                  util.o version.o warp.o weapon.o
+
+all:    warp $(PRIVATE)
+
+warp:   $(OBJ)
+	$(CC) $(LDFLAGS) $(OBJ) $(LIBS) -o warp
+
+install: warp $(PRIVATE)
+	install warp $(bin)
+	mkdir -p $(PRIVLIB)
+	cp $(PRIVATE) $(PRIVLIB)
+	cp /dev/null $(PRIVLIB)/save.blurfl
+	[ -f $(PRIVLIB)/warp.news ] || cp warp.news $(PRIVLIB)
+
+clean:
+	rm -f core *.o warp smap.* sm
+
+smap.0: smp.0 sm
+	./sm <smp.0 >smap.0
+smap.1: smp.1 sm
+	./sm <smp.1 >smap.1
+smap.2: smp.2 sm
+	./sm <smp.2 >smap.2
+smap.3: smp.3 sm
+	./sm <smp.3 >smap.3
+smap.4: smp.4 sm
+	./sm <smp.4 >smap.4
+smap.5: smp.5 sm
+	./sm <smp.5 >smap.5
+smap.6: smp.6 sm
+	./sm <smp.6 >smap.6
+smap.7: smp.7 sm
+	./sm <smp.7 >smap.7
+sm: sm.c
+	cc -O -Wall -Werror sm.c -o sm

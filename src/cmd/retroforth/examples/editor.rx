@@ -1,0 +1,293 @@
+( retro editor v11-2011.10.25 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+( Key     Action                                                              )
+( ---     -------------------------------------------------                   )
+(  i      Move cursor up                                                      )
+(  j      Move cursor left                                                    )
+(  k      Move cursor down                                                    )
+(  l      Move cursor right                                                   )
+(  [      Switch to previous block                                            )
+(  ]      Switch to next block                                                )
+(  e      Evaluate current block                                              )
+(  E      Evaluate all blocks                                                 )
+(  m      Move cursor to start of next line                                   )
+(  I      Move cursor to top line of block                                    )
+(  J      Move cursor to start of current line                                )
+(  K      Move cursor to last line of block                                   )
+(  L      Move cursor to end of current line                                  )
+(  M      Center cursor on current line                                       )
+(  z      Exit RxE                                                            )
+(  {      Load "blocks"                                                       )
+(  }      Save "blocks"                                                       )
+( TAB     Switch between edit and command mode                                )
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+
+chain: editor'
+
+{{
+  2 elements buffer count
+  : restore ( -   ) &getc :devector ok ;
+  : get     ( -c  ) @buffer @ ;
+  : next    ( -c  ) @count [ count -- get buffer ++ ] [ 32 restore ] if ;
+  : replace ( -   ) &next &getc :is ;
+  : eval    ( an- ) !count !buffer replace ;
+
+  7 elements #blocks offset blk line column mode active
+  : toBlock   1600 * @offset + ;
+  : thisBlock @blk toBlock ;
+  : toLine    80 * thisBlock + ;
+
+  ( check boundaries ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+  : top ( - )  0 !line ;
+  : bot ( - ) 19 !line ;
+  : beg ( - )  0 !column ;
+  : end ( - ) 79 !column ;
+  : mid ( - ) 41 !column ;
+  : 1st ( - )  0 !blk ;
+  : bounds ( - )
+    @column -1 = [ end line -- ] ifTrue
+    @column 80 = [ beg line ++ ] ifTrue
+    @line   -1 = [ top blk  -- ] ifTrue
+    @line   20 = [ bot blk  ++ ] ifTrue
+    @blk    -1 = [ 1st         ] ifTrue
+    @blk    @#blocks >= [ blk -- ] ifTrue ;
+
+  ( display a block ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+  : rows    20 [ dup 80 [ @ putc ] ^types'BUFFER each@ 80 + cr ] times ;
+  : mode?   @mode [ "INS" ] [ "CMD" ] if ;
+  : .block  @column @line @blk mode? "(%s) #%d - %d:%d  " puts ;
+  : bar     80 [ '- putc ] times cr ;
+  : vb      @blk toBlock rows drop bar .block ;
+  : (v)     (   -   ) clear vb ;
+  : pos     (   -cl ) @column @line ;
+  : get     ( cl-a  ) toLine + ;
+  : va      (  a-va ) dup @ swap ;
+  : c!      (  a-   ) '* swap ! ;
+  : show    ( va-   ) dup c! (v) ! ;
+  : display (   -   ) bounds pos get va show ;
+
+  ( input processing ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+  : advance? (  -  ) line ++ @line 20 >= [ 0 !line blk ++ ] ifTrue 0 !column ;
+  : del ( - )
+    @column dup
+    [ dup 80 =
+      [ drop !column display    0 ]
+      [ 32 over @line get ! 1+ -1 ] if
+    ] while ;
+  : remap    ( c-c )
+    dup  9 = [ drop 27 ] ifTrue
+    dup 13 = [ drop  0 ] ifTrue
+    dup 10 = [ drop  0 advance? display ] ifTrue ;
+  : input    (  -  )
+    repeat
+      display
+      @mode 0; drop
+      getc 0;
+      dup 27 <> 0; drop
+      dup  8 = [ drop column -- display ] [ pos get ! column ++ ] if
+    again ;
+  : rxe.in   (  -c ) mode on remapping [ remapping off input ] preserve mode off ;
+  : match    ( c-  ) "$$_" dup [ 2 + ! ] dip find [ @d->xt do ] &drop if ;
+  : edit?    ( c-c ) dup 27 = [ rxe.in drop ] ifTrue ;
+
+  ( various support bits  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+  : new        (  - ) @offset 32 1600 @#blocks * fill ;
+  : e          (  - ) thisBlock 1600 eval ;
+  : ea         (  - ) @offset @#blocks 1600 * eval ;
+  : run        (  - )
+    active on &remap &remapKeys :is clear
+    [ display getc edit? match @active ] while ;
+---reveal---
+  : setBlocks  ( n- ) !#blocks @memory 1600 @#blocks * - !offset new ;
+  : edit ( - )
+    @ch 22 >= @cw 80 >= and
+    &run [ "requires an 80x22 or greater display, sorry!\n" puts ] if ;
+  : $$i line -- ;
+  : $$j column -- ;
+  : $$k line ++ ;
+  : $$l column ++ ;
+  : $$m $$k beg ;
+  : $$I top ;
+  : $$J beg ;
+  : $$K bot ;
+  : $$L end ;
+  : $$M mid ;
+  : $$D del ;
+  : $$[ blk -- ;
+  : $$] blk ++ ;
+  : $${ @offset "blocks" ^files'slurp drop ;
+  : $$} @offset @#blocks 1600 * "blocks" ^files'spew drop ;
+  : $$e active off  e ;
+  : $$E active off ea ;
+  : $$z active off    ;
+  128 setBlocks
+}}
+;chain
+
+global
+with editor'
+
+
+doc{
+
+============
+Retro Editor
+============
+
+
+--------
+Overview
+--------
+The Retro Editor is a block editor for use with Retro.
+
+For most users, files are a better choice. However there are
+at least two cases where you may want or need to use them:
+
+ * keeping sources embeded in the image
+ * if you are using a VM that lacks file i/o
+
+
+-------
+Loading
+-------
+
+::
+
+  include editor.rx
+
+
+-----------
+Quick Guide
+-----------
+
+Starting
+========
+Once loaded, you'll need to start it using **edit**:
+
+::
+
+  edit
+
+
+The Interface
+=============
+
+You'll see a screen looking something like:
+
+::
+
+  *
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  --------------------------------------------------------------------------------
+  (CMD) #0 - 0:0
+
+
+The asterisk at the top is the cursor. The line at the
+bottom marks the end of the current block. Below the line
+is a status row, showing the current mode (CMD or INS), the
+current block number, and the current row and column.
+
+
+Exiting
+=======
+Press *z*. This should return you to the Retro listener.
+
+
+Navigation
+==========
+Restart the editor with **edit**.
+
+The following keys can be used to navigate through the
+blocks.
+
++-----+--------------------------------------------+
+| Key | Used for                                   |
++=====+============================================+
+|  i  | Move cursor up                             |
++-----+--------------------------------------------+
+|  j  | Move cursor left                           |
++-----+--------------------------------------------+
+|  k  | Move cursor down                           |
++-----+--------------------------------------------+
+|  l  | Move cursor right                          |
++-----+--------------------------------------------+
+|  [  | Switch to previous block                   |
++-----+--------------------------------------------+
+|  ]  | Switch to next block                       |
++-----+--------------------------------------------+
+|  m  | Move cursor to start of next line          |
++-----+--------------------------------------------+
+|  I  | Move cursor to top line of block           |
++-----+--------------------------------------------+
+|  J  | Move cursor to start of current line       |
++-----+--------------------------------------------+
+|  K  | Move cursor to last line of block          |
++-----+--------------------------------------------+
+|  L  | Move cursor to end of current line         |
++-----+--------------------------------------------+
+|  M  | Center cursor on current line              |
++-----+--------------------------------------------+
+
+
+Entry Mode
+==========
+Use the *tab* key to switch to entry mode, and again to
+switch back to command mode.
+
+
+Evaluating Code
+===============
+When you're ready to process the code you've entered, use
+the following keys to pass the code to the listener.
+
+**Note:** *This will stop the editor from running. You will
+have to restart it manually after evaluating code.*
+
++-----+--------------------------------------------+
+| Key | Used for                                   |
++=====+============================================+
+|  e  |  Evaluate current block                    |
++-----+--------------------------------------------+
+|  E  |  Evaluate all blocks                       |
++-----+--------------------------------------------+
+
+
+Loading And Saving
+==================
+Blocks are stored in the image file. If you are using a VM
+that supports the files' vocabulary, you can use the following
+keys to import and export the blocks to regular files.
+
++-----+--------------------------------------------+
+| Key | Used for                                   |
++=====+============================================+
+|  {  |  Load the contents of "blocks"             |
++-----+--------------------------------------------+
+|  }  |  Store all blocks into "blocks"            |
++-----+--------------------------------------------+
+
+
+-----------
+Misc. Notes
+-----------
+Retro's blocks are 1600 cells in length each. They are displayed as
+80 columns and 20 rows.
+
+}doc

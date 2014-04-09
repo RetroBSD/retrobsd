@@ -1,0 +1,320 @@
+#!/bin/sh -v
+FLAVOR=BSD
+FULL_SUITE="dhry2reg whetstone-double syscall pipe context1 spawn execl \
+	fstime fsbuffer fsdisk shell short int long float double arithoh \
+	C dc hanoi"
+ID="Run:4.1.0 -- 19970824";
+version="4.1.0"
+export FLAVOR
+TIME="        %e real        %U user        %S sys"
+export TIME
+UNAME="hostname"
+
+HOMEDIR=/share/unixbench
+BINDIR=${HOMEDIR}
+TMPDIR=${HOMEDIR}/tmp
+RESULTDIR=${HOMEDIR}/results
+TIMEACCUM=${RESULTDIR}/times
+TESTDIR=${HOMEDIR}/testdir
+export BINDIR TMPDIR RESULTDIR PATH TESTDIR TIMEACCUM
+
+cat ${BINDIR}/unixbench.logo 
+rm -f ${TIMEACCUM}
+echo "kill -9 $$" > ${TMPDIR}/kill_run ; chmod u+x ${TMPDIR}/kill_run
+
+date=`date`
+TMPTIMES=${TMPDIR}/$$.tmp
+LOGFILE=${RESULTDIR}/log
+REPORTLOG=${RESULTDIR}/report
+if [ -w ${RESULTDIR}/log ]; then
+	if [ -w ${RESULTDIR}/log.accum ]; then
+		cat ${RESULTDIR}/log >> ${RESULTDIR}/log.accum
+		rm ${RESULTDIR}/log
+	else
+		mv ${RESULTDIR}/log ${RESULTDIR}/log.accum
+	fi
+fi
+echo "|  BYTE UNIX Benchmarks (Version $version)" >>$LOGFILE
+echo "|  System --" `$UNAME` >>$LOGFILE
+echo "|  Start Benchmark Run: `date`" >>$LOGFILE
+echo "|  " `who | wc -l` "interactive users." >>$LOGFILE
+echo "|   13:11:51 up  3:05,  3 users,  load average: 0.01, 0.03, 0.06" >> $LOGFILE
+echo "|  `ls -l /bin/sh`" >> $LOGFILE
+echo "|  `file /bin/sh`" >> $LOGFILE
+echo "|  `df . | tail -1`" >> $LOGFILE
+iter=${iterations-10}
+short=`expr \( $iter + 1 \) / 3`
+if [ "$short" -lt 1 ]; then
+	short=1
+fi
+longloop=
+shortloop=
+while [ $iter -gt 0 ]; do
+	
+	longloop="$iter $longloop"
+	if [ "$iter" -le "$short" ]; then
+		shortloop="$iter $shortloop"
+	fi
+	iter=`expr $iter - 1`
+done 
+
+for bench in ${FULL_SUITE}
+do				
+	
+	
+	prog=${BINDIR}/$bench		
+	paramlist="#"			
+	testdir=$TESTDIR		
+	prepcmd=			
+	parammsg=
+	repeat=$shortloop
+	stdout="$LOGFILE"
+	stdin=
+	options=
+	logmsg=
+	cleanopt="-l $TMPTIMES"
+	bgnumber=
+	trap "${SCRPDIR}/cleanup.sh -L $LOGFILE -a; exit" 1 2 3 15
+	echo >>$LOGFILE
+	case $bench in
+	dhry2reg)
+		options=${dhrytime-10}
+		logmsg="Dhrystone 2 using register variables"
+		repeat=$longloop
+		;;
+
+	whetstone-double)
+		cleanopt="-w $TMPTIMES"
+		logmsg="Double-Precision Whetstone"
+		repeat=$longloop
+		;;
+
+	syscall)
+		repeat=$longloop
+		options=${systime-10}
+		logmsg="System Call Overhead"
+		;;
+
+	context1)
+		repeat=$longloop
+		options=${systime-10}
+		logmsg="Pipe-based Context Switching"
+		;;
+
+	pipe)   
+		repeat=$longloop
+		options=${systime-10}
+		logmsg="Pipe Throughput"
+		;;
+
+	spawn)  
+		options=${systime-30}
+		logmsg="Process Creation"
+		;;
+
+	execl)  
+		options=${systime-30}
+		logmsg="Execl Throughput"
+		;;
+
+	fstime) 
+		logmsg='Filesystem Throughput 1024 bufsize 2000 maxblocks'
+		where=${where-${TMPDIR}}
+		cleanopt="-f $TMPTIMES"
+		options='$param '"$where"
+		paramlist=${seconds:-30}
+		parammsg='Test Time: $param secs'
+		;;
+
+	fsbuffer) 
+		logmsg='Filesystem Throughput 256 bufsize 500 maxblocks'
+		where=${where-${TMPDIR}}
+		cleanopt="-f $TMPTIMES"
+		options='$param '"$where"
+		paramlist=${seconds:-30}
+		parammsg='Test Time: $param secs'
+		;;
+
+	fsdisk) 
+		logmsg='Filesystem Throughput 4096 bufsize 8000 maxblocks'
+		where=${where-${TMPDIR}}
+		cleanopt="-f $TMPTIMES"
+		options='$param '"$where"
+		paramlist=${seconds:-30}
+		parammsg='Test Time: $param secs'
+		;;
+
+	shell)
+		logmsg='Shell Scripts ($param concurrent)'
+		prog="looper ${looper-60} multi.sh"
+		stdout=/dev/null
+		if [ -n "${JUSTINDEX-}" ]; then
+			paramlist=${background-"8 "}
+		else
+			paramlist=${background-"1 8 16 "}
+		fi
+		parammsg='$param concurrent background processes'
+		bgnumber='$param'
+		cleanopt="-m $TMPTIMES"
+		;;
+
+
+	C)  
+		logmsg="C Compiler Throughput"
+		prog="looper ${looper-60} ${CC} cctest.c"
+		stdout=/dev/null
+		repeat="$shortloop"
+		cleanopt="-m $TMPTIMES"
+		rm -f ${TESTDIR}/cctest.o ${TESTDIR}/a.out
+		;;
+
+	arithoh)
+		logmsg="Arithoh"
+		options=${arithtime-10}
+		;;
+
+	short|int|long|float|double)
+		logmsg="Arithmetic Test (type = $bench)"
+		options=${arithtime-10}
+		;;
+
+	dc)  
+		logmsg="Dc: sqrt(2) to 99 decimal places"
+		prog="looper ${looper-30} dc"
+		stdin=dc.dat
+		stdout=/dev/null
+		cleanopt="-m $TMPTIMES"
+		;;
+
+	hanoi)  
+		options=${systime-20}
+		stdout=/dev/null
+		logmsg="Recursion Test--Tower of Hanoi"
+		parammsg='$param Disk Problem:'
+		;;
+
+	perlbench)  
+		cleanopt="-t $TMPTIMES"
+		options=${systime-2}
+		logmsg="PerlBench"
+		;;
+
+	select)  
+		cleanopt="-t $TMPTIMES"
+		options=
+		logmsg="select()"
+		;;
+
+	*)
+		${BINDIR}/cleanup.sh -L $LOGFILE -r \
+"run: unknown benchmark \"$bench\" \n Known benchmarks are: \n $FULL_SUITE" -a
+		exit 1
+		;;
+	esac
+
+
+    for param in $paramlist
+    do   
+      param=`echo $param | sed 's/_/ /g'` 
+      eval Lmsg='"'$logmsg'"'
+      eval opt='"'$options'"'		 
+      eval prep='"'$prepcmd'"'		 
+      eval bg='"'$bgnumber'"'		 
+      rm -f $TMPTIMES			 
+
+      echo "TEST|$Lmsg" >>$TMPTIMES
+      echo "FLAVOR|${FLAVOR}" >>$TMPTIMES
+      if [ "$runoption" != 'Q' ]
+      then
+	      echo ""
+	      if [ $FLAVOR = "SysV" ]
+		 then echo "$Lmsg \c"
+		 else echo -n "$Lmsg "
+	      fi
+	
+      fi
+      for i in $repeat			 
+      do  
+          if [ "$runoption" != 'D' ]  
+	  then
+	    
+            trap "${BINDIR}/cleanup.sh -L $LOGFILE -i $i $cleanopt -a; exit" 1 2 3 15
+	  else
+            trap "exit" 1 2 3 15
+	  fi 
+	  
+	  sync; sleep 1; sync; sleep 2
+	  
+          if [ "$runoption" != Q ]; then
+		if [ $FLAVOR = "SysV" ]; then
+	        	echo " $i\c"      
+		else
+			echo -n " $i"
+		fi
+	  fi
+	  pwd=`pwd`                     
+	  cd $testdir                   
+	  if [ "${runoption-}" = V ]; then
+		echo
+		echo "BENCH COMMAND TO BE EXECUTED:"
+		echo "$prog $opt"
+	  fi
+
+	  
+	  if [ -n "$prep" ]; then
+		$prep 2>&1 >>$stdout 
+	  fi
+          if [ -z "${stdin-}" ]; then
+		
+		/usr/bin/time $prog $opt $bg 2>>$TMPTIMES >>$stdout
+          else
+		
+		/usr/bin/time $prog $opt $bg <$stdin 2>>$TMPTIMES >>$stdout
+          fi 
+	  cd $pwd                    
+          status=$?                  
+          if [ $status != 0 ]; then 
+           if [ -f $TMPTIMES ]; then 
+                cp $TMPTIMES ${TMPDIR}/save.$bench.$param
+            ${SCRPDIR}/cleanup.sh -L $LOGFILE -i $i $cleanopt -r \
+	       "run: bench=$bench param=$param fatalstatus=$status" -a
+           else
+            ${SCRPDIR}/cleanup.sh -L $LOGFILE -r \
+	       "run: bench=$bench param=$param fatalstatus=$status" -a
+           fi 
+           exit 
+          fi 
+      done 
+      if [ "$runoption" != D ]; then
+        ${SCRPDIR}/cleanup.sh -L $LOGFILE $cleanopt 
+						 
+						 
+      fi
+    done 
+
+    case $bench in
+      C)
+      rm -f ${TESTDIR}/cctest.o ${TESTDIR}/a.out
+      ;;
+
+      fstime | fsbuffer | fsdisk)
+      sync; sleep 1; sync; sleep 1
+      ;;
+    esac
+    if [ "$runoption" != Q ]; then
+       echo
+    fi
+done 
+echo >>$LOGFILE
+echo "End Benchmark Run: `date`" >>$LOGFILE
+echo " " `who | wc -l` "interactive users." >>$LOGFILE
+
+${SCRPDIR}/report.sh $LOGFILE > $REPORTLOG 
+${SCRPDIR}/index.sh ${SCRPDIR}/index.base $LOGFILE >> $REPORTLOG
+if [ "$runoption" != Q ]; then
+	echo
+	echo "=============================================================="
+	cat $REPORTLOG
+fi
+
+exit 0

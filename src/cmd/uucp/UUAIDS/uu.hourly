@@ -1,0 +1,10 @@
+: Hourly uucp script
+
+: uulog; : uulog no longer needed
+
+: hourly poll of certain sites
+: /usr/sbin/uucico -r1 -smcnc
+: /usr/sbin/uucico -r1 -sillia
+
+: attempt to ship remaining files
+/usr/sbin/uucico -r1

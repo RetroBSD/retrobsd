@@ -1,0 +1,48 @@
+*This is a random collection of notes and snippits related to things I'm working on*
+
+== Dealing with Cell Sizes ==
+
+In 11.2 new queries have been added to allow for checking the endian type amd bits
+per cell. A standard system will be 32-bit, little endian, but with the recent
+expansions into embedded realms, this should help ensure that images run only o
+compatible Ngaro implementations.
+
+It would be useful to allow for code to be conditionally compiled based on bit size
+and endian type. A possibility is to draw frm the doc{ style blocks.
+
+
+chain: cell'
+  : size  ( -n )  -13 5 out wait 5 in dup 0 = [ drop 32 ] ifTrue ;
+  : bits{  ( n"- )
+      size <> [ repeat getToken "}" compare if; again ] ifTrue ;
+  : }  ( - )  ; immediate
+;chain
+
+
+With this, the following will work:
+
+
+with cell'
+
+32 bits{
+... code if ^cell'size = 32 ...
+}
+
+16 bits{
+... code if ^cell'size = 16 ...
+}
+
+
+== Image Naming ==
+
+retroImage
+
+Followed by an optional suffix referring to bits per cell:
+
+  16  for 16-bit
+  64  for 64-bit
+
+And a final optional suffix for endian:
+
+  BE  for big endian
+

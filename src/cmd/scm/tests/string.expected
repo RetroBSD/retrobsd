@@ -1,0 +1,20 @@
+#\a --> #\a
+#\A --> #\A
+#\1 --> #\1
+#\9 --> #\9
+#\( --> #\(
+#\space --> #\space
+#\space --> #\space
+#\newline --> #\newline
+#\newline --> #\newline
+#\\r --> #\\r
+#\\t --> #\\t
+#\\b --> #\\b
+#\\f --> #\\f
+#\\033 --> #\\033
+"qwerty\001\002\003\004\\\"\n\r\t\b\f" --> "qwerty\001\002\003\004\\\"\n\r\t\b\f"
+"Hello,\nWorld!" --> "Hello,\nWorld!"
+(string? "abc") --> #t
+(string? 1) --> ()
+(make-string 5 #\a) --> "aaaaa"
+(string #\s #\c #\h #\e #\m #\e) --> "scheme"

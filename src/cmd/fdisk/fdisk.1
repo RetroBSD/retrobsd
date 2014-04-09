@@ -1,0 +1,54 @@
+.\" Copyright 2012 Matt Jenkins (matt@majenko.co.uk
+.TH FDISK 8 "03 Oct 2012" "RetroBSD" "RetroBSD User's Manual"
+.SH NAME
+fdisk \- partition editor for RetroBSD
+.SH SYNOPSIS
+.B fdisk 
+.RB -p 
+.RB /dev/rdX
+.sp
+.B fdisk 
+.RB \-d 
+.RB /dev/rdX 
+.RB num
+.sp
+.B fdisk 
+.RB [ \-w ] 
+.RB [ \-n ] 
+.RB /dev/rdX 
+.RB [ size ]
+.sp
+.B fdisk 
+.RB -a 
+.RB /dev/rdX 
+.RB num
+
+.SH DESCRIPTION
+
+fdisk allows the inspection, deletion, creation and activation of partitions within a RetroDisk device.  All operations are performed on the block device for a RetroDisk device, /dev/rdX.  An operation of -p, -d, -n or -a and a device name must be provided:
+
+-p Display the current partition table.
+
+-d Delete the partition specified as a number between 1 and 4
+
+-n Create a new partition.  The partition is placed after the last partition already on the device (space permitting) and is either the size specified as a number of kilobytes, or it will fill the entire rest of the free space on the disk.  The optional flag -w can be specified to wipe the current partition table to create a new one.
+
+-a Toggle the active flag on a partition.  The active flag is used at boot time to decide which partition should be booted from, and which should be used as swap.
+
+.SH DEVICES
+
+The devices are always the block devices for the RetroDisk system (/dev/rdX).  Other devices will appear to work, but fdisk will just write a master boot record regardless and will corrupt the existing filesystem on the device.
+
+.SH BUGS
+
+There is no protection on the system.  An MBR will attempt to be written to whatever device you specify regardless of the device type.
+
+There are no warnings or confirmations.  Things just happen.
+
+.SH SEE ALSO
+
+.BR rdprof
+
+.SH AVAILABILITY
+
+fdisk is available in the partition branch of the RetroBSD SVN tree.

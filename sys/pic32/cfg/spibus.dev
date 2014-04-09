@@ -1,0 +1,3 @@
+always
+    file spi_bus.o
+end always

@@ -1,0 +1,6 @@
+Retro's interpreter is started automatically. Once you see the "ok" prompt, you can proceed
+to enter code:
+
+: f ( $$$-$ ) [ ^strings'prepend ] sip ^strings'prepend ^strings'append tempString ;
+"Rosetta" "Code" ":" f
+

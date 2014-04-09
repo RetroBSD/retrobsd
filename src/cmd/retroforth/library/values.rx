@@ -1,0 +1,75 @@
+( Values for Retro                                          )
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+( Copyright [c] 2009 - 2011, Charles Childers               )
+( License: ISC                                              )
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+
+chain: values'
+{{
+  variable state
+  : (value) @state [ ! ] [ @ ] if state off ;
+---reveal---
+  : .value .data ` (value) ;
+  : to     state on ;
+  : value  create 0 , &.value reclass ;
+}}
+;chain
+
+doc{
+:Title: values'
+:Author: Charles Childers
+:Version: 1.0
+
+values'
+=======
+A value is a variable that returns the stored value when used. This
+library provides an implementation for Retro.
+
+
+Loading
+=======
+The following should suffice:
+
+::
+
+  needs values'
+
+
+Examples
+========
+
+::
+
+  with values'
+
+  value foo
+
+  100 to foo
+
+  foo foo + .s
+
+  50 to foo
+  foo foo + .s
+
+
+Functions
+=========
+
++----------+-----------+-------------------------+
+| Name     | Stack     | Usage                   |
++==========+===========+=========================+
+| .value   | | a-n     | | Return a stored value |
+|          | | *or*    | |                       |
+|          | | na-     | | Update a stored value |
++----------+-----------+-------------------------+
+| to       | ```-``    | Switch value to update  |
+|          |           | mode                    |
++----------+-----------+-------------------------+
+| value    | "-        | Create a new value      |
++----------+-----------+-------------------------+
+
+
+Data Structures
+===============
+None.
+}doc

@@ -1,0 +1,7 @@
+( get the address )
+variable a
+&a
+
+( set the address )
+variable b
+100 @last !d->xt

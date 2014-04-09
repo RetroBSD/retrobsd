@@ -1,0 +1,26 @@
+( A Puzzle involving Math                       )
+( Or more specifically, the Pythagorean Theorem )
+( "For a right triangle with legs a and b and   )
+( hypotenuse c:  a^2 + b^2 = c^2                )
+
+
+needs math'
+
+: toIndex ( c-n )
+  'a - 1+ ;
+
+: h 'h toIndex ;
+: o 'o toIndex ;
+: f 'f toIndex ;
+: c 'c toIndex ;
+
+: ^2 ( n-n )  2 pow ;
+
+: toAlpha  ( n-c )
+  'a 1- + ;
+
+: x1 h ^2 o ^2 + ^math'squareRoot     toAlpha putc ;
+: x2 h ^2 f ^2 + ^math'squareRoot 2 / toAlpha putc ;
+: x3 5 ^2 c ^2 - ^math'squareRoot     toAlpha putc ;
+
+: solve  x1 x2 x3 ;

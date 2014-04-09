@@ -1,0 +1,8 @@
+{{
+  variable fid
+---reveal---
+  : head ( $n- )
+    swap ^files':R ^files'open !fid
+    cr [ @fid ^files'readLine puts cr ] times
+    @fid ^files'close drop ;
+}}

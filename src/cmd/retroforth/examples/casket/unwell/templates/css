@@ -1,0 +1,7 @@
+body { background: #222; color: #ccc; }
+a { text-decoration: none; color: #ccc; border-bottom: 1px solid #ccc; }
+#nav { position: absolute; top: 0; right: 10px; }
+#nav a { text-decoration: none; border: 1px solid black; padding: 3px 10px; background: #444; color: #fff; border-radius: 4px; }
+#nav a:hover { background: #777; color: #fff; }
+#output { background: #444; position: relative; color: #fff; border-radius: 4px; width: 800px; }
+tt { white-space: pre; }

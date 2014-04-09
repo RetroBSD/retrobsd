@@ -1,0 +1,78 @@
+.TH retro 1 "February 2011" "" "Retro Language"
+
+.SH NAME
+.P
+retro - a stack-based language
+
+.SH SYNOPSIS
+.P
+retro [options]
+
+.SH DESCRIPTION
+.P
+Retro is a concatenative, stack-based language with roots in Forth.
+
+.P
+.B
+--image
+.I
+filename
+.RS
+Use
+.I
+filename
+as the image file to load/save
+.RE
+
+.P
+.B
+--shrink
+.RS
+Only save the used portion of the image. This reduces file size significantly.
+.RE
+
+.P
+.B
+--with
+.I
+filename
+.RS
+Add
+.I
+filename
+to the input stack
+.RE
+
+.P
+.B
+--stats
+.RS
+Display statistics on opcodes processed upon exit
+.RE
+
+.SH REPORTING BUGS
+.P
+Send bug reports to Charles Childers <crc@rx-core.org>
+
+.SH COPYRIGHT
+.P
+Copyright (c) 2008 - 2011,
+Charles Childers, Luke Parrish, Marc Simpson, Jay Skeer,
+JGL, Marc Simpson, Greg Copeland, Aleksej Saushev,
+Foucist, Erturk Kocalar, Kenneth Keating
+
+.P
+Permission to use, copy, modify, and/or distribute this software for
+any purpose with or without fee is hereby granted, provided that the
+above copyright notice and this permission notice appear in all
+copies.
+
+.P
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL
+WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE
+AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
+DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
+PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.

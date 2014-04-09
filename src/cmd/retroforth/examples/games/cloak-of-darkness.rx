@@ -1,0 +1,267 @@
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+( embalm - interactive fiction                                                )
+( copyright [c] 2011, Charles Childers                                        )
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+
+needs array'
+needs struct'
+needs enum'
+needs linkedList'
+
+with struct'
+
+
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+( At a fundamental level, everything derives from a single generic "object"   )
+( structure. This contains a lot of fields, most of which aren't relevant to  )
+( all of the objects. So there's some waste here, but it simplfies things     )
+( overall.                                                                    )
+(                                                                             )
+( The objects have a .type field. We use the enum' library to create a series )
+( of enumerated data types. Each object gets tagged with a type, so we can    )
+( enumerate things later. And functions can use this to prevent execution on  )
+( objects that they do not support.                                           )
+(                                                                             )
+( When you create an object, you should provide a short name, and a detailed  )
+( description.                                                                )
+(                                                                             )
+( So:                                                                         )
+(                                                                             )
+(   object foo                                                                )
+(   "Foo" nameOf foo                                                          )
+(   "This is a small brass key." describes foo                                )
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+
+1 ^enum'enum| ROOM ITEM |
+
+{ 1 field .description
+  1 field .shortDescription
+  1 field .type
+  1 field .onLook
+  1 field .onEntry
+  1 field .location
+  1 field .visited
+  1 field .toNorth
+  1 field .toSouth
+  1 field .toEast
+  1 field .toWest
+  1 field .onNorth
+  1 field .onSouth
+  1 field .onEast
+  1 field .onWest
+  1 field .postDescription
+  1 field .preDescription
+  1 field .onRead
+} object
+
+: describes ( $"- )
+  keepString ' .description ! ;
+
+: nameOf  ( $"- )
+  keepString ' .shortDescription ! ;
+
+
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+( Creation of Rooms                                                           )
+(                                                                             )
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+
+: room ( "- )
+  object ROOM @last @d->xt .type ! ;
+
+: invertDirection ( a$-a )
+  [ "north" compare ] [ .toSouth ] whend
+  [ "south" compare ] [ .toNorth ] whend
+  [ "east"  compare ] [ .toWest  ] whend
+  [ "west"  compare ] [ .toEast  ] whend
+  drop ;
+
+: is ( a""""- )
+  getToken invertDirection getToken drop ' swap ! ;
+
+
+
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+( Creation of items                                                           )
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+
+^linkedList'new: items
+
+: item ( "- )
+  object ITEM @last @d->xt .type !
+  @last @d->xt items ^linkedList'b.add ;
+
+: contains ( a"- )
+  ' .location ! ;
+
+: has? ( a-af )
+  dup .location @ 0 = ;
+
+: displayItem ( a- )
+  dup .shortDescription @ swap xt->d d->name "(%s) - %s\n" puts ;
+
+: inventory ( - )
+  "\nYou are carrying:\n" puts
+  items [ ^linkedList'.value @ has? [ displayItem ] [ drop ] if ] ^types'LIST each@ ;
+
+
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+( Game Play Loop                                                              )
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+
+variable at
+
+: invalidDirection ( - )
+  "You can not go in that direction.\n" puts ;
+
+: moveNorth ( - )
+  @at .onNorth @
+  [ @at .onNorth @ do @at .toNorth @ 0; !at ]
+  [ @at .toNorth @ 0 <>
+    [ @at .toNorth @ !at ]
+    [ invalidDirection   ] if ] if ;
+
+: moveSouth ( - )
+  @at .onSouth @
+  [ @at .onSouth @ do @at .toSouth @ 0; !at ]
+  [ @at .toSouth @ 0 <>
+    [ @at .toSouth @ !at ]
+    [ invalidDirection   ] if ] if ;
+
+: moveEast ( - )
+  @at .onEast @
+  [ @at .onEast @ do @at .toEast @ 0; !at ]
+  [ @at .toEast @ 0 <>
+    [ @at .toEast @ !at ]
+    [ invalidDirection   ] if ] if ;
+
+: moveWest ( - )
+  @at .onWest @
+  [ @at .onWest @ do @at .toWest @ 0; !at ]
+  [ @at .toWest @ 0 <>
+    [ @at .toWest @ !at ]
+    [ invalidDirection   ] if ] if ;
+
+: describeCurrentRoom ( - )
+  @at .shortDescription @ puts 2cr
+  [ @at .preDescription @ 0; do ] do
+  @at .visited @
+      [ @at .description @ puts 2cr -1 @at .visited ! ] ifFalse
+  [ @at .postDescription @ 0; do ] do ;
+
+: play ( - )
+  clear
+  repeat
+  describeCurrentRoom
+  "> " puts getToken
+  [ [ "n" compare ] [ moveNorth ] whend
+    [ "s" compare ] [ moveSouth ] whend
+    [ "e" compare ] [ moveEast  ] whend
+    [ "w" compare ] [ moveWest  ] whend
+    [ "l" compare ] [ @at .description @ puts ] whend
+    [ "i" compare ] [ inventory ] whend
+    [ "drop" compare ] [ getToken find [ @d->xt .location @at swap ! ] [ drop ] if ] whend
+    [ "take" compare ] [ getToken find [ @d->xt .location 0 swap ! ]
+                                            [ "\nI don't see that here.\n" puts ] if ] whend
+    [ "x" compare ]
+      [ getToken find
+        [ @d->xt dup .location @ [ @at = ] [ 0 = ] bi or
+          [ .description @ puts cr ] [ drop "\nI don't see that here.\n" puts ] if
+      ] [ "\nI don't see that here\n" puts ] if ] whend
+
+    [ "read" compare ] [ getToken find
+        [ @d->xt dup .location @ [ @at = ] [ 0 = ] bi or
+          [ .onRead @ dup [ do ] [ "You can't read this" puts ] if ] [ drop "\nI don't see that here.\n" puts ] if
+      ] [ "\nI don't see that here\n" puts ] if ] whend
+    [ "quit" compare ] [ "\n\nThanks for playing!\n\n" puts bye ] whend
+  ] do
+  2cr
+  again ;
+
+
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+( A sample game based on Cloak of Darkness                                    )
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+
+variable blunders
+
+room foyer
+room bar
+room cloakroom
+item cloak
+item hook
+item message
+
+( ==[ cloak ]================================================================ )
+"velvet cloak" nameOf cloak
+
+"A handsome cloak, of velvet trimmed with statin, and slightly splattered\n
+raindrops. Its blackness is so deep that it almost seems to suck light from\n
+the room." describes cloak
+
+
+
+( ==[ cloak ]================================================================ )
+"brass hook" nameOf hook
+
+"It's just a small brass hook. You could probably hang a cloak on
+it." describes hook
+
+
+( ==[ message ]============================================================== )
+
+"message" nameOf message
+
+"There appears to be something scrawled in the sawdust on the floor." describes
+message
+
+[ cloak .location @ cloakroom =
+  [ @blunders 2 >= [ "\nThe message reads 'You win!'\n\n" puts bye ]
+                   [ "\nThe message is heavily smudged due to your blundering, but you can make\nout the words 'You lose!'\n\n" puts bye ] if ]
+  [ "It's too dark to read anything here.\n" puts ] if ] message .onRead !
+
+
+( ==[ foyer ]================================================================ )
+"The Foyer" nameOf foyer
+
+"You are standing in a spacious hall, splendidly decorated in red and gold\n
+with glittering chandeliers overhead. The entrance from the street is to the\n
+north, and there are doorways south and west." describes foyer
+
+[ "You've only just arrived, and besides, the weather outside seems to be\n
+getting worse.\n" puts ] foyer .onNorth !
+
+foyer is north of bar
+foyer is east of cloakroom
+
+foyer !at
+
+( ==[ cloakroom ]============================================================ )
+"Cloakroom" nameOf cloakroom
+
+"The walls of this small room were clearly once lined with hooks, though now\n
+only one remains. The exit is a door to the east." describes cloakroom
+
+cloakroom is west of foyer
+
+cloakroom contains hook
+
+
+( ==[ bar ]================================================================== )
+"Foyer Bar" nameOf bar
+
+"The bar, much rougher than you'd have guessed after the opulence of of the\n
+foyer to the north, is completely empty.\n\n
+There seems to be some sort of message scrawled in the sawdust on the
+floor." describes bar
+
+[ cloak .location @ cloakroom <> [ "It is very dark in here.\n\n" puts ] ifTrue ]
+bar .postDescription !
+
+[ blunders ++ ] foyer .onEast !
+[ blunders ++ ] foyer .onWest !
+[ blunders ++ ] foyer .onSouth !
+
+bar is south of foyer
+
+bar contains message

@@ -1,0 +1,68 @@
+Corpse is a weblog written using Retro and the Casket framework. It's the
+largest thing using Casket at present, and has been running on my server
+for quite a while.
+
+These notes are a work in progress. Expect them to be somewhat incomplete;
+I will try to clarify things and expand them over time.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Building:
+
+1) Setup the Retro source somewhere
+2) Compile the C vm ("make" in the Retro directory)
+3) Come back to this directory
+4) Modify the path in Makefile to point to the directory Retro lives in
+5) Adjust the paths in "corpse.rx" to match the directory you will deploy
+   to
+6) Run "make"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Deploying:
+
+1) Configure your httpd server to support CGI
+2) Make a directory somewhere to hold things
+3) In this directory, copy the retroImage you built, the "templates",
+   and create a directory named "articles"
+4) From the Retro source tree, copy (and rename) the "vm/retro.py"
+   to your "cgi-bin" (or equivilent) directory.
+5) Edit the copy to point to the retroImage. You will need to use
+   the full path.
+6) Create an initial article ("articles/1")
+7) Create a "current" file holding the most recent article id
+
+Assuming that Retro is in "~/retro", Corpse is in "~/corpse", and
+your CGI-BIN is in "~/cgi-bin" and that you are using "jpico" as
+your editor:
+
+  cd ~/retro
+  make
+  cd ~/corpse
+  jpico corpse.rx     ### Make edits to paths
+  make
+  cd
+  mkdir corpse_blog
+  cd corpse_blog
+  cp ~/corpse/retroImage .
+  cp -r ~/corpse/templates .
+  mkdir articles
+  touch articles/1
+  jpico articles/1    ### Edit the article
+  cat >current
+  1^d^d
+  cd ~/cgi-bin
+  cp ~/retro/vm/retro.py corpse
+  jpico corpse        ### Make edits to paths
+
+This example session does not do the setup of CGI support (which will
+vary, depending on your server and OS). Assuming that all goes well, you
+should be able to view the first article.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Notes On Article Formats:
+
+All articles should be structured as follows:
+
+<p><b>yyyy-mm-dd</b></p>
+<h2>article title</h2>
+
+... rest of the article ...
+
+If you do not have the header setup this way, some of the views will
+fail to work properly (if at all).

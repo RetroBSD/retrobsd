@@ -1,0 +1,18 @@
+Since flow control is handled using combinators, we simply define a new one:
+
+: 4wayIf ( flag flag both neither first second )
+  heap [ cons &cons dip [ [ cons ] dip ] dip rot ] preserve
+  [ do [ -1 = ] bi@  and ] [ 2drop do drop do ] when
+  [ do [  0 = ] bi@  and ] [ 2drop do nip do  ] when
+  [ do 0 = swap -1 = and ] [ drop nip  do drop do ] when
+  [ do -1 = swap 0 = and ] [ drop nip  do nip do  ] when
+  drop 2drop ;
+
+This is fairly noisy in terms of stack manipulations, but its
+usage is clean and consistent with the rest of Retro:
+
+: test
+-1 -1 [ 1 ] [ 2 ] [ 3 ] [ 4 ] 4wayIf  .s drop
+ 0  0 [ 1 ] [ 2 ] [ 3 ] [ 4 ] 4wayIf  .s drop
+-1  0 [ 1 ] [ 2 ] [ 3 ] [ 4 ] 4wayIf  .s drop
+ 0 -1 [ 1 ] [ 2 ] [ 3 ] [ 4 ] 4wayIf  .s drop ;

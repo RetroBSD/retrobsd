@@ -1,0 +1,81 @@
+( rancid, an irc log browser ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+needs casket'
+with casket'
+
+( support code ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+: LOGS      ( -$ ) casket:root "logs/"  ^strings'append ;
+
+: commonHeader ( - )
+  Content-type: text/html
+  "header.html" withTemplate ;
+
+: commonFooter ( - )
+  "footer.html" withTemplate ;
+
+: navbar
+  casket:options tempString
+  dup ', swap 2 + !
+  dup ', swap 5 + !
+  "20" ^strings'prepend "script.erx" withTemplate ;
+
+( paths ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+{{
+  2 elements content lines
+
+  : clean ( $- )
+    withLength
+    [ dup @ 10 13 within [ 999 swap &! sip ] ifTrue 1+ ] times drop ;
+
+  : getLine ( $-$ )
+    999 ^strings'splitAtChar drop lines ++ ;
+
+  : loadSourceData ( $- )
+    here swap ^files'slurp here !content heap +! 32 , 0 ,
+    @content clean ;
+
+  : countLines ( $- )
+    [ getLine dup 1 <> ] while drop ;
+
+  : prepare ( $- )
+    0 !lines heap [ loadSourceData @content countLines ] preserve lines -- ;
+
+  : display   ( $- )
+    "<tr>" puts
+    32 ^strings'splitAtChar "<td>%s</td>" puts
+    32 ^strings'splitAtChar 1+ ^strings'chop ^strings'chop "<td>%s</td><td>%s</td>" puts
+    "</tr>\n" puts ;
+
+  : dumpLines ( - )
+    @lines [ @content ^files'readLine display ] times ;
+---reveal---
+  : /log ( - )
+    commonHeader
+    navbar
+    LOGS casket:options ^strings'append
+    heap [
+      dup keepString [ prepare ] dip
+      ^files':R ^files'open !content
+      "<table id='log' border='1' class='docutils'>\n" puts
+        dumpLines
+      "\n</table>\n" puts
+      @content ^files'close drop
+    ] preserve
+    commonFooter ;
+}}
+
+: /css
+  Content-type: text/css
+  "rancid.css" withTemplate ;
+
+: /index
+  commonHeader
+    "default.erx" withTemplate
+  commonFooter ;
+
+( Casket Configuration ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+[ /index ] is /
+[ ( -$ ) "/path/to/rancid/" ] is casket:root
+[ ( -$ ) "http://url/to/rancid" ] is casket:url
+&dispatch is boot
+
+.s save bye

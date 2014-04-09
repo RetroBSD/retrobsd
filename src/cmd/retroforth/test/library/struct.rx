@@ -1,0 +1,42 @@
+needs assertion'
+needs struct'
+
+with assertion'
+
+[ [ "passed" ] [ "failed" ] if "%s\n" puts ] is postCond
+
+with struct'
+
+{
+  1 field .a
+  2 field .b
+  3 fields 1 .c 3 .d 5 .e
+} foo
+
+foo bar
+
+
+: a0
+  "The following are tested implicitly:\n" puts
+  "  {  }  field  fields\n" puts
+  "The code laid down by them will be used by the remaining tests.\n" puts ;
+
+: a1
+  "Testing size : " puts
+  &foo size 12 assert= ; assertion
+
+: a2
+  "Testing clone : " puts
+  &foo clone here swap - 12 assert= ; assertion
+
+: a3
+  "Testing field access : " puts
+  1 bar .a !
+  2 bar .c !
+  bar .a @ 1 assert=
+  bar .c @ 2 assert= ; assertion
+
+: go
+  cr a0 a1 a2 a3 bye ;
+
+go

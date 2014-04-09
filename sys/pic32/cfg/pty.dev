@@ -1,0 +1,4 @@
+always
+    file tty_pty.o
+    define PTY_ENABLED YES
+end always

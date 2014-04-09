@@ -1,0 +1,47 @@
+( Math Extensions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+
+chain: math'
+{{
+  : closer ( sg-sgn ) 2over / over - 2 / ;
+  : loop   ( sg-sr  ) repeat closer 0; + again ;
+---reveal---
+  : squareRoot ( s-r ) 1 loop nip ;
+}}
+
+: gcd ( ab-n ) [ tuck mod dup ] while drop ;
+: lcm ( ab-n ) 2over gcd [ * ] dip / ;
+: divisor? ( ab-f ) mod 0 = ;
+: */  ( abc-d )  [ * ] dip / ;
+: even?  ( n-f )  2 mod 0 =  ;
+: odd?   ( n-f )  2 mod 0 <> ;
+;chain
+
+doc{
+Overview
+========
+This library provides support for additional mathmatic operations not provided
+by the core Retro language.
+
+Functions
+=========
++------------+-------+-----------------------------------------------------+
+| Function   | Stack | Description                                         |
++============+=======+=====================================================+
+| squareRoot | x-n   | Find an (approximate) square root for a given value |
++------------+-------+-----------------------------------------------------+
+| gcd        | xy-n  | Find the greatest common denominator for two values |
++------------+-------+-----------------------------------------------------+
+| lcm        | xy-n  | Find the least common multiplier for two values     |
++------------+-------+-----------------------------------------------------+
+| divisor?   | ab-f  | Tests to see if b is a divisor of a. Returns a flag.|
++------------+-------+-----------------------------------------------------+
+| ``*/``     | abc-d | Multiply a by b, then divide bye c to get d         |
++------------+-------+-----------------------------------------------------+
+| even?      | n-f   | Returns a flag indicating whether or not a number is|
+|            |       | true                                                |
++------------+-------+-----------------------------------------------------+
+| odd?       | n-f   | Returns a flag indicating whether or not a number is|
+|            |       | false                                               |
++------------+-------+-----------------------------------------------------+
+}doc
+

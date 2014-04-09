@@ -1,0 +1,4 @@
+When run, this will display the address stack depth until it reaches the max depth. Once
+the address stack is full, Retro will crash.
+
+: try -6 5 out wait 5 in putn cr try ;

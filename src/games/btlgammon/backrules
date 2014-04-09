@@ -1,0 +1,19 @@
+To play backgammon, type the numbers of the points from which pieces are
+to be moved. Thus, if the roll is '3,5', typing '2 6' will move a piece
+from point 2 three spaces to point 5, and a piece from point 6 forward to
+point 11.  If the moves must be made in the opposite order, the first
+character typed must be a minus ('-'). Thus, typing '-2 6' moves the
+piece on point 2 by 5, and the piece on point 6 by 3.
+
+If you want to move a single piece several times, the sequence of points
+from which it is to be moved must be typed. Thus '14 17' will move a
+piece from point 14 to point 17 and thence to to point 22.
+
+If a double is rolled, you should type four numbers.  Red pieces that
+have been removed from the board by being hit by white are on point 0 and
+must be brought in before any other move can be made.  White pieces that
+are hit are removed to point 25.  You will not be allowed to make an
+illegal move, or to make too many moves. However, if you make too few
+moves, the program does not care. In particular you may skip your turn by
+typing a 'new-line' all by itself.
+

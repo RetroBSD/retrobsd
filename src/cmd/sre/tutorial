@@ -1,0 +1,206 @@
+
+    This document describes my effort to create a facsimile
+of the very old text editor created by the Rand Corporation
+in the 70's. I had used the editor for decades and it was
+always my favorite. I finally thought I would try to build
+what I remembered of it. The hot keys are probably wrong
+and I am sure some of the nuances are wrong but it does
+multi-window (vertical and horizontal) has cut and get
+buffers, can cut, open and copy rectangular areas and can
+shift the screen right and left. So on to the tutorial.
+
+Note if you cannot start the editor, you may need to use
+control-right-mouse and enable window-ops. Some linuces
+disable this in an xterm.
+
+Lets begin with the basics, cursor control. Oh I should mention
+for this tutorial to really work, adjust the screen to a 80 character
+wide, 24 character tall terminal... now lets begin. When you
+first invoked the program with this file as an argument, the
+cursor should be in the upper left corner. You will see
+in the bottom right of the screen the current line number,
+a few spaces and an x1 to indicate column 1. Then the file name.
+To move the cursor down, use either the arrow key or hold the
+control key down and the letter j. Move the cursor down enough   
+so you can keep reading. Next try the other cursor directions. 
+   
+^N: up  
+^J: down
+^H: left
+^K: right
+
+Next lets do a simple argument to the movement. To provide
+an argument to a command, do ^space, then type a number like
+5, and then press the ^N key. Note the cursor moved up 5 rows. 
+A trick is if you do ^space ^N, the cursor will jump to the top
+of the screen. Similarly, ^space ^K will jump to the last character
+on the line, and if you are already past all the characters on the line,
+it will jump to the right edge.
+
+Next move the cursor all the way to the right edge. Note how
+the entire window started to scroll left to keep the cursor on
+screen. Scroll back left to get the text back. A quick way to
+move left and right are the shift screen commands. These are
+^A: Move screen left 8 spaces
+^V: Move screen right 8 spaces.
+
+Similarly, we can move up a whole page by using ^Y. Back a page is
+^P. Use these to scroll up/down some. Again, you can provide an 
+argument to all of these skip multiple pages. To jump to the
+end of the file, you can use ^space ^Y and the beginning is
+^space ^P. To scroll about a half a page use ^T to go up and
+^W to go back. If you do ^space, enter a number, then ^T or ^W
+then you will scroll that number of lines. To jump to the top
+line of the screen you can use ^space ^W while the bottom line
+is ^space ^T.
+
+Now that we have the basics, a little about the window decorations.
+Along the top edge the first character is either I or O to indicate
+overstrike or insert mode. In overstrike mode, wherever the cursor
+is, and you press a key, that key will replace whatver was under
+the cursor. In Insert mode, the key pressed is inserted under the
+cursor and everything shifts right one character. You can toggle insert
+mode with ^O. Generally, I use overstrike more than insert. One of
+the reasons I always like re, was vi forced insert mode. Continuing
+along the top is either a - or a T. T's are tab stops. If you press
+the tab key, note the cursor moves along to the next tab. To go backwards
+use ^]. Tab-ing does not change the file, just another way to move
+the cursor. The editor uses blanks underneath, so sre (&re) are not
+exactly verbatim editors. More on that later, just be aware, white
+space can change on saves. You can change the tab spacing by doing
+^space tabs 8<return>
+
+Exiting the editor can be done with just ^X. Note that if you
+exit with the ^X key, any files edited will be saved and the
+original copy of the file will be moved to the file ,<fileName>.
+The original editor had no undo, and neither does this one.
+Only a backup of the file is available.
+
+One of the coolest features of re, was multi-window editing. Windows
+can be horizontal or vertical. To create a horizontal window, place
+the cursor at the left edge of the window about halfway down the screen
+and then do ^space win <return>
+The screen will split into two windows and the lower one will
+be the active one. You can switch windows with the key ^Z.
+You can then split either of those windows by repeating the process.
+Change windows with ^Z. Windows can be removed with the command
+^space -win <return>
+This removes the last window added. You can only remove windows in
+the reverse order of creation.
+Similarly, vertical windows can be created by putting the cursor at the
+top of the screen and issueing the ^space win <return> sequence.
+
+You can have up to 4 files active in each window. To add another
+file, do ^space e filename
+and if the file exists, it will become the current active file.
+To switch active files, do either ^B or ^space e
+with no file name.
+You can save the active file in a window at any time with ^S
+or ^space save
+To save a file as a different name do
+^space save newfilename
+To "unload" a file from the list of alternate files, make that
+file the current one using the "e" command, then do
+^space -edit
+That file will be dropped from the list of alternate files.
+The file will be saved at exit unless you use exit nosave.
+The -edit is not in the original re, but with 4 alternate
+files, sometimes it is useful to remove a file from
+the alternate file list.
+
+If you just want to look at a file and not write it out on
+exit no matter what, just do ^space -update
+To re-enable saving, do ^space update
+
+To get a report of what files/windows are open, do
+^space status
+
+For basic editing, just type. If insert mode is on,
+characters typed are inserted into the line, and a backspace
+or delete destructive deletes characters. You can also use
+the wipe character command (^U) to delete the character under
+the cursor without moving the cursor.
+
+There are 2 buffers in the editor, the get buffer and the delete buffer.
+To grab a line into the get buffer, just do ^L
+The line is now in buffer. You can put a copy of the line by doing
+^space ^L
+To grab more than one line, just do
+^space 5 ^L
+and 5 lines will be grabbed.
+Alternatively, you can grab lines graphically by doing ^G, move the
+cursor down or up until you reach the last line you want to grab
+and then do ^L. If you want to grab the area as a rectangular area,
+instead of just moving the cursor up or down after ^G, move it right or
+left as well. Note the area does not include the rightmost character under
+the pair of cursor locations. You can reverse the location pair with a
+second ^G. You can cancel the mark completely with a ^space ^G.
+Note putting a rectangular area will add a square of text without
+adding lines.
+
+The delete buffer works exactly the same way as the get operations except
+the lines or area is removed after the get. The delete command is ^F. To
+place a copy of the delete buffer use ^space ^F instead of ^space ^L.
+
+The editor also supports searching with the sequence ^space search key ^R
+for forward searching and ^space search key ^E for backward searching.
+If you just do ^E or ^R the search is repeated with the last search key.
+You can also "grab" a search key from the text by doing ^G then ^R or
+^E. The cursor must be on top of a word before the ^G is pressed. Search
+will search for the word under the cursor.
+
+
+Update 3/6/11
+Added commands split and join to split and join lines.
+^space split
+will split the line at the current cursor position.
+^space join
+joins the current line with the next line.
+
+Also added a rudimentary way to define your own keys.
+Doing
+defineKey ^Q exit nosave
+will define the key ctrl+Q to be the command exit nosave.
+You can create a file called .srerc in your home directory
+with these commands to setup hotkeys as you like.
+If the key is an escape sequence, then do
+defineKey [4~ pageDn ""
+which will jump to the end of the file. The [4~ is usually
+the escape sequence sent when pressing a "end" key. Note
+the leading escape is assumed in the 1st arg to defineKey.
+
+Update 3/13/2011
+I could not live without tags either. If you have source
+code only in the current directory, then do ctags *.c
+at the shell prompt to build the ctags file. Then inside
+the editor you can either do
+^space tag funcName
+or if the cursor is over a call to the function you can
+shorten the sequence to ^space tag
+The editor will search the tags file, find the file the function is
+defined in, open it as an alternate file, and jump to the function.
+If you have source files in multiple directories, you can
+set a environment variable TAGPATH with a list of the directories.
+For example
+setenv TAGPATH ~/src1:~/src2:~/src3
+will search the 3 directories in order for tags files and
+open/search accordingly. You can also do
+setenv TAGPATH ~/srdir1/*:~/srdir2/*:~/srcdir3/*
+to search all the subdirectories of the list elements. The *
+wildcard only works as the last element in the path component.
+Feel free to mod the source as needed. This feature
+is in the file tag.c
+
+Update 6/1/11
+Add command to restrict the range of lines the editor
+will operate on. Set a range by marking an area with ^G,
+then enter ^space to get the command prompt, then enter
+the command range. After a range is established, the cursor
+is restricted to the range. Searched, etc are also restructed.
+Only a goto a specific line is allowed to go out of range.
+Ranges are useful to limit editing to a specific long
+function. By enforcing the range to be limited to the
+function of interest, you cannot modify a part of the file
+you do not want to by accident. Disable the range with the
+-range command. You can use the match command to quickly
+set the marked area to an entire function definition.

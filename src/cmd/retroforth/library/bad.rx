@@ -1,0 +1,128 @@
+( Byte Addressing for Retro ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+( Copyright [c] 2010, Marc Simpson                                             )
+( Copyright [c] 2011, Charles Childers                                         )
+( License: ISC                                                                 )
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+
+chain: bad'
+  variable pool
+{{
+  variable byte
+
+  : byte-mask ( xn-b )
+    255 swap 8 * dup [ << and ] dip >> ;
+
+  : replace
+    [ 0 = ] [ [ [ [ drop @byte ] dip ] dip ] dip ] whend
+    [ 1 = ] [ [ [ drop @byte ] dip ] dip ] whend
+    [ 2 = ] [ [ drop @byte ] dip ] whend
+    [ 3 = ] [ drop @byte ] whend
+    drop ;
+---reveal---
+  : unpack ( c-bbbb )
+    dup       $FF and swap
+    dup  8 >> $FF and swap
+    dup 16 >> $FF and swap
+        24 >> $FF and ;
+
+  : pack ( bbbb-c )
+    24 << swap 16 << + swap 8 << + swap + ;
+
+  : b@ ( a-b )
+    4 /mod @pool + swap
+    4 /mod ( address byte-offset cell )
+    rot + @ swap byte-mask ;
+
+  : b! ( ba- )
+    swap !byte
+    4 /mod @pool + swap [ dup @ unpack ] dip
+    replace pack swap ! ;
+
+  : b@+  ( a-ab )  dup 1+ swap b@ ;
+
+  : b!+  ( ba-a )  dup 1+ [ b! ] dip ;
+
+  : newPool ( n- )
+    here !pool 4 /mod + allot ;
+}}
+;chain
+
+doc{
+===============
+Byte Addressing
+===============
+
+
+--------
+Overview
+--------
+The Ngaro virtual machine underlying Retro does not provide access to memory
+in units other than a standard cell. This simplifies things in many ways, but
+can be very wasteful of memory, especially when dealing with large amounts of
+text. This library provides support for dealing with byte-level access to the
+Ngaro memory.
+
+
+-----------
+Terminology
+-----------
+*byte*: A unit of memory consisting of eight bits.
+
+*cell*: A unit of memory consisting of thirty two bits.
+
+
+-------
+Loading
+-------
+::
+
+  needs bad'
+
+
+-------
+Example
+-------
+::
+
+  1024 ^bad'newPool
+  'e 0 ^bad'b!
+  'f 1 ^bad'b!
+  'g 2 ^bad'b!
+  'h 3 ^bad'b!
+  ^bad'pool @ putn
+  2 ^bad'@ putn
+
+
+---------
+Functions
+---------
++----------+--------+------------------------------------------------+
+| Function | Stack  | Used For                                       |
++==========+========+================================================+
+| pool     | -a     | Variable. This holds a pointer to the current  |
+|          |        | byte addressable memory pool                   |
++----------+--------+------------------------------------------------+
+| unpack   | c-bbbb | Given a byte-packed cell on the stack return   |
+|          |        | the bytes it contains                          |
++----------+--------+------------------------------------------------+
+| pack     | bbbb-c | Pack four byes into a cell, return the cell on |
+|          |        | the stack                                      |
++----------+--------+------------------------------------------------+
+| b@       | a-b    | Fetch a byte from the active byte addressable  |
+|          |        | memory pool                                    |
++----------+--------+------------------------------------------------+
+| b!       | ba-    | Store a byte into the currently active byte    |
+|          |        | addressable memory pool                        |
++----------+--------+------------------------------------------------+
+| b@+      | a-ab   | Fetch a byte from the active byte addressable  |
+|          |        | memory pool. Returns next byte address and the |
+|          |        | byte fetched                                   |
++----------+--------+------------------------------------------------+
+| b!+      | ba-a   | Store a byte into the currently active byte    |
+|          |        | addressable memory pool. Returns next byte     |
+|          |        | address                                        |
++----------+--------+------------------------------------------------+
+| newPool  |  n-    | Allocate a new pool of *n* characters and set  |
+|          |        | **pool** to point to it                        |
++----------+--------+------------------------------------------------+
+}doc

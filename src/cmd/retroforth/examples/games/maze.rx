@@ -1,0 +1,79 @@
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+( Simple ASCII Maze                                         )
+(                                                           )
+( Features:                                                 )
+(  - ASCII graphics                                         )
+(  - 16x16 map                                              )
+(  - Collision Detection w/map items                        )
+(  - Move using the ijkl keys                               )
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+( Charles Childers, July 2009                               )
+( Updated for Retro 11.x in October 2011                    )
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+
+16 constant ROWS
+16 constant COLUMNS
+6  elements x y lastChar oldX oldY play?
+
+: $, ( $- )
+  withLength [ @+ , ] times drop ;
+
+create board
+  "A # #  ####### #" $,
+  "# ## # #   #   #" $,
+  "#              #" $,
+  "# #### ###  # # " $,
+  "# #  # #   #  # " $,
+  "###    # #  #   " $,
+  "#   ## # # #  # " $,
+  "# # ###### ## # " $,
+  "# #   ###  # #  " $,
+  "# # # # # # ## #" $,
+  "# # #     ## # #" $,
+  "# # ######   # #" $,
+  "#          # # #" $,
+  "############ # #" $,
+  "#              #" $,
+  "Z ##############" $,
+
+{{
+  : row  ( a-a )
+    "| " puts COLUMNS [ @+ putc space ] times "|\n" puts ;
+
+  : ---  ( - )
+    space 33 [ '- putc ] times cr ;
+---reveal---
+  : display  ( - )
+    clear --- board ROWS [ row ] times drop ---
+    @y @x "Player at: %d, %d\n" puts ;
+}}
+
+: bounds
+  @x 0 < [ 0 !x ] ifTrue
+  @x COLUMNS 1- > [ COLUMNS 1- !x ] ifTrue
+  @y 0 < [ 0 !y ] ifTrue
+  @y ROWS 1- > [ ROWS 1- !y ] ifTrue ;
+
+: pos    16 * board + + ;
+: update @x !oldX @y !oldY ;
+: get    @x @y pos @ !lastChar ;
+: rst    @lastChar @x @y pos ! ;
+: put    bounds get 64 @x @y pos ! ;
+
+: undo
+  @oldX !x  @oldY !y  ;
+
+: wall? @x @y pos @ '# = [ undo ] ifTrue ;
+: end?  @x @y pos @ 'Z = [ put update display "You win!\n" puts play? off ] ifTrue ;
+
+: turn
+  getc
+  [ 'i = ] [ drop rst y --  ] when
+  [ 'k = ] [ drop rst y ++  ] when
+  [ 'j = ] [ drop rst x --  ] when
+  [ 'l = ] [ drop rst x ++  ] when
+  [ 'z = ] [ drop play? off ] when
+  drop rst undo ;
+
+: maze play? on
+  get put [ display turn wall? end? put update @play? ] while ;

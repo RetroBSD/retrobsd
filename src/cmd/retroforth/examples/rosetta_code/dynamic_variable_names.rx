@@ -1,0 +1,11 @@
+: newVariable: ( "- )
+  getToken header 0 , ;
+
+newVariable: foo
+
+Or:
+
+: newVariable: ( "- )
+  create 0 , ;
+
+newVariable: foo

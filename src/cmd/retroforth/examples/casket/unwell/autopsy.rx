@@ -1,0 +1,193 @@
+( unwell - web based debugger for Retro )
+( copyright [c] 2011, Charles Childers  )
+
+{{
+  : decompile  ( a-a )  [ ^dissect'decompile ] sip "%d %S\n" puts ;
+  variable buffer
+  variable ptr
+  : terminate (  -  ) 0 @ptr ! ;
+  : start     (  -a ) @buffer  ;
+  : end       (  -a ) @ptr     ;
+  : add       ( c-  ) end ! ptr ++ terminate ;
+  : get       (  -c ) ptr -- end @ terminate ;
+  : empty     (  -  ) start !ptr   terminate ;
+  : size      (  -n ) end start -   ;
+  : set       ( a-  ) !buffer empty ;
+
+  : image 0 ;
+
+  variable ip
+  create    port 13 allot
+  create handler 13 allot
+
+  create rs
+    1024 allot
+  rs set
+
+  : ip++    ` 1  ` ip   ` +!  ; immediate
+  : rs>     get ;
+  : >rs     add ;
+  : >image  ;
+
+  : register: ( p"- ) ' swap handler + ! ;
+  : (ready) 1 !port ;
+  : >port   port + ;
+  : port?   0 12 1+ within ;
+
+  : port[   ` >port ` dup ` push ` @ ; immediate
+  : ]port   ` pop ` ! ` (ready) ; immediate
+
+  : reader  getc ;
+  : input   port[ 1 = [ reader ] [ 0 ] if ]port ;
+  1 register: input
+
+  : output  port[ 1 = [ putc ] ifTrue 0 ]port ;
+  2 register: output
+
+  : files
+    [ -1 = ] [ drop [ >image ] dip ^files'open ] when
+    [ -2 = ] [ drop ^files'read   ] when
+    [ -3 = ] [ drop ^files'write  ] when
+    [ -4 = ] [ drop ^files'close  ] when
+    [ -5 = ] [ drop ^files'pos    ] when
+    [ -6 = ] [ drop ^files'seek   ] when
+    [ -7 = ] [ drop ^files'size   ] when
+    [ -8 = ] [ drop >image ^files'delete     ] when
+    [  1 = ] [ drop 0 ] when
+    [  2 = ] [ drop >image :include 0    ] when
+    drop 0 ;
+
+  : vm-files port[ files ]port ;
+  4 register: vm-files
+
+  : query
+    [  -1 = ] [ drop 32768                ] when
+    [  -5 = ] [ drop depth                ] when
+    [  -6 = ] [ drop size                 ] when
+    [  -8 = ] [ drop time                 ] when
+    [  -9 = ] [ drop 32768 !ip 0          ] when
+    [ -10 = ] [ drop &>image bi@ getEnv 0 ] when
+  drop 0 ( default ) ;
+
+  : vm-info port[ query ]port ;
+  5 register: vm-info
+
+  : handle  dup handler + @ dup [ 0; do ] [ 2drop ] if ;
+  : ?handle dup >port @ &handle &drop if ;
+  : i/o     12 [ 0; ?handle ] iterd ;
+
+  : (jmp)     ` ip ` @ ` >image ` @ ` 1- ` ip ` ! ; immediate
+
+  : vm_nop ;
+  : vm_lit    ip++ ip @ >image @ ;
+  ( Native dup, drop, swap )
+  : vm_push   >rs ;
+  : vm_pop    rs> ;
+  : vm_loop   ip++ 1- dup 0 > [ (jmp) ] [ drop ] if ;
+  : vm_jmp    ip++ (jmp) ;
+  : vm_ret    rs> !ip ;
+  : vm_>jmp   ip++  > [ (jmp) ] ifTrue ;
+  : vm_<jmp   ip++  < [ (jmp) ] ifTrue ;
+  : vm_<>jmp  ip++ <> [ (jmp) ] ifTrue ;
+  : vm_=jmp   ip++  = [ (jmp) ] ifTrue ;
+  : vm_@      >image @ ;
+  : vm_!      >image ! ;
+  ( Native +, -, *, )
+  : vm_/mod   2over [ 0 = ] bi@ or [ 32768 !ip "\nError: divide by zero detected\n" puts ] [ /mod ] if  ;
+  ( Native and, or, xor, shl , shr )
+  : vm_0exit  dup 0 = [ drop rs> ip ! ] ifTrue ;
+  ( Native inc [1+], dec [1-] )
+  : vm_in     >port dup [ @ 0 ] dip ! ;
+  : vm_out    dup port? [ >port ! ] [ 2drop ] if ;
+  : vm_wait   port @ 1 <> &i/o ifTrue ;
+
+  create opcodes
+    &vm_nop     ,    &vm_lit   ,   &dup      ,
+    &drop       ,    &swap     ,   &vm_push  ,
+    &vm_pop     ,    &vm_loop  ,   &vm_jmp   ,
+    &vm_ret     ,    &vm_>jmp  ,   &vm_<jmp  ,
+    &vm_<>jmp   ,    &vm_=jmp  ,   &vm_@     ,
+    &vm_!       ,    &+        ,   &-        ,
+    &*          ,    &vm_/mod  ,   &and      ,
+    &or         ,    &xor      ,   &<<       ,
+    &>>         ,    &vm_0exit ,   &1+       ,
+    &1-         ,    &vm_in    ,   &vm_out   ,
+    &vm_wait    ,
+
+  create counts
+    32 allot
+  variable calls
+
+  : process
+    @ip >image @ dup 0 30 within
+    [ 1 over counts + +! opcodes + @ do ]
+    [ calls ++ @ip >rs 1- !ip ] if ;
+
+  : --- ( - )
+    24 [ '- putc ] times cr ;
+
+  : displayRegisters ( - )
+    depth size @ip "IP: %d  RSP: %d  SP: %d" puts .s cr ;
+
+  : displayInstruction ( - )
+    @ip decompile drop ;
+
+  variable (steps)
+
+  : step ( - )
+    (steps) ++
+    size 0 >= 0; drop
+    cr --- displayRegisters displayInstruction ---
+    process ip ++ ;
+
+  : steps ( n- )
+    &step times ;
+
+  : stats ( - )
+    @(steps) "\nTotal instructions processed: %d\n" puts
+    @calls "\n%d calls\n" puts
+    counts @+ "NOP:    %d\n" puts
+           @+ "LIT:    %d\n" puts
+           @+ "DUP:    %d\n" puts
+           @+ "DROP:   %d\n" puts
+           @+ "SWAP:   %d\n" puts
+           @+ "PUSH:   %d\n" puts
+           @+ "POP:    %d\n" puts
+           @+ "LOOP:   %d\n" puts
+           @+ "JUMP:   %d\n" puts
+           @+ "RET:    %d\n" puts
+           @+ "&gt;JUMP:  %d\n" puts
+           @+ "&lt;JUMP:  %d\n" puts
+           @+ "&lt;&gt;JUMP: %d\n" puts
+           @+ "=JUMP:  %d\n" puts
+           @+ "@:      %d\n" puts
+           @+ "!:      %d\n" puts
+           @+ "+:      %d\n" puts
+           @+ "-:      %d\n" puts
+           @+ "*:      %d\n" puts
+           @+ "/MOD:   %d\n" puts
+           @+ "AND:    %d\n" puts
+           @+ "OR:     %d\n" puts
+           @+ "XOR:    %d\n" puts
+           @+ "&lt;&lt;:     %d\n" puts
+           @+ "&gt;&gt;:     %d\n" puts
+           @+ "0;:     %d\n" puts
+           @+ "1+:     %d\n" puts
+           @+ "1-:     %d\n" puts
+           @+ "IN:     %d\n" puts
+           @+ "OUT:    %d\n" puts
+           @  "WAIT:   %d\n" puts ;
+---reveal---
+  : /trace ( "- )
+    commonHeader
+    "trace.erx" withTemplate
+     counts 0 31 fill
+      0 !calls
+      empty 0 !(steps)
+      casket:options dup 1 > [ "here ]] " ^strings'prepend " ;" ^strings'append withLength eval listen !ip ] [ drop 0 !ip ] if
+      "<pre>" puts
+        2000 steps
+      cr stats
+      "</pre>" puts
+    commonFooter ;
+}}

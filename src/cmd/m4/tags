@@ -1,0 +1,70 @@
+Mmain	main.c	/^main(argc,argv)$/
+STREQ	stdd.h	/^#define STREQ(a, b) ((a)[0] == (b)[0] && strcmp(a,/
+STREQN	stdd.h	/^#define STREQN(a, b, n) ((a)[0] == (b)[0] && strnc/
+__P	stdd.h	/^#define	__P(protos)	()$/
+addent	look.c	/^ndptr $/
+band	expr.c	/^band()$/
+basename	misc.c	/^basename(s)$/
+bor	expr.c	/^bor()$/
+bxor	expr.c	/^bxor()$/
+chrsave	misc.c	/^chrsave(c)$/
+constant	expr.c	/^constant()$/
+dochc	eval.c	/^dochc(argv, argc)$/
+dochq	eval.c	/^dochq(argv, argc)$/
+dodefine	eval.c	/^dodefine(name, defn)$/
+dodefn	eval.c	/^dodefn(name)$/
+dodiv	eval.c	/^dodiv(n)$/
+dodump	eval.c	/^dodump(argv, argc)$/
+doifelse	eval.c	/^doifelse(argv, argc)$/
+doincl	eval.c	/^doincl(ifile)$/
+dopaste	eval.c	/^dopaste(pfile)$/
+dopushdef	eval.c	/^dopushdef(name, defn)$/
+dosub	eval.c	/^dosub(argv, argc)$/
+doundiv	eval.c	/^doundiv(argv, argc)$/
+eql	expr.c	/^eql()$/
+eval	eval.c	/^eval(argv, argc, td)$/
+expand	eval.c	/^expand(argv, argc)$/
+experr	expr.c	/^experr(msg)$/
+expr	expr.c	/^expr(expbuf)$/
+factor	expr.c	/^factor()$/
+freent	look.c	/^freent(p)$/
+getch	expr.c	/^#define getch()         *nxtch++$/
+getdiv	misc.c	/^getdiv(n)$/
+geteql	expr.c	/^geteql()$/
+getrel	expr.c	/^getrel()$/
+gpbc	mdef.h	/^#define gpbc() 	 (bp > bufbase) ? *--bp : getc(inf/
+hash	look.c	/^hash(name)$/
+indx	misc.c	/^indx(s1, s2)$/
+initkwds	main.c	/^initkwds() {$/
+inspect	main.c	/^inspect(tp) $/
+iswhite	stdd.h	/^#define iswhite(c) ((c) == ' ' || (c) == '\\t')$/
+land	expr.c	/^land()$/
+lookup	look.c	/^ndptr $/
+lor	expr.c	/^lor()$/
+macro	main.c	/^macro() {$/
+map	eval.c	/^map(dest, src, from, to)$/
+max	stdd.h	/^#define max(a,b) ((a) > (b)? (a): (b))$/
+min	stdd.h	/^#define min(a,b) ((a) < (b)? (a): (b))$/
+ndptr	mdef.h	117
+num	expr.c	/^num()$/
+onintr	misc.c	/^onintr()$/
+oops	misc.c	/^oops(const char *fmt, ...)$/
+pbnum	misc.c	/^pbnum(n)$/
+pbstr	misc.c	/^pbstr(s)$/
+primary	expr.c	/^primary()$/
+pushf	mdef.h	/^#define pushf(x) if (sp < STACKMAX) mstack[++sp].s/
+pushs	mdef.h	/^#define pushs(x) if (sp < STACKMAX) mstack[++sp].s/
+putback	misc.c	/^putback(c)$/
+query	expr.c	/^query()$/
+relat	expr.c	/^relat()$/
+remhash	look.c	/^remhash(name, all)$/
+shift	expr.c	/^shift()$/
+skipws	expr.c	/^skipws()$/
+stae	mdef.h	136
+system	mdef.h	/^#define system(str)	(-1)$/
+term	expr.c	/^term()$/
+unary	expr.c	/^unary()$/
+ungetch	expr.c	/^#define ungetch()       nxtch--$/
+usage	misc.c	/^usage()$/
+xalloc	misc.c	/^xalloc(n)$/
+xstrdup	misc.c	/^xstrdup(s)$/

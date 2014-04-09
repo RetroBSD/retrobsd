@@ -1,0 +1,72 @@
+( Character Vocabulary ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+chain: char'
+  : isChar?  ( c-f ) 'A 'z within ;
+  : isUpper? ( c-f ) 'A 'Z within ;
+  : isLower? ( c-f ) 'a 'z within ;
+  : isNumeric? ( c-f ) '0 '9 within ;
+  : isWhitespace? ( c-f ) [ 32 = ] [ 9 = ] [ [ 10 = ] [ 13 = ] bi or ] tri 2or ;
+  : toUpper  ( c-c ) dup isUpper? if; dup isNumeric? if; 32 - ;
+  : toLower  ( c-c ) dup isLower? if; dup isNumeric? if; 32 + ;
+;chain
+
+doc{
+:Title: char'
+:Author: Charles Childers
+:Version: 1.0
+
+char'
+=====
+This library provides a vocabulary for simple operations on ASCII characters.
+
+
+Loading
+=======
+The following should suffice:
+
+::
+
+  needs char'
+
+
+Examples
+========
+
+::
+
+  97 ^char'isChar?
+  'a dup ^char'isUpper? [ ^char'toLower ] ifTrue
+
+
+Functions
+=========
+
++---------------+---------+------------------------------------------------+
+| Name          | Stack   | Usage                                          |
++===============+=========+================================================+
+| isChar?       | c-f     | Return true if a given value is an alphabetic  |
+|               |         | character (A-Z or a-z). If not, return false   |
++---------------+---------+------------------------------------------------+
+| isUpper?      | c-f     | Return true if character is uppercase, false   |
+|               |         | otherwise                                      |
++---------------+---------+------------------------------------------------+
+| isLower?      | c-f     | Return true if character is lowercase, false   |
+|               |         | otherwise                                      |
++---------------+---------+------------------------------------------------+
+| isNumeric?    | c-f     | Return true if character is between 0 - 9      |
+|               |         | inclusive, or false otherwise                  |
++---------------+---------+------------------------------------------------+
+| isWhitespace? | c-f     | Return true if character is a space, tab, or   |
+|               |         | end of line. Returns false otherwise           |
++---------------+---------+------------------------------------------------+
+| toUpper       | c-c     | Convert a lowercase character to uppercase.    |
+|               |         | This will only work on a lowercase character.  |
++---------------+---------+------------------------------------------------+
+| toLower       | c-c     | Convert an upperacase character to lowercase.  |
+|               |         | This will only work on an uppercase character. |
++---------------+---------+------------------------------------------------+
+
+
+Data Structures
+===============
+None.
+}doc

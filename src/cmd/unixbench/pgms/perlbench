@@ -1,0 +1,357 @@
+#!/usr/bin/perl
+#
+# $Id: perlbench,v 1.5 1997/09/10 23:59:56 niemi Exp $
+#
+#	perlbench
+#
+#	A simplistic, portable Perl benchmark
+#
+#	Copyright 1997 David C Niemi <niemi@tux.org>
+#
+#	This program is distributed "as-is".
+#	The author places no restrictions on the use of this program.
+#
+
+$version = "pre-v1.0-19970910";
+$rez = 0.001;
+#$duration = 10;
+$duration = 2;		## For quick testing only
+$count = 50;
+$smallarray = 200;
+$largearray = 5000;
+
+$_tare = $_num_scores = 0;
+$_score_l = $_lps_l = $_baseline_l = 0;
+
+## Wait until the top of the next second
+sub synctime {
+	return if (! $rez);
+
+	$_start = time;
+	$_count = 0;
+	while (time == $_start) {
+		select(undef, undef, undef, $rez);
+		++ $_count;
+	}
+	$_end = time;
+}
+
+sub pretime {
+	$_count = $j = 0;
+	&synctime;
+	$_targtime = time + $duration;
+}
+
+sub posttime {
+	if (time > $_targtime) {
+		print STDERR "WARNING: System too busy, dubious results.\n";
+	}
+	$_lps = $_count/$duration;
+	if ($_lps == 0) {
+		$_tunits = "NaN";
+		$_ttime = 0;
+	} elsif ($_lps >= 1000000) {
+		$_tunits = "nsec";
+		$_ttime = 1000000000/$_lps - 1000000000*$_tare*$_loops/$_count;
+	} elsif ($_lps >= 1000) {
+		$_tunits = "usec";
+		$_ttime = 1000000/$_lps - 1000000*$_tare*$_loops/$_count;
+	} else {
+		$_tunits = "msec";
+		$_ttime = 1000/$_lps - 1000*$_tare*$_loops/$_count;
+	}
+	$_score = $_lps / $_baseline;
+	write;
+	$_lps_l += log($_lps);
+	$_baseline_l += log($_baseline);
+	$_score_l += log($_score);
+	++ $_num_tests;
+}
+
+format STDOUT_TOP =
+
+Test Name     Count   Secs    Latency         Rate     Baseline       Score
+---------   --------- ----  ------------   ---------   --------    --------
+.
+
+format STDOUT =
+@<<<<<<<<< @#######.# @### @####.## @<<<< @#######.#  @######.#    @####.##
+$_name, $_count, $duration, $_ttime, $_tunits, $_lps,  $_baseline*10, $_score
+.
+
+## 64 legal characters
+@chars = ('A' .. 'Z', 'a' .. 'z', '0' .. '9', ' ', '-');
+
+
+sub bynumber { $a <=> $b; }
+
+
+sub testempty {
+	$_name = "EmptyLoop";
+	$_baseline = 7850;
+	&pretime;
+	while (time  < $_targtime) {
+		++ $j;
+	}
+	$_loops = $_count = $j;
+	&posttime;
+	$_tare = $duration/$_count;
+}
+
+sub testassign {
+	$_name = "VarAssign";
+	$_baseline = 5980;
+	&pretime;
+	while (time  < $_targtime) {
+		$junk = 10;
+		++ $j;
+	}
+	$_loops = $_count = $j;
+	&posttime;
+	$_tare = $duration/$_count;
+}
+
+
+sub testrandom {
+	$_name = "Random";
+	$_baseline = 280;
+	&pretime;
+	while (time  < $_targtime) {
+		srand(0);
+		undef(%ssn,%name);
+		for ($i=0; $i < $smallarray; ++$i) {
+			$length = int(5 + rand(15));
+			$ssn = int(rand(999999999));
+
+			$name = "";
+			for ($c = 0; $c < $length; ++$c) {
+				$name .= $chars[rand(64)];
+			}
+			$ssn{$name} = $ssn;
+			$name{$ssn} = $name;
+		}
+		++ $j;
+	}
+	$_loops = $j;
+	$_count = $j * $smallarray;
+	&posttime;
+}
+
+
+sub testnumsort {
+	$_name = NumSort;
+	$_baseline = 850;
+	$k = 0;
+	&pretime;
+	while (time < $_targtime) {
+		for $i (sort bynumber keys %name) {
+			if ($name{$i} =~ /^[AEIOU][bcdfg]/) {
+				++ $k;
+#				print "$i\t$name{$i}\n";
+			}
+		}
+		++ $j;
+	}
+	$_loops = $j;
+	$_count = $j * $smallarray;
+	&posttime;
+}
+
+sub testcharsort {
+	$_name = "CharSort";
+	$_baseline = 2000;
+	&pretime;
+	while (time < $_targtime) {
+		for $i (sort keys %ssn) {
+			if ($ssn{$i} > 950000000) {
+#				print "$i\t$ssn{$i}\n";
+				++ $k;
+			}
+		}
+		++ $j;
+	}
+	$_loops = $j;
+	$_count = $j * $largearray;
+	&posttime;
+}
+
+
+sub testregexp {
+	$_name = "RegExp";
+	$_baseline = 1000;
+	$k = 0;
+	%save = %name;
+	&pretime;
+	while (time < $_targtime) {
+		for $ssn (keys %name) {
+			if ($name{$ssn} =~ /^([AEIOU][bdcdfghjklmnpqrstvwxyz])(..)/) {
+				($initial, $next) = ($1, $2);
+				$name{$ssn} =~ s/^....//;
+				$name{$ssn} .= ($next, $initial);
+				++ $k;
+			}
+			if ($name{$ssn} =~ /^([aeiou][BDCDFGHJKLMNPQRSTVWXYZ])(..)/) {
+				($initial, $next) = ($1, $2);
+				$name{$ssn} =~ s/....$//;
+				$name{$ssn} .= ($initial, $next);
+				-- $k;
+			}
+			if ($name{$ssn} =~ /^([AaBb]*[DdEe]*[^ ]) (.*)/) {
+				($initial, $next) = ($1, $2);
+				$name{$ssn} =~ $2 . ' ' . $1;
+				++ $k;
+			}
+			if ($name{$ssn} =~ /^([DdEe]*[AaBb]*[^ ]) (.*)/) {
+				($initial, $next) = ($1, $2);
+				$name{$ssn} =~ $2 . ' ' . $1;
+				-- $k;
+			}
+		}
+		++ $j;
+		%name = %save;
+	}
+	$_loops = $j;
+	$_count = $j * $largearray;
+	&posttime;
+}
+
+
+## Memory Write
+sub testmemwrite {
+	$_name = "MemWrite";
+	$_baseline = 2080;
+	&pretime;
+        while (time  < $_targtime) {
+		for ($i = 0; $i < $count; ++ $i) {
+			$z{$i}= $i;
+		}
+		++ $j;
+	}
+
+	$_loops = $j;
+	$_count = $j * $count;
+	&posttime;
+}
+
+
+## time()
+sub testtime {
+	$_name = "time()";
+	$_baseline = 7750;
+	&pretime;
+	while (time < $_targtime) {
+		$junk = time();
+		$junk = time();
+		$junk = time();
+		$junk = time();
+		$junk = time();
+		++ $j;
+	}
+
+	$_loops = $j;
+	$_count = $j * 5;
+	&posttime;
+}
+
+
+sub testint {
+	$_name = "Int";
+	$_baseline = 1800;
+	&pretime;
+	$j = $sum = 0;
+	while (time < $_targtime) {
+		for ($i = 0; $i < $count; ++ $i) {
+			## Make sure we don't penalize high scorers with huge
+			## values as the number of iterations soars
+			$k = ($j % 256);
+			$sum += $i*$i*$i - 3*$i*$i*$k + 3*$i*$k*$k - $k*$k*$k;
+		}
+		++ $j;
+	}
+	$_loops = $j;
+	$_count = $j * $i;
+	&posttime;
+}
+
+
+sub testfloat {
+	$_name = "Float";
+	$_baseline = 2200;
+	&pretime;
+	$sum = 0;
+	while (time < $_targtime) {
+		for ($i = 0; $i < ($count / 10); $i += 0.1) {
+  			$sum += log($i+1) * sin($i) + ($i ** 2.5);
+		}
+		++ $j;
+	}
+	$_loops = $j;
+	$_count = $j * $i * 10;
+	&posttime;
+}
+
+
+## Figure out how often it is worth checking the time
+print "\nStarting PerlBench $version\n\n";
+system('sync;sync;sync');
+system('uptime');
+system('uname -a');
+
+print "\nCalibrating timer resolution: ";
+&synctime;
+
+&synctime;
+if (($_end != $_start + 1) || ($_count < 2)) {
+	print "worse than 500 msec!\n";
+	$rez = 0;
+} else {
+	printf "approximately %.1f msec\n",
+		1000/$_count + .0005;
+	$rez = 2/$_count;
+}
+print "\n";
+
+&testempty;
+&testassign;
+&testrandom;
+&testnumsort;
+
+#print "Populating large array...\n";
+## Populate large array (don't time it, just get it done...
+srand(0);
+undef(%ssn,%name);
+for ($i=0; $i < $largearray; ++$i) {
+	$length = int(5 + rand(15));
+	$ssn = int(rand(999999999));
+
+	$name = "";
+	for ($c = 0; $c < $length; ++$c) {
+		$name .= $chars[rand(64)];
+	}
+	$ssn{$name} = $ssn;
+	$name{$ssn} = $name;
+}
+#print "... done.\n";
+
+&testcharsort;
+&testregexp;
+&testmemwrite;
+&testtime;
+&testint;
+&testfloat;
+
+
+print
+"---------                                  ---------   --------    --------\n";
+
+printf
+"Total                                        %6.1f    %6.1f      %6.2f\n",
+exp($_lps_l/$_num_tests),
+10*exp($_baseline_l/$_num_tests),
+exp($_score_l/$_num_tests);
+
+printf STDERR "lps\t%.2f\t%.1f\n",
+	exp($_score_l/$_num_tests)*$duration,
+	$duration;
+
+## END ##

@@ -1,0 +1,21 @@
+#
+# MikroElektronika MMB for PIC32MX7 board
+# =======================================
+#
+# Console on USB
+# For Windows, use the driver: http://www.schmalzhaus.com/UBW32/FW/UBW32inf.zip
+
+core pic32mx7
+linker bootloader
+mapping generic
+
+device kernel invled=A0 clear_pin=D2
+device console invled=A1 device=ttyUSB0
+device uartusb
+device rdisk invswap=D9
+device sd0 port=1 cs=A9 mhz=8
+device gpio
+device adc
+device uart1
+
+device bootloader button=A10 crystal=8 jump=0x9d000000 invled=A0 invled2=A1 invled3=D9 clear=D2

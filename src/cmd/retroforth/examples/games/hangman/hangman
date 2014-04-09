@@ -1,0 +1,14 @@
+#! /bin/sh
+
+if [ ! -f "wordlist.txt" ]; then
+  if [ -f "/usr/share/dict/words" ]; then
+    echo "Wordlist missing -- symlinking the system dictionary."
+    ln -s /usr/share/dict/words wordlist.txt
+  fi
+fi
+
+if [ ! -f "library" ]; then
+  ln -s ../../../library .
+fi
+
+../../../retro --image ../../../retroImage --with hangman.retro

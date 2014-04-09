@@ -1,0 +1,23 @@
+Byte Length
+
+"møøse" getLength putn
+
+Character Length
+
+Retro does not have built-in support for Unicode, but counting of
+UTF8 characters can be done with a small amount of effort.
+
+chain: UTF8'
+{{
+  : utf+ ( $-$ )
+    [ 1+ dup @ %11000000 and %10000000 = ] while ;
+  : count ( $-$ )
+    0 !here
+    repeat dup @ 0; drop utf+ here ++ again ;
+---reveal---
+  : getLength ( $-n )
+    count drop @here ;
+}}
+;chain
+
+"møøse" ^UTF8'getLength putn

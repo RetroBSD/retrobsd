@@ -1,0 +1,22 @@
+The simple way is to open and read the size. This may crash if the file does not exist.
+
+with files'
+"input.txt"  :R open &size sip close drop putn
+"/input.txt" :R open &size sip close drop putn
+
+For added stability, check that the returned file handle is not zero:
+
+with files'
+"input.txt" :r open over 0 <> [ &size sip close drop ] ifTrue
+
+Or, if you need to do this more often, setup a function that'll also display an error
+message if the file does not exist:
+
+with files'
+: getFileSize ( $-n )
+  :r open 0 over =
+  [ "File does Not Exist\n" puts ]
+  [ &size sip close drop ] if ;
+
+"input.txt" getFileSize putn
+"/input.txt" getFileSize putn

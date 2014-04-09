@@ -1,0 +1,197 @@
+( unwell - web based debugger for Retro )
+( copyright [c] 2011, Charles Childers  )
+
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+( Some notes on this:                                                         )
+(   - it is *not* a replacement for Autopsy                                   )
+(   - as with most of the things I develop, this is primarily for my personal )
+(     use                                                                     )
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+
+needs casket'
+needs dissect'
+with casket'
+
+
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+( Custom decompiler. The standard autopsy debugger doesn't output HTML, so we )
+( create our own here.                                                        )
+(                                                                             )
+( Of interest here is buildString, which builds a string from tokens returned )
+( by a quote. This is useful in various contexts, not limited to this code.   )
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+
+{{
+  variable this
+  variable str
+
+  : asc      " ' ' " ;
+
+  : pad ( $n-$ )  [ 32 ^strings'appendChar ] times ;
+
+  : buildString ( q-$ )
+    depth [ do ] dip depth swap - 1- [ ^strings'append ] times ;
+
+  : following
+    @this @ toString this ++ ;
+
+  : padName ( $-$ )
+    withLength @str getLength - 24 swap - dup 0 > &pad &drop if ;
+
+  : appendName ( $-$ )
+    padName
+    @str toNumber 32 127 within
+    [ @str toNumber asc 2 + ! asc ^strings'append ]  [ 5 pad ] if
+    @str toNumber xt->d dup [ d->name ^strings'append ] &drop if ;
+
+  : buildLink  ( $- )
+    keepString !str
+    [ "<a href='" casket:url "/decompile/" @str "'>" @str "</a>" ] buildString appendName ;
+
+  : instr      (  n-af  )
+    this ++ ^dissect'lookupOpcode
+    [ [ "call  " swap buildLink ^strings'append ] dip ] ifFalse ;
+---reveal---
+  : decompile ( a-a$ )
+    dup !this @ instr [ following buildLink ^strings'append ] ifTrue @this swap ;
+  : display
+    [ &decompile sip "<tr><td><tt>%d</tt></td><td><tt>%s</tt></td>\n" puts
+      dup 1- ^dissect'endOfWord? not ] while drop ;
+}}
+
+
+
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+( Simplify the header/footer stuff a bit. This will change when I finish the  )
+( combinator based HTML generator.                                            )
+(                                                                             )
+( commonHeader .... commonFooter  =>  [ ... ] stdTemplate                     )
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+
+: commonHeader ( - )
+  Content-type: text/html
+  "header.html" withTemplate ;
+
+: commonFooter ( - )
+  "footer.html" withTemplate ;
+
+: stdTemplate ( q- )
+  commonHeader do commonFooter ;
+
+
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+( The basic views                                                             )
+(                                                                             )
+(   /css                                                                      )
+(     This is the standard stylesheet. The default configuration is to use a  )
+(     dark color scheme based on the Web and Android releases of Retro        )
+(                                                                             )
+(   /index                                                                    )
+(     The default view. This displays a six column table of named items in the)
+(     dictionary. Clicking them takes you to the /decompile view for the code )
+(     in question.                                                            )
+(                                                                             )
+(   /decompile/address                                                        )
+(     Dissassemble the code starting at address. This tries to detect the end )
+(     of a function by looking for the standard double VM_RET laid down by the)
+(     Retro compiler. Jump and call targets are hyperlinked, and both ASCII   )
+(     and symbolic names for values are displayed.                            )
+(                                                                             )
+(   /examine/<code>                                                           )
+(     Compile and then decompile a bit of code. Useful if you suspect odd bugs)
+(     related to macros and the like.                                         )
+(                                                                             )
+(   /evaluate/<code>                                                          )
+(     Compile and run a bit of code. This is *unsafe* and will be removed or  )
+(     sandboxed later                                                         )
+(                                                                             )
+(   /trace/<code>                                                             )
+(     Compile and run a bit of code in a sandboxed environment. Displays the  )
+(     results of the run, instruction by instruction. This is roughly the same)
+(     as *steps* in Autopsy.                                                  )
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+
+serve: css as text/css
+
+: /decompile
+  commonHeader
+  casket:options toNumber xt->d dup [ d->name "<p>Showing decompiled code for <b>%s</b></p>" puts ] [ drop ] if
+  "<div id='output'><table width='600px'>
+   <tr>
+     <td width='25%%' style='border-bottom: 1px solid #ccc'><tt>address</tt></td>
+     <td width='75%%' style='border-bottom: 1px solid #ccc'><tt>ngaro assembly</tt></td>
+   </tr>" puts
+  casket:options toNumber display
+  "</table></div>" puts
+  commonFooter ;
+
+
+{{
+  2 elements buffer count
+  : restore ( -   ) &getc :devector ok ;
+  : get     ( -c  ) @buffer @ ;
+  : next    ( -c  ) @count [ count -- get buffer ++ ] [ 32 restore ] if ;
+  : replace ( -   ) &next &getc :is ;
+
+  : word    (  d- ) dup @d->xt swap @d->class withClass ;
+  : build#  (   - ) tib toNumber .data ;
+  : number  (   - ) tib isNumber? [ build# ] [ notFound ] if ;
+  : process ( af- ) [ word ] [ drop number ] if ;
+
+
+  : dump
+  "<div id='output'><table width='600px'>
+   <tr>
+     <td width='25%%' style='border-bottom: 1px solid #ccc'><tt>address</tt></td>
+     <td width='75%%' style='border-bottom: 1px solid #ccc'><tt>ngaro assembly</tt></td>
+   </tr>" puts
+   display
+  "</table></div>" puts ;
+---reveal---
+  : eval    ( an- ) dup 0 > [ !count !buffer replace ] [ 2drop ] if ;
+  : listen  (   - ) repeat ok 32 accept tib find process &getc @ 0; drop again ;
+
+  : /eval
+    commonHeader
+    "eval.erx" withTemplate
+    "<pre>" puts
+      casket:options dup 1 > [ withLength eval listen ] [ drop ] if
+    "</pre>" puts
+    commonFooter ;
+
+  : /examine
+    commonHeader
+    "examine.erx" withTemplate
+    "<pre>" puts
+      casket:options dup 1 > [ "here ]] " ^strings'prepend " ;" ^strings'append withLength eval listen dump ] [ drop ] if
+    "</pre>" puts
+    commonFooter ;
+}}
+
+
+{{
+  variable count
+---reveal---
+  : /index
+    commonHeader
+    here build "<p>Image Build ID: %s<br>Memory Used: %d cells</p>" puts
+    "<p>The following functions are defined in this image:</p>" tputs
+    0 !count
+    "<div id='output'><table width='800px'>\n<tr>" puts
+    last [ dup d->name swap @d->xt "<td><tt><a href='%u/decompile/%d'>%S</a></tt></td>" tputs
+           count ++ @count 6 > [ 0 !count "</tr>\n<tr>" puts ] ifTrue ] ^types'LIST each@
+    @count [ "<td></td>" puts ] times "</tr>\n" puts
+    "</table></div>" puts
+    commonFooter ;
+}}
+
+[ /index ] is /
+
+include autopsy.rx
+hide eval hide listen hide stdTemplate hide commonFooter hide commonHeader hide display hide decompile
+
+[ ( -$ ) "/path/to/unwell/" ] is casket:root
+[ ( -$ ) "http://url/for/unwell" ] is casket:url
+&dispatch is boot
+
+.s save bye

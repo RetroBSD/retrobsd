@@ -1,0 +1,9 @@
+#100 ( decimal )
+%100 ( binary  )
+$100 ( hex     )
+'c   ( ascii character )
+100  ( number in current base )
+
+Numbers without a prefix are interpreted using the current base, which
+is a variable Valid characters are stored in a string called numbers,
+which can also be altered to allow for larger bases.

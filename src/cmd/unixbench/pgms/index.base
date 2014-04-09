@@ -1,0 +1,11 @@
+Dhrystone 2 using register variables|10|lps|116700|116700|2
+Double-Precision Whetstone|10|MWIPS|55.0|55.0|2
+Execl Throughput|20|lps|43.0|43.0|1
+File Copy 1024 bufsize 2000 maxblocks|20|KBps|3960|3960|1
+File Copy 256 bufsize 500 maxblocks|20|KBps|1655|1655|1
+File Copy 4096 bufsize 8000 maxblocks|20|KBps|5800|5800|1
+Pipe Throughput|10|lps|12440|12440|2
+Pipe-based Context Switching|10|lps|4000|4000|2
+Process Creation|20|lps|126|126|1
+Shell Scripts (8 concurrent)|60|lpm|6|6|1
+System Call Overhead|10|lps|15000|15000|2

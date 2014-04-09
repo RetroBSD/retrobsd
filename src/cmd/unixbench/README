@@ -1,0 +1,303 @@
+Version 4.1.0 -- 1997.08.26
+
+================================================================
+To use Unixbench:
+
+   make
+   Run
+
+================================================================
+You may run individual benchmark programs and groups of programs.
+There are also a few options.
+
+  Run [<bench> ...] [<group> ...] [-qvd]
+
+	-q	quiet		no output to standard out
+	-v	verbose		extra output to standard out
+	-d	debug		Run is displayed as it is run
+	-<number>		Use <number> as maximum number of iterations
+				(e.g. Run -1 index)
+
+     GROUP	BENCHMARK	EXPLANATION		SOURCE
+     --------   -----------	--------------------	-------------
+     index                      only those need for
+                                generating the BYTE
+                                index
+
+		dhry2reg	dhrystone 2 with regs	src/dhry_1.c
+							src/dhry_2.c
+							src/dhry.h
+		whetstone-double double-prec. whetstone	src/whets.c
+		execl		execl call		src/execl.c
+							src/big.c
+		fstime		filesystem throughput	src/fstime.c
+		fsbuffer	filesystem throughput	src/fstime.c
+		fsdisk		filesystem throughput	src/fstime.c
+		pipe		pipe throughput		src/pipe.c
+		context1	pipe context switch	src/context1.c
+		spawn		process creation	src/spawn.c
+		shell   	load system with	pgms/multi.sh
+				  concurrent shell	pgms/tst.sh
+				  scripts		src/looper.c
+		syscall		system call overhead	src/syscall.c
+
+     arithmetic
+		whetstone-double double-prec. whetstone	src/whets.c
+		arithoh		arithmetic overhead 	src/arith.c
+		register	register arithmetic	src/arith.c
+		short		short arithmetic	src/arith.c
+		int		int arithmetic		src/arith.c
+		long		long arithmetic		src/arith.c
+		float		float arithmetic	src/arith.c
+		double		double arithmetic	src/arith.c
+
+     system
+		syscall		system call overhead	src/syscall.c
+		pipe		pipe throughput		src/pipe.c
+		context1	pipe context switch	src/context1.c
+		spawn		process creation	src/spawn.c
+		execl		execl call		src/execl.c
+		fstime		filesystem throughput	src/fstime.c
+		fsbuffer	filesystem throughput	src/fstime.c
+		fsdisk		filesystem throughput	src/fstime.c
+		shell   	load system with	pgms/multi.sh
+				  concurrent shell	pgms/tst.sh
+				  scripts		src/looper.c
+
+     misc
+		C		compile and link	/bin/cc
+							src/looper.c
+		dc		calculations with dc	testdir/dc.dat
+							src/looper.c
+		hanoi		recursion 		src/hanoi.c
+							src/looper.c
+
+     dhry
+		dhry2		dhrystone 2 w/o regs	src/dhry_1.c
+							src/dhry_2.c
+							src/dhry.h
+		dhry2reg	dhrystone 2 with regs	src/dhry_1.c
+							src/dhry_2.c
+							src/dhry.h
+		shell   	load system with	pgms/multi.sh
+				  concurrent shell	pgms/tst.sh
+				  scripts
+                        ** Most C programs also include src/timeit.c
+
+===================== RELEASE NOTES =====================================
+
+v4.1.0
+
+Double precision Whetstone put in place instead of the old "double" benchmark.
+
+Removal of some obsolete files.
+
+"system" suite adds shell8.
+
+perlbench and poll added as "exhibition" (non-index) benchmarks.
+
+Incorporates several suggestions by Andre Derrick Balsa <andrewbalsa@usa.net>
+
+Code cleanups to reduce compiler warnings by David C Niemi <niemi@tux.org>
+and Andy Kahn <kahn@zk3.dec.com>; Digital Unix options by Andy Kahn.
+
+========================  Jun 97 ==========================
+
+v4.0.1
+
+Minor change to fstime.c to fix overflow problems on fast machines.  Counting
+is now done in units of 256 (smallest BUFSIZE) and unsigned longs are used,
+giving another 23 dB or so of headroom ;^)  Results should be virtually
+identical aside from very small rounding errors.
+
+========================  Dec 95 ==========================
+
+v4.0
+
+Byte no longer seems to have anything to do with this benchmark, and I was
+unable to reach any of the original authors; so I have taken it upon myself
+to clean it up.  
+
+This is version 4.  Major assumptions made in these benchmarks have changed
+since they were written, but they are nonetheless popular (particularly for
+measuring hardware for Linux).  Some changes made:
+
+-	The biggest change is to put a lot more operating system-oriented
+	tests into the index.  I experimented for a while with a decibel-like
+	logarithmic scale, but finally settled on using a geometric mean for
+	the final index (the individual scores are a normalized, and their
+	logs are averaged; the resulting value is exponentiated).
+
+	"George", certain SPARCstation 20-61 with 128 MB RAM, a SPARC Storage
+	Array, and Solaris 2.3 is my new baseline; it is rated at 10.0 in each
+	of the index scores for a final score of 10.0.
+
+	Overall I find the geometric averaging is a big improvement for
+	avoiding the skew that was once possible (e.g. a Pentium-75 which got
+	40 on the buggy version of fstime, such that fstime accounted for over
+	half of its total score and hence wildly skewed its average).
+
+	I also expect that the new numbers look different enough from the old
+	ones that no one is too likely to casually mistake them for each other.
+
+	I am finding new SPARCs running Solaris 2.4 getting about 15-20, and
+	my 486 DX2-66 Compaq running Linux 1.3.45 got a 9.1.  It got
+	understandably poor scores on CPU and FPU benchmarks (a horrible
+	1.8 on "double" and 1.3 on "fsdisk"); but made up for it by averaging
+	over 20 on the OS-oriented benchmarks.  The Pentium-75 running
+	Linux gets about 20 (and it *still* runs Windows 3.1 slowly.  Oh well).
+
+-	It is difficult to get a modern compiler to even consider making
+	dhry2 without registers, short of turning off *all* optimizations.
+	This is also not a terribly meaningful test, even if it were possible,
+	as noone compiles without registers nowadays.  Replaced this benchmark
+	with dhry2reg in the index, and dropped it out of usage in general as
+	it is so hard to make a legitimate one.
+
+-	fstime: this had some bugs when compiled on modern systems which return
+	the number of bytes read/written for read(2)/write(2) calls.  The code
+	assumed that a negative return code was given for EOF, but most modern
+	systems return 0 (certainly on SunOS 4, Solaris2, and Linux, which is
+	what counts for me).  The old code yielded wildly inflated read scores,
+	would eat up tens of MB of disk space on fast systems, and yielded
+	roughly 50% lower than normal copy scores than it should have.
+
+	Also, it counted partial blocks *fully*; made it count the proportional
+	part of the block which was actually finished.
+
+	Made bigger and smaller variants of fstime which are designed to beat
+	up the disk I/O and the buffer cache, respectively.  Adjusted the
+	sleeps so that they are short for short benchmarks.
+
+-	Instead of 1,2,4, and 8-shell benchmarks, went to 1, 8, and 16 to
+	give a broader range of information (and to run 1 fewer test).
+	The only real problem with this is that not many iterations get
+	done with 16 at a time on slow systems, so there are some significant
+	rounding errors; 8 therefore still used for the benchmark.  There is
+	also the problem that the last (uncompleted) loop is counted as a full
+	loop, so it is impossible to score below 1.0 lpm (which gave my laptop
+	a break).  Probably redesigning Shell to do each loop a bit more
+	quickly (but with less intensity) would be a good idea.
+
+	This benchmark appears to be very heavily influenced by the speed
+	of the loader, by which shell is being used as /bin/sh, and by how
+	well-compiled some of the common shell utilities like grep, sed, and
+	sort are.  With a consistent tool set it is also a good indicator of
+	the bandwidth between main memory and the CPU (e.g. Pentia score about
+	twice as high as 486es due to their 64-bit bus).  Small, sometimes
+	broken shells like "ash-linux" do particularly well here, while big,
+	robust shells like bash do not.
+
+-	"dc" is a somewhat iffy benchmark, because there are two versions of
+	it floating around, one being small, very fast, and buggy, and one
+	being more correct but slow.  It was never in the index anyway.
+
+-	Execl is a somewhat troubling benchmark in that it yields much higher
+	scores if compiled statically.  I frown on this practice because it
+	distorts the scores away from reflecting how programs are really used
+	(i.e. dynamically linked).
+
+-	Arithoh is really more an indicator of the compiler quality than of
+	the computer itself.  For example, GCC 2.7.x with -O2 and a few extra
+	options optimizes much of it away, resulting in about a 1200% boost
+	to the score.  Clearly not a good one for the index.
+
+I am still a bit unhappy with the variance in some of the benchmarks, most
+notably the fstime suite; and with how long it takes to run.  But I think
+it gets significantly more reliable results than the older version in less
+time.
+
+If anyone has ideas on how to make these benchmarks faster, lower-variance,
+or more meaningful; or has nice, new, portable benchmarks to add, don't
+hesitate to e-mail me.
+
+David C Niemi <niemi@tux.org>		7 Dec 1995
+
+========================  May 91 ==========================
+This is version 3. This set of programs should be able to determine if
+your system is BSD or SysV. (It uses the output format of time (1)
+to see. If you have any problems, contact me (by email,
+preferably): ben@bytepb.byte.com
+
+---
+
+The document doc/bench.doc describes the basic flow of the
+benchmark system. The document doc/bench3.doc describes the major
+changes in design of this version. As a user of the benchmarks,
+you should understand some of the methods that have been
+implemented to generate loop counts:
+
+Tests that are compiled C code:
+  The function wake_me(second, func) is included (from the file
+timeit.c). This function uses signal and alarm to set a countdown
+for the time request by the benchmark administration script
+(Run). As soon as the clock is started, the test is run with a
+counter keeping track of the number of loops that the test makes.
+When alarm sends its signal, the loop counter value is sent to stderr
+and the program terminates. Since the time resolution, signal
+trapping and other factors don't insure that the test is for the
+precise time that was requested, the test program is also run
+from the time (1) command. The real time value returned from time
+(1) is what is used in calculating the number of loops per second
+(or minute, depending on the test).  As is obvious, there is some
+overhead time that is not taken into account, therefore the
+number of loops per second is not absolute. The overhead of the
+test starting and stopping and the signal and alarm calls is
+common to the overhead of real applications. If a program loads
+quickly, the number of loops per second increases; a phenomenon
+that favors systems that can load programs quickly. (Setting the
+sticky bit of the test programs is not considered fair play.)
+
+Test that use existing UNIX programs or shell scripts:
+  The concept is the same as that of compiled tests, except the
+alarm and signal are contained in separate compiled program,
+looper (source is looper.c). Looper uses an execvp to invoke the
+test with its arguments. Here, the overhead includes the
+invocation and execution of looper.
+
+--
+
+The index numbers are generated from a baseline file that is in
+pgms/index.base. You can put tests that you wish in this file.
+All you need to do is take the results/log file from your
+baseline machine, edit out the comment and blank lines, and sort
+the result (vi/ex command: 1,$!sort). The sort in necessary
+because the process of generating the index report uses join (1).
+You can regenerate the reports by running "make report."
+
+--
+
+========================= Jan 90 =============================
+Tom Yager has joined the effort here at BYTE; he is responsible
+for many refinements in the UNIX benchmarks.
+
+The memory access tests have been deleted from the benchmarks.
+The file access tests have been reversed so that the test is run
+for a fixed time. The amount of data transfered (written, read,
+and copied) is the variable. !WARNING! This test can eat up a
+large hunk of disk space.
+
+The initial line of all shell scripts has been changed from the
+SCO and XENIX form (:) to the more standard form "#! /bin/sh".
+But different systems handle shell switching differently. Check
+the documentation on your system and find out how you are
+supposed to do it. Or, simpler yet, just run the benchmarks from
+the Bourne shell. (You may need to set SHELL=/bin/sh as well.)
+
+The options to Run have not been checked in a while. They may no
+longer function. Next time, I'll get back on them. There needs to
+be another option added (next time) that halts testing between
+each test. !WARNING! Some systems have caches that are not getting flushed
+before the next test or iteration is run. This can cause
+erroneous values.
+
+========================= Sept 89 =============================
+The database (db) programs now have a tuneable message queue space.
+queue space. The default set in the Run script is 1024 bytes.
+Other major changes are in the format of the times. We now show
+Arithmetic and Geometric mean and standard deviation for User
+Time, System Time, and Real Time. Generally, in reporting, we
+plan on using the Real Time values with the benchs run with one
+active user (the bench user). Comments and arguments are requested.
+
+contact: BIX bensmith or rick_g

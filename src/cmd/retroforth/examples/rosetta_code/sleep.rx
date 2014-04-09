@@ -1,0 +1,9 @@
+Retro has no fine grained timer; so we have to make due with seconds.
+
+: sleep ( n- )
+  [ time [ time over - 1 > ] until drop ] times ;
+
+: test
+  "\nTime to sleep (in seconds): " puts getNumber
+  "\nSleeping..." sleep
+  "\nAwake!\n" ;

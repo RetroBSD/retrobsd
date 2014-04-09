@@ -1,0 +1,137 @@
+( canvas' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+
+chain: canvas'
+  ( Mouse ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+  : mouse    (   -xy ) 1 7 out wait ;
+  : click?   (   -f  ) 2 7 out wait ;
+
+  ( Drawing ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+{{
+  variable solid?
+  : io       (    n- ) 6 out wait ;
+---reveal---
+  : solid    (     - ) solid? on ;
+  : pixel    (   xy- ) 2 io ;
+  : box      ( xyhw- ) @solid? [ 4 ] [ 3 ] if io solid? off ;
+  : vline    (  xyh- ) 5 io ;
+  : hline    (  xyw- ) 6 io ;
+  : circle   (  xyw- ) @solid? [ 8 ] [ 7 ] if io solid? off ;
+  ( Colors ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+  : setColor (    c- ) 1 io ;
+  : color:   (  n"-n ) ` : dup .data ` setColor ` ; 1+ ;
+  0 color: black
+    color: blue
+    color: green
+    color: cyan
+    color: red
+    color: purple
+    color: brown
+    color: gray
+    color: darkGray
+    color: brightBlue
+    color: brightGreen
+    color: brightCyan
+    color: brightRed
+    color: magenta
+    color: yellow
+    color: white
+  drop hide color:
+  : dimensions ( -hw ) @fh @fw ;
+}}
+;chain
+
+doc{
+:Title: canvas'
+:Author: Charles Childers
+:Version: 1.0
+
+canvas'
+=======
+This library provides support for the canvas device provided by the
+JavaScript implementation of Ngaro.
+
+
+Loading
+=======
+Since the JavaScript implementation has no file I/O, build an image with
+this loaded manually.
+
+::
+
+  needs infix'
+  include vm/web/dumpImage.rx
+
+
+Examples
+========
+
+::
+
+  100 100 50 ^canvas'red ^canvas'solid ^canvas'circle
+
+
+Functions
+=========
+
++---------------+-----------+-------------------------------------------------+
+| Name          | Stack     | Usage                                           |
++===============+===========+=================================================+
+| mouse         |     -xy   |  Current mouse coordinates                      |
++---------------+-----------+-------------------------------------------------+
+| click?        |     -f    |  Is mouse button clicked?                       |
++---------------+-----------+-------------------------------------------------+
+| setColor      |    c-     |  Set color to *c*. Used by various other words  |
++---------------+-----------+-------------------------------------------------+
+| pixel         |   xy-     |  Draw a pixel in the current color              |
++---------------+-----------+-------------------------------------------------+
+| solid         |   ``-``   |  Modifier; tells **box** and **circle** to draw |
+|               |           |  a filled in shape rather than an outline       |
++---------------+-----------+-------------------------------------------------+
+| box           | xyhw-     |  Draw a box                                     |
++---------------+-----------+-------------------------------------------------+
+| vline         |  xyh-     |  Draw a vertical line                           |
++---------------+-----------+-------------------------------------------------+
+| hline         |  xyw-     |  Draw a horizontal line                         |
++---------------+-----------+-------------------------------------------------+
+| circle        |  xyw-     |  Draw a circle                                  |
++---------------+-----------+-------------------------------------------------+
+| black         |   ``-``   |  Set color                                      |
++---------------+-----------+-------------------------------------------------+
+| blue          |   ``-``   |  Set color                                      |
++---------------+-----------+-------------------------------------------------+
+| green         |   ``-``   |  Set color                                      |
++---------------+-----------+-------------------------------------------------+
+| cyan          |   ``-``   |  Set color                                      |
++---------------+-----------+-------------------------------------------------+
+| red           |   ``-``   |  Set color                                      |
++---------------+-----------+-------------------------------------------------+
+| purple        |   ``-``   |  Set color                                      |
++---------------+-----------+-------------------------------------------------+
+| brown         |   ``-``   |  Set color                                      |
++---------------+-----------+-------------------------------------------------+
+| gray          |   ``-``   |  Set color                                      |
++---------------+-----------+-------------------------------------------------+
+| darkGray      |   ``-``   |  Set color                                      |
++---------------+-----------+-------------------------------------------------+
+| brightBlue    |   ``-``   |  Set color                                      |
++---------------+-----------+-------------------------------------------------+
+| brightGreen   |   ``-``   |  Set color                                      |
++---------------+-----------+-------------------------------------------------+
+| brightCyan    |   ``-``   |  Set color                                      |
++---------------+-----------+-------------------------------------------------+
+| brightRed     |   ``-``   |  Set color                                      |
++---------------+-----------+-------------------------------------------------+
+| magenta       |   ``-``   |  Set color                                      |
++---------------+-----------+-------------------------------------------------+
+| yellow        |   ``-``   |  Set color                                      |
++---------------+-----------+-------------------------------------------------+
+| white         |   ``-``   |  Set color                                      |
++---------------+-----------+-------------------------------------------------+
+| dimensions    |     -hw   |  Return height and width of canvas              |
++---------------+-----------+-------------------------------------------------+
+
+
+Data Structures
+===============
+None.
+}doc

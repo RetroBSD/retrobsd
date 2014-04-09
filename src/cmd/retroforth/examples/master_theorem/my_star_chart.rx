@@ -1,0 +1,63 @@
+This is pretty easy. Each code name is based on particular characters from
+the facts about each star. For example, the star named "water":
+
+Type: taurus
+Age: 1 billion years
+Distance: 18 x 10^10 light years
+Temperature: 5000 K
+Color: white
+
+The name comes from the first character of the color, the age, the first
+character of the type, the temperature (divide by 1000), and the distance
+(ignore the 10^10 part). The numbers correspond to the letters of the
+alphabet, with an index value of one.
+
+So to start, the alphabet, with the zero position filled by an underscore:
+
+  : letters "_abcdefghijklmnopqrstuvwxyz" ;
+
+Easy enough. Next, an array of variables. I'm going to use a trick here,
+which needs some explanation. Variables created with *elements* have their
+data stored sequentially, with headers being separated. So we can access
+them as a unit or structure later.
+
+  6 elements color age type temperature distance padding
+
+There is an used padding variable. This will be useful later.
+
+We'll follow this up with some helper functions to improve readability:
+
+  : getNumber getNumber ;
+  : toLetter letters + @ ;
+
+The first function, *getNumber*, parses and returns a number from the
+input stream. The second takes an index value and returns the corresponding
+letter from the alphabet.
+
+With these, we can now implement functions for each fact.
+
+  : Type: getToken @ !type ;
+  : Age: getNumber toLetter !age 2getToken 2drop ;
+  : Distance: getNumber toLetter !distance 2 [ 2getToken 2drop ] times ;
+  : Temperature: getNumber 1000 / toLetter !temperature getToken drop ;
+  : Color: getToken @ !color ;
+
+This is all a bit messy, but for a quick solution, it'll work. Each "fact"
+handler parses the input stream, extracts the character code (doing any
+adjustments needed), and sets the appropriate variable to the characters.
+
+Once these are defined, we can paste in the facts about our unknown star:
+
+Type: main
+Age: 1 billion years
+Distance: 14 x 10^10 light years
+Temperature: 5000 K
+Color: red
+
+And now we have an answer:
+
+  color puts
+
+Note here that we treat our variables as a string. Since the values are
+sequential the unused *padding* variable acts as a null terminator and
+ we don't need to do anything else to get the correct answer of *ramen*.

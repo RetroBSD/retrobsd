@@ -1,0 +1,29 @@
+( "filename"  "substring" grep )
+( display all lines containing "substring" in "filename" )
+
+{{
+  2 elements token content
+
+  : clean ( $- )
+    withLength
+    [ dup @ 10 13 within [ 999 swap &! sip ] ifTrue 1+ ] times drop ;
+
+  : getLine ( $-$$ )
+    999 ^strings'splitAtChar ^strings'chop ;
+
+  : process ( $- )
+    dup @token ^strings'search [ puts cr ] &drop if ;
+
+  : loadSourceData ( $- )
+    here swap ^files'slurp here !content heap +! 32 , 0 ,
+    @content clean ;
+
+  : eachLine ( $- )
+    [ getLine process dup 1 <> ] while drop ;
+
+---reveal---
+  : grep ( $$- )
+    cr keepString !token
+    heap [ loadSourceData @content eachLine ] preserve ;
+}}
+

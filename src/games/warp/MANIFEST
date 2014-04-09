@@ -1,0 +1,58 @@
+After all the warp kits are run you should have the following files:
+
+Filename		Kit Description
+--------		--- -----------
+Configure                1  An entertaining little shell script
+EXTERN.h                 6  Set up for external .h files
+INTERN.h                 6  Set up for internal .h files
+MANIFEST                 1  This file
+Makefile.SH              5  Makefile for warp
+README                   5  Instructions--please read
+bang.c                   5  Routines having to do with blast propagation
+bang.h                   6  Visible declarations for above
+config.H                 4  Sample config.h for if you can't Configure
+init.c                   3  Initialization for a wave.
+init.h                   2  Visible declarations for above
+intrp.c                  4  Code to interpret % substitutions
+intrp.h                  6  Visible declarations for above
+makedepend.SH            6  Generates makefile dependencies
+makedir.SH               6  Makes multilevel directories
+move.c                   3  Object movement and display
+move.h                   6  Visible declarations for above
+ndir.c                   5  Directory manipulation routines
+ndir.h                   5  Visible declarations for above
+object.c                 6  Object management
+object.h                 6  Visible declarations for above
+patchlevel.h             4  How patched the kit is
+play.c                   5  What to do each second
+play.h                   6  Visible declarations for above
+score.c                  2  Scoring and saving
+score.h                  6  Visible declarations for above
+sig.c                    5  Signal handling
+sig.h                    6  Visible declarations for above
+sm.c                     6  Starmap translator
+smp.0                    3  "Straight Grid" scenario
+smp.1                    6  "Offset Grid" scenario
+smp.2                    6  "Shooting Gallery" scenario
+smp.3                    6  "Superfortress" scenario
+smp.4                    6  "Blocks" scenario
+smp.5                    6  "Microfortress" scenario
+smp.6                    6  "Passage" scenario
+smp.7                    6  "Wall" scenario
+term.c                   2  Terminal handling
+term.h                   5  Visible declarations for above
+them.c                   5  Smarts for enemies
+them.h                   6  Visible declarations for above
+us.c                     4  Smarts for us
+us.h                     6  Visible declarations for above
+util.c                   1  Utility routines
+util.h                   5  Visible declarations for above
+version.c                6  Prints version number.
+version.h                1  Visible declarations for above
+warp.c                   2  Main loop
+warp.doc                 4  How to play warp
+warp.h                   4  Visible declarations for everyone
+warp.man                 5  How to start warp
+warp.news                5  Sample startup message
+weapon.c                 3  Our firepower
+weapon.h                 6  Visible declarations for above

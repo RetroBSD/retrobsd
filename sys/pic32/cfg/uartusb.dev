@@ -1,0 +1,16 @@
+always
+    file    usb_device.o
+    file    usb_function_cdc.o
+    file    usb_uart.o
+    define  USB_NUM_STRING_DESCRIPTORS 3 
+    define  USB_MAX_EP_NUMBER 3
+    define  UARTUSB_ENABLED YES
+end always
+
+option autoboot
+    define USB_AUTOBOOT YES
+end option
+
+option baud
+    define UARTUSB_BAUD %1
+end option

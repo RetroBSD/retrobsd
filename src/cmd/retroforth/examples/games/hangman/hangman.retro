@@ -1,0 +1,110 @@
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+( Hangman for Retro Console                                    )
+(  * Main game logic.                                          )
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+( Copyright [c] 2010-11, Marc Simpson                          )
+( License: ISC                                                 )
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+
+needs console'
+
+( File inclusion will only work if you're running retro from   )
+( the same directory as hangman.                               )
+
+include graphics.retro
+include dict.retro
+
+( --[ Variables ]--------------------------------------------- )
+
+5 elements target guessed lifeline this-char foul-count
+stages constant lives                     ( see graphics.retro )
+create foul-addr lives allot
+
+( --[ Offset Calculation ]------------------------------------ )
+
+( Build an array with offsets for a given character in string )
+
+: offsets, ( c$- )
+  withLength [ [ 2over @ = ] dip swap &, &drop if 1+ ] iter
+  2drop ;
+
+: offsets ( $c-an ) here 2rot  swap offsets,   here over - ;
+
+( --[ Allocation ]-------------------------------------------- )
+
+: unallot  (  n- )  negate allot ;
+: unarray  ( an- )  nip unallot ;
+
+( --[ Masking ]----------------------------------------------- )
+
+( The array contains offset information; set the guess string )
+
+: update-guessed ( $ offsets len - )
+  [ 2over @ + @this-char swap ! 1+ ] times 2drop ;
+
+: toGuess ( guessed target c - )
+  dup !this-char offsets              ( guessed offsets length )
+  2over [ &update-guessed dip ] dip unarray ;
+
+: guessChar ( c- )  @guessed @target rot toGuess ;
+
+( --[ Printing ]---------------------------------------------- )
+
+: .target   ( - )  @target  puts ;
+: .guessed  ( - )  @guessed puts ;
+: .input    ( - )  @lifeline "Tries: (%d): " puts ;
+: .fouls    ( - )  "Fouls: " puts foul-addr puts ;
+: .prompt   ( - )  0 0 ^console'at-xy .guessed cr .fouls cr .input ;
+: .already  ( - )  " [already guessed]" puts ;
+: .correct  ( - )  " [correct guess]  " puts ;
+: .graphic  ( - )  lives @lifeline - 1- graphics + @ do ;
+: .wrong    ( - )  " [not present]    " puts .graphic ;
+
+( --[ Guessing ]---------------------------------------------- )
+
+: 0<>   (  x-f ) 0 = not ;
+: has   ( $c-f ) ^strings'findChar 0<> ;
+
+: foul+ (  c-  ) foul-addr @foul-count + ! foul-count ++ ;
+
+: (guess) ( c- )
+  @guessed over has
+    [ .already ]
+    [ @target over has
+      [ dup guessChar .correct ]
+      [ foul-addr over has
+        [ .already ]
+        [ dup foul+ lifeline -- .wrong ] if ] if ] if drop ;
+
+: guess ( - ) .prompt getc &putc &(guess) bi ;
+
+( --[ Game Logic ]-------------------------------------------- )
+
+: _string  ( n-$ )  here swap [ '_ , ] times 0 , ;
+
+: >target  ( $-  )  withLength swap !target _string !guessed ;
+
+: 0fouls    ( -  )  0 !foul-count
+                    foul-addr lives [ 0 over ! 1+ ] times drop ;
+
+: revive    ( -  )  lives !lifeline 0fouls ;
+: remaining ( -f )  guessed @ '_ has ;
+: alive     ( -f )  remaining lifeline @ 0<> and ;
+: dead?     ( -f )  alive not ;
+: foot      (  - )  0 20 ^console'at-xy ;
+: .lose     (  - )  foot "You LOSE; the word was: " puts .target ;
+: .win      (  - )  foot .target "\nYou WIN!" puts ;
+: endgame   (  - )  @lifeline &.win &.lose if ;
+
+: (hangman) (  - )  clear repeat dead? if; guess again ;
+: hangman   ( $- )  >target revive (hangman) endgame ;
+
+( --[ Main Game ]--------------------------------------------- )
+
+: y-or-n    ( -f )  getc [ 'y = ] [ 'Y = ] bi or ;
+: .again?   ( -f )  "\n\nPlay again? [Y/N] " puts y-or-n ;
+: play      ( -  )
+  initialise @dict 0; drop
+  repeat get-word hangman .again? [ close-dict bye ] ifFalse again ;
+( ============================================================ )
+play

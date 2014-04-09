@@ -1,0 +1,141 @@
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+global
+4 elements tested current passed failed
+3 elements checked ignored io
+3 elements total tpassed tfailed
+
+: TEST: getToken keepString !tested 0 [ !passed ] [ !failed ] bi checked ++ ;
+: OMIT: getToken "\nNot Tested: %s" puts ignored ++ ;
+: IO:   getToken "\nNot Tested (IO): %s" puts io ++ ;
+
+: summary
+  @tfailed @tpassed @total
+  "\n%d tests run: %d passed, %d failed." puts
+  @io @ignored @checked
+  "\n%d words checked, %d words unchecked, %d i/o words ignored.\n" puts ;
+
+: check
+  repeat
+    getToken
+    "}" over compare if;
+    toNumber <> [ 0 !current ] ifTrue
+  again ;
+
+: expected:
+  -1 !current do
+  getToken drop check drop
+  @current [ passed ++ ] [ failed ++ ] if ;
+
+: testedWith:
+  getToken drop passed ++ ;
+
+: results
+  @failed @passed @tested "\nTested: %s\n  %d passed, %d failed" puts
+  @passed @failed + +total
+  @failed +tfailed
+  @passed +tpassed ;
+( ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ )
+with files'
+
+variable fid
+
+TEST: :R
+  [ "file1.test" :R open 0 = ] expected: { -1 }
+results
+
+TEST: :W
+  [ "file2.test" :W open dup !fid 0 <> ] expected: { -1 }
+  [ @fid close ] expected: { 0 }
+results
+
+TEST: :A
+  [ "file3.test" :A open dup !fid 0 <> ] expected: { -1 }
+  [ @fid close ] expected: { 0 }
+results
+
+TEST: :M
+  [ "file4.test" :M open dup !fid 0 = ] expected: { -1 }
+results
+
+TEST: open
+  testedWith: :R
+  testedWith: :W
+  testedWith: :A
+  testedWith: :M
+results
+
+TEST: write
+  [ "file2.test" :W open dup !fid 0 <> ] expected: { -1 }
+  [ 'a @fid write ] expected: { 1 }
+  [ 'b @fid write ] expected: { 1 }
+  [ 'c @fid write ] expected: { 1 }
+  [ 10 @fid write ] expected: { 1 }
+  [ @fid close ] expected: { 0 }
+results
+
+TEST: read
+  [ "file2.test" :R open dup !fid 0 <> ] expected: { -1 }
+  [ @fid read 'a = ] expected: { -1 }
+  [ @fid read 'b = ] expected: { -1 }
+  [ @fid read 'c = ] expected: { -1 }
+  [ @fid read 10 = ] expected: { -1 }
+  [ @fid close ] expected: { 0 }
+results
+
+TEST: pos
+  [ "file2.test" :R open dup !fid 0 <> ] expected: { -1 }
+  [ @fid read 'a = ] expected: { -1 }
+  [ @fid read 'b = ] expected: { -1 }
+  [ @fid pos ] expected: { 2 }
+  [ @fid read 'c = ] expected: { -1 }
+  [ @fid read 10 = ] expected: { -1 }
+  [ @fid close ] expected: { 0 }
+results
+
+TEST: seek
+  [ "file2.test" :R open dup !fid 0 <> ] expected: { -1 }
+  2 @fid seek drop
+  [ @fid read 'c = ] expected: { -1 }
+  [ @fid read 10 = ] expected: { -1 }
+  [ @fid close ] expected: { 0 }
+results
+
+TEST: size
+  [ "file2.test" :R open dup !fid 0 <> ] expected: { -1 }
+  [ @fid size ] expected: { 4 }
+  [ @fid close ] expected: { 0 }
+results
+
+TEST: slurp
+  [ here "file2.test" slurp 4 = ] expected: { -1 }
+  [ here @+ swap @ 'b = swap 'a = = ] expected: { -1 }
+results
+
+TEST: spew
+  [ "Fourscore and seven years ago..." withLength
+    [ "file3.test" spew ] sip = ] expected: { -1 }
+results
+
+TEST: writeLine
+  [ "file2.test" :W open dup !fid 0 <> ] expected: { -1 }
+  [ "hello" @fid writeLine depth ] expected: { 0 }
+  [ "world" @fid writeLine depth ] expected: { 0 }
+  [ @fid close ] expected: { 0 }
+results
+
+TEST: readLine
+  [ "file2.test" :R open dup !fid 0 <> ] expected: { -1 }
+  [ @fid readLine "hello" compare ] expected: { -1 }
+  [ @fid readLine "world" compare ] expected: { -1 }
+  [ @fid close ] expected: { 0 }
+results
+
+TEST: delete
+  [ "file1.test" delete 0 <> ] expected: { 0 }
+  [ "file2.test" delete 0 <> ] expected: { -1 }
+  [ "file3.test" delete 0 <> ] expected: { -1 }
+  [ "file4.test" delete 0 <> ] expected: { 0 }
+results
+
+summary
+bye

@@ -1,0 +1,19 @@
+Retro's memory is directly accessible via @ and !. This is used for all functions and
+data structures. A variable, heap, points to the next free address. allot can be used
+to allocate or free memory. The amount of memory varies by the runtime, and can be
+accessed via the memory variable.
+
+( display total memory available )
+@memory putn
+
+( display unused memory )
+@memory here - putn
+
+( display next free address )
+here putn
+
+( allocate 1000 cells )
+1000 allot
+
+( free 500 cells )
+-500 allot

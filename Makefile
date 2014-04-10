@@ -26,9 +26,9 @@ DUINOMITEEUART  = sys/pic32/duinomite-e-uart/DUINOMITE-E-UART
 PINGUINO        = sys/pic32/pinguino-micro/PINGUINO-MICRO
 DIP             = sys/pic32/dip/DIP
 BAREMETAL       = sys/pic32/baremetal/BAREMETAL
-RETROONE	= sys/pic32/retroone/RETROONE
-FUBARINO	= sys/pic32/fubarino/FUBARINO
-FUBARINOUART	= sys/pic32/fubarino-uart/FUBARINO-UART
+RETROONE	    = sys/pic32/retroone/RETROONE
+FUBARINO	    = sys/pic32/fubarino/FUBARINO
+FUBARINOBIG	    = sys/pic32/fubarino/FUBARINO-UART2CONS-UART1-SRAMC
 MMBMX7          = sys/pic32/mmb-mx7/MMB-MX7
 
 # Select target board
@@ -191,6 +191,14 @@ ifdef SDCARD
 else
 	@echo "Error: No SDCARD defined."
 endif
+
+# TODO: make it relative to Target
+installflash: 
+	sudo  pic32prog  sys/pic32/fubarino/unix.hex
+
+# TODO: make it relative to Target
+installboot: 
+	sudo  pic32prog  sys/pic32/fubarino/bootloader.hex
 
 .profile:   etc/root/dot.profile
 		cp etc/root/dot.profile .profile

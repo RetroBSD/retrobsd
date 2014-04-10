@@ -1,5 +1,5 @@
 /*
- * Linker script for PIC32 firmware using RetroBSD bootloader.
+ * Linker script for PIC32 firmware using HID bootloader.
  */
 OUTPUT_FORMAT("elf32-littlemips", "elf32-bigmips",
 	      "elf32-littlemips")
@@ -7,16 +7,16 @@ OUTPUT_ARCH(mips)
 ENTRY(_reset_vector_)
 MEMORY
 {
-  flash                (rx)  : ORIGIN = 0x9d000000, LENGTH = 512K
+  flash                (rx)  : ORIGIN = 0x9d005000, LENGTH = 492K
   ram                  (rw!x): ORIGIN = 0x80000000, LENGTH = 26K
   u0area               (rw!x): ORIGIN = 0x80006800, LENGTH = 3K
   uarea                (rw!x): ORIGIN = 0x80007400, LENGTH = 3K
 
   /* Required by Microchip C32 linker */
   kseg0_program_mem    (rx)  : ORIGIN = 0x9D000000, LENGTH = 0x80000
-  kseg0_boot_mem             : ORIGIN = 0x9FC00000, LENGTH = 0x1000
-  exception_mem              : ORIGIN = 0x9FC00000, LENGTH = 0x1000
-  kseg1_boot_mem             : ORIGIN = 0xBFC00000, LENGTH = 0
+  kseg0_boot_mem             : ORIGIN = 0x9FC00490, LENGTH = 0x970
+  exception_mem              : ORIGIN = 0x9FC01000, LENGTH = 0x1000
+  kseg1_boot_mem             : ORIGIN = 0xBFC00000, LENGTH = 0x490
   kseg1_data_mem       (w!x) : ORIGIN = 0xA0000000, LENGTH = 0x20000
 }
 
@@ -31,8 +31,9 @@ SECTIONS
   {
     /* Exception handlers. */
     *(.exception)
+    . = 0x1000;
     /* Execution starts here. */
-    *(.startup)
+    *(.startup) 
     *(.text .stub .text.* .gnu.linkonce.t.*)
     /* .gnu.warning sections are handled specially by elf32.em.  */
     *(.gnu.warning)

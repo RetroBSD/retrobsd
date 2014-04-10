@@ -1,5 +1,5 @@
 /*
- * Linker script for PIC32 firmware using RetroBSD bootloader.
+ * Linker script for PIC32 firmware using HID bootloader.
  */
 OUTPUT_FORMAT("elf32-littlemips", "elf32-bigmips",
 	      "elf32-littlemips")
@@ -7,16 +7,17 @@ OUTPUT_ARCH(mips)
 ENTRY(_reset_vector_)
 MEMORY
 {
-  flash                (rx)  : ORIGIN = 0x9d000000, LENGTH = 512K
-  ram                  (rw!x): ORIGIN = 0x80000000, LENGTH = 26K
-  u0area               (rw!x): ORIGIN = 0x80006800, LENGTH = 3K
-  uarea                (rw!x): ORIGIN = 0x80007400, LENGTH = 3K
+  flash                (rx)  : ORIGIN = 0x9d005000, LENGTH = 492K
+  ram                  (rw!x): ORIGIN = 0x80000000, LENGTH = 0x62C0
+  u0area               (rw!x): ORIGIN = 0x800062C0, LENGTH = 3K
+  uarea                (rw!x): ORIGIN = 0x80006EC0, LENGTH = 3K
+  keram                (rwx) : ORIGIN = 0x80007AC0, LENGTH = 0x540
 
   /* Required by Microchip C32 linker */
   kseg0_program_mem    (rx)  : ORIGIN = 0x9D000000, LENGTH = 0x80000
-  kseg0_boot_mem             : ORIGIN = 0x9FC00000, LENGTH = 0x1000
-  exception_mem              : ORIGIN = 0x9FC00000, LENGTH = 0x1000
-  kseg1_boot_mem             : ORIGIN = 0xBFC00000, LENGTH = 0
+  kseg0_boot_mem             : ORIGIN = 0x9FC00490, LENGTH = 0x970
+  exception_mem              : ORIGIN = 0x9FC01000, LENGTH = 0x1000
+  kseg1_boot_mem             : ORIGIN = 0xBFC00000, LENGTH = 0x490
   kseg1_data_mem       (w!x) : ORIGIN = 0xA0000000, LENGTH = 0x20000
 }
 
@@ -25,14 +26,18 @@ u0	= ORIGIN(u0area);
 u	= ORIGIN(uarea);
 u_end	= ORIGIN(uarea) + LENGTH(uarea);
 
+_keram_start = ORIGIN(keram);
+_keram_end   = ORIGIN(keram) + LENGTH(keram);
+
 SECTIONS
 {
   .text ORIGIN(flash) :
   {
     /* Exception handlers. */
     *(.exception)
+    . = 0x1000;
     /* Execution starts here. */
-    *(.startup)
+    *(.startup) 
     *(.text .stub .text.* .gnu.linkonce.t.*)
     /* .gnu.warning sections are handled specially by elf32.em.  */
     *(.gnu.warning)
@@ -63,7 +68,7 @@ SECTIONS
   {
    __bss_start = .;
    *(.dynbss)
-   *(.sbss)
+   *(.sbss .sbss.*)
    *(.scommon)
    *(.bss .bss.* .gnu.linkonce.b.*)
    *(COMMON)
@@ -74,6 +79,21 @@ SECTIONS
   } > ram
   __bss_end = . ;
   _end = .;
+
+/*
+   * RAM functions go at the end of our stack and heap allocation.
+   * Alignment of 2K required by the boundary register (BMXDKPBA).
+   */
+  .ramfunc : AT (LOADADDR (.data) + SIZEOF (.data))
+  {
+    _ramfunc_begin = . ;
+    *(.ramfunc  .ramfunc.*)
+    . = ALIGN(4) ;
+    _ramfunc_end = . ;
+  } >keram 
+  _ramfunc_image_begin = LOADADDR(.ramfunc) ;
+  _ramfunc_length = SIZEOF(.ramfunc) ;
+
 
   /* Stabs debugging sections.  */
   .stab          0 : { *(.stab) }

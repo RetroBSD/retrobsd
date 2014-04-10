@@ -59,9 +59,9 @@ as required.  Default is:
 
 To compile the kernel and build a filesystem image, run:
 
-    ```shell
-    $ make
-    ```
+```shell
+$ make
+```
 
 A resulting root filesystem image is in file `sdcard.rd`.
 A kernel is in file `unix.hex` in your target board subdirectory.
@@ -73,9 +73,9 @@ You need to put a filesystem image on a SD card.  On Windows, use
 Win32DiskImager utility (https://launchpad.net/win32-image-writer/+download).
 On Linux, run:
 
-    ```shell
-    $ sudo dd if=sdcard.rd of=/dev/XYZ
-    ```
+```shell
+$ sudo dd if=sdcard.rd of=/dev/XYZ
+```
 
 Here `XYZ` is a device name of SD card, as recognized by Linux (sdb in my case).
 
@@ -86,12 +86,12 @@ Kernel image should be written to PIC32 flash memory.  The procedure depends
 on a board used.
 
 #### Max32 board:
-    ```shell
-    $ cd sys/pic32/ubw32
-    $ AVRTOOLS=/Applications/Mpide.app/Contents/Resources/Java/hardware/tools
-        $AVRTOOLS/bin/avrdude -C$AVRTOOLS/etc/avrdude.conf -c stk500v2 -p pic32 \
-        -P /dev/tty.usbserial-* -b 115200 -v -U flash:w:unix.hex:i
-    ```
+```shell
+$ cd sys/pic32/ubw32
+$ AVRTOOLS=/Applications/Mpide.app/Contents/Resources/Java/hardware/tools
+    $AVRTOOLS/bin/avrdude -C$AVRTOOLS/etc/avrdude.conf -c stk500v2 -p pic32 \
+    -P /dev/tty.usbserial-* -b 115200 -v -U flash:w:unix.hex:i
+```
 
 Here you need to change AVRTOOLS path and tty name according to your system.
 
@@ -99,9 +99,9 @@ Here you need to change AVRTOOLS path and tty name according to your system.
 Use a pic32prog utility (http://code.google.com/p/pic32prog/)
 and a USB cable to install a kernel:
 
-    ```shell
-    $ pic32prog sys/pic32/ubw32/unix.hex
-    ```
+```shell
+$ pic32prog sys/pic32/ubw32/unix.hex
+```
 
 #### Maximite:
 Use the bootload program for Windows, available for download by link:
@@ -118,9 +118,9 @@ This should be done only once.
 Then, you can use a pic32prog utility (http://code.google.com/p/pic32prog/)
 and a USB cable to install a kernel:
 
-    ``` shell
-    $ pic32prog sys/pic32/explorer16/unix.hex
-    ```
+``` shell
+$ pic32prog sys/pic32/explorer16/unix.hex
+```
 
 #### PIC32 Starter Kit:
 Use PICkit 2 adapter and software to install a boot loader from
@@ -129,9 +129,9 @@ file `sys/pic32/starter-kit/boot.hex`.  This should be done only once.
 Then, you can use a pic32prog utility (http://code.google.com/p/pic32prog/)
 and a USB cable to install a kernel:
 
-    ```shell
-    $ pic32prog sys/pic32/starter-kit/unix.hex
-    ```
+```shell
+$ pic32prog sys/pic32/starter-kit/unix.hex
+```
 
 
 ## Simulator
@@ -140,16 +140,16 @@ You can use a MIPS32 simulator to develop a debug a RetroBSD software,
 without a need for hardware board.  By default, a simulator is configured
 to imitate a Max32 board.  To build it:
 
-    ```shell
-    $ cd tools/virtualmips
-    $ make
+```shell
+$ cd tools/virtualmips
+$ make
     ```
 
 Run it:
 
-    ```shell
-    $ ./pic32
-    ```
+```shell
+$ ./pic32
+```
 
 Configuration of simulated board is stored in file `pic32_max32.conf`.
 
@@ -158,7 +158,7 @@ Configuration of simulated board is stored in file `pic32_max32.conf`.
 
 For building under Ubuntu you need the following packages installed:
 
-    ```shell
-    $ sudo apt-get install byacc libelf-dev
-    ```
+```shell
+$ sudo apt-get install byacc libelf-dev
+```
 

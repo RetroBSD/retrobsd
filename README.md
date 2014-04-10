@@ -31,32 +31,33 @@ By default, the system is configured for the Max32 board.
 To select another target board, edit a top-level user-specific Makefile called "Makefile.user"
 and set a TARGET value:
 
-    TARGET = $(UBW32)          # for the UBW32 board with USB console
-    TARGET = $(UBW32UART)      # for the UBW32 board with UART console
-    TARGET = $(UBW32UARTSDRAM) # for the UBW32 boars with UART console and 8MB SRAM ramdisk
-    TARGET = $(MAXIMITE)       # for the Maximite board
-    TARGET = $(MAXCOLOR)       # for the Colour Maximite board
-    TARGET = $(EXPLORER16)     # for the Explorer 16 board
-    TARGET = $(STARTERKIT)     # for the PIC32 USB or Ethernet Starter Kit
-    TARGET = $(MAX32)          # default
-    TARGET = $(DUINOMITE)      # for the Duinomite board with USB console
-    TARGET = $(DUINOMITEUART)  # for the Duinomite board with UART console
-    TARGET = $(DUINOMITEE)     # for the Duinomite E board with USB console
-    TARGET = $(DUINOMITEEUART) # for the Duinomite E board with UART console
-    TARGET = $(PINGUINO)       # for the Pinguino-Micro board
-    TARGET = $(DIP)            # for the DIP board
-    TARGET = $(BAREMETAL)      # Bare PIC32 chip on a breakout board
-    TARGET = $(FUBARINO)       # Fubarino SD board
-    TARGET = $(FUBARINOBIG)    # Fubarino SD board with 8MB SRAM RAMDISK
-    TARGET = $(MMBMX7)         # MMB MX7 board
-
+```Makefile
+TARGET = $(UBW32)          # for the UBW32 board with USB console
+TARGET = $(UBW32UART)      # for the UBW32 board with UART console
+TARGET = $(UBW32UARTSDRAM) # for the UBW32 boars with UART console and 8MB SRAM ramdisk
+TARGET = $(MAXIMITE)       # for the Maximite board
+TARGET = $(MAXCOLOR)       # for the Colour Maximite board
+TARGET = $(EXPLORER16)     # for the Explorer 16 board
+TARGET = $(STARTERKIT)     # for the PIC32 USB or Ethernet Starter Kit
+TARGET = $(MAX32)          # default
+TARGET = $(DUINOMITE)      # for the Duinomite board with USB console
+TARGET = $(DUINOMITEUART)  # for the Duinomite board with UART console
+TARGET = $(DUINOMITEE)     # for the Duinomite E board with USB console
+TARGET = $(DUINOMITEEUART) # for the Duinomite E board with UART console
+TARGET = $(PINGUINO)       # for the Pinguino-Micro board
+TARGET = $(DIP)            # for the DIP board
+TARGET = $(BAREMETAL)      # Bare PIC32 chip on a breakout board
+TARGET = $(FUBARINO)       # Fubarino SD board
+TARGET = $(FUBARINOBIG)    # Fubarino SD board with 8MB SRAM RAMDISK
+TARGET = $(MMBMX7)         # MMB MX7 board
+```
 
 You can also change a desired filesystem size and swap area size,
 as required.  Default is:
-
-    FS_KBYTES   = 16384
-    SWAP_KBYTES = 2048
-
+```Makefile
+FS_KBYTES   = 16384
+SWAP_KBYTES = 2048
+```
 To compile the kernel and build a filesystem image, run:
 
 ```shell

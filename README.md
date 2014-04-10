@@ -67,7 +67,7 @@ A kernel is in file `unix.hex` in your target board subdirectory.
 
 
 Filesystem image
-~~~~~~~~~~~~~~~~
+----------------
 You need to put a filesystem image on a SD card.  On Windows, use
 Win32DiskImager utility (https://launchpad.net/win32-image-writer/+download).
 On Linux, run:
@@ -78,7 +78,7 @@ Here `XYZ` is a device name of SD card, as recognized by Linux (sdb in my case).
 
 
 Install kernel
-~~~~~~~~~~~~~~
+--------------
 Kernel image should be written to PIC32 flash memory.  The procedure depends
 on a board used.
 

@@ -1,8 +1,7 @@
-This is the RetroBSD source directory.
-======================================
+# This is the RetroBSD source directory.
 
-Source Roadmap
---------------
+## Source Roadmap
+
     bin         User commands.
     etc         Template files for /etc.
     include     System include files.
@@ -14,8 +13,8 @@ Source Roadmap
     tools       Build tools and simulators.
 
 
-Supported hardware
-------------------
+## Supported hardware
+
  * chipKIT Max32 board.
  * Sparkfun UBW32 board.
  * Maximite and Colour Maximite computers.
@@ -26,8 +25,8 @@ Supported hardware
  * eflightworks DIP board.
 
 
-Build
------
+## Build
+
 By default, the system is configured for the Max32 board.
 To select another target board, edit a top-level user-specific Makefile called "Makefile.user"
 and set a TARGET value:
@@ -66,8 +65,8 @@ A resulting root filesystem image is in file `sdcard.rd`.
 A kernel is in file `unix.hex` in your target board subdirectory.
 
 
-Filesystem image
-----------------
+### Filesystem image
+
 You need to put a filesystem image on a SD card.  On Windows, use
 Win32DiskImager utility (https://launchpad.net/win32-image-writer/+download).
 On Linux, run:
@@ -77,12 +76,12 @@ On Linux, run:
 Here `XYZ` is a device name of SD card, as recognized by Linux (sdb in my case).
 
 
-Install kernel
---------------
+### Install kernel
+
 Kernel image should be written to PIC32 flash memory.  The procedure depends
 on a board used.
 
-Max32 board:
+#### Max32 board:
     $ cd sys/pic32/ubw32
     $ AVRTOOLS=/Applications/Mpide.app/Contents/Resources/Java/hardware/tools
         $AVRTOOLS/bin/avrdude -C$AVRTOOLS/etc/avrdude.conf -c stk500v2 -p pic32 \
@@ -90,17 +89,17 @@ Max32 board:
 
 Here you need to change AVRTOOLS path and tty name according to your system.
 
-UBW32 board:
+#### UBW32 board:
 Use a pic32prog utility (http://code.google.com/p/pic32prog/)
 and a USB cable to install a kernel:
 
     $ pic32prog sys/pic32/ubw32/unix.hex
 
-Maximite:
+#### Maximite:
 Use the bootload program for Windows, available for download by link:
 http://geoffg.net/Downloads/Maximite/Maximite_Update_V2.7B.zip
 
-Explorer 16 board:
+#### Explorer 16 board:
 There is an auxiliary PIC18 chip on the Explorer 16 board, which can be
 used as a built-in programmer device.  You will need a PICkit 2 adapter
 to install a needed firmware, as described in article:
@@ -113,7 +112,7 @@ and a USB cable to install a kernel:
 
     $ pic32prog sys/pic32/explorer16/unix.hex
 
-PIC32 Starter Kit:
+#### PIC32 Starter Kit:
 Use PICkit 2 adapter and software to install a boot loader from
 file `sys/pic32/starter-kit/boot.hex`.  This should be done only once.
 
@@ -123,8 +122,8 @@ and a USB cable to install a kernel:
     $ pic32prog sys/pic32/starter-kit/unix.hex
 
 
-Simulator
----------
+## Simulator
+
 You can use a MIPS32 simulator to develop a debug a RetroBSD software,
 without a need for hardware board.  By default, a simulator is configured
 to imitate a Max32 board.  To build it:
@@ -138,8 +137,8 @@ Run it:
 
 Configuration of simulated board is stored in file `pic32_max32.conf`.
 
-Build packages
---------------
+## Build packages
+
 
 For building under Ubuntu you need the following packages installed:
 

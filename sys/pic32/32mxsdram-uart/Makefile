@@ -1,7 +1,7 @@
-BUILDPATH = /home/pito/RETROCURRENT/retrobsd/tools/configsys/../../sys/pic32
-H         = /home/pito/RETROCURRENT/retrobsd/tools/configsys/../../sys/include
-M         = /home/pito/RETROCURRENT/retrobsd/tools/configsys/../../sys/pic32
-S         = /home/pito/RETROCURRENT/retrobsd/tools/configsys/../../sys/kernel
+BUILDPATH = ../../../tools/configsys/../../sys/pic32
+H         = ../../../tools/configsys/../../sys/include
+M         = ../../../tools/configsys/../../sys/pic32
+S         = ../../../tools/configsys/../../sys/kernel
 
 vpath %.c $(M):$(S)
 vpath %.S $(M):$(S)
@@ -87,9 +87,9 @@ DEFS += -DUSB_MAX_EP_NUMBER=1
 DEFS += -DUSB_NUM_STRING_DESCRIPTORS=3
 
 
-LDSCRIPT = /home/pito/RETROCURRENT/retrobsd/tools/configsys/../../sys/pic32/cfg/bootloader-sdram.ld
+LDSCRIPT = ../../../tools/configsys/../../sys/pic32/cfg/bootloader-sdram.ld
 
 CONFIG = 32MXSDRAM-UART
-CONFIGPATH = /home/pito/RETROCURRENT/retrobsd/tools/configsys
+CONFIGPATH = ../../../tools/configsys
 
-include /home/pito/RETROCURRENT/retrobsd/tools/configsys/../../sys/pic32/kernel-post.mk
+include ../../../tools/configsys/../../sys/pic32/kernel-post.mk

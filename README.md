@@ -143,7 +143,7 @@ to imitate a Max32 board.  To build it:
 ```shell
 $ cd tools/virtualmips
 $ make
-    ```
+```
 
 Run it:
 

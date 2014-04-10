@@ -1,8 +1,8 @@
 This is the RetroBSD source directory.
-
+======================================
 
 Source Roadmap
-~~~~~~~~~~~~~~
+--------------
     bin         User commands.
     etc         Template files for /etc.
     include     System include files.
@@ -15,7 +15,7 @@ Source Roadmap
 
 
 Supported hardware
-~~~~~~~~~~~~~~~~~~
+------------------
  * chipKIT Max32 board.
  * Sparkfun UBW32 board.
  * Maximite and Colour Maximite computers.
@@ -27,21 +27,30 @@ Supported hardware
 
 
 Build
-~~~~~
+-----
 By default, the system is configured for the Max32 board.
-To select another target board, edit a top-level Makefile
-and change a TARGET value under section "Select target board":
+To select another target board, edit a top-level user-specific Makefile called "Makefile.user"
+and set a TARGET value:
 
-    TARGET = $(UBW32)       # for the UBW32 board with USB console
-    TARGET = $(UBW32UART)   # for the UBW32 board with UART console
-    TARGET = $(MAXIMITE)    # for the Maximite board
-    TARGET = $(MAXCOLOR)    # for the Colour Maximite board
-    TARGET = $(EXPLORER16)  # for the Explorer 16 board
-    TARGET = $(STARTERKIT)  # for the PIC32 USB or Ethernet Starter Kit
-    TARGET = $(MAX32)       # default
-    TARGET = $(DUINOMITE)   # for the Duinomite board
-    TARGET = $(PINGUINO)    # for the Pinguino-Micro board
-    TARGET = $(DIP)         # for the DIP board
+    TARGET = $(UBW32)          # for the UBW32 board with USB console
+    TARGET = $(UBW32UART)      # for the UBW32 board with UART console
+    TARGET = $(UBW32UARTSDRAM) # for the UBW32 boars with UART console and 8MB SRAM ramdisk
+    TARGET = $(MAXIMITE)       # for the Maximite board
+    TARGET = $(MAXCOLOR)       # for the Colour Maximite board
+    TARGET = $(EXPLORER16)     # for the Explorer 16 board
+    TARGET = $(STARTERKIT)     # for the PIC32 USB or Ethernet Starter Kit
+    TARGET = $(MAX32)          # default
+    TARGET = $(DUINOMITE)      # for the Duinomite board with USB console
+    TARGET = $(DUINOMITEUART)  # for the Duinomite board with UART console
+    TARGET = $(DUINOMITEE)     # for the Duinomite E board with USB console
+    TARGET = $(DUINOMITEEUART) # for the Duinomite E board with UART console
+    TARGET = $(PINGUINO)       # for the Pinguino-Micro board
+    TARGET = $(DIP)            # for the DIP board
+    TARGET = $(BAREMETAL)      # Bare PIC32 chip on a breakout board
+    TARGET = $(FUBARINO)       # Fubarino SD board
+    TARGET = $(FUBARINOBIG)    # Fubarino SD board with 8MB SRAM RAMDISK
+    TARGET = $(MMBMX7)         # MMB MX7 board
+
 
 You can also change a desired filesystem size and swap area size,
 as required.  Default is:
@@ -53,7 +62,7 @@ To compile the kernel and build a filesystem image, run:
 
     make
 
-A resulting root filesystem image is in file `filesys.img`.
+A resulting root filesystem image is in file `sdcard.rd`.
 A kernel is in file `unix.hex` in your target board subdirectory.
 
 
@@ -63,7 +72,7 @@ You need to put a filesystem image on a SD card.  On Windows, use
 Win32DiskImager utility (https://launchpad.net/win32-image-writer/+download).
 On Linux, run:
 
-    sudo dd if=filesys.img of=/dev/XYZ
+    sudo dd if=sdcard.rd of=/dev/XYZ
 
 Here `XYZ` is a device name of SD card, as recognized by Linux (sdb in my case).
 
@@ -115,7 +124,7 @@ PIC32 Starter Kit:
 
 
 Simulator
-~~~~~~~~~
+---------
 You can use a MIPS32 simulator to develop a debug a RetroBSD software,
 without a need for hardware board.  By default, a simulator is configured
 to imitate a Max32 board.  To build it:
@@ -130,7 +139,9 @@ Run it:
 Configuration of simulated board is stored in file `pic32_max32.conf`.
 
 Build packages
-==============
+--------------
 
-apt-get install byacc libelf-dev
+For building under Ubuntu you need the following packages installed:
+
+    $ sudo apt-get install byacc libelf-dev
 

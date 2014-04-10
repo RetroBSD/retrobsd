@@ -560,6 +560,12 @@ static int handle_packet()
  */
 int main()
 {
+    // IM: Quick fix to enable a smooth start @120MHz
+    /* Wait until both System and USB PLL are locked */
+    // while ( (OSCCON & 0x60) != 0x60 );   // does not work
+    while(!(OSCCON & 0x60));
+
+
     /* Initialize STATUS register: master interrupt disable. */
     mips_write_c0_register (C0_STATUS, 0, ST_CU0 | ST_BEV);
 

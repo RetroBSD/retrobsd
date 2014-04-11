@@ -18,6 +18,14 @@ TAGSFILE	= tags
 MANROFF		= nroff -man -h
 ELF2AOUT	= cp
 
-CFLAGS		= -O -DCROSS -I/usr/include -I$(TOPSRC)/include
+CFLAGS		= -O -DCROSS
 LDFLAGS		=
 LIBS		=
+
+# Add system include path
+ifeq (,$(wildcard /usr/include/i386-linux-gnu))
+    CFLAGS      += -I/usr/include
+else
+    CFLAGS      += -I/usr/include/i386-linux-gnu
+endif
+CFLAGS		+= -I$(TOPSRC)/include

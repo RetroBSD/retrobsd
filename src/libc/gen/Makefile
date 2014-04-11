@@ -6,7 +6,7 @@
 TOPSRC		= $(shell cd ../../..; pwd)
 include $(TOPSRC)/target.mk
 
-CFLAGS		+= ${DEFS} -Os -Wall -Werror
+CFLAGS		+= ${DEFS}
 
 SRCS		= ${STDSRC}
 OBJS		= ${STDOBJ}
@@ -19,7 +19,7 @@ STDSRC		= abort.c alarm.c atof.c atoi.c atol.c calloc.c closedir.c crypt.c \
 		  getpass.c getpwent.c getloadavg.c getmntinfo.c \
 		  getttyent.c getttynam.c getusershell.c getwd.c \
 		  initgroups.c isatty.c isinff.c isnanf.c ldexp.c malloc.c mktemp.c \
-                  modff.c ndbm.c nlist.c knlist.c opendir.c perror.c popen.c \
+                  modff.c modf.c ndbm.c nlist.c knlist.c opendir.c perror.c popen.c \
                   psignal.c qsort.c random.c readdir.c regex.c scandir.c \
                   seekdir.c setmode.c sethostname.c setenv.c siglist.c \
                   signal.c siginterrupt.c sigsetops.c \
@@ -36,7 +36,7 @@ STDOBJ		= abort.o alarm.o atof.o atoi.o atol.o calloc.o closedir.o crypt.o \
 		  getpass.o getpwent.o getloadavg.o getmntinfo.o \
 		  getttyent.o getttynam.o getusershell.o getwd.o \
 		  initgroups.o isatty.o isinff.o isnanf.o ldexp.o malloc.o mktemp.o \
-                  modff.o ndbm.o nlist.o knlist.o opendir.o perror.o popen.o \
+                  modff.o modf.o ndbm.o nlist.o knlist.o opendir.o perror.o popen.o \
                   psignal.o qsort.o random.o readdir.o regex.o scandir.o \
                   seekdir.o setmode.o sethostname.o setenv.o siglist.o \
                   signal.o siginterrupt.o sigsetops.o \

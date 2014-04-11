@@ -6,7 +6,7 @@
 TOPSRC		= $(shell cd ../../..; pwd)
 include $(TOPSRC)/target.mk
 
-CFLAGS		+= ${DEFS} -Os
+CFLAGS		+= ${DEFS}
 
 SRCS		= creat.c ftime.c gethostid.c gtty.c memccpy.c memchr.c memcmp.c \
 		  memcpy.c memset.c nice.c pause.c rand.c sethostid.c \

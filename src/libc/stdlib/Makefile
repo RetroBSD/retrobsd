@@ -7,7 +7,7 @@ TOPSRC		= $(shell cd ../../..; pwd)
 include $(TOPSRC)/target.mk
 
 DEFS		=
-CFLAGS		+= ${DEFS} -Os
+CFLAGS		+= ${DEFS}
 
 SRCS		= getopt.c getsubopt.c strtol.c strtoul.c strtod.c
 OBJS		= getopt.o getsubopt.o strtol.o strtoul.o strtod.o

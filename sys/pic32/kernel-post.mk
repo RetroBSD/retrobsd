@@ -73,7 +73,7 @@ vers.o:		$(BUILDPATH)/newvers.sh $(H)/*.h $(M)/*.[ch] $(S)/*.c
 		$(CC) -c vers.c
 
 reconfig:
-		../../../tools/configsys/config $(CONFIG)
+		$(CONFIGPATH)/config $(CONFIG)
 
 .SUFFIXES:	.i .srec .hex .dis .cpp .cxx .bin .elf
 

@@ -13,43 +13,35 @@
  */
 static const float one = 1.0;
 
-float modff (float fx, float *iptr)
+float modff (float x, float *iptr)
 {
-        union {
-                unsigned u32;
-                float f32;
-        } x;
-        unsigned hx, s;
+        unsigned hx = *(unsigned*) &x & ~0x80000000;
+        unsigned s;
 
-        x.f32 = fx;
-        hx = x.u32 & ~0x80000000;
         if (hx >= 0x4b000000) { /* x is NaN, infinite, or integral */
-                *iptr = x.f32;
+                *iptr = x;
                 if (hx <= 0x7f800000)
-                        x.u32 &= 0x80000000;
-                return x.f32;
+                        *(unsigned*) &x &= 0x80000000;
+                return x;
         }
 
         if (hx < 0x3f800000) {  /* |x| < 1 */
-                float ret = x.f32;
-                x.u32 &= 0x80000000;
-                *iptr = x.f32;
-                return ret;
+                *iptr = x;
+                *(unsigned*) iptr &= 0x80000000;
+                return x;
         }
 
         /* split x at the binary point */
-        s = x.u32 & 0x80000000;
-        fx = x.f32;
-        x.u32 &= ~((1 << (0x96 - (hx >> 23))) - 1);
-        *iptr = x.f32;
-        x.f32 = fx - *iptr;
+        s = *(unsigned*) &x & 0x80000000;
+        *(unsigned*) iptr = *(unsigned*) &x & ~((1 << (0x96 - (hx >> 23))) - 1);
+        x -= *iptr;
 
         /* restore sign in case difference is 0 */
-        x.u32 = (x.u32 & ~0x80000000) | s;
-        return x.f32;
+        *(unsigned*) &x = (*(unsigned*) &x & ~0x80000000) | s;
+        return x;
 }
 
 /*
  * For PIC32, double is the same as float.
  */
-double modf (double x, double *iptr) __attribute__((alias ("modff")));
+//double modf (double x, double *iptr) __attribute__((alias ("modff")));

@@ -39,15 +39,17 @@ asin(arg)
 
 double
 acos(arg)
-        double arg;
+double arg;
 {
-	if(arg < 0)
-		arg = -arg;
+   double sign = 1.0;
+   if(arg < 0.0){
+      arg = -arg;
+      sign = -1.0;
+   }
+   if(arg > 1.0){
+      errno = EDOM;
+      return(0.0);
+   }
 
-	if(arg > 1.){
-		errno = EDOM;
-		return(0.);
-	}
-
-	return(pio2 - asin(arg));
-}
+   return(pio2 - sign*asin(arg));
+}  

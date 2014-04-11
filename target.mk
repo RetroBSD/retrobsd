@@ -1,15 +1,6 @@
 MACHINE		= mips
 DESTDIR		?= $(TOPSRC)
 
-# chipKIT PIC32 compiler from UECIDE
-ifdef UECIDE
-ifndef GCCPREFIX
-    GCCPREFIX   = ${HOME}/.uecide/compilers/pic32-tools/bin/pic32-
-    LDFLAGS     = -Wl,--oformat=elf32-tradlittlemips
-    INCLUDES    = -I${HOME}/.uecide/compilers/pic32-tools/lib/gcc/pic32mx/4.5.1/include
-endif
-endif
-
 # chipKIT PIC32 compiler on Linux
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Download from https://github.com/jasonkajita/chipKIT-cxx/downloads
@@ -34,8 +25,8 @@ ifndef GCCPREFIX
     INCLUDES    =
 endif
 
-CC		= $(GCCPREFIX)gcc -mips32r2 -EL -msoft-float -nostdinc -fshort-double -I$(TOPSRC)/include $(INCLUDES)
-CXX             = $(GCCPREFIX)g++ -mips32r2 -EL -msoft-float -nostdinc -fshort-double -I$(TOPSRC)/include $(INCLUDES)
+CC		= $(GCCPREFIX)gcc -mips32r2 -EL -msoft-float -nostdinc -fno-short-double -I$(TOPSRC)/include $(INCLUDES)
+CXX     = $(GCCPREFIX)g++ -mips32r2 -EL -msoft-float -nostdinc -fno-short-double -I$(TOPSRC)/include $(INCLUDES)
 LD		= $(GCCPREFIX)ld
 AR		= $(GCCPREFIX)ar
 RANLIB          = $(GCCPREFIX)ranlib

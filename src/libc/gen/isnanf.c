@@ -13,15 +13,10 @@
  */
 int isnanf (float x)
 {
-        union {
-                long s32;
-                float f32;
-        } u;
-        unsigned long ul;
+	long lx = *(long*) &x;
 
-        u.f32 = x;
-	ul = 0x7f800000 - (u.s32 & 0x7fffffff);
-	return ul >> 31;
+	lx = 0x7f800000 - (lx & 0x7fffffff);
+	return (int) (((unsigned long) lx) >> 31);
 }
 
 /*

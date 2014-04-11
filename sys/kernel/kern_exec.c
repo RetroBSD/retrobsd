@@ -405,8 +405,12 @@ again:
 		bdwrite (bp);
 	}
 	bp = 0;
+    // ###PITO
 	nc = (nc + NBPW-1) & ~(NBPW-1);
 	getxfile (ip, &exdata.ex_exec, nc + (na+4)*NBPW, uid, gid);
+	//nc = (nc + (NBPW*2)-1) & ~((NBPW*2)-1);
+	//getxfile (ip, &exdata.ex_exec, nc + (na+4)*(NBPW*2), uid, gid);
+    // ###PITO
 	if (u.u_error) {
 //printf ("execve: getxfile error = %d\n", u.u_error);
 badarg:

@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <stdarg.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define HAVE_FLOAT 1
 
 #define	SPC	01
 #define	STP	02

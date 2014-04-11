@@ -13,7 +13,7 @@
  */
 #include <math.h>
 
-double static sq2p1	 =2.414213562373095048802e0;
+static double sq2p1	 =2.414213562373095048802e0;
 static double sq2m1	 = .414213562373095048802e0;
 static double pio2	 =1.570796326794896619231e0;
 static double pio4	 = .785398163397448309615e0;

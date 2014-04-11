@@ -13,7 +13,7 @@
  */
 int isinff (float x)
 {
-	long lx = *(unsigned long*) &x;
+	unsigned long lx = *(unsigned long*) &x;
 	long v = (lx & 0x7fffffff) ^ 0x7f800000;
 	return ~((v | -v) >> 31) & (lx >> 30);
 }

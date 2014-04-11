@@ -1026,6 +1026,10 @@
 #define DEVCFG1_WDTPS_524288    0x00130000 /* 1:524288 */
 #define DEVCFG1_WDTPS_1048576   0x00140000 /* 1:1048576 */
 #define DEVCFG1_FWDTEN          0x00800000 /* Watchdog enable */
+#define WDTCON      PIC32_R (0x0000)   /* Watchdog timer control */
+#define WDTCONCLR   PIC32_R (0x0004)   /* Watchdog timer control */
+#define WDTCONSET   PIC32_R (0x0008)   /* Watchdog timer control */
+
 
 /*
  * Config2 register at 1fc02ff4.

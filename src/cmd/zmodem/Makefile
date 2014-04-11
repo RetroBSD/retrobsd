@@ -4,11 +4,12 @@
 TOPSRC		= $(shell cd ../../..; pwd)
 include $(TOPSRC)/target.mk
 
-CFLAGS		+= -Werror -DV7 -DMD=2 -DTXBSIZE=8192 -DNFGVMIN -DSEGMENTS=32
+CFLAGS		+= -Werror -DV7 -DMD=2 -DTXBSIZE=4096  -DNFGVMIN -DSEGMENTS=2
+#CFLAGS		+= -Werror -DV7 -DMD=2 -DTXBSIZE=1024  -DNFGVMIN -DSEGMENTS=8
 
 SRCS		= rz.c sz.c
 OBJS		= rz.o sz.o
-MAN		= rz.0 sz.0
+MAN		    = rz.0 sz.0
 MANSRC		= rz.1 sz.1
 
 all:            rz sz $(MAN)

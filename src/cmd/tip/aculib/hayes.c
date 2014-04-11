@@ -120,7 +120,9 @@ void error_rep(c)
  */
 void goodbye()
 {
+#ifdef DEBUG
     int len;
+#endif
     int zero = 0;
     long llen;
     char c;
@@ -141,8 +143,8 @@ void goodbye()
 #endif
         sleep(1);
         ioctl(FD, FIONREAD, &llen);
-        len = llen;
 #ifdef DEBUG
+        len = llen;
         printf("goodbye1: len=%d -- ", len);
         int rlen = read(FD, dumbuf, min(len, DUMBUFLEN));
         dumbuf[rlen] = '\0';

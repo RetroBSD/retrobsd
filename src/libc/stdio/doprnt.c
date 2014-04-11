@@ -53,6 +53,11 @@ static unsigned char mkhex (unsigned char ch);
 static int cvt (double number, int prec, int sharpflag, unsigned char *negp,
 	unsigned char fmtch, unsigned char *startp, unsigned char *endp);
 
+ union {
+         unsigned long u32;
+         va_list ap32;
+        } x;
+
 int
 _doprnt (char const *fmt, va_list ap, FILE *stream)
 {
@@ -367,7 +372,9 @@ number:		if (sign && ((long) ul != 0L)) {
   				double d;
                 unsigned long *l = (unsigned long *) &d;
 
-                if (*(unsigned long*)&ap & 4L) {
+                x.ap32 = ap;
+
+                if ( x.u32 & 4) {
                     l[0]= va_arg(ap, unsigned long);
                     l[1]= va_arg(ap, unsigned long);
                 }

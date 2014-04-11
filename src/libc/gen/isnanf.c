@@ -11,31 +11,20 @@
  * isnan(x) returns 1 is x is nan, else 0;
  * no branching!
  */
+int isnanf (float x)
+{
+        union {
+                long s32;
+                float f32;
+        } u;
+        unsigned long ul;
 
-typedef union {
-    float x;
-    struct {
-            long lxx;
-        };
-} ival;
-
-//int isnanf (float x)
-//{
-//	long lx = *(long*) &x;
-//	lx = 0x7f800000 - (lx & 0x7fffffff);
-//	return (int) (((unsigned long) lx) >> 31);
-//}
-int isnanf (float xx) {
-    ival temp;
-    temp.x = xx;
-    long lx = temp.lxx;
-	lx = 0x7f800000 - (lx & 0x7fffffff);
-	return (int) (((unsigned long) lx) >> 31);
+        u.f32 = x;
+	ul = 0x7f800000 - (u.s32 & 0x7fffffff);
+	return ul >> 31;
 }
-
-
 
 /*
  * For PIC32, double is the same as float.
  */
-//int isnan (double x) __attribute__((alias ("isnanf")));
+int isnan (double x) __attribute__((alias ("isnanf")));

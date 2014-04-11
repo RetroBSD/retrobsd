@@ -367,7 +367,7 @@ number:		if (sign && ((long) ul != 0L)) {
   				double d;
                 unsigned long *l = (unsigned long *) &d;
 
-                if (*(unsigned long*)&ap & 4) {
+                if (*(unsigned long*)&ap & 4L) {
                     l[0]= va_arg(ap, unsigned long);
                     l[1]= va_arg(ap, unsigned long);
                 }

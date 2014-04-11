@@ -11,7 +11,7 @@
  * isinff(x) returns 1 is x is inf, -1 if x is -inf, else 0;
  * no branching!
  */
-int isinff (double x)
+int isinff (float x)
 {
 	long lx = *(long*) &x;
 	long v = (lx & 0x7fffffff) ^ 0x7f800000;
@@ -21,4 +21,4 @@ int isinff (double x)
 /*
  * For PIC32, double is the same as float.
  */
-int isinf (double x) __attribute__((alias ("isinff")));
+//int isinf (double x) __attribute__((alias ("isinff")));

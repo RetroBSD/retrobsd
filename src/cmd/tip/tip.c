@@ -515,10 +515,10 @@ void pwrite(fd, buf, n)
     register int n;
 {
     //register int i;
-    register char *bp;
+//    register char *bp;
     extern int errno;
 
-    bp = buf;
+//    bp = buf;
     //for (i = 0; i < n; i++) {
     //    *bp = partab[(*bp) & 0177];
     //    bp++;

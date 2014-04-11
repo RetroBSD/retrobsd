@@ -73,9 +73,9 @@ int rx_link_data()
     static unsigned char phase = 0;
     static unsigned int pos = 0;
     char inch[2];
-    int res;
+//    int res;
 
-    res = read(0, inch, 1);
+    /*res =*/ read(0, inch, 1);
 
     switch(phase) {
     case 0:

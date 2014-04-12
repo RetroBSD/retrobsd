@@ -27,4 +27,4 @@ int isnanf (float x)
 /*
  * For PIC32, double is the same as float.
  */
-int isnan (double x) __attribute__((alias ("isnanf")));
+//int isnan (double x) __attribute__((alias ("isnanf")));

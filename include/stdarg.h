@@ -22,8 +22,8 @@
 #define va_copy(dest, src)      __builtin_va_copy((dest), (src))
 
 
-#ifndef _VA_LIST_T
-#define _VA_LIST_T
+#ifndef _VA_LIST
+#define _VA_LIST
 #ifdef __GNUC__
     typedef __builtin_va_list va_list;
 #endif

@@ -24,19 +24,29 @@
  * The values are dependant upon the presence of the -fno-short-double
  * compiler option.
  */
-#define DBL_EPSILON     FLT_EPSILON
-#define DBL_MAX         FLT_MAX
-#define DBL_MIN         FLT_MIN
-#define DBL_DIG         FLT_DIG
-#define DBL_MANT_DIG    FLT_MANT_DIG
-#define DBL_MAX_10_EXP  FLT_MAX_10_EXP
-#define DBL_MAX_EXP     FLT_MAX_EXP
-#define DBL_MIN_10_EXP  FLT_MIN_10_EXP
-#define DBL_MIN_EXP     FLT_MIN_EXP
+//#define DBL_EPSILON     FLT_EPSILON
+//#define DBL_MAX         FLT_MAX
+//#define DBL_MIN         FLT_MIN
+//#define DBL_DIG         FLT_DIG
+//#define DBL_MANT_DIG    FLT_MANT_DIG
+//#define DBL_MAX_10_EXP  FLT_MAX_10_EXP
+//#define DBL_MAX_EXP     FLT_MAX_EXP
+//#define DBL_MIN_10_EXP  FLT_MIN_10_EXP
+//#define DBL_MIN_EXP     FLT_MIN_EXP
 
 /*
  * These values provide information pertaining to the long double type.
  */
+#define DBL_EPSILON    2.2204460492503131E-16
+#define DBL_MAX        1.7976931348623157E+308
+#define DBL_MIN        2.2250738585072014E-308
+#define DBL_DIG        15
+#define DBL_MANT_DIG   53
+#define DBL_MAX_10_EXP 308
+#define DBL_MAX_EXP    1024
+#define DBL_MIN_10_EXP (-307)
+#define DBL_MIN_EXP    (-1021)
+
 #define LDBL_EPSILON    2.2204460492503131E-16
 #define LDBL_MAX        1.7976931348623157E+308
 #define LDBL_MIN        2.2250738585072014E-308

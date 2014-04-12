@@ -8,12 +8,20 @@
  */
 #include <math.h>
 
+// IM: dereferencing type-punned pointer will break strict-aliasing rules
+// TODO check Endiannes
+        union {
+              double d64;
+              struct { long i32h;
+                       long i32l;
+                     };
+        } ew;
+
 /* Get two 32 bit ints from a double.  */
 
-#define EXTRACT_WORDS(high,low,d) \
-        high = *(unsigned long long*) &d; \
-        low  = (*(unsigned long long*) &d) >> 32
-
+//#define EXTRACT_WORDS(high,low,d) 
+//        high = *(unsigned long long*) &d; 
+//        low  = (*(unsigned long long*) &d) >> 32
 
 /* Set a double from two 32 bit ints.  */
 
@@ -36,22 +44,30 @@ double modf (double x, double *iptr)
 	long i0, i1, j0;
 	unsigned long i;
 
-	EXTRACT_WORDS (i0, i1, x);
+	//EXTRACT_WORDS (i0, i1, x);
+    ew.d64 = x; i0 = ew.i32h; i1 = ew.i32l;
+    //
 	j0 = ((i0 >> 20) & 0x7ff) - 0x3ff;	/* exponent of x */
 	if (j0 < 20) {				/* integer part in high x */
 		if (j0 < 0) {			/* |x|<1 */
-			INSERT_WORDS (*iptr, i0 & 0x80000000, 0);
+			//INSERT_WORDS (*iptr, i0 & 0x80000000, 0);
+            ew.i32h = i0 & 0x80000000; ew.i32l = 0; *iptr = ew.d64;
+            //
 			/* *iptr = +-0 */
 			return x;
 		} else {
 			i = (0x000fffff) >> j0;
 			if (((i0 & i) | i1) == 0) {	/* x is integral */
 				*iptr = x;
-				INSERT_WORDS (x, i0 & 0x80000000, 0);
+				//INSERT_WORDS (x, i0 & 0x80000000, 0);
+                ew.i32h = i0 & 0x80000000; ew.i32l = 0; x = ew.d64;
+                //
 				/* return +-0 */
 				return x;
 			} else {
-				INSERT_WORDS (*iptr, i0 & (~i), 0);
+				//INSERT_WORDS (*iptr, i0 & (~i), 0);
+                ew.i32h = i0 & (~i); ew.i32l = 0; *iptr = ew.d64;
+                //
 				return x - *iptr;
 			}
 		}
@@ -61,18 +77,24 @@ double modf (double x, double *iptr)
 		if (j0 == 0x400 && ((i0 & 0xfffff) | i1))
 			return x * one;
 
-		INSERT_WORDS (x, i0 & 0x80000000, 0);
+		//INSERT_WORDS (x, i0 & 0x80000000, 0);
+        ew.i32h = i0 & 0x80000000; ew.i32l = 0; x = ew.d64;
+        //
 		/* return +-0 */
 		return x;
 	} else {				/* fraction part in low x */
 		i = ((unsigned long) (0xffffffff)) >> (j0 - 20);
 		if ((i1 & i) == 0) {			/* x is integral */
 			*iptr = x;
-			INSERT_WORDS (x, i0 & 0x80000000, 0);
+			//INSERT_WORDS (x, i0 & 0x80000000, 0);
+            ew.i32h = i0 & 0x80000000; ew.i32l = 0; x = ew.d64;
+            //
 			/* return +-0 */
 			return x;
 		} else {
-			INSERT_WORDS (*iptr, i0, i1 & (~i));
+			//INSERT_WORDS (*iptr, i0, i1 & (~i));
+            ew.i32h = i0; ew.i32l = i1 & (~i); *iptr = ew.d64;
+            //
 			return x - *iptr;
 		}
 	}

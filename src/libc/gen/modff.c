@@ -52,4 +52,4 @@ float modff (float fx, float *iptr)
 /*
  * For PIC32, double is the same as float.
  */
-double modf (double x, double *iptr) __attribute__((alias ("modff")));
+//double modf (double x, double *iptr) __attribute__((alias ("modff")));

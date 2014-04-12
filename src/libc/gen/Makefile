@@ -36,7 +36,7 @@ STDOBJ		= abort.o alarm.o atof.o atoi.o atol.o calloc.o closedir.o crypt.o \
 		  getpass.o getpwent.o getloadavg.o getmntinfo.o \
 		  getttyent.o getttynam.o getusershell.o getwd.o \
 		  initgroups.o isatty.o isinff.o isnanf.o ldexp.o malloc.o mktemp.o \
-                  modff.o modf.c ndbm.o nlist.o knlist.o opendir.o perror.o popen.o \
+                  modff.o modf.o ndbm.o nlist.o knlist.o opendir.o perror.o popen.o \
                   psignal.o qsort.o random.o readdir.o regex.o scandir.o \
                   seekdir.o setmode.o sethostname.o setenv.o siglist.o \
                   signal.o siginterrupt.o sigsetops.o \

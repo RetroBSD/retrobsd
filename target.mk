@@ -34,8 +34,8 @@ ifndef GCCPREFIX
     INCLUDES    =
 endif
 
-CC		= $(GCCPREFIX)gcc -mips32r2 -EL -msoft-float -nostdinc -fshort-double -I$(TOPSRC)/include $(INCLUDES)
-CXX             = $(GCCPREFIX)g++ -mips32r2 -EL -msoft-float -nostdinc -fshort-double -I$(TOPSRC)/include $(INCLUDES)
+CC		= $(GCCPREFIX)gcc -mips32r2 -EL -msoft-float -nostdinc -fno-short-double -I$(TOPSRC)/include $(INCLUDES)
+CXX             = $(GCCPREFIX)g++ -mips32r2 -EL -msoft-float -nostdinc -fno-short-double -I$(TOPSRC)/include $(INCLUDES)
 LD		= $(GCCPREFIX)ld
 AR		= $(GCCPREFIX)ar
 RANLIB          = $(GCCPREFIX)ranlib
@@ -50,7 +50,7 @@ TAGSFILE	= tags
 MANROFF		= nroff -man -h -Tascii
 ELF2AOUT	= $(TOPSRC)/tools/elf2aout/elf2aout
 
-CFLAGS		= -O
+CFLAGS		= -O -fno-short-double
 
 LDFLAGS		+= -N -nostartfiles -fno-dwarf2-cfi-asm -T$(TOPSRC)/src/elf32-mips.ld \
 		   $(TOPSRC)/src/crt0.o -L$(TOPSRC)/src

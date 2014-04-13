@@ -42,7 +42,9 @@
 #include <math.h>
 
 /* Max number conversion buffer length: a long in base 2, plus NUL byte. */
-#define MAXNBUF	(sizeof(long) * 8 + 1)
+//#define MAXNBUF	(sizeof(long) * 8 + 1)
+/* Max number conversion buffer length: MAXEXP(308) + MAXFRACTION(15) + 2 */
+#define MAXNBUF   308+15+2
 
 static unsigned char *ksprintn (unsigned char *buf, unsigned long v, unsigned char base,
 	int width, unsigned char *lp);
@@ -50,6 +52,11 @@ static unsigned char mkhex (unsigned char ch);
 
 static int cvt (double number, int prec, int sharpflag, unsigned char *negp,
 	unsigned char fmtch, unsigned char *startp, unsigned char *endp);
+
+// union {
+//         unsigned long u32;
+//         va_list ap32;
+//        } x;
 
 int
 _doprnt (char const *fmt, va_list ap, FILE *stream)
@@ -361,7 +368,29 @@ number:		if (sign && ((long) ul != 0L)) {
 		case 'F':
 		case 'g':
 		case 'G': {
-			double d = va_arg (ap, double);
+
+                // --- IM - vaarg alignment issue fix:
+            
+  				double d;
+               
+                unsigned long *da;
+
+                da = (unsigned long *) &ap; 
+
+                unsigned long *l = (unsigned long *) &d;
+
+                if ( (*da) & 4) {                       // maj
+                    l[0]= va_arg(ap, unsigned long);
+                    l[1]= va_arg(ap, unsigned long);
+                }
+                else {
+                    l[0]= va_arg(ap, unsigned long);
+                    l[0]= va_arg(ap, unsigned long);
+                    l[1]= va_arg(ap, unsigned long);
+            	}
+
+                // ---
+
 			/*
 			 * don't do unrealistic precision; just pad it with
 			 * zeroes later, so buffer size stays rational.
@@ -583,10 +612,11 @@ cvt (double number, int prec, int sharpflag, unsigned char *negp, unsigned char 
 	 * get integer portion of number; put into the end of the buffer; the
 	 * .01 is added for modf (356.0 / 10, &integer) returning .59999999...
 	 */
-	for (p = endp - 1; integer; ++expcnt) {
-		tmp = modf (integer / 10, &integer);
-		*p-- = (int) ((tmp + .01) * 10) + '0';
-	}
+	p = endp - 1;
+    for (; integer && p >= startp; ++expcnt) {
+        tmp = modf(integer * 0.1L , &integer);
+        *p-- = (int)((tmp + .01L) * 10) + '0';
+    }
 	switch (fmtch) {
 	case 'f':
 		/* reverse integer into beginning of buffer */

@@ -34,8 +34,8 @@ ifndef GCCPREFIX
     INCLUDES    =
 endif
 
-CC		= $(GCCPREFIX)gcc -mips32r2 -EL -msoft-float -nostdinc -fno-short-double -I$(TOPSRC)/include $(INCLUDES)
-CXX             = $(GCCPREFIX)g++ -mips32r2 -EL -msoft-float -nostdinc -fno-short-double -I$(TOPSRC)/include $(INCLUDES)
+CC		= $(GCCPREFIX)gcc -mips32r2 -EL -msoft-float -nostdinc -I$(TOPSRC)/include $(INCLUDES)
+CXX             = $(GCCPREFIX)g++ -mips32r2 -EL -msoft-float -nostdinc -I$(TOPSRC)/include $(INCLUDES)
 LD		= $(GCCPREFIX)ld
 AR		= $(GCCPREFIX)ar
 RANLIB          = $(GCCPREFIX)ranlib

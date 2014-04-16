@@ -110,9 +110,9 @@ int spidev_write (dev_t dev, struct uio *uio, int flag)
  * - SPICTL_IO8W(n)    - n*8 bit W transaction
  * - SPICTL_IO16W(n)   - n*16 bit W transaction
  * - SPICTL_IO32W(n)   - n*32 bit W transaction
- * - SPICTL_IO32RB(n)   - n*32 bit RB transaction
+ * - SPICTL_IO32RB(n)   - n*32 bit RB transaction (B - swap bytes order)
  * - SPICTL_IO32WB(n)   - n*32 bit WB transaction
- * - SPICTL_IO32B(n)   - n*32 bit B transaction
+ * - SPICTL_IO32B(n)   - n*32 bit RWB transaction
  */
 int spidev_ioctl (dev_t dev, u_int cmd, caddr_t addr, int flag)
 {

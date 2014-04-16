@@ -68,6 +68,9 @@ _doprnt (char const *fmt, va_list ap, FILE *stream)
 	int n, width, dwidth, retval, uppercase, extrazeros, sign;
 	unsigned long ul;
 
+    double d;
+    unsigned long *da;
+
 	if (! stream)
 		return 0;
 	if (! fmt)
@@ -371,15 +374,11 @@ number:		if (sign && ((long) ul != 0L)) {
 
                 // --- IM - vaarg alignment issue fix:
             
-  				double d;
-               
-                unsigned long *da;
-
                 da = (unsigned long *) &ap; 
 
                 unsigned long *l = (unsigned long *) &d;
 
-                if ( (*da) & 4) {                       // maj
+                if ( ((unsigned long)da) & 4) {           // maj_II
                     l[0]= va_arg(ap, unsigned long);
                     l[1]= va_arg(ap, unsigned long);
                 }

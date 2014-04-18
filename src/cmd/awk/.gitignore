@@ -1,0 +1,6 @@
+awk
+awk.h
+proc
+proctab.c
+token.h
+y.tab.h

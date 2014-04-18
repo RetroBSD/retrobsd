@@ -1,0 +1,9 @@
+.compileversion
+.deps/
+.oldversion
+machine
+sys
+unix.bin
+unix.map
+usbboot.map
+vers.c

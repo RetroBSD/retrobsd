@@ -27,6 +27,7 @@ of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
 */
 
+#ifndef __APPLE__
 /*****************************************************************************/
 /*                                                                           */
 /*                             minimal stdlibc                               */
@@ -1397,3 +1398,4 @@ int fclose(FILE* stream)
   --__FileCnt__;
   return OsClose(fd);
 }
+#endif /*__APPLE__*/

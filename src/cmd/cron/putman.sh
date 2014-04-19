@@ -12,7 +12,7 @@ SECT=`expr $PAGE : '[a-z]*.\([0-9]\)'`
 MDIR="$DIR/cat$SECT"
 DEST="$MDIR/`basename $PAGE .$SECT`.0"
 
-set -x
+#set -x
 if [ ! -d $MDIR ]; then
 	rm -f $MDIR
 	mkdir -p $MDIR

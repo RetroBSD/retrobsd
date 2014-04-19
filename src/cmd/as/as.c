@@ -520,7 +520,12 @@ void startup ()
 {
     register int i;
 
-    mktemp (tfilename);
+    int fd = mkstemp (tfilename);
+    if (fd == -1) {
+        uerror ("cannot create temporary file %2", tfilename);
+    } else {
+        close(fd);
+    }
     for (i=STEXT; i<SBSS; i++) {
         sfile [i] = fopen (tfilename, "w+");
         if (! sfile [i])

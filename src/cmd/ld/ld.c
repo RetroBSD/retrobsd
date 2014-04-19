@@ -1287,7 +1287,13 @@ void middle()
 void setupout ()
 {
 	tcreat (&outb, 0);
-	mktemp (tfname);
+	int fd = mkstemp (tfname);
+    if (fd == -1) {
+        error(2, "internal error: unable to create temporary file %s", tfname);
+    } else {
+        close(fd);
+    }
+        
 	tcreat (&toutb, 1);
 	tcreat (&doutb, 1);
 

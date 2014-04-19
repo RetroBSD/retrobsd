@@ -173,7 +173,7 @@ void mips_mts32_show_stats (cpu_mips_t * cpu)
 #endif
 
     printf ("   Total lookups: %llu, misses: %llu, efficiency: %g%%\n",
-        cpu->mts_lookups, cpu->mts_misses,
+        (unsigned long long)cpu->mts_lookups, (unsigned long long)cpu->mts_misses,
         100 - ((double) (cpu->mts_misses * 100) / (double) cpu->mts_lookups));
 }
 

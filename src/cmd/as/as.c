@@ -522,7 +522,7 @@ void startup ()
 
     int fd = mkstemp (tfilename);
     if (fd == -1) {
-        uerror ("cannot create temporary file %2", tfilename);
+        uerror ("cannot create temporary file %s", tfilename);
     } else {
         close(fd);
     }

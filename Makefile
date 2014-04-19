@@ -12,6 +12,7 @@
 # Supported boards
 #
 MAX32           = sys/pic32/max32/MAX32
+MAX32-ETH       = sys/pic32/max32-eth/MAX32-ETH
 UBW32           = sys/pic32/ubw32/UBW32
 UBW32UART       = sys/pic32/ubw32-uart/UBW32-UART
 UBW32UARTSDRAM  = sys/pic32/ubw32-uart-sdram/UBW32-UART-SDRAM

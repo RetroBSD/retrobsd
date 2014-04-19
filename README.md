@@ -40,6 +40,7 @@ TARGET = $(MAXCOLOR)       # for the Colour Maximite board
 TARGET = $(EXPLORER16)     # for the Explorer 16 board
 TARGET = $(STARTERKIT)     # for the PIC32 USB or Ethernet Starter Kit
 TARGET = $(MAX32)          # default
+TARGET = $(MAX32-ETH)      # for the chipKIT MAX32 board with Arduino Ethernet shield
 TARGET = $(DUINOMITE)      # for the Duinomite board with USB console
 TARGET = $(DUINOMITEUART)  # for the Duinomite board with UART console
 TARGET = $(DUINOMITEE)     # for the Duinomite E board with USB console

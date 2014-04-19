@@ -4,9 +4,9 @@ DESTDIR		?= $(TOPSRC)
 # chipKIT PIC32 compiler from UECIDE
 ifdef UECIDE
 ifndef GCCPREFIX
-    GCCPREFIX   = ${HOME}/.uecide/compilers/pic32-tools/bin/pic32-
+    GCCPREFIX   = ${UECIDE}/compilers/pic32-tools/bin/pic32-
     LDFLAGS     = -Wl,--oformat=elf32-tradlittlemips
-    INCLUDES    = -I${HOME}/.uecide/compilers/pic32-tools/lib/gcc/pic32mx/4.5.1/include
+    INCLUDES    = -I${UECIDE}/compilers/pic32-tools/lib/gcc/pic32mx/4.5.1/include
 endif
 endif
 

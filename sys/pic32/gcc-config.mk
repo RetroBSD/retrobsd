@@ -1,7 +1,7 @@
 # chipKIT PIC32 compiler from UECIDE
 ifdef UECIDE
 ifndef GCCPREFIX
-    GCCPREFIX   = ${HOME}/.uecide/compilers/pic32-tools/bin/pic32-
+    GCCPREFIX   = ${UECIDE}/compilers/pic32-tools/bin/pic32-
     LDFLAGS     = -Wl,--oformat=elf32-tradlittlemips
 endif
 endif

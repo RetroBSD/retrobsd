@@ -53,11 +53,6 @@ static unsigned char mkhex (unsigned char ch);
 static int cvt (double number, int prec, int sharpflag, unsigned char *negp,
 	unsigned char fmtch, unsigned char *startp, unsigned char *endp);
 
-// union {
-//         unsigned long u32;
-//         va_list ap32;
-//        } x;
-
 int
 _doprnt (char const *fmt, va_list ap, FILE *stream)
 {
@@ -69,7 +64,6 @@ _doprnt (char const *fmt, va_list ap, FILE *stream)
 	unsigned long ul;
 
     double d;
-    unsigned long *da;
 
 	if (! stream)
 		return 0;
@@ -372,22 +366,8 @@ number:		if (sign && ((long) ul != 0L)) {
 		case 'g':
 		case 'G': {
 
-                // --- IM - vaarg alignment issue fix:
-            
-                da = (unsigned long *) &ap; 
-
-                unsigned long *l = (unsigned long *) &d;
-
-                if ( ((unsigned long)da) & 4) {           // maj_II
-                    l[0]= va_arg(ap, unsigned long);
-                    l[1]= va_arg(ap, unsigned long);
-                }
-                else {
-                    l[0]= va_arg(ap, unsigned long);
-                    l[0]= va_arg(ap, unsigned long);
-                    l[1]= va_arg(ap, unsigned long);
-            	}
-
+                // ---va_arg alignment fix
+                d = va_arg(ap, double);
                 // ---
 
 			/*

@@ -113,6 +113,7 @@ struct	sigstack {
 struct	sigcontext {
 	int	sc_onstack;		/* sigstack state to restore */
 	long	sc_mask;		/* signal mask to restore */
+    int     sc_align[2];           /* align to 16 bytes */  
         int     sc_r1;	                /* r1 to restore */
         int     sc_r2;                  /* and other registers */
         int     sc_r3;

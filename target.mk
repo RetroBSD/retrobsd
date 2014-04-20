@@ -1,5 +1,8 @@
 MACHINE		= mips
 DESTDIR		?= $(TOPSRC)
+RELEASE     = 0.0
+BUILD       = $(shell git rev-list HEAD --count)
+VERSION     = $(RELEASE)-$(BUILD)
 
 # chipKIT PIC32 compiler from UECIDE
 ifdef UECIDE

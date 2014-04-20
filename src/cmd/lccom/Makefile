@@ -61,7 +61,7 @@ $Binits.o:	inits.c;	$(CC) $(CFLAGS) -c -I. -o $@ $<
 $Binput.o:	input.c;	$(CC) $(CFLAGS) -c -I. -o $@ $<
 $Blex.o:	lex.c;		$(CC) $(CFLAGS) -c -I. -o $@ $<
 $Blist.o:	list.c;		$(CC) $(CFLAGS) -c -I. -o $@ $<
-$Bmain.o:	main.c;		$(CC) $(CFLAGS) -DVERSION=\"`svnversion`\" -c -I. -o $@ $<
+$Bmain.o:	main.c;		$(CC) $(CFLAGS) -DVERSION=\"$(VERSION)\" -c -I. -o $@ $<
 $Bnull.o:	null.c;		$(CC) $(CFLAGS) -c -I. -o $@ $<
 $Boutput.o:	output.c;	$(CC) $(CFLAGS) -c -I. -o $@ $<
 $Bprof.o:	prof.c;		$(CC) $(CFLAGS) -c -I. -o $@ $<

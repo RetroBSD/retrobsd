@@ -90,7 +90,7 @@ on a board used.
 #### Max32 board:
 ```shell
 $ cd sys/pic32/ubw32
-$ AVRTOOLS=/Applications/Mpide.app/Contents/Resources/Java/hardware/tools
+$ AVRTOOLS=/Applications/Mpide.app/Contents/Resources/Java/hardware/tools/avr
     $AVRTOOLS/bin/avrdude -C$AVRTOOLS/etc/avrdude.conf -c stk500v2 -p pic32 \
     -P /dev/tty.usbserial-* -b 115200 -v -U flash:w:unix.hex:i
 ```

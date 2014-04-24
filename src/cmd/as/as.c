@@ -1592,13 +1592,15 @@ foff16: expr_flags = 0;
             opcode |= offset & 0xffff;
             break;
         case FHIGH16:                   /* high 16-bit byte address */
-            if (relinfo.flags != RABS) {
+            if (expr_flags & EXPR_HI) {
                 /* %hi function - assume signed offset */
-                relinfo.flags |= (expr_flags & EXPR_HI) ? RHIGH16S : RHIGH16;
+                relinfo.flags |= RHIGH16S;
                 relinfo.offset = offset & 0xffff;
                 offset += 0x8000;
+                opcode |= offset >> 16;
+            } else {
+                opcode |= offset & 0xffff;
             }
-            opcode |= offset >> 16;
             break;
         case FOFF18:                    /* 18-bit PC-relative word address */
         case FAOFF18:

@@ -15,7 +15,7 @@ newplane()
 	return ((PLANE *) calloc(1, sizeof (PLANE)));
 }
 
-append(l, p)
+void append(l, p)
 	LIST	*l;
 	PLANE	*p;
 {
@@ -53,13 +53,13 @@ append(l, p)
 	}
 }
 
-delete(l, p)
+void delete(l, p)
 	LIST	*l;
 	PLANE	*p;
 {
 	if (l->head == NULL)
 		loser(p, "deleted a non-existant plane! Get help!");
-	
+
 	if (l->head == p && l->tail == p)
 		l->head = l->tail = NULL;
 	else if (l->head == p) {

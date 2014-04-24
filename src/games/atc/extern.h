@@ -9,7 +9,7 @@
 
 extern char		GAMES[], LOG[], *file;
 
-extern int		clock, safe_planes, start_time, test_mode;
+extern int		clocktick, safe_planes, start_time, test_mode;
 
 extern FILE		*filein, *fileout;
 
@@ -22,3 +22,29 @@ extern struct sgttyb	tty_start, tty_new;
 extern DISPLACEMENT	displacement[MAXDIR];
 
 extern PLANE		*findplane(), *newplane();
+
+int dir_no(int ch);
+void ioclrtoeol(int pos);
+void iomove(int pos);
+void ioaddstr(int pos, char *str);
+void ioclrtobot(void);
+int getAChar(void);
+void done_screen(void);
+void redraw(void);
+void ioerror(int pos, int len, char *str);
+int number(int l);
+void loser(PLANE *p, char *s);
+void init_gr(void);
+int yyparse(void);
+void setup_screen(C_SCREEN *scp);
+int addplane(void);
+void log_score(int list_em);
+void quit(int sig);
+void update(int sig);
+int getcommand(void);
+void planewin(void);
+int name(PLANE *p);
+void erase_all(void);
+void append(LIST *l, PLANE *p);
+void delete(LIST *l, PLANE *p);
+void draw_all(void);

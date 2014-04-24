@@ -272,6 +272,8 @@ void fatalsig (int signum);
  */
 int procxmt (void);
 
+void execsigs(register struct proc *p);
+
 #endif /* KERMEL */
 
 /* stat codes */

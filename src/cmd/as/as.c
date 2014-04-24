@@ -2339,7 +2339,7 @@ void makeheader (rtsize, rdsize)
 {
     struct exec hdr;
 
-    hdr.a_magic = RMAGIC;
+    hdr.a_midmag = RMAGIC;
     hdr.a_text = count [STEXT];
     hdr.a_data = count [SDATA] + count [SSTRNG];
     hdr.a_bss = count [SBSS];

@@ -28,6 +28,15 @@ ifndef GCCPREFIX
     LDFLAGS     =
 endif
 
+# Mentor Sourcery CodeBench Lite toolchain
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# You can download a Linux or Windows binary package from
+# https://sourcery.mentor.com/GNUToolchain/release2641
+ifndef GCCPREFIX
+    GCCPREFIX   = /usr/local/mips-2013.11/bin/mips-sde-elf-
+    LDFLAGS     = -Wl,--oformat=elf32-tradlittlemips
+endif
+
 # chipKIT MPIDE on Mac OS X
 ifneq (,$(wildcard /Applications/Mpide.app/Contents/Resources/Java/hardware/tools/avr))
     AVRDUDE     = /Applications/Mpide.app/Contents/Resources/Java/hardware/tools/avr/bin/avrdude \

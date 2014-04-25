@@ -1534,7 +1534,7 @@ int get_value()
         value = get_num();
     else {
         ++cmdptr;
-        switch (c) {
+        switch ((int)c) {
         case '(':                       /* nesting */
             value = eval_sub();
             break;

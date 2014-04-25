@@ -357,7 +357,7 @@ Sync()
 				switch (*p++ = getc(sync_fp)) {
 				case '\n':
 					p--;
-				case EOF:
+				case (char)EOF:
 					break;
 				default:
 					if (p >= buf + sizeof buf)

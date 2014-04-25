@@ -103,7 +103,7 @@ void spi_close(int dno)
 
     if(spi_devices[dno].bus==NULL)
         return;
-   
+
     if (spi_devices[dno].cs_tris != NULL) {
         // Revert the CS pin to input.
         TRIS_CLR(*spi_devices[dno].cs_tris) = 1<<spi_devices[dno].cs_pin;
@@ -121,11 +121,11 @@ void spi_select(int dno)
 {
     if(dno >= MAXSPIDEV)
         return;
-  
+
     if(spi_devices[dno].bus==NULL)
         return;
 
-    if (spi_devices[dno].cs_tris == NULL) 
+    if (spi_devices[dno].cs_tris == NULL)
         return;
 
     spi_devices[dno].bus->brg = spi_devices[dno].baud;
@@ -139,11 +139,11 @@ void spi_deselect(int dno)
 {
     if(dno >= MAXSPIDEV)
         return;
-  
+
     if(spi_devices[dno].bus==NULL)
         return;
 
-    if (spi_devices[dno].cs_tris == NULL) 
+    if (spi_devices[dno].cs_tris == NULL)
         return;
 
     LAT_SET(*spi_devices[dno].cs_tris) = 1<<spi_devices[dno].cs_pin;
@@ -155,10 +155,10 @@ void spi_set(int dno, unsigned int set)
 {
     if(dno >= MAXSPIDEV)
         return;
-  
+
     if(spi_devices[dno].bus==NULL)
         return;
-    
+
     spi_devices[dno].mode |= set;
 }
 
@@ -168,10 +168,10 @@ void spi_clr(int dno, unsigned int set)
 {
     if(dno >= MAXSPIDEV)
         return;
-  
+
     if(spi_devices[dno].bus==NULL)
         return;
-    
+
     spi_devices[dno].mode &= ~set;
 }
 
@@ -181,10 +181,10 @@ unsigned int spi_status(int dno)
 {
     if(dno >= MAXSPIDEV)
         return 0;
-  
+
     if(spi_devices[dno].bus==NULL)
         return 0;
-    
+
     return spi_devices[dno].bus->stat;
 }
 
@@ -199,7 +199,7 @@ unsigned char spi_transfer(int dno, unsigned char data)
 
     if(dno >= MAXSPIDEV)
         return 0xF0;
-  
+
     if(spi_devices[dno].bus==NULL)
         return 0xF1;
 
@@ -229,10 +229,10 @@ void spi_bulk_write_32_be(int dno, unsigned int len, char *data)
 
     if(dno >= MAXSPIDEV)
         return;
-  
+
     if(spi_devices[dno].bus==NULL)
         return;
-    
+
     nread = 0;
     nwritten = words;
 
@@ -245,7 +245,7 @@ void spi_bulk_write_32_be(int dno, unsigned int len, char *data)
             nwritten--;
         }
 
-        if(!(spi_devices[dno].bus->stat & PIC32_SPISTAT_SPIRBE)) 
+        if(!(spi_devices[dno].bus->stat & PIC32_SPISTAT_SPIRBE))
         {
             (void) spi_devices[dno].bus->buf;
             nread++;
@@ -263,10 +263,10 @@ void spi_bulk_write_32(int dno, unsigned int len, char *data)
 
     if(dno >= MAXSPIDEV)
         return;
-  
+
     if(spi_devices[dno].bus==NULL)
         return;
-    
+
     nread = 0;
     nwritten = words;
 
@@ -279,7 +279,7 @@ void spi_bulk_write_32(int dno, unsigned int len, char *data)
             nwritten--;
         }
 
-        if(!(spi_devices[dno].bus->stat & PIC32_SPISTAT_SPIRBE)) 
+        if(!(spi_devices[dno].bus->stat & PIC32_SPISTAT_SPIRBE))
         {
             (void) spi_devices[dno].bus->buf;
             nread++;
@@ -297,10 +297,10 @@ void spi_bulk_write_16(int dno, unsigned int len, char *data)
 
     if(dno >= MAXSPIDEV)
         return;
-  
+
     if(spi_devices[dno].bus==NULL)
         return;
-    
+
     nread = 0;
     nwritten = words;
 
@@ -313,7 +313,7 @@ void spi_bulk_write_16(int dno, unsigned int len, char *data)
             nwritten--;
         }
 
-        if(!(spi_devices[dno].bus->stat & PIC32_SPISTAT_SPIRBE)) 
+        if(!(spi_devices[dno].bus->stat & PIC32_SPISTAT_SPIRBE))
         {
             (void) spi_devices[dno].bus->buf;
             nread++;
@@ -326,18 +326,18 @@ void spi_bulk_write(int dno, unsigned int len, unsigned char *data)
 {
     unsigned char *data8 = data;
     unsigned int i;
-    unsigned char in,out;
+    unsigned char out;
 
     if(dno >= MAXSPIDEV)
         return;
-  
+
     if(spi_devices[dno].bus==NULL)
         return;
 
     for(i=0; i<len; i++)
     {
         out = *data8;
-        in = spi_transfer(dno, out);
+        spi_transfer(dno, out);
         data8++;
     }
 }
@@ -355,7 +355,7 @@ void spi_bulk_read_32_be(int dno, unsigned int len, char *data)
 
     if(dno >= MAXSPIDEV)
         return;
-  
+
     if(spi_devices[dno].bus==NULL)
         return;
 
@@ -371,7 +371,7 @@ void spi_bulk_read_32_be(int dno, unsigned int len, char *data)
             nwritten--;
         }
 
-        if(!(spi_devices[dno].bus->stat & PIC32_SPISTAT_SPIRBE)) 
+        if(!(spi_devices[dno].bus->stat & PIC32_SPISTAT_SPIRBE))
         {
             *data32++ = mips_bswap(spi_devices[dno].bus->buf);
             nread++;
@@ -389,7 +389,7 @@ void spi_bulk_read_32(int dno, unsigned int len, char *data)
 
     if(dno >= MAXSPIDEV)
         return;
-  
+
     if(spi_devices[dno].bus==NULL)
         return;
 
@@ -405,7 +405,7 @@ void spi_bulk_read_32(int dno, unsigned int len, char *data)
             nwritten--;
         }
 
-        if(!(spi_devices[dno].bus->stat & PIC32_SPISTAT_SPIRBE)) 
+        if(!(spi_devices[dno].bus->stat & PIC32_SPISTAT_SPIRBE))
         {
             *data32++ = spi_devices[dno].bus->buf;
             nread++;
@@ -423,7 +423,7 @@ void spi_bulk_read_16(int dno, unsigned int len, char *data)
 
     if(dno >= MAXSPIDEV)
         return;
-  
+
     if(spi_devices[dno].bus==NULL)
         return;
 
@@ -439,7 +439,7 @@ void spi_bulk_read_16(int dno, unsigned int len, char *data)
             nwritten--;
         }
 
-        if(!(spi_devices[dno].bus->stat & PIC32_SPISTAT_SPIRBE)) 
+        if(!(spi_devices[dno].bus->stat & PIC32_SPISTAT_SPIRBE))
         {
             *data16++ = mips_bswap(spi_devices[dno].bus->buf);
             nread++;
@@ -456,7 +456,7 @@ void spi_bulk_read(int dno, unsigned int len, unsigned char *data)
 
     if(dno >= MAXSPIDEV)
         return;
-  
+
     if(spi_devices[dno].bus==NULL)
         return;
 
@@ -479,7 +479,7 @@ void spi_bulk_rw_32_be(int dno, unsigned int len, char *data)
 
     if(dno >= MAXSPIDEV)
         return;
-  
+
     if(spi_devices[dno].bus==NULL)
         return;
 
@@ -495,7 +495,7 @@ void spi_bulk_rw_32_be(int dno, unsigned int len, char *data)
             nwritten--;
         }
 
-        if(!(spi_devices[dno].bus->stat & PIC32_SPISTAT_SPIRBE)) 
+        if(!(spi_devices[dno].bus->stat & PIC32_SPISTAT_SPIRBE))
         {
             *read32++ = mips_bswap(spi_devices[dno].bus->buf);
             nread++;
@@ -514,7 +514,7 @@ void spi_bulk_rw_32(int dno, unsigned int len, char *data)
 
     if(dno >= MAXSPIDEV)
         return;
-  
+
     if(spi_devices[dno].bus==NULL)
         return;
 
@@ -530,7 +530,7 @@ void spi_bulk_rw_32(int dno, unsigned int len, char *data)
             nwritten--;
         }
 
-        if(!(spi_devices[dno].bus->stat & PIC32_SPISTAT_SPIRBE)) 
+        if(!(spi_devices[dno].bus->stat & PIC32_SPISTAT_SPIRBE))
         {
             *read32++ = spi_devices[dno].bus->buf;
             nread++;
@@ -549,7 +549,7 @@ void spi_bulk_rw_16(int dno, unsigned int len, char *data)
 
     if(dno >= MAXSPIDEV)
         return;
-  
+
     if(spi_devices[dno].bus==NULL)
         return;
 
@@ -565,7 +565,7 @@ void spi_bulk_rw_16(int dno, unsigned int len, char *data)
             nwritten--;
         }
 
-        if(!(spi_devices[dno].bus->stat & PIC32_SPISTAT_SPIRBE)) 
+        if(!(spi_devices[dno].bus->stat & PIC32_SPISTAT_SPIRBE))
         {
             *read16++ = mips_bswap(spi_devices[dno].bus->buf);
             nread++;
@@ -582,7 +582,7 @@ void spi_bulk_rw(int dno, unsigned int len, unsigned char *data)
 
     if(dno >= MAXSPIDEV)
         return;
-  
+
     if(spi_devices[dno].bus==NULL)
         return;
 

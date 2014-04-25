@@ -226,7 +226,7 @@ RDHWR       Read Hardware Register                      Allows unprivileged acce
 RDPGPR      Read GPR from Previous Shadow Set           Rt = SGPR[SRSCtl.PSS, Rd]
 
 RESTORE     Restore registers and deallocate stack      See Architecture Reference Manual
-            frame (MIPS16eª only)
+            frame (MIPS16e only)
 
 ROTR        Rotate Word Right                           Rd = Rt[sa-1..0] || Rt[31..sa]
 

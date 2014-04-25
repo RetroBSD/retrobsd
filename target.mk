@@ -37,6 +37,16 @@ ifndef GCCPREFIX
     INCLUDES    =
 endif
 
+# Mentor Sourcery CodeBench Lite toolchain
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# You can download a Linux or Windows binary package from
+# https://sourcery.mentor.com/GNUToolchain/release2641
+ifndef GCCPREFIX
+    GCCPREFIX   = /usr/local/mips-2013.11/bin/mips-sde-elf-
+    LDFLAGS     = -Wl,--oformat=elf32-tradlittlemips
+    INCLUDES    =
+endif
+
 CC		= $(GCCPREFIX)gcc -mips32r2 -EL -msoft-float -nostdinc -fshort-double -I$(TOPSRC)/include $(INCLUDES)
 CXX             = $(GCCPREFIX)g++ -mips32r2 -EL -msoft-float -nostdinc -fshort-double -I$(TOPSRC)/include $(INCLUDES)
 LD		= $(GCCPREFIX)ld

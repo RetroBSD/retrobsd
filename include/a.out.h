@@ -33,29 +33,7 @@
 #ifndef	_AOUT_H_
 #define	_AOUT_H_
 
-#include <sys/exec.h>
-
-/* Valid magic number check. */
-#define	N_BADMAG(x) 		(((x).a_magic) != RMAGIC && \
-				 ((x).a_magic) != OMAGIC && \
-				 ((x).a_magic) != NMAGIC)
-
-/* Text segment offset. */
-#define	N_TXTOFF(x) 		sizeof(struct exec)
-
-/* Data segment offset. */
-#define	N_DATOFF(x) 		(N_TXTOFF(x) + (x).a_text)
-
-/* Text relocation table offset. */
-#define	N_TRELOFF(x) 		(N_DATOFF(x) + (x).a_data)
-
-/* Data relocation table offset. */
-#define	N_DRELOFF(x) 		(N_TRELOFF(x) + (x).a_reltext)
-
-/* Symbol table offset. */
-#define	N_SYMOFF(x) 		((x).a_magic == RMAGIC ? \
-                                    N_DRELOFF(x) + (x).a_reldata : \
-                                    N_DATOFF(x) + (x).a_data)
+#include <sys/exec_aout.h>
 
 #define	_AOUT_INCLUDE_
 #include <nlist.h>

@@ -160,11 +160,19 @@ bool config::load(const char *filename)
             pos = temp.find("=");
             if(pos>0)
             {
+                stringstream data;
                 string l,r;
                 l = temp.substr(0,pos);
                 uc(l);
                 r = temp.substr(pos+1,temp.size());
-                this->instances["GLOBAL"].settings[l] = r;
+                data << r;
+                while (in >> temp) {
+                    if (temp[0] == '#') {
+                        break;
+                    }
+                    data << " " << temp;
+                }
+                this->instances["GLOBAL"].settings[l] = data.str();
                 this->instances["GLOBAL"].device="GLOBAL";
                 this->instances["GLOBAL"].unit=0;
             }

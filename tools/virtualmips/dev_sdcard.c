@@ -140,7 +140,7 @@ unsigned dev_sdcard_io (cpu_mips_t *cpu, unsigned data)
                   pic32->sdcard[1].select ? &pic32->sdcard[1] : 0;
     unsigned reply;
 
-    if (! d) {
+    if (! d || ! d->fd) {
         TRACE ("sdcard: unselected i/o\n");
         return 0xFF;
     }

@@ -58,7 +58,7 @@ extern	int	ofd;
 #define ENTER   1
 
 /* buffer used internally */
-#define CPPBUF  BUFSIZ
+#define CPPBUF  512
 
 #define	NAMEMAX	CPPBUF	/* currently pushbackbuffer */
 
@@ -138,13 +138,8 @@ void line(void);
 uchar *sheap(const char *fmt, ...);
 void xwarning(uchar *);
 void xerror(uchar *);
-#ifdef HAVE_CPP_VARARG_MACRO_GCC
-#define warning(...) xwarning(sheap(__VA_ARGS__))
-#define error(...) xerror(sheap(__VA_ARGS__))
-#else
-#define warning printf
-#define error printf
-#endif
+#define warning(args...) xwarning(sheap(args))
+#define error(args...) xerror(sheap(args))
 void expmac(struct recur *);
 int cinput(void);
 void getcmnt(void);

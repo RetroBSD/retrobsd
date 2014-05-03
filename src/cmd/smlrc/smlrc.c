@@ -1792,7 +1792,7 @@ int GetToken(void)
         // Ignore gcc-style #line's flags, if any
         while (!strchr("\r\n", *p))
           ShiftCharN(1);
-        
+
         LineNo = line - 1; // "line" is the number of the next line
         LinePos = 1;
 
@@ -6122,7 +6122,7 @@ int ParseDecl(int tok, unsigned structInfo[4], int cast, int label)
 #ifndef NO_TYPEDEF_ENUM
             typeDef |
 #endif
-            Static) && 
+            Static) &&
           !strcmp(IdentTable + SyntaxStack[lastSyntaxPtr][1], "<something>") &&
           tok == ';')
       {
@@ -7593,6 +7593,10 @@ int main(int argc, char** argv)
       verbose = 1;
       continue;
     }
+    else if (!strcmp(argv[i], "-v"))
+    {
+      continue;
+    }
 #ifndef NO_PREPROCESSOR
     else if (!strcmp(argv[i], "-I"))
     {
@@ -7661,7 +7665,7 @@ int main(int argc, char** argv)
       LinePoss[0] = LinePos;
       FileCnt++;
       continue;
-    }  
+    }
     else if (FileCnt == 1 && OutFile == NULL)
     {
       // This should be the output file name
@@ -7669,7 +7673,7 @@ int main(int argc, char** argv)
         //error("Cannot open output file \"%s\"\n", argv[i]);
         errorFile(argv[i]);
       continue;
-    }  
+    }
 
     error("Invalid or unsupported command line option\n");
   }

@@ -350,7 +350,8 @@ addidir(char *idir, struct incs **ww)
 			return;
 		ww = &w->next;
 	}
-	if ((w = calloc(sizeof(struct incs), 1)) == NULL)
+	w = calloc(sizeof(struct incs), 1);
+	if (w == NULL)
 		error("couldn't add path %s", idir);
 	w->dir = (uchar *)idir;
 	w->dev = st.st_dev;
@@ -1310,14 +1311,18 @@ expdef(const uchar *vp, struct recur *rp, int gotwarn)
 	int ellips = 0, shot = gotwarn;
 
 	DPRINT(("expdef rp %s\n", (rp ? (const char *)rp->sp->namep : "")));
-	if ((c = sloscan()) != '(')
+	c = sloscan();
+	if (c != '(')
 		error("got %c, expected (", c);
+
 	if (vp[1] == VARG) {
 		narg = *vp--;
 		ellips = 1;
 	} else
 		narg = vp[1];
-	if ((args = malloc(sizeof(uchar *) * (narg+ellips))) == NULL)
+
+        args = malloc(sizeof(uchar *) * (narg+ellips));
+	if (args == NULL)
 		error("expdef: out of mem");
 
 	/*

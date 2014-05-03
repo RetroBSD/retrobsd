@@ -1611,7 +1611,7 @@ foff16: expr_flags = 0;
             }
             if (valid_range) {
                 opcode |= offset & 0xffff;
-            } else if (orig_opcode == 0) {
+            } else if (orig_opcode == 0 || ! mode_at) {
                 uerror ("value out of range");
             } else {
                 /* Convert back to 3-reg opcode.

@@ -7593,10 +7593,6 @@ int main(int argc, char** argv)
       verbose = 1;
       continue;
     }
-    else if (!strcmp(argv[i], "-v"))
-    {
-      continue;
-    }
 #ifndef NO_PREPROCESSOR
     else if (!strcmp(argv[i], "-I"))
     {

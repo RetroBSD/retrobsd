@@ -1594,17 +1594,13 @@ foff16: expr_flags = 0;
             /* Test whether the immediate is in valid range
              * for the opcode. */
             switch (opcode & 0xfc000000) {
-            case 0x20000000:                    // addi
-            case 0x24000000:                    // addiu
-            case 0x28000000:                    // slti
-            case 0x2c000000:                    // sltiu
+            default:                    /* addi, addiu, slti, sltiu, lw, sw */
                 /* 16-bit signed value. */
                 valid_range = (offset >= -0x8000) || (offset <= 0x7fff);
                 break;
-            case 0x30000000:                    // andi
-            case 0x34000000:                    // ori
-            case 0x38000000:                    // xori
-            default:
+            case 0x30000000:            /* andi */
+            case 0x34000000:            /* ori */
+            case 0x38000000:            /* xori */
                 /* 16-bit unsigned value. */
                 valid_range = (offset <= 0xffff);
                 break;

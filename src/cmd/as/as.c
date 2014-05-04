@@ -1599,14 +1599,14 @@ foff16: expr_flags = 0;
             case 0x28000000:                    // slti
             case 0x2c000000:                    // sltiu
                 /* 16-bit signed value. */
-                valid_range = (offset >= -0x8000) && (offset <= 0x7fff);
+                valid_range = (offset >= -0x8000) || (offset <= 0x7fff);
                 break;
             case 0x30000000:                    // andi
             case 0x34000000:                    // ori
             case 0x38000000:                    // xori
             default:
                 /* 16-bit unsigned value. */
-                valid_range = (offset >= 0) && (offset <= 0xffff);
+                valid_range = (offset <= 0xffff);
                 break;
             }
             if (valid_range) {

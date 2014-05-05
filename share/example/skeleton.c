@@ -28,17 +28,14 @@
 const char version[] = "1.0";
 const char copyright[] = "Copyright (C) 1993-2014 Serge Vakulenko";
 
-char *progname;
-int verbose;
-int trace;
-int debug;
-
-extern char *optarg;
-extern int optind;
+char *progname;         /* Name of the current program (argv[0]) */
+int verbose;            /* Option -v */
+int trace;              /* Option -t */
+int debug;              /* Option -d */
 
 void usage ()
 {
-    fprintf (stderr, "Skeleton of generic C program, Version %s, %s\n", version, copyright);
+    fprintf (stderr, "Generic C skeleton, Version %s, %s\n", version, copyright);
     fprintf (stderr, "Usage:\n\t%s [-vtd] [-r count] file...\n", progname);
     fprintf (stderr, "Options:\n");
     fprintf (stderr, "\t-v\tverbose mode\n");
@@ -50,7 +47,7 @@ void usage ()
 
 int main (int argc, char **argv)
 {
-    int count = 1;
+    int count = 1;      /* Option -r # */
 
     progname = *argv;
     for (;;) {

@@ -14,7 +14,7 @@
  */
 char *
 getenv(name)
-	char *name;
+	const char *name;
 {
 	int	offset;
 	char	*_findenv();

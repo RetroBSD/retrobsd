@@ -63,6 +63,10 @@ int GenInitParams(int argc, char** argv, int* idx)
     UseGp = 1;
     return 1;
   }
+  else if (!strcmp(argv[*idx], "-v"))
+  {
+    return 1;
+  }
   return 0;
 }
 

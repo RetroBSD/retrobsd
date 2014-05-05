@@ -1,5 +1,9 @@
 /*
- * Sample program.
+ * Generic skeleton for a C program.
+ * When you create your own program based on this skeleton,
+ * you can replace the author's name and copyright with
+ * whatever your want.  When you redistribute this skeleton or
+ * enhance it, please leave my name and copyright on it.
  *
  * Copyright (C) 1993-2014 Serge Vakulenko, <vak@cronyx.ru>
  *

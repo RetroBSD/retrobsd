@@ -26,4 +26,4 @@ clean:
 install:        all
 		install cc $(DESTDIR)/bin/
 		install cc $(DESTDIR)/bin/scc
-		install cc $(DESTDIR)/bin/srcc
+		install cc $(DESTDIR)/bin/lcc

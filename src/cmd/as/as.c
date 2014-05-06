@@ -1579,12 +1579,6 @@ fsa:    offset = getexpr (&segment);
 foff16: expr_flags = 0;
         offset = getexpr (&segment);
         relinfo.flags = segmrel [segment];
-        if (negate_literal) {
-            // Negate literal arg for sub and subu
-            offset = -offset;
-            if (relinfo.flags != RABS)
-                uerror ("cannot negate relocatable literal");
-        }
         if (relinfo.flags == REXT)
             relinfo.index = extref;
         if (expr_flags & EXPR_GPREL)
@@ -1593,6 +1587,12 @@ foff16: expr_flags = 0;
         case FOFF16:                    /* low 16-bit byte address */
             /* Test whether the immediate is in valid range
              * for the opcode. */
+            if (negate_literal) {
+                // Negate literal arg for sub and subu
+                offset = -offset;
+                if (relinfo.flags != RABS)
+                    uerror ("cannot negate relocatable literal");
+            }
             switch (opcode & 0xfc000000) {
             default:                    /* addi, addiu, slti, sltiu, lw, sw */
                 /* 16-bit signed value. */
@@ -1614,6 +1614,8 @@ foff16: expr_flags = 0;
                  * Insert an extra LI instruction. */
                 if (segment != SABS)
                     uerror ("absolute value required");
+                if (negate_literal)
+                    offset = -offset;
 
                 if (offset <= 0xffff) {
                     /* ori $1, $zero, value */
@@ -2380,7 +2382,7 @@ void makeheader (rtsize, rdsize)
 {
     struct exec hdr;
 
-    hdr.a_magic = RMAGIC;
+    hdr.a_midmag = RMAGIC;
     hdr.a_text = count [STEXT];
     hdr.a_data = count [SDATA] + count [SSTRNG];
     hdr.a_bss = count [SBSS];

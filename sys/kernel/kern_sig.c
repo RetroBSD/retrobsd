@@ -662,3 +662,40 @@ postsig(sig)
 	}
 	exit(sig);
 }
+
+/*
+ * Reset signals for an exec of the specified process.  In 4.4 this function
+ * was in kern_sig.c but since in 2.11 kern_sig and kern_exec will likely be
+ * in different overlays placing this here potentially saves a kernel overlay
+ * switch.
+ */
+void
+execsigs(register struct proc *p)
+{
+	register int nc;
+	unsigned long mask;
+
+	/*
+	 * Reset caught signals.  Held signals remain held
+	 * through p_sigmask (unless they were caught,
+	 * and are now ignored by default).
+	 */
+	while (p->p_sigcatch) {
+		nc = ffs(p->p_sigcatch);
+		mask = sigmask(nc);
+		p->p_sigcatch &= ~mask;
+		if (sigprop[nc] & SA_IGNORE) {
+			if (nc != SIGCONT)
+				p->p_sigignore |= mask;
+			p->p_sig &= ~mask;
+		}
+		u.u_signal[nc] = SIG_DFL;
+	}
+	/*
+	 * Reset stack state to the user stack (disable the alternate stack).
+	 */
+	u.u_sigstk.ss_flags = SA_DISABLE;
+	u.u_sigstk.ss_size = 0;
+	u.u_sigstk.ss_base = 0;
+	u.u_psflags = 0;
+}

@@ -11,3 +11,4 @@ ranlib.h
 retroImage
 size
 strip
+gccdump.s

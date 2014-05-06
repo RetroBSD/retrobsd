@@ -17,7 +17,7 @@ OBJS            = abandon.o attack.o autover.o capture.o check_out.o checkcond.o
                   ranf.o rest.o schedule.o score.o setup.o setwarp.o shell.o \
                   shield.o snova.o srscan.o systemname.o torped.o utility.o \
                   visual.o warp.o win.o
-LIBS            = -lm
+LIBS            = -lm -lc
 MAN		= trek.0
 MANSRC		= trek.6
 

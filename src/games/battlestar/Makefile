@@ -13,7 +13,7 @@ OBJS            = battlestar.o cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o cmd7.o 
 		  init.o cypher.o getcom.o parse.o room.o save.o fly.o misc.o \
 		  _globals.o _dayfile.o _nightfile.o dayobjs.o nightobjs.o words.o \
 		  curses.o doprnt.o
-LIBS            =
+LIBS            = -lc
 MAN		= battlestar.0
 MANSRC		= battlestar.6
 

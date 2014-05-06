@@ -1,12 +1,12 @@
 TOPSRC          = $(shell cd ../../..; pwd)
 include $(TOPSRC)/target.mk
-#include $(TOPSRC)/cross.mk
 
 CFLAGS          = -Os -Wall -DMIPS -DNO_ANNOTATIONS -DNO_PREPROCESSOR \
                   -DNO_PPACK -D_RETROBSD -D__SMALLER_C_SCHAR__ \
                   -D__SMALLER_C__ -D__SMALLER_C_32__
 
 # For cross compile
+#include $(TOPSRC)/cross.mk
 #CFLAGS          = -Os -Wall -DMIPS -m32
 #LDFLAGS         = -m32
 

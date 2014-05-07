@@ -179,10 +179,6 @@ main(argc, argv)
 	}
 	if (ac > 2)
 		syserr(0, "arg count");
-		/*
-	if (ac > 1)
-		f_log = fopen(av[0], opencode);
-		*/
 
 	printf("\n   * * *   S T A R   T R E K   * * *\n\nPress return to continue.\n");
 

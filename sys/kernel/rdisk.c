@@ -15,7 +15,7 @@ extern struct buf *getnewbuf();
 
 /*
  * Variable naming conventions
- * 
+ *
  * root - this is the number of the device entry in the disks[] array
  * part - the minor number of a device entry, which represents the partition
  *        number, or 0 for the whole disk
@@ -75,7 +75,7 @@ const struct diskentry disks[] = {
 
 #ifdef SDRAMP_ENABLED
 	{sdramp_preinit, no_init, no_deinit, sdramp_open, sdramp_size, sdramp_read, sdramp_write, 0, RD_PREPART},
-#endif	
+#endif
 
 #ifdef FLASH_ENABLED
 	{flash_init, no_init, no_deinit, flash_open, flash_size, flash_read, flash_write, 0, RD_READONLY},
@@ -164,8 +164,9 @@ static inline int init_device(int root,int flag)
 
 	for(i=0; i<4; i++)
 	{
-		dflags[root].start[i] = mbr->partitions[i].lbastart>>1;
-		dflags[root].len[i] = mbr->partitions[i].lbalength>>1;
+                struct partition part = mbr->partitions[i];
+		dflags[root].start[i] = part.lbastart >> 1;
+		dflags[root].len[i] = part.lbalength >> 1;
 	}
 	dflags[root].blocks = disks[root].size(unit);
 	brelse(bp);
@@ -320,7 +321,7 @@ void rdstrategy(register struct buf *bp)
 
 void update_mbr(int unit)
 {
-	
+
 }
 
 int rdioctl (dev_t dev, register u_int cmd, caddr_t addr, int flag)
@@ -337,7 +338,7 @@ int rdioctl (dev_t dev, register u_int cmd, caddr_t addr, int flag)
 	{
 		bflush(major(dev));
 		init_device(major(dev),S_SILENT);
-	
+
 	}
 	return 0;
 }
@@ -432,7 +433,7 @@ dev_t get_boot_device()
 			rdclose(makedev(i,0),0,0);
 		}
 	}
-	
+
 	return bd;
 #endif
 }
@@ -610,7 +611,7 @@ struct buf *prepartition_device(char *devname)
 			dev[pos] = 0;
 			p++;
 		}
-	
+
 		if((*p) == ':')
 		{
 			p++;
@@ -670,7 +671,7 @@ struct buf *prepartition_device(char *devname)
 			p++;
 		}
 	}
-	
+
 	if(pnum > 0)
 	{
 		mbr->bootsig = 0xAA55;

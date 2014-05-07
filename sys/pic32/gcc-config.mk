@@ -15,8 +15,10 @@ endif
 # MPLABX C32 compiler doesn't support some functionality
 # we need, so use chipKIT compiler by default.
 ifndef GCCPREFIX
+ifeq (/usr/local/pic32-tools/bin/pic32-gcc,$(wildcard /usr/local/pic32-tools/bin/pic32-gcc))
     GCCPREFIX   = /usr/local/pic32-tools/bin/pic32-
     LDFLAGS     = -Wl,--oformat=elf32-tradlittlemips
+endif
 endif
 
 # Generic MIPS toolchain
@@ -24,8 +26,25 @@ endif
 # You can build it from sources, as described on page
 # http://retrobsd.org/wiki/doku.php/doc/toolchain-mips
 ifndef GCCPREFIX
+ifeq (/usr/local/mips-gcc-4.7.2/bin/mips-elf-gcc,$(wildcard /usr/local/mips-gcc-4.7.2/bin/mips-elf-gcc))
     GCCPREFIX   = /usr/local/mips-gcc-4.7.2/bin/mips-elf-
     LDFLAGS     =
+endif
+endif
+
+# Mentor Sourcery CodeBench Lite toolchain
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# You can download a Linux or Windows binary package from
+# https://sourcery.mentor.com/GNUToolchain/release2641
+ifndef GCCPREFIX
+ifeq (/usr/local/mips-2013.11/bin/mips-sde-elf-gcc,$(wildcard /usr/local/mips-2013.11/bin/mips-sde-elf-gcc))
+    GCCPREFIX   = /usr/local/mips-2013.11/bin/mips-sde-elf-
+    LDFLAGS     = -Wl,--oformat=elf32-tradlittlemips
+endif
+endif
+
+ifndef GCCPREFIX
+    $(error Unable to locate any GCC MIPS toolchain!)
 endif
 
 # chipKIT MPIDE on Mac OS X

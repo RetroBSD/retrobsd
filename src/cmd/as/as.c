@@ -83,6 +83,7 @@ enum {
     LIDENT,             /* .ident */
     LWEAK,              /* .weak */
     LLOCAL,             /* .local */
+    LNAN,               /* .nan */
 };
 
 /*
@@ -730,6 +731,9 @@ int lookacmd ()
         break;
     case 'm':
         if (! strcmp (".mask", name)) return (LMASK);
+        break;
+    case 'n':
+        if (! strcmp (".nan", name)) return (LNAN);
         break;
     case 'p':
         if (! strcmp (".previous", name)) return (LPREVIOUS);
@@ -2258,6 +2262,12 @@ void pass1 ()
                 uerror ("bad parameter of .end");
             cval = lookname();
             break;
+        case LNAN:
+            /* .nan name */
+            clex = getlex (&cval);
+            if (clex != LNAME)
+                uerror ("bad parameter of .nan");
+            break;
         case LTYPE:
             /* .type name,type */
             if (getlex (&cval) != LNAME)
@@ -2707,8 +2717,12 @@ int main (argc, argv)
                     break;
                 case 'I':       /* include dir */
                     // TODO
-                    while (*++cp);
-                    --cp;
+                    if (cp[1] == 0) {
+                        i++;
+                    } else {
+                        while (*++cp);
+                        --cp;
+                    }
                     break;
                 case 'O':       /* optimization level */
                     // TODO

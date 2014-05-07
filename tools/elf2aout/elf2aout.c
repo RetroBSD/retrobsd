@@ -361,15 +361,16 @@ usage:                  fprintf(stderr,
 	for (i = 0; i < ex.e_phnum; i++) {
 		/* Section types we can ignore... */
 		if (ph[i].p_type == PT_NULL || ph[i].p_type == PT_NOTE ||
-		    ph[i].p_type == PT_PHDR || ph[i].p_type == PT_MIPS_REGINFO)
+		    ph[i].p_type == PT_PHDR || ph[i].p_type == PT_MIPS_REGINFO ||
+                    ph[i].p_type == PT_GNU_EH_FRAME)
 			continue;
 
-		/* Section types we can't handle... */
-		if (ph[i].p_type != PT_LOAD)
-			errx(1, "Program header %d type %d can't be converted.", i, ph[i].p_type);
                 if (verbose)
                         printf ("Section type=%x flags=%x vaddr=%x filesz=%x\n",
                             ph[i].p_type, ph[i].p_flags, ph[i].p_vaddr, ph[i].p_filesz);
+		/* Section types we can't handle... */
+		if (ph[i].p_type != PT_LOAD && ph[i].p_type != PT_GNU_EH_FRAME)
+			errx(1, "Program header %d type %x can't be converted.", i, ph[i].p_type);
 
 		/* Writable (data) segment? */
 		if (ph[i].p_flags & PF_W) {

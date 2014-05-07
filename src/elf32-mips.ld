@@ -92,7 +92,7 @@ SECTIONS
     *(.sdata2 .sdata2.* .gnu.linkonce.s2.*)
   }
   .sbss2          : { *(.sbss2 .sbss2.* .gnu.linkonce.sb2.*) }
-  .eh_frame_hdr : { *(.eh_frame_hdr) }
+  .eh_frame_hdr   : { *(.eh_frame_hdr) *(.eh_frame_entry .eh_frame_entry.*) }
   .eh_frame       : ONLY_IF_RO { KEEP (*(.eh_frame)) }
   .gcc_except_table   : ONLY_IF_RO { *(.gcc_except_table .gcc_except_table.*) }
   /* Adjust the address for the data segment. */

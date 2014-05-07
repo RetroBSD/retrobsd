@@ -449,17 +449,16 @@ main(int argc, char *argv[])
                 pass0 = LIBEXECDIR "/smallc";
                 incdir = STDINC "/smallc";
 
-        } else if (strcmp ("srcc", progname) == 0) {
-                /* Smaller C. */
-                mode = MODE_SMALLERC;
-                cppadd[0] = "-D__SMALLER_C__";
-                pass0 = LIBEXECDIR "/smlrc";
-                incdir = STDINC "/smallerc";
-        } else {
+        } else if (strcmp ("lcc", progname) == 0) {
                 /* LCC: retargetable C compiler. */
                 mode = MODE_LCC;
                 cppadd[0] = "-D__LCC__";
                 pass0 = LIBEXECDIR "/lccom";
+        } else {
+                /* Smaller C. */
+                mode = MODE_SMALLERC;
+                cppadd[0] = "-D__SMALLER_C__";
+                pass0 = LIBEXECDIR "/smlrc";
         }
 
         if (argc == 1)

@@ -143,7 +143,12 @@ extern	char	*optarg;		/* getopt(3) external variables */
 extern	int	opterr, optind, optopt;
 
 #ifndef _VA_LIST_
-#define va_list		__builtin_va_list	/* For GCC */
+# ifdef __GNUC__
+#  define va_list   __builtin_va_list   /* For Gnu C */
+# endif
+# ifdef __SMALLER_C__
+#  define va_list   char *              /* For Smaller C */
+# endif
 #endif
 
 void	err (int eval, const char *fmt, ...);
@@ -156,6 +161,6 @@ void	vwarn (const char *fmt, va_list ap);
 void	vwarnx (const char *fmt, va_list ap);
 
 #ifndef _VA_LIST_
-#undef va_list
+# undef va_list
 #endif
 #endif /* !_UNISTD_H_ */

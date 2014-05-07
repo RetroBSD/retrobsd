@@ -767,8 +767,10 @@ pushfile(const uchar *file, const uchar *fn, int idx, void *incs)
 
 	if (file != NULL) {
 	        ic->infil = open((const char *)file, O_RDONLY);
-		if (ic->infil < 0)
+		if (ic->infil < 0) {
+                        free(ic);
 			return -1;
+                }
 		ic->orgfn = ic->fname = file;
 		if (++inclevel > MAX_INCLEVEL)
 			error("Limit for nested includes exceeded");

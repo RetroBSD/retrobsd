@@ -110,7 +110,12 @@ int	 scanf (const char *, ...);
 int	 sscanf (const char *, const char *, ...);
 
 #ifndef _VA_LIST_
-#define va_list		__builtin_va_list	/* For GCC */
+# ifdef __GNUC__
+#  define va_list   __builtin_va_list   /* For Gnu C */
+# endif
+# ifdef __SMALLER_C__
+#  define va_list   char *              /* For Smaller C */
+# endif
 #endif
 
 int	 vfprintf (FILE *, const char *, va_list);
@@ -126,7 +131,7 @@ int	_doprnt (const char *, va_list, FILE *);
 int	_doscan (FILE *, const char *, va_list);
 
 #ifndef _VA_LIST_
-#undef va_list
+# undef va_list
 #endif
 
 void    perror (const char *);

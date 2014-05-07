@@ -120,6 +120,8 @@ main(argc, argv)
         char	**argv;
 {
 	long			vect;
+	/* extern FILE		*f_log; */
+	/* register char	opencode; */
 	int			prio;
 	register int		ac;
 	register char		**av;
@@ -130,6 +132,7 @@ main(argc, argv)
 	av++;
 	time(&vect);
 	srand(vect);
+	/* opencode = 'w'; */
 	prio = PRIO;
 	if (ioctl(1, TIOCGETP, &argp) == 0)
 	{
@@ -140,6 +143,10 @@ main(argc, argv)
 	{
 		switch (av[0][1])
 		{
+		  case 'a':	/* append to log file */
+			/* opencode = 'a'; */
+			break;
+
 		  case 'f':	/* set fast mode */
 			Etc.fast++;
 			break;

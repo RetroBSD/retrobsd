@@ -82,6 +82,7 @@ SHARE_FILES	= share/re.help share/example/Makefile \
                   share/example/blkjack.bas share/example/hilow.bas \
                   share/example/stars.bas share/example/prime.scm \
                   share/example/fact.fth share/example/echo.S \
+                  share/example/stdarg.c share/example/skeleton.c \
                   $(wildcard share/smallc/*)
 MANFILES	= share/man/ share/man/cat1/ share/man/cat2/ share/man/cat3/ \
 		  share/man/cat4/ share/man/cat5/ share/man/cat6/ share/man/cat7/ \
@@ -194,11 +195,11 @@ else
 endif
 
 # TODO: make it relative to Target
-installflash: 
+installflash:
 	sudo  pic32prog  sys/pic32/fubarino/unix.hex
 
 # TODO: make it relative to Target
-installboot: 
+installboot:
 	sudo  pic32prog  sys/pic32/fubarino/bootloader.hex
 
 .profile:   etc/root/dot.profile

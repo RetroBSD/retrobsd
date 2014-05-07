@@ -1242,7 +1242,7 @@ void emitword (w, r, clobber_reg)
         reorder_word = w;
         reorder_rel = *r;
         reorder_full = 1;
-        reorder_clobber = clobber_reg;
+        reorder_clobber = clobber_reg & 15;
     } else {
         fputword (w, sfile[segm]);
         fputrel (r, rfile[segm]);
@@ -1321,10 +1321,9 @@ void makecmd (opcode, type, emitfunc)
     unsigned opcode;
     void (*emitfunc) (unsigned, struct reloc*);
 {
-    register int clex;
-    register unsigned offset;
+    unsigned offset, orig_opcode = 0;
     struct reloc relinfo;
-    int cval, segment, clobber_reg, negate_literal;
+    int clex, cval, segment, clobber_reg, negate_literal;
 
     offset = 0;
     relinfo.flags = RABS;
@@ -1484,6 +1483,7 @@ frs1:   clex = getlex (&cval);
                 cval = (opcode >> 11) & 31;         /* get 1-st register */
                 newop |= cval << 16;                /* set 1-st register */
                 newop |= opcode & (31 << 21);       /* set 2-nd register */
+                orig_opcode = opcode;
                 opcode = newop;
                 type = FRT1 | FRS2 | FOFF16 | FMOD;
                 goto foff16;
@@ -1576,24 +1576,65 @@ fsa:    offset = getexpr (&segment);
         }
     } else if (type & (FOFF16 | FOFF18 | FAOFF18 | FAOFF28 | FHIGH16)) {
         /* Relocatable offset */
+        int valid_range;
+
         if ((type & (FOFF16 | FOFF18 | FHIGH16)) && getlex (&cval) != ',')
             uerror ("comma expected");
 foff16: expr_flags = 0;
         offset = getexpr (&segment);
         relinfo.flags = segmrel [segment];
-        if (negate_literal) {
-            // Negate literal arg for sub and subu
-            offset = -offset;
-            if (relinfo.flags != RABS)
-                uerror ("cannot negate relocatable literal");
-        }
         if (relinfo.flags == REXT)
             relinfo.index = extref;
         if (expr_flags & EXPR_GPREL)
             relinfo.flags |= RGPREL;
         switch (type & (FOFF16 | FOFF18 | FAOFF18 | FAOFF28 | FHIGH16)) {
         case FOFF16:                    /* low 16-bit byte address */
-            opcode |= offset & 0xffff;
+            /* Test whether the immediate is in valid range
+             * for the opcode. */
+            if (negate_literal) {
+                // Negate literal arg for sub and subu
+                offset = -offset;
+                if (relinfo.flags != RABS)
+                    uerror ("cannot negate relocatable literal");
+            }
+            switch (opcode & 0xfc000000) {
+            default:                    /* addi, addiu, slti, sltiu, lw, sw */
+                /* 16-bit signed value. */
+                valid_range = (offset >= -0x8000) || (offset <= 0x7fff);
+                break;
+            case 0x30000000:            /* andi */
+            case 0x34000000:            /* ori */
+            case 0x38000000:            /* xori */
+                /* 16-bit unsigned value. */
+                valid_range = (offset <= 0xffff);
+                break;
+            }
+            if (valid_range) {
+                opcode |= offset & 0xffff;
+            } else if (orig_opcode == 0 || ! mode_at) {
+                uerror ("value out of range");
+            } else {
+                /* Convert back to 3-reg opcode.
+                 * Insert an extra LI instruction. */
+                if (segment != SABS)
+                    uerror ("absolute value required");
+                if (negate_literal)
+                    offset = -offset;
+
+                if (offset <= 0xffff) {
+                    /* ori $1, $zero, value */
+                    emitword (0x34010000 | offset, &relabs, 1);
+                } else if (offset >= -0x8000) {
+                    /* addiu $1, $zero, value */
+                    emitword (0x24010000 | (offset & 0xffff), &relabs, 1);
+                } else {
+                    /* lui $1, value[31:16]
+                     * ori $1, $1, value[15:0]) */
+                    emitword (0x3c010000 | (offset >> 16), &relabs, 1);
+                    emitword (0x34210000 | (offset & 0xffff), &relabs, 1);
+                }
+                opcode = orig_opcode | 0x10000;
+            }
             break;
         case FHIGH16:                   /* high 16-bit byte address */
             if (expr_flags & EXPR_HI) {
@@ -2351,7 +2392,7 @@ void makeheader (rtsize, rdsize)
 {
     struct exec hdr;
 
-    hdr.a_magic = RMAGIC;
+    hdr.a_midmag = RMAGIC;
     hdr.a_text = count [STEXT];
     hdr.a_data = count [SDATA] + count [SSTRNG];
     hdr.a_bss = count [SBSS];

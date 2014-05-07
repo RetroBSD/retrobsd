@@ -1,6 +1,9 @@
 always
     define KERNEL
     define UCB_METER
+    define EXEC_AOUT
+    define EXEC_ELF
+    define EXEC_SCRIPT
     file _startup.o
     file clock.o
     file devsw.o
@@ -9,6 +12,11 @@ always
     file machdep.o
     file mem.o
     file exception.o
+    file exec_aout.o
+    file exec_conf.o
+    file exec_elf.o
+    file exec_script.o
+    file exec_subr.o
     file init_main.o
     file init_sysent.o
     file kern_clock.o

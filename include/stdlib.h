@@ -54,49 +54,51 @@
 
 #define	RAND_MAX	0x7fff
 
-void	abort();
+void	abort (void);
 int	abs (int);
 int	atexit (void (*)(void));
-double	atof();
-int	atoi();
-long	atol();
+int	atoi (const char *);
+long	atol (const char *);
 void	*calloc (size_t, size_t);
 void	exit (int);
 void	free (void *);
-char	*getenv();
+char	*getenv (const char *);
 long    labs (long);
 void	*malloc (size_t);
 char	*mktemp (char *);
 int     mkstemp (char *);
-void	qsort();
-int	rand();
+void	qsort (void *, size_t, size_t, int (*)(const void *, const void *));
+int	rand (void);
 void	*realloc (void*, size_t);
-void	srand();
-double	strtod();
-long	strtol();
-unsigned long strtoul();
-int	system();
+void	srand (unsigned);
+long	strtol (const char *, char **, int);
+unsigned long strtoul (const char *, char **, int);
+int	system (const char *);
 
 int     putenv (char *string);
 int     setenv (const char *name, const char *value, int overwrite);
 int     unsetenv (const char *name);
 char	*_findenv (const char *name, int *offset);
 
-void	*alloca();
+void	*alloca (size_t size);
 
-int	daemon();
-char	*devname();
-int	getloadavg(unsigned loadavg[], int nelem);
+int	daemon (int, int);
+char	*devname (dev_t dev, mode_t type);
+int	getloadavg (unsigned loadavg[], int nelem);
 
 extern char *suboptarg;			/* getsubopt(3) external variable */
-int	getsubopt();
+int	getsubopt (char **, char **, char **);
 
 long	random (void);
 char	*setstate (char *);
 void	srandom (unsigned);
 
-char *ecvt (double, int, int *, int *);
-char *fcvt (double, int, int *, int *);
-char *gcvt (double, int, char *);
+#ifndef __SMALLER_C__
+double	atof (const char *);
+double	strtod (const char *, char **);
+char    *ecvt (double, int, int *, int *);
+char    *fcvt (double, int, int *, int *);
+char    *gcvt (double, int, char *);
+#endif
 
 #endif /* _STDLIB_H_ */

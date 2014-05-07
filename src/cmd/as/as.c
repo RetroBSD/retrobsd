@@ -2198,7 +2198,7 @@ void pass1 ()
         case LSECTION:
             /* .section name[,"flags"[,type[,entsize]]] */
             clex = getlex (&cval);
-            if (clex != LNAME && clex != LBSS)
+            if (clex != LNAME && clex != LBSS && clex != LTEXT && clex != LDATA)
                 uerror ("bad name of .section");
             setsection();
             clex = getlex (&cval);
@@ -2206,7 +2206,12 @@ void pass1 ()
                 ungetlex (clex, cval);
                 break;
             }
-            skipstring();
+            clex = getlex (&cval);
+            if (clex == '"') {
+                ungetlex (clex, cval);
+                skipstring();
+            } else if (clex != LNAME)
+                uerror ("bad type of .section");
             clex = getlex (&cval);
             if (clex != ',') {
                 ungetlex (clex, cval);

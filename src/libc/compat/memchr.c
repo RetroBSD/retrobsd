@@ -16,7 +16,7 @@ memchr(vs, c, n)
 {
 	register const char *s = vs;
 
-	while (--n >= 0)
+	while (n-- > 0)
 		if (*s++ == c)
 			return (void*) --s;
 	return (0);

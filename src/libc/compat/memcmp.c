@@ -15,7 +15,7 @@ memcmp (vs1, vs2, n)
 {
 	register const char *s1 = vs1, *s2 = vs2;
 
-	while (--n >= 0)
+	while (n-- > 0)
 		if (*s1++ != *s2++)
 			return (*--s1 - *--s2);
 	return (0);

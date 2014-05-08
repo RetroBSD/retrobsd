@@ -16,7 +16,7 @@ memset (vs, c, n)
 {
 	register char *s = vs;
 
-	while (--n >= 0)
+	while (n-- > 0)
 		*s++ = c;
 
 	return vs;

@@ -17,7 +17,7 @@ memcpy (vt, vf, n)
 	register char *t = vt;
 	register const char *f = vf;
 
-	while (--n >= 0)
+	while (n-- > 0)
 		*t++ = *f++;
 
 	return vt;

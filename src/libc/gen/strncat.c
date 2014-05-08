@@ -18,7 +18,7 @@ strncat(s1, s2, n)
 		;
 	--s1;
 	while ((*s1++ = *s2++))
-		if (--n < 0) {
+		if (n-- == 0) {
 			*--s1 = '\0';
 			break;
 		}

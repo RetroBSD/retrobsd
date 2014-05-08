@@ -18,7 +18,7 @@ memccpy(vt, vf, c, n)
 	register char *t = vt;
 	register const char *f = vf;
 
-	while (--n >= 0)
+	while (n-- > 0)
 		if ((*t++ = *f++) == c)
 			return (t);
 	return (0);

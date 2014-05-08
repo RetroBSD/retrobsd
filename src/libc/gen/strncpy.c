@@ -10,7 +10,7 @@ strncpy(s1, s2, n)
 	register const char *s2;
 	size_t n;
 {
-	register int i;
+	size_t i;
 	register char *os1;
 
 	os1 = s1;

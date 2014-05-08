@@ -67,5 +67,5 @@ strncasecmp(s1, s2, n)
 	while (n-- > 0 && cm[(unsigned char)*s1] == cm[(unsigned char)*s2++])
 		if (*s1++ == '\0')
 			return(0);
-	return(n == 0 ? 0 : cm[(unsigned char)*s1] - cm[(unsigned char)*--s2]);
+	return(n == -1 ? 0 : cm[(unsigned char)*s1] - cm[(unsigned char)*--s2]);
 }

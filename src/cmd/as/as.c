@@ -373,7 +373,7 @@ int mode_reorder = 1;                   /* .set reorder option (default) */
 int mode_macro;                         /* .set macro option */
 int mode_mips16;                        /* .set mips16 option */
 int mode_micromips;                     /* .set micromips option */
-int mode_at;                            /* .set at option */
+int mode_at = 1;                        /* .set at option */
 int reorder_full;                       /* instruction buffered for reorder */
 unsigned reorder_word;                  /* buffered instruction... */
 unsigned reorder_clobber;               /* ...modified this register */

@@ -34,8 +34,8 @@ endif
 # You can build it from sources, as described on page
 # http://retrobsd.org/wiki/doku.php/doc/toolchain-mips
 ifndef GCCPREFIX
-ifeq (/usr/local/mips-gcc-4.7.2/bin/mips-elf-gcc,$(wildcard /usr/local/mips-gcc-4.7.2/bin/mips-elf-gcc))
-    GCCPREFIX   = /usr/local/mips-gcc-4.7.2/bin/mips-elf-
+ifeq (/usr/local/mips-gcc-4.8.1/bin/mips-elf-gcc,$(wildcard /usr/local/mips-gcc-4.8.1/bin/mips-elf-gcc))
+    GCCPREFIX   = /usr/local/mips-gcc-4.8.1/bin/mips-elf-
     LDFLAGS     =
     INCLUDES    =
 endif

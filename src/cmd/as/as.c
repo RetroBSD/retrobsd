@@ -216,7 +216,8 @@ const struct optable optable [] = {
     { 0x04110000,   "bal",      FAOFF18 | FDSLOT },
     { 0x10000000,   "beq",      FRS1 | FRT2 | FOFF18 | FDSLOT },
     { 0x50000000,   "beql",	FRS1 | FRT2 | FOFF18 | FDSLOT },
-    { 0x50000000,   "beqz",	FRS1 | FOFF18 | FDSLOT },
+    { 0x10000000,   "beqz",	FRS1 | FOFF18 | FDSLOT },
+    { 0x50000000,   "beqzl",	FRS1 | FOFF18 | FDSLOT },
     { 0x04010000,   "bgez",	FRS1 | FOFF18 | FDSLOT },
     { 0x04110000,   "bgezal",	FRS1 | FOFF18 | FDSLOT },
     { 0x04130000,   "bgezall",	FRS1 | FOFF18 | FDSLOT },
@@ -231,7 +232,8 @@ const struct optable optable [] = {
     { 0x04020000,   "bltzl",	FRS1 | FOFF18 | FDSLOT },
     { 0x14000000,   "bne",	FRS1 | FRT2 | FOFF18 | FDSLOT },
     { 0x54000000,   "bnel",	FRS1 | FRT2 | FOFF18 | FDSLOT },
-    { 0x54000000,   "bnez",	FRS1 | FOFF18 | FDSLOT },
+    { 0x14000000,   "bnez",	FRS1 | FOFF18 | FDSLOT },
+    { 0x54000000,   "bnezl",	FRS1 | FOFF18 | FDSLOT },
     { 0x0000000d,   "break",	FCODE16 },
     { 0x70000021,   "clo",	FRD1 | FRS2 | FRTD | FMOD },
     { 0x70000020,   "clz",	FRD1 | FRS2 | FRTD | FMOD },
@@ -1271,6 +1273,9 @@ void emit_li (opcode, relinfo)
     } else if (value >= -0x8000) {
         /* addiu d, $zero, value */
         opcode |= 0x24000000 | (value & 0xffff);
+    } else if ((value & 0xffff) == 0) {
+        /* lui d, value[31:16] */
+        opcode |= 0x3c000000 | (value >> 16);
     } else {
         /* lui d, value[31:16]
          * ori d, d, value[15:0]) */
@@ -1627,6 +1632,9 @@ foff16: expr_flags = 0;
                 } else if (offset >= -0x8000) {
                     /* addiu $1, $zero, value */
                     emitword (0x24010000 | (offset & 0xffff), &relabs, 1);
+                } else if ((offset & 0xffff) == 0) {
+                    /* lui $1, value[31:16] */
+                    emitword (0x3c010000 | (offset >> 16), &relabs, 1);
                 } else {
                     /* lui $1, value[31:16]
                      * ori $1, $1, value[15:0]) */

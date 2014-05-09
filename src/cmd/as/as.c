@@ -2166,7 +2166,7 @@ void pass1 ()
             }
             break;
         case LCOMM:
-            /* .comm name,len */
+            /* .comm name,len[,alignment] */
             if (getlex (&cval) != LNAME)
                 uerror ("bad parameter of .comm");
             cval = lookname();
@@ -2377,18 +2377,28 @@ int findlabel (int addr, int sym)
 
 void middle ()
 {
-    register int i, snum;
+    register int i, snum, nbytes;
 
     stlength = 0;
     for (snum=0, i=0; i<stabfree; i++) {
-        /* Without -u option, undefined symbol is considered external */
-        if (stab[i].n_type == N_UNDF) {
+        switch (stab[i].n_type) {
+        case N_UNDF:
+            /* Without -u option, undefined symbol is considered external */
             if (uflag)
                 uerror ("name undefined", stab[i].n_name);
             stab[i].n_type |= N_EXT;
+            break;
+        case N_COMM:
+            /* Allocate a local common block */
+            nbytes = stab[i].n_value;
+            stab[i].n_value = count[SBSS];
+            stab[i].n_type = N_BSS;
+            count[SBSS] += nbytes;
+            break;
         }
         if (xflags)
             newindex[i] = snum;
+
         if (! xflags || (stab[i].n_type & N_EXT) ||
             (Xflag && ! IS_LOCAL(&stab[i])))
         {

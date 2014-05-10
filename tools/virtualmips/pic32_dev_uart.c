@@ -137,9 +137,9 @@ void *dev_pic32_uart_access (cpu_mips_t * cpu, struct vdevice *dev,
 #endif
         switch (offset) {
         case PIC32_U1TXREG & 0xff:              /* Transmit */
-            /* Skip ^M. */
-            if ((char) (*data) != '\r')
-                vtty_put_char (d->vtty, (char) (*data));
+            /* Don't skip ^M. */
+            vtty_put_char (d->vtty, (char) (*data));
+
             if ((d->mode & PIC32_UMODE_ON) &&
                 (d->sta & PIC32_USTA_UTXEN) && (d->output == 0)) {
                 /*

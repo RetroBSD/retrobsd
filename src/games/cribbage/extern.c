@@ -3,21 +3,15 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-
-#ifndef lint
-static char sccsid[] = "@(#)extern.c	5.1 (Berkeley) 5/30/85";
-#endif not lint
-
-# include	<curses.h>
 # include	"deck.h"
 # include	"cribbage.h"
 
-bool	explain		= FALSE;	/* player mistakes explained */
-bool	iwon		= FALSE;	/* if comp won last game */
-bool	quiet		= FALSE;	/* if suppress random mess */
-bool	rflag		= FALSE;	/* if all cuts random */
+BOOLEAN	explain		= FALSE;	/* player mistakes explained */
+BOOLEAN	iwon		= FALSE;	/* if comp won last game */
+BOOLEAN	quiet		= FALSE;	/* if suppress random mess */
+BOOLEAN	rflag		= FALSE;	/* if all cuts random */
 
-char	expl[128];			/* explanation */
+char	explstr[128];			/* explanation */
 
 int	cgames		= 0;		/* number games comp won */
 int	cscore		= 0;		/* comp score in this game */

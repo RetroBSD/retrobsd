@@ -3,33 +3,58 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-
-#ifndef lint
-static char sccsid[] = "@(#)support.c	5.1 (Berkeley) 5/30/85";
-#endif not lint
-
-#include	<curses.h>
+#include	<string.h>
 #include	"deck.h"
 #include	"cribbage.h"
 #include	"cribcur.h"
-
 
 #define		NTV		10		/* number scores to test */
 
 /* score to test reachability of, and order to test them in */
 int		tv[ NTV ]	= { 8, 7, 9, 6, 11, 12, 13, 14, 10, 5 };
 
+/*
+ * anysumto returns the index (0 <= i < n) of the card in hand that brings
+ * the s up to t, or -1 if there is none
+ */
+int anysumto( hand, n, s, t )
+    CARD		hand[];
+    int			n;
+    int			s,  t;
+{
+	register  int		i;
+
+	for( i = 0; i < n; i++ )  {
+	    if(  s + VAL( hand[i].rank )  ==  t  )  return( i );
+	}
+	return( -1 );
+}
+
+/*
+ * return the number of cards in h having the given rank value
+ */
+int numofval( h, n, v )
+    CARD		h[];
+    int			n;
+    int			v;
+{
+	register  int		i, j;
+
+	j = 0;
+	for( i = 0; i < n; i++ )  {
+	    if(  VAL( h[i].rank )  ==  v  )  ++j;
+	}
+	return( j );
+}
 
 /*
  * computer chooses what to play in pegging...
  * only called if no playable card will score points
  */
-
-cchose( h, n, s )
-
-    CARD		h[];
-    int			n;
-    int			s;
+int cchose( h, n, s )
+    CARD	h[];
+    int		n;
+    int		s;
 {
 	register  int		i, j, l;
 
@@ -79,15 +104,13 @@ cchose( h, n, s )
 	return( j );
 }
 
-
-
 /*
  * plyrhand:
  *	Evaluate and score a player hand or crib
  */
-plyrhand(hand, s)
-CARD		hand[];
-char		*s;
+BOOLEAN plyrhand(hand, s)
+    CARD	hand[];
+    char	*s;
 {
     register int	i, j;
     register BOOLEAN	win;
@@ -110,7 +133,7 @@ char		*s;
 	    msg("You should have taken %d, not %d!", i, j);
 	}
 	if (explain)
-	    msg("Explanation: %s", expl);
+	    msg("Explanation: %s", explstr);
 	do_wait();
     }
     else
@@ -122,9 +145,9 @@ char		*s;
  * comphand:
  *	Handle scoring and displaying the computers hand
  */
-comphand(h, s)
-CARD		h[];
-char		*s;
+BOOLEAN comphand(h, s)
+    CARD	h[];
+    char	*s;
 {
 	register int		j;
 
@@ -134,39 +157,17 @@ char		*s;
 	return chkscr(&cscore, j);
 }
 
-/*
- * chkscr:
- *	Add inc to scr and test for > glimit, printing on the scoring
- *	board while we're at it.
- */
-
 int	Lastscore[2] = {-1, -1};
-
-chkscr(scr, inc)
-int		*scr, inc;
-{
-	BOOLEAN		myturn;
-
-	myturn = (scr == &cscore);
-	if (inc != 0) {
-		prpeg(Lastscore[myturn], '.', myturn);
-		Lastscore[myturn] = *scr;
-		*scr += inc;
-		prpeg(*scr, PEG, myturn);
-		refresh();
-	}
-	return (*scr >= glimit);
-}
 
 /*
  * prpeg:
  *	Put out the peg character on the score board and put the
  *	score up on the board.
  */
-prpeg(score, peg, myturn)
-register int	score;
-char		peg;
-BOOLEAN		myturn;
+void prpeg(score, peg, myturn)
+    register int    score;
+    char            peg;
+    BOOLEAN         myturn;
 {
 	register int	y, x;
 
@@ -199,12 +200,31 @@ BOOLEAN		myturn;
 }
 
 /*
+ * chkscr:
+ *	Add inc to scr and test for > glimit, printing on the scoring
+ *	board while we're at it.
+ */
+BOOLEAN chkscr(scr, inc)
+    int *scr, inc;
+{
+	BOOLEAN		myturn;
+
+	myturn = (scr == &cscore);
+	if (inc != 0) {
+		prpeg(Lastscore[myturn], '.', myturn);
+		Lastscore[myturn] = *scr;
+		*scr += inc;
+		prpeg(*scr, PEG, myturn);
+		refresh();
+	}
+	return (*scr >= glimit);
+}
+
+/*
  * cdiscard -- the computer figures out what is the best discard for
  * the crib and puts the best two cards at the end
  */
-
-cdiscard( mycrib )
-
+void cdiscard( mycrib )
     BOOLEAN		mycrib;
 {
 	CARD			d[ CARDS ],  h[ FULLHAND ],  cb[ 2 ];
@@ -217,7 +237,7 @@ cdiscard( mycrib )
 	makedeck( d );
 	nc = CARDS;
 	for( i = 0; i < knownum; i++ )  {	/* get all other cards */
-	    remove( known[i], d, nc-- );
+	    cremove( known[i], d, nc-- );
 	}
 	for( i = 0; i < 15; i++ )  sums[i] = 0L;
 	ns = 0;
@@ -226,8 +246,8 @@ cdiscard( mycrib )
 	    for( j = i + 1; j < FULLHAND; j++ )  {
 		cb[1] = chand[j];
 		for( k = 0; k < FULLHAND; k++ )  h[k] = chand[k];
-		remove( chand[i], h, FULLHAND );
-		remove( chand[j], h, FULLHAND - 1 );
+		cremove( chand[i], h, FULLHAND );
+		cremove( chand[j], h, FULLHAND - 1 );
 		for( k = 0; k < nc; k++ )  {
 		    sums[ns] += scorehand( h, d[k], CINHAND, TRUE, FALSE );
 		    if( mycrib )  sums[ns] += adjust( cb, d[k] );
@@ -239,20 +259,16 @@ cdiscard( mycrib )
 	j = 0;
 	for( i = 1; i < 15; i++ )  if(  sums[i] > sums[j]  )  j = i;
 	for( k = 0; k < FULLHAND; k++ )  h[k] = chand[k];
-	remove( h[ undo1[j] ], chand, FULLHAND );
-	remove( h[ undo2[j] ], chand, FULLHAND - 1 );
+	cremove( h[ undo1[j] ], chand, FULLHAND );
+	cremove( h[ undo2[j] ], chand, FULLHAND - 1 );
 	chand[4] = h[ undo1[j] ];
 	chand[5] = h[ undo2[j] ];
 }
 
-
-
 /*
  * returns true if some card in hand can be played without exceeding 31
  */
-
-anymove( hand, n, sum )
-
+BOOLEAN anymove( hand, n, sum )
     CARD		hand[];
     int			n;
     int			sum;
@@ -267,57 +283,10 @@ anymove( hand, n, sum )
 	return(  sum + VAL( j )  <=  31  );
 }
 
-
-
-/*
- * anysumto returns the index (0 <= i < n) of the card in hand that brings
- * the s up to t, or -1 if there is none
- */
-
-anysumto( hand, n, s, t )
-
-    CARD		hand[];
-    int			n;
-    int			s,  t;
-{
-	register  int		i;
-
-	for( i = 0; i < n; i++ )  {
-	    if(  s + VAL( hand[i].rank )  ==  t  )  return( i );
-	}
-	return( -1 );
-}
-
-
-
-
-/*
- * return the number of cards in h having the given rank value
- */
-
-numofval( h, n, v )
-
-    CARD		h[];
-    int			n;
-    int			v;
-{
-	register  int		i, j;
-
-	j = 0;
-	for( i = 0; i < n; i++ )  {
-	    if(  VAL( h[i].rank )  ==  v  )  ++j;
-	}
-	return( j );
-}
-
-
-
 /*
  * makeknown remembers all n cards in h for future recall
  */
-
-makeknown( h, n )
-
+void makeknown( h, n )
     CARD		h[];
     int			n;
 {
@@ -327,4 +296,3 @@ makeknown( h, n )
 	    known[ knownum++ ] = h[i];
 	}
 }
-

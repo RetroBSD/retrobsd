@@ -7,45 +7,30 @@
 #
 # make file for cribbage
 #
-HDRS=	cribbage.h deck.h cribcur.h
-OBJS=	extern.o crib.o support.o cards.o score.o io.o
-CFILES=	extern.c crib.c support.c cards.c score.c io.c
-TOBJS=	test.o cards.o score.o io.o extern.o
-MAN=	crib.0
-SEPFLAG= -i
-CFLAGS=	-O
-DESTDIR=
+TOPSRC          = $(shell cd ../../..; pwd)
+include $(TOPSRC)/target.mk
+#include $(TOPSRC)/cross.mk
+#CFLAGS  	= -O -Werror -DCROSS
 
-all:	cribbage ${MAN}
+OBJS            = extern.o crib.o support.o cards.o score.o io.o
+TOBJS           = test.o cards.o score.o io.o extern.o
+MAN             = crib.0
+LIBS            = -lcurses -ltermcap -lc
 
-cribbage:	${OBJS}
-	${CC} ${SEPFLAG} ${CFLAGS} -o cribbage ${OBJS} -lcurses -ltermlib
+all:            cribbage ${MAN}
 
-all: cribbage ${MAN}
+cribbage:       ${OBJS}
+		$(CC) $(LDFLAGS) -o $@.elf $(OBJS) $(LIBS)
+		$(OBJDUMP) -S $@.elf > $@.dis
+		$(SIZE) $@.elf
+		$(ELF2AOUT) $@.elf $@ && rm $@.elf
 
-crib.o io.o support.o: cribcur.h
-
-test:		${TOBJS}
-	${CC} ${SEPFLAG} ${CFLAGS} -o test ${TOBJS} -lcurses -ltermlib
-
-crib.0: cribbage.n macro
-	nroff cribbage.n > crib.0
-
-tags: ${HDRS} ${CFILES}
-	ctags -u $?
-	ed - tags < :ctfix
-	sort tags -o tags
+${MAN}:         cribbage.n macro
+		nroff cribbage.n > $@
 
 clean:
-	rm -f ${OBJS} ? a.out core crib.0 cribbage errs
+		rm -f *.o core cribbage ${MAN}
 
-crib.o:		deck.h	cribbage.h	cribcur.h
-support.o:	deck.h	cribbage.h	cribcur.h
-test.o:		deck.h
-cards.o:	deck.h
-score.o:	deck.h
-io.o:		deck.h			cribcur.h
-
-install: cribbage crib.0
-	install -s cribbage $(DESTDIR)/usr/games
-	install -m 644 crib.0 $(DESTDIR)/usr/games/lib/crib.instr
+install:
+		install cribbage $(DESTDIR)/games/
+		install -m 644 crib.0 $(DESTDIR)/games/lib/crib.instr

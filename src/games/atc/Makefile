@@ -14,7 +14,7 @@ CFLAGS          += -DBSD -DDEST=\"/games/lib/atc/\"
 #CFLAGS          += -DSYSV -DDEST=\"games/\"
 YFLAGS          = -d
 LEX             = lex
-LIBS            = -lm -lcurses -ltermcap
+LIBS            = -lm -lcurses -ltermcap -lc
 OBJS            = extern.o grammar.o input.o lex.o list.o log.o main.o tunable.o \
                   graphics.o update.o
 

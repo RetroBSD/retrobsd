@@ -1309,6 +1309,7 @@ expdef(const uchar *vp, struct recur *rp, int gotwarn)
 	uchar *sptr;
 	int narg, c, i, plev, snuff, instr;
 	int ellips = 0, shot = gotwarn;
+	size_t allocsz;
 
 	DPRINT(("expdef rp %s\n", (rp ? (const char *)rp->sp->namep : "")));
 	c = sloscan();
@@ -1321,7 +1322,10 @@ expdef(const uchar *vp, struct recur *rp, int gotwarn)
 	} else
 		narg = vp[1];
 
-        args = malloc(sizeof(uchar *) * (narg+ellips));
+	// The code depends on malloc(0) returning a non-NULL pointer, which is not guaranteed.
+	// Workaround it.
+	allocsz = sizeof(uchar *) * ((narg+ellips) ? (narg+ellips) : 1);
+	args = malloc(allocsz);
 	if (args == NULL)
 		error("expdef: out of mem");
 

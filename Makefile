@@ -95,7 +95,7 @@ ALLDIRS         = games/ sbin/ bin/ dev/ etc/ tmp/ lib/ libexec/ share/ include/
                   var/run/ var/log/ var/lock/ games/ games/lib/ include/sys/ \
                   include/machine/ include/arpa/ include/smallc/ \
                   include/smallc/sys/ share/misc/ share/smallc/ include/sys/ \
-                  games/lib/
+                  games/lib/ games/lib/atc/
 BDEVS           = dev/rd0!b0:0 dev/rd0a!b0:1 dev/rd0b!b0:2 dev/rd0c!b0:3 dev/rd0d!b0:4
 BDEVS           += dev/rd1!b1:0 dev/rd1a!b1:1 dev/rd1b!b1:2 dev/rd1c!b1:3 dev/rd1d!b1:4
 BDEVS           += dev/rd2!b2:0 dev/rd2a!b2:1 dev/rd2b!b2:2 dev/rd2c!b2:3 dev/rd2d!b2:4

@@ -6,24 +6,29 @@
  *
  * For more info on this and all of my stuff, mail edjames@berkeley.edu.
  */
-
-#if	!defined(lint) && defined(DOSCCS)
-static char sccsid[] = "@(#)update.c	1.3.1 (2.11BSD) 1999/10/25";
-#endif
-
 #include "include.h"
 
-update()
+int too_close(p1, p2, dist)
+	PLANE	*p1, *p2;
+{
+	if (ABS(p1->altitude - p2->altitude) <= dist &&
+	    ABS(p1->xpos - p2->xpos) <= dist && ABS(p1->ypos - p2->ypos) <= dist)
+		return (1);
+	else
+		return (0);
+}
+
+void update(int sig)
 {
 	int	i, dir_diff, unclean;
-	PLANE	*pp, *p1, *p2, *p;
+	PLANE	*pp, *p1, *p2;
 	sigset_t set, oset;
 
 	sigemptyset(&set);
 	sigaddset(&set, SIGINT);
 	(void)sigprocmask(SIG_BLOCK, &set, &oset);
 
-	clock++;
+	clocktick++;
 	erase_all();
 
 	/* put some planes in the air */
@@ -42,7 +47,7 @@ update()
 	/* do altitude change and basic movement */
 	for (pp = air.head; pp != NULL; pp = pp->next) {
 		/* type 0 only move every other turn */
-		if (pp->plane_type == 0 && clock & 1)
+		if (pp->plane_type == 0 && clocktick & 1)
 			continue;
 
 		pp->fuel--;
@@ -117,10 +122,10 @@ update()
 				if (pp->xpos == sp->airport[i].x &&
 				    pp->ypos == sp->airport[i].y) {
 					if (pp->dest_type == T_AIRPORT)
-					    loser(pp, 
+					    loser(pp,
 						"landed at the wrong airport.");
 					else
-					    loser(pp, 
+					    loser(pp,
 						"landed instead of exited.");
 				}
 			loser(pp, "crashed on the ground.");
@@ -131,10 +136,10 @@ update()
 				if (pp->xpos == sp->exit[i].x &&
 				    pp->ypos == sp->exit[i].y) {
 					if (pp->dest_type == T_EXIT)
-					    loser(pp, 
+					    loser(pp,
 						"exited via the wrong exit.");
 					else
-					    loser(pp, 
+					    loser(pp,
 						"exited instead of landed.");
 				}
 			loser(pp, "illegally left the flight arena.");
@@ -174,20 +179,35 @@ update()
 	(void)sigprocmask(SIG_SETMASK, &oset, NULL);
 }
 
+int dir_deg(d)
+{
+	switch (d) {
+	case 0: return (0);
+	case 1: return (45);
+	case 2: return (90);
+	case 3: return (135);
+	case 4: return (180);
+	case 5: return (225);
+	case 6: return (270);
+	case 7: return (315);
+	default:
+		return (-1);
+	}
+}
+
 char *
 command(pp)
 	PLANE	*pp;
 {
 	static char	buf[50], *bp, *comm_start;
-	char	*index();
 
 	buf[0] = '\0';
 	bp = buf;
-	(void)sprintf(bp, "%c%d%c%c%d: ", name(pp), pp->altitude, 
+	(void)sprintf(bp, "%c%d%c%c%d: ", name(pp), pp->altitude,
 		(pp->fuel < LOWFUEL) ? '*' : ' ',
 		(pp->dest_type == T_AIRPORT) ? 'A' : 'E', pp->dest_no);
 
-	comm_start = bp = index(buf, '\0');
+	comm_start = bp = strchr(buf, '\0');
 	if (pp->altitude == 0)
 		(void)sprintf(bp, "Holding @ A%d", pp->orig_no);
 	else if (pp->new_dir >= MAXDIR || pp->new_dir < 0)
@@ -195,19 +215,19 @@ command(pp)
 	else if (pp->new_dir != pp->dir)
 		(void)sprintf(bp, "%d", dir_deg(pp->new_dir));
 
-	bp = index(buf, '\0');
+	bp = strchr(buf, '\0');
 	if (pp->delayd)
 		(void)sprintf(bp, " @ B%d", pp->delayd_no);
 
-	bp = index(buf, '\0');
-	if (*comm_start == '\0' && 
+	bp = strchr(buf, '\0');
+	if (*comm_start == '\0' &&
 	    (pp->status == S_UNMARKED || pp->status == S_IGNORED))
 		strcpy(bp, "---------");
 	return (buf);
 }
 
 /* char */
-name(p)
+int name(p)
 	PLANE	*p;
 {
 	if (p->plane_type == 0)
@@ -216,17 +236,17 @@ name(p)
 		return ('a' + p->plane_no);
 }
 
-number(l)
+int number(l)
 {
 	if (l < 'a' && l > 'z' && l < 'A' && l > 'Z')
 		return (-1);
 	else if (l >= 'a' && l <= 'z')
 		return (l - 'a');
-	else 
+	else
 		return (l - 'A');
 }
 
-next_plane()
+int next_plane()
 {
 	static int	last_plane = -1;
 	PLANE		*pp;
@@ -254,7 +274,7 @@ next_plane()
 	return (last_plane);
 }
 
-addplane()
+int addplane()
 {
 	PLANE	p, *pp, *p1;
 	int	i, num_starts, close, rnd, rnd2, pnum;
@@ -336,30 +356,4 @@ findplane(n)
 		if (pp->plane_no == n)
 			return (pp);
 	return (NULL);
-}
-
-too_close(p1, p2, dist)
-	PLANE	*p1, *p2;
-{
-	if (ABS(p1->altitude - p2->altitude) <= dist &&
-	    ABS(p1->xpos - p2->xpos) <= dist && ABS(p1->ypos - p2->ypos) <= dist)
-		return (1);
-	else
-		return (0);
-}
-
-dir_deg(d)
-{
-	switch (d) {
-	case 0: return (0);
-	case 1: return (45);
-	case 2: return (90);
-	case 3: return (135);
-	case 4: return (180);
-	case 5: return (225);
-	case 6: return (270);
-	case 7: return (315);
-	default:
-		return (-1);
-	}
 }

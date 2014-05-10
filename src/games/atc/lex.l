@@ -8,9 +8,13 @@
  * For more info on this and all of my stuff, mail edjames@berkeley.edu.
  */
 
+#define YY_NO_INPUT
+#define YY_SKIP_YYWRAP
 #include "y.tab.h"
+#define yywrap() 0
 extern int	line;
 %}
+%option nounput
 %%
 [0-9]+			{ yylval.ival = atoi(yytext);  return(ConstOp); }
 height			{ return(HeightOp); }

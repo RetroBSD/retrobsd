@@ -6,14 +6,9 @@
  *
  * For more info on this and all of my stuff, mail edjames@berkeley.edu.
  */
-
-#ifndef lint
-static char sccsid[] = "@(#)log.c	1.4 (Berkeley) 12/26/87";
-#endif not lint
-
 #include "include.h"
 
-compar(a, b)
+int compar(a, b)
 	SCORE	*a, *b;
 {
 	if (b->planes == a->planes)
@@ -51,16 +46,14 @@ timestr(t)
 	return (s);
 }
 
-log_score(list_em)
+void log_score(list_em)
 {
 	register int	i, fd, num_scores = 0, good, changed = 0, found = 0;
 	struct passwd	*pw;
 	FILE		*fp;
-	char		*cp, logstr[BUFSIZ], *index(), *rindex();
+	char		*cp, logstr[BUFSIZ];
 	SCORE		score[100], thisscore;
-#ifdef SYSV
 	struct utsname	name;
-#endif
 
 	strcpy(logstr, SPECIAL_DIR);
 	strcat(logstr, LOG);
@@ -69,16 +62,16 @@ log_score(list_em)
 	fd = open(logstr, O_CREAT|O_RDWR, 0644);
 	if (fd < 0) {
 		perror(logstr);
-		return (-1);
+		return;
 	}
 	/*
-	 * This is done to take advantage of stdio, while still 
+	 * This is done to take advantage of stdio, while still
 	 * allowing a O_CREAT during the open(2) of the log file.
 	 */
 	fp = fdopen(fd, "r+");
 	if (fp == NULL) {
 		perror(logstr);
-		return (-1);
+		return;
 	}
 #ifdef BSD
 	if (flock(fileno(fp), LOCK_EX) < 0)
@@ -88,14 +81,14 @@ log_score(list_em)
 #endif
 	{
 		perror("flock");
-		return (-1);
+		return;
 	}
 	for (;;) {
 		good = fscanf(fp, "%s %s %s %d %d %d",
-			score[num_scores].name, 
-			score[num_scores].host, 
+			score[num_scores].name,
+			score[num_scores].host,
 			score[num_scores].game,
-			&score[num_scores].planes, 
+			&score[num_scores].planes,
 			&score[num_scores].time,
 			&score[num_scores].real_time);
 		if (good != 6 || ++num_scores >= NUM_SCORES)
@@ -103,32 +96,24 @@ log_score(list_em)
 	}
 	if (!test_mode && !list_em) {
 		if ((pw = (struct passwd *) getpwuid(getuid())) == NULL) {
-			fprintf(stderr, 
+			fprintf(stderr,
 				"getpwuid failed for uid %d.  Who are you?\n",
 				getuid());
-			return (-1);
+			return;
 		}
 		strcpy(thisscore.name, pw->pw_name);
-#ifdef BSD
-		if (gethostname(thisscore.host, sizeof (thisscore.host)) < 0) {
-			perror("gethostname");
-			return (-1);
-		}
-#endif
-#ifdef SYSV
 		uname(&name);
 		strcpy(thisscore.host, name.sysname);
-#endif
 
-		cp = rindex(file, '/');
+		cp = strrchr(file, '/');
 		if (cp == NULL) {
 			fprintf(stderr, "log: where's the '/' in %s?\n", file);
-			return (-1);
+			return;
 		}
 		cp++;
 		strcpy(thisscore.game, cp);
 
-		thisscore.time = clock;
+		thisscore.time = clocktick;
 		thisscore.planes = safe_planes;
 		thisscore.real_time = time(0) - start_time;
 
@@ -153,7 +138,7 @@ log_score(list_em)
 					if (num_scores < NUM_SCORES)
 						num_scores++;
 					bcopy(&score[i],
-						&score[num_scores - 1], 
+						&score[num_scores - 1],
 						sizeof (score[i]));
 					bcopy(&thisscore, &score[i],
 						sizeof (score[i]));
@@ -163,7 +148,7 @@ log_score(list_em)
 			}
 		}
 		if (!found && !changed && num_scores < NUM_SCORES) {
-			bcopy(&thisscore, &score[num_scores], 
+			bcopy(&thisscore, &score[num_scores],
 				sizeof (score[num_scores]));
 			num_scores++;
 			changed++;
@@ -178,7 +163,7 @@ log_score(list_em)
 			rewind(fp);
 			for (i = 0; i < num_scores; i++)
 				fprintf(fp, "%s %s %s %d %d %d\n",
-					score[i].name, score[i].host, 
+					score[i].name, score[i].host,
 					score[i].game, score[i].planes,
 					score[i].time, score[i].real_time);
 		} else {
@@ -196,11 +181,11 @@ log_score(list_em)
 	/* lock will evaporate upon close */
 #endif
 	fclose(fp);
-	printf("%2s:  %-8s  %-8s  %-18s  %4s  %9s  %4s\n", "#", "name", "host", 
+	printf("%2s:  %-8s  %-8s  %-18s  %4s  %9s  %4s\n", "#", "name", "host",
 		"game", "time", "real time", "planes safe");
 	puts("-------------------------------------------------------------------------------");
 	for (i = 0; i < num_scores; i++) {
-		cp = index(score[i].host, '.');
+		cp = strchr(score[i].host, '.');
 		if (cp != NULL)
 			*cp = '\0';
 		printf("%2d:  %-8s  %-8s  %-18s  %4d  %9s  %4d\n", i + 1,
@@ -209,5 +194,4 @@ log_score(list_em)
 			score[i].planes);
 	}
 	putchar('\n');
-	return (0);
 }

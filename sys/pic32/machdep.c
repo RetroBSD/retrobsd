@@ -194,22 +194,38 @@ startup()
 	 */
 	INTCON = 0;				/* Interrupt Control */
 	IPTMR = 0;				/* Temporal Proximity Timer */
-	IFS(0) =
-		PIC32_IPC_IP0(2) | PIC32_IPC_IP1(1) |
-		PIC32_IPC_IP2(1) | PIC32_IPC_IP3(1) |
-		PIC32_IPC_IS0(0) | PIC32_IPC_IS1(0) |
-		PIC32_IPC_IS2(0) | PIC32_IPC_IS3(0) ;
 
-    IFS(1) = IFS(2) = 0;		/* Interrupt Flag Status */
-	IEC(0) = IEC(1) = IEC(2) = 0;		/* Interrupt Enable Control */
-	IPC(0) = IPC(1) = IPC(2) = IPC(3) = 	/* Interrupt Priority Control */
-	IPC(4) = IPC(5) = IPC(6) = IPC(7) =
-	IPC(8) = IPC(9) = IPC(10) = IPC(11) =
-	IPC(12) =
-		PIC32_IPC_IP0(1) | PIC32_IPC_IP1(1) |
-		PIC32_IPC_IP2(1) | PIC32_IPC_IP3(1) |
-		PIC32_IPC_IS0(0) | PIC32_IPC_IS1(0) |
-		PIC32_IPC_IS2(0) | PIC32_IPC_IS3(0) ;
+        /* Interrupt Flag Status */
+        IFS(0) = PIC32_IPC_IP0(2) | PIC32_IPC_IP1(1) |
+                 PIC32_IPC_IP2(1) | PIC32_IPC_IP3(1) |
+                 PIC32_IPC_IS0(0) | PIC32_IPC_IS1(0) |
+                 PIC32_IPC_IS2(0) | PIC32_IPC_IS3(0) ;
+        IFS(1) = 0;
+        IFS(2) = 0;
+
+        /* Interrupt Enable Control */
+        IEC(0) = 0;
+        IEC(1) = 0;
+        IEC(2) = 0;
+
+        /* Interrupt Priority Control */
+        unsigned ipc = PIC32_IPC_IP0(1) | PIC32_IPC_IP1(1) |
+                       PIC32_IPC_IP2(1) | PIC32_IPC_IP3(1) |
+                       PIC32_IPC_IS0(0) | PIC32_IPC_IS1(0) |
+                       PIC32_IPC_IS2(0) | PIC32_IPC_IS3(0) ;
+        IPC(0) = ipc;
+        IPC(1) = ipc;
+        IPC(2) = ipc;
+        IPC(3) = ipc;
+        IPC(4) = ipc;
+        IPC(5) = ipc;
+        IPC(6) = ipc;
+        IPC(7) = ipc;
+        IPC(8) = ipc;
+        IPC(9) = ipc;
+        IPC(10) = ipc;
+        IPC(11) = ipc;
+        IPC(12) = ipc;
 
         /*
          * Setup wait states.

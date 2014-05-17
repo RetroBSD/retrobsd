@@ -33,6 +33,7 @@
 #define CMD_GO_IDLE         (0x40+0)    /* CMD0 */
 #define	CMD_SEND_OP_SDC     (0x40+41)   /* ACMD41 (SDC) */
 #define CMD_SET_BLEN        (0x40+16)
+#define CMD_SEND_IF_COND    (0x40+8)
 #define CMD_SEND_CSD        (0x40+9)
 #define CMD_STOP            (0x40+12)
 #define CMD_READ_SINGLE     (0x40+17)
@@ -329,6 +330,12 @@ unsigned dev_sdcard_io (cpu_mips_t *cpu, unsigned data)
                 break;
             d->read_multiple = 0;
             reply = 0;
+            break;
+        case CMD_SEND_IF_COND:          /* Stop read-multiple sequence */
+            if (d->count > 1)
+                break;
+            d->read_multiple = 0;
+            reply = 4;                  /* Unknown command */
             break;
         case 0:                         /* Reply */
             if (d->count <= d->limit) {

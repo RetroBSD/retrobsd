@@ -40,7 +40,9 @@ unix.elf:       $(KERNOBJ) $(LDSCRIPT)
 		$(CC) $(LDFLAGS) $(KERNOBJ) -o $@
 		chmod -x $@
 		$(OBJDUMP) -d -S $@ > unix.dis
-		$(OBJCOPY) -O binary $@ unix.bin
+		$(OBJCOPY) -O binary -R .boot -R .config $@ unix.bin
+		$(OBJCOPY) -O binary -j .boot -j .config $@ boot.bin
+		test -s boot.bin || rm boot.bin
 		$(OBJCOPY) -O ihex --change-addresses=0x80000000 $@ unix.hex
 		chmod -x $@ unix.bin
 

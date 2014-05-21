@@ -67,6 +67,9 @@ bl_devcfg.o:    $(BUILDPATH)/devcfg.c
 load:           unix.hex
 		pic32prog $(BLREBOOT) unix.hex
 
+loadmax:        unix.hex
+		$(PROGTOOL) -U flash:w:unix.hex:i
+
 loadboot:       bootloader.hex
 		pic32prog $(BLREBOOT) bootloader.hex
 

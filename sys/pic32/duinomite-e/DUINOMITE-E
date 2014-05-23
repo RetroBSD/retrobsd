@@ -11,11 +11,10 @@ linker bootloader-maximite
 
 device kernel cpu_khz=80000 bus_khz=40000 led=B15
 
-device console port=USB
+device console device=ttyUSB0
 device uartusb
 
 device rdisk led=C1
 device sd0 port=3 cs=G12 power=G13
 
 device gpio
-

@@ -4,7 +4,7 @@ always
     define EXEC_AOUT
     define EXEC_ELF
     define EXEC_SCRIPT
-    file _startup.o
+    file startup.o
     file clock.o
     file devsw.o
     file sysctl.o

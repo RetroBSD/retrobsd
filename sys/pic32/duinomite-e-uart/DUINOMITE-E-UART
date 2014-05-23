@@ -10,7 +10,7 @@ linker bootloader-maximite
 
 device kernel cpu_khz=80000 bus_khz=40000 led=B15
 
-device console port=UART5
+device console device=tty5
 device uart5 baud=115200 power=G13
 
 device rdisk led=C1

@@ -68,18 +68,18 @@ acutab.o: acutab.c
 log.o remote.o: Makefile
 
 aculib: FRC
-	cd aculib; make ${MFLAGS}
+	cd aculib; ${MAKE} ${MFLAGS}
 
 clean: FRC
 	rm -f ${OBJS} core tip tip.elf tip.dis
-	cd aculib; make ${MFLAGS} clean
+	cd aculib; ${MAKE} ${MFLAGS} clean
 
 depend: FRC
 	mkdep ${CFLAGS} ${SRCS}
-	cd aculib; make ${MFLAGS} depend
+	cd aculib; ${MAKE} ${MFLAGS} depend
 
 install: aculib tip
-	cd aculib; make ${MFLAGS} install
+	cd aculib; ${MAKE} ${MFLAGS} install
 	cp tip ${DESTDIR}/bin/tip
 	rm -f ${DESTDIR}/bin/cu
 	touch ${DESTDIR}/${ADM}/aculog

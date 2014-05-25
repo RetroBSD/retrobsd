@@ -42,7 +42,7 @@ FRC:
 
 install:        $(STD) $(NSTD)
 		-for i in $(SUBDIR); do \
-			make -C $$i $(MFLAGS) DESTDIR=$(DESTDIR) install; done
+			${MAKE} -C $$i $(MFLAGS) DESTDIR=$(DESTDIR) install; done
 		-for i in $(STD) $(NSTD); do \
 			install $$i $(DESTDIR)/games/$$i; done
 		-for i in *.6; do \
@@ -52,7 +52,7 @@ install:        $(STD) $(NSTD)
 
 clean:
 		rm -f a.out core *.s *.o *.dis *.elf $(STD) $(NSTD)
-		-for i in $(SUBDIR); do make -C $$i $(MFLAGS) clean; done
+		-for i in $(SUBDIR); do ${MAKE} -C $$i $(MFLAGS) clean; done
 
 # Files listed in $(NSTD) have explicit make lines given below.
 

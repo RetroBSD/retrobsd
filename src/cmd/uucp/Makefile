@@ -44,7 +44,7 @@ SUBDIRS=C. D.${HOSTNAME}X D.${HOSTNAME} D. X. TM.
 all:	libacu $(ALL)
 
 libacu:
-	cd aculib && make
+	cd aculib && ${MAKE}
 
 
 uuencode: uuencode.o
@@ -136,7 +136,7 @@ install: uuencode uuencode
 
 clean:
 	rm -f *.o $(ALL) libuucp.a *.dis *.elf
-	cd aculib; make ${MFLAGS} clean
+	cd aculib; ${MAKE} ${MFLAGS} clean
 
 depend:
 	mkdep ${CFLAGS} *.c

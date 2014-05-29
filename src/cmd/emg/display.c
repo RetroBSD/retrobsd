@@ -623,6 +623,7 @@ void modeline(WINDOW *wp)
   int lchar;			/* character to draw line in buffer with */
   int n;			/* cursor position count */
   int len;			/* line/column display check */
+  int perc;			/* percent down */
   char sl[25];			/* line/column display (probably overkill) */
 
   n = wp->w_toprow + wp->w_ntrows; /* Location */
@@ -676,7 +677,7 @@ void modeline(WINDOW *wp)
     }
 
   len = snprintf(sl, sizeof(sl), " %d%% (%d,%d) ",
-		((100*(wp->w_dotline + 1)) / bp->b_lines),
+		((100*(wp->w_dotline)) / bp->b_lines),
 		(wp->w_dotline + 1), getccol(FALSE));
   if (len < sizeof(sl) && len != -1)
     n += vtputs(sl);

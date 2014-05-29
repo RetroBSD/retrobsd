@@ -1,6 +1,11 @@
 ChangeLog
 =========
 
+May 29, 2014 : emg 1.6
+----------------------
+emg is now part of the RetroBSD tree.
+Add PgUp and PgDn scrolling.
+
 March 16, 2014 : emg 1.5
 ------------------------
 Add line number to the mode line.

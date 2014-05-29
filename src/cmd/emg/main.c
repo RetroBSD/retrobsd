@@ -458,6 +458,10 @@ int extendedcmd(int f, int n)
     case 'D': cmd = backchar; break;
     case 'H': cmd = gotobob; break;
     case 'W': cmd = gotoeob; break;
+    case '5': cmd = pageup; getctl(); break;
+    case '6': cmd = pagedown; getctl(); break;
+    case '7': cmd = gotobob; getctl(); break;
+    case '8': cmd = gotoeob; getctl(); break;
     default: mlwrite("\007[Key not bound]");
       return (FALSE);
     }

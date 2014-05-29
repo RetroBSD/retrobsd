@@ -623,7 +623,6 @@ void modeline(WINDOW *wp)
   int lchar;			/* character to draw line in buffer with */
   int n;			/* cursor position count */
   int len;			/* line/column display check */
-  int perc;			/* percent down */
   char sl[25];			/* line/column display (probably overkill) */
 
   n = wp->w_toprow + wp->w_ntrows; /* Location */

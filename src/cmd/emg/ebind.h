@@ -26,6 +26,7 @@ KEYTAB keytab[] = {
   {CTRL | 'R', backsearch},
   {CTRL | 'S', forwsearch},
   {CTRL | 'T', twiddle},
+  {CTRL | 'V', pagedown},
   {CTRL | 'W', killregion},
   {CTRL | 'Y', yank},
   {CTLX | '(', ctlxlp},
@@ -63,6 +64,7 @@ KEYTAB keytab[] = {
   {META | 'R', sreplace},
   {META | 'S', forwsearch},		/* non-standard */
   {META | 'U', upperword},
+  {META | 'V', pageup},
   {META | 'W', copyregion},
   {META | 'Z', quickexit},
   {META | 0x7F, delbword},

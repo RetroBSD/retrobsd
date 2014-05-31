@@ -21,6 +21,8 @@ int forwchar(int f, int n);
 int backchar(int f, int n);
 int forwline(int f, int n);
 int backline(int f, int n);
+int pagedown(int f, int n);
+int pageup(int f, int n);
 
 /*
  * This routine, given a pointer to a LINE, and the current cursor goal
@@ -249,6 +251,28 @@ int backline(int f, int n)
   curwp->w_dotp = dlp;
   curwp->w_doto = getgoal(dlp);
   curwp->w_flag |= WFMOVE;
+  return (TRUE);
+}
+
+/*
+ * PgDn. Scroll down (FORCE_ROWS - 1).
+ * Just forwline(f, (FORCE_ROWS -1))
+ * Bound to C-V
+ */
+int pagedown(int f, int n)
+{
+  forwline(f, (FORCE_ROWS - 1));
+  return (TRUE);
+}
+
+/*
+ * PgUp. Scroll up (FORCE_ROWS - 1).
+ * Just backline(f, (FORCE_ROWS -1))
+ * Bound to M-V
+ */
+int pageup(int f, int n)
+{
+  backline(f, (FORCE_ROWS - 1));
   return (TRUE);
 }
 

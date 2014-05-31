@@ -23,6 +23,8 @@ extern int gotoeol();	       /* Move to end of line */
 extern int backchar();	       /* Move backward by characters */
 extern int forwline();	       /* Move forward by lines */
 extern int backline();	       /* Move backward by lines */
+extern int pagedown();	       /* PgDn */
+extern int pageup();	       /* PgUp */
 extern int gotobob();	       /* Move to start of buffer */
 extern int gotoeob();	       /* Move to end of buffer */
 extern int setfillcol();       /* Set fill column */

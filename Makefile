@@ -77,7 +77,7 @@ INC_FILES	= $(wildcard include/*.h) \
                   $(wildcard include/smallc/*.h) \
                   $(wildcard include/smallc/sys/*.h) \
                   $(wildcard include/arpa/*.h)
-SHARE_FILES	= share/re.help share/example/Makefile \
+SHARE_FILES	= share/re.help share/emg.keys share/example/Makefile \
                   share/example/ashello.S share/example/chello.c \
                   share/example/blkjack.bas share/example/hilow.bas \
                   share/example/stars.bas share/example/prime.scm \
@@ -179,6 +179,7 @@ cleanall:       clean
 		rm -f games/lib/adventure.dat
 		rm -f games/lib/cfscores
 		rm -f share/re.help
+		rm -f share/emg.keys
 		rm -f share/misc/more.help
 		rm -f etc/termcap etc/remote etc/phones
 		rm -rf share/unixbench

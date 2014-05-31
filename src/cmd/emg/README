@@ -34,11 +34,8 @@ appreciate the history of this software.
 As both Ersatz Emacs and Mg are Public Domain, emg is also Public Domain.
 
 Versions of emg up to and including 1.2 also supported OpenBSD; OpenBSD
-has since dropped the older headers, such as sgtty.h and it is not worth
-reimplementing these for OpenBSD, since OpenBSD maintains Mg.
+has since dropped the older headers, such as sgtty.h, and it is not worth
+reimplementing these for OpenBSD since OpenBSD maintains Mg.
 
-Tarballs can be found here:
-http://devio.us/~bcallah/emg/
-
-Github repo, for patches:
-https://github.com/ibara/emg
+====================================
+Brian Callahan <bcallah@openbsd.org>

@@ -10,12 +10,12 @@ SUBDIR		= baremetal dip duinomite duinomite-uart duinomite-e \
 default:
 
 all:
-		-for i in $(SUBDIR); do make -C $$i all; done
+		-for i in $(SUBDIR); do ${MAKE} -C $$i all; done
 
 install:
 
 clean:
-		-for i in $(SUBDIR); do make -C $$i clean; done
+		-for i in $(SUBDIR); do ${MAKE} -C $$i clean; done
 		find .. -name \*~ | xargs rm -f
 
 reconfig:

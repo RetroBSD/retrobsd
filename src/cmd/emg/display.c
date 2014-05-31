@@ -647,7 +647,7 @@ void modeline(WINDOW *wp)
   n = 2;
   /* This is the version string. Do not forget to
    * increment when releasing a new version. */
-  n += vtputs(" emg 1.5 ");
+  n += vtputs(" emg 1.6 ");
 
   vtputc(lchar);
   vtputc(lchar);
@@ -676,7 +676,7 @@ void modeline(WINDOW *wp)
     }
 
   len = snprintf(sl, sizeof(sl), " %d%% (%d,%d) ",
-		((wp->w_dotline +1) / bp->b_lines),
+		((100*(wp->w_dotline)) / bp->b_lines),
 		(wp->w_dotline + 1), getccol(FALSE));
   if (len < sizeof(sl) && len != -1)
     n += vtputs(sl);

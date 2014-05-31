@@ -1,4 +1,4 @@
-		     emg keybindings (March 16, 2014)
+		      emg keybindings (May 29, 2014)
 		    Based on Ersatz Emacs (2000/09/14)
 
 M-  means to use the <ESC> key prior to using another key
@@ -13,6 +13,7 @@ M-  means to use the <ESC> key prior to using another key
 ^P   Previous line			M-N    End of paragraph
 ^A   Front of line			M-< or [HOME] Start of file
 ^E   End of line			M-> or [END] End of file
+^V or [PgDn] Scroll down		M-V or [PgUp] Scroll up
 M-G  Go to line				Arrow keys are active
 
 ------------------------------------------------------------------------------

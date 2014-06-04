@@ -1,9 +1,9 @@
 /*
  * Written by Serge Vakulenko <serge@vak.ru>.
  *
- * The contents of this file are subject to the terms of the
- * Common Development and Distribution License (the "License").
- * You may not use this file except in compliance with the License.
+ * Permission to use, copy, modify, and distribute this
+ * software is freely granted, provided that this notice
+ * is preserved.
  */
 #include <math.h>
 
@@ -11,8 +11,6 @@
  * modff(float x, float *iptr)
  * return fraction part of x, and return x's integral part in *iptr.
  */
-static const float one = 1.0;
-
 float modff (float fx, float *iptr)
 {
         union {

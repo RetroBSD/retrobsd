@@ -24,8 +24,9 @@ AOUT_OBJS       = aout.o mips-dis.o
 RANLIB_OBJS     = ranlib.o archive.o
 HEADERS         = a.out.h ar.h nlist.h ranlib.h
 
-vpath %.c $(TOPSRC)/src/cmd/ar $(TOPSRC)/src/cmd/as $(TOPSRC)/src/cmd/ld \
-    $(TOPSRC)/src/cmd/nm $(TOPSRC)/src/cmd/ranlib $(TOPSRC)/src/cmd
+vpath %.c $(TOPSRC)/src/cmd/aout $(TOPSRC)/src/cmd/ar $(TOPSRC)/src/cmd/as \
+    $(TOPSRC)/src/cmd/ld $(TOPSRC)/src/cmd/nm $(TOPSRC)/src/cmd/ranlib \
+    $(TOPSRC)/src/cmd
 
 all install depend: $(HEADERS) $(SUBDIR) $(PROG)
 		-for i in $(SUBDIR); do $(MAKE) -C $$i $(MFLAGS) DESTDIR=$(DESTDIR) $@; done

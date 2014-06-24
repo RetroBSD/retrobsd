@@ -639,7 +639,7 @@ void uartstart (register struct tty *tp)
 	s = spltty();
 	if (tp->t_state & (TS_TIMEOUT | TS_BUSY | TS_TTSTOP)) {
 out:		/* Disable transmit_interrupt. */
-        led_control (LED_TTY, 0);
+		led_control (LED_TTY, 0);
 		splx (s);
 		return;
 	}
@@ -705,7 +705,7 @@ again:
         if (--timo == 0)
             break;
     if (tp->t_state & TS_BUSY) {
-            uartintr (0);
+            uartintr (dev);
             goto again;
     }
     led_control (LED_TTY, 1);

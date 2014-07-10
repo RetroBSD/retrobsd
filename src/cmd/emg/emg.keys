@@ -1,4 +1,4 @@
-		      emg keybindings (May 29, 2014)
+		      emg keybindings (July 7, 2014)
 		    Based on Ersatz Emacs (2000/09/14)
 
 M-  means to use the <ESC> key prior to using another key
@@ -26,12 +26,7 @@ M-G  Go to line				Arrow keys are active
 ------------------------------------------------------------------------------
 		       FORMATTING & TRANSPOSING
 
-M-U  UPPERCASE word			M-C  Capitalize word
-M-L  lowercase word			^T   Transpose characters
 ^Q   Quote next key, so that control codes may be entered into text. (or ^X Q)
-M-Q  Format paragraph so that text is left-justified between margins.
-^X F Set the right margin for paragraph formatting to the current position of
-     the cursor.
 
 ------------------------------------------------------------------------------
 			      SEARCHING
@@ -41,20 +36,9 @@ M-Q  Format paragraph so that text is left-justified between margins.
 ^R   As above, but reverse search from cursor position.
 
 ------------------------------------------------------------------------------
-			      REPLACING
-
-M-R  Replace all instances of first typed-in string with second typed-in
-     string.
-M-%  Replace with query. Answer with:
-	Y   replace & continue		N   no replacement & continue
-	!   replace the rest		?   Get a list of options
-	.   exit and return to entry point
-	^G,'q' or <return> exit and remain at current location
-
-------------------------------------------------------------------------------
 			  COPYING AND MOVING
 
-^@ or M-<spacebar> Set mark at current position.
+M-.   Set mark at current position.
 ^W   Delete region.
 M-W  Copy region to kill buffer.
 ^Y   Yank back kill buffer at cursor.
@@ -64,7 +48,7 @@ position. The kill buffer is the text which has been most recently deleted or
 copied.
 
 Generally, the procedure for copying or moving text is:
-1) Mark out region using M-<spacebar> at the beginning and move the cursor to
+1) Mark out region using M-. at the beginning and move the cursor to
    the end.
 2) Delete it (with ^W) or copy it (with M-W) into the kill buffer.
 3) Move the cursor to the desired location and yank it back (with ^Y).
@@ -113,7 +97,6 @@ M-^V  Scroll other window down		M-^Z   Scroll other window up
 			       EXITING
 
 ^X^C  Exit. Any unsaved files will require confirmation.
-M-Z   Write out all changed buffers automatically and exit.
 
 ------------------------------------------------------------------------------
 				MACROS

@@ -1,6 +1,13 @@
 ChangeLog
 =========
 
+July 10, 2014 : emg 1.7
+-----------------------
+Searching now correctly updates line number display.
+Remove lots of rarely-used word functions.
+Remove search+replace: sed(1) is quicker.
+Reduce size of some static buffers.
+
 May 29, 2014 : emg 1.6
 ----------------------
 emg is now part of the RetroBSD tree.

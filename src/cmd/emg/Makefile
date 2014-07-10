@@ -10,15 +10,15 @@ CFLAGS =	-Os -Wall -Werror
 # With the extra LDFLAGS, save some bytes.
 CFLAGS +=	-ffunction-sections -fdata-sections
 
-# This reduces code size to 46K.
+# This reduces code size significantly.
 CFLAGS +=	-mips16
 
 # Set the screen size.
 # Will default to FORCE_COLS=80 and FORCE_ROWS=24
 # if not set here.
-CFLAGS +=	-DFORCE_COLS=80 -DFORCE_ROWS=24
+#CFLAGS +=	-DFORCE_COLS=80 -DFORCE_ROWS=24
 
-# with CFLAGS+=	-ffunction-sections -fdatasections
+# with CFLAGS+=	-ffunction-sections -fdata-sections
 LDFLAGS +=	-Wl,--gc-sections
 
 LIBS =		-ltermcap -lc

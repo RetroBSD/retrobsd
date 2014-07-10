@@ -25,9 +25,6 @@ int backhunt(int f, int n);
 int bsearch(int f, int n);
 int eq(int bc, int pc);
 int readpattern(char *prompt);
-int sreplace(int f, int n);
-int qreplace(int f, int n);
-int replaces(int kind, int f, int n);
 int forscan(char *patrn, int leavep);
 void expandp(char *srcstr, char *deststr, int maxlength);
 
@@ -42,6 +39,7 @@ void expandp(char *srcstr, char *deststr, int maxlength);
 int forwsearch(int f, int n)
 {
   int status;
+  int curline = curwp->w_dotline;
 
   if (n == 0)			/* resolve the repeat count */
     n = 1;
@@ -60,14 +58,17 @@ int forwsearch(int f, int n)
     }
 
   /* and complain if not there */
-  if (status == FALSE)
+  if (status == FALSE) {
     mlwrite("Not found");
+    curwp->w_dotline = curline;
+  }
   return (status);
 }
 
 int forwhunt(int f, int n)
 {
   int status = 0;
+  int curline = curwp->w_dotline;
 
   /* resolve the repeat count */
   if (n == 0)
@@ -89,8 +90,10 @@ int forwhunt(int f, int n)
     }
 
   /* and complain if not there */
-  if (status == FALSE)
+  if (status == FALSE) {
     mlwrite("Not found");
+    curwp->w_dotline = curline;
+  }
   return (status);
 }
 
@@ -137,6 +140,7 @@ int bsearch(int f, int n)
   LINE *clp, *tlp;
   char *epp, *pp;
   int cbo, tbo, c;
+  int curline = curwp->w_dotline;
 
   /* find a pointer to the end of the pattern */
   for (epp = &pat[0]; epp[1] != 0; ++epp)
@@ -154,10 +158,12 @@ int bsearch(int f, int n)
 	  if (cbo == 0)
 	    {
 	      clp = lback(clp);
+	      curwp->w_dotline--;
 
 	      if (clp == curbp->b_linep)
 		{
 		  mlwrite("Not found");
+		  curwp->w_dotline = curline;
 		  return (FALSE);
 		}
 	      cbo = llength(clp) + 1;
@@ -182,6 +188,7 @@ int bsearch(int f, int n)
 		  if (tbo == 0)
 		    {
 		      tlp = lback(tlp);
+		      curwp->w_dotline--;
 		      if (tlp == curbp->b_linep)
 			goto fail;
 
@@ -252,167 +259,6 @@ int readpattern(char *prompt)
   return (s);
 }
 
-/*
- * Search and replace (ESC-R)
- */
-int sreplace(int f, int n)
-{
-  return (replaces(FALSE, f, n));
-}
-
-/*
- * search and replace with query (ESC-CTRL-R)
- */
-int qreplace(int f, int n)
-{
-  return (replaces(TRUE, f, n));
-}
-
-/*
- * replaces: search for a string and replace it with another string. query
- * might be enabled (according to kind)
- */
-int replaces(int kind, int f, int n)
-{
-  LINE *origline;		/* original "." position */
-  char tmpc;			/* temporary character */
-  char c;			/* input char for query */
-  char tpat[NPAT];		/* temporary to hold search pattern */
-  int i;			/* loop index */
-  int s;			/* success flag on pattern inputs */
-  int slength, rlength;		/* length of search and replace strings */
-  int numsub;			/* number of substitutions */
-  int nummatch;			/* number of found matches */
-  int nlflag;			/* last char of search string a <NL>? */
-  int nlrepl;			/* was a replace done on the last line? */
-  int origoff;			/* and offset (for . query option) */
-
-  /* check for negative repititions */
-  if (f && n < 0)
-    return (FALSE);
-
-  /* ask the user for the text of a pattern */
-  if ((s = readpattern((kind == FALSE ? "Replace" : "Query replace"))) != TRUE)
-    return (s);
-  strncpy(&tpat[0], &pat[0], NPAT); /* salt it away */
-
-  /* ask for the replacement string */
-  strncpy(&pat[0], &rpat[0], NPAT); /* set up default string */
-  if ((s = readpattern("with")) == ABORT)
-    return (s);
-
-  /* move everything to the right place and length them */
-  strncpy(&rpat[0], &pat[0], NPAT);
-  strncpy(&pat[0], &tpat[0], NPAT);
-  slength = strlen(&pat[0]);
-  rlength = strlen(&rpat[0]);
-
-  /* set up flags so we can make sure not to do a recursive replace on the
-   * last line */
-  nlflag = (pat[slength - 1] == '\n');
-  nlrepl = FALSE;
-
-  /* build query replace question string */
-  strncpy(tpat, "Replace '", 10);
-  expandp(&pat[0], &tpat[strlen (tpat)], NPAT / 3);
-  strncat(tpat, "' with '", 9);
-
-  expandp(&rpat[0], &tpat[strlen (tpat)], NPAT / 3);
-  strncat(tpat, "'? ", 4);
-
-  /* save original . position */
-  origline = curwp->w_dotp;
-  origoff = curwp->w_doto;
-
-  /* scan through the file */
-  numsub = 0;
-  nummatch = 0;
-  while ((f == FALSE || n > nummatch) &&
-	 (nlflag == FALSE || nlrepl == FALSE))
-    {
-      /* search for the pattern */
-      if (forscan(&pat[0], PTBEG) != TRUE)
-	break;			/* all done */
-      ++nummatch;		/* increment # of matches */
-
-      /* check if we are on the last line */
-      nlrepl = (lforw (curwp->w_dotp) == curwp->w_bufp->b_linep);
-
-      /* check for query */
-      if (kind)
-	{
-	  /* get the query */
-	  mlwrite(&tpat[0], &pat[0], &rpat[0]);
-	qprompt:
-	  update();		/* show the proposed place to change */
-	  c = (*term.t_getchar) (); /* and input */
-	  mlwrite("");		/* and clear it */
-
-	  /* and respond appropriately */
-	  switch (c)
-	    {
-	    case 'y':		/* yes, substitute */
-	    case ' ':
-	      break;
-
-	    case 'n':		/* no, onword */
-	      forwchar(FALSE, 1);
-	      continue;
-
-	    case '!':		/* yes/stop asking */
-	      kind = FALSE;
-	      break;
-
-	    case '.':		/* abort! and return */
-	      /* restore old position */
-	      curwp->w_dotp = origline;
-	      curwp->w_doto = origoff;
-	      curwp->w_flag |= WFMOVE;
-
-	    case BELL:		/* abort! and stay */
-	      mlwrite("Aborted!");
-	      return (FALSE);
-
-	    case 0x0d:		/* controlled exit */
-	    case 'q':
-	      return (TRUE);
-
-	    default:		/* bitch and beep */
-	      (*term.t_beep) ();
-
-	    case '?':		/* help me */
-	      mlwrite("(Y)es, (N)o, (!)Do the rest, (^G,RET,q)Abort, (.)Abort back, (?)Help: ");
-	      goto qprompt;
-	    }
-	}
-      /* delete the sucker */
-      if (ldelete(slength, FALSE) != TRUE)
-	{
-	  /* error while deleting */
-	  mlwrite("ERROR while deleting");
-	  return (FALSE);
-	}
-      /* and insert its replacement */
-      for (i = 0; i < rlength; i++)
-	{
-	  tmpc = rpat[i];
-	  s = (tmpc == '\n' ? lnewline() : linsert(1, tmpc));
-	  if (s != TRUE)
-	    {
-	      /* error while inserting */
-	      mlwrite("Out of memory while inserting");
-	      return (FALSE);
-	    }
-	}
-
-      numsub++;			/* increment # of substitutions */
-    }
-
-  /* and report the results */
-  mlwrite("%d substitutions", numsub);
-  return (TRUE);
-}
-
 /* search forward for a <patrn>
  */
 int forscan(char *patrn, int leavep)
@@ -441,6 +287,7 @@ int forscan(char *patrn, int leavep)
       if (curoff == llength(curline))
 	{			/* if at EOL */
 	  curline = lforw(curline); /* skip to next line */
+	  curwp->w_dotline++;
 	  curoff = 0;
 	  c = '\n';		/* and return a <NL> */
 	}
@@ -463,6 +310,7 @@ int forscan(char *patrn, int leavep)
 		{
 		  /* advance past EOL */
 		  matchline = lforw(matchline);
+		  curwp->w_dotline++;
 		  matchoff = 0;
 		  c = '\n';
 		}

@@ -647,7 +647,7 @@ void modeline(WINDOW *wp)
   n = 2;
   /* This is the version string. Do not forget to
    * increment when releasing a new version. */
-  n += vtputs(" emg 1.6 ");
+  n += vtputs(" emg 1.7 ");
 
   vtputc(lchar);
   vtputc(lchar);

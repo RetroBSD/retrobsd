@@ -31,8 +31,6 @@ extern int setfillcol();       /* Set fill column */
 extern int setmark();	       /* Set mark */
 extern int forwsearch();       /* Search forward */
 extern int backsearch();       /* Search backwards */
-extern int sreplace();	       /* search and replace */
-extern int qreplace();	       /* search and replace w/query */
 extern int nextwind();	       /* Move to the next window */
 extern int prevwind();	       /* Move to the previous window */
 extern int onlywind();	       /* Make current window only one */
@@ -54,11 +52,6 @@ extern int forwdel();	       /* Forward delete */
 extern int backdel();	       /* Backward delete */
 extern int killtext();	       /* Kill forward */
 extern int yank();	       /* Yank back from killbuffer */
-extern int upperword();        /* Upper case word */
-extern int lowerword();        /* Lower case word */
-extern int capword();	       /* Initial capitalize word */
-extern int delfword();	       /* Delete forward word */
-extern int delbword();	       /* Delete backward word */
 extern int killregion();       /* Kill region */
 extern int copyregion();       /* Copy region to kill buffer */
 extern int quickexit();        /* low keystroke style exit */

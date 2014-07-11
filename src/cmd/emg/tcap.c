@@ -4,33 +4,6 @@
 
 #define termdef 1	/* don't define "term" externally */
 
-/* Did you remember to set FORCE_COLS? */
-#ifndef FORCE_COLS
-#define FORCE_COLS 80
-#endif
-
-/* Did you remember to set FORCE_ROWS? */
-#ifndef FORCE_ROWS
-#define FORCE_ROWS 24
-#endif
-
-/*
- * XXX:
- * Default/sane(?) maximum column and row sizes.
- * Taken from mg1a.
- *
- * Let the user override this with a
- * CFLAGS += -DMAXCOL=XXX -DMAXROW=XXX
- * line in the Makefile.
- */
-#ifndef MAXCOL
-#define MAXCOL 132
-#endif
-
-#ifndef MAXROW
-#define MAXROW 66
-#endif
-
 #include <stdio.h>	/* puts(3), snprintf(3) */
 #include "estruct.h"
 #include "edef.h"

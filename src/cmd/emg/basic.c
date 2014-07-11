@@ -13,7 +13,6 @@
 #include "edef.h"
 
 extern int getccol(int bflg);
-extern int inword();
 extern void mlwrite();
 extern int mlreplyt();
 

@@ -3,10 +3,10 @@
 /* ESTRUCT: Structure and preprocessor */
 
 /* internal constants */
-#define NFILEN	80		/* maximum # of bytes, file name */
+#define NFILEN	32		/* maximum # of bytes, file name */
 #define NBUFN	16		/* maximum # of bytes, buffer name */
 #define NLINE	512		/* maximum # of bytes, line */
-#define NKBDM	256		/* maximum # of strokes, keyboard macro */
+#define NKBDM	128		/* maximum # of strokes, keyboard macro */
 #define NPAT	80		/* maximum # of bytes, pattern */
 #define HUGE	32700		/* Huge number for "impossible" row&col */
 
@@ -30,6 +30,35 @@
 
 #define CFCPCN	0x0001		/* Last command was C-P, C-N */
 #define CFKILL	0x0002		/* Last command was a kill */
+
+/*
+ * screen constants
+ * override with
+ * CFLAGS += -DFORCE_COLS=XXX -DFORCE_ROWS=XXX
+ */
+#ifndef FORCE_COLS
+#define FORCE_COLS 80
+#endif
+
+#ifndef FORCE_ROWS
+#define FORCE_ROWS 24
+#endif
+
+/*
+ * XXX:
+ * Default/sane(?) maximum column and row sizes.
+ * Taken from mg1a.
+ *
+ * Let the user override these with
+ * CFLAGS += -DMAXCOL=XXX -DMAXROW=XXX
+ */
+#ifndef MAXCOL
+#define MAXCOL 132
+#endif
+
+#ifndef MAXROW
+#define MAXROW 66
+#endif
 
 /*
  * There is a window structure allocated for every active display window. The

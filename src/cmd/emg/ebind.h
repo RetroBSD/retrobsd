@@ -7,7 +7,6 @@
  */
 
 KEYTAB keytab[] = {
-  {CTRL | '@', setmark},
   {CTRL | 'A', gotobol},
   {CTRL | 'B', backchar},
   {CTRL | 'D', forwdel},
@@ -50,25 +49,16 @@ KEYTAB keytab[] = {
   {CTLX | CTRL | 'R', fileread},
   {CTLX | CTRL | 'S', filesave},
   {CTLX | CTRL | 'W', filewrite},
-  {META | ' ', setmark},
-  {META | '%', qreplace},
   {META | '.', setmark},
   {META | '<', gotobob},
   {META | '>', gotoeob},
   {META | 'B', backword},
-  {META | 'C', capword},
-  {META | 'D', delfword},
   {META | 'F', forwword},
   {META | 'G', setline},		/* non-standard */
-  {META | 'L', lowerword},
-  {META | 'R', sreplace},
   {META | 'S', forwsearch},		/* non-standard */
-  {META | 'U', upperword},
   {META | 'V', pageup},
   {META | 'W', copyregion},
   {META | 'Z', quickexit},
-  {META | 0x7F, delbword},
-  {META | CTRL | 'H', delbword},
   {META | CTRL | 'N', namebuffer},
   {0x7F, backdel},
   {META | '[', extendedcmd},

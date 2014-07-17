@@ -544,12 +544,12 @@ void fs_dirent_unpack (fs_dirent_t *dirent, unsigned char *data)
 #define	DELETE		2	/* setup for file deletion */
 #define	LINK		3	/* setup for link */
 
-int fs_inode_by_name (fs_t *fs, fs_inode_t *inode, char *name,
+int fs_inode_by_name (fs_t *fs, fs_inode_t *inode, const char *name,
 	int op, int mode)
 {
 	fs_inode_t dir;
 	int c, namlen, reclen;
-	char *namptr;
+	const char *namptr;
 	unsigned long offset, last_offset;
 	struct {
             unsigned int inum;

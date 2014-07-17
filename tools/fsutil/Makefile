@@ -1,11 +1,15 @@
 CC		= gcc -g
 CFLAGS		= -O -Wall
 DESTDIR		= /usr/local
-OBJS		= fsutil.o superblock.o block.c inode.o create.o check.o file.o
+OBJS		= fsutil.o superblock.o block.c inode.o create.o check.o file.o mount.o
 PROG		= fsutil
 
 # For Mac OS X
 #LIBS		= -largp
+
+# Fuse
+CFLAGS          += $(shell pkg-config fuse --cflags)
+LIBS            += $(shell pkg-config fuse --libs)
 
 all:		$(PROG)
 

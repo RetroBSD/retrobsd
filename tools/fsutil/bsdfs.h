@@ -52,8 +52,6 @@
  */
 #define MAXMNTLEN	28
 
-#define MAXNAMLEN	63
-
 #define	FSMAGIC1	('F' | 'S'<<8 | '<'<<16 | '<'<<24)
 #define	FSMAGIC2	('>' | '>'<<8 | 'F'<<16 | 'S'<<24)
 
@@ -135,7 +133,7 @@ typedef struct {
 	unsigned 	ino;
 	unsigned 	reclen;
 	unsigned 	namlen;
-	char		name [MAXNAMLEN+1];
+	char		name [63+1];
 } fs_dirent_t;
 
 typedef void (*fs_directory_scanner_t) (fs_inode_t *dir,
@@ -166,6 +164,8 @@ int fs_create (fs_t *fs, const char *filename, unsigned kbytes,
 int fs_check (fs_t *fs);
 void fs_print (fs_t *fs, FILE *out);
 
+int fs_mount(fs_t *fs, char *dirname);
+
 int fs_inode_get (fs_t *fs, fs_inode_t *inode, unsigned inum);
 int fs_inode_save (fs_inode_t *inode, int force);
 void fs_inode_clear (fs_inode_t *inode);
@@ -176,7 +176,7 @@ int fs_inode_read (fs_inode_t *inode, unsigned long offset,
 int fs_inode_write (fs_inode_t *inode, unsigned long offset,
 	unsigned char *data, unsigned long bytes);
 int fs_inode_alloc (fs_t *fs, fs_inode_t *inode);
-int fs_inode_by_name (fs_t *fs, fs_inode_t *inode, char *name,
+int fs_inode_by_name (fs_t *fs, fs_inode_t *inode, const char *name,
 	int op, int mode);
 int inode_build_list (fs_t *fs);
 

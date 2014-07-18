@@ -169,7 +169,7 @@ int fs_mount(fs_t *fs, char *dirname);
 int fs_inode_get (fs_t *fs, fs_inode_t *inode, unsigned inum);
 int fs_inode_save (fs_inode_t *inode, int force);
 void fs_inode_clear (fs_inode_t *inode);
-void fs_inode_truncate (fs_inode_t *inode);
+void fs_inode_truncate (fs_inode_t *inode, unsigned long size);
 void fs_inode_print (fs_inode_t *inode, FILE *out);
 int fs_inode_read (fs_inode_t *inode, unsigned long offset,
 	unsigned char *data, unsigned long bytes);
@@ -184,9 +184,9 @@ int fs_write_block (fs_t *fs, unsigned bnum, unsigned char *data);
 int fs_read_block (fs_t *fs, unsigned bnum, unsigned char *data);
 int fs_block_free (fs_t *fs, unsigned int bno);
 int fs_block_alloc (fs_t *fs, unsigned int *bno);
-int fs_indirect_block_free (fs_t *fs, unsigned int bno);
-int fs_double_indirect_block_free (fs_t *fs, unsigned int bno);
-int fs_triple_indirect_block_free (fs_t *fs, unsigned int bno);
+int fs_indirect_block_free (fs_t *fs, unsigned int bno, int nblk);
+int fs_double_indirect_block_free (fs_t *fs, unsigned int bno, int nblk);
+int fs_triple_indirect_block_free (fs_t *fs, unsigned int bno, int nblk);
 
 void fs_directory_scan (fs_inode_t *inode, char *dirname,
 	fs_directory_scanner_t scanner, void *arg);

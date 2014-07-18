@@ -90,35 +90,46 @@ int fs_inode_get (fs_t *fs, fs_inode_t *inode, unsigned inum)
  * a contiguous free list much longer
  * than FIFO.
  */
-void fs_inode_truncate (fs_inode_t *inode)
+void fs_inode_truncate (fs_inode_t *inode, unsigned long size)
 {
+        int i, nblk;
 	unsigned *blk;
 
 	if ((inode->mode & INODE_MODE_FMT) == INODE_MODE_FCHR ||
 	    (inode->mode & INODE_MODE_FMT) == INODE_MODE_FBLK)
 		return;
 
-#define	SINGLE	4	/* index of single indirect block */
-#define	DOUBLE	5	/* index of double indirect block */
-#define	TRIPLE	6	/* index of triple indirect block */
+#define	SINGLE	NDADDR          /* index of single indirect block */
+#define	DOUBLE	(SINGLE+1)      /* index of double indirect block */
+#define	TRIPLE	(DOUBLE+1)      /* index of triple indirect block */
 
-	for (blk = &inode->addr[TRIPLE]; blk >= &inode->addr[0]; --blk) {
+        nblk = (size + BSDFS_BSIZE - 1) / BSDFS_BSIZE;
+	for (i=TRIPLE; i>=0; --i) {
+                blk = &inode->addr[i];
 		if (*blk == 0)
 			continue;
 
-		if (blk == &inode->addr [TRIPLE])
-			fs_triple_indirect_block_free (inode->fs, *blk);
-		else if (blk == &inode->addr [DOUBLE])
-			fs_double_indirect_block_free (inode->fs, *blk);
-		else if (blk == &inode->addr [SINGLE])
-			fs_indirect_block_free (inode->fs, *blk);
-		else
+		if (i == TRIPLE) {
+			if (! fs_triple_indirect_block_free (inode->fs, *blk,
+                            nblk - (NDADDR + BSDFS_BSIZE/4 + BSDFS_BSIZE/4*BSDFS_BSIZE/4)))
+			        break;
+		} else if (i == DOUBLE) {
+			if (! fs_double_indirect_block_free (inode->fs, *blk,
+                            nblk - (NDADDR + BSDFS_BSIZE/4)))
+			        break;
+		} else if (i == SINGLE) {
+			if (! fs_indirect_block_free (inode->fs, *blk, nblk - NDADDR))
+			        break;
+		} else {
+                        if (i * BSDFS_BSIZE < size)
+                                break;
 			fs_block_free (inode->fs, *blk);
+                }
 
 		*blk = 0;
 	}
 
-	inode->size = 0;
+	inode->size = size;
 	inode->dirty = 1;
 }
 
@@ -743,7 +754,7 @@ delete_file:
 	inode->dirty = 1;
 	inode->nlink--;
 	if (inode->nlink <= 0) {
-		fs_inode_truncate (inode);
+		fs_inode_truncate (inode, 0);
 		fs_inode_clear (inode);
 		if (inode->fs->ninode < NICINOD) {
 			inode->fs->inode [inode->fs->ninode++] = dirent.inum;

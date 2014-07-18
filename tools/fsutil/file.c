@@ -37,7 +37,7 @@ int fs_file_create (fs_t *fs, fs_file_t *file, const char *name, int mode)
 		/* Cannot open directory on write. */
 		return 0;
 	}
-	fs_inode_truncate (&file->inode);
+	fs_inode_truncate (&file->inode, 0);
 	fs_inode_save (&file->inode, 0);
 	file->writable = 1;
 	file->offset = 0;

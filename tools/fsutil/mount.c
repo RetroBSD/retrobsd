@@ -173,6 +173,12 @@ int op_open(const char *path, struct fuse_file_info *fi)
         return -ENOENT;
     }
 
+    if ((file.inode.mode & INODE_MODE_FMT) != INODE_MODE_FREG) {
+        /* Cannot open special files. */
+        file.inode.mode = 0;
+        return -ENXIO;
+    }
+
     if (fi->flags & O_APPEND) {
         file.offset = file.inode.size;
     }

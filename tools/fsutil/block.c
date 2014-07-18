@@ -84,7 +84,7 @@ int fs_block_free (fs_t *fs, unsigned int bno)
 /*
  * Free an indirect block.
  */
-int fs_indirect_block_free (fs_t *fs, unsigned int bno)
+int fs_indirect_block_free (fs_t *fs, unsigned int bno, int nblk)
 {
 	unsigned nb;
 	unsigned char data [BSDFS_BSIZE];
@@ -94,8 +94,13 @@ int fs_indirect_block_free (fs_t *fs, unsigned int bno)
 		fprintf (stderr, "inode_clear: read error at block %d\n", bno);
 		return 0;
 	}
-	for (i=BSDFS_BSIZE-2; i>=0; i-=2) {
-		nb = data [i+1] << 8 | data [i];
+	for (i=BSDFS_BSIZE-4; i>=0; i-=4) {
+                if (i/4 < nblk) {
+                        /* Truncate up to required size. */
+                        return 0;
+                }
+		nb = data [i+3] << 24 | data [i+2] << 16 |
+                     data [i+1] << 8  | data [i];
 		if (nb)
 			fs_block_free (fs, nb);
 	}
@@ -106,7 +111,7 @@ int fs_indirect_block_free (fs_t *fs, unsigned int bno)
 /*
  * Free a double indirect block.
  */
-int fs_double_indirect_block_free (fs_t *fs, unsigned int bno)
+int fs_double_indirect_block_free (fs_t *fs, unsigned int bno, int nblk)
 {
 	unsigned nb;
 	unsigned char data [BSDFS_BSIZE];
@@ -116,10 +121,16 @@ int fs_double_indirect_block_free (fs_t *fs, unsigned int bno)
 		fprintf (stderr, "inode_clear: read error at block %d\n", bno);
 		return 0;
 	}
-	for (i=BSDFS_BSIZE-2; i>=0; i-=2) {
-		nb = data [i+1] << 8 | data [i];
+	for (i=BSDFS_BSIZE-4; i>=0; i-=4) {
+                if (i/4 * BSDFS_BSIZE/4 < nblk) {
+                        /* Truncate up to required size. */
+                        return 0;
+                }
+		nb = data [i+3] << 24 | data [i+2] << 16 |
+                     data [i+1] << 8  | data [i];
 		if (nb)
-			fs_indirect_block_free (fs, nb);
+			fs_indirect_block_free (fs, nb,
+                                nblk - i/4 * BSDFS_BSIZE/4);
 	}
 	fs_block_free (fs, bno);
 	return 1;
@@ -128,7 +139,7 @@ int fs_double_indirect_block_free (fs_t *fs, unsigned int bno)
 /*
  * Free a triple indirect block.
  */
-int fs_triple_indirect_block_free (fs_t *fs, unsigned int bno)
+int fs_triple_indirect_block_free (fs_t *fs, unsigned int bno, int nblk)
 {
 	unsigned nb;
 	unsigned char data [BSDFS_BSIZE];
@@ -138,10 +149,16 @@ int fs_triple_indirect_block_free (fs_t *fs, unsigned int bno)
 		fprintf (stderr, "inode_clear: read error at block %d\n", bno);
 		return 0;
 	}
-	for (i=BSDFS_BSIZE-2; i>=0; i-=2) {
-		nb = data [i+1] << 8 | data [i];
+	for (i=BSDFS_BSIZE-4; i>=0; i-=4) {
+                if (i/4 * BSDFS_BSIZE/4 * BSDFS_BSIZE/4 < nblk) {
+                        /* Truncate up to required size. */
+                        return 0;
+                }
+		nb = data [i+3] << 24 | data [i+2] << 16 |
+                     data [i+1] << 8  | data [i];
 		if (nb)
-			fs_double_indirect_block_free (fs, nb);
+			fs_double_indirect_block_free (fs, nb,
+                                nblk - i/4 * BSDFS_BSIZE/4 * BSDFS_BSIZE/4);
 	}
 	fs_block_free (fs, bno);
 	return 1;

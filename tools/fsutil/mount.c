@@ -113,8 +113,7 @@ int op_getattr(const char *path, struct stat *statbuf)
     fs_t *fs = fuse_get_context()->private_data;
     fs_inode_t inode;
 
-    printlog("--- op_getattr(path=\"%s\", statbuf=%p)\n",
-	  path, statbuf);
+    printlog("--- op_getattr(path=\"%s\", statbuf=%p)\n", path, statbuf);
 
     if (! fs_inode_by_name (fs, &inode, path, 0, 0)) {
         printlog("--- search failed\n");
@@ -136,12 +135,8 @@ int op_getattr(const char *path, struct stat *statbuf)
 int op_fgetattr(const char *path, struct stat *statbuf, struct fuse_file_info *fi)
 {
     printlog("--- op_fgetattr(path=\"%s\", statbuf=%p, fi=%p)\n",
-	    path, statbuf, fi);
+        path, statbuf, fi);
 
-    // On FreeBSD, trying to do anything with the mountpoint ends up
-    // opening it, and then using the FD for an fgetattr.  So in the
-    // special case of a path of "/", I need to do a getattr on the
-    // underlying root directory instead of doing the fgetattr().
     if (strcmp(path, "/") == 0)
 	return op_getattr(path, statbuf);
 
@@ -166,7 +161,7 @@ int op_open(const char *path, struct fuse_file_info *fi)
     int write_flag = (fi->flags & O_ACCMODE) != O_RDONLY;
 
     printlog("--- op_open(path=\"%s\", fi=%p) flags=%#x \n",
-	    path, fi, fi->flags);
+        path, fi, fi->flags);
 
     if (! fs_file_open (fs, &file, path, write_flag)) {
         printlog("--- open failed\n");
@@ -200,7 +195,7 @@ int op_create(const char *path, mode_t mode, struct fuse_file_info *fi)
     fs_t *fs = fuse_get_context()->private_data;
 
     printlog("--- op_create(path=\"%s\", mode=0%03o, fi=%p)\n",
-	    path, mode, fi);
+        path, mode, fi);
 
     file.inode.mode = 0;
     if (! fs_file_create (fs, &file, path, mode & 07777)) {
@@ -209,6 +204,7 @@ int op_create(const char *path, mode_t mode, struct fuse_file_info *fi)
             return -EISDIR;
         return -EIO;
     }
+    file.inode.mtime = time(0);
     return 0;
 }
 
@@ -225,7 +221,7 @@ int op_create(const char *path, mode_t mode, struct fuse_file_info *fi)
 int op_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi)
 {
     printlog("--- op_read(path=\"%s\", buf=%p, size=%d, offset=%lld, fi=%p)\n",
-	    path, buf, size, offset, fi);
+        path, buf, size, offset, fi);
 
     if (offset >= file.inode.size)
         return 0;
@@ -253,13 +249,14 @@ int op_write(const char *path, const char *buf, size_t size, off_t offset,
 	     struct fuse_file_info *fi)
 {
     printlog("--- op_write(path=\"%s\", buf=%p, size=%d, offset=%lld, fi=%p)\n",
-	    path, buf, size, offset, fi);
+        path, buf, size, offset, fi);
 
     file.offset = offset;
     if (! fs_file_write (&file, (unsigned char*) buf, size)) {
         printlog("--- read failed\n");
         return -EIO;
     }
+    file.inode.mtime = time(0);
     return size;
 }
 
@@ -278,14 +275,219 @@ int op_write(const char *path, const char *buf, size_t size, off_t offset,
  */
 int op_release(const char *path, struct fuse_file_info *fi)
 {
-    printlog("--- op_release(path=\"%s\", fi=%p)\n",
-	  path, fi);
+    printlog("--- op_release(path=\"%s\", fi=%p)\n", path, fi);
 
     if (file.inode.mode == 0)
         return -EBADF;
 
     fs_file_close (&file);
     file.inode.mode = 0;
+    return 0;
+}
+
+/*
+ * Change the size of a file
+ */
+int op_truncate(const char *path, off_t newsize)
+{
+    fs_t *fs = fuse_get_context()->private_data;
+    fs_file_t f;
+
+    printlog("--- op_truncate(path=\"%s\", newsize=%lld)\n", path, newsize);
+
+    if (! fs_file_open (fs, &f, path, 1)) {
+        printlog("--- open failed\n");
+        return -ENOENT;
+    }
+
+    if ((f.inode.mode & INODE_MODE_FMT) != INODE_MODE_FREG) {
+        /* Cannot truncate special files. */
+        return -EINVAL;
+    }
+    fs_inode_truncate (&f.inode, newsize);
+    f.inode.mtime = time(0);
+    fs_file_close (&f);
+    return 0;
+}
+
+/*
+ * Change the size of an open file
+ *
+ * This method is called instead of the truncate() method if the
+ * truncation was invoked from an ftruncate() system call.
+ */
+int op_ftruncate(const char *path, off_t offset, struct fuse_file_info *fi)
+{
+    printlog("--- op_ftruncate(path=\"%s\", offset=%lld, fi=%p)\n",
+        path, offset, fi);
+
+    if (! file.writable)
+        return -EACCES;
+
+    if ((file.inode.mode & INODE_MODE_FMT) != INODE_MODE_FREG) {
+        /* Cannot truncate special files. */
+        return -EINVAL;
+    }
+    fs_inode_truncate (&file.inode, offset);
+    file.inode.mtime = time(0);
+    fs_file_close (&file);
+    return 0;
+}
+
+/*
+ * Remove a file
+ */
+int op_unlink(const char *path)
+{
+    fs_t *fs = fuse_get_context()->private_data;
+    fs_inode_t inode;
+
+    printlog("op_unlink(path=\"%s\")\n", path);
+
+    /* Get the file type. */
+    if (! fs_inode_by_name (fs, &inode, path, 0, 0)) {
+        printlog("--- search failed\n");
+        return -ENOENT;
+    }
+    if ((file.inode.mode & INODE_MODE_FMT) == INODE_MODE_FDIR) {
+        /* Cannot unlink directories. */
+        return -EISDIR;
+    }
+
+    /* Delete file. */
+    if (! fs_inode_by_name (fs, &inode, path, 2, 0)) {
+        printlog("--- delete failed\n");
+        return -EIO;
+    }
+    return 0;
+}
+
+/*
+ * Remove a directory
+ */
+int op_rmdir(const char *path)
+{
+    fs_t *fs = fuse_get_context()->private_data;
+    fs_inode_t inode, parent;
+    char buf [BSDFS_BSIZE], *p;
+
+    printlog("op_rmdir(path=\"%s\")\n", path);
+
+    /* Get the file type. */
+    if (! fs_inode_by_name (fs, &inode, path, 0, 0)) {
+        printlog("--- search failed\n");
+        return -ENOENT;
+    }
+    if ((inode.mode & INODE_MODE_FMT) != INODE_MODE_FDIR) {
+        /* Cannot remove files. */
+        return -ENOTDIR;
+    }
+    if (inode.nlink > 2) {
+        /* Cannot remove non-empty directories. */
+        return -ENOTEMPTY;
+    }
+
+    /* Open parent directory. */
+    strcpy (buf, path);
+    p = strrchr (buf, '/');
+    if (p)
+        *p = 0;
+    else
+        *buf = 0;
+    if (! fs_inode_by_name (fs, &parent, buf, 0, 0)) {
+        printlog("--- parent not found\n");
+        return -ENOENT;
+    }
+
+    /* Delete directory. */
+    inode.nlink -= 1;
+    if (! fs_inode_by_name (fs, &inode, path, 2, 0)) {
+        printlog("--- delete failed\n");
+        return -EIO;
+    }
+
+    /* Decrease a parent's link counter. */
+    if (! fs_inode_get (fs, &parent, parent.number)) {
+        printlog("--- cannot reopen parent\n");
+        return -EIO;
+    }
+    ++parent.nlink;
+    fs_inode_save (&parent, 1);
+    return 0;
+}
+
+/*
+ * Create a directory
+ */
+int op_mkdir(const char *path, mode_t mode)
+{
+    fs_t *fs = fuse_get_context()->private_data;
+    fs_inode_t dir, parent;
+    char buf [BSDFS_BSIZE], *p;
+
+    printlog("--- op_mkdir(path=\"%s\", mode=0%3o)\n", path, mode);
+
+    /* Open parent directory. */
+    strcpy (buf, path);
+    p = strrchr (buf, '/');
+    if (p)
+        *p = 0;
+    else
+        *buf = 0;
+    if (! fs_inode_by_name (fs, &parent, buf, 0, 0)) {
+        printlog("--- parent not found\n");
+        return -ENOENT;
+    }
+
+    /* Create directory. */
+    int done = fs_inode_by_name (fs, &dir, path, 1, INODE_MODE_FDIR | (mode & 07777));
+    if (! done) {
+        printlog("--- cannot create dir inode\n");
+        return -ENOENT;
+    }
+    if (done == 1) {
+        /* The directory already existed. */
+        return -EEXIST;
+    }
+    fs_inode_save (&dir, 0);
+
+    /* Make parent link '..' */
+    strcpy (buf, path);
+    strcat (buf, "/..");
+    if (! fs_inode_by_name (fs, &dir, buf, 3, parent.number)) {
+        printlog("--- dotdot link failed\n");
+        return -EIO;
+    }
+    if (! fs_inode_get (fs, &parent, parent.number)) {
+        printlog("--- cannot reopen parent\n");
+        return -EIO;
+    }
+    ++parent.nlink;
+    fs_inode_save (&parent, 1);
+    return 0;
+}
+
+/*
+ * Create a hard link to a file
+ */
+int op_link(const char *path, const char *newpath)
+{
+    fs_t *fs = fuse_get_context()->private_data;
+    fs_inode_t source, target;
+
+    printlog("--- op_link(path=\"%s\", newpath=\"%s\")\n", path, newpath);
+
+    /* Find source. */
+    if (! fs_inode_by_name (fs, &source, path, 0, 0)) {
+        printlog("--- source not found\n");
+        return -ENOENT;
+    }
+
+    /* Create target link. */
+    if (! fs_inode_by_name (fs, &target, newpath, 3, source.number)) {
+        printlog("--- link failed\n");
+        return -EIO;
+    }
     return 0;
 }
 
@@ -305,7 +507,7 @@ int op_release(const char *path, struct fuse_file_info *fi)
 int op_readlink(const char *path, char *link, size_t size)
 {
     printlog("op_readlink(path=\"%s\", link=\"%s\", size=%d)\n",
-	  path, link, size);
+        path, link, size);
 
     //TODO
     //retstat = readlink(path, link, size - 1);
@@ -328,7 +530,7 @@ int op_readlink(const char *path, char *link, size_t size)
 int op_mknod(const char *path, mode_t mode, dev_t dev)
 {
     printlog("--- op_mknod(path=\"%s\", mode=0%3o, dev=%lld)\n",
-	  path, mode, dev);
+        path, mode, dev);
 
     //TODO
     //if (S_ISREG(mode)) {
@@ -353,54 +555,6 @@ int op_mknod(const char *path, mode_t mode, dev_t dev)
 }
 
 /*
- * Create a directory
- */
-int op_mkdir(const char *path, mode_t mode)
-{
-    printlog("--- op_mkdir(path=\"%s\", mode=0%3o)\n",
-	    path, mode);
-
-    //TODO
-    //retstat = mkdir(path, mode);
-    //if (retstat < 0)
-    //    retstat = print_errno("op_mkdir mkdir");
-
-    return 0;
-}
-
-/*
- * Remove a file
- */
-int op_unlink(const char *path)
-{
-    printlog("op_unlink(path=\"%s\")\n",
-	    path);
-
-    //TODO
-    //retstat = unlink(path);
-    //if (retstat < 0)
-    //    retstat = print_errno("op_unlink unlink");
-
-    return 0;
-}
-
-/*
- * Remove a directory
- */
-int op_rmdir(const char *path)
-{
-    printlog("op_rmdir(path=\"%s\")\n",
-	    path);
-
-    //TODO
-    //retstat = rmdir(path);
-    //if (retstat < 0)
-    //    retstat = print_errno("op_rmdir rmdir");
-
-    return 0;
-}
-
-/*
  * Create a symbolic link
  * The parameters here are a little bit confusing, but do correspond
  * to the symlink() system call.  The 'path' is where the link points,
@@ -409,8 +563,7 @@ int op_rmdir(const char *path)
  */
 int op_symlink(const char *path, const char *link)
 {
-    printlog("--- op_symlink(path=\"%s\", link=\"%s\")\n",
-	    path, link);
+    printlog("--- op_symlink(path=\"%s\", link=\"%s\")\n", path, link);
 
     //TODO
     //retstat = symlink(path, link);
@@ -427,8 +580,7 @@ int op_symlink(const char *path, const char *link)
  */
 int op_rename(const char *path, const char *newpath)
 {
-    printlog("--- op_rename(path=\"%s\", newpath=\"%s\")\n",
-	    path, newpath);
+    printlog("--- op_rename(path=\"%s\", newpath=\"%s\")\n", path, newpath);
 
     //TODO
     //retstat = rename(path, newpath);
@@ -439,28 +591,11 @@ int op_rename(const char *path, const char *newpath)
 }
 
 /*
- * Create a hard link to a file
- */
-int op_link(const char *path, const char *newpath)
-{
-    printlog("--- op_link(path=\"%s\", newpath=\"%s\")\n",
-	    path, newpath);
-
-    //TODO
-    //retstat = link(path, newpath);
-    //if (retstat < 0)
-    //    retstat = print_errno("op_link link");
-
-    return 0;
-}
-
-/*
  * Change the permission bits of a file
  */
 int op_chmod(const char *path, mode_t mode)
 {
-    printlog("--- op_chmod(path=\"%s\", mode=0%03o)\n",
-	    path, mode);
+    printlog("--- op_chmod(path=\"%s\", mode=0%03o)\n", path, mode);
 
     //TODO
     //retstat = chmod(path, mode);
@@ -475,8 +610,7 @@ int op_chmod(const char *path, mode_t mode)
  */
 int op_chown(const char *path, uid_t uid, gid_t gid)
 {
-    printlog("--- op_chown(path=\"%s\", uid=%d, gid=%d)\n",
-	    path, uid, gid);
+    printlog("--- op_chown(path=\"%s\", uid=%d, gid=%d)\n", path, uid, gid);
 
     //TODO
     //retstat = chown(path, uid, gid);
@@ -487,28 +621,11 @@ int op_chown(const char *path, uid_t uid, gid_t gid)
 }
 
 /*
- * Change the size of a file
- */
-int op_truncate(const char *path, off_t newsize)
-{
-    printlog("--- op_truncate(path=\"%s\", newsize=%lld)\n",
-	    path, newsize);
-
-    //TODO
-    //retstat = truncate(path, newsize);
-    //if (retstat < 0)
-    //    print_errno("op_truncate truncate");
-
-    return 0;
-}
-
-/*
  * Change the access and/or modification times of a file
  */
 int op_utime(const char *path, struct utimbuf *ubuf)
 {
-    printlog("--- op_utime(path=\"%s\", ubuf=%p)\n",
-	    path, ubuf);
+    printlog("--- op_utime(path=\"%s\", ubuf=%p)\n", path, ubuf);
 
     //TODO
     //retstat = utime(path, ubuf);
@@ -525,8 +642,7 @@ int op_utime(const char *path, struct utimbuf *ubuf)
  */
 int op_statfs(const char *path, struct statvfs *statv)
 {
-    printlog("--- op_statfs(path=\"%s\", statv=%p)\n",
-	    path, statv);
+    printlog("--- op_statfs(path=\"%s\", statv=%p)\n", path, statv);
 
     // get stats for underlying filesystem
     //TODO
@@ -574,7 +690,7 @@ int op_flush(const char *path, struct fuse_file_info *fi)
 int op_fsync(const char *path, int datasync, struct fuse_file_info *fi)
 {
     printlog("--- op_fsync(path=\"%s\", datasync=%d, fi=%p)\n",
-	    path, datasync, fi);
+        path, datasync, fi);
 
     if (datasync == 0 && file.writable) {
         if (! fs_inode_save (&file.inode, 0))
@@ -591,8 +707,7 @@ int op_fsync(const char *path, int datasync, struct fuse_file_info *fi)
  */
 int op_opendir(const char *path, struct fuse_file_info *fi)
 {
-    printlog("--- op_opendir(path=\"%s\", fi=%p)\n",
-	  path, fi);
+    printlog("--- op_opendir(path=\"%s\", fi=%p)\n", path, fi);
     return 0;
 }
 
@@ -629,7 +744,7 @@ int op_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset
     } dirent;
 
     printlog("--- op_readdir(path=\"%s\", buf=%p, filler=%p, offset=%lld, fi=%p)\n",
-	    path, buf, filler, offset, fi);
+        path, buf, filler, offset, fi);
 
     if (! fs_inode_by_name (fs, &dir, path, 0, 0)) {
         printlog("--- cannot find path %s\n", path);
@@ -668,8 +783,7 @@ int op_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset
  */
 int op_releasedir(const char *path, struct fuse_file_info *fi)
 {
-    printlog("--- op_releasedir(path=\"%s\", fi=%p)\n",
-	    path, fi);
+    printlog("--- op_releasedir(path=\"%s\", fi=%p)\n", path, fi);
     return 0;
 }
 
@@ -692,29 +806,9 @@ void op_destroy(void *userdata)
  */
 int op_access(const char *path, int mask)
 {
-    printlog("--- op_access(path=\"%s\", mask=0%o)\n",
-	    path, mask);
+    printlog("--- op_access(path=\"%s\", mask=0%o)\n", path, mask);
 
     /* Always permitted. */
-    return 0;
-}
-
-/*
- * Change the size of an open file
- *
- * This method is called instead of the truncate() method if the
- * truncation was invoked from an ftruncate() system call.
- */
-int op_ftruncate(const char *path, off_t offset, struct fuse_file_info *fi)
-{
-    printlog("--- op_ftruncate(path=\"%s\", offset=%lld, fi=%p)\n",
-	    path, offset, fi);
-
-    //TODO
-    //retstat = ftruncate(fi->fh, offset);
-    //if (retstat < 0)
-    //    retstat = print_errno("op_ftruncate ftruncate");
-
     return 0;
 }
 
@@ -760,10 +854,10 @@ int fs_mount(fs_t *fs, char *dirname)
     /* Invoke FUSE to mount the filesystem. */
     ac = 0;
     av[ac++] = "fsutil";
-    av[ac++] = "-f";        // foreground
-    av[ac++] = "-s";        // single-threaded
+    av[ac++] = "-f";                    /* foreground */
+    av[ac++] = "-s";                    /* single-threaded */
     if (verbose > 1)
-        av[ac++] = "-d";    // debug
+        av[ac++] = "-d";                /* debug */
     av[ac++] = dirname;
     av[ac] = 0;
     ret = fuse_main(ac, av, &mount_ops, fs);

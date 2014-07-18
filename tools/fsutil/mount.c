@@ -36,6 +36,12 @@
 extern int verbose;
 
 /*
+ * File descriptor to be used by op_open(), op_create(), op_read(),
+ * op_write(), op_release(), op_fgetattr(), op_fsync(), op_ftruncate().
+ */
+static fs_file_t file;
+
+/*
  * Print a message to log file.
  */
 static void printlog(const char *format, ...)
@@ -51,6 +57,51 @@ static void printlog(const char *format, ...)
 }
 
 /*
+ * Copy data to struct stat.
+ */
+static int getstat (fs_inode_t *inode, struct stat *statbuf)
+{
+    statbuf->st_mode   = inode->mode & 07777;    /* protection */
+    statbuf->st_ino    = inode->number;          /* inode number */
+    statbuf->st_nlink  = inode->nlink;           /* number of hard links */
+    statbuf->st_uid    = inode->uid;             /* user ID of owner */
+    statbuf->st_gid    = inode->gid;             /* group ID of owner */
+    statbuf->st_rdev   = 0;                     /* device ID (if special file) */
+    statbuf->st_size   = inode->size;            /* total size, in bytes */
+    statbuf->st_blocks = inode->size >> 9;       /* number of blocks allocated */
+    statbuf->st_atime  = inode->atime;           /* time of last access */
+    statbuf->st_mtime  = inode->mtime;           /* time of last modification */
+    statbuf->st_ctime  = inode->ctime;           /* time of last status change */
+
+    switch (inode->mode & INODE_MODE_FMT) {      /* type of file */
+    case INODE_MODE_FREG:                       /* regular */
+        statbuf->st_mode |= S_IFREG;
+        break;
+    case INODE_MODE_FDIR:                       /* directory */
+        statbuf->st_mode |= S_IFDIR;
+        break;
+    case INODE_MODE_FCHR:                       /* character special */
+        statbuf->st_mode |= S_IFCHR;
+        statbuf->st_rdev = inode->addr[1];
+        break;
+    case INODE_MODE_FBLK:                       /* block special */
+        statbuf->st_mode |= S_IFBLK;
+        statbuf->st_rdev = inode->addr[1];
+        break;
+    case INODE_MODE_FLNK:                       /* symbolic link */
+        statbuf->st_mode |= S_IFLNK;
+        break;
+    case INODE_MODE_FSOCK:                      /* socket */
+        statbuf->st_mode |= S_IFSOCK;
+        break;
+    default:                                    /* cannot happen */
+        printlog("--- unknown file type %#x\n", inode->mode & INODE_MODE_FMT);
+        return -ENOENT;
+    }
+    return 0;
+}
+
+/*
  * Get file attributes.
  *
  * Similar to stat().  The 'st_dev' and 'st_blksize' fields are
@@ -60,51 +111,16 @@ static void printlog(const char *format, ...)
 int op_getattr(const char *path, struct stat *statbuf)
 {
     fs_t *fs = fuse_get_context()->private_data;
-    fs_inode_t dir;
+    fs_inode_t inode;
 
     printlog("--- op_getattr(path=\"%s\", statbuf=%p)\n",
 	  path, statbuf);
 
-    if (! fs_inode_by_name (fs, &dir, path, 0, 0)) {
-        printlog("--- cannot find path %s\n", path);
+    if (! fs_inode_by_name (fs, &inode, path, 0, 0)) {
+        printlog("--- search failed\n");
         return -ENOENT;
     }
-
-    switch (dir.mode & INODE_MODE_FMT) {    /* type of file */
-    case INODE_MODE_FREG:                   /* regular */
-        statbuf->st_mode = S_IFREG;
-        break;
-    case INODE_MODE_FDIR:                   /* directory */
-        statbuf->st_mode = S_IFDIR;
-        break;
-    case INODE_MODE_FCHR:                   /* character special */
-        statbuf->st_mode = S_IFCHR;
-        break;
-    case INODE_MODE_FBLK:                   /* block special */
-        statbuf->st_mode = S_IFBLK;
-        break;
-    case INODE_MODE_FLNK:                   /* symbolic link */
-        statbuf->st_mode = S_IFLNK;
-        break;
-    case INODE_MODE_FSOCK:                  /* socket */
-        statbuf->st_mode = S_IFSOCK;
-        break;
-    default:                                /* cannot happen */
-        printlog("--- unknown file type %#x\n", dir.mode & INODE_MODE_FMT);
-        return -ENOENT;
-    }
-    statbuf->st_mode  |= dir.mode & 07777;  /* protection */
-    statbuf->st_ino    = dir.number;        /* inode number */
-    statbuf->st_nlink  = dir.nlink;         /* number of hard links */
-    statbuf->st_uid    = dir.uid;           /* user ID of owner */
-    statbuf->st_gid    = dir.gid;           /* group ID of owner */
-    statbuf->st_rdev   = dir.addr[1];       /* device ID (if special file) */
-    statbuf->st_size   = dir.size;          /* total size, in bytes */
-    statbuf->st_blocks = dir.size >> 9;     /* number of 512B blocks allocated */
-    statbuf->st_atime  = dir.atime;         /* time of last access */
-    statbuf->st_mtime  = dir.mtime;         /* time of last modification */
-    statbuf->st_ctime  = dir.ctime;         /* time of last status change */
-    return 0;
+    return getstat (&inode, statbuf);
 }
 
 /*
@@ -129,11 +145,141 @@ int op_fgetattr(const char *path, struct stat *statbuf, struct fuse_file_info *f
     if (strcmp(path, "/") == 0)
 	return op_getattr(path, statbuf);
 
-    //TODO
-    //retstat = fstat(fi->fh, statbuf);
-    //if (retstat < 0)
-    //    retstat = print_errno("op_fgetattr fstat");
+    if (file.inode.mode == 0)
+        return -EBADF;
 
+    return getstat (&file.inode, statbuf);
+}
+
+/*
+ * File open operation
+ *
+ * No creation, or truncation flags (O_CREAT, O_EXCL, O_TRUNC)
+ * will be passed to open().  Open should check if the operation
+ * is permitted for the given flags.  Optionally open may also
+ * return an arbitrary filehandle in the fuse_file_info structure,
+ * which will be passed to all file operations.
+ */
+int op_open(const char *path, struct fuse_file_info *fi)
+{
+    fs_t *fs = fuse_get_context()->private_data;
+    int write_flag = (fi->flags & O_ACCMODE) != O_RDONLY;
+
+    printlog("--- op_open(path=\"%s\", fi=%p) flags=%#x \n",
+	    path, fi, fi->flags);
+
+    if (! fs_file_open (fs, &file, path, write_flag)) {
+        printlog("--- open failed\n");
+        return -ENOENT;
+    }
+
+    if (fi->flags & O_APPEND) {
+        file.offset = file.inode.size;
+    }
+    return 0;
+}
+
+/*
+ * Create and open a file
+ *
+ * If the file does not exist, first create it with the specified
+ * mode, and then open it.
+ *
+ * If this method is not implemented or under Linux kernel
+ * versions earlier than 2.6.15, the mknod() and open() methods
+ * will be called instead.
+ */
+int op_create(const char *path, mode_t mode, struct fuse_file_info *fi)
+{
+    fs_t *fs = fuse_get_context()->private_data;
+
+    printlog("--- op_create(path=\"%s\", mode=0%03o, fi=%p)\n",
+	    path, mode, fi);
+
+    file.inode.mode = 0;
+    if (! fs_file_create (fs, &file, path, mode & 07777)) {
+        printlog("--- create failed\n");
+	if ((file.inode.mode & INODE_MODE_FMT) == INODE_MODE_FDIR)
+            return -EISDIR;
+        return -EIO;
+    }
+    return 0;
+}
+
+/*
+ * Read data from an open file
+ *
+ * Read should return exactly the number of bytes requested except
+ * on EOF or error, otherwise the rest of the data will be
+ * substituted with zeroes.  An exception to this is when the
+ * 'direct_io' mount option is specified, in which case the return
+ * value of the read system call will reflect the return value of
+ * this operation.
+ */
+int op_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi)
+{
+    printlog("--- op_read(path=\"%s\", buf=%p, size=%d, offset=%lld, fi=%p)\n",
+	    path, buf, size, offset, fi);
+
+    if (offset >= file.inode.size)
+        return 0;
+
+    file.offset = offset;
+    if (size > file.inode.size - offset)
+        size = file.inode.size - offset;
+
+    if (! fs_file_read (&file, (unsigned char*) buf, size)) {
+        printlog("--- read failed\n");
+        return -EIO;
+    }
+    printlog("--- read returned %u\n", size);
+    return size;
+}
+
+/*
+ * Write data to an open file
+ *
+ * Write should return exactly the number of bytes requested
+ * except on error.  An exception to this is when the 'direct_io'
+ * mount option is specified (see read operation).
+ */
+int op_write(const char *path, const char *buf, size_t size, off_t offset,
+	     struct fuse_file_info *fi)
+{
+    printlog("--- op_write(path=\"%s\", buf=%p, size=%d, offset=%lld, fi=%p)\n",
+	    path, buf, size, offset, fi);
+
+    file.offset = offset;
+    if (! fs_file_write (&file, (unsigned char*) buf, size)) {
+        printlog("--- read failed\n");
+        return -EIO;
+    }
+    return size;
+}
+
+/*
+ * Release an open file
+ *
+ * Release is called when there are no more references to an open
+ * file: all file descriptors are closed and all memory mappings
+ * are unmapped.
+ *
+ * For every open() call there will be exactly one release() call
+ * with the same flags and file descriptor.  It is possible to
+ * have a file opened more than once, in which case only the last
+ * release will mean, that no more reads/writes will happen on the
+ * file.  The return value of release is ignored.
+ */
+int op_release(const char *path, struct fuse_file_info *fi)
+{
+    printlog("--- op_release(path=\"%s\", fi=%p)\n",
+	  path, fi);
+
+    if (file.inode.mode == 0)
+        return -EBADF;
+
+    fs_file_close (&file);
+    file.inode.mode = 0;
     return 0;
 }
 
@@ -155,6 +301,7 @@ int op_readlink(const char *path, char *link, size_t size)
     printlog("op_readlink(path=\"%s\", link=\"%s\", size=%d)\n",
 	  path, link, size);
 
+    //TODO
     //retstat = readlink(path, link, size - 1);
     //if (retstat < 0)
     //    retstat = print_errno("op_readlink readlink");
@@ -321,7 +468,6 @@ int op_chmod(const char *path, mode_t mode)
  * Change the owner and group of a file
  */
 int op_chown(const char *path, uid_t uid, gid_t gid)
-
 {
     printlog("--- op_chown(path=\"%s\", uid=%d, gid=%d)\n",
 	    path, uid, gid);
@@ -362,76 +508,6 @@ int op_utime(const char *path, struct utimbuf *ubuf)
     //retstat = utime(path, ubuf);
     //if (retstat < 0)
     //    retstat = print_errno("op_utime utime");
-
-    return 0;
-}
-
-/*
- * File open operation
- *
- * No creation, or truncation flags (O_CREAT, O_EXCL, O_TRUNC)
- * will be passed to open().  Open should check if the operation
- * is permitted for the given flags.  Optionally open may also
- * return an arbitrary filehandle in the fuse_file_info structure,
- * which will be passed to all file operations.
- */
-int op_open(const char *path, struct fuse_file_info *fi)
-{
-    int fd = 0;
-
-    printlog("--- op_open(path\"%s\", fi=%p)\n",
-	    path, fi);
-
-    //TODO
-    //fd = open(path, fi->flags);
-    //if (fd < 0)
-    //    retstat = print_errno("op_open open");
-
-    fi->fh = fd;
-
-    return 0;
-}
-
-/*
- * Read data from an open file
- *
- * Read should return exactly the number of bytes requested except
- * on EOF or error, otherwise the rest of the data will be
- * substituted with zeroes.  An exception to this is when the
- * 'direct_io' mount option is specified, in which case the return
- * value of the read system call will reflect the return value of
- * this operation.
- */
-int op_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi)
-{
-    printlog("--- op_read(path=\"%s\", buf=%p, size=%d, offset=%lld, fi=%p)\n",
-	    path, buf, size, offset, fi);
-
-    //TODO
-    //retstat = pread(fi->fh, buf, size, offset);
-    //if (retstat < 0)
-    //    retstat = print_errno("op_read read");
-
-    return 0;
-}
-
-/*
- * Write data to an open file
- *
- * Write should return exactly the number of bytes requested
- * except on error.  An exception to this is when the 'direct_io'
- * mount option is specified (see read operation).
- */
-int op_write(const char *path, const char *buf, size_t size, off_t offset,
-	     struct fuse_file_info *fi)
-{
-    printlog("--- op_write(path=\"%s\", buf=%p, size=%d, offset=%lld, fi=%p)\n",
-	    path, buf, size, offset, fi);
-
-    //TODO
-    //retstat = pwrite(fi->fh, buf, size, offset);
-    //if (retstat < 0)
-    //    retstat = print_errno("op_write pwrite");
 
     return 0;
 }
@@ -484,32 +560,6 @@ int op_flush(const char *path, struct fuse_file_info *fi)
 }
 
 /*
- * Release an open file
- *
- * Release is called when there are no more references to an open
- * file: all file descriptors are closed and all memory mappings
- * are unmapped.
- *
- * For every open() call there will be exactly one release() call
- * with the same flags and file descriptor.  It is possible to
- * have a file opened more than once, in which case only the last
- * release will mean, that no more reads/writes will happen on the
- * file.  The return value of release is ignored.
- */
-int op_release(const char *path, struct fuse_file_info *fi)
-{
-    printlog("--- op_release(path=\"%s\", fi=%p)\n",
-	  path, fi);
-
-    //TODO
-    // We need to close the file.  Had we allocated any resources
-    // (buffers etc) we'd need to free them here as well.
-    //retstat = close(fi->fh);
-
-    return 0;
-}
-
-/*
  * Synchronize file contents
  *
  * If the datasync parameter is non-zero, then only the user data
@@ -520,11 +570,10 @@ int op_fsync(const char *path, int datasync, struct fuse_file_info *fi)
     printlog("--- op_fsync(path=\"%s\", datasync=%d, fi=%p)\n",
 	    path, datasync, fi);
 
-    //TODO
-    //retstat = fsync(fi->fh);
-    //if (retstat < 0)
-    //    print_errno("op_fsync fsync");
-
+    if (datasync == 0 && file.writable) {
+        if (! fs_inode_save (&file.inode, 0))
+            return -EIO;
+    }
     return 0;
 }
 
@@ -645,33 +694,6 @@ int op_access(const char *path, int mask)
 }
 
 /*
- * Create and open a file
- *
- * If the file does not exist, first create it with the specified
- * mode, and then open it.
- *
- * If this method is not implemented or under Linux kernel
- * versions earlier than 2.6.15, the mknod() and open() methods
- * will be called instead.
- */
-int op_create(const char *path, mode_t mode, struct fuse_file_info *fi)
-{
-    int fd = 0;
-
-    printlog("--- op_create(path=\"%s\", mode=0%03o, fi=%p)\n",
-	    path, mode, fi);
-
-    //TODO
-    //fd = creat(path, mode);
-    //if (fd < 0)
-    //    retstat = print_errno("op_create creat");
-
-    fi->fh = fd;
-
-    return 0;
-}
-
-/*
  * Change the size of an open file
  *
  * This method is called instead of the truncate() method if the
@@ -691,34 +713,34 @@ int op_ftruncate(const char *path, off_t offset, struct fuse_file_info *fi)
 }
 
 static struct fuse_operations mount_ops = {
-    .access = op_access,
-    .chmod = op_chmod,
-    .chown = op_chown,
-    .create = op_create,              //
-    .destroy = op_destroy,            //
-    .fgetattr = op_fgetattr,          //
-    .flush = op_flush,                //
-    .fsync = op_fsync,
-    .ftruncate = op_ftruncate,        //
-    .getattr = op_getattr,
-    .link = op_link,
-    .mkdir = op_mkdir,
-    .mknod = op_mknod,
-    .open = op_open,
-    .opendir = op_opendir,            //
-    .readdir = op_readdir,
-    .readlink = op_readlink,
-    .read = op_read,
-    .release = op_release,
-    .releasedir = op_releasedir,      //
-    .rename = op_rename,
-    .rmdir = op_rmdir,
-    .statfs = op_statfs,
-    .symlink = op_symlink,
-    .truncate = op_truncate,
-    .unlink = op_unlink,
-    .utime = op_utime,                //
-    .write = op_write,
+    .access     = op_access,
+    .chmod      = op_chmod,
+    .chown      = op_chown,
+    .create     = op_create,
+    .destroy    = op_destroy,
+    .fgetattr   = op_fgetattr,
+    .flush      = op_flush,
+    .fsync      = op_fsync,
+    .ftruncate  = op_ftruncate,
+    .getattr    = op_getattr,
+    .link       = op_link,
+    .mkdir      = op_mkdir,
+    .mknod      = op_mknod,
+    .open       = op_open,
+    .opendir    = op_opendir,
+    .readdir    = op_readdir,
+    .readlink   = op_readlink,
+    .read       = op_read,
+    .release    = op_release,
+    .releasedir = op_releasedir,
+    .rename     = op_rename,
+    .rmdir      = op_rmdir,
+    .statfs     = op_statfs,
+    .symlink    = op_symlink,
+    .truncate   = op_truncate,
+    .unlink     = op_unlink,
+    .utime      = op_utime,
+    .write      = op_write,
 };
 
 int fs_mount(fs_t *fs, char *dirname)

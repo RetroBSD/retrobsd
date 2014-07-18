@@ -440,6 +440,7 @@ int fs_inode_read (fs_inode_t *inode, unsigned long offset,
 		if (! fs_read_block (inode->fs, bn, block))
 			return 0;
 		memcpy (data, block + inblock_offset, n);
+		data += n;
 		offset += n;
 		bytes -= n;
 	}
@@ -482,6 +483,7 @@ int fs_inode_write (fs_inode_t *inode, unsigned long offset,
 			if (! fs_write_block (inode->fs, bn, block))
 				return 0;
 		}
+		data += n;
 		offset += n;
 		bytes -= n;
 	}
@@ -642,7 +644,7 @@ cloop:
 	 */
 create_file:
 	if (! fs_inode_alloc (fs, inode)) {
-		fprintf (stderr, "%s: cannot allocate inode\n", name);
+		fprintf (stderr, "%s: cannot allocate inode\n", namptr);
 		return 0;
 	}
 	inode->dirty = 1;
@@ -675,7 +677,7 @@ create_file:
                 ++inode->nlink;
         }
 	if (! fs_inode_save (inode, 0)) {
-		fprintf (stderr, "%s: cannot save file inode\n", name);
+		fprintf (stderr, "%s: cannot save file inode\n", namptr);
 		return 0;
 	}
 
@@ -723,7 +725,7 @@ create_file:
 	/* Align directory size. */
 	dir.size = (dir.size + BSDFS_BSIZE - 1) / BSDFS_BSIZE * BSDFS_BSIZE;
 	if (! fs_inode_save (&dir, 0)) {
-		fprintf (stderr, "%s: cannot save directory inode\n", name);
+		fprintf (stderr, "%s: cannot save directory inode\n", namptr);
 		return 0;
 	}
 	return 2;
@@ -735,7 +737,7 @@ delete_file:
         if (verbose > 2)
                 printf ("*** delete inode %d\n", dirent.inum);
 	if (! fs_inode_get (fs, inode, dirent.inum)) {
-		fprintf (stderr, "%s: cannot get inode %d\n", name, dirent.inum);
+		fprintf (stderr, "%s: cannot get inode %d\n", namptr, dirent.inum);
 		return 0;
 	}
 	inode->dirty = 1;
@@ -762,7 +764,7 @@ delete_file:
 		return 0;
 	}
 	if (! fs_inode_save (&dir, 0)) {
-		fprintf (stderr, "%s: cannot save directory inode\n", name);
+		fprintf (stderr, "%s: cannot save directory inode\n", namptr);
 		return 0;
 	}
 	return 2;
@@ -801,7 +803,7 @@ create_link:
 		return 0;
 	}
 	if (! fs_inode_save (&dir, 0)) {
-		fprintf (stderr, "%s: cannot save directory inode\n", name);
+		fprintf (stderr, "%s: cannot save directory inode\n", namptr);
 		return 0;
 	}
 	*inode = dir;

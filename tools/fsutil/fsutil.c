@@ -492,7 +492,7 @@ int main (int argc, char **argv)
 	}
 
 	/* Add or extract or info. */
-	if (! fs_open (&fs, argv[i], (add != 0))) {
+	if (! fs_open (&fs, argv[i], (add + mount != 0))) {
 		fprintf (stderr, "%s: cannot open\n", argv[i]);
 		return -1;
 	}

@@ -193,8 +193,8 @@ void fs_directory_scan (fs_inode_t *inode, char *dirname,
 void fs_dirent_pack (unsigned char *data, fs_dirent_t *dirent);
 void fs_dirent_unpack (fs_dirent_t *dirent, unsigned char *data);
 
-int fs_file_create (fs_t *fs, fs_file_t *file, char *name, int mode);
-int fs_file_open (fs_t *fs, fs_file_t *file, char *name, int wflag);
+int fs_file_create (fs_t *fs, fs_file_t *file, const char *name, int mode);
+int fs_file_open (fs_t *fs, fs_file_t *file, const char *name, int wflag);
 int fs_file_read (fs_file_t *file, unsigned char *data,
 	unsigned long bytes);
 int fs_file_write (fs_file_t *file, unsigned char *data,

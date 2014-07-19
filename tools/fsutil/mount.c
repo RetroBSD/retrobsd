@@ -103,10 +103,6 @@ static int getstat (fs_inode_t *inode, struct stat *statbuf)
 
 /*
  * Get file attributes.
- *
- * Similar to stat().  The 'st_dev' and 'st_blksize' fields are
- * ignored.  The 'st_ino' field is ignored except if the 'use_ino'
- * mount option is given.
  */
 int op_getattr(const char *path, struct stat *statbuf)
 {
@@ -123,14 +119,7 @@ int op_getattr(const char *path, struct stat *statbuf)
 }
 
 /*
- * Get attributes from an open file
- *
- * This method is called instead of the getattr() method if the
- * file information is available.
- *
- * Currently this is only called after the create() method if that
- * is implemented (see above).  Later it may be called for
- * invocations of fstat() too.
+ * Get attributes from an open file.
  */
 int op_fgetattr(const char *path, struct stat *statbuf, struct fuse_file_info *fi)
 {
@@ -147,13 +136,7 @@ int op_fgetattr(const char *path, struct stat *statbuf, struct fuse_file_info *f
 }
 
 /*
- * File open operation
- *
- * No creation, or truncation flags (O_CREAT, O_EXCL, O_TRUNC)
- * will be passed to open().  Open should check if the operation
- * is permitted for the given flags.  Optionally open may also
- * return an arbitrary filehandle in the fuse_file_info structure,
- * which will be passed to all file operations.
+ * File open operation.
  */
 int op_open(const char *path, struct fuse_file_info *fi)
 {
@@ -181,14 +164,7 @@ int op_open(const char *path, struct fuse_file_info *fi)
 }
 
 /*
- * Create and open a file
- *
- * If the file does not exist, first create it with the specified
- * mode, and then open it.
- *
- * If this method is not implemented or under Linux kernel
- * versions earlier than 2.6.15, the mknod() and open() methods
- * will be called instead.
+ * Create and open a file.
  */
 int op_create(const char *path, mode_t mode, struct fuse_file_info *fi)
 {
@@ -211,14 +187,7 @@ int op_create(const char *path, mode_t mode, struct fuse_file_info *fi)
 }
 
 /*
- * Read data from an open file
- *
- * Read should return exactly the number of bytes requested except
- * on EOF or error, otherwise the rest of the data will be
- * substituted with zeroes.  An exception to this is when the
- * 'direct_io' mount option is specified, in which case the return
- * value of the read system call will reflect the return value of
- * this operation.
+ * Read data from an open file.
  */
 int op_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi)
 {
@@ -241,11 +210,7 @@ int op_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
 }
 
 /*
- * Write data to an open file
- *
- * Write should return exactly the number of bytes requested
- * except on error.  An exception to this is when the 'direct_io'
- * mount option is specified (see read operation).
+ * Write data to an open file.
  */
 int op_write(const char *path, const char *buf, size_t size, off_t offset,
 	     struct fuse_file_info *fi)
@@ -264,17 +229,7 @@ int op_write(const char *path, const char *buf, size_t size, off_t offset,
 }
 
 /*
- * Release an open file
- *
- * Release is called when there are no more references to an open
- * file: all file descriptors are closed and all memory mappings
- * are unmapped.
- *
- * For every open() call there will be exactly one release() call
- * with the same flags and file descriptor.  It is possible to
- * have a file opened more than once, in which case only the last
- * release will mean, that no more reads/writes will happen on the
- * file.  The return value of release is ignored.
+ * Release an open file.
  */
 int op_release(const char *path, struct fuse_file_info *fi)
 {
@@ -315,10 +270,7 @@ int op_truncate(const char *path, off_t newsize)
 }
 
 /*
- * Change the size of an open file
- *
- * This method is called instead of the truncate() method if the
- * truncation was invoked from an ftruncate() system call.
+ * Change the size of an open file.
  */
 int op_ftruncate(const char *path, off_t offset, struct fuse_file_info *fi)
 {
@@ -340,14 +292,14 @@ int op_ftruncate(const char *path, off_t offset, struct fuse_file_info *fi)
 }
 
 /*
- * Remove a file
+ * Remove a file.
  */
 int op_unlink(const char *path)
 {
     fs_t *fs = fuse_get_context()->private_data;
     fs_inode_t inode;
 
-    printlog("op_unlink(path=\"%s\")\n", path);
+    printlog("--- op_unlink(path=\"%s\")\n", path);
 
     /* Get the file type. */
     if (! fs_inode_by_name (fs, &inode, path, 0, 0)) {
@@ -369,7 +321,7 @@ int op_unlink(const char *path)
 }
 
 /*
- * Remove a directory
+ * Remove a directory.
  */
 int op_rmdir(const char *path)
 {
@@ -377,7 +329,7 @@ int op_rmdir(const char *path)
     fs_inode_t inode, parent;
     char buf [BSDFS_BSIZE], *p;
 
-    printlog("op_rmdir(path=\"%s\")\n", path);
+    printlog("--- op_rmdir(path=\"%s\")\n", path);
 
     /* Get the file type. */
     if (! fs_inode_by_name (fs, &inode, path, 0, 0)) {
@@ -430,7 +382,7 @@ int op_rmdir(const char *path)
 }
 
 /*
- * Create a directory
+ * Create a directory.
  */
 int op_mkdir(const char *path, mode_t mode)
 {
@@ -481,7 +433,7 @@ int op_mkdir(const char *path, mode_t mode)
 }
 
 /*
- * Create a hard link to a file
+ * Create a hard link to a file.
  */
 int op_link(const char *path, const char *newpath)
 {
@@ -510,9 +462,7 @@ int op_link(const char *path, const char *newpath)
 }
 
 /*
- * Rename a file
- *
- * Both path and newpath are fs-relative.
+ * Rename a file.
  */
 int op_rename(const char *path, const char *newpath)
 {
@@ -589,56 +539,76 @@ int op_mknod(const char *path, mode_t mode, dev_t dev)
 }
 
 /*
- * Read the target of a symbolic link
- *
- * The buffer should be filled with a null terminated string.  The
- * buffer size argument includes the space for the terminating
- * null character.  If the linkname is too long to fit in the
- * buffer, it should be truncated.  The return value should be 0
- * for success.
+ * Read the target of a symbolic link.
  */
-// Note the system readlink() will truncate and lose the terminating
-// null.  So, the size passed to to the system readlink() must be one
-// less than the size passed to op_readlink()
-// op_readlink() code by Bernardo F Costa (thanks!)
 int op_readlink(const char *path, char *link, size_t size)
 {
-    printlog("op_readlink(path=\"%s\", link=\"%s\", size=%d)\n",
+    fs_t *fs = fuse_get_context()->private_data;
+    fs_inode_t inode;
+
+    printlog("--- op_readlink(path=\"%s\", link=\"%s\", size=%d)\n",
         path, link, size);
 
-    //TODO
-    //retstat = readlink(path, link, size - 1);
-    //if (retstat < 0)
-    //    retstat = print_errno("op_readlink readlink");
-    //else {
-    //    link[retstat] = '\0';
-    //    retstat = 0;
-    //}
+    /* Open the file. */
+    if (! fs_inode_by_name (fs, &inode, path, 0, 0)) {
+        printlog("--- file not found\n");
+        return -ENOENT;
+    }
 
+    if ((inode.mode & INODE_MODE_FMT) != INODE_MODE_FLNK)
+        return -EINVAL;
+
+    /* Leave one byte for the terminating null. */
+    if (size > inode.size + 1)
+        size = inode.size + 1;
+    if (! fs_inode_read (&inode, 0, (unsigned char*)link, size-1)) {
+        printlog("--- read failed\n");
+        return -EIO;
+    }
+    link[size-1] = 0;
     return 0;
 }
 
 /*
- * Create a symbolic link
- * The parameters here are a little bit confusing, but do correspond
- * to the symlink() system call.  The 'path' is where the link points,
- * while the 'link' is the link itself.  So we need to leave the path
- * unaltered, but insert the link into the mounted directory.
+ * Create a symbolic link.
  */
-int op_symlink(const char *path, const char *link)
+int op_symlink(const char *path, const char *newpath)
 {
-    printlog("--- op_symlink(path=\"%s\", link=\"%s\")\n", path, link);
+    fs_t *fs = fuse_get_context()->private_data;
+    fs_inode_t inode;
+    int len, mode;
 
-    //TODO
-    //retstat = symlink(path, link);
-    //if (retstat < 0)
-    //    retstat = print_errno("op_symlink symlink");
+    printlog("--- op_symlink(path=\"%s\", newpath=\"%s\")\n", path, newpath);
 
+    /* Check if the file already exists. */
+    if (fs_inode_by_name (fs, &inode, newpath, 0, 0)) {
+        printlog("--- already exists\n");
+        return -EEXIST;
+    }
+
+    mode = 0777 | INODE_MODE_FLNK;
+    if (! fs_inode_by_name (fs, &inode, newpath, 1, mode)) {
+        printlog("--- create failed\n");
+        return -EIO;
+    }
+    fs_inode_save (&inode, 0);
+
+    len = strlen (path);
+    if (! fs_inode_write (&inode, 0, (unsigned char*)path, len)) {
+        printlog("--- write failed\n");
+        return -EIO;
+    }
+    inode.mtime = time(0);
+    inode.dirty = 1;
+    if (! fs_inode_save (&inode, 0)) {
+        printlog("--- create failed\n");
+        return -EIO;
+    }
     return 0;
 }
 
 /*
- * Change the permission bits of a file
+ * Change the permission bits of a file.
  */
 int op_chmod(const char *path, mode_t mode)
 {
@@ -653,7 +623,7 @@ int op_chmod(const char *path, mode_t mode)
 }
 
 /*
- * Change the owner and group of a file
+ * Change the owner and group of a file.
  */
 int op_chown(const char *path, uid_t uid, gid_t gid)
 {
@@ -668,7 +638,7 @@ int op_chown(const char *path, uid_t uid, gid_t gid)
 }
 
 /*
- * Change the access and/or modification times of a file
+ * Change the access and/or modification times of a file.
  */
 int op_utime(const char *path, struct utimbuf *ubuf)
 {
@@ -683,7 +653,7 @@ int op_utime(const char *path, struct utimbuf *ubuf)
 }
 
 /*
- * Get file system statistics
+ * Get file system statistics.
  *
  * The 'f_frsize', 'f_favail', 'f_fsid' and 'f_flag' fields are ignored
  */
@@ -701,26 +671,7 @@ int op_statfs(const char *path, struct statvfs *statv)
 }
 
 /*
- * Possibly flush cached data
- *
- * BIG NOTE: This is not equivalent to fsync().  It's not a
- * request to sync dirty data.
- *
- * Flush is called on each close() of a file descriptor.  So if a
- * filesystem wants to return write errors in close() and the file
- * has cached dirty data, this is a good place to write back data
- * and return any errors.  Since many applications ignore close()
- * errors this is not always useful.
- *
- * NOTE: The flush() method may be called more than once for each
- * open().  This happens if more than one file descriptor refers
- * to an opened file due to dup(), dup2() or fork() calls.  It is
- * not possible to determine if a flush is final, so each flush
- * should be treated equally.  Multiple write-flush sequences are
- * relatively rare, so this shouldn't be a problem.
- *
- * Filesystems shouldn't assume that flush will always be called
- * after some writes, or that if will be called at all.
+ * Possibly flush cached data.
  */
 int op_flush(const char *path, struct fuse_file_info *fi)
 {
@@ -729,8 +680,7 @@ int op_flush(const char *path, struct fuse_file_info *fi)
 }
 
 /*
- * Synchronize file contents
- *
+ * Synchronize file contents.
  * If the datasync parameter is non-zero, then only the user data
  * should be flushed, not the meta data.
  */
@@ -747,10 +697,7 @@ int op_fsync(const char *path, int datasync, struct fuse_file_info *fi)
 }
 
 /*
- * Open directory
- *
- * This method should check if the open operation is permitted for
- * this  directory
+ * Open directory.
  */
 int op_opendir(const char *path, struct fuse_file_info *fi)
 {
@@ -759,24 +706,7 @@ int op_opendir(const char *path, struct fuse_file_info *fi)
 }
 
 /*
- * Read directory
- *
- * This supersedes the old getdir() interface.  New applications
- * should use this.
- *
- * The filesystem may choose between two modes of operation:
- *
- * 1) The readdir implementation ignores the offset parameter, and
- * passes zero to the filler function's offset.  The filler
- * function will not return '1' (unless an error happens), so the
- * whole directory is read in a single readdir operation.  This
- * works just like the old getdir() method.
- *
- * 2) The readdir implementation keeps track of the offsets of the
- * directory entries.  It uses the offset parameter and always
- * passes non-zero offset to the filler function.  When the buffer
- * is full (or an error happens) the filler function will return
- * '1'.
+ * Read directory.
  */
 int op_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset,
 	       struct fuse_file_info *fi)
@@ -827,7 +757,7 @@ int op_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset
 }
 
 /*
- * Release directory
+ * Release directory.
  */
 int op_releasedir(const char *path, struct fuse_file_info *fi)
 {
@@ -836,8 +766,7 @@ int op_releasedir(const char *path, struct fuse_file_info *fi)
 }
 
 /*
- * Clean up filesystem
- *
+ * Clean up filesystem.
  * Called on filesystem exit.
  */
 void op_destroy(void *userdata)
@@ -846,11 +775,7 @@ void op_destroy(void *userdata)
 }
 
 /*
- * Check file access permissions
- *
- * This will be called for the access() system call.  If the
- * 'default_permissions' mount option is given, this method is not
- * called.
+ * Check file access permissions.
  */
 int op_access(const char *path, int mask)
 {

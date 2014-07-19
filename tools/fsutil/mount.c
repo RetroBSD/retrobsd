@@ -205,6 +205,8 @@ int op_create(const char *path, mode_t mode, struct fuse_file_info *fi)
         return -EIO;
     }
     file.inode.mtime = time(0);
+    file.inode.dirty = 1;
+    fs_file_close (&file);
     return 0;
 }
 
@@ -257,6 +259,7 @@ int op_write(const char *path, const char *buf, size_t size, off_t offset,
         return -EIO;
     }
     file.inode.mtime = time(0);
+    file.inode.dirty = 1;
     return size;
 }
 
@@ -306,6 +309,7 @@ int op_truncate(const char *path, off_t newsize)
     }
     fs_inode_truncate (&f.inode, newsize);
     f.inode.mtime = time(0);
+    file.inode.dirty = 1;
     fs_file_close (&f);
     return 0;
 }
@@ -330,6 +334,7 @@ int op_ftruncate(const char *path, off_t offset, struct fuse_file_info *fi)
     }
     fs_inode_truncate (&file.inode, offset);
     file.inode.mtime = time(0);
+    file.inode.dirty = 1;
     fs_file_close (&file);
     return 0;
 }
@@ -359,6 +364,7 @@ int op_unlink(const char *path)
         printlog("--- delete failed\n");
         return -EIO;
     }
+    fs_inode_save (&inode, 1);
     return 0;
 }
 
@@ -399,19 +405,26 @@ int op_rmdir(const char *path)
         return -ENOENT;
     }
 
-    /* Delete directory. */
-    inode.nlink -= 1;
+    /* Delete directory.
+     * Need to decrease a link count first. */
+    if (! fs_inode_by_name (fs, &inode, path, 0, 0)) {
+        printlog("--- directory not found\n");
+        return -ENOENT;
+    }
+    --inode.nlink;
+    fs_inode_save (&inode, 1);
     if (! fs_inode_by_name (fs, &inode, path, 2, 0)) {
         printlog("--- delete failed\n");
         return -EIO;
     }
+    fs_inode_save (&inode, 1);
 
     /* Decrease a parent's link counter. */
     if (! fs_inode_get (fs, &parent, parent.number)) {
         printlog("--- cannot reopen parent\n");
         return -EIO;
     }
-    ++parent.nlink;
+    --parent.nlink;
     fs_inode_save (&parent, 1);
     return 0;
 }
@@ -769,6 +782,7 @@ int op_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset
 
         if (dirent.inum != 0) {
             //printlog("calling filler with name %s\n", name);
+            name[dirent.namlen] = 0;
             if (filler(buf, name, NULL, 0) != 0) {
                 printlog("    ERROR op_readdir filler: buffer full");
                 return -ENOMEM;
@@ -865,6 +879,8 @@ int fs_mount(fs_t *fs, char *dirname)
         perror ("fuse_main failed");
         return -1;
     }
+    fs_sync (fs, 0);
+    fs_close (fs);
     printf ("\nFilesystem %s unmounted\n", dirname);
     return ret;
 }

@@ -496,9 +496,93 @@ int op_link(const char *path, const char *newpath)
         return -ENOENT;
     }
 
+    if ((source.mode & INODE_MODE_FMT) == INODE_MODE_FDIR) {
+        /* Cannot link directories. */
+        return -EPERM;
+    }
+
     /* Create target link. */
     if (! fs_inode_by_name (fs, &target, newpath, 3, source.number)) {
         printlog("--- link failed\n");
+        return -EIO;
+    }
+    return 0;
+}
+
+/*
+ * Rename a file
+ *
+ * Both path and newpath are fs-relative.
+ */
+int op_rename(const char *path, const char *newpath)
+{
+    fs_t *fs = fuse_get_context()->private_data;
+    fs_inode_t source, target;
+
+    printlog("--- op_rename(path=\"%s\", newpath=\"%s\")\n", path, newpath);
+
+    /* Find source and increase the link count. */
+    if (! fs_inode_by_name (fs, &source, path, 0, 0)) {
+        printlog("--- source not found\n");
+        return -ENOENT;
+    }
+    source.nlink++;
+    fs_inode_save (&source, 1);
+
+    /* Create target link. */
+    if (! fs_inode_by_name (fs, &target, newpath, 3, source.number)) {
+        printlog("--- link failed\n");
+        return -EIO;
+    }
+
+    /* Delete the source. */
+    if (! fs_inode_by_name (fs, &source, path, 2, 0)) {
+        printlog("--- delete failed\n");
+        return -EIO;
+    }
+    fs_inode_save (&source, 1);
+    return 0;
+}
+
+/*
+ * Create a file node.
+ */
+int op_mknod(const char *path, mode_t mode, dev_t dev)
+{
+    fs_t *fs = fuse_get_context()->private_data;
+    fs_inode_t inode;
+
+    printlog("--- op_mknod(path=\"%s\", mode=0%3o, dev=%lld)\n",
+        path, mode, dev);
+
+    /* Check if the file already exists. */
+    if (fs_inode_by_name (fs, &inode, path, 0, 0)) {
+        printlog("--- already exists\n");
+        return -EEXIST;
+    }
+
+    /* Encode a mode bitmask. */
+    if (S_ISREG(mode)) {
+        mode = (mode & 07777) | INODE_MODE_FREG;
+    } else if (S_ISCHR(mode)) {
+        mode = (mode & 07777) | INODE_MODE_FCHR;
+    } else if (S_ISBLK(mode)) {
+        mode = (mode & 07777) | INODE_MODE_FBLK;
+    } else
+        return -EINVAL;
+
+    /* Create the file. */
+    if (! fs_inode_by_name (fs, &inode, path, 1, mode)) {
+        printlog("--- create failed\n");
+        return -EIO;
+    }
+    if (S_ISCHR(mode) || S_ISBLK(mode)) {
+        inode.addr[1] = dev;
+    }
+    inode.mtime = time(0);
+    inode.dirty = 1;
+    if (! fs_inode_save (&inode, 0)) {
+        printlog("--- create failed\n");
         return -EIO;
     }
     return 0;
@@ -535,39 +619,6 @@ int op_readlink(const char *path, char *link, size_t size)
 }
 
 /*
- * Create a file node
- *
- * There is no create() operation, mknod() will be called for
- * creation of all non-directory, non-symlink nodes.
- */
-int op_mknod(const char *path, mode_t mode, dev_t dev)
-{
-    printlog("--- op_mknod(path=\"%s\", mode=0%3o, dev=%lld)\n",
-        path, mode, dev);
-
-    //TODO
-    //if (S_ISREG(mode)) {
-    //    retstat = open(path, O_CREAT | O_EXCL | O_WRONLY, mode);
-    //    if (retstat < 0)
-    //        retstat = print_errno("op_mknod open");
-    //    else {
-    //        retstat = close(retstat);
-    //        if (retstat < 0)
-    //            retstat = print_errno("op_mknod close");
-    //    }
-    //} else if (S_ISFIFO(mode)) {
-    //    retstat = mkfifo(path, mode);
-    //    if (retstat < 0)
-    //        retstat = print_errno("op_mknod mkfifo");
-    //} else {
-    //    retstat = mknod(path, mode, dev);
-    //    if (retstat < 0)
-    //        retstat = print_errno("op_mknod mknod");
-    //}
-    return 0;
-}
-
-/*
  * Create a symbolic link
  * The parameters here are a little bit confusing, but do correspond
  * to the symlink() system call.  The 'path' is where the link points,
@@ -582,23 +633,6 @@ int op_symlink(const char *path, const char *link)
     //retstat = symlink(path, link);
     //if (retstat < 0)
     //    retstat = print_errno("op_symlink symlink");
-
-    return 0;
-}
-
-/*
- * Rename a file
- *
- * Both path and newpath are fs-relative.
- */
-int op_rename(const char *path, const char *newpath)
-{
-    printlog("--- op_rename(path=\"%s\", newpath=\"%s\")\n", path, newpath);
-
-    //TODO
-    //retstat = rename(path, newpath);
-    //if (retstat < 0)
-    //    retstat = print_errno("op_rename rename");
 
     return 0;
 }

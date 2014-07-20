@@ -612,13 +612,22 @@ int op_symlink(const char *path, const char *newpath)
  */
 int op_chmod(const char *path, mode_t mode)
 {
+    fs_t *fs = fuse_get_context()->private_data;
+    fs_inode_t inode;
+
     printlog("--- op_chmod(path=\"%s\", mode=0%03o)\n", path, mode);
 
-    //TODO
-    //retstat = chmod(path, mode);
-    //if (retstat < 0)
-    //    retstat = print_errno("op_chmod chmod");
+    /* Open the file. */
+    if (! fs_inode_by_name (fs, &inode, path, 0, 0)) {
+        printlog("--- file not found\n");
+        return -ENOENT;
+    }
 
+    /* Modify the access mode. */
+    inode.mode &= ~07777;
+    inode.mode |= mode;
+    inode.dirty = 1;
+    fs_inode_save (&inode, 0);
     return 0;
 }
 
@@ -627,13 +636,22 @@ int op_chmod(const char *path, mode_t mode)
  */
 int op_chown(const char *path, uid_t uid, gid_t gid)
 {
+    fs_t *fs = fuse_get_context()->private_data;
+    fs_inode_t inode;
+
     printlog("--- op_chown(path=\"%s\", uid=%d, gid=%d)\n", path, uid, gid);
 
-    //TODO
-    //retstat = chown(path, uid, gid);
-    //if (retstat < 0)
-    //    retstat = print_errno("op_chown chown");
+    /* Open the file. */
+    if (! fs_inode_by_name (fs, &inode, path, 0, 0)) {
+        printlog("--- file not found\n");
+        return -ENOENT;
+    }
 
+    /* Modify the owner and group. */
+    inode.uid = uid;
+    inode.gid = gid;
+    inode.dirty = 1;
+    fs_inode_save (&inode, 0);
     return 0;
 }
 
@@ -642,13 +660,22 @@ int op_chown(const char *path, uid_t uid, gid_t gid)
  */
 int op_utime(const char *path, struct utimbuf *ubuf)
 {
+    fs_t *fs = fuse_get_context()->private_data;
+    fs_inode_t inode;
+
     printlog("--- op_utime(path=\"%s\", ubuf=%p)\n", path, ubuf);
 
-    //TODO
-    //retstat = utime(path, ubuf);
-    //if (retstat < 0)
-    //    retstat = print_errno("op_utime utime");
+    /* Open the file. */
+    if (! fs_inode_by_name (fs, &inode, path, 0, 0)) {
+        printlog("--- file not found\n");
+        return -ENOENT;
+    }
 
+    /* Modify the access and modification times. */
+    inode.atime = ubuf->actime;
+    inode.mtime = ubuf->modtime;
+    inode.dirty = 1;
+    fs_inode_save (&inode, 0);
     return 0;
 }
 
@@ -659,14 +686,15 @@ int op_utime(const char *path, struct utimbuf *ubuf)
  */
 int op_statfs(const char *path, struct statvfs *statv)
 {
+    fs_dirent_t dirent;
+
     printlog("--- op_statfs(path=\"%s\", statv=%p)\n", path, statv);
 
-    // get stats for underlying filesystem
-    //TODO
-    //retstat = statvfs(path, statv);
-    //if (retstat < 0)
-    //    retstat = print_errno("op_statfs statvfs");
+    /* The maximum length in bytes of a file name on this file system. */
+    statv->f_namemax = sizeof(dirent.name) - 1;
 
+    /* The preferred length of I/O requests for files on this file system. */
+    statv->f_bsize = BSDFS_BSIZE;
     return 0;
 }
 

@@ -158,7 +158,7 @@ dumpregs (frame)
 	printf( "*******STACK DUMP START*************\n");
     	printf( "frame = %8x\n", frame );
     	printf( "stack data\n" );
-    	while( p <= stacktop ) 
+    	while( p <= stacktop )
     	{
         printf( " %8x", *p++ );
         if( p <= stacktop ) printf( " %8x", *p++ );
@@ -343,14 +343,14 @@ exception (frame)
                             mips_write_c0_register (C0_COMPARE, 0, c);
                         } while ((int) (c - (unsigned)mips_read_c0_register (C0_COUNT, 0)) < 0);
                         hardclock ((caddr_t) frame [FRAME_PC], status);
-                       
+
 #ifdef POWER_ENABLED
                         power_switch_check();
 #endif
 
 #ifdef UARTUSB_ENABLED
                         /* Poll USB on every timer tick. */
-            usbintr(0);
+                        usbintr(0);
 #endif
                         break;
 #ifdef UART1_ENABLED
@@ -389,7 +389,7 @@ exception (frame)
 #ifdef UARTUSB_ENABLED
                 case PIC32_VECT_USB:    /* USB */
                         IFSCLR(1) = 1 << (PIC32_IRQ_USB - 32);
-            usbintr(0);
+                        usbintr(0);
                         break;
 #endif
 
@@ -418,7 +418,7 @@ exception (frame)
                         if (sp < u.u_procp->p_daddr + u.u_dsize) {
                                 /* Process has trashed its stack; give it an illegal
                                  * instruction violation to halt it in its tracks. */
-                        panic ("unexpected exception 2");
+                                panic ("unexpected exception 2");
                                 psig = SIGSEGV;
                                 break;
                         }

@@ -26,6 +26,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <time.h>
 #include <sys/stat.h>
 #include <errno.h>
 #include <getopt.h>
@@ -354,6 +355,7 @@ void add_device (fs_t *fs, char *name, char *spec)
 		return;
 	}
 	dev.addr[1] = majr << 8 | minr;
+	time (&dev.mtime);
 	fs_inode_save (&dev, 1);
 }
 
@@ -408,6 +410,7 @@ void add_file (fs_t *fs, char *name)
 		}
 	}
         file.inode.mtime = st.st_mtime;
+        file.inode.dirty = 1;
 	fs_file_close (&file);
 	fclose (fd);
 }

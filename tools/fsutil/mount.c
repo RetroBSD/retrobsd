@@ -56,6 +56,11 @@ static void printlog(const char *format, ...)
     }
 }
 
+static dev_t make_rdev(unsigned raw)
+{
+    return makedev (raw >> 8, raw & 0xff);
+}
+
 /*
  * Copy data to struct stat.
  */
@@ -66,7 +71,7 @@ static int getstat (fs_inode_t *inode, struct stat *statbuf)
     statbuf->st_nlink  = inode->nlink;           /* number of hard links */
     statbuf->st_uid    = inode->uid;             /* user ID of owner */
     statbuf->st_gid    = inode->gid;             /* group ID of owner */
-    statbuf->st_rdev   = 0;                     /* device ID (if special file) */
+    statbuf->st_rdev   = 0;                      /* device ID (if special file) */
     statbuf->st_size   = inode->size;            /* total size, in bytes */
     statbuf->st_blocks = inode->size >> 9;       /* number of blocks allocated */
     statbuf->st_atime  = inode->atime;           /* time of last access */
@@ -82,11 +87,11 @@ static int getstat (fs_inode_t *inode, struct stat *statbuf)
         break;
     case INODE_MODE_FCHR:                       /* character special */
         statbuf->st_mode |= S_IFCHR;
-        statbuf->st_rdev = inode->addr[1];
+        statbuf->st_rdev = make_rdev (inode->addr[1]);
         break;
     case INODE_MODE_FBLK:                       /* block special */
         statbuf->st_mode |= S_IFBLK;
-        statbuf->st_rdev = inode->addr[1];
+        statbuf->st_rdev = make_rdev (inode->addr[1]);
         break;
     case INODE_MODE_FLNK:                       /* symbolic link */
         statbuf->st_mode |= S_IFLNK;
@@ -527,7 +532,7 @@ int op_mknod(const char *path, mode_t mode, dev_t dev)
         return -EIO;
     }
     if (S_ISCHR(mode) || S_ISBLK(mode)) {
-        inode.addr[1] = dev;
+        inode.addr[1] = major(dev) << 8 | minor(dev);
     }
     inode.mtime = time(0);
     inode.dirty = 1;

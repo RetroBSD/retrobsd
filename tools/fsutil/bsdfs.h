@@ -145,6 +145,13 @@ typedef struct {
 	unsigned long	offset;		/* current i/o offset */
 } fs_file_t;
 
+typedef enum {
+    INODE_OP_LOOKUP,			/* lookup inode by name */
+    INODE_OP_CREATE,			/* create new file */
+    INODE_OP_DELETE,			/* delete file */
+    INODE_OP_LINK,			/* make a link to a file */
+} fs_op_t;
+
 int fs_seek (fs_t *fs, unsigned long offset);
 int fs_read8 (fs_t *fs, unsigned char *val);
 int fs_read16 (fs_t *fs, unsigned short *val);
@@ -177,7 +184,7 @@ int fs_inode_write (fs_inode_t *inode, unsigned long offset,
 	unsigned char *data, unsigned long bytes);
 int fs_inode_alloc (fs_t *fs, fs_inode_t *inode);
 int fs_inode_by_name (fs_t *fs, fs_inode_t *inode, const char *name,
-	int op, int mode);
+	fs_op_t op, int mode);
 int inode_build_list (fs_t *fs);
 
 int fs_write_block (fs_t *fs, unsigned bnum, unsigned char *data);

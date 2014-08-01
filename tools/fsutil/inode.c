@@ -551,13 +551,8 @@ void fs_dirent_unpack (fs_dirent_t *dirent, unsigned char *data)
  * Return 1 when the inode was found.
  * Return 2 when the inode was created/deleted/linked.
  */
-#define	LOOKUP		0	/* perform name lookup only */
-#define	CREATE		1	/* setup for file creation */
-#define	DELETE		2	/* setup for file deletion */
-#define	LINK		3	/* setup for link */
-
 int fs_inode_by_name (fs_t *fs, fs_inode_t *inode, const char *name,
-	int op, int mode)
+	fs_op_t op, int mode)
 {
 	fs_inode_t dir;
 	int c, namlen, reclen;
@@ -577,7 +572,7 @@ int fs_inode_by_name (fs_t *fs, fs_inode_t *inode, const char *name,
 	c = *name++;
 	while (c == '/')
 		c = *name++;
-	if (! c && op != LOOKUP) {
+	if (! c && op != INODE_OP_LOOKUP) {
 		/* Cannot write or delete root directory. */
 		return 0;
 	}
@@ -631,7 +626,7 @@ cloop:
 			/* Here a component matched in a directory.
 			 * If there is more pathname, go back to
 			 * cloop, otherwise return. */
-			if (op == DELETE && ! c) {
+			if (op == INODE_OP_DELETE && ! c) {
 				goto delete_file;
 			}
 			if (! fs_inode_get (fs, &dir, dirent.inum)) {
@@ -643,9 +638,9 @@ cloop:
 	}
 	/* If at the end of the directory, the search failed.
          * Report what is appropriate as per flag. */
-	if (op == CREATE && ! c)
+	if (op == INODE_OP_CREATE && ! c)
 		goto create_file;
-	if (op == LINK && ! c)
+	if (op == INODE_OP_LINK && ! c)
 		goto create_link;
 	return 0;
 

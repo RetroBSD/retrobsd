@@ -116,7 +116,7 @@ int op_getattr(const char *path, struct stat *statbuf)
 
     printlog("--- op_getattr(path=\"%s\", statbuf=%p)\n", path, statbuf);
 
-    if (! fs_inode_by_name (fs, &inode, path, 0, 0)) {
+    if (! fs_inode_by_name (fs, &inode, path, INODE_OP_LOOKUP, 0)) {
         printlog("--- search failed\n");
         return -ENOENT;
     }
@@ -307,7 +307,7 @@ int op_unlink(const char *path)
     printlog("--- op_unlink(path=\"%s\")\n", path);
 
     /* Get the file type. */
-    if (! fs_inode_by_name (fs, &inode, path, 0, 0)) {
+    if (! fs_inode_by_name (fs, &inode, path, INODE_OP_LOOKUP, 0)) {
         printlog("--- search failed\n");
         return -ENOENT;
     }
@@ -317,7 +317,7 @@ int op_unlink(const char *path)
     }
 
     /* Delete file. */
-    if (! fs_inode_by_name (fs, &inode, path, 2, 0)) {
+    if (! fs_inode_by_name (fs, &inode, path, INODE_OP_DELETE, 0)) {
         printlog("--- delete failed\n");
         return -EIO;
     }
@@ -337,7 +337,7 @@ int op_rmdir(const char *path)
     printlog("--- op_rmdir(path=\"%s\")\n", path);
 
     /* Get the file type. */
-    if (! fs_inode_by_name (fs, &inode, path, 0, 0)) {
+    if (! fs_inode_by_name (fs, &inode, path, INODE_OP_LOOKUP, 0)) {
         printlog("--- search failed\n");
         return -ENOENT;
     }
@@ -357,20 +357,20 @@ int op_rmdir(const char *path)
         *p = 0;
     else
         *buf = 0;
-    if (! fs_inode_by_name (fs, &parent, buf, 0, 0)) {
+    if (! fs_inode_by_name (fs, &parent, buf, INODE_OP_LOOKUP, 0)) {
         printlog("--- parent not found\n");
         return -ENOENT;
     }
 
     /* Delete directory.
      * Need to decrease a link count first. */
-    if (! fs_inode_by_name (fs, &inode, path, 0, 0)) {
+    if (! fs_inode_by_name (fs, &inode, path, INODE_OP_LOOKUP, 0)) {
         printlog("--- directory not found\n");
         return -ENOENT;
     }
     --inode.nlink;
     fs_inode_save (&inode, 1);
-    if (! fs_inode_by_name (fs, &inode, path, 2, 0)) {
+    if (! fs_inode_by_name (fs, &inode, path, INODE_OP_DELETE, 0)) {
         printlog("--- delete failed\n");
         return -EIO;
     }
@@ -404,13 +404,15 @@ int op_mkdir(const char *path, mode_t mode)
         *p = 0;
     else
         *buf = 0;
-    if (! fs_inode_by_name (fs, &parent, buf, 0, 0)) {
+    if (! fs_inode_by_name (fs, &parent, buf, INODE_OP_LOOKUP, 0)) {
         printlog("--- parent not found\n");
         return -ENOENT;
     }
 
     /* Create directory. */
-    int done = fs_inode_by_name (fs, &dir, path, 1, INODE_MODE_FDIR | (mode & 07777));
+    mode &= 07777;
+    mode |= INODE_MODE_FDIR;
+    int done = fs_inode_by_name (fs, &dir, path, INODE_OP_CREATE, mode);
     if (! done) {
         printlog("--- cannot create dir inode\n");
         return -ENOENT;
@@ -424,7 +426,7 @@ int op_mkdir(const char *path, mode_t mode)
     /* Make parent link '..' */
     strcpy (buf, path);
     strcat (buf, "/..");
-    if (! fs_inode_by_name (fs, &dir, buf, 3, parent.number)) {
+    if (! fs_inode_by_name (fs, &dir, buf, INODE_OP_LINK, parent.number)) {
         printlog("--- dotdot link failed\n");
         return -EIO;
     }
@@ -448,7 +450,7 @@ int op_link(const char *path, const char *newpath)
     printlog("--- op_link(path=\"%s\", newpath=\"%s\")\n", path, newpath);
 
     /* Find source. */
-    if (! fs_inode_by_name (fs, &source, path, 0, 0)) {
+    if (! fs_inode_by_name (fs, &source, path, INODE_OP_LOOKUP, 0)) {
         printlog("--- source not found\n");
         return -ENOENT;
     }
@@ -459,7 +461,7 @@ int op_link(const char *path, const char *newpath)
     }
 
     /* Create target link. */
-    if (! fs_inode_by_name (fs, &target, newpath, 3, source.number)) {
+    if (! fs_inode_by_name (fs, &target, newpath, INODE_OP_LINK, source.number)) {
         printlog("--- link failed\n");
         return -EIO;
     }
@@ -477,7 +479,7 @@ int op_rename(const char *path, const char *newpath)
     printlog("--- op_rename(path=\"%s\", newpath=\"%s\")\n", path, newpath);
 
     /* Find source and increase the link count. */
-    if (! fs_inode_by_name (fs, &source, path, 0, 0)) {
+    if (! fs_inode_by_name (fs, &source, path, INODE_OP_LOOKUP, 0)) {
         printlog("--- source not found\n");
         return -ENOENT;
     }
@@ -485,13 +487,13 @@ int op_rename(const char *path, const char *newpath)
     fs_inode_save (&source, 1);
 
     /* Create target link. */
-    if (! fs_inode_by_name (fs, &target, newpath, 3, source.number)) {
+    if (! fs_inode_by_name (fs, &target, newpath, INODE_OP_LINK, source.number)) {
         printlog("--- link failed\n");
         return -EIO;
     }
 
     /* Delete the source. */
-    if (! fs_inode_by_name (fs, &source, path, 2, 0)) {
+    if (! fs_inode_by_name (fs, &source, path, INODE_OP_DELETE, 0)) {
         printlog("--- delete failed\n");
         return -EIO;
     }
@@ -511,7 +513,7 @@ int op_mknod(const char *path, mode_t mode, dev_t dev)
         path, mode, dev);
 
     /* Check if the file already exists. */
-    if (fs_inode_by_name (fs, &inode, path, 0, 0)) {
+    if (fs_inode_by_name (fs, &inode, path, INODE_OP_LOOKUP, 0)) {
         printlog("--- already exists\n");
         return -EEXIST;
     }
@@ -527,7 +529,7 @@ int op_mknod(const char *path, mode_t mode, dev_t dev)
         return -EINVAL;
 
     /* Create the file. */
-    if (! fs_inode_by_name (fs, &inode, path, 1, mode)) {
+    if (! fs_inode_by_name (fs, &inode, path, INODE_OP_CREATE, mode)) {
         printlog("--- create failed\n");
         return -EIO;
     }
@@ -555,7 +557,7 @@ int op_readlink(const char *path, char *link, size_t size)
         path, link, size);
 
     /* Open the file. */
-    if (! fs_inode_by_name (fs, &inode, path, 0, 0)) {
+    if (! fs_inode_by_name (fs, &inode, path, INODE_OP_LOOKUP, 0)) {
         printlog("--- file not found\n");
         return -ENOENT;
     }
@@ -586,13 +588,14 @@ int op_symlink(const char *path, const char *newpath)
     printlog("--- op_symlink(path=\"%s\", newpath=\"%s\")\n", path, newpath);
 
     /* Check if the file already exists. */
-    if (fs_inode_by_name (fs, &inode, newpath, 0, 0)) {
+    if (fs_inode_by_name (fs, &inode, newpath, INODE_OP_LOOKUP, 0)) {
         printlog("--- already exists\n");
         return -EEXIST;
     }
 
+    /* Create symlink. */
     mode = 0777 | INODE_MODE_FLNK;
-    if (! fs_inode_by_name (fs, &inode, newpath, 1, mode)) {
+    if (! fs_inode_by_name (fs, &inode, newpath, INODE_OP_CREATE, mode)) {
         printlog("--- create failed\n");
         return -EIO;
     }
@@ -623,7 +626,7 @@ int op_chmod(const char *path, mode_t mode)
     printlog("--- op_chmod(path=\"%s\", mode=0%03o)\n", path, mode);
 
     /* Open the file. */
-    if (! fs_inode_by_name (fs, &inode, path, 0, 0)) {
+    if (! fs_inode_by_name (fs, &inode, path, INODE_OP_LOOKUP, 0)) {
         printlog("--- file not found\n");
         return -ENOENT;
     }
@@ -647,7 +650,7 @@ int op_chown(const char *path, uid_t uid, gid_t gid)
     printlog("--- op_chown(path=\"%s\", uid=%d, gid=%d)\n", path, uid, gid);
 
     /* Open the file. */
-    if (! fs_inode_by_name (fs, &inode, path, 0, 0)) {
+    if (! fs_inode_by_name (fs, &inode, path, INODE_OP_LOOKUP, 0)) {
         printlog("--- file not found\n");
         return -ENOENT;
     }
@@ -671,7 +674,7 @@ int op_utime(const char *path, struct utimbuf *ubuf)
     printlog("--- op_utime(path=\"%s\", ubuf=%p)\n", path, ubuf);
 
     /* Open the file. */
-    if (! fs_inode_by_name (fs, &inode, path, 0, 0)) {
+    if (! fs_inode_by_name (fs, &inode, path, INODE_OP_LOOKUP, 0)) {
         printlog("--- file not found\n");
         return -ENOENT;
     }
@@ -756,7 +759,7 @@ int op_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset
     printlog("--- op_readdir(path=\"%s\", buf=%p, filler=%p, offset=%lld, fi=%p)\n",
         path, buf, filler, offset, fi);
 
-    if (! fs_inode_by_name (fs, &dir, path, 0, 0)) {
+    if (! fs_inode_by_name (fs, &dir, path, INODE_OP_LOOKUP, 0)) {
         printlog("--- cannot find path %s\n", path);
         return -ENOENT;
     }

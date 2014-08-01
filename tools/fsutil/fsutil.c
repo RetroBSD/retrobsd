@@ -300,13 +300,13 @@ void add_directory (fs_t *fs, char *name)
 		*p = 0;
 	else
 		*buf = 0;
-	if (! fs_inode_by_name (fs, &parent, buf, 0, 0)) {
+	if (! fs_inode_by_name (fs, &parent, buf, INODE_OP_LOOKUP, 0)) {
 		fprintf (stderr, "%s: cannot open directory\n", buf);
 		return;
 	}
 
 	/* Create directory. */
-	int done = fs_inode_by_name (fs, &dir, name, 1, INODE_MODE_FDIR | 0777);
+	int done = fs_inode_by_name (fs, &dir, name, INODE_OP_CREATE, INODE_MODE_FDIR | 0777);
 	if (! done) {
 		fprintf (stderr, "%s: directory inode create failed\n", name);
 		return;
@@ -320,7 +320,7 @@ void add_directory (fs_t *fs, char *name)
 	/* Make parent link '..' */
 	strcpy (buf, name);
 	strcat (buf, "/..");
-	if (! fs_inode_by_name (fs, &dir, buf, 3, parent.number)) {
+	if (! fs_inode_by_name (fs, &dir, buf, INODE_OP_LINK, parent.number)) {
 		fprintf (stderr, "%s: dotdot link failed\n", name);
 		return;
 	}
@@ -349,7 +349,7 @@ void add_device (fs_t *fs, char *name, char *spec)
 		fprintf (stderr, "expected c<major>:<minor> or b<major>:<minor>\n");
 		return;
 	}
-	if (! fs_inode_by_name (fs, &dev, name, 1, 0666 |
+	if (! fs_inode_by_name (fs, &dev, name, INODE_OP_CREATE, 0666 |
 	    ((type == 'b') ? INODE_MODE_FBLK : INODE_MODE_FCHR))) {
 		fprintf (stderr, "%s: device inode create failed\n", name);
 		return;

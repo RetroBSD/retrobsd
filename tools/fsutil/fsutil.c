@@ -59,6 +59,7 @@ static struct option program_options[] = {
 	{ "mount",	no_argument,		0,	'm' },
 	{ "new",	required_argument,	0,	'n' },
 	{ "swap",	required_argument,	0,	's' },
+	{ "manifest",	required_argument,	0,	'M' },
 	{ 0 }
 };
 
@@ -77,20 +78,22 @@ static void print_help (char *progname)
 	printf ("  %s --add filesys.img files...\n", progname);
 	printf ("  %s --extract filesys.img\n", progname);
 	printf ("  %s --check [--fix] filesys.img\n", progname);
-	printf ("  %s --new=kbytes [--swap=kbytes] filesys.img\n", progname);
+	printf ("  %s --new=kbytes [--swap=kbytes] [--manifest=file] filesys.img [dir]\n", progname);
 	printf ("  %s --mount filesys.img dir\n", progname);
 	printf ("\n");
 	printf ("Options:\n");
-	printf ("  -a, --add          Add files to filesystem.\n");
-	printf ("  -x, --extract      Extract all files.\n");
-	printf ("  -c, --check        Check filesystem, use -c -f to fix.\n");
-	printf ("  -f, --fix          Fix bugs in filesystem.\n");
-	printf ("  -n NUM, --new=NUM  Create new filesystem, size in kbytes.\n");
-	printf ("  -s NUM, --swap=NUM Size of swap area in kbytes.\n");
-	printf ("  -m, --mount        Mount the filesystem.\n");
-	printf ("  -v, --verbose      Be verbose.\n");
-	printf ("  -V, --version      Print version information and then exit.\n");
-	printf ("  -h, --help         Print this message.\n");
+	printf ("  -a, --add           Add files to filesystem.\n");
+	printf ("  -x, --extract       Extract all files.\n");
+	printf ("  -c, --check         Check filesystem, use -c -f to fix.\n");
+	printf ("  -f, --fix           Fix bugs in filesystem.\n");
+	printf ("  -n NUM, --new=NUM   Create new filesystem, size in kbytes.\n");
+	printf ("                      Add files from specified directory (optional)\n");
+	printf ("  -s NUM, --swap=NUM  Size of swap area in kbytes.\n");
+	printf ("  -M file, --manifest=file  List of files and attributes to create.\n");
+	printf ("  -m, --mount         Mount the filesystem.\n");
+	printf ("  -v, --verbose       Be verbose.\n");
+	printf ("  -V, --version       Print version information and then exit.\n");
+	printf ("  -h, --help          Print this message.\n");
 	printf ("\n");
 	printf ("Report bugs to \"%s\".\n", program_bug_address);
 }
@@ -415,14 +418,26 @@ void add_file (fs_t *fs, char *name)
 	fclose (fd);
 }
 
+/*
+ * Add the contents from the specified directory.
+ * Use the optional manifest file.
+ */
+void add_contents (fs_t *fs, const char *dirname, const char *manifest)
+{
+        printf ("TODO: add contents from directory '%s'\n", dirname);
+        if (manifest)
+                printf ("TODO: use manifest '%s'\n", manifest);
+}
+
 int main (int argc, char **argv)
 {
 	int i, key;
 	fs_t fs;
 	fs_inode_t inode;
+	const char *manifest = 0;
 
 	for (;;) {
-		key = getopt_long (argc, argv, "vaxmn:cfs:",
+		key = getopt_long (argc, argv, "vaxmMn:cfs:",
 			program_options, 0);
 		if (key == -1)
 			break;
@@ -452,6 +467,9 @@ int main (int argc, char **argv)
 		case 's':
 			swap_kbytes = strtol (optarg, 0, 0);
 			break;
+		case 'M':
+			manifest = optarg;
+			break;
 		case 'V':
 			printf ("%s\n", program_version);
 			return 0;
@@ -464,7 +482,9 @@ int main (int argc, char **argv)
 		}
 	}
 	i = optind;
-	if ((! add && ! mount && i != argc-1) || (add && i >= argc) ||
+	if ((! add && ! mount && ! newfs && i != argc-1) ||
+            (add && i >= argc) ||
+	    (newfs && i != argc-1 && i != argc-2) ||
 	    (mount && i != argc-2) ||
 	    (extract + newfs + check + add + mount > 1) ||
 	    (newfs && kbytes < BSDFS_BSIZE * 10 / 1024)) {
@@ -479,6 +499,12 @@ int main (int argc, char **argv)
 			return -1;
 		}
 		printf ("Created filesystem %s - %u kbytes\n", argv[i], kbytes);
+
+                if (i == argc-2) {
+                        /* Add the contents from the specified directory.
+                         * Use the optional manifest file. */
+                        add_contents (&fs, argv[i+1], manifest);
+                }
 		fs_close (&fs);
 		return 0;
 	}

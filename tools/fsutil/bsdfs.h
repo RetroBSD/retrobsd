@@ -146,10 +146,10 @@ typedef struct {
 } fs_file_t;
 
 typedef enum {
-    INODE_OP_LOOKUP,			/* lookup inode by name */
-    INODE_OP_CREATE,			/* create new file */
-    INODE_OP_DELETE,			/* delete file */
-    INODE_OP_LINK,			/* make a link to a file */
+        INODE_OP_LOOKUP,		/* lookup inode by name */
+        INODE_OP_CREATE,		/* create new file */
+        INODE_OP_DELETE,		/* delete file */
+        INODE_OP_LINK,			/* make a link to a file */
 } fs_op_t;
 
 int fs_seek (fs_t *fs, unsigned long offset);

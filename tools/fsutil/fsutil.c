@@ -30,6 +30,7 @@
 #include <sys/stat.h>
 #include <errno.h>
 #include <getopt.h>
+#include <fts.h>
 #include "bsdfs.h"
 
 int verbose;
@@ -39,6 +40,7 @@ int newfs;
 int check;
 int fix;
 int mount;
+int scan;
 unsigned kbytes;
 unsigned swap_kbytes;
 
@@ -57,6 +59,7 @@ static struct option program_options[] = {
     { "check",      no_argument,        0,  'c' },
     { "fix",        no_argument,        0,  'f' },
     { "mount",      no_argument,        0,  'm' },
+    { "scan",       no_argument,        0,  'S' },
     { "new",        required_argument,  0,  'n' },
     { "swap",       required_argument,  0,  's' },
     { "manifest",   required_argument,  0,  'M' },
@@ -80,6 +83,7 @@ static void print_help (char *progname)
     printf ("  %s --check [--fix] filesys.img\n", progname);
     printf ("  %s --new=kbytes [--swap=kbytes] [--manifest=file] filesys.img [dir]\n", progname);
     printf ("  %s --mount filesys.img dir\n", progname);
+    printf ("  %s --scan dir > file\n", progname);
     printf ("\n");
     printf ("Options:\n");
     printf ("  -a, --add           Add files to filesystem.\n");
@@ -91,6 +95,7 @@ static void print_help (char *progname)
     printf ("  -s NUM, --swap=NUM  Size of swap area in kbytes.\n");
     printf ("  -M file, --manifest=file  List of files and attributes to create.\n");
     printf ("  -m, --mount         Mount the filesystem.\n");
+    printf ("  -S, --scan          Create a manifest from directory contents.\n");
     printf ("  -v, --verbose       Be verbose.\n");
     printf ("  -V, --version       Print version information and then exit.\n");
     printf ("  -h, --help          Print this message.\n");
@@ -429,6 +434,148 @@ void add_contents (fs_t *fs, const char *dirname, const char *manifest)
         printf ("TODO: use manifest '%s'\n", manifest);
 }
 
+/*
+ * Compare two entries of file traverse scan.
+ */
+static int ftsent_compare (const FTSENT **a, const FTSENT **b)
+{
+    return strcmp((*a)->fts_name, (*b)->fts_name);
+}
+
+/*
+ * Store information about the link: dev, inode and path.
+ */
+typedef struct _link_info_t link_info_t;
+struct _link_info_t {
+    link_info_t *next;
+    dev_t       dev;
+    ino_t       ino;
+    char        path[1];
+};
+
+static link_info_t *link_list;
+
+static void add_link (dev_t dev, ino_t ino, char *path)
+{
+    link_info_t *info;
+
+    info = (link_info_t*) malloc (strlen (path) + sizeof (link_info_t));
+    if (! info) {
+        fprintf (stderr, "%s: no memory for link info\n", path);
+        return;
+    }
+    info->dev = dev;
+    info->ino = ino;
+    strcpy (info->path, path);
+
+    /* Insert into the list. */
+    info->next = link_list;
+    link_list = info;
+}
+
+/*
+ * Store information about the link: dev, inode and path.
+ */
+static char *find_link (dev_t dev, ino_t ino)
+{
+    link_info_t *info = link_list;
+
+    for (info=link_list; info; info=info->next) {
+        if (info->dev == dev && info->ino == ino)
+            return info->path;
+    }
+    return 0;
+}
+
+/*
+ * Create a manifest from directory contents.
+ */
+void manifest_scan (const char *dirname)
+{
+    FTS *dir;
+    FTSENT *node;
+    char *argv[2], *path, *target, buf[BSDFS_BSIZE];
+    struct stat st;
+    int prefix_len, mode, len;
+
+    argv[0] = (char*) dirname;
+    argv[1] = 0;
+    dir = fts_open (argv, FTS_PHYSICAL | FTS_NOCHDIR, &ftsent_compare);
+    if (! dir) {
+        fprintf (stderr, "%s: cannot open\n", dirname);
+        return;
+    }
+    prefix_len = strlen (dirname);
+
+    printf ("# Manifest for directory %s\n", dirname);
+    for (;;) {
+        node = fts_read(dir);
+        if (! node)
+            break;
+
+        path = node->fts_path + prefix_len;
+        if (path[0] == 0)
+            continue;
+
+        st = *node->fts_statp;
+        mode = st.st_mode & 07777;
+
+        switch (node->fts_info) {
+        case FTS_D:
+            /* Directory. */
+            printf ("\ndir %s\n", path);
+            break;
+
+        case FTS_F:
+            /* Regular file. */
+            if (st.st_nlink > 1) {
+                /* Hard link to file. */
+                target = find_link (st.st_dev, st.st_ino);
+                if (target) {
+                    printf ("\nlink %s\n", path);
+                    printf ("target %s\n", target);
+                    continue;
+                }
+                add_link (st.st_dev, st.st_ino, path);
+            }
+            printf ("\nfile %s\n", path);
+            break;
+
+        case FTS_SL:
+            /* Symlink. */
+            if (st.st_nlink > 1) {
+                /* Hard link to symlink. */
+                target = find_link (st.st_dev, st.st_ino);
+                if (target) {
+                    printf ("\nlink %s\n", path);
+                    printf ("target %s\n", target);
+                    continue;
+                }
+                add_link (st.st_dev, st.st_ino, path);
+            }
+            printf ("\nsymlink %s\n", path);
+
+            /* Get the target of symlink. */
+            len = readlink(node->fts_accpath, buf, sizeof(buf) - 1);
+            if (len < 0) {
+                fprintf (stderr, "%s: cannot read\n", node->fts_accpath);
+                continue;
+            }
+            buf[len] = 0;
+            printf ("target %s\n", buf);
+            break;
+
+        default:
+            /* Ignore all other variants. */
+            continue;
+        }
+        printf ("mode %o\n", mode);
+        printf ("owner %u\n", st.st_uid);
+        printf ("group %u\n", st.st_gid);
+    }
+    fts_close (dir);
+}
+
 int main (int argc, char **argv)
 {
     int i, key;
@@ -437,7 +584,7 @@ int main (int argc, char **argv)
     const char *manifest = 0;
 
     for (;;) {
-        key = getopt_long (argc, argv, "vaxmMn:cfs:",
+        key = getopt_long (argc, argv, "vaxmMSn:cfs:",
             program_options, 0);
         if (key == -1)
             break;
@@ -464,6 +611,9 @@ int main (int argc, char **argv)
         case 'm':
             ++mount;
             break;
+        case 'S':
+            ++scan;
+            break;
         case 's':
             swap_kbytes = strtol (optarg, 0, 0);
             break;
@@ -486,7 +636,7 @@ int main (int argc, char **argv)
         (add && i >= argc) ||
         (newfs && i != argc-1 && i != argc-2) ||
         (mount && i != argc-2) ||
-        (extract + newfs + check + add + mount > 1) ||
+        (extract + newfs + check + add + mount + scan > 1) ||
         (newfs && kbytes < BSDFS_BSIZE * 10 / 1024))
     {
         print_help (argv[0]);
@@ -518,6 +668,12 @@ int main (int argc, char **argv)
         }
         fs_check (&fs);
         fs_close (&fs);
+        return 0;
+    }
+
+    if (scan) {
+        /* Create a manifest from directory contents. */
+        manifest_scan (argv[i]);
         return 0;
     }
 

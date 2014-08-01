@@ -29,68 +29,68 @@ extern int verbose;
 
 int fs_file_create (fs_t *fs, fs_file_t *file, const char *name, int mode)
 {
-	if (! fs_inode_by_name (fs, &file->inode, name, INODE_OP_CREATE, mode)) {
-		fprintf (stderr, "%s: inode open failed\n", name);
-		return 0;
-	}
-	if ((file->inode.mode & INODE_MODE_FMT) == INODE_MODE_FDIR) {
-		/* Cannot open directory on write. */
-		return 0;
-	}
-	fs_inode_truncate (&file->inode, 0);
-	fs_inode_save (&file->inode, 0);
-	file->writable = 1;
-	file->offset = 0;
-	return 1;
+    if (! fs_inode_by_name (fs, &file->inode, name, INODE_OP_CREATE, mode)) {
+        fprintf (stderr, "%s: inode open failed\n", name);
+        return 0;
+    }
+    if ((file->inode.mode & INODE_MODE_FMT) == INODE_MODE_FDIR) {
+        /* Cannot open directory on write. */
+        return 0;
+    }
+    fs_inode_truncate (&file->inode, 0);
+    fs_inode_save (&file->inode, 0);
+    file->writable = 1;
+    file->offset = 0;
+    return 1;
 }
 
 int fs_file_open (fs_t *fs, fs_file_t *file, const char *name, int wflag)
 {
-	if (! fs_inode_by_name (fs, &file->inode, name, INODE_OP_LOOKUP, 0)) {
-		fprintf (stderr, "%s: inode open failed\n", name);
-		return 0;
-	}
-	if (wflag && (file->inode.mode & INODE_MODE_FMT) == INODE_MODE_FDIR) {
-		/* Cannot open directory on write. */
-		return 0;
-	}
-	file->writable = wflag;
-	file->offset = 0;
-	return 1;
+    if (! fs_inode_by_name (fs, &file->inode, name, INODE_OP_LOOKUP, 0)) {
+        fprintf (stderr, "%s: inode open failed\n", name);
+        return 0;
+    }
+    if (wflag && (file->inode.mode & INODE_MODE_FMT) == INODE_MODE_FDIR) {
+        /* Cannot open directory on write. */
+        return 0;
+    }
+    file->writable = wflag;
+    file->offset = 0;
+    return 1;
 }
 
 int fs_file_read (fs_file_t *file, unsigned char *data, unsigned long bytes)
 {
-	if (! fs_inode_read (&file->inode, file->offset, data, bytes)) {
-		fprintf (stderr, "inode %d: file read failed, %lu bytes at offset %lu\n",
-			file->inode.number, bytes, file->offset);
-		return 0;
-	}
-	file->offset += bytes;
-	return 1;
+    if (! fs_inode_read (&file->inode, file->offset, data, bytes)) {
+        fprintf (stderr, "inode %d: file read failed, %lu bytes at offset %lu\n",
+            file->inode.number, bytes, file->offset);
+        return 0;
+    }
+    file->offset += bytes;
+    return 1;
 }
 
 int fs_file_write (fs_file_t *file, unsigned char *data, unsigned long bytes)
 {
-	if (! file->writable)
-		return 0;
-	if (! fs_inode_write (&file->inode, file->offset, data, bytes)) {
-		fprintf (stderr, "inode %d: file write failed, %lu bytes at offset %lu\n",
-			file->inode.number, bytes, file->offset);
-		return 0;
-	}
-	file->offset += bytes;
-	return 1;
+    if (! file->writable)
+        return 0;
+    if (! fs_inode_write (&file->inode, file->offset, data, bytes)) {
+        fprintf (stderr, "inode %d: file write failed, %lu bytes at offset %lu\n",
+            file->inode.number, bytes, file->offset);
+        return 0;
+    }
+    file->offset += bytes;
+    return 1;
 }
 
 int fs_file_close (fs_file_t *file)
 {
-	if (file->writable) {
-		if (! fs_inode_save (&file->inode, 0)) {
-			fprintf (stderr, "inode %d: file close failed\n",
-				file->inode.number);
-			return 0;
-		}
-	}
-	return 1;
+    if (file->writable) {
+        if (! fs_inode_save (&file->inode, 0)) {
+            fprintf (stderr, "inode %d: file close failed\n",
+                file->inode.number);
+            return 0;
+        }
+    }
+    return 1;
 }

@@ -32,6 +32,7 @@
 #include <getopt.h>
 #include <fts.h>
 #include "bsdfs.h"
+#include "manifest.h"
 
 int verbose;
 int extract;
@@ -434,153 +435,12 @@ void add_contents (fs_t *fs, const char *dirname, const char *manifest)
         printf ("TODO: use manifest '%s'\n", manifest);
 }
 
-/*
- * Compare two entries of file traverse scan.
- */
-static int ftsent_compare (const FTSENT **a, const FTSENT **b)
-{
-    return strcmp((*a)->fts_name, (*b)->fts_name);
-}
-
-/*
- * Store information about the link: dev, inode and path.
- */
-typedef struct _link_info_t link_info_t;
-struct _link_info_t {
-    link_info_t *next;
-    dev_t       dev;
-    ino_t       ino;
-    char        path[1];
-};
-
-static link_info_t *link_list;
-
-static void add_link (dev_t dev, ino_t ino, char *path)
-{
-    link_info_t *info;
-
-    info = (link_info_t*) malloc (strlen (path) + sizeof (link_info_t));
-    if (! info) {
-        fprintf (stderr, "%s: no memory for link info\n", path);
-        return;
-    }
-    info->dev = dev;
-    info->ino = ino;
-    strcpy (info->path, path);
-
-    /* Insert into the list. */
-    info->next = link_list;
-    link_list = info;
-}
-
-/*
- * Store information about the link: dev, inode and path.
- */
-static char *find_link (dev_t dev, ino_t ino)
-{
-    link_info_t *info = link_list;
-
-    for (info=link_list; info; info=info->next) {
-        if (info->dev == dev && info->ino == ino)
-            return info->path;
-    }
-    return 0;
-}
-
-/*
- * Create a manifest from directory contents.
- */
-void manifest_scan (const char *dirname)
-{
-    FTS *dir;
-    FTSENT *node;
-    char *argv[2], *path, *target, buf[BSDFS_BSIZE];
-    struct stat st;
-    int prefix_len, mode, len;
-
-    argv[0] = (char*) dirname;
-    argv[1] = 0;
-    dir = fts_open (argv, FTS_PHYSICAL | FTS_NOCHDIR, &ftsent_compare);
-    if (! dir) {
-        fprintf (stderr, "%s: cannot open\n", dirname);
-        return;
-    }
-    prefix_len = strlen (dirname);
-
-    printf ("# Manifest for directory %s\n", dirname);
-    for (;;) {
-        node = fts_read(dir);
-        if (! node)
-            break;
-
-        path = node->fts_path + prefix_len;
-        if (path[0] == 0)
-            continue;
-
-        st = *node->fts_statp;
-        mode = st.st_mode & 07777;
-
-        switch (node->fts_info) {
-        case FTS_D:
-            /* Directory. */
-            printf ("\ndir %s\n", path);
-            break;
-
-        case FTS_F:
-            /* Regular file. */
-            if (st.st_nlink > 1) {
-                /* Hard link to file. */
-                target = find_link (st.st_dev, st.st_ino);
-                if (target) {
-                    printf ("\nlink %s\n", path);
-                    printf ("target %s\n", target);
-                    continue;
-                }
-                add_link (st.st_dev, st.st_ino, path);
-            }
-            printf ("\nfile %s\n", path);
-            break;
-
-        case FTS_SL:
-            /* Symlink. */
-            if (st.st_nlink > 1) {
-                /* Hard link to symlink. */
-                target = find_link (st.st_dev, st.st_ino);
-                if (target) {
-                    printf ("\nlink %s\n", path);
-                    printf ("target %s\n", target);
-                    continue;
-                }
-                add_link (st.st_dev, st.st_ino, path);
-            }
-            printf ("\nsymlink %s\n", path);
-
-            /* Get the target of symlink. */
-            len = readlink(node->fts_accpath, buf, sizeof(buf) - 1);
-            if (len < 0) {
-                fprintf (stderr, "%s: cannot read\n", node->fts_accpath);
-                continue;
-            }
-            buf[len] = 0;
-            printf ("target %s\n", buf);
-            break;
-
-        default:
-            /* Ignore all other variants. */
-            continue;
-        }
-        printf ("mode %o\n", mode);
-        printf ("owner %u\n", st.st_uid);
-        printf ("group %u\n", st.st_gid);
-    }
-    fts_close (dir);
-}
-
 int main (int argc, char **argv)
 {
     int i, key;
     fs_t fs;
     fs_inode_t inode;
+    manifest_t m;
     const char *manifest = 0;
 
     for (;;) {
@@ -673,7 +533,11 @@ int main (int argc, char **argv)
 
     if (scan) {
         /* Create a manifest from directory contents. */
-        manifest_scan (argv[i]);
+        if (! manifest_scan (&m, argv[i])) {
+            fprintf (stderr, "%s: cannot read\n", argv[i]);
+            return -1;
+        }
+        manifest_print (&m);
         return 0;
     }
 

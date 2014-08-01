@@ -6,9 +6,6 @@ owner 0
 group 0
 dirmode 775
 filemode 664
-ctime now
-mtime now
-atime now
 
 dir /tmp
 

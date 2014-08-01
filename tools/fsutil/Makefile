@@ -1,7 +1,8 @@
 CC		= gcc -g
 CFLAGS		= -O -Wall
 DESTDIR		= /usr/local
-OBJS		= fsutil.o superblock.o block.c inode.o create.o check.o file.o mount.o
+OBJS		= fsutil.o superblock.o block.c inode.o create.o check.o \
+                  file.o mount.o manifest.o
 PROG		= fsutil
 
 # For Mac OS X
@@ -36,6 +37,7 @@ block.o: block.c bsdfs.h
 check.o: check.c bsdfs.h
 create.o: create.c bsdfs.h
 file.o: file.c bsdfs.h
-fsutil.o: fsutil.c bsdfs.h
+fsutil.o: fsutil.c bsdfs.h manifest.h
 inode.o: inode.c bsdfs.h
+manifest.o: manifest.c bsdfs.h manifest.h
 superblock.o: superblock.c bsdfs.h

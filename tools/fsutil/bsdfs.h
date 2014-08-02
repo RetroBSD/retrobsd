@@ -185,6 +185,10 @@ int fs_inode_write (fs_inode_t *inode, unsigned long offset,
 int fs_inode_alloc (fs_t *fs, fs_inode_t *inode);
 int fs_inode_by_name (fs_t *fs, fs_inode_t *inode, const char *name,
     fs_op_t op, int mode);
+int fs_inode_lookup (fs_t *fs, fs_inode_t *inode, const char *name);
+int fs_inode_create (fs_t *fs, fs_inode_t *inode, const char *name, int mode);
+int fs_inode_delete (fs_t *fs, fs_inode_t *inode, const char *name);
+int fs_inode_link (fs_t *fs, fs_inode_t *inode, const char *name, int mode);
 int inode_build_list (fs_t *fs);
 
 int fs_write_block (fs_t *fs, unsigned bnum, unsigned char *data);

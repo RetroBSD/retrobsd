@@ -851,3 +851,44 @@ int fs_inode_alloc (fs_t *fs, fs_inode_t *inode)
         }
     }
 }
+
+/*
+ * Find inode by name.
+ * Return 0 on any error.
+ * Return 1 when the inode was found.
+ */
+int fs_inode_lookup (fs_t *fs, fs_inode_t *inode, const char *name)
+{
+    return fs_inode_by_name (fs, inode, name, INODE_OP_LOOKUP, 0);
+}
+
+/*
+ * Create inode by name.
+ * Return 0 on any error.
+ * Return 1 when the inode was found.
+ * Return 2 when the inode was created.
+ */
+int fs_inode_create (fs_t *fs, fs_inode_t *inode, const char *name, int mode)
+{
+    return fs_inode_by_name (fs, inode, name, INODE_OP_CREATE, mode);
+}
+
+/*
+ * Delete inode by name.
+ * Return 0 on any error.
+ * Return 2 when the inode was created.
+ */
+int fs_inode_delete (fs_t *fs, fs_inode_t *inode, const char *name)
+{
+    return fs_inode_by_name (fs, inode, name, INODE_OP_DELETE, 0);
+}
+
+/*
+ * Create a new link for the inode.
+ * Return 0 on any error.
+ * Return 2 when the inode was linked.
+ */
+int fs_inode_link (fs_t *fs, fs_inode_t *inode, const char *name, int inum)
+{
+    return fs_inode_by_name (fs, inode, name, INODE_OP_LINK, inum);
+}

@@ -29,7 +29,7 @@ extern int verbose;
 
 int fs_file_create (fs_t *fs, fs_file_t *file, const char *name, int mode)
 {
-    if (! fs_inode_by_name (fs, &file->inode, name, INODE_OP_CREATE, mode)) {
+    if (! fs_inode_create (fs, &file->inode, name, mode)) {
         fprintf (stderr, "%s: inode open failed\n", name);
         return 0;
     }
@@ -46,7 +46,7 @@ int fs_file_create (fs_t *fs, fs_file_t *file, const char *name, int mode)
 
 int fs_file_open (fs_t *fs, fs_file_t *file, const char *name, int wflag)
 {
-    if (! fs_inode_by_name (fs, &file->inode, name, INODE_OP_LOOKUP, 0)) {
+    if (! fs_inode_lookup (fs, &file->inode, name)) {
         fprintf (stderr, "%s: inode open failed\n", name);
         return 0;
     }

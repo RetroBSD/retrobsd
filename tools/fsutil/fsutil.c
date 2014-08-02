@@ -309,7 +309,7 @@ void add_directory (fs_t *fs, char *name, int mode, int owner, int group)
         *p = 0;
     else
         *buf = 0;
-    if (! fs_inode_by_name (fs, &parent, buf, INODE_OP_LOOKUP, 0)) {
+    if (! fs_inode_lookup (fs, &parent, buf)) {
         fprintf (stderr, "%s: cannot open directory\n", buf);
         return;
     }
@@ -317,7 +317,7 @@ void add_directory (fs_t *fs, char *name, int mode, int owner, int group)
     /* Create directory. */
     mode &= 07777;
     mode |= INODE_MODE_FDIR;
-    int done = fs_inode_by_name (fs, &dir, name, INODE_OP_CREATE, mode);
+    int done = fs_inode_create (fs, &dir, name, mode);
     if (! done) {
         fprintf (stderr, "%s: directory inode create failed\n", name);
         return;
@@ -333,7 +333,7 @@ void add_directory (fs_t *fs, char *name, int mode, int owner, int group)
     /* Make parent link '..' */
     strcpy (buf, name);
     strcat (buf, "/..");
-    if (! fs_inode_by_name (fs, &dir, buf, INODE_OP_LINK, parent.number)) {
+    if (! fs_inode_link (fs, &dir, buf, parent.number)) {
         fprintf (stderr, "%s: dotdot link failed\n", name);
         return;
     }
@@ -356,7 +356,7 @@ void add_device (fs_t *fs, char *name, int mode, int owner, int group,
 
     mode &= 07777;
     mode |= (type == 'b') ? INODE_MODE_FBLK : INODE_MODE_FCHR;
-    if (! fs_inode_by_name (fs, &dev, name, INODE_OP_CREATE, mode)) {
+    if (! fs_inode_create (fs, &dev, name, mode)) {
         fprintf (stderr, "%s: device inode create failed\n", name);
         return;
     }
@@ -460,7 +460,7 @@ void add_hardlink (fs_t *fs, const char *path, const char *link)
     fs_inode_t source, target;
 
     /* Find source. */
-    if (! fs_inode_by_name (fs, &source, link, INODE_OP_LOOKUP, 0)) {
+    if (! fs_inode_lookup (fs, &source, link)) {
         fprintf (stderr, "%s: link source not found\n", link);
         return;
     }
@@ -470,7 +470,7 @@ void add_hardlink (fs_t *fs, const char *path, const char *link)
     }
 
     /* Create target link. */
-    if (! fs_inode_by_name (fs, &target, path, INODE_OP_LINK, source.number)) {
+    if (! fs_inode_link (fs, &target, path, source.number)) {
         fprintf (stderr, "%s: link failed\n", path);
         return;
     }

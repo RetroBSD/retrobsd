@@ -4,13 +4,13 @@
 default
 owner 0
 group 0
-dirmode 775
-filemode 664
+dirmode 0775
+filemode 0664
 
 dir /tmp
 
 file /etc/passwd
-mode 444
+mode 0444
 
 link /etc/aliases
 target mail/aliases

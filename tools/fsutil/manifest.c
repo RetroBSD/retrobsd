@@ -23,6 +23,7 @@
  */
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <fts.h>
 #include <sys/stat.h>
@@ -96,8 +97,8 @@ static char *find_link (dev_t dev, ino_t ino)
 /*
  * Add new entry to the manifest.
  */
-static void add_entry (manifest_t *m, int filetype,
-    char *path, char *link, int mode, int owner, int group)
+static void add_entry (manifest_t *m, int filetype, char *path, char *link,
+    int mode, int owner, int group, int majr, int minr)
 {
     entry_t *e;
 
@@ -112,8 +113,8 @@ static void add_entry (manifest_t *m, int filetype,
     e->mode = mode;
     e->owner = owner;
     e->group = group;
-    e->major = 0;
-    e->minor = 0;
+    e->major = majr;
+    e->minor = minr;
     e->link = 0;
     e->link = link ? strdup (link) : 0;
     strcpy (e->path, path);
@@ -150,8 +151,8 @@ int manifest_scan (manifest_t *m, const char *dirname)
     /* Clear manifest header. */
     m->first = 0;
     m->last = 0;
-    m->filemode = 0;
-    m->dirmode = 0;
+    m->filemode = 0664;
+    m->dirmode = 0775;
     m->owner = 0;
     m->group = 0;
 
@@ -182,7 +183,7 @@ int manifest_scan (manifest_t *m, const char *dirname)
         switch (node->fts_info) {
         case FTS_D:
             /* Directory. */
-            add_entry (m, 'd', path, 0, mode, st.st_uid, st.st_gid);
+            add_entry (m, 'd', path, 0, mode, st.st_uid, st.st_gid, 0, 0);
             break;
 
         case FTS_F:
@@ -191,12 +192,12 @@ int manifest_scan (manifest_t *m, const char *dirname)
                 /* Hard link to file. */
                 target = find_link (st.st_dev, st.st_ino);
                 if (target) {
-                    add_entry (m, 'l', path, target, mode, st.st_uid, st.st_gid);
+                    add_entry (m, 'l', path, target, mode, st.st_uid, st.st_gid, 0, 0);
                     break;
                 }
                 keep_link (st.st_dev, st.st_ino, path);
             }
-            add_entry (m, 'f', path, 0, mode, st.st_uid, st.st_gid);
+            add_entry (m, 'f', path, 0, mode, st.st_uid, st.st_gid, 0, 0);
             break;
 
         case FTS_SL:
@@ -205,7 +206,7 @@ int manifest_scan (manifest_t *m, const char *dirname)
                 /* Hard link to symlink. */
                 target = find_link (st.st_dev, st.st_ino);
                 if (target) {
-                    add_entry (m, 'l', path, target, mode, st.st_uid, st.st_gid);
+                    add_entry (m, 'l', path, target, mode, st.st_uid, st.st_gid, 0, 0);
                     break;
                 }
                 keep_link (st.st_dev, st.st_ino, path);
@@ -217,7 +218,7 @@ int manifest_scan (manifest_t *m, const char *dirname)
                 break;
             }
             buf[len] = 0;
-            add_entry (m, 's', path, buf, mode, st.st_uid, st.st_gid);
+            add_entry (m, 's', path, buf, mode, st.st_uid, st.st_gid, 0, 0);
             break;
 
         default:
@@ -277,7 +278,7 @@ void manifest_print (manifest_t *m)
             /* Ignore all other variants. */
             continue;
         }
-        printf ("mode %o\n", mode);
+        printf ("mode %#o\n", mode);
         printf ("owner %u\n", owner);
         printf ("group %u\n", group);
     }
@@ -289,8 +290,212 @@ void manifest_print (manifest_t *m)
  */
 int manifest_load (manifest_t *m, const char *filename)
 {
-    //TODO
-    return 0;
+    FILE *fd;
+    char line [1024], *p, *cmd = 0, *arg = 0, *path = 0, *target = 0;
+    int type = 0, default_dirmode = 0775, default_filemode = 0664;
+    int default_owner = 0, default_group = 0;
+    int mode = -1, owner = -1, group = -1, majr = -1, minr = -1;
+
+    /* Clear manifest header. */
+    m->first = 0;
+    m->last = 0;
+    m->filemode = 0664;
+    m->dirmode = 0775;
+    m->owner = 0;
+    m->group = 0;
+
+    /* Open file. */
+    fd = fopen (filename, "r");
+    if (! fd) {
+        perror (filename);
+        return 0;
+    }
+
+    /* Parse the manifest file. */
+    while (fgets (line, sizeof(line), fd)) {
+        /* Remove trailing spaces. */
+        p = line + strlen(line);
+        while (p-- >line && (*p==' ' || *p == '\t' || *p == '\r' || *p == '\n'))
+            *p = 0;
+
+        /* Remove spaces at line beginning. */
+        p = line;
+        while (*p==' ' || *p == '\t' || *p == '\r' || *p == '\n')
+            ++p;
+        if (*p == 0)
+            continue;
+
+        /* Skip comments. */
+        if (*p == '#')
+            continue;
+
+        /* Split into command and agrument. */
+        cmd = p;
+        p = strchr (p, ' ');
+        if (p) {
+            *p = 0;
+            arg = p+1;
+        } else {
+            arg = "";
+        }
+
+        /*
+         * Process options.
+         */
+        if (strcmp ("dirmode", cmd) == 0) {
+            if (type != 0) {
+notdef:         fprintf (stderr, "%s: command '%s' allowed only in default section\n", filename, cmd);
+                fclose (fd);
+                return 0;
+            }
+            default_dirmode = strtoul (arg, 0, 0);
+            continue;
+        }
+        if (strcmp ("filemode", cmd) == 0) {
+            if (type != 0)
+                goto notdef;
+            default_filemode = strtoul (arg, 0, 0);
+            continue;
+        }
+        if (strcmp ("owner", cmd) == 0) {
+            if (type != 0)
+                owner = strtoul (arg, 0, 0);
+            else
+                default_owner = strtoul (arg, 0, 0);
+            continue;
+        }
+        if (strcmp ("group", cmd) == 0) {
+            if (type != 0)
+                group = strtoul (arg, 0, 0);
+            else
+                default_group = strtoul (arg, 0, 0);
+            continue;
+        }
+        if (strcmp ("mode", cmd) == 0) {
+            if (type == 0) {
+baddef:         fprintf (stderr, "%s: command '%s' not allowed in default section\n", filename, cmd);
+                fclose (fd);
+                return 0;
+            }
+            mode = strtoul (arg, 0, 0);
+            continue;
+        }
+        if (strcmp ("major", cmd) == 0) {
+            if (type == 0)
+                goto baddef;
+            majr = strtoul (arg, 0, 0);
+            continue;
+        }
+        if (strcmp ("minor", cmd) == 0) {
+            if (type == 0)
+                goto baddef;
+            minr = strtoul (arg, 0, 0);
+            continue;
+        }
+        if (strcmp ("target", cmd) == 0) {
+            if (type != 'l' && type != 's') {
+                fprintf (stderr, "%s: command '%s' allowed only for links\n", filename, cmd);
+                fclose (fd);
+                return 0;
+            }
+            target = strdup (arg);
+            continue;
+        }
+
+        /*
+         * End of section: add new object.
+         */
+        if (type != 0) {
+newobj:     /* Check parameters. */
+            if ((type == 'l' || type == 's') && ! target) {
+                fprintf (stderr, "%s: target missing for link '%s'\n", filename, path);
+                fclose (fd);
+                return 0;
+            }
+            if ((type == 'b' || type == 'c') && majr == -1) {
+                fprintf (stderr, "%s: major index missing for device '%s'\n", filename, path);
+                fclose (fd);
+                return 0;
+            }
+            if ((type == 'b' || type == 'c') && minr == -1) {
+                fprintf (stderr, "%s: minor index missing for device '%s'\n", filename, path);
+                fclose (fd);
+                return 0;
+            }
+            if (mode == -1)
+                mode = (type == 'd') ? default_dirmode : default_filemode;
+            if (owner == -1)
+                owner = default_owner;
+            if (group == -1)
+                group = default_group;
+
+            /* Create new object. */
+            add_entry (m, type, path, target, mode, owner, group, majr, minr);
+
+            /* Set parameters to defaults. */
+            type = 0;
+            free (path);
+            path = 0;
+            if (target) {
+                free (target);
+                target = 0;
+            }
+            mode = -1;
+            owner = -1;
+            group = -1;
+            majr = -1;
+            minr = -1;
+            if (! fd) {
+                /* Last object done. */
+                return 1;
+            }
+        }
+
+        /*
+         * Start new section.
+         */
+        if (strcmp ("default", cmd) == 0) {
+            type = 0;
+        }
+        else if (strcmp ("dir", cmd) == 0) {
+            type = 'd';
+            path = strdup (arg);
+        }
+        else if (strcmp ("file", cmd) == 0) {
+            type = 'f';
+            path = strdup (arg);
+        }
+        else if (strcmp ("link", cmd) == 0) {
+            type = 'l';
+            path = strdup (arg);
+        }
+        else if (strcmp ("symlink", cmd) == 0) {
+            type = 's';
+            path = strdup (arg);
+        }
+        else if (strcmp ("bdev", cmd) == 0) {
+            type = 'b';
+            path = strdup (arg);
+        }
+        else if (strcmp ("cdev", cmd) == 0) {
+            type = 'c';
+            path = strdup (arg);
+        }
+        else {
+            fprintf (stderr, "%s: unknown command '%s'\n", filename, cmd);
+            fclose (fd);
+            return 0;
+        }
+    }
+
+    /* Done. */
+    fclose (fd);
+    if (type != 0) {
+        /* Create last object. */
+        fd = 0;
+        goto newobj;
+    }
+    return 1;
 }
 
 /*

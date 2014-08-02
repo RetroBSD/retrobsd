@@ -79,16 +79,14 @@ static void print_help (char *progname)
     printf ("\n");
     printf ("Usage:\n");
     printf ("  %s [--verbose] filesys.img\n", progname);
-    printf ("  %s --add filesys.img files...\n", progname);
-    printf ("  %s --extract filesys.img\n", progname);
     printf ("  %s --check [--fix] filesys.img\n", progname);
     printf ("  %s --new=kbytes [--swap=kbytes] [--manifest=file] filesys.img [dir]\n", progname);
     printf ("  %s --mount filesys.img dir\n", progname);
+    printf ("  %s --add filesys.img files...\n", progname);
+    printf ("  %s --extract filesys.img\n", progname);
     printf ("  %s --scan dir > file\n", progname);
     printf ("\n");
     printf ("Options:\n");
-    printf ("  -a, --add           Add files to filesystem.\n");
-    printf ("  -x, --extract       Extract all files.\n");
     printf ("  -c, --check         Check filesystem, use -c -f to fix.\n");
     printf ("  -f, --fix           Fix bugs in filesystem.\n");
     printf ("  -n NUM, --new=NUM   Create new filesystem, size in kbytes.\n");
@@ -96,6 +94,8 @@ static void print_help (char *progname)
     printf ("  -s NUM, --swap=NUM  Size of swap area in kbytes.\n");
     printf ("  -M file, --manifest=file  List of files and attributes to create.\n");
     printf ("  -m, --mount         Mount the filesystem.\n");
+    printf ("  -a, --add           Add files to filesystem.\n");
+    printf ("  -x, --extract       Extract all files.\n");
     printf ("  -S, --scan          Create a manifest from directory contents.\n");
     printf ("  -v, --verbose       Be verbose.\n");
     printf ("  -V, --version       Print version information and then exit.\n");
@@ -297,7 +297,7 @@ void scanner (fs_inode_t *dir, fs_inode_t *inode,
 /*
  * Create a directory.
  */
-void add_directory (fs_t *fs, char *name)
+void add_directory (fs_t *fs, char *name, int mode, int owner, int group)
 {
     fs_inode_t dir, parent;
     char buf [BSDFS_BSIZE], *p;
@@ -315,7 +315,9 @@ void add_directory (fs_t *fs, char *name)
     }
 
     /* Create directory. */
-    int done = fs_inode_by_name (fs, &dir, name, INODE_OP_CREATE, INODE_MODE_FDIR | 0777);
+    mode &= 07777;
+    mode |= INODE_MODE_FDIR;
+    int done = fs_inode_by_name (fs, &dir, name, INODE_OP_CREATE, mode);
     if (! done) {
         fprintf (stderr, "%s: directory inode create failed\n", name);
         return;
@@ -324,7 +326,9 @@ void add_directory (fs_t *fs, char *name)
         /* The directory already existed. */
         return;
     }
-    fs_inode_save (&dir, 0);
+    dir.uid = owner;
+    dir.gid = group;
+    fs_inode_save (&dir, 1);
 
     /* Make parent link '..' */
     strcpy (buf, name);
@@ -345,41 +349,142 @@ void add_directory (fs_t *fs, char *name)
 /*
  * Create a device node.
  */
-void add_device (fs_t *fs, char *name, char *spec)
+void add_device (fs_t *fs, char *name, int mode, int owner, int group,
+    int type, int majr, int minr)
 {
     fs_inode_t dev;
-    int majr, minr;
-    char type;
 
-    if (sscanf (spec, "%c%d:%d", &type, &majr, &minr) != 3 ||
-        (type != 'c' && type != 'b') ||
-        majr < 0 || majr > 255 || minr < 0 || minr > 255) {
-        fprintf (stderr, "%s: invalid device specification\n", spec);
-        fprintf (stderr, "expected c<major>:<minor> or b<major>:<minor>\n");
-        return;
-    }
-    if (! fs_inode_by_name (fs, &dev, name, INODE_OP_CREATE, 0666 |
-        ((type == 'b') ? INODE_MODE_FBLK : INODE_MODE_FCHR))) {
+    mode &= 07777;
+    mode |= (type == 'b') ? INODE_MODE_FBLK : INODE_MODE_FCHR;
+    if (! fs_inode_by_name (fs, &dev, name, INODE_OP_CREATE, mode)) {
         fprintf (stderr, "%s: device inode create failed\n", name);
         return;
     }
     dev.addr[1] = majr << 8 | minr;
+    dev.uid = owner;
+    dev.gid = group;
     time (&dev.mtime);
     fs_inode_save (&dev, 1);
 }
 
 /*
- * Copy file to filesystem.
- * When name is ended by slash as "name/", directory is created.
+ * Copy regular file to filesystem.
  */
-void add_file (fs_t *fs, char *name)
+void add_file (fs_t *fs, const char *path, const char *dirname,
+    int mode, int owner, int group)
 {
     fs_file_t file;
     FILE *fd;
+    char accpath [BSDFS_BSIZE];
     unsigned char data [BSDFS_BSIZE];
     struct stat st;
-    char *p;
     int len;
+
+    if (dirname && *dirname) {
+        /* Concatenate directory name and file name. */
+        strcpy (accpath, dirname);
+        len = strlen (accpath);
+        if (accpath[len-1] != '/' && path[0] != '/')
+            strcat (accpath, "/");
+        strcat (accpath, path);
+    } else {
+        /* Use filename relative to current directory. */
+        strcpy (accpath, path);
+    }
+    fd = fopen (accpath, "r");
+    if (! fd) {
+        perror (accpath);
+        return;
+    }
+    fstat (fileno(fd), &st);
+    if (mode == -1)
+        mode = st.st_mode;
+    mode &= 07777;
+    mode |= INODE_MODE_FREG;
+    if (! fs_file_create (fs, &file, path, mode)) {
+        fprintf (stderr, "%s: cannot create\n", path);
+        return;
+    }
+    for (;;) {
+        len = fread (data, 1, sizeof (data), fd);
+/*      printf ("read %d bytes from %s\n", len, accpath);*/
+        if (len < 0)
+            perror (accpath);
+        if (len <= 0)
+            break;
+        if (! fs_file_write (&file, data, len)) {
+            fprintf (stderr, "%s: write error\n", path);
+            break;
+        }
+    }
+    file.inode.uid = owner;
+    file.inode.gid = group;
+    file.inode.mtime = st.st_mtime;
+    file.inode.dirty = 1;
+    fs_file_close (&file);
+    fclose (fd);
+}
+
+/*
+ * Create a symlink.
+ */
+void add_symlink (fs_t *fs, const char *path, const char *link,
+    int mode, int owner, int group)
+{
+    fs_file_t file;
+    int len;
+
+    mode &= 07777;
+    mode |= INODE_MODE_FLNK;
+    if (! fs_file_create (fs, &file, path, mode)) {
+        fprintf (stderr, "%s: cannot create\n", path);
+        return;
+    }
+    len = strlen (link);
+    if (! fs_file_write (&file, (unsigned char*) link, len)) {
+        fprintf (stderr, "%s: write error\n", path);
+        return;
+    }
+    file.inode.uid = owner;
+    file.inode.gid = group;
+    time (&file.inode.mtime);
+    file.inode.dirty = 1;
+    fs_file_close (&file);
+}
+
+/*
+ * Create a hard link.
+ */
+void add_hardlink (fs_t *fs, const char *path, const char *link)
+{
+    fs_inode_t source, target;
+
+    /* Find source. */
+    if (! fs_inode_by_name (fs, &source, link, INODE_OP_LOOKUP, 0)) {
+        fprintf (stderr, "%s: link source not found\n", link);
+        return;
+    }
+    if ((source.mode & INODE_MODE_FMT) == INODE_MODE_FDIR) {
+        fprintf (stderr, "%s: cannot link directories\n", link);
+        return;
+    }
+
+    /* Create target link. */
+    if (! fs_inode_by_name (fs, &target, path, INODE_OP_LINK, source.number)) {
+        fprintf (stderr, "%s: link failed\n", path);
+        return;
+    }
+}
+
+/*
+ * Create a file/device/directory in the filesystem.
+ * When name is ended by slash as "name/", directory is created.
+ */
+void add_object (fs_t *fs, char *name)
+{
+    int majr, minr;
+    char type;
+    char *p;
 
     if (verbose) {
         printf ("%s\n", name);
@@ -387,41 +492,23 @@ void add_file (fs_t *fs, char *name)
     p = strrchr (name, '/');
     if (p && p[1] == 0) {
         *p = 0;
-        add_directory (fs, name);
+        add_directory (fs, name, 0777, 0, 0);
         return;
     }
     p = strrchr (name, '!');
     if (p) {
         *p++ = 0;
-        add_device (fs, name, p);
-        return;
-    }
-    fd = fopen (name, "r");
-    if (! fd) {
-        perror (name);
-        return;
-    }
-    stat (name, &st);
-    if (! fs_file_create (fs, &file, name, st.st_mode)) {
-        fprintf (stderr, "%s: cannot create\n", name);
-        return;
-    }
-    for (;;) {
-        len = fread (data, 1, sizeof (data), fd);
-/*      printf ("read %d bytes from %s\n", len, name);*/
-        if (len < 0)
-            perror (name);
-        if (len <= 0)
-            break;
-        if (! fs_file_write (&file, data, len)) {
-            fprintf (stderr, "%s: write error\n", name);
-            break;
+        if (sscanf (p, "%c%d:%d", &type, &majr, &minr) != 3 ||
+            (type != 'c' && type != 'b') ||
+            majr < 0 || majr > 255 || minr < 0 || minr > 255) {
+            fprintf (stderr, "%s: invalid device specification\n", p);
+            fprintf (stderr, "expected c<major>:<minor> or b<major>:<minor>\n");
+            return;
         }
+        add_device (fs, name, 0666, 0, 0, type, majr, minr);
+        return;
     }
-    file.inode.mtime = st.st_mtime;
-    file.inode.dirty = 1;
-    fs_file_close (&file);
-    fclose (fd);
+    add_file (fs, name, 0, -1, 0, 0);
 }
 
 /*
@@ -430,9 +517,52 @@ void add_file (fs_t *fs, char *name)
  */
 void add_contents (fs_t *fs, const char *dirname, const char *manifest)
 {
-    printf ("TODO: add contents from directory '%s'\n", dirname);
-    if (manifest)
-        printf ("TODO: use manifest '%s'\n", manifest);
+    manifest_t m;
+    void *cursor;
+    char *path, *link;
+    int filetype, mode, owner, group, majr, minr;
+
+    if (manifest) {
+        /* Load manifest from file. */
+        if (! manifest_load (&m, manifest)) {
+            fprintf (stderr, "%s: cannot read\n", manifest);
+            return;
+        }
+    } else {
+        /* Create manifest from directory contents. */
+        if (! manifest_scan (&m, dirname)) {
+            fprintf (stderr, "%s: cannot read\n", dirname);
+            return;
+        }
+    }
+
+    /* For every file in the manifest,
+     * add it to the target filesystem. */
+    cursor = 0;
+    while ((filetype = manifest_iterate (&m, &cursor, &path, &link, &mode,
+        &owner, &group, &majr, &minr)) != 0)
+    {
+        switch (filetype) {
+        case 'd':
+            add_directory (fs, path, mode, owner, group);
+            break;
+        case 'f':
+            add_file (fs, path, dirname, mode, owner, group);
+            break;
+        case 'l':
+            add_hardlink (fs, path, link);
+            break;
+        case 's':
+            add_symlink (fs, path, link, mode, owner, group);
+            break;
+        case 'b':
+            add_device (fs, path, mode, owner, group, 'b', majr, minr);
+            break;
+        case 'c':
+            add_device (fs, path, mode, owner, group, 'c', majr, minr);
+            break;
+        }
+    }
 }
 
 int main (int argc, char **argv)
@@ -561,7 +691,7 @@ int main (int argc, char **argv)
     if (add) {
         /* Add files i+1..argc-1 to filesystem. */
         while (++i < argc)
-            add_file (&fs, argv[i]);
+            add_object (&fs, argv[i]);
         fs_sync (&fs, 0);
         fs_close (&fs);
         return 0;

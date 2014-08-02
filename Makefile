@@ -27,9 +27,9 @@ DUINOMITEEUART  = sys/pic32/duinomite-e-uart/DUINOMITE-E-UART
 PINGUINO        = sys/pic32/pinguino-micro/PINGUINO-MICRO
 DIP             = sys/pic32/dip/DIP
 BAREMETAL       = sys/pic32/baremetal/BAREMETAL
-RETROONE	    = sys/pic32/retroone/RETROONE
-FUBARINO	    = sys/pic32/fubarino/FUBARINO
-FUBARINOBIG	    = sys/pic32/fubarino/FUBARINO-UART2CONS-UART1-SRAMC
+RETROONE        = sys/pic32/retroone/RETROONE
+FUBARINO        = sys/pic32/fubarino/FUBARINO
+FUBARINOBIG     = sys/pic32/fubarino/FUBARINO-UART2CONS-UART1-SRAMC
 MMBMX7          = sys/pic32/mmb-mx7/MMB-MX7
 
 # Select target board
@@ -100,19 +100,15 @@ BDEVS           = dev/rd0!b0:0 dev/rd0a!b0:1 dev/rd0b!b0:2 dev/rd0c!b0:3 dev/rd0
 BDEVS           += dev/rd1!b1:0 dev/rd1a!b1:1 dev/rd1b!b1:2 dev/rd1c!b1:3 dev/rd1d!b1:4
 BDEVS           += dev/rd2!b2:0 dev/rd2a!b2:1 dev/rd2b!b2:2 dev/rd2c!b2:3 dev/rd2d!b2:4
 BDEVS           += dev/rd3!b3:0 dev/rd3a!b3:1 dev/rd3b!b3:2 dev/rd3c!b3:3 dev/rd3d!b3:4
-BDEVS		    += dev/swap!b4:64 dev/swap0!b4:0 dev/swap1!b4:1 dev/swap2!b4:2
+BDEVS           += dev/swap!b4:64 dev/swap0!b4:0 dev/swap1!b4:1 dev/swap2!b4:2
 
-D_CONSOLE        = dev/console!c0:0
-D_MEM		     = dev/mem!c1:0 dev/kmem!c1:1 dev/null!c1:2 dev/zero!c1:3
-D_TTY		     = dev/tty!c2:0
-D_FD		     = dev/stdin!c3:0 dev/stdout!c3:1 dev/stderr!c3:2
-D_TEMP           = dev/temp0!c4:0 dev/temp1!c4:1 dev/temp2!c4:2
+D_CONSOLE       = dev/console!c0:0
+D_MEM           = dev/mem!c1:0 dev/kmem!c1:1 dev/null!c1:2 dev/zero!c1:3
+D_TTY           = dev/tty!c2:0
+D_FD            = dev/stdin!c3:0 dev/stdout!c3:1 dev/stderr!c3:2
+D_TEMP          = dev/temp0!c4:0 dev/temp1!c4:1 dev/temp2!c4:2
 
-U_DIRS           = $(addsuffix /,$(shell find u -type d ! -path '*/.svn*'))
-U_FILES          = $(shell find u -type f ! -path '*/.svn/*')
-#U_ALL            = $(patsubst u/%,%,$(U_DIRS) $(U_FILES))
-
-CDEVS            = $(D_CONSOLE) $(D_MEM) $(D_TTY) $(D_FD) $(D_TEMP)
+CDEVS           = $(D_CONSOLE) $(D_MEM) $(D_TTY) $(D_FD) $(D_TEMP)
 
 all:            tools build kernel
 		$(MAKE) fs

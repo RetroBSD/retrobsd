@@ -234,7 +234,7 @@ int manifest_scan (manifest_t *m, const char *dirname)
  */
 void manifest_print (manifest_t *m)
 {
-    void *cursor = 0;
+    void *cursor;
     char *path, *link;
     int filetype, mode, owner, group, major, minor;
 

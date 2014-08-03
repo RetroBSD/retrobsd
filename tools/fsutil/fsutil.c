@@ -75,7 +75,7 @@ static void print_help (char *progname)
 
     printf ("%s\n", program_version);
     printf ("This program is free software; it comes with ABSOLUTELY NO WARRANTY;\n"
-            "see the GNU General Public License for more details.\n");
+            "see the BSD 3-Clause License for more details.\n");
     printf ("\n");
     printf ("Usage:\n");
     printf ("  %s [--verbose] filesys.img\n", progname);
@@ -474,6 +474,8 @@ void add_hardlink (fs_t *fs, const char *path, const char *link)
         fprintf (stderr, "%s: link failed\n", path);
         return;
     }
+    source.nlink++;
+    fs_inode_save (&source, 1);
 }
 
 /*
@@ -521,6 +523,7 @@ void add_contents (fs_t *fs, const char *dirname, const char *manifest)
     void *cursor;
     char *path, *link;
     int filetype, mode, owner, group, majr, minr;
+    int ndirs = 0, nfiles = 0, nlinks = 0, nsymlinks = 0, ndevs = 0;
 
     if (manifest) {
         /* Load manifest from file. */
@@ -545,24 +548,34 @@ void add_contents (fs_t *fs, const char *dirname, const char *manifest)
         switch (filetype) {
         case 'd':
             add_directory (fs, path, mode, owner, group);
+            ndirs++;
             break;
         case 'f':
             add_file (fs, path, dirname, mode, owner, group);
+            nfiles++;
             break;
         case 'l':
             add_hardlink (fs, path, link);
+            nlinks++;
             break;
         case 's':
             add_symlink (fs, path, link, mode, owner, group);
+            nsymlinks++;
             break;
         case 'b':
             add_device (fs, path, mode, owner, group, 'b', majr, minr);
+            ndevs++;
             break;
         case 'c':
             add_device (fs, path, mode, owner, group, 'c', majr, minr);
+            ndevs++;
             break;
         }
     }
+    fs_sync (fs, 0);
+    fs_close (fs);
+    printf ("Installed %u directories, %u files, %u devices, %u links, %u symlinks\n",
+        ndirs, nfiles, ndevs, nlinks, nsymlinks);
 }
 
 int main (int argc, char **argv)
@@ -574,7 +587,7 @@ int main (int argc, char **argv)
     const char *manifest = 0;
 
     for (;;) {
-        key = getopt_long (argc, argv, "vaxmMSn:cfs:",
+        key = getopt_long (argc, argv, "vaxmSn:cfs:M:",
             program_options, 0);
         if (key == -1)
             break;
@@ -622,19 +635,23 @@ int main (int argc, char **argv)
         }
     }
     i = optind;
-    if ((! add && ! mount && ! newfs && i != argc-1) ||
-        (add && i >= argc) ||
-        (newfs && i != argc-1 && i != argc-2) ||
-        (mount && i != argc-2) ||
-        (extract + newfs + check + add + mount + scan > 1) ||
-        (newfs && kbytes < BSDFS_BSIZE * 10 / 1024))
-    {
+    if (extract + newfs + check + add + mount + scan > 1) {
         print_help (argv[0]);
         return -1;
     }
 
     if (newfs) {
         /* Create new filesystem. */
+        if (i != argc-1 && i != argc-2) {
+            print_help (argv[0]);
+            return -1;
+        }
+        if (kbytes < BSDFS_BSIZE * 10 / 1024) {
+            /* Need at least 10 blocks. */
+            fprintf (stderr, "%s: too small\n", argv[i]);
+            return -1;
+        }
+
         if (! fs_create (&fs, argv[i], kbytes, swap_kbytes)) {
             fprintf (stderr, "%s: cannot create filesystem\n", argv[i]);
             return -1;
@@ -652,6 +669,10 @@ int main (int argc, char **argv)
 
     if (check) {
         /* Check filesystem for errors, and optionally fix them. */
+        if (i != argc-1) {
+            print_help (argv[0]);
+            return -1;
+        }
         if (! fs_open (&fs, argv[i], fix)) {
             fprintf (stderr, "%s: cannot open\n", argv[i]);
             return -1;
@@ -663,6 +684,10 @@ int main (int argc, char **argv)
 
     if (scan) {
         /* Create a manifest from directory contents. */
+        if (i != argc-1) {
+            print_help (argv[0]);
+            return -1;
+        }
         if (! manifest_scan (&m, argv[i])) {
             fprintf (stderr, "%s: cannot read\n", argv[i]);
             return -1;
@@ -672,6 +697,10 @@ int main (int argc, char **argv)
     }
 
     /* Add or extract or info. */
+    if (i >= argc) {
+        print_help (argv[0]);
+        return -1;
+    }
     if (! fs_open (&fs, argv[i], (add + mount != 0))) {
         fprintf (stderr, "%s: cannot open\n", argv[i]);
         return -1;
@@ -679,6 +708,10 @@ int main (int argc, char **argv)
 
     if (extract) {
         /* Extract all files to current directory. */
+        if (i != argc-1) {
+            print_help (argv[0]);
+            return -1;
+        }
         if (! fs_inode_get (&fs, &inode, BSDFS_ROOT_INODE)) {
             fprintf (stderr, "%s: cannot get inode 1\n", argv[i]);
             return -1;
@@ -690,6 +723,10 @@ int main (int argc, char **argv)
 
     if (add) {
         /* Add files i+1..argc-1 to filesystem. */
+        if (i >= argc) {
+            print_help (argv[0]);
+            return -1;
+        }
         while (++i < argc)
             add_object (&fs, argv[i]);
         fs_sync (&fs, 0);
@@ -699,14 +736,18 @@ int main (int argc, char **argv)
 
     if (mount) {
         /* Mount the filesystem. */
-        if (++i >= argc) {
+        if (i != argc-2) {
             print_help (argv[0]);
             return -1;
         }
-        return fs_mount(&fs, argv[i]);
+        return fs_mount(&fs, argv[i+1]);
     }
 
     /* Print the structure of flesystem. */
+    if (i != argc-1) {
+        print_help (argv[0]);
+        return -1;
+    }
     fs_print (&fs, stdout);
     if (verbose) {
         printf ("--------\n");

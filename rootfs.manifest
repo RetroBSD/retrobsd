@@ -34,12 +34,15 @@ minor 1
 cdev /dev/null
 major 1
 minor 2
+mode 666
 cdev /dev/zero
 major 1
 minor 3
+mode 666
 cdev /dev/tty
 major 2
 minor 0
+mode 666
 cdev /dev/stdin
 major 3
 minor 0
@@ -350,14 +353,14 @@ target /bin/chpass
 link /bin/chsh
 target /bin/chpass
 
-file /bin/rb
+link /bin/rb
 target /bin/rz
-file /bin/rx
+link /bin/rx
 target /bin/rz
 
-file /bin/sb
+link /bin/sb
 target /bin/sz
-file /bin/sx
+link /bin/sx
 target /bin/sz
 
 #

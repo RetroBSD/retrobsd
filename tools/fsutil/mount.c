@@ -465,6 +465,8 @@ int op_link(const char *path, const char *newpath)
         printlog("--- link failed\n");
         return -EIO;
     }
+    source.nlink++;
+    fs_inode_save (&source, 1);
     return 0;
 }
 

@@ -43,6 +43,9 @@ extern int sdsize(int unit);
 #ifdef MRAMS_ENABLED
 #include <rd_mrams.h>
 #endif
+#ifdef SPIRAMS_ENABLED
+#include <rd_spirams.h>
+#endif
 
 int no_deinit(int u) { return 0; }
 void no_preinit(int u) { return; }
@@ -83,6 +86,10 @@ const struct diskentry disks[] = {
 
 #ifdef MRAMS_ENABLED
 	{mrams_preinit, no_init, no_deinit, no_open, mrams_size, mrams_read, mrams_write, 0, RD_DEFAULT},
+#endif
+
+#ifdef SPIRAMS_ENABLED
+	{spirams_preinit, no_init, no_deinit, no_open, spirams_size, spirams_read, spirams_write, 0, RD_DEFAULT},
 #endif
 
 };

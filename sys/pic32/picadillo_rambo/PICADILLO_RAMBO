@@ -13,6 +13,9 @@ device uart1 baud=115200
 
 device rdisk
 device sd0 port=2 cs=48
+device spirams0 port=4 chips=13 cs0=26 cs1=27 cs2=28 cs3=29 cs4=30 cs5=31 cs6=32 cs7=33 cs8=34 cs9=35 cs10=36 cs11=37 cs12=38
+
+option PARTITION=spirams0:sa@1500
 
 device gpio
 device adc

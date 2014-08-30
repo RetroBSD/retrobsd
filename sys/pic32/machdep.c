@@ -27,6 +27,10 @@
 #   include <machine/usb_function_cdc.h>
 #endif
 
+#ifdef HX8357_ENABLED
+#include "hx8357.h"
+#endif
+
 #ifdef POWER_ENABLED
 extern void power_init();
 extern void power_off();
@@ -344,6 +348,9 @@ startup()
 #endif
 #ifdef UARTUSB_ENABLED
     usbinit();
+#endif
+#ifdef HX8357_ENABLED
+    hx8357_init();
 #endif
     cninit();
 

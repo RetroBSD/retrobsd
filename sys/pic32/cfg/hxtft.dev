@@ -1,0 +1,4 @@
+always
+    file hx8357.o
+    define HX8357_ENABLED 
+end always

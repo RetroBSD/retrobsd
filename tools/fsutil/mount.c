@@ -36,12 +36,6 @@
 extern int verbose;
 
 /*
- * File descriptor to be used by op_open(), op_create(), op_read(),
- * op_write(), op_release(), op_fgetattr(), op_fsync(), op_ftruncate().
- */
-static fs_file_t file;
-
-/*
  * Print a message to log file.
  */
 static void printlog(const char *format, ...)
@@ -128,16 +122,18 @@ int op_getattr(const char *path, struct stat *statbuf)
  */
 int op_fgetattr(const char *path, struct stat *statbuf, struct fuse_file_info *fi)
 {
+    fs_file_t *fh = (fs_file_t*) (intptr_t) fi->fh;
+
     printlog("--- op_fgetattr(path=\"%s\", statbuf=%p, fi=%p)\n",
         path, statbuf, fi);
 
     if (strcmp(path, "/") == 0)
 	return op_getattr(path, statbuf);
 
-    if (file.inode.mode == 0)
+    if (! fh)
         return -EBADF;
 
-    return getstat (&file.inode, statbuf);
+    return getstat (&fh->inode, statbuf);
 }
 
 /*
@@ -151,20 +147,30 @@ int op_open(const char *path, struct fuse_file_info *fi)
     printlog("--- op_open(path=\"%s\", fi=%p) flags=%#x \n",
         path, fi, fi->flags);
 
-    if (! fs_file_open (fs, &file, path, write_flag)) {
+    fs_file_t *fh = calloc (1, sizeof(fs_file_t));
+    if (! fh) {
+        printlog("--- out of memory\n");
+        return -ENOMEM;
+    }
+
+    if (! fs_file_open (fs, fh, path, write_flag)) {
         printlog("--- open failed\n");
+        free (fh);
+        fi->fh = 0;
         return -ENOENT;
     }
 
-    if ((file.inode.mode & INODE_MODE_FMT) != INODE_MODE_FREG) {
+    if ((fh->inode.mode & INODE_MODE_FMT) != INODE_MODE_FREG) {
         /* Cannot open special files. */
-        file.inode.mode = 0;
+        free (fh);
+        fi->fh = 0;
         return -ENXIO;
     }
 
     if (fi->flags & O_APPEND) {
-        file.offset = file.inode.size;
+        fh->offset = fh->inode.size;
     }
+    fi->fh = (intptr_t) fh;
     return 0;
 }
 
@@ -178,16 +184,27 @@ int op_create(const char *path, mode_t mode, struct fuse_file_info *fi)
     printlog("--- op_create(path=\"%s\", mode=0%03o, fi=%p)\n",
         path, mode, fi);
 
-    file.inode.mode = 0;
-    if (! fs_file_create (fs, &file, path, mode & 07777)) {
+    fs_file_t *fh = calloc (1, sizeof(fs_file_t));
+    if (! fh) {
+        printlog("--- out of memory\n");
+        return -ENOMEM;
+    }
+
+    if (! fs_file_create (fs, fh, path, mode & 07777)) {
         printlog("--- create failed\n");
-	if ((file.inode.mode & INODE_MODE_FMT) == INODE_MODE_FDIR)
+	if ((fh->inode.mode & INODE_MODE_FMT) == INODE_MODE_FDIR) {
+            free (fh);
+            fi->fh = 0;
             return -EISDIR;
+        }
+        free (fh);
+        fi->fh = 0;
         return -EIO;
     }
-    file.inode.mtime = time(0);
-    file.inode.dirty = 1;
-    fs_file_close (&file);
+    fh->inode.mtime = time(0);
+    fh->inode.dirty = 1;
+    fs_file_close (fh);
+    fi->fh = (intptr_t) fh;
     return 0;
 }
 
@@ -196,17 +213,19 @@ int op_create(const char *path, mode_t mode, struct fuse_file_info *fi)
  */
 int op_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi)
 {
+    fs_file_t *fh = (fs_file_t*) (intptr_t) fi->fh;
+
     printlog("--- op_read(path=\"%s\", buf=%p, size=%d, offset=%lld, fi=%p)\n",
         path, buf, size, offset, fi);
 
-    if (offset >= file.inode.size)
+    if (offset >= fh->inode.size)
         return 0;
 
-    file.offset = offset;
-    if (size > file.inode.size - offset)
-        size = file.inode.size - offset;
+    fh->offset = offset;
+    if (size > fh->inode.size - offset)
+        size = fh->inode.size - offset;
 
-    if (! fs_file_read (&file, (unsigned char*) buf, size)) {
+    if (! fs_file_read (fh, (unsigned char*) buf, size)) {
         printlog("--- read failed\n");
         return -EIO;
     }
@@ -220,16 +239,18 @@ int op_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
 int op_write(const char *path, const char *buf, size_t size, off_t offset,
 	     struct fuse_file_info *fi)
 {
+    fs_file_t *fh = (fs_file_t*) (intptr_t) fi->fh;
+
     printlog("--- op_write(path=\"%s\", buf=%p, size=%d, offset=%lld, fi=%p)\n",
         path, buf, size, offset, fi);
 
-    file.offset = offset;
-    if (! fs_file_write (&file, (unsigned char*) buf, size)) {
+    fh->offset = offset;
+    if (! fs_file_write (fh, (unsigned char*) buf, size)) {
         printlog("--- read failed\n");
         return -EIO;
     }
-    file.inode.mtime = time(0);
-    file.inode.dirty = 1;
+    fh->inode.mtime = time(0);
+    fh->inode.dirty = 1;
     return size;
 }
 
@@ -238,13 +259,16 @@ int op_write(const char *path, const char *buf, size_t size, off_t offset,
  */
 int op_release(const char *path, struct fuse_file_info *fi)
 {
+    fs_file_t *fh = (fs_file_t*) (intptr_t) fi->fh;
+
     printlog("--- op_release(path=\"%s\", fi=%p)\n", path, fi);
 
-    if (file.inode.mode == 0)
+    if (! fh)
         return -EBADF;
 
-    fs_file_close (&file);
-    file.inode.mode = 0;
+    fs_file_close (fh);
+    free (fh);
+    fi->fh = 0;
     return 0;
 }
 
@@ -269,7 +293,7 @@ int op_truncate(const char *path, off_t newsize)
     }
     fs_inode_truncate (&f.inode, newsize);
     f.inode.mtime = time(0);
-    file.inode.dirty = 1;
+    f.inode.dirty = 1;
     fs_file_close (&f);
     return 0;
 }
@@ -279,20 +303,22 @@ int op_truncate(const char *path, off_t newsize)
  */
 int op_ftruncate(const char *path, off_t offset, struct fuse_file_info *fi)
 {
+    fs_file_t *fh = (fs_file_t*) (intptr_t) fi->fh;
+
     printlog("--- op_ftruncate(path=\"%s\", offset=%lld, fi=%p)\n",
         path, offset, fi);
 
-    if (! file.writable)
+    if (! fh->writable)
         return -EACCES;
 
-    if ((file.inode.mode & INODE_MODE_FMT) != INODE_MODE_FREG) {
+    if ((fh->inode.mode & INODE_MODE_FMT) != INODE_MODE_FREG) {
         /* Cannot truncate special files. */
         return -EINVAL;
     }
-    fs_inode_truncate (&file.inode, offset);
-    file.inode.mtime = time(0);
-    file.inode.dirty = 1;
-    fs_file_close (&file);
+    fs_inode_truncate (&fh->inode, offset);
+    fh->inode.mtime = time(0);
+    fh->inode.dirty = 1;
+    fs_file_close (fh);
     return 0;
 }
 
@@ -311,7 +337,7 @@ int op_unlink(const char *path)
         printlog("--- search failed\n");
         return -ENOENT;
     }
-    if ((file.inode.mode & INODE_MODE_FMT) == INODE_MODE_FDIR) {
+    if ((inode.mode & INODE_MODE_FMT) == INODE_MODE_FDIR) {
         /* Cannot unlink directories. */
         return -EISDIR;
     }
@@ -724,11 +750,13 @@ int op_flush(const char *path, struct fuse_file_info *fi)
  */
 int op_fsync(const char *path, int datasync, struct fuse_file_info *fi)
 {
+    fs_file_t *fh = (fs_file_t*) (intptr_t) fi->fh;
+
     printlog("--- op_fsync(path=\"%s\", datasync=%d, fi=%p)\n",
         path, datasync, fi);
 
-    if (datasync == 0 && file.writable) {
-        if (! fs_inode_save (&file.inode, 0))
+    if (datasync == 0 && fh->writable) {
+        if (! fs_inode_save (&fh->inode, 0))
             return -EIO;
     }
     return 0;

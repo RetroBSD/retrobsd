@@ -417,6 +417,7 @@ file /games/canfield
 file /games/cfscores
 file /games/factor
 file /games/fish
+file /games/fortune
 file /games/morse
 file /games/number
 file /games/ppt
@@ -440,6 +441,8 @@ file /games/lib/battle_strings
 mode 0444
 file /games/lib/cfscores
 mode 0666
+file /games/lib/fortunes.dat
+mode 0444
 
 #
 # Files: /include

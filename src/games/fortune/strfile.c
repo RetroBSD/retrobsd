@@ -1,6 +1,16 @@
-# include	<stdio.h>
-# include	<ctype.h>
-# include	"strfile.h"
+#include <sys/types.h>
+#ifdef CROSS
+#   include </usr/include/stdio.h>
+#   include </usr/include/ctype.h>
+#else
+#   include <stdio.h>
+#   include <ctype.h>
+#endif
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <time.h>
+#include "strfile.h"
 
 /*
  *	This program takes a file composed of strings seperated by
@@ -18,7 +28,7 @@
  *	    the run.
  *	v - Verbose.  Give summary of data processed.  (Default)
  *	o - order the strings in alphabetic order
- *	i - if ordering, ignore case 
+ *	i - if ordering, ignore case
  *	r - randomize the order of the strings
  *
  *		Ken Arnold	Sept. 7, 1978 --
@@ -31,10 +41,10 @@
  *	Added ordering options.
  */
 
-# define	TRUE	1
-# define	FALSE	0
+#define	TRUE	1
+#define	FALSE	0
 
-# define	DELIM_CH	'-'
+#define	DELIM_CH	'-'
 
 typedef struct {
 	char	first;
@@ -71,13 +81,187 @@ STRFILE	Tbl;				/* statistics table */
 
 STR	*Firstch;			/* first chars of each string */
 
-char	*fgets(), *malloc(), *strcpy(), *strcat();
+/*
+ *	This routine evaluates arguments from the command line
+ */
+void getargs(int ac, char **av)
+{
+	register char	*sp;
+	register int	i;
+	register int	bad, j;
 
-long	ftell();
+	bad = 0;
+	for (i = 1; i < ac; i++)
+		if (*av[i] == '-' && av[i][1]) {
+			for (sp = &av[i][1]; *sp; sp++)
+				switch (*sp) {
+				  case 'c': /* new delimiting char */
+					if ((Delimch = *++sp) == '\0') {
+						--sp;
+						Delimch = *av[++i];
+					}
+					if (Delimch <= 0 || Delimch > '~' ||
+					    Delimch == DELIM_CH) {
+						printf("bad delimiting character: '\\%o\n'",
+						       Delimch);
+						bad++;
+					}
+					break;
+				  case 's':	/* silent */
+					Sflag++;
+					break;
+				  case 'v':	/* verbose */
+					Sflag = 0;
+					break;
+				  case 'o':	/* order strings */
+					Oflag++;
+					break;
+				  case 'i':	/* ignore case in ordering */
+					Iflag++;
+					break;
+				  case 'r':	/* ignore case in ordering */
+					Rflag++;
+					break;
+				  default:	/* unknown flag */
+					bad++;
+					printf("bad flag: '%c'\n", *sp);
+					break;
+				}
+		}
+		else if (*av[i] == '-') {
+			for (j = 0; Usage[j]; j++)
+				puts(Usage[j]);
+			exit(0);
+		}
+		else if (Infile)
+			(void) strcpy(Outfile, av[i]);
+		else
+			Infile = av[i];
+	if (!Infile) {
+		bad++;
+		puts("No input file name");
+	}
+	if (*Outfile == '\0' && !bad) {
+		(void) strcpy(Outfile, Infile);
+		(void) strcat(Outfile, ".dat");
+	}
+	if (bad) {
+		puts("use \"strfile -\" to get usage");
+		exit(-1);
+	}
+}
 
-main(ac, av)
-int	ac;
-char	**av;
+/*
+ * do_order:
+ *	Order the strings alphabetically (possibly ignoring case).
+ */
+void do_order(long *seekpts, FILE *outf)
+{
+	register int	i;
+	register long	*lp;
+	register STR	*fp;
+	extern int	cmp_str();
+
+	(void) fflush(outf);
+	Sort_1 = fopen(Outfile, "r");
+	Sort_2 = fopen(Outfile, "r");
+	Seekpts = seekpts;
+	qsort((char *) Firstch, Tbl.str_numstr, sizeof *Firstch, cmp_str);
+	i = Tbl.str_numstr;
+	lp = seekpts;
+	fp = Firstch;
+	while (i--)
+		*lp++ = fp++->pos;
+	(void) fclose(Sort_1);
+	(void) fclose(Sort_2);
+	Tbl.str_flags |= STR_ORDERED;
+}
+
+/*
+ * cmp_str:
+ *	Compare two strings in the file
+ */
+int cmp_str(STR *p1, STR *p2)
+{
+	register int	c1, c2;
+
+	c1 = p1->first;
+	c2 = p2->first;
+	if (c1 != c2)
+		return c1 - c2;
+
+	(void) fseek(Sort_1, p1->pos, 0);
+	(void) fseek(Sort_2, p2->pos, 0);
+
+	while (!isalnum(c1 = getc(Sort_1)) && c1 != '\0')
+		continue;
+	while (!isalnum(c2 = getc(Sort_2)) && c2 != '\0')
+		continue;
+
+	while (c1 != '\0' && c2 != '\0') {
+		if (Iflag) {
+			if (isupper(c1))
+				c1 = tolower(c1);
+			if (isupper(c2))
+				c2 = tolower(c2);
+		}
+		if (c1 != c2)
+			return c1 - c2;
+		c1 = getc(Sort_1);
+		c2 = getc(Sort_2);
+	}
+	return c1 - c2;
+}
+
+/*
+ * randomize:
+ *	Randomize the order of the string table.  We must be careful
+ *	not to randomize across delimiter boundaries.  All
+ *	randomization is done within each block.
+ */
+void randomize(long *seekpts)
+{
+	register int	cnt, i, j, start;
+	register long	tmp;
+	register long	*origsp;
+
+	Tbl.str_flags |= STR_RANDOM;
+	srandom(time((long *) NULL) + getpid());
+	origsp = seekpts;
+	for (j = 0; j <= Delim; j++) {
+
+		/*
+		 * get the starting place for the block
+		 */
+
+		if (j == 0)
+			start = 0;
+		else
+			start = Tbl.str_delims[j - 1];
+
+		/*
+		 * get the ending point
+		 */
+
+		if (j == Delim)
+			cnt = Tbl.str_numstr;
+		else
+			cnt = Tbl.str_delims[j];
+
+		/*
+		 * move things around randomly
+		 */
+
+		for (seekpts = &origsp[start]; cnt > start; cnt--, seekpts++) {
+			i = random() % (cnt - start);
+			tmp = seekpts[0];
+			seekpts[0] = seekpts[i];
+			seekpts[i] = tmp;
+		}
+	}
+}
+
+int main(int ac, char **av)
 {
 	register char		*sp, dc;
 	register long		*lp;
@@ -205,190 +389,4 @@ char	**av;
 		       Tbl.str_shortlen == 1 ? "" : "s");
 	}
 	exit(0);
-}
-
-/*
- *	This routine evaluates arguments from the command line
- */
-getargs(ac, av)
-register int	ac;
-register char	**av;
-{
-	register char	*sp;
-	register int	i;
-	register int	bad, j;
-
-	bad = 0;
-	for (i = 1; i < ac; i++)
-		if (*av[i] == '-' && av[i][1]) {
-			for (sp = &av[i][1]; *sp; sp++)
-				switch (*sp) {
-				  case 'c': /* new delimiting char */
-					if ((Delimch = *++sp) == '\0') {
-						--sp;
-						Delimch = *av[++i];
-					}
-					if (Delimch <= 0 || Delimch > '~' ||
-					    Delimch == DELIM_CH) {
-						printf("bad delimiting character: '\\%o\n'",
-						       Delimch);
-						bad++;
-					}
-					break;
-				  case 's':	/* silent */
-					Sflag++;
-					break;
-				  case 'v':	/* verbose */
-					Sflag = 0;
-					break;
-				  case 'o':	/* order strings */
-					Oflag++;
-					break;
-				  case 'i':	/* ignore case in ordering */
-					Iflag++;
-					break;
-				  case 'r':	/* ignore case in ordering */
-					Rflag++;
-					break;
-				  default:	/* unknown flag */
-					bad++;
-					printf("bad flag: '%c'\n", *sp);
-					break;
-				}
-		}
-		else if (*av[i] == '-') {
-			for (j = 0; Usage[j]; j++)
-				puts(Usage[j]);
-			exit(0);
-		}
-		else if (Infile)
-			(void) strcpy(Outfile, av[i]);
-		else
-			Infile = av[i];
-	if (!Infile) {
-		bad++;
-		puts("No input file name");
-	}
-	if (*Outfile == '\0' && !bad) {
-		(void) strcpy(Outfile, Infile);
-		(void) strcat(Outfile, ".dat");
-	}
-	if (bad) {
-		puts("use \"strfile -\" to get usage");
-		exit(-1);
-	}
-}
-
-/*
- * do_order:
- *	Order the strings alphabetically (possibly ignoring case).
- */
-do_order(seekpts, outf)
-long	*seekpts;
-FILE	*outf;
-{
-	register int	i;
-	register long	*lp;
-	register STR	*fp;
-	extern int	cmp_str();
-
-	(void) fflush(outf);
-	Sort_1 = fopen(Outfile, "r");
-	Sort_2 = fopen(Outfile, "r");
-	Seekpts = seekpts;
-	qsort((char *) Firstch, Tbl.str_numstr, sizeof *Firstch, cmp_str);
-	i = Tbl.str_numstr;
-	lp = seekpts;
-	fp = Firstch;
-	while (i--)
-		*lp++ = fp++->pos;
-	(void) fclose(Sort_1);
-	(void) fclose(Sort_2);
-	Tbl.str_flags |= STR_ORDERED;
-}
-
-/*
- * cmp_str:
- *	Compare two strings in the file
- */
-cmp_str(p1, p2)
-STR	*p1, *p2;
-{
-	register int	c1, c2;
-
-	c1 = p1->first;
-	c2 = p2->first;
-	if (c1 != c2)
-		return c1 - c2;
-
-	(void) fseek(Sort_1, p1->pos, 0);
-	(void) fseek(Sort_2, p2->pos, 0);
-
-	while (!isalnum(c1 = getc(Sort_1)) && c1 != '\0')
-		continue;
-	while (!isalnum(c2 = getc(Sort_2)) && c2 != '\0')
-		continue;
-
-	while (c1 != '\0' && c2 != '\0') {
-		if (Iflag) {
-			if (isupper(c1))
-				c1 = tolower(c1);
-			if (isupper(c2))
-				c2 = tolower(c2);
-		}
-		if (c1 != c2)
-			return c1 - c2;
-		c1 = getc(Sort_1);
-		c2 = getc(Sort_2);
-	}
-	return c1 - c2;
-}
-
-/*
- * randomize:
- *	Randomize the order of the string table.  We must be careful
- *	not to randomize across delimiter boundaries.  All
- *	randomization is done within each block.
- */
-randomize(seekpts)
-register long	*seekpts;
-{
-	register int	cnt, i, j, start;
-	register long	tmp;
-	register long	*origsp;
-
-	Tbl.str_flags |= STR_RANDOM;
-	srnd(time((long *) NULL) + getpid());
-	origsp = seekpts;
-	for (j = 0; j <= Delim; j++) {
-
-		/*
-		 * get the starting place for the block
-		 */
-
-		if (j == 0)
-			start = 0;
-		else
-			start = Tbl.str_delims[j - 1];
-
-		/*
-		 * get the ending point
-		 */
-
-		if (j == Delim)
-			cnt = Tbl.str_numstr;
-		else
-			cnt = Tbl.str_delims[j];
-
-		/*
-		 * move things around randomly
-		 */
-
-		for (seekpts = &origsp[start]; cnt > start; cnt--, seekpts++) {
-			i = rnd(cnt - start);
-			tmp = seekpts[0];
-			seekpts[0] = seekpts[i];
-			seekpts[i] = tmp;
-		}
-	}
 }

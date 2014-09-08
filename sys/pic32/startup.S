@@ -109,6 +109,17 @@ _entry_vector_: .globl  _entry_vector_
                 jr      $k0
                 nop
 
+/*
+ * Data for bootloader.
+ */
+                .org    0xf8
+                .type   _ebase, @object
+_ebase:         .word   0x9d000000                      # EBase value
+
+                .type   _imgptr, @object
+_imgptr:        .word   -1                              # Image header pointer
+
+
 #---------------------------------------
 # Exception vector: handle interrupts and exceptions
 #

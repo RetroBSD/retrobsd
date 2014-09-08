@@ -42,12 +42,12 @@
 /*
  * Two SD/MMC disks on SPI.
  * Signals for SPI1:
- *	D0  - SDO1
- *	D10 - SCK1
- *	C4  - SDI1
+ *      D0  - SDO1
+ *      D10 - SCK1
+ *      C4  - SDI1
  */
-#define NSD		2
-#define SECTSIZE	512
+#define NSD             2
+#define SECTSIZE        512
 #define SPI_ENHANCED            /* use SPI fifo */
 #ifndef SD0_MHZ
 #define SD0_MHZ          13      /* speed 13.33 MHz */
@@ -82,23 +82,23 @@ int sd_timo_wait_widle;
 /*
  * Definitions for MMC/SDC commands.
  */
-#define CMD_GO_IDLE		0	/* CMD0 */
-#define CMD_SEND_OP_MMC		1	/* CMD1 (MMC) */
-#define CMD_SEND_IF_COND	8
-#define CMD_SEND_CSD		9
-#define CMD_SEND_CID		10
-#define CMD_STOP		12
-#define CMD_SEND_STATUS		13	/* CMD13 */
-#define CMD_SET_BLEN		16
-#define CMD_READ_SINGLE		17
-#define CMD_READ_MULTIPLE	18
-#define CMD_SET_BCOUNT		23	/* (MMC) */
-#define	CMD_SET_WBECNT		23      /* ACMD23 (SDC) */
-#define CMD_WRITE_SINGLE	24
-#define CMD_WRITE_MULTIPLE	25
-#define	CMD_SEND_OP_SDC		41      /* ACMD41 (SDC) */
-#define CMD_APP			55      /* CMD55 */
-#define CMD_READ_OCR		58
+#define CMD_GO_IDLE             0       /* CMD0 */
+#define CMD_SEND_OP_MMC         1       /* CMD1 (MMC) */
+#define CMD_SEND_IF_COND        8
+#define CMD_SEND_CSD            9
+#define CMD_SEND_CID            10
+#define CMD_STOP                12
+#define CMD_SEND_STATUS         13      /* CMD13 */
+#define CMD_SET_BLEN            16
+#define CMD_READ_SINGLE         17
+#define CMD_READ_MULTIPLE       18
+#define CMD_SET_BCOUNT          23      /* (MMC) */
+#define CMD_SET_WBECNT          23      /* ACMD23 (SDC) */
+#define CMD_WRITE_SINGLE        24
+#define CMD_WRITE_MULTIPLE      25
+#define CMD_SEND_OP_SDC         41      /* ACMD41 (SDC) */
+#define CMD_APP                 55      /* CMD55 */
+#define CMD_READ_OCR            58
 
 #define DATA_START_BLOCK        0xFE    /* start data for single block */
 #define STOP_TRAN_TOKEN         0xFD    /* stop token for write multiple */
@@ -122,9 +122,9 @@ static void spi_wait_ready (int unit, int limit, int *maxcount)
     int i;
 
     spi_transfer(sd_fd[unit],0xFF);
-	for (i=0; i<limit; i++) 
+    for (i=0; i<limit; i++)
     {
-        if (spi_transfer(sd_fd[unit],0xFF) == 0xFF) 
+        if (spi_transfer(sd_fd[unit],0xFF) == 0xFF)
         {
             if (*maxcount < i)
                 *maxcount = i;
@@ -153,20 +153,20 @@ static void spi_wait_ready (int unit, int limit, int *maxcount)
  */
 static int card_cmd(unsigned int unit, unsigned int cmd, unsigned int addr)
 {
-	int i, reply;
+    int i, reply;
 
     /* Wait for not busy, up to 300 msec. */
     if (cmd != CMD_GO_IDLE)
         spi_wait_ready(unit, TIMO_WAIT_CMD, &sd_timo_wait_cmd);
 
-	/* Send a comand packet (6 bytes). */
-	spi_transfer(sd_fd[unit],cmd | 0x40);
-	spi_transfer(sd_fd[unit],addr >> 24);
-	spi_transfer(sd_fd[unit],addr >> 16);
-	spi_transfer(sd_fd[unit],addr >> 8);
-	spi_transfer(sd_fd[unit],addr);
+    /* Send a comand packet (6 bytes). */
+    spi_transfer(sd_fd[unit],cmd | 0x40);
+    spi_transfer(sd_fd[unit],addr >> 24);
+    spi_transfer(sd_fd[unit],addr >> 16);
+    spi_transfer(sd_fd[unit],addr >> 8);
+    spi_transfer(sd_fd[unit],addr);
 
-	/* Send cmd checksum for CMD_GO_IDLE.
+    /* Send cmd checksum for CMD_GO_IDLE.
      * For all other commands, CRC is ignored. */
     if (cmd == CMD_GO_IDLE)
         spi_transfer(sd_fd[unit],0x95);
@@ -175,23 +175,23 @@ static int card_cmd(unsigned int unit, unsigned int cmd, unsigned int addr)
     else
         spi_transfer(sd_fd[unit],0xFF);
 
-	/* Wait for a response. */
-	for (i=0; i<TIMO_CMD; i++) 
+    /* Wait for a response. */
+    for (i=0; i<TIMO_CMD; i++)
     {
-		reply = spi_transfer(sd_fd[unit],0xFF);
-		if (! (reply & 0x80)) 
+        reply = spi_transfer(sd_fd[unit],0xFF);
+        if (! (reply & 0x80))
         {
             if (sd_timo_cmd < i)
                 sd_timo_cmd = i;
             return reply;
         }
-	}
-	if (cmd != CMD_GO_IDLE)
+    }
+    if (cmd != CMD_GO_IDLE)
     {
         printf ("sd%d: card_cmd timeout, cmd=%02x, addr=%08x, reply=%02x\n",
             unit,cmd, addr, reply);
     }
-	return reply;
+    return reply;
 }
 
 /*
@@ -200,52 +200,52 @@ static int card_cmd(unsigned int unit, unsigned int cmd, unsigned int addr)
  */
 int card_init(int unit)
 {
-	int i, reply;
+    int i, reply;
     unsigned char response[4];
-	int timeout = 4;
+    int timeout = 4;
 
     /* Slow speed: 250 kHz */
-    spi_brg(sd_fd[unit],250);
+    spi_brg(sd_fd[unit], 250);
 
-	sd_type[unit] = 0;
+    sd_type[unit] = 0;
 
-	do {
-		/* Unselect the card. */
-		sd_deselect(sd_fd[unit]);
+    do {
+        /* Unselect the card. */
+        sd_deselect(sd_fd[unit]);
 
-		/* Send 80 clock cycles for start up. */
-		for (i=0; i<10; i++)
-			spi_transfer(sd_fd[unit],0xFF);
+        /* Send 80 clock cycles for start up. */
+        for (i=0; i<10; i++)
+            spi_transfer(sd_fd[unit], 0xFF);
 
-		/* Select the card and send a single GO_IDLE command. */
-		spi_select(sd_fd[unit]);
-		timeout--;
-		reply = card_cmd(unit,CMD_GO_IDLE, 0);
+        /* Select the card and send a single GO_IDLE command. */
+        spi_select(sd_fd[unit]);
+        timeout--;
+        reply = card_cmd(unit, CMD_GO_IDLE, 0);
 
-	} while((reply!=0x01) && (timeout != 0));
+    } while ((reply != 0x01) && (timeout != 0));
 
-	sd_deselect(sd_fd[unit]);
-	if (reply != 1) 
+    sd_deselect(sd_fd[unit]);
+    if (reply != 1)
     {
-		/* It must return Idle. */
-		return 0;
-	}
+        /* It must return Idle. */
+        return 0;
+    }
 
     /* Check SD version. */
-	spi_select(sd_fd[unit]);
-    reply = card_cmd(unit,CMD_SEND_IF_COND, 0x1AA);
-    if (reply & 4) 
+    spi_select(sd_fd[unit]);
+    reply = card_cmd(unit, CMD_SEND_IF_COND, 0x1AA);
+    if (reply & 4)
     {
         /* Illegal command: card type 1. */
         sd_deselect(sd_fd[unit]);
         sd_type[unit] = 1;
     } else {
-        response[0] = spi_transfer(sd_fd[unit],0xFF);
-        response[1] = spi_transfer(sd_fd[unit],0xFF);
-        response[2] = spi_transfer(sd_fd[unit],0xFF);
-        response[3] = spi_transfer(sd_fd[unit],0xFF);
+        response[0] = spi_transfer(sd_fd[unit], 0xFF);
+        response[1] = spi_transfer(sd_fd[unit], 0xFF);
+        response[2] = spi_transfer(sd_fd[unit], 0xFF);
+        response[3] = spi_transfer(sd_fd[unit], 0xFF);
         sd_deselect(sd_fd[unit]);
-        if (response[3] != 0xAA) 
+        if (response[3] != 0xAA)
         {
             printf ("sd%d: cannot detect card type, response=%02x-%02x-%02x-%02x\n",
                 unit, response[0], response[1], response[2], response[3]);
@@ -255,32 +255,32 @@ int card_init(int unit)
     }
 
 
-	/* Send repeatedly SEND_OP until Idle terminates. */
-	for (i=0; ; i++) 
+    /* Send repeatedly SEND_OP until Idle terminates. */
+    for (i=0; ; i++)
     {
-		spi_select(sd_fd[unit]);
-		card_cmd(unit,CMD_APP, 0);
-		reply = card_cmd(unit,CMD_SEND_OP_SDC,
+        spi_select(sd_fd[unit]);
+        card_cmd(unit,CMD_APP, 0);
+        reply = card_cmd(unit,CMD_SEND_OP_SDC,
                         (sd_type[unit] == 2) ? 0x40000000 : 0);
-		spi_select(sd_fd[unit]);
-		if (reply == 0)
-			break;
-		if (i >= TIMO_SEND_OP) 
+        spi_select(sd_fd[unit]);
+        if (reply == 0)
+            break;
+        if (i >= TIMO_SEND_OP)
         {
             /* Init timed out. */
             printf ("card_init: SEND_OP timed out, reply = %d\n", reply);
-			return 0;
-		}
-	}
+            return 0;
+        }
+    }
     if (sd_timo_send_op < i)
         sd_timo_send_op = i;
 
     /* If SD2 read OCR register to check for SDHC card. */
-    if (sd_type[unit] == 2) 
+    if (sd_type[unit] == 2)
     {
         spi_select(sd_fd[unit]);
         reply = card_cmd(unit, CMD_READ_OCR, 0);
-        if (reply != 0) 
+        if (reply != 0)
         {
             sd_deselect(sd_fd[unit]);
             printf ("sd%d: READ_OCR failed, reply=%02x\n", unit, reply);
@@ -291,7 +291,7 @@ int card_init(int unit)
         response[2] = spi_transfer(sd_fd[unit],0xFF);
         response[3] = spi_transfer(sd_fd[unit],0xFF);
         sd_deselect(sd_fd[unit]);
-        if ((response[0] & 0xC0) == 0xC0) 
+        if ((response[0] & 0xC0) == 0xC0)
         {
             sd_type[unit] = 3;
         }
@@ -303,7 +303,7 @@ int card_init(int unit)
     if(unit == 1)
         spi_brg(sd_fd[unit],SD1_MHZ * 1000);
 #endif
-	return 1;
+    return 1;
 }
 
 /*
@@ -312,52 +312,52 @@ int card_init(int unit)
  */
 int sdsize(int unit)
 {
-	unsigned char csd [16];
-	unsigned csize, n;
-	int reply, i;
-	int nsectors;
+    unsigned char csd [16];
+    unsigned csize, n;
+    int reply, i;
+    int nsectors;
 
-	spi_select(sd_fd[unit]);
-	reply = card_cmd(unit,CMD_SEND_CSD, 0);
-	if (reply != 0) 
+    spi_select(sd_fd[unit]);
+    reply = card_cmd(unit,CMD_SEND_CSD, 0);
+    if (reply != 0)
     {
-		/* Command rejected. */
-		sd_deselect(sd_fd[unit]);
-		return 0;
-	}
-	/* Wait for a response. */
-	for (i=0; ; i++) 
+        /* Command rejected. */
+        sd_deselect(sd_fd[unit]);
+        return 0;
+    }
+    /* Wait for a response. */
+    for (i=0; ; i++)
     {
-		reply = spi_transfer(sd_fd[unit],0xFF);
-		if (reply == DATA_START_BLOCK)
-			break;
-		if (i >= TIMO_SEND_CSD) 
+        reply = spi_transfer(sd_fd[unit],0xFF);
+        if (reply == DATA_START_BLOCK)
+            break;
+        if (i >= TIMO_SEND_CSD)
         {
-			/* Command timed out. */
-			sd_deselect(sd_fd[unit]);
-            printf ("sd%d: card_size: SEND_CSD timed out, reply = %d\n", 
+            /* Command timed out. */
+            sd_deselect(sd_fd[unit]);
+            printf ("sd%d: card_size: SEND_CSD timed out, reply = %d\n",
                 unit, reply);
-			return 0;
-		}
-	}
+            return 0;
+        }
+    }
     if (sd_timo_send_csd < i)
         sd_timo_send_csd = i;
 
-	/* Read data. */
-	for (i=0; i<sizeof(csd); i++) 
+    /* Read data. */
+    for (i=0; i<sizeof(csd); i++)
     {
-		csd [i] = spi_transfer(sd_fd[unit],0xFF);
-	}
-	/* Ignore CRC. */
-	spi_transfer(sd_fd[unit],0xFF);
-	spi_transfer(sd_fd[unit],0xFF);
+        csd [i] = spi_transfer(sd_fd[unit],0xFF);
+    }
+    /* Ignore CRC. */
+    spi_transfer(sd_fd[unit],0xFF);
+    spi_transfer(sd_fd[unit],0xFF);
 
-	/* Disable the card. */
-	sd_deselect(sd_fd[unit]);
+    /* Disable the card. */
+    sd_deselect(sd_fd[unit]);
 
     /* CSD register has different structure
      * depending upon protocol version. */
-	switch (csd[0] >> 6) 
+    switch (csd[0] >> 6)
     {
         case 1:                 /* SDC ver 2.00 */
             csize = csd[9] + (csd[8] << 8) + 1;
@@ -370,8 +370,8 @@ int sdsize(int unit)
             break;
         default:                /* Unknown version. */
             return 0;
-	}
-	return nsectors>>1;
+    }
+    return nsectors>>1;
 }
 
 /*
@@ -380,44 +380,44 @@ int sdsize(int unit)
  */
 int card_read(int unit, unsigned int offset, char *data, unsigned int bcount)
 {
-	int reply, i;
+    int reply, i;
 
-	/* Send read-multiple command. */
-	spi_select(sd_fd[unit]);
- 	if (sd_type[unit] != 3)	offset <<= 9;	
-	reply = card_cmd(unit, CMD_READ_MULTIPLE, offset<<1);
-	if (reply != 0) 
+    /* Send read-multiple command. */
+    spi_select(sd_fd[unit]);
+    if (sd_type[unit] != 3) offset <<= 9;
+    reply = card_cmd(unit, CMD_READ_MULTIPLE, offset<<1);
+    if (reply != 0)
     {
-		/* Command rejected. */
+        /* Command rejected. */
         printf ("sd%d: card_read: bad READ_MULTIPLE reply = %d, offset = %08x\n",
             unit, reply, offset<<1);
-		sd_deselect(sd_fd[unit]);
-		return 0;
-	}
+        sd_deselect(sd_fd[unit]);
+        return 0;
+    }
 
 again:
-	/* Wait for a response. */
-	for (i=0; ; i++) 
+    /* Wait for a response. */
+    for (i=0; ; i++)
     {
         int x = spl0();
-		reply = spi_transfer(sd_fd[unit],0xFF);
-		splx(x);
-		if (reply == DATA_START_BLOCK)
-			break;
-		if (i >= TIMO_READ) 
+        reply = spi_transfer(sd_fd[unit],0xFF);
+        splx(x);
+        if (reply == DATA_START_BLOCK)
+            break;
+        if (i >= TIMO_READ)
         {
-			/* Command timed out. */
+            /* Command timed out. */
             printf ("sd%d: card_read: READ_MULTIPLE timed out, reply = %d\n",
                 unit, reply);
-			sd_deselect(sd_fd[unit]);
-			return 0;
-		}
-	}
+            sd_deselect(sd_fd[unit]);
+            return 0;
+        }
+    }
     if (sd_timo_read < i)
         sd_timo_read = i;
 
-	/* Read data. */
-    if (bcount >= SECTSIZE) 
+    /* Read data. */
+    if (bcount >= SECTSIZE)
     {
         spi_bulk_read_32_be(sd_fd[unit],SECTSIZE,data);
         data += SECTSIZE;
@@ -427,11 +427,11 @@ again:
         for (i=bcount; i<SECTSIZE; i++)
             spi_transfer(sd_fd[unit],0xFF);
     }
-	/* Ignore CRC. */
+    /* Ignore CRC. */
     spi_transfer(sd_fd[unit],0xFF);
     spi_transfer(sd_fd[unit],0xFF);
 
-    if (bcount > SECTSIZE) 
+    if (bcount > SECTSIZE)
     {
         /* Next sector. */
         bcount -= SECTSIZE;
@@ -439,9 +439,9 @@ again:
     }
 
     /* Stop a read-multiple sequence. */
-	card_cmd(unit, CMD_STOP, 0);
-	sd_deselect(sd_fd[unit]);
-	return 1;
+    card_cmd(unit, CMD_STOP, 0);
+    sd_deselect(sd_fd[unit]);
+    return 1;
 }
 
 /*
@@ -451,40 +451,40 @@ again:
 int
 card_write (int unit, unsigned offset, char *data, unsigned bcount)
 {
-	unsigned reply, i;
+    unsigned reply, i;
 
-	/* Send pre-erase count. */
-	spi_select(sd_fd[unit]);
+    /* Send pre-erase count. */
+    spi_select(sd_fd[unit]);
     card_cmd(unit, CMD_APP, 0);
-	reply = card_cmd(unit, CMD_SET_WBECNT, (bcount + SECTSIZE - 1) / SECTSIZE);
-	if (reply != 0) 
+    reply = card_cmd(unit, CMD_SET_WBECNT, (bcount + SECTSIZE - 1) / SECTSIZE);
+    if (reply != 0)
     {
-		/* Command rejected. */
-		sd_deselect(sd_fd[unit]);
+        /* Command rejected. */
+        sd_deselect(sd_fd[unit]);
         printf("sd%d: card_write: bad SET_WBECNT reply = %02x, count = %u\n",
             unit, reply, (bcount + SECTSIZE - 1) / SECTSIZE);
-		return 0;
-	}
+        return 0;
+    }
 
-	/* Send write-multiple command. */
- 	if (sd_type[unit] != 3)	offset <<= 9;	
-	reply = card_cmd(unit, CMD_WRITE_MULTIPLE, offset<<1);
-	if (reply != 0) 
+    /* Send write-multiple command. */
+    if (sd_type[unit] != 3) offset <<= 9;
+    reply = card_cmd(unit, CMD_WRITE_MULTIPLE, offset<<1);
+    if (reply != 0)
     {
-		/* Command rejected. */
-		sd_deselect(sd_fd[unit]);
+        /* Command rejected. */
+        sd_deselect(sd_fd[unit]);
         printf("sd%d: card_write: bad WRITE_MULTIPLE reply = %02x\n", unit, reply);
-		return 0;
-	}
-	sd_deselect(sd_fd[unit]);
+        return 0;
+    }
+    sd_deselect(sd_fd[unit]);
 again:
     /* Select, wait while busy. */
-	spi_select(sd_fd[unit]);
+    spi_select(sd_fd[unit]);
     spi_wait_ready(unit, TIMO_WAIT_WDATA, &sd_timo_wait_wdata);
 
-	/* Send data. */
-	spi_transfer(sd_fd[unit],WRITE_MULTIPLE_TOKEN);
-    if (bcount >= SECTSIZE) 
+    /* Send data. */
+    spi_transfer(sd_fd[unit],WRITE_MULTIPLE_TOKEN);
+    if (bcount >= SECTSIZE)
     {
         spi_bulk_write_32_be(sd_fd[unit],SECTSIZE,data);
         data += SECTSIZE;
@@ -494,27 +494,27 @@ again:
         for (i=bcount; i<SECTSIZE; i++)
             spi_transfer(sd_fd[unit],0xFF);
     }
-	/* Send dummy CRC. */
-	spi_transfer(sd_fd[unit],0xFF);
-	spi_transfer(sd_fd[unit],0xFF);
+    /* Send dummy CRC. */
+    spi_transfer(sd_fd[unit],0xFF);
+    spi_transfer(sd_fd[unit],0xFF);
 
-	/* Check if data accepted. */
-	reply = spi_transfer(sd_fd[unit],0xFF);
-	if ((reply & 0x1f) != 0x05) 
+    /* Check if data accepted. */
+    reply = spi_transfer(sd_fd[unit],0xFF);
+    if ((reply & 0x1f) != 0x05)
     {
-		/* Data rejected. */
-		sd_deselect(sd_fd[unit]);
+        /* Data rejected. */
+        sd_deselect(sd_fd[unit]);
         printf("sd%d: card_write: data rejected, reply = %02x\n", unit,reply);
-		return 0;
-	}
+        return 0;
+    }
 
-	/* Wait for write completion. */
+    /* Wait for write completion. */
     int x = spl0();
     spi_wait_ready(unit, TIMO_WAIT_WDONE, &sd_timo_wait_wdone);
     splx(x);
-	sd_deselect(sd_fd[unit]);
+    sd_deselect(sd_fd[unit]);
 
-    if (bcount > SECTSIZE) 
+    if (bcount > SECTSIZE)
     {
         /* Next sector. */
         bcount -= SECTSIZE;
@@ -522,18 +522,18 @@ again:
     }
 
     /* Stop a write-multiple sequence. */
-	spi_select(sd_fd[unit]);
+    spi_select(sd_fd[unit]);
     spi_wait_ready(unit, TIMO_WAIT_WSTOP, &sd_timo_wait_wstop);
-	spi_transfer(sd_fd[unit],STOP_TRAN_TOKEN);
+    spi_transfer(sd_fd[unit],STOP_TRAN_TOKEN);
     spi_wait_ready(unit, TIMO_WAIT_WIDLE, &sd_timo_wait_widle);
-	sd_deselect(sd_fd[unit]);
-	return 1;
+    sd_deselect(sd_fd[unit]);
+    return 1;
 }
 
 void sd_preinit (int unit)
 {
-	if (unit >= NSD)
-		return;
+    if (unit >= NSD)
+        return;
 
     int fd = -1;
     if(unit==0)
@@ -575,7 +575,7 @@ void sd_preinit (int unit)
 
 int sdinit (int unit, int flag)
 {
-	unsigned nsectors;
+    unsigned nsectors;
     /* Detect a card. */
 
 #ifdef SD0_ENA_PORT
@@ -596,12 +596,12 @@ int sdinit (int unit, int flag)
     }
 #endif
 
-    if (!card_init(unit)) 
+    if (!card_init(unit))
     {
         printf ("sd%d: no SD/MMC card detected\n", unit);
         return ENODEV;
     }
-    if ((nsectors=sdsize(unit))==0) 
+    if ((nsectors=sdsize(unit))==0)
     {
         printf ("sd%d: cannot get card size\n", unit);
         return ENODEV;
@@ -614,8 +614,8 @@ int sdinit (int unit, int flag)
             nsectors,
             spi_get_brg(sd_fd[unit]) / 1000);
     }
-	DEBUG("sd%d: init done\n",unit);
-	return 0;
+    DEBUG("sd%d: init done\n",unit);
+    return 0;
 }
 
 int sddeinit(int unit)
@@ -642,6 +642,6 @@ int sddeinit(int unit)
 
 int sdopen(int unit, int flags, int mode)
 {
-	DEBUG("sd%d: open\n",unit);
-	return 0;
+    DEBUG("sd%d: open\n",unit);
+    return 0;
 }

@@ -26,7 +26,7 @@ all:    ../libtermcap.a termcap
 .PHONY: termcap
 
 termcap:
-	cd termcap && make
+	cd termcap && ${MAKE}
 
 ../libtermcap.a: ${OBJS}
 	$(AR) cr ../libtermcap.a ${OBJS}

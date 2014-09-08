@@ -47,6 +47,13 @@ ifndef GCCPREFIX
     $(error Unable to locate any GCC MIPS toolchain!)
 endif
 
+# UECIDE on Linux
+ifneq (,$(wildcard $UECIDE/cores/chipKIT))
+    AVRDUDE     = $UECIDE/cores/chipKIT/tools/linux64/avrdude \
+                  -C $UECIDE/cores/chipKIT/tools/linux64/avrdude.conf -V \
+                  -P /dev/ttyUSB*
+endif
+
 # chipKIT MPIDE on Mac OS X
 ifneq (,$(wildcard /Applications/Mpide.app/Contents/Resources/Java/hardware/tools/avr))
     AVRDUDE     = /Applications/Mpide.app/Contents/Resources/Java/hardware/tools/avr/bin/avrdude \

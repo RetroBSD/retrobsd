@@ -1,0 +1,19 @@
+#
+# Picadillo 35T board
+# ===================
+
+core pic32mx7
+mapping picadillo
+linker bootloader-max32
+
+device kernel cpu_khz=80000 bus_khz=80000
+
+device console device=tty0
+device uart1 baud=115200
+
+device rdisk
+device sd0 port=2 cs=48
+
+device gpio
+device adc
+device foreignbootloader

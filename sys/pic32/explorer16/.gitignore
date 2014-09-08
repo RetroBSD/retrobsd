@@ -4,6 +4,7 @@
 machine
 sys
 unix.bin
+boot.bin
 unix.map
 usbboot.map
 vers.c

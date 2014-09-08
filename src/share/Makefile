@@ -11,14 +11,14 @@ SUBDIR		= misc
 all:		${SUBDIR}
 
 ${SUBDIR}: 	FRC
-		cd $@; make ${MFLAGS}
+		cd $@; ${MAKE} ${MFLAGS}
 
 FRC:
 
 install: 	FRC
 		-for i in ${SUBDIR}; do \
-			(cd $$i; make ${MFLAGS} DESTDIR=${DESTDIR} install); done
+			(cd $$i; ${MAKE} ${MFLAGS} DESTDIR=${DESTDIR} install); done
 
 clean:
 		rm -f *~
-		for i in ${SUBDIR}; do (cd $$i; make ${MFLAGS} clean); done
+		for i in ${SUBDIR}; do (cd $$i; ${MAKE} ${MFLAGS} clean); done

@@ -17,19 +17,19 @@ mips.a:		${ALL}
 		rm -rf tmp
 
 ${ALL}:	FRC
-	cd $@; make ${MFLAGS} DEFS=${DEFS}
+	cd $@; ${MAKE} ${MFLAGS} DEFS=${DEFS}
 
 FRC:
 
 tags:
 		for i in ${ALL}; do \
-			(cd $$i; make ${MFLAGS} TAGSFILE=../${TAGSFILE} tags); \
+			(cd $$i; ${MAKE} ${MFLAGS} TAGSFILE=../${TAGSFILE} tags); \
 		done
 
 clean:
-		for i in ${ALL}; do (cd $$i; make ${MFLAGS} clean); done
+		for i in ${ALL}; do (cd $$i; ${MAKE} ${MFLAGS} clean); done
 		rm -rf *.a tmp *~
 
 depend:
 		for i in ${ALL}; do \
-			(cd $$i; make ${MFLAGS} DEFS=${DEFS} depend); done
+			(cd $$i; ${MAKE} ${MFLAGS} DEFS=${DEFS} depend); done

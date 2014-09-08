@@ -1,0 +1,53 @@
+ChangeLog
+=========
+
+July 10, 2014 : emg 1.7
+-----------------------
+Searching now correctly updates line number display.
+Remove lots of rarely-used word functions.
+Remove search+replace: sed(1) is quicker.
+Reduce size of some static buffers.
+
+May 29, 2014 : emg 1.6
+----------------------
+emg is now part of the RetroBSD tree.
+Add PgUp and PgDn scrolling.
+
+March 16, 2014 : emg 1.5
+------------------------
+Add line number to the mode line.
+Implement prompted go to line function.
+Remove lesser used expensive movement functions.
+Documentation tweaks to reflect above changes.
+
+March 9, 2014 : emg 1.4
+-----------------------
+Huge whitespace cleanup.
+Make the window creation code mode consistent.
+Small documentation fix.
+
+March 8, 2014 : emg 1.3
+-----------------------
+Remove all OpenBSD support. emg is now for RetroBSD only.
+Remove tmux alternative keybindings.
+Revert Listbuffer command back to CTRL-x CTRL-b.
+
+December 2, 2013 : emg 1.2
+--------------------------
+Alternate keybindings for RetroBSD users using flow control terminal emulators.
+Alternate keybindings for tmux users who are using the default control command.
+
+October 24, 2013 : emg 1.1
+--------------------------
+Listbuffer command is now CTRL-x l (originally CTRL-x CTRL-b).
+	This is because the default command keybinding of tmux is CTRL-b.
+Search is now executed with <ENTER> instead of <ESC>.
+	<ESC> felt awkward, plus I don't search for newlines.
+Lots of code cleanups (ttyio.c).
+	Removal of unused #if blocks.
+	Use panic() everywhere.
+	Fix all warnings from gcc -Wall.
+
+October 19, 2013 : emg 1.0
+--------------------------
+Initial version of emg. Current targets are OpenBSD and RetroBSD.

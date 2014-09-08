@@ -1,0 +1,10 @@
+#
+# Manifest file for user filesystem.
+#
+default
+owner 0
+group 0
+dirmode 0775
+filemode 0664
+
+file README.txt

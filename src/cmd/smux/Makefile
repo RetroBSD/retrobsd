@@ -1,10 +1,10 @@
 all:
-	make -C retro
-	make -C linux
+	${MAKE} -C retro
+	${MAKE} -C linux
 
 install:
-	make -C retro install
+	${MAKE} -C retro install
 
 clean:
-	make -C retro clean
-	make -C linux clean
+	${MAKE} -C retro clean
+	${MAKE} -C linux clean

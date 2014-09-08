@@ -3,14 +3,15 @@ include $(TOPSRC)/target.mk
 #include $(TOPSRC)/cross.mk
 #CFLAGS          = -DCROSS
 
-OBJS            = cpp.o cpy.o token.o
+OBJS            = cpp.o cpy.o token.o compat.o doprnt.o
 MAN             = cpp.0
 MANSRC          = cpp.1
 
 LDFLAGS         += -g
 
 CFLAGS		+= -Werror -Wall -Os
-CFLAGS          += -DCPP_DEBUG -DGCC_COMPAT -DHAVE_CPP_VARARG_MACRO_GCC
+#CFLAGS          += -DCPP_DEBUG -DGCC_COMPAT -DHAVE_CPP_VARARG_MACRO_GCC
+CFLAGS          += -DGCC_COMPAT -DHAVE_CPP_VARARG_MACRO_GCC
 
 all:            cpp $(MAN)
 
@@ -30,7 +31,7 @@ install:        all
 		install cpp $(DESTDIR)/bin/
 		cp cpp.0 $(DESTDIR)/share/man/cat1/
 
-cpp.o:          cpp.c y.tab.h
+cpp.o:          cpp.c cpp.h y.tab.h config.h
 
 .l.o:
 		$(LEX) $(LFLAGS) $<
@@ -61,3 +62,9 @@ test:
 		cmp tests/run9 tests/res9
 		./cpp < tests/test10 > tests/run10
 		cmp tests/run10 tests/res10
+		./cpp < tests/test11 > tests/run11
+		cmp tests/run11 tests/res11
+		./cpp < tests/test12 > tests/run12
+		cmp tests/run12 tests/res12
+		./cpp < tests/test13 > tests/run13
+		cmp tests/run13 tests/res13

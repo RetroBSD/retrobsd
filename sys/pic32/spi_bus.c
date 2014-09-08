@@ -8,7 +8,7 @@
 
 #define NSPI    4       /* Ports SPI1...SPI4 */
 
-#define MAXSPIDEV 10
+#define MAXSPIDEV 20
 
 struct spi_dev spi_devices[MAXSPIDEV];
 
@@ -616,7 +616,7 @@ char *spi_name(int dno)
         return "SPI?";
 
     if(spi_devices[dno].bus==NULL)
-        return "SPI?";
+        return "NO SPI BUS";
 
     if(spi_devices[dno].bus == (struct spireg *)&SPI1CON)
         return "SPI1";

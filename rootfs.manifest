@@ -1,0 +1,771 @@
+#
+# Manifest file for RetroBSD root filesystem.
+#
+default
+owner 0
+group 0
+dirmode 0775
+filemode 0664
+
+#
+# Directories.
+#
+dir /bin
+dir /dev
+dir /etc
+dir /lib
+dir /libexec
+dir /sbin
+dir /tmp
+dir /u
+
+#
+# Character devices.
+#
+cdev /dev/console
+major 0
+minor 0
+cdev /dev/mem
+major 1
+minor 0
+cdev /dev/kmem
+major 1
+minor 1
+cdev /dev/null
+major 1
+minor 2
+mode 666
+cdev /dev/zero
+major 1
+minor 3
+mode 666
+cdev /dev/tty
+major 2
+minor 0
+mode 666
+cdev /dev/stdin
+major 3
+minor 0
+cdev /dev/stdout
+major 3
+minor 1
+cdev /dev/stderr
+major 3
+minor 2
+cdev /dev/temp0
+major 4
+minor 0
+cdev /dev/temp1
+major 4
+minor 1
+cdev /dev/temp2
+major 4
+minor 2
+
+#
+# Block devices.
+#
+bdev /dev/rd0
+major 0
+minor 0
+bdev /dev/rd0a
+major 0
+minor 1
+bdev /dev/rd0b
+major 0
+minor 2
+bdev /dev/rd0c
+major 0
+minor 3
+bdev /dev/rd0d
+major 0
+minor 4
+bdev /dev/rd1
+major 1
+minor 0
+bdev /dev/rd1a
+major 1
+minor 1
+bdev /dev/rd1b
+major 1
+minor 2
+bdev /dev/rd1c
+major 1
+minor 3
+bdev /dev/rd1d
+major 1
+minor 4
+bdev /dev/rd2
+major 2
+minor 0
+bdev /dev/rd2a
+major 2
+minor 1
+bdev /dev/rd2b
+major 2
+minor 2
+bdev /dev/rd2c
+major 2
+minor 3
+bdev /dev/rd2d
+major 2
+minor 4
+bdev /dev/rd3
+major 3
+minor 0
+bdev /dev/rd3a
+major 3
+minor 1
+bdev /dev/rd3b
+major 3
+minor 2
+bdev /dev/rd3c
+major 3
+minor 3
+bdev /dev/rd3d
+major 3
+minor 4
+bdev /dev/swap
+major 4
+minor 64
+bdev /dev/swap0
+major 4
+minor 0
+bdev /dev/swap1
+major 4
+minor 1
+bdev /dev/swap2
+major 4
+minor 2
+
+#
+# Files: /
+#
+file /.profile
+
+#
+# Files: /etc
+#
+file /etc/fstab
+file /etc/gettytab
+file /etc/group
+file /etc/MAKEDEV
+mode 0775
+file /etc/motd
+file /etc/passwd
+file /etc/phones
+file /etc/rc
+mode 0775
+file /etc/rc.local
+mode 0775
+file /etc/remote
+file /etc/shadow
+file /etc/shells
+file /etc/termcap
+mode 0444
+file /etc/ttys
+
+#
+# Files: /bin
+#
+default
+filemode 0775
+file /bin/adb
+file /bin/adc-demo
+file /bin/aout
+file /bin/apropos
+file /bin/ar
+file /bin/as
+file /bin/awk
+file /bin/basename
+file /bin/basic
+file /bin/bc
+file /bin/cal
+file /bin/cat
+file /bin/cb
+file /bin/cc
+file /bin/chat-server
+file /bin/chflags
+file /bin/chgrp
+file /bin/chmod
+file /bin/chpass
+mode 04755
+file /bin/cmp
+file /bin/col
+file /bin/comm
+file /bin/compress
+file /bin/cp
+file /bin/cpp
+file /bin/crontab
+file /bin/date
+file /bin/dc
+file /bin/dd
+file /bin/df
+mode 02755
+file /bin/diff
+file /bin/du
+file /bin/echo
+file /bin/ed
+file /bin/egrep
+file /bin/emg
+file /bin/env
+file /bin/expr
+file /bin/false
+file /bin/fgrep
+file /bin/file
+file /bin/find
+file /bin/forth
+file /bin/fstat
+mode 02755
+file /bin/glcdtest
+file /bin/globdump
+file /bin/globread
+file /bin/globwrite
+file /bin/grep
+file /bin/groups
+file /bin/head
+file /bin/hostid
+file /bin/hostname
+file /bin/id
+file /bin/iostat
+mode 02755
+file /bin/join
+file /bin/kill
+file /bin/la
+file /bin/last
+file /bin/lcc
+file /bin/lcpp
+file /bin/ld
+file /bin/ln
+file /bin/login
+mode 04755
+file /bin/lol
+file /bin/ls
+file /bin/mail
+mode 04755
+file /bin/make
+file /bin/man
+file /bin/med
+file /bin/mesg
+file /bin/mkdir
+file /bin/more
+file /bin/msec
+file /bin/mv
+file /bin/nice
+file /bin/nm
+file /bin/nohup
+file /bin/ntpdate
+file /bin/od
+file /bin/pagesize
+file /bin/passwd
+mode 04755
+file /bin/picoc
+file /bin/portio
+file /bin/pr
+file /bin/printenv
+file /bin/printf
+file /bin/ps
+mode 02755
+file /bin/pwd
+file /bin/pwm
+file /bin/ranlib
+file /bin/re
+file /bin/renice
+file /bin/renumber
+file /bin/retroforth
+file /bin/rev
+file /bin/rm
+file /bin/rmail
+file /bin/rmdir
+file /bin/rz
+file /bin/scc
+file /bin/scm
+file /bin/sed
+file /bin/setty
+file /bin/sh
+file /bin/size
+file /bin/sl
+file /bin/sleep
+file /bin/smux
+file /bin/sort
+file /bin/split
+file /bin/strip
+file /bin/stty
+file /bin/su
+mode 04755
+file /bin/sum
+file /bin/sync
+file /bin/sysctl
+file /bin/sz
+file /bin/tail
+file /bin/tar
+file /bin/tee
+file /bin/telnet
+file /bin/test
+file /bin/time
+file /bin/tip
+file /bin/touch
+file /bin/tr
+file /bin/true
+file /bin/tsort
+file /bin/tty
+file /bin/uname
+file /bin/uncompress
+file /bin/uniq
+file /bin/uucico
+file /bin/uuclean
+file /bin/uucp
+file /bin/uudecode
+file /bin/uuencode
+file /bin/uulog
+file /bin/uuname
+file /bin/uupoll
+file /bin/uuq
+file /bin/uusend
+file /bin/uusnap
+file /bin/uux
+file /bin/uuxqt
+file /bin/vi
+file /bin/vmstat
+mode 02755
+file /bin/w
+file /bin/wall
+mode 02755
+file /bin/wc
+file /bin/web-client
+file /bin/web-server
+file /bin/whereis
+file /bin/who
+file /bin/whoami
+file /bin/write
+mode 02755
+file /bin/xargs
+file /bin/zcat
+
+link /bin/[
+target /bin/test
+
+link /bin/whatis
+target /bin/apropos
+
+link /bin/chfn
+target /bin/chpass
+link /bin/chsh
+target /bin/chpass
+
+link /bin/rb
+target /bin/rz
+link /bin/rx
+target /bin/rz
+
+link /bin/sb
+target /bin/sz
+link /bin/sx
+target /bin/sz
+
+#
+# Files: /sbin
+#
+file /sbin/chown
+file /sbin/chroot
+mode 04755
+file /sbin/cron
+file /sbin/devupdate
+file /sbin/disktool
+file /sbin/fdisk
+file /sbin/fsck
+file /sbin/init
+mode 0700
+file /sbin/mkfs
+file /sbin/mknod
+file /sbin/mkpasswd
+file /sbin/mount
+file /sbin/pstat
+mode 02755
+file /sbin/rdprof
+file /sbin/reboot
+file /sbin/shutdown
+mode 04750
+file /sbin/talloc
+file /sbin/umount
+file /sbin/update
+file /sbin/updatedb
+file /sbin/vipw
+
+link /sbin/bootloader
+target /sbin/reboot
+link /sbin/fastboot
+target /sbin/reboot
+link /sbin/halt
+target /sbin/reboot
+link /sbin/poweroff
+target /sbin/reboot
+
+#
+# Files: /games
+#
+default
+filemode 0775
+dir /games
+file /games/adventure
+file /games/arithmetic
+file /games/backgammon
+file /games/banner
+file /games/battlestar
+file /games/bcd
+file /games/canfield
+file /games/cfscores
+file /games/factor
+file /games/fish
+file /games/morse
+file /games/number
+file /games/ppt
+file /games/primes
+file /games/rain
+file /games/rogue
+file /games/sail
+file /games/teachgammon
+file /games/trek
+file /games/worm
+file /games/worms
+file /games/wump
+
+#
+# Files: /games/lib
+#
+dir /games/lib
+file /games/lib/adventure.dat
+mode 0444
+file /games/lib/battle_strings
+mode 0444
+file /games/lib/cfscores
+mode 0666
+
+#
+# Files: /include
+#
+default
+filemode 0664
+dir /include
+dir /include/arpa
+dir /include/machine
+dir /include/smallc
+dir /include/smallc/sys
+dir /include/sys
+file /include/alloca.h
+file /include/a.out.h
+file /include/ar.h
+file /include/arpa/inet.h
+file /include/assert.h
+file /include/ctype.h
+file /include/curses.h
+file /include/dbm.h
+file /include/fcntl.h
+file /include/float.h
+file /include/fstab.h
+file /include/grp.h
+file /include/kmem.h
+file /include/lastlog.h
+file /include/limits.h
+file /include/machine/cpu.h
+file /include/machine/elf_machdep.h
+file /include/machine/float.h
+file /include/machine/io.h
+file /include/machine/limits.h
+file /include/machine/machparam.h
+file /include/machine/pic32mx.h
+file /include/machine/rd_sdramp_config.h
+file /include/machine/sdram.h
+file /include/machine/ssd1926.h
+file /include/machine/usb_ch9.h
+file /include/machine/usb_device.h
+file /include/machine/usb_function_cdc.h
+file /include/machine/usb_function_hid.h
+file /include/machine/usb_hal_pic32.h
+file /include/math.h
+file /include/mtab.h
+file /include/ndbm.h
+file /include/nlist.h
+file /include/paths.h
+file /include/pcc.h
+file /include/psout.h
+file /include/pwd.h
+file /include/ranlib.h
+file /include/regexp.h
+file /include/setjmp.h
+file /include/sgtty.h
+file /include/smallc/curses.h
+file /include/smallc/fcntl.h
+file /include/smallc/signal.h
+file /include/smallc/stdio.h
+file /include/smallc/sys/gpio.h
+file /include/smallc/sys/spi.h
+file /include/smallc/wiznet.h
+file /include/stab.h
+file /include/stdarg.h
+file /include/stddef.h
+file /include/stdint.h
+file /include/stdio.h
+file /include/stdlib.h
+file /include/string.h
+file /include/strings.h
+file /include/struct.h
+file /include/sys/adc.h
+file /include/sys/buf.h
+file /include/syscall.h
+file /include/sys/callout.h
+file /include/sys/clist.h
+file /include/sys/conf.h
+file /include/sys/debug.h
+file /include/sys/dir.h
+file /include/sys/disk.h
+file /include/sys/dkbad.h
+file /include/sys/dk.h
+file /include/sys/errno.h
+file /include/sys/exec_aout.h
+file /include/sys/exec_elf.h
+file /include/sys/exec.h
+file /include/sysexits.h
+file /include/sys/fcntl.h
+file /include/sys/file.h
+file /include/sys/fs.h
+file /include/sys/glcd.h
+file /include/sys/glob.h
+file /include/sys/gpio.h
+file /include/sys/inode.h
+file /include/sys/ioctl.h
+file /include/sys/kernel.h
+file /include/sys/map.h
+file /include/sys/mount.h
+file /include/sys/msgbuf.h
+file /include/sys/mtio.h
+file /include/sys/namei.h
+file /include/sys/oc.h
+file /include/sys/param.h
+file /include/sys/picga.h
+file /include/sys/proc.h
+file /include/sys/ptrace.h
+file /include/sys/pty.h
+file /include/sys/rd_flash.h
+file /include/sys/rdisk.h
+file /include/sys/rd_mrams.h
+file /include/sys/rd_sdramp.h
+file /include/sys/rd_sramc.h
+file /include/sys/reboot.h
+file /include/sys/resource.h
+file /include/sys/select.h
+file /include/sys/signal.h
+file /include/sys/signalvar.h
+file /include/sys/spi_bus.h
+file /include/sys/spi.h
+file /include/sys/stat.h
+file /include/sys/swap.h
+file /include/sys/sysctl.h
+file /include/sys/syslog.h
+file /include/sys/systm.h
+file /include/sys/time.h
+file /include/sys/times.h
+file /include/sys/trace.h
+file /include/sys/ttychars.h
+file /include/sys/ttydev.h
+file /include/sys/tty.h
+file /include/sys/types.h
+file /include/sys/uart.h
+file /include/sys/uio.h
+file /include/sys/usb_uart.h
+file /include/sys/user.h
+file /include/sys/utsname.h
+file /include/sys/vm.h
+file /include/sys/vmmac.h
+file /include/sys/vmmeter.h
+file /include/sys/vmparam.h
+file /include/sys/vmsystm.h
+file /include/sys/wait.h
+file /include/term.h
+file /include/termios-todo.h
+file /include/time.h
+file /include/ttyent.h
+file /include/tzfile.h
+file /include/unistd.h
+file /include/utmp.h
+file /include/vmf.h
+
+symlink /include/errno.h
+target sys/errno.h
+
+symlink /include/signal.h
+target sys/signal.h
+
+symlink /include/syslog.h
+target sys/syslog.h
+
+#
+# Files: /lib
+#
+file /lib/crt0.o
+file /lib/libc.a
+file /lib/libcurses.a
+file /lib/libtermlib.a
+file /lib/libwiznet.a
+file /lib/retroImage
+
+#
+# Files: /libexec
+#
+default
+filemode 0775
+file /libexec/bigram
+file /libexec/code
+file /libexec/diffh
+file /libexec/getty
+file /libexec/smallc
+file /libexec/smlrc
+
+#
+# Files: /share
+#
+default
+filemode 0444
+dir /share
+dir /share/misc
+file /share/emg.keys
+file /share/re.help
+
+#
+# Files: /share/example
+#
+default
+filemode 0664
+dir /share/example
+file /share/example/ashello.S
+file /share/example/blkjack.bas
+file /share/example/chello.c
+file /share/example/echo.S
+file /share/example/fact.fth
+file /share/example/hilow.bas
+file /share/example/Makefile
+file /share/example/prime.scm
+file /share/example/skeleton.c
+file /share/example/stars.bas
+file /share/example/stdarg.c
+
+#
+# Files: /share/smallc
+#
+dir /share/smallc
+file /share/smallc/adc.c
+file /share/smallc/gpio.c
+file /share/smallc/hello.c
+file /share/smallc/Makefile
+file /share/smallc/primelist.c
+file /share/smallc/primesum.c
+file /share/smallc/q8.c
+file /share/smallc/rain.c
+file /share/smallc/test1.c
+file /share/smallc/test2.c
+file /share/smallc/test3.c
+file /share/smallc/webserver.c
+
+#
+# Files: /var
+#
+dir /var
+dir /var/lock
+dir /var/log
+dir /var/run
+file /var/log/messages
+file /var/log/wtmp
+
+#
+# Files: /share/man
+#
+dir /share/man
+dir /share/man/cat1
+dir /share/man/cat2
+dir /share/man/cat3
+dir /share/man/cat4
+dir /share/man/cat5
+dir /share/man/cat6
+dir /share/man/cat7
+dir /share/man/cat8
+file /share/man/cat1/ar.0
+file /share/man/cat1/chflags.0
+file /share/man/cat1/chpass.0
+file /share/man/cat1/cpp.0
+file /share/man/cat1/crontab.0
+file /share/man/cat1/emg.0
+file /share/man/cat1/groups.0
+file /share/man/cat1/hostname.0
+file /share/man/cat1/id.0
+file /share/man/cat1/la.0
+file /share/man/cat1/lcc.0
+file /share/man/cat1/ld.0
+file /share/man/cat1/passwd.0
+file /share/man/cat1/printf.0
+file /share/man/cat1/ranlib.0
+file /share/man/cat1/rz.0
+file /share/man/cat1/stty.0
+file /share/man/cat1/sz.0
+file /share/man/cat1/test.0
+file /share/man/cat1/uname.0
+file /share/man/cat1/whoami.0
+file /share/man/cat1/xargs.0
+file /share/man/cat3/vmf.0
+file /share/man/cat5/ar.0
+file /share/man/cat5/crontab.0
+file /share/man/cat5/ranlib.0
+file /share/man/cat6/adventure.0
+file /share/man/cat6/arithmetic.0
+file /share/man/cat6/backgammon.0
+file /share/man/cat6/banner.0
+file /share/man/cat6/battlestar.0
+file /share/man/cat6/bcd.0
+file /share/man/cat6/canfield.0
+file /share/man/cat6/fish.0
+file /share/man/cat6/number.0
+file /share/man/cat6/rain.0
+file /share/man/cat6/rogue.0
+file /share/man/cat6/sail.0
+file /share/man/cat6/trek.0
+file /share/man/cat6/worm.0
+file /share/man/cat6/worms.0
+file /share/man/cat6/wump.0
+file /share/man/cat8/chown.0
+file /share/man/cat8/chroot.0
+file /share/man/cat8/cron.0
+file /share/man/cat8/fdisk.0
+file /share/man/cat8/fstat.0
+file /share/man/cat8/init.0
+file /share/man/cat8/mkfs.0
+file /share/man/cat8/mknod.0
+file /share/man/cat8/mkpasswd.0
+file /share/man/cat8/mount.0
+file /share/man/cat8/pstat.0
+file /share/man/cat8/reboot.0
+file /share/man/cat8/renice.0
+file /share/man/cat8/shutdown.0
+file /share/man/cat8/sysctl.0
+file /share/man/cat8/talloc.0
+file /share/man/cat8/umount.0
+file /share/man/cat8/update.0
+file /share/man/cat8/vipw.0
+
+link /share/man/cat1/rb.0
+target /share/man/cat1/rz.0
+link /share/man/cat1/rx.0
+target /share/man/cat1/rz.0
+
+link /share/man/cat1/sb.0
+target /share/man/cat1/sz.0
+link /share/man/cat1/sx.0
+target /share/man/cat1/sz.0
+
+link /share/man/cat8/fastboot.0
+target /share/man/cat8/reboot.0
+link /share/man/cat8/halt.0
+target /share/man/cat8/reboot.0
+
+link /share/man/cat1/chfn.0
+target /share/man/cat1/chpass.0
+link /share/man/cat1/chsh.0
+target /share/man/cat1/chpass.0

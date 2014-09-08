@@ -1,0 +1,27 @@
+#
+# Skeleton of manifest file.
+#
+default
+owner 0
+group 0
+dirmode 0775
+filemode 0664
+
+dir /tmp
+
+file /etc/passwd
+mode 0444
+
+link /etc/aliases
+target mail/aliases
+
+symlink /var/tmp
+target /tmp
+
+cdev /dev/tty
+major 5
+minor 0
+
+bdev /dev/sda
+major 8
+minor 0

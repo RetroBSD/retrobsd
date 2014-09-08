@@ -1,0 +1,62 @@
+.\" This file is in the public domain.
+.\"
+.\" Basic emg man page.
+.\" As both Ersatz Emacs and Mg are Public Domain, emg is also Public Domain.
+.\"
+.Dd June 17, 2014
+.Os
+.Dt EMG 1
+.Sh NAME
+.Nm emg
+.Nd very small Emacs-like text editor
+.Sh SYNOPSIS
+.Nm emg
+.Op Ar
+.Sh DESCRIPTION
+.Nm ,
+or Ersatz Mg, is an Emacs-like text editor designed for RetroBSD
+and other memory-constrained environments.
+.Nm
+was originally created to fit into an operating environment of 96K of RAM,
+and one in which Mg did not fit and Ersatz Emacs did not build.
+By combining parts of each a working editor was created.
+.Pp
+When invoked without file arguments,
+.Nm
+creates a
+.Qq main
+buffer.
+This buffer must be renamed
+.Ic ( C-x n )
+in order to be saved
+.Ic ( C-x C-s ) .
+.Pp
+As both Ersatz Emacs and Mg are Public Domain, 
+.Nm
+is also Public Domain.
+.Sh FILES
+There is a chart of key bindings in
+.Pa /usr/local/share/doc/emg/emg.keys .
+Consulting this file is a must.
+While
+.Nm
+strives to maintain compatibility with larger Emacs implementations,
+there may be features intentionally left unimplemented in order to keep
+.Nm
+as small as possible.
+.Sh AUTHORS
+.Nm
+is a combination of Ersatz Emacs and Mg and therefore all authors
+for both deserve credit.
+Ersatz Emacs and Mg were combined by
+.An Brian Callahan Aq Mt bcallah@openbsd.org
+to create
+.Nm .
+.Sh BUGS
+None known.
+However, patches are appreciated if any are found.
+.Sh TODO
+It would be nice to have automatic window resizing.
+It would also be nice if
+.Nm
+could clear the screen when quit, like Mg does.

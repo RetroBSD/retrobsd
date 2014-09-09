@@ -1,9 +1,10 @@
-# include	"monop.ext"
+#include "extern.h"
 
 /*
  *	This routine uses a get-out-of-jail-free card to get the
  * player out of jail.
  */
+void
 card() {
 
 	if (cur_p->loc != JAIL) {
@@ -18,10 +19,12 @@ card() {
 	cur_p->loc = 10;			/* just visiting	*/
 	cur_p->in_jail = 0;
 }
+
 /*
  *	This routine returns the players get-out-of-jail-free card
  * to a deck.
  */
+void
 ret_card(plr)
 reg PLAY	*plr; {
 
@@ -31,9 +34,11 @@ reg PLAY	*plr; {
 	else
 		CH_D.gojf_used = FALSE;
 }
+
 /*
  *	This routine deals with paying your way out of jail.
  */
+void
 pay() {
 
 	if (cur_p->loc != JAIL) {
@@ -45,9 +50,11 @@ pay() {
 	cur_p->in_jail = 0;
 	printf("That cost you $50\n");
 }
+
 /*
  *	This routine deals with a move in jail
  */
+int
 move_jail(r1, r2)
 reg int	r1, r2; {
 
@@ -70,6 +77,8 @@ moveit:
 		goto moveit;
 	}
 }
+
+void
 printturn() {
 
 	if (cur_p->loc != JAIL)

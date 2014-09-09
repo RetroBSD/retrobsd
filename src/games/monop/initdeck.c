@@ -1,5 +1,6 @@
-# include	<stdio.h>
-# include	"deck.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include "deck.h"
 
 /*
  *	This program initializes the card files for monopoly.
@@ -12,11 +13,11 @@
  * string to print, terminated with a null byte.
  */
 
-# define	TRUE	1
-# define	FALSE	0
+#define TRUE	1
+#define FALSE	0
 
-# define	bool	char
-# define	reg	register
+#define bool	char
+#define reg	register
 
 char	*infile		= "cards.inp",		/* input file		*/
 	*outfile	= "cards.pck";		/* "packed" file	*/

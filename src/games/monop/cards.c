@@ -1,38 +1,24 @@
-# include	"monop.ext"
+#include "extern.h"
+#include <stdlib.h>
 
 /*
  *	These routine deal with the card decks
  */
 
-# define	GOJF	'F'	/* char for get-out-of-jail-free cards	*/
+#define	GOJF	'F'	/* char for get-out-of-jail-free cards	*/
 
-# ifndef DEV
-static char	*cardfile	= "/usr/games/lib/cards.pck";
-# else
+#ifdef CROSS
 static char	*cardfile	= "cards.pck";
-# endif
+#else
+static char	*cardfile	= "/games/lib/cards.pck";
+#endif
 
 static FILE	*deckf;
 
 /*
- *	This routine initializes the decks from the data file,
- * which it opens.
- */
-init_decks() {
-
-	if ((deckf=fopen(cardfile, "r")) == NULL) {
-file_err:
-		perror(cardfile);
-		exit(1);
-	}
-	if (fread(deck, sizeof (DECK), 2, deckf) != 2)
-		goto file_err;
-	set_up(&CC_D);
-	set_up(&CH_D);
-}
-/*
  *	This routine sets up the offset pointers for the given deck.
  */
+static void
 set_up(dp)
 DECK	*dp; {
 
@@ -56,9 +42,45 @@ DECK	*dp; {
 		dp->offsets[r1] = temp;
 	}
 }
+
+/*
+ *	This routine initializes the decks from the data file,
+ * which it opens.
+ */
+void
+init_decks() {
+
+	if ((deckf=fopen(cardfile, "r")) == NULL) {
+file_err:
+		perror(cardfile);
+		exit(1);
+	}
+	if (fread(deck, sizeof (DECK), 2, deckf) != 2)
+		goto file_err;
+	set_up(&CC_D);
+	set_up(&CH_D);
+}
+
+/*
+ *	This routine prints out the message on the card
+ */
+static void
+printmes() {
+
+	reg char	c;
+
+	printline();
+	fflush(stdout);
+	while ((c = getc(deckf)) != '\0')
+		putchar(c);
+	printline();
+	fflush(stdout);
+}
+
 /*
  *	This routine draws a card from the given deck
  */
+void
 get_card(dp)
 DECK	*dp; {
 
@@ -69,7 +91,8 @@ DECK	*dp; {
 
 	do {
 		fseek(deckf, dp->offsets[dp->last_card], 0);
-		dp->last_card = ++(dp->last_card) % dp->num_cards;
+		dp->last_card++;
+		dp->last_card %= dp->num_cards;
 		type_maj = getc(deckf);
 	} while (dp->gojf_used && type_maj == GOJF);
 	type_min = getc(deckf);
@@ -135,11 +158,12 @@ DECK	*dp; {
 		}
 		num_h = num_H = 0;
 		for (op = cur_p->own_list; op; op = op->next)
-			if (op->sqr->type == PRPTY)
-				if (op->sqr->desc->houses == 5)
+			if (op->sqr->type == PRPTY) {
+				if (((PROP*)op->sqr->desc)->houses == 5)
 					++num_H;
 				else
-					num_h += op->sqr->desc->houses;
+					num_h += ((PROP*)op->sqr->desc)->houses;
+                        }
 		num = per_h * num_h + per_H * num_H;
 		printf("You had %d Houses and %d Hotels, so that cost you $%d\n", num_h, num_H, num);
 		if (num == 0)
@@ -153,18 +177,4 @@ DECK	*dp; {
 		break;
 	}
 	spec = FALSE;
-}
-/*
- *	This routine prints out the message on the card
- */
-printmes() {
-
-	reg char	c;
-
-	printline();
-	fflush(stdout);
-	while ((c = getc(deckf)) != '\0')
-		putchar(c);
-	printline();
-	fflush(stdout);
 }

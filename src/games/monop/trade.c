@@ -1,6 +1,7 @@
-# include	"monop.ext"
+#include "extern.h"
+#include <stdlib.h>
 
-static struct	trd_st {	/* how much to give to other player	*/
+struct	trd_st {	/* how much to give to other player	*/
 	int	trader;			/* trader number		*/
 	int	cash;			/* amount of cash 		*/
 	int	gojf;			/* # get-out-of-jail-free cards	*/
@@ -219,7 +220,7 @@ resign() {
 		} while (new_own == player);
 		name_list[num_play] = "done";
 	}
-	if (getyn("Do you really want to resign? ", yn) != 0)
+	if (getyn("Do you really want to resign? ", yesno) != 0)
 		return;
 	if (num_play == 1) {
 		printf("Then NOBODY wins (not even YOU!)\n");
@@ -241,10 +242,10 @@ resign() {
 		for (op = cur_p->own_list; op; op = op->next) {
 			sqp = op->sqr;
 			sqp->owner = -1;
-			sqp->desc->morg = FALSE;
-			if (op->type == PRPTY) {
-				isnot_monop(sqp->desc->mon_desc);
-				sqp->desc->houses = 0;
+			((PROP*)sqp->desc)->morg = FALSE;
+			if (op->sqr->type == PRPTY) {
+				isnot_monop(((PROP*)sqp->desc)->mon_desc);
+				((PROP*)sqp->desc)->houses = 0;
 			}
 		}
 		if (cur_p->num_gojf)

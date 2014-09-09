@@ -1,4 +1,4 @@
-# include	"monop.ext"
+#include "extern.h"
 
 /*
  *	These routines deal with mortgaging.
@@ -34,6 +34,7 @@ static int	num_good,got_houses;
  * it gets the list of mortgageable property and asks which are to
  * be mortgaged.
  */
+void
 mortgage() {
 
 	reg int	prop;
@@ -59,17 +60,19 @@ mortgage() {
 		notify(cur_p);
 	}
 }
+
 /*
  *	This routine sets up the list of mortgageable property
  */
+int
 set_mlist() {
 
 	reg OWN	*op;
 
 	num_good = 0;
 	for (op = cur_p->own_list; op; op = op->next)
-		if (!op->sqr->desc->morg)
-			if (op->sqr->type == PRPTY && op->sqr->desc->houses)
+		if (! ((PROP*)op->sqr->desc)->morg)
+			if (op->sqr->type == PRPTY && ((PROP*)op->sqr->desc)->houses)
 				got_houses++;
 			else {
 				names[num_good] = op->sqr->name;
@@ -79,24 +82,28 @@ set_mlist() {
 	names[num_good--] = 0;
 	return num_good;
 }
+
 /*
  *	This routine actually mortgages the property.
  */
+void
 m(prop)
 reg int	prop; {
 
 	reg int	price;
 
 	price = board[prop].cost/2;
-	board[prop].desc->morg = TRUE;
+	((PROP*)board[prop].desc)->morg = TRUE;
 	printf("That got you $%d\n",price);
 	cur_p->money += price;
 }
+
 /*
  *	This routine is the command level repsponse to the unmortgage
  * command.  It gets the list of mortgaged property and asks which are
  * to be unmortgaged.
  */
+void
 unmortgage() {
 
 	reg int	prop;
@@ -118,16 +125,18 @@ unmortgage() {
 		unm(square[prop]);
 	}
 }
+
 /*
  *	This routine sets up the list of mortgaged property
  */
+int
 set_umlist() {
 
 	reg OWN	*op;
 
 	num_good = 0;
 	for (op = cur_p->own_list; op; op = op->next)
-		if (op->sqr->desc->morg) {
+		if (((PROP*)op->sqr->desc)->morg) {
 			names[num_good] = op->sqr->name;
 			square[num_good++] = sqnum(op->sqr);
 		}
@@ -135,25 +144,29 @@ set_umlist() {
 	names[num_good--] = 0;
 	return num_good;
 }
+
 /*
  *	This routine actually unmortgages the property
  */
+void
 unm(prop)
 reg int	prop; {
 
 	reg int	price;
 
 	price = board[prop].cost/2;
-	board[prop].desc->morg = FALSE;
+	((PROP*)board[prop].desc)->morg = FALSE;
 	price += price/10;
 	printf("That cost you $%d\n",price);
 	cur_p->money -= price;
 	set_umlist();
 }
+
 /*
  *	This routine forces the indebted player to fix his
  * financial woes.
  */
+void
 force_morg() {
 
 	told_em = fixing = TRUE;
@@ -161,9 +174,11 @@ force_morg() {
 		fix_ex(getinp("How are you going to fix it up? ",morg_coms));
 	fixing = FALSE;
 }
+
 /*
  *	This routine is a special execute for the force_morg routine
  */
+void
 fix_ex(com_num)
 reg int	com_num; {
 

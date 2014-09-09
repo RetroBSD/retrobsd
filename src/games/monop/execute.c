@@ -1,24 +1,29 @@
-# include	"monop.ext"
-# include	<sys/types.h>
-# include	<sys/stat.h>
-# include	<sys/time.h>
+#include "extern.h"
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <fcntl.h>
+#include <unistd.h>
 
-# define	SEGSIZE	8192
+#define SEGSIZE	8192
 
 typedef	struct stat	STAT;
 typedef	struct tm	TIME;
 
-extern char	etext[],	/* end of text space			*/
+extern char	__data_start[],	/* beginning of data space			*/
 		rub();
 
-static char	buf[257],
-		*yn_only[]	= { "yes", "no"};
+static char	buf[257];
 
 static bool	new_play;	/* set if move on to new player		*/
 
 /*
  *	This routine executes the given command by index number
  */
+void
 execute(com_num)
 reg int	com_num; {
 
@@ -31,9 +36,11 @@ reg int	com_num; {
 	else if (num_doub)
 		printf("%s rolled doubles.  Goes again\n", cur_p->name);
 }
+
 /*
  *	This routine moves a piece around.
  */
+void
 do_move() {
 
 	reg int		r1, r2;
@@ -62,30 +69,16 @@ do_move() {
 ret:
 	return;
 }
-/*
- *	This routine moves a normal move
- */
-move(rl)
-reg int	rl; {
 
-	reg int	old_loc;
-
-	old_loc = cur_p->loc;
-	cur_p->loc = (cur_p->loc + rl) % N_SQRS;
-	if (cur_p->loc < old_loc && rl > 0) {
-		cur_p->money += 200;
-		printf("You pass %s and get $200\n", board[0].name);
-	}
-	show_move();
-}
 /*
  *	This routine shows the results of a move
  */
+static void
 show_move() {
 
 	reg SQUARE	*sqp;
 
-	sqp = &board[cur_p->loc];
+	sqp = &board[(int)cur_p->loc];
 	printf("That puts you on %s\n", sqp->name);
 	switch (sqp->type) {
 	  case SAFE:
@@ -106,7 +99,7 @@ show_move() {
 				cur_p->money -= sqp->cost;
 			}
 			else if (num_play > 2)
-				bid(sqp);
+				bid();
 		}
 		else if (sqp->owner == player)
 			printf("You own it.\n");
@@ -114,18 +107,37 @@ show_move() {
 			rent(sqp);
 	}
 }
+
+/*
+ *	This routine moves a normal move
+ */
+void
+move(rl)
+reg int	rl; {
+
+	reg int	old_loc;
+
+	old_loc = cur_p->loc;
+	cur_p->loc = (cur_p->loc + rl) % N_SQRS;
+	if (cur_p->loc < old_loc && rl > 0) {
+		cur_p->money += 200;
+		printf("You pass %s and get $200\n", board[0].name);
+	}
+	show_move();
+}
+
 /*
  *	This routine saves the current game for use at a later date
  */
+void
 save() {
 
 	reg char	*sp;
 	reg int		outf, num;
-	TIME		tme, *tp;
-	int		*dat_end, junk[18];
+	time_t		tme;
+        struct stat     junk;
 	unsgn		start, end;
 
-	tp = &tme;
 	printf("Which file do you wish to save it in? ");
 	sp = buf;
 	while ((*sp++=getchar()) != '\n' && !feof(stdin))
@@ -137,9 +149,8 @@ save() {
 	/*
 	 * check for existing files, and confirm overwrite if needed
 	 */
-
-	if (stat(buf, junk) > -1
-	    && getyn("File exists.  Do you wish to overwrite? ", yn_only) > 0)
+	if (stat(buf, &junk) >= 0
+	    && getyn("File exists.  Do you wish to overwrite? ") > 0)
 		return;
 
 	if ((outf=creat(buf, 0644)) < 0) {
@@ -147,28 +158,29 @@ save() {
 		return;
 	}
 	printf("\"%s\" ", buf);
-	time(tp);			/* get current time		*/
-	strcpy(buf, ctime(tp));
+	time(&tme);			/* get current time		*/
+	strcpy(buf, ctime(&tme));
 	for (sp = buf; *sp != '\n'; sp++)
 		continue;
 	*sp = '\0';
-# if 0
-	start = (((int) etext + (SEGSIZE-1)) / SEGSIZE ) * SEGSIZE;
-# else
-	start = 0;
-# endif
-	end = sbrk(0);
+	start = (unsigned) __data_start;
+	end = (unsigned) sbrk(0);
 	while (start < end) {		/* write out entire data space */
 		num = start + 16 * 1024 > end ? end - start : 16 * 1024;
-		write(outf, start, num);
+		if (write(outf, (void*)start, num) != num) {
+                        perror(buf);
+                        exit(-1);
+                }
 		start += num;
 	}
 	close(outf);
 	printf("[%s]\n", buf);
 }
+
 /*
  *	This routine restores an old game from a file
  */
+void
 restore() {
 
 	reg char	*sp;
@@ -181,10 +193,12 @@ restore() {
 		clearerr(stdin);
 	rest_f(buf);
 }
+
 /*
  *	This does the actual restoring.  It returns TRUE if the
  * backup was successful, else false.
  */
+int
 rest_f(file)
 reg char	*file; {
 
@@ -203,19 +217,22 @@ reg char	*file; {
 		perror(file);
 		exit(1);
 	}
-# if 0
-	start = (((int) etext + (SEGSIZE-1)) / SEGSIZE ) * SEGSIZE;
-# else
-	start = 0;
-# endif
-	brk(end = start + sbuf.st_size);
+	start = (unsigned) __data_start;
+	end = start + sbuf.st_size;
+	if (brk((void*) end) < 0) {
+                perror("brk");
+                exit(-1);
+	}
 	while (start < end) {		/* write out entire data space */
 		num = start + 16 * 1024 > end ? end - start : 16 * 1024;
-		read(inf, start, num);
+                if (read(inf, (void*) start, num) != num) {
+                        perror(file);
+                        exit(-1);
+                }
 		start += num;
 	}
 	close(inf);
-	strcpy(buf, ctime(sbuf.st_mtime));
+	strcpy(buf, ctime(&sbuf.st_mtime));
 	for (sp = buf; *sp != '\n'; sp++)
 		continue;
 	*sp = '\0';

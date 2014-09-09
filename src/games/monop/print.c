@@ -1,4 +1,4 @@
-# include	"monop.ext"
+#include "extern.h"
 
 static char	buf[80],		/* output buffer		*/
 		*header	= "Name      Own      Price Mg # Rent";
@@ -6,6 +6,7 @@ static char	buf[80],		/* output buffer		*/
 /*
  *	This routine prints out the current board
  */
+void
 printboard() {
 
 	reg int	i;
@@ -17,9 +18,11 @@ printboard() {
 		printsq(i+N_SQRS/2, TRUE);
 	}
 }
+
 /*
  *	This routine lists where each player is.
  */
+void
 where() {
 
 	reg int	i;
@@ -34,9 +37,11 @@ where() {
 		putchar('\n');
 	}
 }
+
 /*
  *	This routine prints out an individual square
  */
+void
 printsq(sqn, eoln)
 int		sqn;
 reg bool	eoln; {
@@ -60,7 +65,7 @@ spec:
 			printf("                        ");
 		break;
 	  case PRPTY:
-		pp = sqp->desc;
+		pp = (PROP*) sqp->desc;
 		if (sqp->owner < 0) {
 			printf(" - %-8.8s %3d", pp->mon_desc->name, sqp->cost);
 			if (!eoln)
@@ -113,20 +118,24 @@ spec:
 	if (eoln)
 		putchar('\n');
 }
+
 /*
  *	This routine prints out the mortgage flag.
  */
+void
 printmorg(sqp)
 reg SQUARE	*sqp; {
 
-	if (sqp->desc->morg)
+	if (((PROP*)sqp->desc)->morg)
 		printf(" * ");
 	else
 		printf("   ");
 }
+
 /*
  *	This routine lists the holdings of the player given
  */
+void
 printhold(pl)
 reg int	pl; {
 

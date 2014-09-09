@@ -1,9 +1,11 @@
-# include	"monop.ext"
+#include "extern.h"
+#include <stdlib.h>
 
 /*
  *	This routine deals with buying property, setting all the
  * appropriate flags.
  */
+void
 buy(player, sqrp)
 reg int		player;
 reg SQUARE	*sqrp; {
@@ -12,9 +14,11 @@ reg SQUARE	*sqrp; {
 	sqrp->owner = player;
 	add_list(player, &(play[player].own_list), cur_p->loc);
 }
+
 /*
  *	This routine adds an item to the list.
  */
+void
 add_list(plr, head, op_sqr)
 int	plr;
 OWN	**head;
@@ -44,9 +48,11 @@ int	op_sqr; {
 	if (!trading)
 		set_ownlist(plr);
 }
+
 /*
  *	This routine deletes property from the list.
  */
+void
 del_list(plr, head, op_sqr)
 int	plr;
 OWN	**head;
@@ -57,7 +63,7 @@ shrt	op_sqr; {
 
 	switch (board[op_sqr].type) {
 	  case PRPTY:
-		board[op_sqr].desc->mon_desc->num_own--;
+		((PROP*)board[op_sqr].desc)->mon_desc->num_own--;
 		break;
 	  case RR:
 		play[plr].num_rr--;
@@ -83,6 +89,7 @@ shrt	op_sqr; {
  *	This routine calculates the value for sorting of the
  * given square.
  */
+int
 value(sqp)
 reg SQUARE	*sqp; {
 
@@ -105,12 +112,13 @@ reg SQUARE	*sqp; {
 		return 8 + (PROP *)(sqp->desc) - prop;
 	}
 }
+
 /*
  *	This routine accepts bids for the current peice
  * of property.
  */
+void
 bid() {
-
 	static bool	in[MAX_PL];
 	reg int		i, num_in, cur_max;
 	char		buf[80];
@@ -151,10 +159,12 @@ bid() {
 	else
 		printf("Nobody seems to want it, so we'll leave it for later\n");
 }
+
 /*
  *	This routine calculates the value of the property
  * of given player.
  */
+int
 prop_worth(plp)
 reg PLAY	*plp; {
 
@@ -163,9 +173,9 @@ reg PLAY	*plp; {
 
 	worth = 0;
 	for (op = plp->own_list; op; op = op->next) {
-		if (op->sqr->type == PRPTY && op->sqr->desc->monop)
-			worth += op->sqr->desc->mon_desc->h_cost * 50 *
-			    op->sqr->desc->houses;
+		if (op->sqr->type == PRPTY && ((PROP*)op->sqr->desc)->monop)
+			worth += ((PROP*)op->sqr->desc)->mon_desc->h_cost * 50 *
+			    ((PROP*)op->sqr->desc)->houses;
 		worth += op->sqr->cost;
 	}
 	return worth;

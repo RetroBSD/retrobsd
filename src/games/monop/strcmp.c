@@ -1,9 +1,9 @@
-# include	<stdio.h>
-# include	<ctype.h>
+#include <stdio.h>
+#include <ctype.h>
 
-# define	reg	register
+#define reg	register
 
-# define	makelower(c)	(isupper(c) ? tolower(c) : c)
+#define makelower(c)	(isupper(c) ? tolower(c) : c)
 
 /*
  * Compare strings:  s1>s2: >0  s1==s2: 0  s1<s2: <0

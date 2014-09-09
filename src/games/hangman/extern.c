@@ -1,4 +1,4 @@
-# include	"hangman.h"
+#include "hangman.h"
 
 bool	Guessed[26];
 

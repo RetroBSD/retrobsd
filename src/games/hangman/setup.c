@@ -1,9 +1,13 @@
-# include	"hangman.h"
+#include <stdlib.h>
+#include <unistd.h>
+#include <time.h>
+#include "hangman.h"
 
 /*
  * setup:
  *	Set up the strings on the screen.
  */
+void
 setup()
 {
 	register char		**sp;
@@ -24,7 +28,7 @@ setup()
 		addstr(*sp);
 	}
 
-	srand(time(NULL) + getpid());
+	srandom(time(NULL) + getpid());
 	if ((Dict = fopen(DICT, "r")) == NULL) {
 		perror(DICT);
 		endwin();

@@ -1,10 +1,11 @@
-# include	"hangman.h"
+#include "hangman.h"
 
 /*
  * prman:
  *	Print out the man appropriately for the give number
  *	of incorrect guesses.
  */
+void
 prman()
 {
 	register int	i;

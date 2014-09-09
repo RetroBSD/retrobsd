@@ -418,6 +418,7 @@ file /games/cfscores
 file /games/factor
 file /games/fish
 file /games/fortune
+file /games/hangman
 file /games/morse
 file /games/number
 file /games/ppt
@@ -630,9 +631,12 @@ file /libexec/smlrc
 default
 filemode 0444
 dir /share
+dir /share/dict
 dir /share/misc
 file /share/emg.keys
 file /share/re.help
+file /share/dict/words
+file /share/misc/more.help
 
 #
 # Files: /share/example
@@ -725,6 +729,8 @@ file /share/man/cat6/battlestar.0
 file /share/man/cat6/bcd.0
 file /share/man/cat6/canfield.0
 file /share/man/cat6/fish.0
+file /share/man/cat6/fortune.0
+file /share/man/cat6/hangman.0
 file /share/man/cat6/number.0
 file /share/man/cat6/rain.0
 file /share/man/cat6/rogue.0

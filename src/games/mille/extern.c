@@ -25,7 +25,7 @@ char	*C_fmt = "%-18.18s",	/* format for printing cards		*/
 		"Flat Tire",
 		"Accident",
 		"Stop",
-		"Speed Limit", 
+		"Speed Limit",
 		"Gasoline",
 		"Spare Tire",
 		"Repairs",
@@ -71,7 +71,7 @@ int	Card_no,		/* Card number for current move		*/
 		1,	/* C_RIGHT_WAY */
 		0	/* C_INIT */
 	};
-	Numneed[NUM_CARDS] = {	/* number of cards needed per hand	*/
+int	Numneed[NUM_CARDS] = {	/* number of cards needed per hand	*/
 		0,	/* C_25 */
 		0,	/* C_50 */
 		0,	/* C_75 */
@@ -132,4 +132,3 @@ PLAY	Player[2];		/* Player descriptions			*/
 WINDOW	*Board,			/* Playing field screen			*/
 	*Miles,			/* Mileage screen			*/
 	*Score;			/* Score screen				*/
-

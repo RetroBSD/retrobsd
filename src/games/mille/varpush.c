@@ -1,18 +1,20 @@
-# include	"mille.h"
+#include "mille.h"
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 /*
  * @(#)varpush.c	1.1 (Berkeley) 4/1/82
  */
 
-int	read(), write();
-
 /*
  *	push variables around via the routine func() on the file
  * channel file.  func() is either read or write.
  */
+void
 varpush(file, func)
-reg int	file;
-reg int	(*func)(); {
+int	file;
+int	(*func)(); {
 
 	int	temp;
 
@@ -30,13 +32,18 @@ reg int	(*func)(); {
 	(*func)(file, (char *) &Discard, sizeof Discard);
 	(*func)(file, (char *)  Player, sizeof Player);
 	if (func == read) {
-		read(file, (char *) &temp, sizeof temp);
+		if (read(file, (char *) &temp, sizeof temp) != sizeof temp) {
+		        perror("read");
+                        exit(-1);
+		}
 		Topcard = &Deck[temp];
 		if (Debug) {
 			char	buf[80];
 over:
 			printf("Debug file:");
-			gets(buf);
+			if (! fgets(buf, sizeof(buf), stdin)) {
+                                exit(0);
+			}
 			if ((outf = fopen(buf, "w")) == NULL) {
 				perror(buf);
 				goto over;
@@ -47,7 +54,9 @@ over:
 	}
 	else {
 		temp = Topcard - Deck;
-		write(file, (char *) &temp, sizeof temp);
+		if (write(file, (char *) &temp, sizeof temp) != sizeof temp) {
+		        perror("write");
+                        exit(-1);
+		}
 	}
 }
-

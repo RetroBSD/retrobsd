@@ -32,7 +32,7 @@ int	ac;
 char	*av[]; {
 
 	bool	restore;
-	double	avs[3];
+	unsigned avs[3];
 
 	if (strcmp(av[0], "a.out") == 0) {
 		outf = fopen("q", "w");
@@ -41,8 +41,7 @@ char	*av[]; {
 	}
 	restore = FALSE;
 
-	getloadavg(avs, 3);
-	if (avs[2] > 4.0) {
+	if (getloadavg(avs, 3) >= 0 && avs[2] > 400) {
 		printf("Sorry.  The load average is too high.\n");
 		printf("Please try again later\n");
 		exit(1);

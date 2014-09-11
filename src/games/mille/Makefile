@@ -6,7 +6,7 @@ include $(TOPSRC)/target.mk
 #include $(TOPSRC)/cross.mk
 #CFLAGS  	= -O -DCROSS -Werror -Wall
 
-#CFLAGS  	+= -Werror -Wall
+CFLAGS  	+= -Werror -Wall
 
 OBJS            = comp.o end.o extern.o init.o mille.o misc.o move.o print.o \
                   roll.o save.o types.o varpush.o

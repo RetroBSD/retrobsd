@@ -7,7 +7,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-#define execsh(sh)	execl(sh, shell_name[roll(1, num_names)-1], NULL)
+#define execsh(sh)	execl(sh, shell_name[roll(1, num_names)-1], (char*)0)
 
 static char	*shell_def	= "/bin/csh",
 		*shell_name[]	= {
@@ -272,18 +272,6 @@ quitgame()
 {
         quit(0);
         return 0;
-}
-
-/*
- *	This routine copies one structure to another
- */
-void
-cpy_st(s1, s2, size)
-reg int	*s1, *s2, size; {
-
-	size /= 2;
-	while (size--)
-		*s1++ = *s2++;
 }
 
 /*

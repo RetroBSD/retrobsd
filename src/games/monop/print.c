@@ -1,7 +1,6 @@
 #include "extern.h"
 
-static char	buf[80],		/* output buffer		*/
-		*header	= "Name      Own      Price Mg # Rent";
+static char	*header	= "Name      Own      Price Mg # Rent";
 
 /*
  *	This routine prints out the current board
@@ -26,7 +25,6 @@ void
 where() {
 
 	reg int	i;
-	char	*bsp;
 
 	printf("%s Player\n", header);
 	for (i = 0; i < num_play; i++) {
@@ -36,6 +34,19 @@ where() {
 			printf(" *");
 		putchar('\n');
 	}
+}
+
+/*
+ *	This routine prints out the mortgage flag.
+ */
+static void
+printmorg(sqp)
+reg SQUARE	*sqp; {
+
+	if (((PROP*)sqp->desc)->morg)
+		printf(" * ");
+	else
+		printf("   ");
 }
 
 /*
@@ -49,7 +60,6 @@ reg bool	eoln; {
 	reg int		rnt;
 	reg PROP	*pp;
 	reg SQUARE	*sqp;
-	int		i;
 
 	sqp = &board[sqn];
 	printf("%-10.10s", sqp->name);
@@ -79,7 +89,7 @@ spec:
 			if (pp->houses < 5)
 				if (pp->houses > 0)
 					printf("%d %4d", pp->houses,
-						pp->rent[pp->houses]);
+						pp->rent[(int)pp->houses]);
 				else
 					printf("0 %4d", pp->rent[0] * 2);
 			else
@@ -97,7 +107,7 @@ spec:
 		}
 		printf(" %d          150", sqp->owner+1);
 		printmorg(sqp);
-		printf("%d", play[sqp->owner].num_util);
+		printf("%d", play[(int)sqp->owner].num_util);
 		if (!eoln)
 			printf("    ");
 		break;
@@ -111,25 +121,12 @@ spec:
 		printf(" %d Railroad 200", sqp->owner+1);
 		printmorg(sqp);
 		rnt = 25;
-		rnt <<= play[sqp->owner].num_rr - 1;
-		printf("%d %4d", play[sqp->owner].num_rr, 25 << (play[sqp->owner].num_rr - 1));
+		rnt <<= play[(int)sqp->owner].num_rr - 1;
+		printf("%d %4d", play[(int)sqp->owner].num_rr, 25 << (play[(int)sqp->owner].num_rr - 1));
 		break;
 	}
 	if (eoln)
 		putchar('\n');
-}
-
-/*
- *	This routine prints out the mortgage flag.
- */
-void
-printmorg(sqp)
-reg SQUARE	*sqp; {
-
-	if (((PROP*)sqp->desc)->morg)
-		printf(" * ");
-	else
-		printf("   ");
 }
 
 /*
@@ -141,7 +138,6 @@ reg int	pl; {
 
 	reg OWN		*op;
 	reg PLAY	*pp;
-	char		*bsp;
 
 	pp = &play[pl];
 	printf("%s's (%d) holdings (Total worth: $%d):\n", name_list[pl], pl+1,

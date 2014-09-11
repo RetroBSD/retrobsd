@@ -16,6 +16,35 @@ reg SQUARE	*sqrp; {
 }
 
 /*
+ *	This routine calculates the value for sorting of the
+ * given square.
+ */
+static int
+value(sqp)
+reg SQUARE	*sqp; {
+
+	reg int	sqr;
+
+	sqr = sqnum(sqp);
+	switch (sqp->type) {
+	  case SAFE:
+		return 0;
+	  case SPEC:
+		return 1;
+	  case UTIL:
+		if (sqr == 12)
+			return 2;
+		else
+			return 3;
+	  case RR:
+		return 4 + sqr/10;
+	  case PRPTY:
+		return 8 + (PROP *)(sqp->desc) - prop;
+	}
+        return 0;
+}
+
+/*
  *	This routine adds an item to the list.
  */
 void
@@ -26,7 +55,6 @@ int	op_sqr; {
 
 	reg int	val;
 	reg OWN	*tp, *last_tp;
-	MON	*mp;
 	OWN	*op;
 
 	op = calloc(1, sizeof (OWN));
@@ -35,7 +63,7 @@ int	op_sqr; {
 	last_tp = NULL;
 	for (tp = *head; tp && value(tp->sqr) < val; tp = tp->next)
 		if (val == value(tp->sqr)) {
-			cfree(op);
+			free(op);
 			return;
 		}
 		else
@@ -58,12 +86,11 @@ int	plr;
 OWN	**head;
 shrt	op_sqr; {
 
-	reg int	i;
 	reg OWN	*op, *last_op;
 
-	switch (board[op_sqr].type) {
+	switch (board[(int)op_sqr].type) {
 	  case PRPTY:
-		((PROP*)board[op_sqr].desc)->mon_desc->num_own--;
+		((PROP*)board[(int)op_sqr].desc)->mon_desc->num_own--;
 		break;
 	  case RR:
 		play[plr].num_rr--;
@@ -74,7 +101,7 @@ shrt	op_sqr; {
 	}
 	last_op = NULL;
 	for (op = *head; op; op = op->next)
-		if (op->sqr == &board[op_sqr])
+		if (op->sqr == &board[(int)op_sqr])
 			break;
 		else
 			last_op = op;
@@ -82,34 +109,7 @@ shrt	op_sqr; {
 		*head = op->next;
 	else {
 		last_op->next = op->next;
-		cfree(op);
-	}
-}
-/*
- *	This routine calculates the value for sorting of the
- * given square.
- */
-int
-value(sqp)
-reg SQUARE	*sqp; {
-
-	reg int	sqr;
-
-	sqr = sqnum(sqp);
-	switch (sqp->type) {
-	  case SAFE:
-		return 0;
-	  case SPEC:
-		return 1;
-	  case UTIL:
-		if (sqr == 12)
-			return 2;
-		else
-			return 3;
-	  case RR:
-		return 4 + sqr/10;
-	  case PRPTY:
-		return 8 + (PROP *)(sqp->desc) - prop;
+		free(op);
 	}
 }
 
@@ -131,7 +131,8 @@ bid() {
 	cur_max = 0;
 	num_in = num_play;
 	while (num_in > 1 || (cur_max == 0 && num_in > 0)) {
-		i = ++i % num_play;
+	        i++;
+		i %= num_play;
 		if (in[i]) {
 			do {
 				sprintf(buf, "%s: ", name_list[i]);
@@ -150,10 +151,12 @@ bid() {
 		}
 	}
 	if (cur_max != 0) {
-		while (!in[i])
-			i = ++i % num_play;
+		while (!in[i]) {
+		        i++;
+			i %= num_play;
+                }
 		printf("It goes to %s (%d) for $%d\n",play[i].name,i+1,cur_max);
-		buy(i, &board[cur_p->loc]);
+		buy(i, &board[(int)cur_p->loc]);
 		play[i].money -= cur_max;
 	}
 	else

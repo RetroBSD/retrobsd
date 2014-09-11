@@ -1,7 +1,7 @@
 DESTDIR		= /usr/local/retrobsd
 MACHINE		= mips
 
-CC		= gcc
+CC		= gcc -m32
 
 AS		= $(CC) -x assembler-with-cpp
 LD		= ld

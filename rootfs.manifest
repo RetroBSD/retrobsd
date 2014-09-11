@@ -420,6 +420,7 @@ file /games/fish
 file /games/fortune
 file /games/hangman
 file /games/mille
+file /games/monop
 file /games/morse
 file /games/number
 file /games/ppt
@@ -444,6 +445,8 @@ mode 0444
 file /games/lib/cfscores
 mode 0666
 file /games/lib/fortunes.dat
+mode 0444
+file /games/lib/cards.pck
 mode 0444
 
 #
@@ -733,6 +736,7 @@ file /share/man/cat6/fish.0
 file /share/man/cat6/fortune.0
 file /share/man/cat6/hangman.0
 file /share/man/cat6/mille.0
+file /share/man/cat6/monop.0
 file /share/man/cat6/number.0
 file /share/man/cat6/rain.0
 file /share/man/cat6/rogue.0

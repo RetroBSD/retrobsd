@@ -7,11 +7,11 @@ void
 rent(sqp)
 reg SQUARE	*sqp; {
 
-	reg int		rnt;
+	reg int		rnt = 0;
 	reg PROP	*pp;
 	PLAY		*plp;
 
-	plp = &play[sqp->owner];
+	plp = &play[(int)sqp->owner];
 	printf("Owned by %s\n", plp->name);
 	if (((PROP*)sqp->desc)->morg) {
 		lucky("The thing is mortgaged.  ");
@@ -25,10 +25,10 @@ reg SQUARE	*sqp; {
 				printf("rent is %d\n", rnt=pp->rent[0] * 2);
 			else if (pp->houses < 5)
 				printf("with %d houses, rent is %d\n",
-				    pp->houses, rnt=pp->rent[pp->houses]);
+				    pp->houses, rnt=pp->rent[(int)pp->houses]);
 			else
 				printf("with a hotel, rent is %d\n",
-				    rnt=pp->rent[pp->houses]);
+				    rnt=pp->rent[(int)pp->houses]);
 		else
 			printf("rent is %d\n", rnt = pp->rent[0]);
 		break;

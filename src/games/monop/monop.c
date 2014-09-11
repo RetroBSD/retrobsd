@@ -1,6 +1,7 @@
 #include "defines.h"
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <unistd.h>
 #include <signal.h>
 
@@ -46,8 +47,8 @@ over:
 				else
 					printf("\"done\" is a reserved word.  Please try again\n");
 				for (i = 0; i < num_play; i++)
-					cfree(play[i].name);
-				cfree(play);
+					free(play[i].name);
+				free(play);
 				goto blew_it;
 			}
 }

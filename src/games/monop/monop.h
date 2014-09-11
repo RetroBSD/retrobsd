@@ -101,6 +101,7 @@ int     roll(int ndie, int nsides);
 int     getinp(char *prompt, char *list[]);
 int     move_jail(int r1, int r2);
 int     getyn(char *prompt);
+int     prop_worth(PLAY *plp);
 
 void    goto_jail(void);
 void    inc_tax(void);
@@ -121,3 +122,7 @@ void    rent(SQUARE *sqp);
 void    ret_card(PLAY *plr);
 void    printhold(int pl);
 void    isnot_monop(MON	*mp);
+void    printsq(int sqn, bool eoln);
+void    add_list(int plr, OWN **head, int op_sqr);
+void    del_list(int plr, OWN **head, shrt op_sqr);
+void    set_ownlist(int pl);

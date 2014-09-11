@@ -4,11 +4,11 @@
 #	Makefile:  K.S.
 #
 TOPSRC		= $(shell cd ../../..; pwd)
-#include $(TOPSRC)/target.mk
-include $(TOPSRC)/cross.mk
-CFLAGS = -DCROSS
+include $(TOPSRC)/target.mk
+#include $(TOPSRC)/cross.mk
+#CFLAGS = -DCROSS -O
 
-CFLAGS		+= -O -Werror -Wall
+CFLAGS		+= -Werror -Wall
 LIBS            = -lc
 
 OBJS            = monop.o cards.o execute.o getinp.o houses.o jail.o misc.o \
@@ -27,14 +27,14 @@ monop:          $(OBJS)
 initdeck:       initdeck.c deck.h
 		$(CC) -o initdeck $(LDFLAGS) $(CFLAGS) initdeck.c
 
-cards.pck:      initdeck cards.inp
+cards.pck:      #initdeck cards.inp
 		./initdeck
 
 $(MAN):         $(MANSRC)
 		$(MANROFF) $< > $@
 
 clean:
-		rm -f *.o *.0 *.elf $(MAN) monop initdeck cards.pck *.elf *.dis tags *~
+		rm -f *.o *.0 *.elf $(MAN) monop initdeck *.elf *.dis tags *~
 
 install:        all
 		install monop $(DESTDIR)/games/

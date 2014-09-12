@@ -3,21 +3,17 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-
-#ifndef lint
-static char sccsid[] = "@(#)play_level.c	5.2 (Berkeley) 9/23/85";
-#endif not lint
-
-# include	"robots.h"
+#include "robots.h"
+#include <unistd.h>
 
 /*
  * play_level:
  *	Let the player play the current level
  */
+void
 play_level()
 {
 	register COORD	*cp;
-	register int	y, x, bonus;
 
 	move(My_pos.y, My_pos.x);
 	addch(PLAYER);
@@ -29,14 +25,14 @@ play_level()
 		addch(ROBOT);
 	}
 	refresh();
-# ifdef DEBUG
+#ifdef DEBUG
 	standout();
 	move(Min.y, Min.x);
 	addch(inch());
 	move(Max.y, Max.x);
 	addch(inch());
 	standend();
-# endif DEBUG
+#endif
 	setjmp(End_move);
 	flush_in();
 	while (!Dead && Num_robots > 0) {

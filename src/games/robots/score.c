@@ -3,13 +3,12 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-
-#ifndef lint
-static char sccsid[] = "@(#)score.c	5.1 (Berkeley) 5/30/85";
-#endif not lint
-
-# include	"robots.h"
-# include	<pwd.h>
+#include "robots.h"
+#include <stdlib.h>
+#include <string.h>
+#include <pwd.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 typedef struct {
 	int	s_uid;
@@ -26,10 +25,36 @@ int	Max_per_uid = MAX_PER_UID;
 static SCORE	Top[MAXSCORES];
 
 /*
+ * cmp_sc:
+ *	Compare two scores.
+ */
+static int
+cmp_sc(a1, a2)
+const void *a1, *a2;
+{
+        const SCORE *s1 = a1;
+        const SCORE *s2 = a2;
+
+	return s2->s_score - s1->s_score;
+}
+
+static void
+set_name(scp)
+register SCORE	*scp;
+{
+	register PASSWD	*pp;
+
+	if ((pp = getpwuid(scp->s_uid)) == NULL)
+		pp->pw_name = "???";
+	strncpy(scp->s_name, pp->pw_name, MAXNAME);
+}
+
+/*
  * score:
  *	Post the player's score, if reasonable, and then print out the
  *	top list.
  */
+void
 score()
 {
 	register int	inf;
@@ -44,9 +69,12 @@ score()
 		return;
 	}
 
-	if (read(inf, &max_uid, sizeof max_uid) == sizeof max_uid)
-		read(inf, Top, sizeof Top);
-	else {
+	if (read(inf, &max_uid, sizeof max_uid) == sizeof max_uid) {
+		if (read(inf, Top, sizeof Top) != sizeof Top) {
+		        perror("Error reading top scores");
+			exit(-1);
+		}
+	} else {
 		for (scp = Top; scp < &Top[MAXSCORES]; scp++)
 			scp->s_score = -1;
 		max_uid = Max_per_uid;
@@ -101,36 +129,23 @@ score()
 
 	if (Newscore) {
 		lseek(inf, 0L, 0);
-		write(inf, &max_uid, sizeof max_uid);
-		write(inf, Top, sizeof Top);
+		if (write(inf, &max_uid, sizeof max_uid) != sizeof max_uid) {
+		        perror("Error writing max uid");
+			exit(-1);
+		}
+		if (write(inf, Top, sizeof Top) != sizeof Top) {
+		        perror("Error writing top scores");
+			exit(-1);
+		}
 	}
 	close(inf);
-}
-
-set_name(scp)
-register SCORE	*scp;
-{
-	register PASSWD	*pp;
-
-	if ((pp = getpwuid(scp->s_uid)) == NULL)
-		pp->pw_name = "???";
-	strncpy(scp->s_name, pp->pw_name, MAXNAME);
-}
-
-/*
- * cmp_sc:
- *	Compare two scores.
- */
-cmp_sc(s1, s2)
-register SCORE	*s1, *s2;
-{
-	return s2->s_score - s1->s_score;
 }
 
 /*
  * show_score:
  *	Show the score list for the '-s' option.
  */
+void
 show_score()
 {
 	register SCORE	*scp;
@@ -145,11 +160,18 @@ show_score()
 	for (scp = Top; scp < &Top[MAXSCORES]; scp++)
 		scp->s_score = -1;
 
-	read(inf, &max_score, sizeof max_score);
-	read(inf, Top, sizeof Top);
+	if (read(inf, &max_score, sizeof max_score) != sizeof max_score) {
+                perror("Error reading max scores");
+                exit(-1);
+        }
+	if (read(inf, Top, sizeof Top) != sizeof Top) {
+                perror("Error reading top scores");
+                exit(-1);
+        }
 	close(inf);
 	inf = 1;
 	for (scp = Top; scp < &Top[MAXSCORES]; scp++)
 		if (scp->s_score >= 0)
-			printf("%d\t%d\t%.*s\n", inf++, scp->s_score, sizeof scp->s_name, scp->s_name);
+			printf("%d\t%d\t%.*s\n", inf++, scp->s_score,
+                                (int)sizeof scp->s_name, scp->s_name);
 }

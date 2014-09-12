@@ -427,6 +427,7 @@ file /games/ppt
 file /games/primes
 file /games/quiz
 file /games/rain
+file /games/robots
 file /games/rogue
 file /games/sail
 file /games/teachgammon
@@ -447,6 +448,8 @@ file /games/lib/cfscores
 mode 0666
 file /games/lib/fortunes.dat
 file /games/lib/cards.pck
+file /games/lib/robots_roll
+mode 0666
 dir /games/lib/quiz.k
 file /games/lib/quiz.k/africa
 file /games/lib/quiz.k/america
@@ -772,6 +775,7 @@ file /share/man/cat6/monop.0
 file /share/man/cat6/number.0
 file /share/man/cat6/quiz.0
 file /share/man/cat6/rain.0
+file /share/man/cat6/robots.0
 file /share/man/cat6/rogue.0
 file /share/man/cat6/sail.0
 file /share/man/cat6/trek.0

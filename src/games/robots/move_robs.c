@@ -3,34 +3,45 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
+#include "robots.h"
+#include <signal.h>
+#include <setjmp.h>
+#include <unistd.h>
 
-#ifndef lint
-static char sccsid[] = "@(#)move_robs.c	5.1 (Berkeley) 5/30/85";
-#endif not lint
-
-# include	"robots.h"
-# include	<signal.h>
+/*
+ * sign:
+ *	Return the sign of the number
+ */
+static int
+sign(n)
+int	n;
+{
+	if (n < 0)
+		return -1;
+	else if (n > 0)
+		return 1;
+	else
+		return 0;
+}
 
 /*
  * move_robots:
  *	Move the robots around
  */
+void
 move_robots(was_sig)
-bool	was_sig;
+int	was_sig;
 {
 	register COORD	*rp;
-	register int	y, x;
-	register int	mindist, d;
-	static COORD	newpos;
 
 	if (Real_time)
 		signal(SIGALRM, move_robots);
-# ifdef DEBUG
+#ifdef DEBUG
 	move(Min.y, Min.x);
 	addch(inch());
 	move(Max.y, Max.x);
 	addch(inch());
-# endif DEBUG
+#endif
 	for (rp = Robots; rp < &Robots[MAXROBOTS]; rp++) {
 		if (rp->y < 0)
 			continue;
@@ -81,17 +92,17 @@ bool	was_sig;
 	if (was_sig) {
 		refresh();
 		if (Dead || Num_robots <= 0)
-			longjmp(End_move);
+			longjmp(End_move, 1);
 	}
 
-# ifdef DEBUG
+#ifdef DEBUG
 	standout();
 	move(Min.y, Min.x);
 	addch(inch());
 	move(Max.y, Max.x);
 	addch(inch());
 	standend();
-# endif DEBUG
+#endif
 	if (Real_time)
 		alarm(3);
 }
@@ -100,25 +111,11 @@ bool	was_sig;
  * add_score:
  *	Add a score to the overall point total
  */
+void
 add_score(add)
 int	add;
 {
 	Score += add;
 	move(Y_SCORE, X_SCORE);
 	printw("%d", Score);
-}
-
-/*
- * sign:
- *	Return the sign of the number
- */
-sign(n)
-int	n;
-{
-	if (n < 0)
-		return -1;
-	else if (n > 0)
-		return 1;
-	else
-		return 0;
 }

@@ -425,6 +425,7 @@ file /games/morse
 file /games/number
 file /games/ppt
 file /games/primes
+file /games/quiz
 file /games/rain
 file /games/rogue
 file /games/sail
@@ -437,17 +438,48 @@ file /games/wump
 #
 # Files: /games/lib
 #
+default
+filemode 0444
 dir /games/lib
 file /games/lib/adventure.dat
-mode 0444
 file /games/lib/battle_strings
-mode 0444
 file /games/lib/cfscores
 mode 0666
 file /games/lib/fortunes.dat
-mode 0444
 file /games/lib/cards.pck
-mode 0444
+dir /games/lib/quiz.k
+file /games/lib/quiz.k/africa
+file /games/lib/quiz.k/america
+file /games/lib/quiz.k/areas
+file /games/lib/quiz.k/arith
+file /games/lib/quiz.k/asia
+file /games/lib/quiz.k/babies
+file /games/lib/quiz.k/bard
+file /games/lib/quiz.k/chinese
+file /games/lib/quiz.k/collectives
+file /games/lib/quiz.k/ed
+file /games/lib/quiz.k/elements
+file /games/lib/quiz.k/europe
+file /games/lib/quiz.k/greek
+file /games/lib/quiz.k/inca
+file /games/lib/quiz.k/index
+file /games/lib/quiz.k/latin
+file /games/lib/quiz.k/locomotive
+file /games/lib/quiz.k/midearth
+file /games/lib/quiz.k/morse
+file /games/lib/quiz.k/murders
+file /games/lib/quiz.k/poetry
+file /games/lib/quiz.k/posneg
+file /games/lib/quiz.k/pres
+file /games/lib/quiz.k/province
+file /games/lib/quiz.k/seq-easy
+file /games/lib/quiz.k/seq-hard
+file /games/lib/quiz.k/sexes
+file /games/lib/quiz.k/sov
+file /games/lib/quiz.k/spell
+file /games/lib/quiz.k/state
+file /games/lib/quiz.k/trek
+file /games/lib/quiz.k/ucc
 
 #
 # Files: /include
@@ -738,6 +770,7 @@ file /share/man/cat6/hangman.0
 file /share/man/cat6/mille.0
 file /share/man/cat6/monop.0
 file /share/man/cat6/number.0
+file /share/man/cat6/quiz.0
 file /share/man/cat6/rain.0
 file /share/man/cat6/rogue.0
 file /share/man/cat6/sail.0

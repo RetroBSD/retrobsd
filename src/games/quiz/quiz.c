@@ -1,8 +1,10 @@
-
-static char sccsid[] = "	quiz.c	4.2	85/01/09	";
-
 #include <stdio.h>
 #include <signal.h>
+#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <time.h>
+
 #define NF 10
 #define NL 300
 #define NC 200
@@ -24,8 +26,11 @@ int nc = 0;
 char line[150];
 char response[100];
 char *tmp[NF];
-int select[NF];
+int choice[NF];
 
+int string(int s);
+
+int
 readline()
 {
 	char *t;
@@ -57,18 +62,34 @@ loop:
 
 char *eu;
 char *ev;
-cmp(u,v)
-char *u,*v;
+
+int
+fold(c)
+char c;
 {
-	int x;
-	eu = u;
-	ev = v;
-	x = disj(1);
-	if(x!=1)
-		return(x);
-	return(eat(1,0));
+	if(c<'A'||c>'Z')
+		return(c);
+	return(c|040);
 }
 
+int
+eat(s,c)
+char c;
+{
+	if(*ev!=c)
+		return(2);
+	if(s==0) {
+		ev++;
+		return(1);
+	}
+	if(fold(*eu)!=fold(c))
+		return(0);
+	eu++;
+	ev++;
+	return(1);
+}
+
+int
 disj(s)
 {
 	int t, x;
@@ -83,7 +104,7 @@ disj(s)
 		case 0:
 		case ']':
 		case '}':
-			return(t|x&s);
+			return t | (x & s);
 		case '|':
 			ev++;
 			t |= s;
@@ -108,6 +129,7 @@ disj(s)
 	}
 }
 
+int
 string(s)
 {
 	int x;
@@ -152,44 +174,26 @@ string(s)
 	}
 }
 
-eat(s,c)
-char c;
+int
+cmp(u,v)
+char *u,*v;
 {
-	if(*ev!=c)
-		return(2);
-	if(s==0) {
-		ev++;
-		return(1);
-	}
-	if(fold(*eu)!=fold(c))
-		return(0);
-	eu++;
-	ev++;
-	return(1);
+	int x;
+	eu = u;
+	ev = v;
+	x = disj(1);
+	if(x!=1)
+		return(x);
+	return(eat(1,0));
 }
 
-fold(c)
-char c;
-{
-	if(c<'A'||c>'Z')
-		return(c);
-	return(c|040);
-}
-
-publish(t)
-char *t;
-{
-	ev = t;
-	pub1(1);
-}
-
+void
 pub1(s)
 {
 	for(;;ev++){
 		switch(*ev) {
 		case '|':
 			s = 0;
-			ev;
 			continue;
 		case ']':
 		case '}':
@@ -199,7 +203,6 @@ pub1(s)
 		case '{':
 			ev++;
 			pub1(s);
-			ev;
 			continue;
 		case '\\':
 			if(*++ev=='\n')
@@ -211,6 +214,15 @@ pub1(s)
 	}
 }
 
+void
+publish(t)
+char *t;
+{
+	ev = t;
+	pub1(1);
+}
+
+int
 segment(u,w)
 char *u, *w[];
 {
@@ -240,8 +252,15 @@ char *u, *w[];
 		}
 	}
 	printf("Too many facts about one thing\n");
+	return 0;
 }
 
+void
+badinfo(){
+	printf("Bad info %s\n",line);
+}
+
+int
 perm(u,m,v,n,p)
 int p[];
 char *u[], *v[];
@@ -263,18 +282,20 @@ uloop:		;
 	return(1);
 }
 
+int
 find(u,m)
 char *u[];
 {
 	int n;
 	while(readline()){
 		n = segment(line,tmp);
-		if(perm(u,m,tmp+1,n-1,select))
+		if(perm(u,m,tmp+1,n-1,choice))
 			return(1);
 	}
 	return(0);
 }
 
+void
 readindex()
 {
 	xx[0] = nc = 0;
@@ -288,139 +309,17 @@ readindex()
 	}
 }
 
+void
 talloc()
 {
 	int i;
-	char *malloc();
 
 	for(i=0;i<NF;i++)
 		tmp[i] = malloc(SL);
 }
 
-main(argc,argv)
-char *argv[];
-{
-	register j;
-	int i;
-	int x;
-	int z;
-	char *info;
-	int tvec[2];
-	char *t;
-	extern done();
-	int count;
-	info = "/usr/games/lib/quiz.k/index";
-	time(tvec);
-	inc = tvec[1]&077774|01;
-loop:
-	if(argc>1&&*argv[1]=='-') {
-		switch(argv[1][1]) {
-		case 'i':
-			if(argc>2) 
-				info = argv[2];
-			argc -= 2;
-			argv += 2;
-			goto loop;
-		case 't':
-			tflag = 1;
-			argc--;
-			argv++;
-			goto loop;
-		}
-	}
-	input = fopen(info,"r");
-	if(input==NULL) {
-		printf("No info\n");
-		exit(0);
-	}
-	talloc();
-	if(argc<=2)
-		instruct(info);
-	signal(SIGINT,done);
-	argv[argc] = 0;
-	if(find(&argv[1],argc-1)==0)
-		dunno();
-	fclose(input);
-	input = fopen(tmp[0],"r");
-	if(input==NULL)
-		dunno();
-	readindex();
-	if(!tflag || na>nl)
-		na = nl;
-	stdout->_flag |= _IONBF;
-	for(;;) {
-		i = next();
-		fseek(input,xx[i]+0L,0);
-		z = xx[i+1]-xx[i];
-		for(j=0;j<z;j++)
-			line[j] = getc(input);
-		segment(line,tmp);
-		if(*tmp[select[0]] == '\0' || *tmp[select[1]] == '\0') {
-			score[i] = 1;
-			continue;
-		}
-		publish(tmp[select[0]]);
-		printf("\n");
-		for(count=0;;count++) {
-			if(query(response)==0) {
-				publish(tmp[select[1]]);
-				printf("\n");
-				if(count==0) wrongs++;
-				score[i] = tflag?-1:1;
-				break;
-			}
-			x = cmp(response,tmp[select[1]]);
-			if(x>1) badinfo();
-			if(x==1) {
-				printf("Right!\n");
-				if(count==0) rights++;
-				if(++score[i]>=1 && na<nl)
-					na++;
-				break;
-			}
-			printf("What?\n");
-			if(count==0) wrongs++;
-			score[i] = tflag?-1:1;
-		}
-		guesses += count;
-	}
-}
-
-query(r)
-char *r;
-{
-	char *t;
-	for(t=r;;t++) {
-		if(read(0,t,1)==0)
-			done();
-		if(*t==' '&&(t==r||t[-1]==' '))
-			t--;
-		if(*t=='\n') {
-			while(t>r&&t[-1]==' ')
-				*--t = '\n';
-			break;
-		}
-	}
-	*t = 0;
-	return(t-r);
-}
-
-next()
-{
-	int flag;
-	inc = inc*3125&077777;
-	ptr = (inc>>2)%na;
-	flag = 0;
-	while(score[ptr]>0)
-		if(++ptr>=na) {
-			ptr = 0;
-			if(flag) done();
-			flag = 1;
-		}
-	return(ptr);
-}
-
-done()
+void
+done(int sig)
 {
 	printf("\nRights %d, wrongs %d, ", rights, wrongs);
 	if(guesses)
@@ -428,9 +327,10 @@ done()
 	printf("score %d%%\n",100*rights/(rights+wrongs));
 	exit(0);
 }
-instruct(info)
+
+void
+instruct(char *info)
 {
-	char *t;
 	int i, n;
 	printf("Subjects:\n\n");
 	while(readline()) {
@@ -466,12 +366,141 @@ instruct(info)
 	exit(0);
 }
 
-badinfo(){
-	printf("Bad info %s\n",line);
-}
-
+void
 dunno()
 {
 	printf("I don't know about that\n");
 	exit(0);
+}
+
+int
+next()
+{
+	int flag;
+	inc = inc*3125&077777;
+	ptr = (inc>>2)%na;
+	flag = 0;
+	while(score[ptr]>0)
+		if(++ptr>=na) {
+			ptr = 0;
+			if(flag) done(0);
+			flag = 1;
+		}
+	return(ptr);
+}
+
+int
+query(r)
+char *r;
+{
+	char *t;
+	for(t=r;;t++) {
+		if(read(0,t,1)==0)
+			done(0);
+		if(*t==' '&&(t==r||t[-1]==' '))
+			t--;
+		if(*t=='\n') {
+			while(t>r&&t[-1]==' ')
+				*--t = '\n';
+			break;
+		}
+	}
+	*t = 0;
+	return(t-r);
+}
+
+int
+main(argc,argv)
+char *argv[];
+{
+	int j, i, x, z, count;
+	char *indexfile, *p;
+	time_t tvec;
+	char inputfile[100];
+
+#ifdef CROSS
+	indexfile = "/usr/local/games/quiz.k/index";
+#else
+	indexfile = "/games/lib/quiz.k/index";
+#endif
+	time(&tvec);
+	inc = (tvec & 077774) | 01;
+loop:
+	if(argc>1&&*argv[1]=='-') {
+		switch(argv[1][1]) {
+		case 'i':
+			if(argc>2)
+				indexfile = argv[2];
+			argc -= 2;
+			argv += 2;
+			goto loop;
+		case 't':
+			tflag = 1;
+			argc--;
+			argv++;
+			goto loop;
+		}
+	}
+	input = fopen(indexfile,"r");
+	if(input==NULL) {
+		printf("No indexfile\n");
+		exit(0);
+	}
+	talloc();
+	if(argc<=2)
+		instruct(indexfile);
+	signal(SIGINT,done);
+	argv[argc] = 0;
+	if(find(&argv[1],argc-1)==0)
+		dunno();
+	fclose(input);
+
+	strcpy(inputfile, indexfile);
+	p = strrchr(inputfile, '/');
+	if (! p)
+		dunno();
+        strcpy(p+1, tmp[0]);
+	input = fopen(inputfile,"r");
+	if(input==NULL)
+		dunno();
+	readindex();
+	if(!tflag || na>nl)
+		na = nl;
+        setbuf(stdout, NULL);
+	for(;;) {
+		i = next();
+		fseek(input,xx[i]+0L,0);
+		z = xx[i+1]-xx[i];
+		for(j=0;j<z;j++)
+			line[j] = getc(input);
+		segment(line,tmp);
+		if(*tmp[choice[0]] == '\0' || *tmp[choice[1]] == '\0') {
+			score[i] = 1;
+			continue;
+		}
+		publish(tmp[choice[0]]);
+		printf("\n");
+		for(count=0;;count++) {
+			if(query(response)==0) {
+				publish(tmp[choice[1]]);
+				printf("\n");
+				if(count==0) wrongs++;
+				score[i] = tflag?-1:1;
+				break;
+			}
+			x = cmp(response,tmp[choice[1]]);
+			if(x>1) badinfo();
+			if(x==1) {
+				printf("Right!\n");
+				if(count==0) rights++;
+				if(++score[i]>=1 && na<nl)
+					na++;
+				break;
+			}
+			printf("What?\n");
+			if(count==0) wrongs++;
+			score[i] = tflag?-1:1;
+		}
+		guesses += count;
+	}
 }

@@ -1,5 +1,5 @@
 #
-# Skeleton of manifest file.
+# Example of manifest file.
 #
 default
 owner 0

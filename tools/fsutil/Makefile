@@ -17,7 +17,7 @@ all:		$(PROG)
 install:	$(PROG)
 		install -s $(PROG) ${DESTDIR}/bin/$(PROG)
 clean:
-		rm -f *~ *.o *.lst *.dis $(PROG)
+		rm -rf *~ *.o *.lst *.dis $(PROG) $(PROG).dSYM
 
 $(PROG):	$(OBJS)
 		$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)

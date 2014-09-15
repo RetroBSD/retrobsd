@@ -89,7 +89,6 @@ char stri[BSIZE];
 char *p;
 char ch, savec;
 char *kl, *kr, *ku, *kd;
-int fast=1;
 int repeat=1;
 long tv;
 char *tn;
@@ -369,7 +368,7 @@ struct point *ps;
 	int j,k;
 	int boxsize;	/* actually diameter of box, not radius */
 
-	boxsize = fast ? 10 : 4;
+	boxsize = 10;
 	point(&x,ps->col,ps->line);
 	for(j=1;j<boxsize;j++){
 		for(k=0;k<j;k++){
@@ -631,7 +630,11 @@ mainloop()
 	for (;;) {
 		int c, lastc = 0, match;
 
+		/* Hask to place cursor over the player position. */
+		you.col++; you.line++;
 		move(&you);
+		you.col--; you.line--;
+
 		fflush(stdout);
 		if (((c = getchar() & 0177) <= '9') && (c >= '0')) {
 			ungetc(c,stdin);
@@ -684,8 +687,7 @@ mainloop()
 			}
 			c = ch;
 		}
-		if (! fast)
-                    flushi();
+                flushi();
 		lastc = c;
 		switch (c){
 		case CTRL('z'):
@@ -776,24 +778,18 @@ mainloop()
 			case 'h':
 			case '\b':
 				if (you.col >0) {
-					if((fast)||(k == 1))
-						pchar(&you,' ');
+					pchar(&you,' ');
 					you.col--;
-					if((fast) || (k == repeat) ||
-					   (you.col == 0))
-						pchar(&you,ME);
+					pchar(&you,ME);
 				}
 				break;
 			case 'f':
 			case 'l':
 			case ' ':
 				if (you.col < ccnt-1) {
-					if((fast)||(k == 1))
-						pchar(&you,' ');
+					pchar(&you,' ');
 					you.col++;
-					if((fast) || (k == repeat) ||
-					   (you.col == ccnt-1))
-						pchar(&you,ME);
+					pchar(&you,ME);
 				}
 				break;
 			case CTRL('p'):
@@ -801,12 +797,9 @@ mainloop()
 			case 'k':
 			case 'i':
 				if (you.line > 0) {
-					if((fast)||(k == 1))
-						pchar(&you,' ');
+					pchar(&you,' ');
 					you.line--;
-					if((fast) || (k == repeat) ||
-					  (you.line == 0))
-						pchar(&you,ME);
+					pchar(&you,ME);
 				}
 				break;
 			case CTRL('n'):
@@ -815,12 +808,9 @@ mainloop()
 			case LF:
 			case 'm':
 				if (you.line+1 < lcnt) {
-					if((fast)||(k == 1))
-						pchar(&you,' ');
+					pchar(&you,' ');
 					you.line++;
-					if((fast) || (k == repeat) ||
-					  (you.line == lcnt-1))
-						pchar(&you,ME);
+					pchar(&you,ME);
 				}
 				break;
 			}
@@ -964,8 +954,6 @@ char **argv;
 	randm(&money);
 	randm(&snake[0]);
 
-	if (! CM && ! TA)
-                fast = 0;
 	for(i=1;i<6;i++)
 		chase (&snake[i], &snake[i-1]);
 	setup();

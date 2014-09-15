@@ -60,7 +60,6 @@
  *					Duration is ~ t/20 seconds.
  *
  ******************************************************************************/
-
 #include "snake.h"
 #include <stdlib.h>
 #include <string.h>
@@ -114,52 +113,8 @@ void
 right(sp)
 struct point *sp;
 {
-	int field,tfield;
-	int tabcol,strlength;
-
 	if (sp->col < cursor.col)
 		print("ERROR:right() can't move left\n");
-	if (TA) {	/* If No Tabs: can't send tabs because ttydrive
-			 * loses count with control characters.
-			 */
-		field = cursor.col >> 3;
-/*
- *	This code is useful for a terminal which wraps around on backspaces.
- *	(Mine does.)  Unfortunately, this is not specified in termcap, and
- *	most terminals don't work that way.  (Of course, most terminals
- *	have addressible cursors, too).
- */
-		if (BW && (CM == 0) &&
-		    ((sp->col << 1) - field > (COLUMNS - 8) << 1)) {
-	 		if (cursor.line == 0) {
-	 			outch('\n');
-	 		}
-	 		outch('\r');
-	 		cursor.col = COLUMNS + 1;
-	 		while(cursor.col > sp->col)bs();
-	 		if (cursor.line != 0) outch('\n');
-	 		return;
-	 	}
-
-		tfield = sp->col >> 3;
-
-		while (field < tfield) {
-			putpad(TA);
-			cursor.col = ++field << 3;
-		}
-		tabcol = (cursor.col|7) + 1;
-		strlength = (tabcol - sp->col)*BSlength + 1;
-		/* length of sequence to overshoot */
-		if (((sp->col - cursor.col)*NDlength > strlength) &&
-		    (tabcol < COLUMNS)) {
-			/*
-			 * Tab past and backup
-			 */
-			putpad(TA);
-			cursor.col = (cursor.col | 7) + 1;
-			while(cursor.col > sp->col)bs();
-		}
-	}
 	while (sp->col > cursor.col) {
 		nd();
 	}
@@ -209,7 +164,7 @@ void
 gto(sp)
 struct point *sp;
 {
-	int distance, f, tfield;
+	int distance, f;
 
 	if (cursor.line > LINES || cursor.line <0 ||
 	    cursor.col <0 || cursor.col > COLUMNS)
@@ -218,20 +173,17 @@ struct point *sp;
 	if (sp->line > LINES || sp->line <0 ||
 	    sp->col <0 || sp->col >  COLUMNS)
 		print("ERROR: target is %d,%d\n",sp->line,sp->col);
-	tfield = (sp->col) >> 3;
 	if (sp->line == cursor.line) {
 		if (sp->col > cursor.col)
                         right(sp);
 		else{
 			distance = (cursor.col -sp->col)*BSlength;
-			if (((TA) &&
-			     (distance > tfield+((sp->col)&7)*NDlength)
-			    ) ||
-			    (((cursor.col)*NDlength) < distance)) {
+			if (cursor.col*NDlength < distance) {
 				cr();
 				right(sp);
 			} else {
-				while(cursor.col > sp->col) bs();
+				while(cursor.col > sp->col)
+                                        bs();
 			}
 		}
 		return;
@@ -307,8 +259,6 @@ void
 move(sp)
 struct point *sp;
 {
-	int distance;
-	int tabcol,ct;
 	struct point z;
 
 	if (sp->line <0 || sp->col <0 || sp->col > COLUMNS) {
@@ -321,64 +271,10 @@ struct point *sp;
 		return;
 	}
 
-	if (CM != 0) {
-		char *cmstr = tgoto(CM, sp->col, sp->line);
-
-		CMlength = strlen(cmstr);
-		if (cursor.line == sp->line) {
-			distance = sp->col - cursor.col;
-			if (distance == 0) return;	/* Already there! */
-			if (distance > 0) {		/* Moving to the right */
-				if (distance*NDlength < CMlength) {
-					right(sp);
-					return;
-				}
-				if (TA) {
-					ct=sp->col&7;
-					tabcol=(cursor.col|7)+1;
-					do{
-						ct++;
-						tabcol=(tabcol|7)+1;
-					}
-					while(tabcol<sp->col);
-					if (ct<CMlength) {
-						right(sp);
-						return;
-					}
-				}
-			} else {		/* Moving to the left */
-				if (-distance*BSlength < CMlength) {
-					gto(sp);
-					return;
-				}
-			}
-			if (sp->col < CMlength) {
-				cr();
-				right(sp);
-				return;
-			}
-				/* No more optimizations on same row. */
-		}
-		distance = sp->col - cursor.col;
-		distance = distance > 0 ?
-			distance*NDlength : -distance * BSlength;
-                if (distance < 0)
-                        print("ERROR: distance is negative: %d",distance);
-		distance += abs(sp->line - cursor.line);
-		if (distance >= CMlength) {
-			putpad(cmstr);
-			cursor.line = sp->line;
-			cursor.col = sp->col;
-			return;
-		}
-	}
-
-	/*
-	 * If we get here we have a terminal that can't cursor
-	 * address but has local motions or one which can cursor
-	 * address but can get there quicker with local motions.
-	 */
-	 gto(sp);
+        char *cmstr = tgoto(CM, sp->col, sp->line);
+        putpad(cmstr);
+        cursor.line = sp->line;
+        cursor.col = sp->col;
 }
 
 void
@@ -458,7 +354,9 @@ struct point *ps;
 char ch;
 {
 	struct point p;
-	p.col = ps->col + 1; p.line = ps->line + 1;
+
+	p.col = ps->col + 1;
+        p.line = ps->line + 1;
 	if (
 		(p.col >= 0) &&
 		(p.line >= 0) &&
@@ -585,10 +483,6 @@ getcap()
 	if (BS)
 		xBC = *BS;
 
-	TA = tgetstr("ta", &ap);
-	if (TA == 0 && tgetflag("pt"))
-		TA = "\t";
-
 	HO = tgetstr("ho", &ap);
 	CL = tgetstr("cl", &ap);
 	CM = tgetstr("cm", &ap);
@@ -616,9 +510,8 @@ getcap()
 
 	NDlength = strlen(ND);
 	BSlength = strlen(BS);
-	if ((CM == 0) && (HO == 0 || UP==0 || BS==0 || ND==0)) {
-		fprintf(stderr, "Terminal must have addressible ");
-		fprintf(stderr, "cursor or home + 4 local motions\n");
+	if (CM == 0) {
+		fprintf(stderr, "Terminal must have addressible cursor\n");
 		exit(5);
 	}
 	if (tgetflag("os")) {
@@ -632,20 +525,17 @@ getcap()
 
 #ifdef CROSS
         ioctl(0, TCGETA, &origtty);
-#else
-        ioctl(0, TIOCGETP, &origtty);
-#endif
 	newtty = origtty;
-#ifdef CRMOD
-	newtty.sg_flags &= ~(ECHO|CRMOD|XTABS);
-	newtty.sg_flags |= CBREAK;
-#else
         newtty.c_lflag &= ~(ICANON | ECHO);
         newtty.c_oflag &= ~ONLCR;
-        newtty.c_cc[4] = 1;  /* MIN */
-        newtty.c_cc[5] = 2;  /* TIME */
+        newtty.c_cc[VMIN] = 1;
+        newtty.c_cc[VTIME] = 0;
+#else
+        ioctl(0, TIOCGETP, &origtty);
+	newtty = origtty;
+	newtty.sg_flags &= ~(ECHO|CRMOD|XTABS);
+	newtty.sg_flags |= CBREAK;
 #endif
-	signal(SIGINT, stop);
 #ifdef TIOCGLTC
 	ioctl(0, TIOCGLTC, &olttyc);
 	nlttyc = olttyc;
@@ -653,11 +543,8 @@ getcap()
 	nlttyc.t_dsuspc = '\377';
 #endif
 	raw();
+	signal(SIGINT, stop);
 
-#ifndef CROSS
-	if ((origtty.sg_flags & XTABS) == XTABS)
-            TA = 0;
-#endif
 	putpad(KS);
 	putpad(TI);
 	point(&cursor,0,LINES-1);

@@ -13,6 +13,7 @@
 #include <math.h>
 #ifdef CROSS
 #   include <termios.h>
+#   define sgttyb termio
 #else
 #   include <sgtty.h>
 #endif
@@ -24,8 +25,7 @@ struct tbuffer {
 } tbuffer;
 
 char	*CL, *UP, *DO, *ND, *BS,
-	*HO, *CM,
-	*TA, *LL,
+	*HO, *CM, *LL,
 	*KL, *KR, *KU, *KD,
 	*TI, *TE, *KS, *KE;
 int	LINES, COLUMNS;	/* physical screen size. */

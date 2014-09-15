@@ -5,37 +5,39 @@
 #
 #	@(#)Makefile	5.1.1 (2.11BSD GTE) 1/16/95
 #
-DESTDIR=
-CFLAGS=	-O -DCHECKBUSY
-LIBS=	-lm -ltermcap
-BIN=	$(DESTDIR)/usr/games
-LIB=	$(DESTDIR)/usr/games/lib
-USER=	daemon
-UTILS=	snscore busy
-OBJS=	snake.o move.o
-ALL=	snake ${UTILS}
-SEPFLAG= -i
+TOPSRC          = $(shell cd ../../..; pwd)
+include $(TOPSRC)/target.mk
+#include $(TOPSRC)/cross.mk
+#CFLAGS  	= -O -g -DCROSS -Dsgttyb=termios
 
-all:	${ALL}
+CFLAGS  	+= -Werror -Wall
 
-snake:	$(OBJS)
-	cc ${SEPFLAG} $(OBJS) -o snake $(LIBS)
+OBJS            = snake.o move.o
+MAN             = snake.0
+LIBS            = -lm -ltermcap -lc
 
-snake.o move.o:snake.h
+all:            snake snscore $(MAN)
 
-snscore: snscore.c
-	cc ${SEPFLAG} $(CFLAGS) snscore.c -o snscore
+snake:          $(OBJS)
+		$(CC) $(LDFLAGS) -o $@.elf $(OBJS) $(LIBS)
+		$(OBJDUMP) -S $@.elf > $@.dis
+		$(SIZE) $@.elf
+		$(ELF2AOUT) $@.elf $@ && rm $@.elf
 
-busy:	busy.c
-	cc ${SEPFLAG} $(CFLAGS) busy.c -o busy
+snscore:        snscore.o
+		$(CC) $(LDFLAGS) -o $@.elf snscore.o $(LIBS)
+		$(OBJDUMP) -S $@.elf > $@.dis
+		$(SIZE) $@.elf
+		$(ELF2AOUT) $@.elf $@ && rm $@.elf
 
-install: all
-	install -s -m 4755 -o ${USER} snake ${BIN}/snake
-	install -s -m 755 -o ${USER} snscore ${BIN}/snscore
-	install -s -m 755 -o ${USER} busy ${LIB}/busy
-	cat /dev/null >> $(LIB)/snakerawscores
-	chmod 644 $(LIB)/snakerawscores
-	chown $(USER) $(LIB)/snakerawscores
+$(MAN):         snake.6
+		nroff -man $< > $@
 
 clean:
-	rm -f *.o ${ALL}
+		rm -f *.o core snake snscore *.0 *.dis
+
+install:        all
+		install snake $(DESTDIR)/games/
+		install snscore $(DESTDIR)/games/
+		install -m 644 $(MAN) $(DESTDIR)/share/man/cat6/
+		install -c -m 644 /dev/null ${DESTDIR}/games/lib/snakerawscores

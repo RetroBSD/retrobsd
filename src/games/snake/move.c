@@ -4,10 +4,6 @@
  * specifies the terms and conditions for redistribution.
  */
 
-#if	!defined(lint) && defined(DOSCCS)
-static char sccsid[] = "@(#)move.c	5.1.1 (2.11BSD) 1997/3/28";
-#endif
-
 /*************************************************************************
  *
  *	MOVE LIBRARY
@@ -31,9 +27,9 @@ static char sccsid[] = "@(#)move.c	5.1.1 (2.11BSD) 1997/3/28";
  *		home()		home.
  *		ll()		move to lower left corner of screen.
  *		cr()		carriage return (no line feed).
- *		printf()	just like standard printf, but keeps track
+ *		print()		just like standard printf, but keeps track
  *				of cursor position. (Uses pstring).
- *		aprintf()	same as printf, but first argument is &point.
+ *		aprint()	same as print, but first argument is &point.
  *				(Uses pstring).
  *		pstring(s)	output the string of printing characters.
  *				However, '\r' is interpreted to mean return
@@ -59,7 +55,6 @@ static char sccsid[] = "@(#)move.c	5.1.1 (2.11BSD) 1997/3/28";
  *		same(&p1,&p2)	returns 1 if p1 and p2 are the same point.
  *		point(&p,x,y)	return point set to x,y.
  *
- *		baudrate(x)	returns the baudrate of the terminal.
  *		delay(t)	causes an approximately constant delay
  *					independent of baudrate.
  *					Duration is ~ t/20 seconds.
@@ -67,129 +62,187 @@ static char sccsid[] = "@(#)move.c	5.1.1 (2.11BSD) 1997/3/28";
  ******************************************************************************/
 
 #include "snake.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdarg.h>
+#include <term.h>
+#include <unistd.h>
 
 int CMlength;
 int NDlength;
 int BSlength;
 int delaystr[10];
-short ospeed;
 
 static char str[80];
 
-move(sp)
+int
+outch(c)
+{
+	return putchar(c);
+}
+
+void
+putpad(str)
+char *str;
+{
+	if (str)
+		tputs(str, 1, outch);
+}
+
+void
+bs()
+{
+	if (cursor.col > 0) {
+		putpad(BS);
+		cursor.col--;
+	}
+}
+
+void
+nd()
+{
+	putpad(ND);
+	cursor.col++;
+	if (cursor.col == COLUMNS+1) {
+		cursor.line++;
+		cursor.col = 0;
+		if (cursor.line >= LINES)cursor.line=LINES-1;
+	}
+}
+
+void
+right(sp)
 struct point *sp;
 {
-	int distance;
-	int tabcol,ct;
+	int field,tfield;
+	int tabcol,strlength;
+
+	if (sp->col < cursor.col)
+		print("ERROR:right() can't move left\n");
+	if (TA) {	/* If No Tabs: can't send tabs because ttydrive
+			 * loses count with control characters.
+			 */
+		field = cursor.col >> 3;
+/*
+ *	This code is useful for a terminal which wraps around on backspaces.
+ *	(Mine does.)  Unfortunately, this is not specified in termcap, and
+ *	most terminals don't work that way.  (Of course, most terminals
+ *	have addressible cursors, too).
+ */
+		if (BW && (CM == 0) &&
+		    ((sp->col << 1) - field > (COLUMNS - 8) << 1)) {
+	 		if (cursor.line == 0) {
+	 			outch('\n');
+	 		}
+	 		outch('\r');
+	 		cursor.col = COLUMNS + 1;
+	 		while(cursor.col > sp->col)bs();
+	 		if (cursor.line != 0) outch('\n');
+	 		return;
+	 	}
+
+		tfield = sp->col >> 3;
+
+		while (field < tfield) {
+			putpad(TA);
+			cursor.col = ++field << 3;
+		}
+		tabcol = (cursor.col|7) + 1;
+		strlength = (tabcol - sp->col)*BSlength + 1;
+		/* length of sequence to overshoot */
+		if (((sp->col - cursor.col)*NDlength > strlength) &&
+		    (tabcol < COLUMNS)) {
+			/*
+			 * Tab past and backup
+			 */
+			putpad(TA);
+			cursor.col = (cursor.col | 7) + 1;
+			while(cursor.col > sp->col)bs();
+		}
+	}
+	while (sp->col > cursor.col) {
+		nd();
+	}
+}
+
+void
+cr()
+{
+	outch('\r');
+	cursor.col = 0;
+}
+
+void
+ll()
+{
+	int l;
 	struct point z;
 
-	if (sp->line <0 || sp->col <0 || sp->col > COLUMNS){
-		printf("move to [%d,%d]?",sp->line,sp->col);
+	l = lcnt + 2;
+	if (LL != NULL && LINES==l) {
+	 	putpad(LL);
+		cursor.line = LINES-1;
+		cursor.col = 0;
 		return;
 	}
-	if (sp->line >= LINES){
-		move(point(&z,sp->col,LINES-1));
-		while(sp->line-- >= LINES)putchar('\n');
-		return;
-	}
-
-	if (CM != 0) {
-		char *cmstr = tgoto(CM, sp->col, sp->line);
-
-		CMlength = strlen(cmstr);
-		if(cursor.line == sp->line){
-			distance = sp->col - cursor.col;
-			if(distance == 0)return;	/* Already there! */
-			if(distance > 0){	/* Moving to the right */
-				if(distance*NDlength < CMlength){
-					right(sp);
-					return;
-				}
-				if(TA){
-					ct=sp->col&7;
-					tabcol=(cursor.col|7)+1;
-					do{
-						ct++;
-						tabcol=(tabcol|7)+1;
-					}
-					while(tabcol<sp->col);
-					if(ct<CMlength){
-						right(sp);
-						return;
-					}
-				}
-			} else {		/* Moving to the left */
-				if (-distance*BSlength < CMlength){
-					gto(sp);
-					return;
-				}
-			}
-			if(sp->col < CMlength){
-				cr();
-				right(sp);
-				return;
-			}
-				/* No more optimizations on same row. */
-		}
-		distance = sp->col - cursor.col;
-		distance = distance > 0 ?
-			distance*NDlength : -distance * BSlength;
-if(distance < 0)printf("ERROR: distance is negative: %d",distance);
-		distance += abs(sp->line - cursor.line);
-		if(distance >= CMlength){
-			putpad(cmstr);
-			cursor.line = sp->line;
-			cursor.col = sp->col;
-			return;
-		}
-	}
-
-	/*
-	 * If we get here we have a terminal that can't cursor
-	 * address but has local motions or one which can cursor
-	 * address but can get there quicker with local motions.
-	 */
-	 gto(sp);
+	z.col = 0;
+	z.line = l-1;
+	move(&z);
 }
+
+void
+up()
+{
+	putpad(UP);
+	cursor.line--;
+}
+
+void
+down()
+{
+	putpad(DO);
+	cursor.line++;
+	if (cursor.line >= LINES)cursor.line=LINES-1;
+}
+
+void
 gto(sp)
 struct point *sp;
 {
-
-	int distance,f,tfield,j;
+	int distance, f, tfield;
 
 	if (cursor.line > LINES || cursor.line <0 ||
 	    cursor.col <0 || cursor.col > COLUMNS)
-		printf("ERROR: cursor is at %d,%d\n",
+		print("ERROR: cursor is at %d,%d\n",
 			cursor.line,cursor.col);
 	if (sp->line > LINES || sp->line <0 ||
 	    sp->col <0 || sp->col >  COLUMNS)
-		printf("ERROR: target is %d,%d\n",sp->line,sp->col);
+		print("ERROR: target is %d,%d\n",sp->line,sp->col);
 	tfield = (sp->col) >> 3;
-	if (sp->line == cursor.line){
-		if (sp->col > cursor.col)right(sp);
+	if (sp->line == cursor.line) {
+		if (sp->col > cursor.col)
+                        right(sp);
 		else{
 			distance = (cursor.col -sp->col)*BSlength;
-			if (((TA) && 
+			if (((TA) &&
 			     (distance > tfield+((sp->col)&7)*NDlength)
 			    ) ||
-			    (((cursor.col)*NDlength) < distance)
-			   ){
+			    (((cursor.col)*NDlength) < distance)) {
 				cr();
 				right(sp);
-			}
-			else{
+			} else {
 				while(cursor.col > sp->col) bs();
 			}
 		}
 		return;
 	}
 				/*must change row */
-	if (cursor.col - sp->col > (cursor.col >> 3)){
+	if (cursor.col - sp->col > (cursor.col >> 3)) {
 		if (cursor.col == 0)f = 0;
 		else f = -1;
 	}
 	else f = cursor.col >> 3;
-	if (((sp->line << 1) + 1 < cursor.line - f) && (HO != 0)){
+	if (((sp->line << 1) + 1 < cursor.line - f) && (HO != 0)) {
 			/*
 			 * home quicker than rlf:
 			 * (sp->line + f > cursor.line - sp->line)
@@ -199,11 +252,11 @@ struct point *sp;
 		gto(sp);
 		return;
 	}
-	if (((sp->line << 1) > cursor.line + LINES+1 + f) && (LL != 0)){
+	if (((sp->line << 1) > cursor.line + LINES+1 + f) && (LL != 0)) {
 		/* home,rlf quicker than lf
-		 * (LINES+1 - sp->line + f < sp->line - cursor.line) 
+		 * (LINES+1 - sp->line + f < sp->line - cursor.line)
 		 */
-		if (cursor.line > f + 1){
+		if (cursor.line > f + 1) {
 		/* is home faster than wraparound lf?
 		 * (cursor.line + 20 - sp->line > 21 - sp->line + f)
 		 */
@@ -219,71 +272,26 @@ struct point *sp;
 	gto(sp);		/*can recurse since cursor.line = sp->line */
 }
 
-right(sp)
-struct point *sp;
+void
+home()
 {
-	int field,tfield;
-	int tabcol,strlength;
+	struct point z;
 
-	if (sp->col < cursor.col)
-		printf("ERROR:right() can't move left\n");
-	if(TA){		/* If No Tabs: can't send tabs because ttydrive
-			 * loses count with control characters.
-			 */
-		field = cursor.col >> 3;
-/*
- *	This code is useful for a terminal which wraps around on backspaces.
- *	(Mine does.)  Unfortunately, this is not specified in termcap, and
- *	most terminals don't work that way.  (Of course, most terminals
- *	have addressible cursors, too).
- */
-		if (BW && (CM == 0) &&
-		    ((sp->col << 1) - field > (COLUMNS - 8) << 1 )
-		   ){
-	 		if (cursor.line == 0){  
-	 			outch('\n');
-	 		}
-	 		outch('\r');
-	 		cursor.col = COLUMNS + 1;
-	 		while(cursor.col > sp->col)bs();
-	 		if (cursor.line != 0) outch('\n');
-	 		return;
-	 	}
-
-		tfield = sp->col >> 3;
-
-		while (field < tfield){
-			putpad(TA);
-			cursor.col = ++field << 3;
-		}
-		tabcol = (cursor.col|7) + 1;
-		strlength = (tabcol - sp->col)*BSlength + 1;
-		/* length of sequence to overshoot */
-		if (((sp->col - cursor.col)*NDlength > strlength) &&
-		    (tabcol < COLUMNS)
-		   ){
-			/*
-			 * Tab past and backup
-			 */
-			putpad(TA);
-			cursor.col = (cursor.col | 7) + 1;
-			while(cursor.col > sp->col)bs();
-		}
+	if (HO != 0) {
+		putpad(HO);
+		cursor.col = cursor.line = 0;
+		return;
 	}
-	while (sp->col > cursor.col){
-		nd();
-	}
+	z.col = z.line = 0;
+	move(&z);
 }
 
-cr(){
-	outch('\r');
-	cursor.col = 0;
-}
-
-clear(){
+void
+clear()
+{
 	int i;
 
-	if (CL){
+	if (CL) {
 		putpad(CL);
 		cursor.col=cursor.line=0;
 	} else {
@@ -295,100 +303,104 @@ clear(){
 	}
 }
 
-home(){
+void
+move(sp)
+struct point *sp;
+{
+	int distance;
+	int tabcol,ct;
 	struct point z;
 
-	if(HO != 0){
-		putpad(HO);
-		cursor.col = cursor.line = 0;
+	if (sp->line <0 || sp->col <0 || sp->col > COLUMNS) {
+		print("move to [%d,%d]?",sp->line,sp->col);
 		return;
 	}
-	z.col = z.line = 0;
-	move(&z);
-}
-
-ll(){
-	int j,l;
-	struct point z;
-
-	l = lcnt + 2;
-	if(LL != NULL && LINES==l){
-		putpad(LL);
-		cursor.line = LINES-1;
-		cursor.col = 0;
+	if (sp->line >= LINES) {
+		move(point(&z,sp->col,LINES-1));
+		while(sp->line-- >= LINES)putchar('\n');
 		return;
 	}
-	z.col = 0;
-	z.line = l-1;
-	move(&z);
-}
 
-up(){
-	putpad(UP);
-	cursor.line--;
-}
+	if (CM != 0) {
+		char *cmstr = tgoto(CM, sp->col, sp->line);
 
-down(){
-	putpad(DO);
-	cursor.line++;
-	if (cursor.line >= LINES)cursor.line=LINES-1;
-}
-bs(){
-	if (cursor.col > 0){
-		putpad(BS);
-		cursor.col--;
+		CMlength = strlen(cmstr);
+		if (cursor.line == sp->line) {
+			distance = sp->col - cursor.col;
+			if (distance == 0) return;	/* Already there! */
+			if (distance > 0) {		/* Moving to the right */
+				if (distance*NDlength < CMlength) {
+					right(sp);
+					return;
+				}
+				if (TA) {
+					ct=sp->col&7;
+					tabcol=(cursor.col|7)+1;
+					do{
+						ct++;
+						tabcol=(tabcol|7)+1;
+					}
+					while(tabcol<sp->col);
+					if (ct<CMlength) {
+						right(sp);
+						return;
+					}
+				}
+			} else {		/* Moving to the left */
+				if (-distance*BSlength < CMlength) {
+					gto(sp);
+					return;
+				}
+			}
+			if (sp->col < CMlength) {
+				cr();
+				right(sp);
+				return;
+			}
+				/* No more optimizations on same row. */
+		}
+		distance = sp->col - cursor.col;
+		distance = distance > 0 ?
+			distance*NDlength : -distance * BSlength;
+                if (distance < 0)
+                        print("ERROR: distance is negative: %d",distance);
+		distance += abs(sp->line - cursor.line);
+		if (distance >= CMlength) {
+			putpad(cmstr);
+			cursor.line = sp->line;
+			cursor.col = sp->col;
+			return;
+		}
 	}
+
+	/*
+	 * If we get here we have a terminal that can't cursor
+	 * address but has local motions or one which can cursor
+	 * address but can get there quicker with local motions.
+	 */
+	 gto(sp);
 }
 
-nd(){
-	putpad(ND);
-	cursor.col++;
-	if (cursor.col == COLUMNS+1){
-		cursor.line++;
-		cursor.col = 0;
-		if (cursor.line >= LINES)cursor.line=LINES-1;
-	}
-}
-
+void
 pch(c)
 {
 	outch(c);
-	if(++cursor.col >= COLUMNS && AM) {
+	if (++cursor.col >= COLUMNS && AM) {
 		cursor.col = 0;
 		++cursor.line;
 	}
 }
 
-aprintf(ps,st,v0,v1,v2,v3,v4,v5,v6,v7,v8,v9)
-struct point *ps;
-char *st;
-int v0,v1,v2,v3,v4,v5,v6,v7,v8,v9;
-
-{
-	struct point p;
-
-	p.line = ps->line+1; p.col = ps->col+1;
-	move(&p);
-	sprintf(str,st,v0,v1,v2,v3,v4,v5,v6,v7,v8,v9);
-	pstring(str);
-}
-
-printf(st,v0,v1,v2,v3,v4,v5,v6,v7,v8,v9)
-char *st;
-int v0,v1,v2,v3,v4,v5,v6,v7,v8,v9;
-{
-	sprintf(str,st,v0,v1,v2,v3,v4,v5,v6,v7,v8,v9);
-	pstring(str);
-}
-
+void
 pstring(s)
-char *s;{
+char *s;
+{
 	struct point z;
 	int stcol;
 
 	stcol = cursor.col;
-	while (s[0] != '\0'){
-		switch (s[0]){
+	while (s[0] != '\0') {
+		switch (s[0]) {
 		case '\n':
 			move(point(&z,0,cursor.line+1));
 			break;
@@ -403,8 +415,8 @@ char *s;{
 		case '\b':
 			bs();
 			break;
-		case CTRL(g):
-			outch(CTRL(g));
+		case CTRL('g'):
+			outch(CTRL('g'));
 			break;
 		default:
 			if (s[0] < ' ')break;
@@ -414,9 +426,37 @@ char *s;{
 	}
 }
 
+void
+aprint(struct point *ps, char *fmt, ...)
+{
+        va_list ap;
+	struct point p;
+
+	p.line = ps->line+1;
+        p.col = ps->col+1;
+	move(&p);
+        va_start(ap, fmt);
+        vsprintf(str, fmt, ap);
+        va_end(ap);
+	pstring(str);
+}
+
+void
+print(char *fmt, ...)
+{
+        va_list ap;
+
+        va_start(ap, fmt);
+        vsprintf(str, fmt, ap);
+        va_end(ap);
+	pstring(str);
+}
+
+void
 pchar(ps,ch)
 struct point *ps;
-char ch;{
+char ch;
+{
 	struct point p;
 	p.col = ps->col + 1; p.line = ps->line + 1;
 	if (
@@ -431,78 +471,57 @@ char ch;{
 	    			(p.col == COLUMNS) &&
 				(p.line < LINES-1)
 			)
-	  	)
-	){
+	  	)) {
 		move(&p);
 		pch(ch);
 	}
 }
 
-			
-outch(c)
-{
-	putchar(c);
-}
-
-putpad(str)
-char *str;
-{
-	if (str)
-		tputs(str, 1, outch);
-}
-baudrate()
-{
-
-	switch (orig.sg_ospeed){
-	case B300:
-		return(300);
-	case B1200:
-		return(1200);
-	case B4800:
-		return(4800);
-	case B9600:
-		return(9600);
-	default:
-		return(0);
-	}
-}
+void
 delay(t)
 int t;
 {
-	int k,j;
-
-	k = baudrate() * t / 300;
-	for(j=0;j<k;j++){
-		putchar(PC);
-	}
+        usleep(t * 50);
 }
 
-done()
-{
-	cook();
-	exit(0);
-}
-
+void
 cook()
 {
 	delay(1);
 	putpad(TE);
 	putpad(KE);
 	fflush(stdout);
-	stty(0, &orig);
+#ifdef CROSS
+        ioctl(0, TCSETAW, &origtty);
+#else
+        ioctl(0, TIOCSETP, &origtty);
+#endif
 #ifdef TIOCSLTC
 	ioctl(0, TIOCSLTC, &olttyc);
 #endif
 }
 
+void
+done()
+{
+	cook();
+	exit(0);
+}
+
+void
 raw()
 {
-	stty(0, &new);
+#ifdef CROSS
+        ioctl(0, TCSETAW, &newtty);
+#else
+        ioctl(0, TIOCSETP, &newtty);
+#endif
 #ifdef TIOCSLTC
 	ioctl(0, TIOCSLTC, &nlttyc);
 #endif
 }
 
+int
 same(sp1,sp2)
 struct point *sp1, *sp2;
 {
@@ -510,7 +529,8 @@ struct point *sp1, *sp2;
 	return(0);
 }
 
-struct point *point(ps,x,y)
+struct point *
+point(ps,x,y)
 struct point *ps;
 int x,y;
 {
@@ -521,13 +541,11 @@ int x,y;
 
 char *ap;
 
+void
 getcap()
 {
-	char *getenv();
 	char *term;
 	char *xPC;
-	struct point z;
-	int stop();
 
 	term = getenv("TERM");
 	if (term==0) {
@@ -598,8 +616,7 @@ getcap()
 
 	NDlength = strlen(ND);
 	BSlength = strlen(BS);
-	if ((CM == 0) &&
-		(HO == 0 | UP==0 || BS==0 || ND==0)) {
+	if ((CM == 0) && (HO == 0 || UP==0 || BS==0 || ND==0)) {
 		fprintf(stderr, "Terminal must have addressible ");
 		fprintf(stderr, "cursor or home + 4 local motions\n");
 		exit(5);
@@ -613,12 +630,22 @@ getcap()
 		exit(5);
 	}
 
-	gtty(0, &orig);
-	new=orig;
-	new.sg_flags &= ~(ECHO|CRMOD|XTABS);
-	new.sg_flags |= CBREAK;
-	signal(SIGINT,stop);
-	ospeed = orig.sg_ospeed;
+#ifdef CROSS
+        ioctl(0, TCGETA, &origtty);
+#else
+        ioctl(0, TIOCGETP, &origtty);
+#endif
+	newtty = origtty;
+#ifdef CRMOD
+	newtty.sg_flags &= ~(ECHO|CRMOD|XTABS);
+	newtty.sg_flags |= CBREAK;
+#else
+        newtty.c_lflag &= ~(ICANON | ECHO);
+        newtty.c_oflag &= ~ONLCR;
+        newtty.c_cc[4] = 1;  /* MIN */
+        newtty.c_cc[5] = 2;  /* TIME */
+#endif
+	signal(SIGINT, stop);
 #ifdef TIOCGLTC
 	ioctl(0, TIOCGLTC, &olttyc);
 	nlttyc = olttyc;
@@ -627,7 +654,10 @@ getcap()
 #endif
 	raw();
 
-	if ((orig.sg_flags & XTABS) == XTABS) TA=0;
+#ifndef CROSS
+	if ((origtty.sg_flags & XTABS) == XTABS)
+            TA = 0;
+#endif
 	putpad(KS);
 	putpad(TI);
 	point(&cursor,0,LINES-1);

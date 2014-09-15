@@ -13,8 +13,7 @@ CFLAGS          += -Werror -Wall -Os
 #
 SUBDIR          = adventure atc backgammon battlestar boggle btlgammon \
                   cribbage fortune hangman mille monop quiz robots rogue \
-                  sail trek
-# TODO: snake
+                  sail snake trek
 
 # C programs that live in the current directory and do not need
 # explicit make lines.

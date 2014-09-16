@@ -1,0 +1,100 @@
+# Copyright (c) 1980, 1985, 1989 The Regents of the University of California.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+# 3. All advertising materials mentioning features or use of this software
+#    must display the following acknowledgement:
+#	This product includes software developed by the University of
+#	California, Berkeley and its contributors.
+# 4. Neither the name of the University nor the names of its contributors
+#    may be used to endorse or promote products derived from this software
+#    without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+# OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+# OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+# SUCH DAMAGE.
+#
+#	@(#)termcap.src	5.88 (Berkeley) 4/30/91
+# $FreeBSD$
+#
+cons25|ansi|ansi80x25:\
+	:am:bs:NP:ms:pt:AX:eo:bw:ut:km:\
+	:co#80:li#25:pa#64:Co#8:it#8:\
+	:al=\E[L:cd=\E[J:ce=\E[K:cl=\E[H\E[J:cm=\E[%i%d;%dH:\
+	:dc=\E[P:dl=\E[M:do=\E[B:bt=\E[Z:ho=\E[H:ic=\E[@:cb=\E[1K:\
+	:nd=\E[C:rs=\Ec:so=\E[7m:se=\E[27m:up=\E[A:cr=^M:ta=^I:\
+	:AF=\E[3%dm:AB=\E[4%dm:op=\E[39;49m:sc=\E7:rc=\E8:\
+	:k1=\E[M:k2=\E[N:k3=\E[O:k4=\E[P:k5=\E[Q:k6=\E[R:k7=\E[S:k8=\E[T:\
+	:k9=\E[U:k;=\E[V:F1=\E[W:F2=\E[X:K2=\E[E:nw=\E[E:ec=\E[%dX:\
+	:kb=^H:kh=\E[H:ku=\E[A:kd=\E[B:kl=\E[D:kr=\E[C:le=^H:sf=\E[S:sr=\E[T:\
+	:kN=\E[G:kP=\E[I:@7=\E[F:kI=\E[L:kD=\177:kB=\E[Z:\
+	:IC=\E[%d@:DC=\E[%dP:SF=\E[%dS:SR=\E[%dT:AL=\E[%dL:DL=\E[%dM:\
+	:DO=\E[%dB:LE=\E[%dD:RI=\E[%dC:UP=\E[%dA:cv=\E[%i%dd:ch=\E[%i%d`:\
+	:mb=\E[5m:md=\E[1m:mr=\E[7m:me=\E[m:bl=^G:\
+	:ve=\E[=S:vi=\E[=1S:vs=\E[=2S:
+
+vt100|dec-vt100|vt100-am|vt100am|dec vt100:\
+	:do=2\E[B:co#80:li#24:cl=50\E[H\E[J:sf=2*\ED:\
+	:le=^H:bs:am:cm=5\E[%i%d;%dH:nd=2\E[C:up=2\E[A:\
+	:ce=3\E[K:cd=50\E[J:so=2\E[7m:se=2\E[m:us=2\E[4m:ue=2\E[m:\
+	:md=2\E[1m:mr=2\E[7m:mb=2\E[5m:me=2\E[m:\
+	:is=\E>\E[?1;3;4;5l\E[?7;8h\E[1;24r\E[24;1H:\
+	:if=/usr/share/tabset/vt100:nw=2\EE:ho=\E[H:\
+	:as=2\E(0:ae=2\E(B:\
+	:ac=``aaffggjjkkllmmnnooppqqrrssttuuvvwwxxyyzz{{||:\
+	:rs=\E>\E[?1;3;4;5l\E[?7;8h:ks=\E[?1h\E=:ke=\E[?1l\E>:\
+	:ku=\EOA:kd=\EOB:kr=\EOC:kl=\EOD:kb=\177:\
+	:k0=\EOy:k1=\EOP:k2=\EOQ:k3=\EOR:k4=\EOS:k5=\EOt:\
+	:k6=\EOu:k7=\EOv:k8=\EOl:k9=\EOw:k;=\EOx:@8=\EOM:\
+	:K1=\EOq:K2=\EOr:K3=\EOs:K4=\EOp:K5=\EOn:pt:sr=2*\EM:xn:\
+	:sc=2\E7:rc=2\E8:cs=5\E[%i%d;%dr:UP=2\E[%dA:DO=2\E[%dB:RI=2\E[%dC:\
+	:LE=2\E[%dD:ct=2\E[3g:st=2\EH:ta=^I:ms:bl=^G:cr=^M:eo:it#8:\
+	:RA=\E[?7l:SA=\E[?7h:po=\E[5i:pf=\E[4i:
+
+# $XTermId: termcap,v 1.78 2009/11/09 00:24:26 tom Exp $
+#
+xterm|linux|modern xterm:\
+	:@7=\EOF:@8=\EOM:F1=\E[23~:F2=\E[24~:K2=\EOE:Km=\E[M:\
+	:k1=\EOP:k2=\EOQ:k3=\EOR:k4=\EOS:k5=\E[15~:k6=\E[17~:\
+	:k7=\E[18~:k8=\E[19~:k9=\E[20~:k;=\E[21~:kI=\E[2~:\
+	:kN=\E[6~:kP=\E[5~:kd=\EOB:kh=\EOH:kl=\EOD:kr=\EOC:ku=\EOA:\
+	:tc=xterm-basic:
+#
+# This chunk is used for building the VT220/Sun/PC keyboard variants.
+xterm-basic|modern xterm common:\
+	:am:bs:km:mi:ms:ut:xn:AX:\
+	:Co#8:co#80:kn#12:li#24:pa#64:\
+	:AB=\E[4%dm:AF=\E[3%dm:AL=\E[%dL:DC=\E[%dP:DL=\E[%dM:\
+	:DO=\E[%dB:LE=\E[%dD:RI=\E[%dC:UP=\E[%dA:ae=\E(B:al=\E[L:\
+	:as=\E(0:bl=^G:cd=\E[J:ce=\E[K:cl=\E[H\E[2J:\
+	:cm=\E[%i%d;%dH:cs=\E[%i%d;%dr:ct=\E[3g:dc=\E[P:dl=\E[M:do=\E[B:\
+	:ei=\E[4l:ho=\E[H:im=\E[4h:is=\E[!p\E[?3;4l\E[4l\E>:\
+	:kD=\E[3~:kb=^H:ke=\E[?1l\E>:ks=\E[?1h\E=:le=^H:md=\E[1m:\
+	:me=\E[m:ml=\El:mr=\E[7m:mu=\Em:nd=\E[C:op=\E[39;49m:\
+	:rc=\E8:rs=\E[!p\E[?3;4l\E[4l\E>:sc=\E7:se=\E[27m:sf=^J:\
+	:so=\E[7m:sr=\EM:st=\EH:\
+	:ue=\E[24m:up=\E[A:us=\E[4m:ve=\E[?12l\E[?25h:vi=\E[?25l:vs=\E[?12;25h:
+#
+# This should work for the commonly used "color xterm" variations (XFree86
+# xterm, color_xterm, nxterm, rxvt).  Note that it does not set 'bce', so for
+# XFree86 and rxvt, some applications that use colors will be less efficient,
+# and in a few special cases (with "smart" optimization) the wrong color will
+# be painted in spots.
+xterm-color|generic "ANSI" color xterm:\
+	:Co#8:NC@:pa#64:\
+	:AB=\E[4%dm:AF=\E[3%dm:ac=:op=\E[m:tc=xterm-r6:

@@ -31,7 +31,7 @@ char	*CL, *UP, *DO, *ND, *BS,
 int	LINES, COLUMNS;	/* physical screen size. */
 int	lcnt, ccnt;	/* user's idea of screen size */
 char	xBC, PC;
-int	AM, BW;
+int	BW;
 char	tbuf[1024], tcapbuf[128];
 int	Klength;	/* length of KX strings */
 int	chunk;		/* amount of money given at a time */

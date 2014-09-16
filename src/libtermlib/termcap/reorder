@@ -36,5 +36,5 @@ $r termcap.local
 /|h19-g|/;.,/^[^	]/-m9
 /|5620|/;.,/^[^	]/-m9
 /^s/;.,/^#/-m9
-w! termcap
+w! termcap.full
 q

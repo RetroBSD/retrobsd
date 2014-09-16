@@ -109,6 +109,8 @@ zap()
 			SE = UE;
 		}
 	}
+	if (DO && !NL)
+	        NL = DO;
 }
 
 int

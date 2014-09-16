@@ -270,7 +270,25 @@ struct point *sp;
 		while(sp->line-- >= LINES)putchar('\n');
 		return;
 	}
-
+	if (sp->line == cursor.line) {
+                if (sp->col == cursor.col)
+                        return;
+                if (sp->col == cursor.col-1) {
+                        bs();
+                        return;
+                }
+        }
+	if (sp->line == cursor.line+1) {
+                if (sp->col == cursor.col) {
+                        down();
+                        return;
+                }
+                if (sp->col == cursor.col-1) {
+                        down();
+                        bs();
+                        return;
+                }
+        }
         char *cmstr = tgoto(CM, sp->col, sp->line);
         putpad(cmstr);
         cursor.line = sp->line;
@@ -281,9 +299,9 @@ void
 pch(c)
 {
 	outch(c);
-	if (++cursor.col >= COLUMNS && AM) {
-		cursor.col = 0;
-		++cursor.line;
+	if (++cursor.col >= COLUMNS) {
+		cursor.col = -1;
+		cursor.line = -1;
 	}
 }
 
@@ -315,7 +333,8 @@ char *s;
 			outch(CTRL('g'));
 			break;
 		default:
-			if (s[0] < ' ')break;
+			if (s[0] < ' ')
+                                break;
 			pch(s[0]);
 		}
 		s++;
@@ -357,19 +376,10 @@ char ch;
 
 	p.col = ps->col + 1;
         p.line = ps->line + 1;
-	if (
-		(p.col >= 0) &&
-		(p.line >= 0) &&
-		(
-			(
-				(p.line < LINES) &&
-				(p.col < COLUMNS)
-			) ||
-			(
-	    			(p.col == COLUMNS) &&
-				(p.line < LINES-1)
-			)
-	  	)) {
+	if (p.col < 0 || p.line < 0)
+	        return;
+	if ((p.line < LINES && p.col < COLUMNS) ||
+	    (p.col == COLUMNS && p.line < LINES-1)) {
 		move(&p);
 		pch(ch);
 	}
@@ -467,7 +477,6 @@ getcap()
 	lcnt = LINES;
 	ccnt = COLUMNS - 1;
 
-	AM = tgetflag("am");
 	BW = tgetflag("bw");
 
 	ND = tgetstr("nd", &ap);

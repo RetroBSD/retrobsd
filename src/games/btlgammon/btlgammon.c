@@ -6,6 +6,7 @@
 #include <time.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <sys/wait.h>
 
 #define	WHITE		0
 #define	BROWN		1
@@ -585,7 +586,7 @@ void prtbrd()
 
 int main()
 {
-	int	go[6], tvec[2];
+	int	go[6];
 	int	k, n, pid, ret, rpid, t;
 	char	s[100];
 
@@ -670,15 +671,18 @@ retry:
 			exit(0);
 
 		case '!':			/* escape to Shell */
-			if(s[1] != '\0')
+			if(s[1] != '\0') {
 				system(s+1);
-			else if((pid = fork()) == 0) {
-				execl("/bin/sh", "sh", "-", 0);
-				fprintf(stderr, "back: cannot exec /bin/sh!\n");
-				exit(2);
-			}
-			while((rpid = wait(&ret)) != pid && rpid != -1)
-				;
+			} else {
+                                pid = fork();
+                                if(pid == 0) {
+                                        execl("/bin/sh", "sh", "-", (char*)0);
+                                        fprintf(stderr, "back: cannot exec /bin/sh!\n");
+                                        exit(2);
+                                }
+                                while((rpid = wait(&ret)) != pid && rpid != -1)
+                                        ;
+                        }
 			goto retry;
 
 		case '?':			/* well, what can i do? */

@@ -18,7 +18,7 @@ MAN             = cribbage.0
 MANSRC		= cribbage.6
 LIBS            = -lcurses -ltermcap -lc
 
-all:            cribbage ${MAN} crib.0
+all:            cribbage ${MAN} crib.instr
 
 cribbage:       ${OBJS}
 		$(CC) $(LDFLAGS) -o $@.elf $(OBJS) $(LIBS)
@@ -26,17 +26,16 @@ cribbage:       ${OBJS}
 		$(SIZE) $@.elf
 		$(ELF2AOUT) $@.elf $@ && rm $@.elf
 
-crib.0:         cribbage.n macro
+crib.instr:     cribbage.n macro
 		nroff cribbage.n > $@
 
 ${MAN}:         ${MANSRC}
 		${MANROFF} $< > $@
 
 clean:
-		rm -f *.o core cribbage ${MAN} *.dis
+		rm -f *.o core cribbage ${MAN} *.dis crib.instr
 
 install:        all
 		install cribbage $(DESTDIR)/games/
-		install -m 644 crib.0 $(DESTDIR)/games/lib/crib.instr
+		install -m 644 crib.instr $(DESTDIR)/games/lib/crib.instr
 		cp ${MAN} $(DESTDIR)/share/man/cat6/
-		cp crib.0 $(DESTDIR)/share/man/cat6/

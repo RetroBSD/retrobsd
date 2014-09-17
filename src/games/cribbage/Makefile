@@ -14,10 +14,11 @@ include $(TOPSRC)/target.mk
 
 OBJS            = extern.o crib.o support.o cards.o score.o io.o
 TOBJS           = test.o cards.o score.o io.o extern.o
-MAN             = crib.0
+MAN             = cribbage.0
+MANSRC		= cribbage.6
 LIBS            = -lcurses -ltermcap -lc
 
-all:            cribbage ${MAN}
+all:            cribbage ${MAN} crib.0
 
 cribbage:       ${OBJS}
 		$(CC) $(LDFLAGS) -o $@.elf $(OBJS) $(LIBS)
@@ -25,12 +26,17 @@ cribbage:       ${OBJS}
 		$(SIZE) $@.elf
 		$(ELF2AOUT) $@.elf $@ && rm $@.elf
 
-${MAN}:         cribbage.n macro
+crib.0:         cribbage.n macro
 		nroff cribbage.n > $@
 
-clean:
-		rm -f *.o core cribbage ${MAN}
+${MAN}:         ${MANSRC}
+		${MANROFF} $< > $@
 
-install:
+clean:
+		rm -f *.o core cribbage ${MAN} *.dis
+
+install:        all
 		install cribbage $(DESTDIR)/games/
 		install -m 644 crib.0 $(DESTDIR)/games/lib/crib.instr
+		cp ${MAN} $(DESTDIR)/share/man/cat6/
+		cp crib.0 $(DESTDIR)/share/man/cat6/

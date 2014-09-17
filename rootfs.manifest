@@ -766,11 +766,14 @@ file /share/man/cat5/crontab.0
 file /share/man/cat5/ranlib.0
 file /share/man/cat6/adventure.0
 file /share/man/cat6/arithmetic.0
+file /share/man/cat6/atc.0
 file /share/man/cat6/backgammon.0
 file /share/man/cat6/banner.0
 file /share/man/cat6/battlestar.0
 file /share/man/cat6/bcd.0
 file /share/man/cat6/canfield.0
+file /share/man/cat6/crib.0
+file /share/man/cat6/cribbage.0
 file /share/man/cat6/fish.0
 file /share/man/cat6/fortune.0
 file /share/man/cat6/hangman.0

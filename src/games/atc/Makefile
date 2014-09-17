@@ -17,8 +17,10 @@ LEX             = lex
 LIBS            = -lm -lcurses -ltermcap -lc
 OBJS            = extern.o grammar.o input.o lex.o list.o log.o main.o tunable.o \
                   graphics.o update.o
+MAN		= atc.0
+MANSRC		= atc.6
 
-all:            atc
+all:            atc $(MAN)
 
 atc:            $(OBJS)
 		$(CC) $(LDFLAGS) -o atc.elf $(OBJS) $(LIBS)
@@ -26,10 +28,14 @@ atc:            $(OBJS)
 		$(SIZE) atc.elf
 		$(ELF2AOUT) atc.elf $@ && rm atc.elf
 
+${MAN}:         ${MANSRC}
+		${MANROFF} $< > $@
+
 clean:
-		rm -f *.o *.0 *.elf atc *.elf *.dis tags *~ grammar.c lex.c y.tab.h
+		rm -f *.o *.0 *.elf atc ${MAN} *.elf *.dis tags *~ grammar.c lex.c y.tab.h
 
 install:        all
 		install atc $(DESTDIR)/games/
 		mkdir -p ${DESTDIR}/games/lib/atc
 		cp -p games/* ${DESTDIR}/games/lib/atc
+		cp ${MAN} $(DESTDIR)/share/man/cat6/

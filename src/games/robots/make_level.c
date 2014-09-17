@@ -3,23 +3,19 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-
-#ifndef lint
-static char sccsid[] = "@(#)make_level.c	5.1 (Berkeley) 5/30/85";
-#endif not lint
-
-# include	"robots.h"
+#include "robots.h"
+#include <strings.h>
 
 /*
  * make_level:
  *	Make the current level
  */
+void
 make_level()
 {
 	register int	i;
 	register COORD	*cp;
-	register WINDOW	*wp;
-	register int	x, *endp;
+	register int	x;
 
 	reset_count();
 	for (i = 1; i < Y_FIELDSIZE; i++)

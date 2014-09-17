@@ -1,9 +1,41 @@
-# include	"hangman.h"
+#include <unistd.h>
+#include "hangman.h"
+
+#ifndef CTRL
+#   define CTRL(c)	(c & 037)
+#endif
+
+/*
+ * readch;
+ *	Read a character from the input
+ */
+int
+readch()
+{
+	register int	cnt;
+	auto char	ch;
+
+	cnt = 0;
+	for (;;) {
+		if (read(0, &ch, sizeof ch) <= 0)
+		{
+			if (++cnt > 100)
+				die(0);
+		}
+		else if (ch == CTRL('L')) {
+			wrefresh(curscr);
+			mvcur(0, 0, curscr->_cury, curscr->_curx);
+		}
+		else
+			return ch;
+	}
+}
 
 /*
  * getguess:
  *	Get another guess
  */
+void
 getguess()
 {
 	register int	i;
@@ -23,8 +55,8 @@ getguess()
 			else
 				break;
 		}
-		else if (ch == CTRL(D))
-			die();
+		else if (ch == CTRL('D'))
+			die(0);
 		else
 			mvprintw(MESGY, MESGX, "Not a valid guess: '%s'",
 				unctrl(ch));
@@ -42,29 +74,4 @@ getguess()
 		}
 	if (!correct)
 		Errors++;
-}
-
-/*
- * readch;
- *	Read a character from the input
- */
-readch()
-{
-	register int	cnt, r;
-	auto char	ch;
-
-	cnt = 0;
-	for (;;) {
-		if (read(0, &ch, sizeof ch) <= 0)
-		{
-			if (++cnt > 100)
-				die();
-		}
-		else if (ch == CTRL(L)) {
-			wrefresh(curscr);
-			mvcur(0, 0, curscr->_cury, curscr->_curx);
-		}
-		else
-			return ch;
-	}
 }

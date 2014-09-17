@@ -3,23 +3,17 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-
-#ifndef lint
-static char sccsid[] = "@(#)init_field.c	5.1 (Berkeley) 5/30/85";
-#endif not lint
-
-# include	"robots.h"
+#include "robots.h"
 
 /*
  * init_field:
  *	Lay down the initial pattern whih is constant across all levels,
  *	and initialize all the global variables.
  */
+void
 init_field()
 {
 	register int	i;
-	register WINDOW	*wp;
-	register int	j;
 	static bool	first = TRUE;
 	static char	*desc[] = {
 				"Directions:",

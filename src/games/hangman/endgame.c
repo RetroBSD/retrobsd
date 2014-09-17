@@ -1,9 +1,10 @@
-# include	"hangman.h"
+#include "hangman.h"
 
 /*
  * endgame:
  *	Do what's necessary at the end of the game
  */
+void
 endgame()
 {
 	register char	ch;
@@ -24,7 +25,7 @@ endgame()
 		leaveok(stdscr, FALSE);
 		refresh();
 		if ((ch = readch()) == 'n')
-			die();
+			die(0);
 		else if (ch == 'y')
 			break;
 		mvaddstr(MESGY + 2, MESGX, "Please type 'y' or 'n'");

@@ -1,23 +1,41 @@
-# include	<stdio.h>
-# include	<ctype.h>
+#include <stdio.h>
+#include <ctype.h>
+#include <string.h>
 
-# define	reg	register
+#define	reg	register
 
-# define	LINE	70
+#define	LINE	70
 
 static char	buf[257];
 
+static int
+comp(s1)
+char	*s1; {
+
+	reg char	*sp, *tsp, c;
+
+	if (buf[0] != '\0')
+		for (sp = buf, tsp = s1; *sp; ) {
+			c = isupper(*tsp) ? tolower(*tsp) : *tsp;
+			tsp++;
+			if (c != *sp++)
+				return 0;
+		}
+	else if (*s1 != '\0')
+		return 0;
+	return 1;
+}
+
+int
 getinp(prompt, list)
 char	*prompt, *list[]; {
 
-	reg int	i, n_match, match;
+	reg int	i, n_match, match = 0;
 	char	*sp;
-	int	plen;
-
 
 	for (;;) {
 inter:
-		printf(prompt);
+		printf("%s", prompt);
 		for (sp = buf; (*sp=getchar()) != '\n' && !feof(stdin); )
 			if (*sp == -1)	/* check for interupted system call */
 				goto inter;
@@ -39,7 +57,7 @@ inter:
 					printf("<RETURN>");
 				}
 				else
-					printf(list[i]);
+					printf("%s", list[i]);
 				if (list[i+1])
 					printf(", ");
 				else
@@ -62,22 +80,4 @@ inter:
 		else if (buf[0] != '\0')
 			printf("Illegal response: \"%s\".  Use '?' to get list of valid answers\n", buf);
 	}
-}
-
-static
-comp(s1)
-char	*s1; {
-
-	reg char	*sp, *tsp, c;
-
-	if (buf[0] != '\0')
-		for (sp = buf, tsp = s1; *sp; ) {
-			c = isupper(*tsp) ? tolower(*tsp) : *tsp;
-			tsp++;
-			if (c != *sp++)
-				return 0;
-		}
-	else if (*s1 != '\0')
-		return 0;
-	return 1;
 }

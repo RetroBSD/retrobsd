@@ -1,21 +1,31 @@
 /* $Header: fortune.c,v 1.10 85/11/01 15:19:49 arnold Exp $ */
 
-# include	<sys/types.h>
-# include	<stdio.h>
-# include	<sys/file.h>
-# include	"strfile.h"
+#include <sys/types.h>
+#ifdef CROSS
+#   include </usr/include/stdio.h>
+#else
+#   include <stdio.h>
+#endif
+#include <stdlib.h>
+#include <unistd.h>
+#include <time.h>
+#include <sys/file.h>
+#include "strfile.h"
 
-# define	TRUE	1
-# define	FALSE	0
-# define	bool	short
+#define	TRUE	1
+#define	FALSE	0
 
-# define	MINW	6		/* minimum wait if desired */
-# define	CPERS	20		/* # of chars for each sec */
-# define	SLEN	160		/* # of chars in short fortune */
+#define	MINW	6		/* minimum wait if desired */
+#define	CPERS	20		/* # of chars for each sec */
+#define	SLEN	160		/* # of chars in short fortune */
 
-# define	FORTFILE	"/usr/games/lib/fortunes.dat"
+#ifdef CROSS
+#   define FORTFILE	"/usr/local/games/fortunes.dat"
+#else
+#   define FORTFILE	"/games/lib/fortunes.dat"
+#endif
 
-bool	Wflag		= FALSE,	/* wait desired after fortune */
+int	Wflag		= FALSE,	/* wait desired after fortune */
 	Sflag		= FALSE,	/* short fortune desired */
 	Lflag		= FALSE,	/* long fortune desired */
 	Oflag		= FALSE,	/* offensive fortunes only */
@@ -41,70 +51,11 @@ FILE	*Inf;				/* input file */
 
 STRFILE	Tbl;				/* input table */
 
-time_t	time();
-
-main(ac, av)
-int	ac;
-char	*av[];
-{
-	register char	c;
-	register int	nchar = 0;
-	register int	i;
-
-	getargs(ac, av);
-	if ((Inf = fopen(Fortfile, "r+")) == NULL) {
-		perror(Fortfile);
-		exit(-1);
-	}
-	fread((char *) &Tbl, sizeof Tbl, 1, Inf);	/* NOSTRICT */
-	if (Tbl.str_longlen <= SLEN && Lflag) {
-		puts("Sorry, no long strings in this file");
-		exit(0);
-	}
-	if (Tbl.str_shortlen > SLEN && Sflag) {
-		puts("Sorry, no short strings in this file");
-		exit(0);
-	}
-
-	/*
-	 * initialize the pointer to the first -o fortune if need be.
-	 */
-	if (Tbl.str_delims[2] == 0)
-		Tbl.str_delims[2] = Tbl.str_delims[0];
-
-	do {
-		getfort();
-	} while ((Sflag && !is_short()) || (Lflag && !is_long()));
-
-	fseek(Inf, Seekpts[0], 0);
-	while (c = getc(Inf)) {
-		nchar++;
-		putchar(c);
-	}
-	fflush(stdout);
-	fseek(Inf, 0L, 0);
-#ifdef	LOCK_EX
-	/*
-	 * if we can, we exclusive lock, but since it isn't very
-	 * important, we just punt if we don't have easy locking
-	 * available.
-	 */
-	flock(fileno(Inf), LOCK_EX);
-#endif	LOCK_EX
-	fwrite(&Tbl, 1, sizeof Tbl, Inf);
-#ifdef	LOCK_EX
-	flock(fileno(Inf), LOCK_UN);
-#endif	LOCK_EX
-	if (Wflag)
-		sleep(max((int) nchar / CPERS, MINW));
-	exit(0);
-}
-
 /*
  * is_short:
  *	Return TRUE if fortune is "short".
  */
-is_short()
+int is_short()
 {
 	register int	nchar;
 
@@ -121,7 +72,7 @@ is_short()
  * is_long:
  *	Return TRUE if fortune is "long".
  */
-is_long()
+int is_long()
 {
 	register int	nchar;
 
@@ -137,9 +88,7 @@ is_long()
 /*
  *	This routine evaluates the arguments on the command line
  */
-getargs(ac, av)
-register int	ac;
-register char	*av[];
+void getargs(int ac, char **av)
 {
 	register int	i;
 	register char	*sp;
@@ -182,9 +131,9 @@ register char	*av[];
 					 * few numbers to avoid any non-
 					 * randomness in startup
 					 */
-					srnd(time(NULL) + getpid());
+					srandom(time(NULL) + getpid());
 					for (j = 0; j < 20; j++)
-						(void) rnd(100);
+						(void) random();
 					break;
 				  default:
 					printf("unknown flag: '%c'\n", *sp);
@@ -202,7 +151,7 @@ register char	*av[];
  * getfort:
  *	Get the fortune data file's seek pointer for the next fortune.
  */
-getfort()
+void getfort()
 {
 	register int	fortune;
 
@@ -216,7 +165,7 @@ getfort()
 		Tbl.str_delims[2] = Tbl.str_delims[0];
 
 	if (Aflag) {
-		if (rnd(Tbl.str_numstr) < Tbl.str_delims[0])
+		if (random() % Tbl.str_numstr < Tbl.str_delims[0])
 			fortune = Tbl.str_delims[1]++;
 		else
 			fortune = Tbl.str_delims[2]++;
@@ -227,11 +176,70 @@ getfort()
 		fortune = Tbl.str_delims[1]++;
 
 	fseek(Inf, (long)(sizeof Seekpts[0]) * fortune + sizeof Tbl, 0);
-	fread((char *) Seekpts, (sizeof Seekpts[0]), 2, Inf);
+	if (fread((char *) Seekpts, (sizeof Seekpts[0]), 2, Inf) != 2) {
+		puts("Error reading data from strings file");
+		exit(0);
+	}
 }
 
-max(i, j)
-register int	i, j;
+int max(int i, int j)
 {
 	return (i >= j ? i : j);
+}
+
+int main(int ac, char **av)
+{
+	register char	c;
+	register int	nchar = 0;
+
+	getargs(ac, av);
+	if ((Inf = fopen(Fortfile, "r+")) == NULL) {
+		perror(Fortfile);
+		exit(-1);
+	}
+	if (fread((char *) &Tbl, sizeof Tbl, 1, Inf) != 1) {
+		puts("Error reading strings file");
+		exit(0);
+	}
+	if (Tbl.str_longlen <= SLEN && Lflag) {
+		puts("Sorry, no long strings in this file");
+		exit(0);
+	}
+	if (Tbl.str_shortlen > SLEN && Sflag) {
+		puts("Sorry, no short strings in this file");
+		exit(0);
+	}
+
+	/*
+	 * initialize the pointer to the first -o fortune if need be.
+	 */
+	if (Tbl.str_delims[2] == 0)
+		Tbl.str_delims[2] = Tbl.str_delims[0];
+
+	do {
+		getfort();
+	} while ((Sflag && !is_short()) || (Lflag && !is_long()));
+
+	fseek(Inf, Seekpts[0], 0);
+	while ((c = getc(Inf))) {
+		nchar++;
+		putchar(c);
+	}
+	fflush(stdout);
+	fseek(Inf, 0L, 0);
+#ifdef	LOCK_EX
+	/*
+	 * if we can, we exclusive lock, but since it isn't very
+	 * important, we just punt if we don't have easy locking
+	 * available.
+	 */
+	flock(fileno(Inf), LOCK_EX);
+#endif
+	fwrite(&Tbl, 1, sizeof Tbl, Inf);
+#ifdef	LOCK_EX
+	flock(fileno(Inf), LOCK_UN);
+#endif
+	if (Wflag)
+		sleep(max((int) nchar / CPERS, MINW));
+	exit(0);
 }

@@ -1,5 +1,5 @@
-# include	"monop.h"
-# include	"deck.h"
+#include "monop.h"
+#include "deck.h"
 
 bool	fixing,			/* set if fixing up debt		*/
 	trading,		/* set if in process of trading		*/
@@ -19,7 +19,7 @@ char	*name_list[MAX_PL+2],	/* list of players' names		*/
 	"roll",		/* 16 */	"",		/* 17 */
 	0
 	},
-	*yn[]		= {	/* list of commands for yes/no answers	*/
+	*yesno[]	= {	/* list of commands for yes/no answers	*/
 	"yes",		/*  0 */	"no",		/*  1 */
 	"quit",		/*  2 */	"print",	/*  3 */
 	"where",	/*  4 */	"own holdings",	/*  5 */
@@ -43,11 +43,11 @@ int	player,			/* current player number		*/
 	num_luck	= sizeof lucky_mes / sizeof (char *),
 				/* list of command functions		*/
 	buy_houses(), card(), do_move(), do_move(), list(), list_all(),
-	mortgage(), pay(), printboard(), quit(), resign(), restore(),
+	mortgage(), pay(), printboard(), quitgame(), resign(), restore(),
 	rub(), save(), sell_houses(), shell_out(), trade(),
 	unmortgage(), where(),
 	(*func[])()	= {	/* array of function calls for commands	*/
-	quit,			/* quit game		|*  0 *|	*/
+	quitgame,		/* quit game		|*  0 *|	*/
 	printboard,		/* print board		|*  1 *|	*/
 	where,			/* where players are	|*  2 *|	*/
 	list,			/* own holdings		|*  3 *|	*/
@@ -77,13 +77,13 @@ RR_S	rr[N_RR];		/* raildroad descriptions		*/
 UTIL_S	util[2];		/* utility descriptions			*/
 
 MON	mon[N_MON]	= {	/* monopoly descriptions		*/
-#		include	"mon.dat"
+#include "mon.dat.h"
 };
 
 PROP	prop[N_PROP]	= {	/* typical properties			*/
-#		include	"prop.dat"
+#include "prop.dat.h"
 };
 
 SQUARE	board[N_SQRS+1]	= {	/* board itself (+1 for Jail)		*/
-#		include	"brd.dat"
+#include "brd.dat.h"
 };

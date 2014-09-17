@@ -3,17 +3,6 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-
-#ifndef lint
-char copyright[] =
-"@(#) Copyright (c) 1980 Regents of the University of California.\n\
- All rights reserved.\n";
-#endif not lint
-
-#ifndef lint
-static char sccsid[] = "@(#)test.c	5.1 (Berkeley) 5/30/85";
-#endif not lint
-
 #include	<stdio.h>
 #include	"deck.h"
 
@@ -34,7 +23,7 @@ main( argc, argv )
 	int			i, j, is, n, sum, sum2;
 	CARD			ic, jc;
 	CARD			d[ CARDS];
-	extern char		expl[];
+	extern char		explstr[];
 
 	printf( "Assuming cards are same suit\n" );
 	if(  argc == 2  )  {
@@ -57,8 +46,8 @@ main( argc, argv )
 		hand[1] = jc;
 		for( k = 0; k < CARDS; k++ )  d[k] = deck[k];
 		n = CARDS;
-		remove( ic, d, n-- );
-		remove( jc, d, n-- );
+		cremove( ic, d, n-- );
+		cremove( jc, d, n-- );
 		sum = 0;
 		sum2 = 0;
 		for( k = 0; k < n - 1; k++ )  {			/* 3rd card */
@@ -90,7 +79,7 @@ main( argc, argv )
 	hand[3].suit = 0;
 	hand[4].suit = 0;
 	printf("scorehand of hand = %d\n", scorehand(hand, hand[4], CINHAND, FALSE, TRUE));
-	printf("\t%s\n", expl);
+	printf("\t%s\n", explstr);
 	hand[0].rank = 0;
 	hand[1].rank = 1;
 	hand[2].rank = 2;
@@ -102,7 +91,7 @@ main( argc, argv )
 	hand[3].suit = 0;
 	hand[4].suit = 0;
 	printf("scorehand of crib = %d\n", scorehand(hand, hand[4], CINHAND, TRUE, TRUE));
-	printf("\t%s\n", expl);
+	printf("\t%s\n", explstr);
 	hand[0].rank = 0;
 	hand[1].rank = 1;
 	hand[2].rank = 2;
@@ -114,7 +103,7 @@ main( argc, argv )
 	hand[3].suit = 0;
 	hand[4].suit = 1;
 	printf("scorehand of hand = %d\n", scorehand(hand, hand[4], CINHAND, FALSE, TRUE));
-	printf("\t%s\n", expl);
+	printf("\t%s\n", explstr);
 	hand[0].rank = 0;
 	hand[1].rank = 1;
 	hand[2].rank = 2;
@@ -126,6 +115,6 @@ main( argc, argv )
 	hand[3].suit = 0;
 	hand[4].suit = 1;
 	printf("scorehand of crib = %d\n", scorehand(hand, hand[4], CINHAND, TRUE, TRUE));
-	printf("\t%s\n", expl);
+	printf("\t%s\n", explstr);
 # endif
 }

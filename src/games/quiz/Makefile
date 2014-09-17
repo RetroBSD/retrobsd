@@ -1,42 +1,30 @@
 #	@(#)Makefile	4.2	(Berkeley)	9/7/85
 #
-DESTDIR=
-CFLAGS=	-O
-SEPFLAG= -i
+TOPSRC          = $(shell cd ../../..; pwd)
+include $(TOPSRC)/target.mk
+#include $(TOPSRC)/cross.mk
+#CFLAGS  	= -O -DCROSS -Werror -Wall
 
-quiz: quiz.c
-	cc ${SEPFLAG} ${CFLAGS} -o quiz quiz.c
+CFLAGS  	+= -Werror -Wall
 
-install: quiz quiz.k
-	install -s quiz ${DESTDIR}/usr/games/quiz
-	cp -r quiz.k ${DESTDIR}/usr/games/lib
+OBJS            = quiz.o
+MAN             = quiz.0
+
+all:            quiz $(MAN)
+
+quiz:           $(OBJS)
+		$(CC) $(LDFLAGS) -o $@.elf $(OBJS) $(LIBS)
+		$(OBJDUMP) -S $@.elf > $@.dis
+		$(SIZE) $@.elf
+		$(ELF2AOUT) $@.elf $@ && rm $@.elf
+
+$(MAN):         quiz.6
+		nroff -man $< > $@
 
 clean:
-	rm -f a.out core *.s *.o quiz
+		rm -f *.o core quiz *.0 *.dis
 
-depend:
-	cat </dev/null >x.c
-	for i in quiz; do \
-		(echo $$i: $$i.c >>makedep; \
-		/bin/grep '^#[ 	]*include' x.c $$i.c | sed \
-			-e 's,<\(.*\)>,"/usr/include/\1",' \
-			-e 's/:[^"]*"\([^"]*\)".*/: \1/' \
-			-e 's/\.c//' >>makedep); done
-	echo '/^# DO NOT DELETE THIS LINE/+2,$$d' >eddep
-	echo '$$r makedep' >>eddep
-	echo 'w' >>eddep
-	cp Makefile Makefile.bak
-	ed - Makefile < eddep
-	rm eddep makedep x.c
-	echo '# DEPENDENCIES MUST END AT END OF FILE' >> Makefile
-	echo '# IF YOU PUT STUFF HERE IT WILL GO AWAY' >> Makefile
-	echo '# see make depend above' >> Makefile
-
-# DO NOT DELETE THIS LINE -- make depend uses it
-
-quiz: quiz.c
-quiz: /usr/include/stdio.h
-quiz: /usr/include/signal.h
-# DEPENDENCIES MUST END AT END OF FILE
-# IF YOU PUT STUFF HERE IT WILL GO AWAY
-# see make depend above
+install:        all
+		install quiz $(DESTDIR)/games/
+		install -m 644 $(MAN) $(DESTDIR)/share/man/cat6/
+		cp -r quiz.k ${DESTDIR}/games/lib

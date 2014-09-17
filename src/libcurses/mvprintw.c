@@ -11,20 +11,29 @@
  *
  */
 int
-mvprintw(y, x, fmt, args)
-        reg int		y, x;
-        char		*fmt;
-        int		args;
+mvprintw(int y, int x, char *fmt, ...)
 {
-	return move(y, x) == OK ? _sprintw(stdscr, fmt, &args) : ERR;
+	va_list args;
+        int ret;
+
+	if (move(y, x) != OK)
+	        return ERR;
+	va_start (args, fmt);
+	ret = _sprintw (stdscr, fmt, args);
+	va_end (args);
+	return ret;
 }
 
 int
-mvwprintw(win, y, x, fmt, args)
-        reg WINDOW	*win;
-        reg int		y, x;
-        char		*fmt;
-        int		args;
+mvwprintw(WINDOW *win, int y, int x, char *fmt, ...)
 {
-	return wmove(win, y, x) == OK ? _sprintw(win, fmt, &args) : ERR;
+	va_list args;
+        int ret;
+
+	if (wmove(win, y, x) != OK)
+	        return ERR;
+	va_start (args, fmt);
+	ret = _sprintw (win, fmt, args);
+	va_end (args);
+	return ret;
 }

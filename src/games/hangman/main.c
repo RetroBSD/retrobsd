@@ -1,9 +1,22 @@
-# include	"hangman.h"
+#include <stdlib.h>
+#include "hangman.h"
+
+/*
+ * die:
+ *	Die properly.
+ */
+void die(int sig)
+{
+	mvcur(0, COLS - 1, LINES - 1, 0);
+	endwin();
+	putchar('\n');
+	exit(0);
+}
 
 /*
  * This game written by Ken Arnold.
  */
-main()
+int main()
 {
 	initscr();
 	signal(SIGINT, die);
@@ -14,16 +27,4 @@ main()
 		Average = (Average * (Wordnum - 1) + Errors) / Wordnum;
 	}
 	/* NOTREACHED */
-}
-
-/*
- * die:
- *	Die properly.
- */
-die()
-{
-	mvcur(0, COLS - 1, LINES - 1, 0);
-	endwin();
-	putchar('\n');
-	exit(0);
 }

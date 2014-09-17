@@ -1,8 +1,13 @@
-# include	"monop.ext"
-# include	<ctype.h>
-# include	<signal.h>
+#include "extern.h"
+#include <ctype.h>
+#include <signal.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <pwd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
-# define	execsh(sh)	execl(sh, shell_name[roll(1, num_names)-1], 0)
+#define execsh(sh)	execl(sh, shell_name[roll(1, num_names)-1], (char*)0)
 
 static char	*shell_def	= "/bin/csh",
 		*shell_name[]	= {
@@ -21,26 +26,27 @@ static char	*shell_def	= "/bin/csh",
 
 static int	num_names	= sizeof shell_name / sizeof (char *);;
 
-char	*shell_in();
-
 /*
  *	This routine executes a truncated set of commands until a
  * "yes or "no" answer is gotten.
  */
+int
 getyn(prompt)
 reg char	*prompt; {
 
 	reg int	com;
 
 	for (;;)
-		if ((com=getinp(prompt, yn)) < 2)
+		if ((com=getinp(prompt, yesno)) < 2)
 			return com;
 		else
 			(*func[com-2])();
 }
+
 /*
  *	This routine tells the player if he's out of money.
  */
+void
 notify() {
 
 	if (cur_p->money < 0)
@@ -52,19 +58,24 @@ notify() {
 		told_em = TRUE;
 	}
 }
+
 /*
  *	This routine switches to the next player
  */
+void
 next_play() {
 
-	player = ++player % num_play;
+        player++;
+	player %= num_play;
 	cur_p = &play[player];
 	num_doub = 0;
 }
+
 /*
  *	This routine gets an integer from the keyboard after the
  * given prompt.
  */
+int
 get_int(prompt)
 reg char	*prompt; {
 
@@ -74,7 +85,7 @@ reg char	*prompt; {
 
 	for (;;) {
 inter:
-		printf(prompt);
+		printf("%s", prompt);
 		num = 0;
 		for (sp = buf; (*sp=getchar()) != '\n' && !feof(stdin); sp++)
 			if (*sp == -1)	/* check for interrupted system call */
@@ -95,9 +106,28 @@ inter:
 			printf("I can't understand that\n");
 	}
 }
+
+/*
+ *	This routine sets things up as if it is a new monopoly
+ */
+static void
+is_monop(mp, pl)
+reg MON	*mp;
+int	pl; {
+
+	reg int		i;
+
+	mp->owner = pl;
+	mp->num_own = mp->num_in;
+	for (i = 0; i < mp->num_in; i++)
+		((PROP*)mp->sq[i]->desc)->monop = TRUE;
+	mp->name = mp->mon_n;
+}
+
 /*
  *	This routine sets the monopoly flag from the list given.
  */
+void
 set_ownlist(pl)
 int	pl; {
 
@@ -146,10 +176,10 @@ int	pl; {
 #ifdef DEBUG
 			printf("  case PRPTY:\n");
 #endif
-			orig = op->sqr->desc->mon_desc;
+			orig = ((PROP*)op->sqr->desc)->mon_desc;
 			orig_op = op;
 			num = 0;
-			while (op && op->sqr->desc->mon_desc == orig) {
+			while (op && ((PROP*)op->sqr->desc)->mon_desc == orig) {
 #ifdef DEBUG
 				printf("iter: %d\n", num);
 #endif
@@ -166,17 +196,17 @@ int	pl; {
 			printf("num = %d\n");
 #endif
 			if (orig == 0) {
-				printf("panic:  bad monopoly descriptor: orig = %d\n", orig);
+				printf("panic:  bad monopoly descriptor: orig = %p\n", orig);
 				printf("player # %d\n", pl+1);
 				printhold(pl);
-				printf("orig_op = %d\n", orig_op);
+				printf("orig_op = %p\n", orig_op);
 				printf("orig_op->sqr->type = %d (PRPTY)\n", op->sqr->type);
-				printf("orig_op->next = %d\n", op->next);
-				printf("orig_op->sqr->desc = %d\n", op->sqr->desc);
-				printf("op = %d\n", op);
+				printf("orig_op->next = %p\n", op->next);
+				printf("orig_op->sqr->desc = %p\n", op->sqr->desc);
+				printf("op = %p\n", op);
 				printf("op->sqr->type = %d (PRPTY)\n", op->sqr->type);
-				printf("op->next = %d\n", op->next);
-				printf("op->sqr->desc = %d\n", op->sqr->desc);
+				printf("op->next = %p\n", op->next);
+				printf("op->sqr->desc = %p\n", op->sqr->desc);
 				printf("num = %d\n", num);
 			}
 #ifdef DEBUG
@@ -190,104 +220,64 @@ int	pl; {
 		}
 	}
 }
-/*
- *	This routine sets things up as if it is a new monopoly
- */
-is_monop(mp, pl)
-reg MON	*mp;
-int	pl; {
 
-	reg char	*sp;
-	reg int		i;
-
-	mp->owner = pl;
-	mp->num_own = mp->num_in;
-	for (i = 0; i < mp->num_in; i++)
-		mp->sq[i]->desc->monop = TRUE;
-	mp->name = mp->mon_n;
-}
 /*
  *	This routine sets things up as if it is no longer a monopoly
  */
+void
 isnot_monop(mp)
 reg MON	*mp; {
 
-	reg char	*sp;
 	reg int		i;
 
 	mp->owner = -1;
 	for (i = 0; i < mp->num_in; i++)
-		mp->sq[i]->desc->monop = FALSE;
+		((PROP*)mp->sq[i]->desc)->monop = FALSE;
 	mp->name = mp->not_m;
 }
+
 /*
  *	This routine gives a list of the current player's routine
  */
+void
 list() {
-
 	printhold(player);
 }
+
 /*
  *	This routine gives a list of a given players holdings
  */
+void
 list_all() {
-
 	reg int	pl;
 
 	while ((pl=getinp("Whose holdings do you want to see? ", name_list)) < num_play)
 		printhold(pl);
 }
+
 /*
  *	This routine gives the players a chance before it exits.
  */
-quit() {
+void
+quit(int sig) {
 
 	putchar('\n');
-	if (getyn("Do you all really want to quit? ", yn) == 0)
+	if (getyn("Do you all really want to quit? ") == 0)
 		exit(0);
 	signal(2, quit);
 }
-/*
- *	This routine copies one structure to another
- */
-cpy_st(s1, s2, size)
-reg int	*s1, *s2, size; {
 
-	size /= 2;
-	while (size--)
-		*s1++ = *s2++;
+int
+quitgame()
+{
+        quit(0);
+        return 0;
 }
-/*
- *	This routine forks off a shell.  It uses the users login shell
- */
-shell_out() {
 
-	static char	*shell = NULL;
-
-	printline();
-	if (shell == NULL)
-		shell = shell_in();
-	fflush();
-	if (!fork()) {
-		signal(SIGINT, SIG_DFL);
-		execsh(shell);
-	}
-	ignoresigs();
-	wait();
-	resetsigs();
-	putchar('\n');
-	printline();
-}
 /*
  *	This routine looks up the users login shell
  */
-# include	<pwd.h>
-
-struct passwd	*getpwuid();
-
-char		*getenv();
-
-char *
+static char *
 shell_in() {
 
 	reg struct passwd	*pp;
@@ -303,24 +293,49 @@ shell_in() {
 	}
 	return sp;
 }
+
 /*
  *	This routine sets things up to ignore all the signals.
  */
+static void
 ignoresigs() {
-
 	reg int	i;
 
 	for (i = 0; i < NSIG; i++)
 		signal(i, SIG_IGN);
 }
+
 /*
  *	This routine sets up things as they were before.
  */
+static void
 resetsigs() {
-
 	reg int	i;
 
 	for (i = 0; i < NSIG; i++)
 		signal(i, SIG_DFL);
 	signal(2, quit);
+}
+
+/*
+ *	This routine forks off a shell.  It uses the users login shell
+ */
+void
+shell_out() {
+	static char	*shell = NULL;
+	int status;
+
+	printline();
+	if (shell == NULL)
+		shell = shell_in();
+	fflush(stdout);
+	if (!fork()) {
+		signal(SIGINT, SIG_DFL);
+		execsh(shell);
+	}
+	ignoresigs();
+	wait(&status);
+	resetsigs();
+	putchar('\n');
+	printline();
 }

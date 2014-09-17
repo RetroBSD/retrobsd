@@ -3,85 +3,57 @@
 #	Program:  Ken Arnold
 #	Makefile:  K.S.
 #
-DESTDIR=
-DATFILES=brd.dat mon.dat prop.dat
-CFILES=	monop.c cards.c execute.c getinp.c houses.c jail.c misc.c morg.c \
-	print.c prop.c rent.c roll.c spec.c strcmp.c trade.c
-OBJS=	monop.o cards.o execute.o getinp.o houses.o jail.o misc.o morg.o \
-	print.o prop.o rent.o roll.o spec.o strcmp.o trade.o strings.o
-HEADERS=monop.h deck.h
-BINDIR=	${DESTDIR}/usr/games
-LIBDIR=	${DESTDIR}/usr/games/lib
-LIB=
-CFLAGS=	-O -w
-SEPFLAG= -i
-DAT=	brd.dat monop.dat prop.dat
-CC=	cc
-XSTR=	xstr
-ED=	ed
-AS=	as
-RM=	rm -f
-CTAGS=	ctags
+TOPSRC		= $(shell cd ../../..; pwd)
+include $(TOPSRC)/target.mk
+#include $(TOPSRC)/cross.mk
+#CFLAGS = -DCROSS -O
 
-#
-# Be cool about compiling strings.
-#
-.c.o:
-	${CC} -E ${CFLAGS} $*.c | ${XSTR} -c -
-	${CC} -c ${CFLAGS} x.c
-	mv x.o $*.o
+CFLAGS		+= -Werror -Wall
+LIBS            = -lc
 
-it:	monop cards.pck
+OBJS            = monop.o cards.o execute.o getinp.o houses.o jail.o misc.o \
+                  morg.o print.o prop.o rent.o roll.o spec.o trade.o
+MAN		= monop.0
+MANSRC		= monop.6
 
-monop:	${OBJS}
-	${CC} -o monop ${SEPFLAG} ${OBJS} ${LIB}
+all:            monop $(MAN) cards.pck
 
-install: monop cards.pck
-	${RM} ${BINDIR}/monop ${LIBDIR}/cards.pck
-	install -s monop ${BINDIR}
-	mv cards.pck ${LIBDIR}
+monop:          $(OBJS)
+		$(CC) $(LDFLAGS) -o monop.elf $(OBJS) $(LIBS)
+		$(OBJDUMP) -S monop.elf > monop.dis
+		$(SIZE) monop.elf
+		$(ELF2AOUT) monop.elf $@ && rm monop.elf
 
-new:	clean ctags monop
+initdeck:       initdeck.c deck.h
+		$(CC) -o initdeck $(LDFLAGS) $(CFLAGS) initdeck.c
 
-strings.o: strings
-	${XSTR}
-	${CC} -S xs.c
-	${ED} - < :rofix xs.s
-	${AS} -o strings.o xs.s
-	${RM} xs.s xs.c
+cards.pck:      #initdeck cards.inp
+		./initdeck
 
-monop.o: ${DATFILES} monop.def
-	${CC} -E ${CFLAGS} monop.c | ${XSTR} -c -
-	${CC} -c ${CFLAGS} x.c
-	mv x.o monop.o
-
-cards.o: deck.h
-	${CC} -E ${CFLAGS} cards.c | ${XSTR} -c -
-	${CC} -c ${CFLAGS} x.c
-	mv x.o cards.o
-
-newone:
-	${CC} ${SEPFLAG} -o monop ${CFLAGS} ${CFILES} ${LIB}
-
-ctags:
-	${CTAGS} ${CFILES} monop.h deck.h monop.def initdeck.c
-
-cards.pck: initdeck cards.inp
-	./initdeck
-
-initdeck: initdeck.c deck.h
-	${CC} -o initdeck ${CFLAGS} initdeck.c ${LIB}
-
-monop.tar:
-	tar crvf monop.tar ${CFILES} ${DATFILES} ${HEADERS} :rofix Makefile cards.inp initdeck.c monop.def monop.ext
+$(MAN):         $(MANSRC)
+		$(MANROFF) $< > $@
 
 clean:
-	${RM} ${OBJS} monop core tags x.c x.o monop.tar initdeck cards.pck errs
-	cp /dev/null strings
+		rm -f *.o *.0 *.elf $(MAN) monop initdeck *.elf *.dis tags *~
 
-printall:
-	-/usr/bin/eecs/pr monop.h deck.h monop.def monop.ext ${CFILES} ${DATFILES} | /usr/bin/lpr
-	-/usr/bin/lpq
-
-lint:
-	lint ${CFILES} > lint.out ;
+install:        all
+		install monop $(DESTDIR)/games/
+		cp $(MAN) $(DESTDIR)/share/man/cat6/
+		cp cards.pck $(DESTDIR)/games/lib/
+###
+cards.o: cards.c extern.h monop.h deck.h
+execute.o: execute.c extern.h monop.h deck.h
+getinp.o: getinp.c
+houses.o: houses.c extern.h monop.h deck.h
+initdeck.o: initdeck.c deck.h
+jail.o: jail.c extern.h monop.h deck.h
+misc.o: misc.c extern.h monop.h deck.h
+monop.o: monop.c defines.h monop.h deck.h mon.dat.h prop.dat.h brd.dat.h
+morg.o: morg.c extern.h monop.h deck.h
+print.o: print.c extern.h monop.h deck.h
+prop.o: prop.c extern.h monop.h deck.h
+rent.o: rent.c extern.h monop.h deck.h
+roll.o: roll.c
+spec.o: spec.c extern.h monop.h deck.h
+strcmp.o: strcmp.c
+trade.o: trade.c extern.h monop.h deck.h

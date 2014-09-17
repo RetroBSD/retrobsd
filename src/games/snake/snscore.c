@@ -3,18 +3,18 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-
-#ifndef lint
-static char sccsid[] = "@(#)snscore.c	5.1 (Berkeley) 5/30/85";
-#endif not lint
-
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <pwd.h>
-char *recfile = "/usr/games/lib/snakerawscores";
-#define MAXPLAYERS 256
 
-struct	passwd	*getpwuid();
-char	*malloc();
+#ifdef CROSS
+char *recfile = "/usr/local/games/snakerawscores";
+#else
+char *recfile = "/games/lib/snakerawscores";
+#endif
+
+#define MAXPLAYERS 256
 
 struct	player	{
 	short	uids;
@@ -22,12 +22,11 @@ struct	player	{
 	char	*name;
 } players[MAXPLAYERS], temp;
 
-main()
+int main()
 {
-	char	buf[80], cp;
 	short	uid, score;
 	FILE	*fd;
-	int	noplayers;
+	int	noplayers = 0;
 	int	i, j, notsorted;
 	short	whoallbest, allbest;
 	char	*q;
@@ -39,10 +38,13 @@ main()
 		exit(1);
 	}
 	printf("Snake players scores to date\n");
-	fread(&whoallbest, sizeof(short), 1, fd);
-	fread(&allbest, sizeof(short), 1, fd);
+	if (! fread(&whoallbest, sizeof(short), 1, fd) ||
+            ! fread(&allbest, sizeof(short), 1, fd)) {
+                printf("error reading scores\n");
+                exit(2);
+        }
 	for (uid=2;;uid++) {
-		if(fread(&score, sizeof(short), 1, fd) == 0)
+		if(! fread(&score, sizeof(short), 1, fd))
 			break;
 		if (score > 0) {
 			if (noplayers > MAXPLAYERS) {

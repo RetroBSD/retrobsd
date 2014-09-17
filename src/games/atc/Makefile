@@ -5,26 +5,37 @@
 #
 #	@(#)Makefile	5.1.2	(2.11BSD)	1999/10/25
 #
+TOPSRC		= $(shell cd ../../..; pwd)
+include $(TOPSRC)/target.mk
+#include $(TOPSRC)/cross.mk
 
-DESTDIR =
-CFLAGS  = -O -DSYSV -DDEST=\"${DESTDIR}/usr/games/lib/atc/\"
-YFLAGS  = -d
-LIBS    = -ll -lm -lcurses -ltermcap
-OBJS    = extern.o grammar.o input.o lex.o list.o log.o main.o tunable.o \
-	  graphics.o update.o
+CFLAGS          = -Os -g -Werror -Wall
+CFLAGS          += -DBSD -DDEST=\"/games/lib/atc/\"
+#CFLAGS          += -DSYSV -DDEST=\"games/\"
+YFLAGS          = -d
+LEX             = lex
+LIBS            = -lm -lcurses -ltermcap -lc
+OBJS            = extern.o grammar.o input.o lex.o list.o log.o main.o tunable.o \
+                  graphics.o update.o
+MAN		= atc.0
+MANSRC		= atc.6
 
-all:    atc
+all:            atc $(MAN)
 
-atc:    ${OBJS}
-	${CC} ${OBJS} ${LIBS} -o $@
+atc:            $(OBJS)
+		$(CC) $(LDFLAGS) -o atc.elf $(OBJS) $(LIBS)
+		$(OBJDUMP) -S atc.elf > atc.dis
+		$(SIZE) atc.elf
+		$(ELF2AOUT) atc.elf $@ && rm atc.elf
+
+${MAN}:         ${MANSRC}
+		${MANROFF} $< > $@
 
 clean:
-	rm -f *.o core atc grammar.c y.tab.h y.tab.c lex.yy.c lex.c
+		rm -f *.o *.0 *.elf atc ${MAN} *.elf *.dis tags *~ grammar.c lex.c y.tab.h
 
-install:
-	-[ -d ${DESTDIR}/usr/games/lib/atc ] || mkdir ${DESTDIR}/usr/games/lib/atc
-	chmod 700 ${DESTDIR}/usr/games/lib/atc
-	chown games.bin ${DESTDIR}/usr/games/lib/atc
-	(cd games; install -c -o games -g bin -m 600 * ${DESTDIR}/usr/games/lib/atc)
-	install -s -o games -g bin -m 4700 atc ${DESTDIR}/usr/games/hide/atc
-	(cd ${DESTDIR}/usr/games; rm -f atc; ln -s dm atc; chown games.bin atc)
+install:        all
+		install atc $(DESTDIR)/games/
+		mkdir -p ${DESTDIR}/games/lib/atc
+		cp -p games/* ${DESTDIR}/games/lib/atc
+		cp ${MAN} $(DESTDIR)/share/man/cat6/

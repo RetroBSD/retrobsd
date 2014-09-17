@@ -1,9 +1,9 @@
-# include	"monop.h"
-# include	"deck.h"
+#include "monop.h"
+#include "deck.h"
 
 extern bool	trading, spec, fixing, told_em;
 
-extern char	*yn[], *comlist[], *name_list[], *lucky_mes[];
+extern char	*yesno[], *comlist[], *name_list[], *lucky_mes[];
 
 extern int	num_play, player, num_doub, num_luck, (*func[])();
 

@@ -1,37 +1,14 @@
-# include	"monop.def"
+#include "defines.h"
+#include <stdlib.h>
+#include <string.h>
+#include <strings.h>
+#include <unistd.h>
+#include <signal.h>
 
-/*
- *	This program implements a monopoly game
- */
-main(ac, av)
-reg int		ac;
-reg char	*av[]; {
-
-
-	srand(getpid());
-	if (ac > 1) {
-		if (!rest_f(av[1]))
-			restore();
-	}
-	else {
-		getplayers();
-		init_players();
-		init_monops();
-	}
-	num_luck = sizeof lucky_mes / sizeof (char *);
-	init_decks();
-	signal(2, quit);
-	for (;;) {
-		printf("\n%s (%d) (cash $%d) on %s\n", cur_p->name, player + 1,
-			cur_p->money, board[cur_p->loc].name);
-		printturn();
-		force_morg();
-		execute(getinp("-- Command: ", comlist));
-	}
-}
 /*
  *	This routine gets the names of the players
  */
+void
 getplayers() {
 
 	reg char	*sp;
@@ -64,25 +41,27 @@ over:
 	name_list[i] = 0;
 	for (i = 0; i < num_play; i++)
 		for (j = i + 1; j < num_play; j++)
-			if (strcmp(name_list[i], name_list[j]) == 0) {
+			if (strcasecmp(name_list[i], name_list[j]) == 0) {
 				if (i != num_play - 1)
 					printf("Hey!!! Some of those are IDENTICAL!!  Let's try that again....\n");
 				else
 					printf("\"done\" is a reserved word.  Please try again\n");
 				for (i = 0; i < num_play; i++)
-					cfree(play[i].name);
-				cfree(play);
+					free(play[i].name);
+				free(play);
 				goto blew_it;
 			}
 }
+
 /*
  *	This routine figures out who goes first
  */
+void
 init_players() {
 
 	reg int	i, rl, cur_max;
-	bool	over;
-	int	max_pl;
+	bool	over = 0;
+	int	max_pl = 0;
 
 again:
 	putchar('\n');
@@ -105,9 +84,11 @@ again:
 	cur_p = &play[max_pl];
 	printf("%s (%d) goes first\n", cur_p->name, max_pl + 1);
 }
+
 /*
  *	This routine initalizes the monopoly structures.
  */
+void
 init_monops() {
 
 	reg MON	*mp;
@@ -117,5 +98,36 @@ init_monops() {
 		mp->name = mp->not_m;
 		for (i = 0; i < mp->num_in; i++)
 			mp->sq[i] = &board[(int)(mp->sq[i])];
+	}
+}
+
+/*
+ *	This program implements a monopoly game
+ */
+int
+main(ac, av)
+reg int		ac;
+reg char	*av[]; {
+
+
+	srand(getpid());
+	if (ac > 1) {
+		if (!rest_f(av[1]))
+			restore();
+	}
+	else {
+		getplayers();
+		init_players();
+		init_monops();
+	}
+	num_luck = sizeof lucky_mes / sizeof (char *);
+	init_decks();
+	signal(2, quit);
+	for (;;) {
+		printf("\n%s (%d) (cash $%d) on %s\n", cur_p->name, player + 1,
+			cur_p->money, board[(int)cur_p->loc].name);
+		printturn();
+		force_morg();
+		execute(getinp("-- Command: ", comlist));
 	}
 }

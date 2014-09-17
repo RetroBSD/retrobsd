@@ -3,21 +3,71 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
+#include "robots.h"
+#include <signal.h>
+#include <ctype.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
-#ifndef lint
-char copyright[] =
-"@(#) Copyright (c) 1980 Regents of the University of California.\n\
- All rights reserved.\n";
-#endif not lint
+#ifndef CROSS
+static int
+fputchar(int c)
+{
+    return putchar(c);
+}
+#endif
 
-#ifndef lint
-static char sccsid[] = "@(#)main.c	5.1 (Berkeley) 5/30/85";
-#endif not lint
+/*
+ * quit:
+ *	Leave the program elegantly.
+ */
+void
+quit(int sig)
+{
+	mvcur(0, COLS - 1, LINES - 1, 0);
+#ifndef CROSS
+	if (CE) {
+		tputs(CE, 1, fputchar);
+		endwin();
+	} else
+#endif
+        {
+		endwin();
+		putchar('\n');
+	}
+	exit(0);
+	/* NOTREACHED */
+}
 
-# include	"robots.h"
-# include	<signal.h>
-# include	<ctype.h>
+/*
+ * another:
+ *	See if another game is desired
+ */
+int
+another()
+{
+	register int	y;
 
+#ifdef	FANCY
+	if ((Stand_still || Pattern_roll) && !Newscore)
+		return TRUE;
+#endif
+
+	if (query("Another game?")) {
+		if (Full_clear) {
+			for (y = 1; y <= Num_scores; y++) {
+				move(y, 1);
+				clrtoeol();
+			}
+			refresh();
+		}
+		return TRUE;
+	}
+	return FALSE;
+}
+
+int
 main(ac, av)
 int	ac;
 char	**av;
@@ -37,10 +87,12 @@ char	**av;
 				if (isdigit(av[0][0]))
 					Max_per_uid = atoi(av[0]);
 				else {
-					setuid(getuid());
-					setgid(getgid());
+					if (setuid(getuid()) < 0)
+					    /*ignore*/;
+					if (setgid(getgid()) < 0)
+					    /*ignore*/;
 					Scorefile = av[0];
-# ifdef	FANCY
+#ifdef	FANCY
 					sp = rindex(Scorefile, '/');
 					if (sp == NULL)
 						sp = Scorefile;
@@ -50,7 +102,7 @@ char	**av;
 						Stand_still = TRUE;
 					if (Pattern_roll || Stand_still)
 						Teleport = TRUE;
-# endif
+#endif
 				}
 			else
 				for (sp = &av[0][1]; *sp; sp++)
@@ -116,52 +168,6 @@ char	**av;
 		refresh();
 		score();
 	} while (another());
-	quit();
-}
-
-/*
- * quit:
- *	Leave the program elegantly.
- */
-quit()
-{
-	extern int	_putchar();
-
-	mvcur(0, COLS - 1, LINES - 1, 0);
-	if (CE) {
-		tputs(CE, 1, _putchar);
-		endwin();
-	}
-	else {
-		endwin();
-		putchar('\n');
-	}
-	exit(0);
-	/* NOTREACHED */
-}
-
-/*
- * another:
- *	See if another game is desired
- */
-another()
-{
-	register int	y;
-
-#ifdef	FANCY
-	if ((Stand_still || Pattern_roll) && !Newscore)
-		return TRUE;
-#endif
-
-	if (query("Another game?")) {
-		if (Full_clear) {
-			for (y = 1; y <= Num_scores; y++) {
-				move(y, 1);
-				clrtoeol();
-			}
-			refresh();
-		}
-		return TRUE;
-	}
-	return FALSE;
+	quit(0);
+	return 0;
 }

@@ -12,7 +12,7 @@
 char		GAMES[] =	"Game_List",
 		LOG[] =		"ATC_scores";
 
-int		clock, safe_planes, start_time, test_mode;
+int		clocktick, safe_planes, start_time, test_mode;
 
 char		*file;
 

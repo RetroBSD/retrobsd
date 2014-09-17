@@ -1,17 +1,19 @@
-# include	"mille.h"
+#include "mille.h"
 
 /*
  * @(#)types.c	1.1 (Berkeley) 4/1/82
  */
 
+int
 isrepair(card)
-reg CARD	card; {
+CARD	card; {
 
 	return card == C_GAS || card == C_SPARE || card == C_REPAIRS || card == C_INIT;
 }
 
+int
 safety(card)
-reg CARD	card; {
+CARD	card; {
 
 	switch (card) {
 	  case C_EMPTY:
@@ -34,5 +36,5 @@ reg CARD	card; {
 		return C_RIGHT_WAY;
 	}
 	/* NOTREACHED */
+	return 0;
 }
-

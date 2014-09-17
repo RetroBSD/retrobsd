@@ -3,15 +3,11 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-
-#ifndef lint
-static char sccsid[] = "@(#)score.c	5.1 (Berkeley) 5/30/85";
-#endif not lint
-
 #include	<stdio.h>
+#include	<stdlib.h>
+#include	<string.h>
 #include	"deck.h"
 #include	"cribbage.h"
-
 
 /*
  * the following arrays give the sum of the scores of the (50 2)*48 = 58800
@@ -19,7 +15,6 @@ static char sccsid[] = "@(#)score.c	5.1 (Berkeley) 5/30/85";
  * array.  the two arrays are for the case where the suits are equal and
  * not equal respectively
  */
-
 long		crbescr[ 169 ]		= {
     -10000, 271827, 278883, 332319, 347769, 261129, 250653, 253203, 248259,
     243435, 256275, 237435, 231051, -10000, -10000, 412815, 295707, 349497,
@@ -66,90 +61,13 @@ long		crbnescr[ 169 ]		= {
 static  int		ichoose2[ 5 ]		= { 0, 0, 2, 6, 12 };
 static  int		pairpoints, runpoints;	/* globals from pairuns */
 
-
-/*
- * scorehand:
- *	Score the given hand of n cards and the starter card.
- *	n must be <= 4
- */
-scorehand(hand, starter, n, crb, do_explain)
-register CARD		hand[];
-CARD			starter;
-int			n;
-BOOLEAN			crb;		/* true if scoring crib */
-BOOLEAN			do_explain;	/* true if must explain this hand */
-{
-	CARD			h[(CINHAND + 1)];
-	register int		i, k;
-	register int		score;
-	register BOOLEAN	flag;
-	char			buf[32];
-
-	expl[0] = NULL;		/* initialize explanation */
-	score = 0;
-	flag = TRUE;
-	k = hand[0].suit;
-	for (i = 0; i < n; i++) {			/* check for flush */
-	    flag = (flag && (hand[i].suit == k));
-	    if (hand[i].rank == JACK)			/* check for his nibs */
-		if (hand[i].suit == starter.suit) {
-		    score++;
-		    if (do_explain)
-			strcat(expl, "His Nobs");
-		}
-	    h[i] = hand[i];
-	}
-
-	if (flag && n >= CINHAND) {
-	    if (do_explain && expl[0] != NULL)
-		strcat(expl, ", ");
-	    if (starter.suit == k) {
-		score += 5;
-		if (do_explain)
-		    strcat(expl, "Five-flush");
-	    }
-	    else if (!crb) {
-		score += 4;
-		if (do_explain && expl[0] != NULL)
-		    strcat(expl, ", Four-flush");
-		else
-		    strcpy(expl, "Four-flush");
-	    }
-	}
-
-	if (do_explain && expl[0] != NULL)
-	    strcat(expl, ", ");
-	h[n] = starter;
-	sorthand(h, n + 1);			/* sort by rank */
-	i = 2 * fifteens(h, n + 1);
-	score += i;
-	if (do_explain)
-	    if (i > 0) {
-		sprintf(buf, "%d points in fifteens", i);
-		strcat(expl, buf);
-	    }
-	    else
-		strcat(expl, "No fifteens");
-	i = pairuns(h, n + 1);
-	score += i;
-	if (do_explain)
-	    if (i > 0) {
-		sprintf(buf, ", %d points in pairs, %d in runs", pairpoints,
-		    runpoints);
-		strcat(expl, buf);
-	    }
-	    else
-		strcat(expl, ", No pairs/runs");
-	return score;
-}
-
 /*
  * fifteens:
  *	Return number of fifteens in hand of n cards
  */
-fifteens(hand, n)
-register CARD		hand[];
-int			n;
+int fifteens(hand, n)
+    register CARD	hand[];
+    int			n;
 {
 	register int		*sp, *np;
 	register int		i;
@@ -183,19 +101,15 @@ int			n;
 	return sums[14];
 }
 
-
-
 /*
  * pairuns returns the number of points in the n card sorted hand
  * due to pairs and runs
  * this routine only works if n is strictly less than 6
  * sets the globals pairpoints and runpoints appropriately
  */
-
-pairuns( h, n )
-
-    CARD		h[];
-    int			n;
+int pairuns( h, n )
+    CARD	h[];
+    int		n;
 {
 	register  int		i;
 	int			runlength, runmult, lastmult, curmult;
@@ -260,18 +174,91 @@ pairuns( h, n )
 	return(  pairpoints + runpoints  );
 }
 
+/*
+ * scorehand:
+ *	Score the given hand of n cards and the starter card.
+ *	n must be <= 4
+ */
+int scorehand(hand, starter, n, crb, do_explain)
+    register CARD	hand[];
+    CARD		starter;
+    int			n;
+    BOOLEAN		crb;		/* true if scoring crib */
+    BOOLEAN		do_explain;	/* true if must explain this hand */
+{
+	CARD			h[(CINHAND + 1)];
+	register int		i, k;
+	register int		score;
+	register BOOLEAN	flag;
+	char			buf[32];
 
+	explstr[0] = 0;		/* initialize explanation */
+	score = 0;
+	flag = TRUE;
+	k = hand[0].suit;
+	for (i = 0; i < n; i++) {			/* check for flush */
+	    flag = (flag && (hand[i].suit == k));
+	    if (hand[i].rank == JACK)			/* check for his nibs */
+		if (hand[i].suit == starter.suit) {
+		    score++;
+		    if (do_explain)
+			strcat(explstr, "His Nobs");
+		}
+	    h[i] = hand[i];
+	}
+
+	if (flag && n >= CINHAND) {
+	    if (do_explain && explstr[0] != 0)
+		strcat(explstr, ", ");
+	    if (starter.suit == k) {
+		score += 5;
+		if (do_explain)
+		    strcat(explstr, "Five-flush");
+	    }
+	    else if (!crb) {
+		score += 4;
+		if (do_explain && explstr[0] != 0)
+		    strcat(explstr, ", Four-flush");
+		else
+		    strcpy(explstr, "Four-flush");
+	    }
+	}
+
+	if (do_explain && explstr[0] != 0)
+	    strcat(explstr, ", ");
+	h[n] = starter;
+	sorthand(h, n + 1);			/* sort by rank */
+	i = 2 * fifteens(h, n + 1);
+	score += i;
+	if (do_explain) {
+	    if (i > 0) {
+		sprintf(buf, "%d points in fifteens", i);
+		strcat(explstr, buf);
+	    } else
+		strcat(explstr, "No fifteens");
+        }
+	i = pairuns(h, n + 1);
+	score += i;
+	if (do_explain) {
+	    if (i > 0) {
+		sprintf(buf, ", %d points in pairs, %d in runs", pairpoints,
+		    runpoints);
+		strcat(explstr, buf);
+	    }
+	    else
+		strcat(explstr, ", No pairs/runs");
+        }
+	return score;
+}
 
 /*
  * pegscore tells how many points crd would get if played after
  * the n cards in tbl during pegging
  */
-
-pegscore( crd, tbl, n, sum )
-
-    CARD		crd,  tbl[];
-    int			n;
-    int			sum;
+int pegscore( crd, tbl, n, sum )
+    CARD	crd,  tbl[];
+    int		n;
+    int		sum;
 {
 	BOOLEAN			got[ RANKS ];
 	register  int		i, j, scr;
@@ -302,17 +289,13 @@ pegscore( crd, tbl, n, sum )
 	else		return( scr );
 }
 
-
-
 /*
  * adjust takes a two card hand that will be put in the crib
  * and returns an adjusted normalized score for the number of
  * points such a crib will get.
  */
-
-adjust( cb, tnv )
-
-    CARD		cb[], tnv;
+int adjust( cb, tnv )
+    CARD	cb[], tnv;
 {
 	int			i,  c0,  c1;
 	long			scr;
@@ -332,6 +315,3 @@ adjust( cb, tnv )
 	}
 	return(  (scr + 29400)/58800  );
 }
-
-
-

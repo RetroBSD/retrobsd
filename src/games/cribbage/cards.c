@@ -3,21 +3,14 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-
-#ifndef lint
-static char sccsid[] = "@(#)cards.c	5.1 (Berkeley) 5/30/85";
-#endif not lint
-
 #include	<stdio.h>
+#include	<stdlib.h>
 #include	"deck.h"
-
 
 /*
  * initialize a deck of cards to contain one of each type
  */
-
-makedeck( d )
-
+void makedeck( d )
     CARD	d[];
 {
 	register  int		i, j, k;
@@ -35,15 +28,11 @@ makedeck( d )
 	}
 }
 
-
-
 /*
  * given a deck of cards, shuffle it -- i.e. randomize it
  * see Knuth, vol. 2, page 125
  */
-
-shuffle( d )
-
+void shuffle( d )
     CARD	d[];
 {
 	register  int		j, k;
@@ -57,27 +46,19 @@ shuffle( d )
 	}
 }
 
-
-
 /*
  * return true if the two cards are equal...
  */
-
-eq( a, b )
-
+int eq( a, b )
     CARD		a, b;
 {
 	return(  ( a.rank == b.rank )  &&  ( a.suit == b.suit )  );
 }
 
-
-
 /*
  * isone returns TRUE if a is in the set of cards b
  */
-
-isone( a, b, n )
-
+BOOLEAN isone( a, b, n )
     CARD		a, b[];
     int			n;
 {
@@ -89,16 +70,12 @@ isone( a, b, n )
 	return( FALSE );
 }
 
-
-
 /*
  * remove the card a from the deck d of n cards
  */
-
-remove( a, d, n )
-
-    CARD		a, d[];
-    int			n;
+void cremove( a, d, n )
+    CARD	a, d[];
+    int		n;
 {
 	register  int		i, j;
 
@@ -109,15 +86,13 @@ remove( a, d, n )
 	if(  j < n  )  d[j].suit = d[j].rank = EMPTY;
 }
 
-
-
 /*
  * sorthand:
  *	Sort a hand of n cards
  */
-sorthand(h, n)
-register CARD		h[];
-int			n;
+void sorthand(h, n)
+    register CARD	h[];
+    int			n;
 {
 	register CARD		*cp, *endp;
 	CARD			c;
@@ -131,4 +106,3 @@ int			n;
 		    *cp = c;
 		}
 }
-

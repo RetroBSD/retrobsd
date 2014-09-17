@@ -1,9 +1,10 @@
-# include	"monop.ext"
+#include "extern.h"
 
 static char	*perc[]	= {
 	"10%", "ten percent", "%", "$200", "200", 0
 	};
 
+void
 inc_tax() {			/* collect income tax			*/
 
 	reg int	worth, com_num;
@@ -30,20 +31,24 @@ inc_tax() {			/* collect income tax			*/
 	if (worth == 200)
 		lucky("\nIt makes no difference!  ");
 }
-goto_jail() {			/* move player to jail			*/
 
+void
+goto_jail() {			/* move player to jail			*/
 	cur_p->loc = JAIL;
 }
-lux_tax() {			/* landing on luxury tax		*/
 
+void
+lux_tax() {			/* landing on luxury tax		*/
 	printf("You lose $75\n");
 	cur_p->money -= 75;
 }
-cc() {				/* draw community chest card		*/
 
+void
+cc() {				/* draw community chest card		*/
 	get_card(&CC_D);
 }
-chance() {			/* draw chance card			*/
 
+void
+chance() {			/* draw chance card			*/
 	get_card(&CH_D);
 }

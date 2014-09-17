@@ -11,3 +11,5 @@ struct dk_st {			/* deck description structure		*/
 };
 
 typedef struct dk_st	DECK;
+
+void    get_card(DECK *dp);

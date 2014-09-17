@@ -8,10 +8,11 @@
  *	print out the score as if it was final, and add the totals for
  * the end-of-games points to the user who deserves it (if any).
  */
+void
 finalscore(pp)
-reg PLAY	*pp; {
+PLAY	*pp; {
 
-	reg int		temp, tot, num;
+	int	temp, tot, num;
 
 	if (pp->was_finished == Finished)
 		return;
@@ -45,13 +46,14 @@ reg PLAY	*pp; {
 	}
 }
 
-# ifdef EXTRAP
+#ifdef EXTRAP
 static int	Last_tot[2];	/* last tot used for extrapolate	*/
 
 /*
  *	print out the score as if it was final, and add the totals for
  * the end-of-games points to the user who deserves it (if any).
  */
+void
 extrapolate(pp)
 reg PLAY	*pp; {
 
@@ -96,6 +98,7 @@ reg PLAY	*pp; {
 	Last_tot[num] = tot;
 }
 
+void
 undoex() {
 
 	reg PLAY	*pp;
@@ -107,5 +110,4 @@ undoex() {
 		pp->hand_tot -= Last_tot[i++];
 	}
 }
-# endif
-
+#endif

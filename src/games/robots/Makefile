@@ -5,27 +5,46 @@
 #
 #	@(#)Makefile	5.2 (Berkeley) 5/15/86
 #
-DESTDIR=
-HDRS=		robot.h
-CFILES=		extern.c init_field.c main.c make_level.c move.c \
-		move_robs.c play_level.c query.c rnd_pos.c score.c \
-		flush_in.c
-OBJS=		extern.o init_field.o main.o make_level.o move.o \
-		move_robs.o play_level.o query.o rnd_pos.o score.o \
-		flush_in.o
-DEFS=		-DMAX_PER_UID=5
-CFLAGS=		-O ${DEFS}
-SEPFLAG= -i
+TOPSRC          = $(shell cd ../../..; pwd)
+include $(TOPSRC)/target.mk
+#include $(TOPSRC)/cross.mk
+#CFLAGS  	= -O -DCROSS -g -DFANCY
 
-robots: ${OBJS}
-	${CC} ${SEPFLAG} ${CFLAGS} -o robots ${OBJS} -lcurses -ltermlib
+CFLAGS  	+= -DMAX_PER_UID=5 -Werror -Wall
 
-lint:
-	lint -hb ${DEFS} ${CFILES} -lcurses 2>1 > lint.out
+OBJS            = extern.o init_field.o main.o make_level.o move.o \
+		  move_robs.o play_level.o query.o rnd_pos.o score.o \
+		  flush_in.o
+MAN             = robots.0
+LIBS            = -lcurses -ltermcap -lc
 
-install: robots
-	install -s -m 4711 -o daemon robots ${DESTDIR}/usr/games
-	install -c -m 644 -o daemon /dev/null ${DESTDIR}/usr/games/lib/robots_roll
+all:            robots $(MAN)
+
+robots:         $(OBJS)
+		$(CC) $(LDFLAGS) -o $@.elf $(OBJS) $(LIBS)
+		$(OBJDUMP) -S $@.elf > $@.dis
+		$(SIZE) $@.elf
+		$(ELF2AOUT) $@.elf $@ && rm $@.elf
+
+$(MAN):         robots.6
+		nroff -man $< > $@
 
 clean:
-	rm -f a.out core *.o robots lint.out errs
+		rm -f *.o core robots *.0 *.dis
+
+install:        all
+		install robots $(DESTDIR)/games/
+		install -m 644 $(MAN) $(DESTDIR)/share/man/cat6/
+		install -c -m 644 /dev/null ${DESTDIR}/games/lib/robots_roll
+###
+extern.o: extern.c robots.h
+flush_in.o: flush_in.c
+init_field.o: init_field.c robots.h
+main.o: main.c robots.h
+make_level.o: make_level.c robots.h
+move.o: move.c robots.h
+move_robs.o: move_robs.c robots.h
+play_level.o: play_level.c robots.h
+query.o: query.c robots.h
+rnd_pos.o: rnd_pos.c robots.h
+score.o: score.c robots.h

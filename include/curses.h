@@ -181,6 +181,10 @@ int     waddstr (WINDOW *, char *);
 int     wgetstr (WINDOW *, char *);
 int     wdeleteln (WINDOW *);
 void    mvcur(int ly, int lx, int y, int x);
+void    overwrite(WINDOW *win1, WINDOW *win2);
+void    wclrtobot(WINDOW *win);
+int     mvprintw(int y, int x, char *fmt, ...);
+int     mvwprintw(WINDOW *win, int y, int x, char *fmt, ...);
 
 /*
  * Used to be in unctrl.h.

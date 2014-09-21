@@ -1,7 +1,7 @@
 /*
  * Superblock routines for 2.xBSD filesystem.
  *
- * Copyright (C) 2006-2011 Serge Vakulenko, <serge@vak.ru>
+ * Copyright (C) 2006-2014 Serge Vakulenko, <serge@vak.ru>
  *
  * Permission to use, copy, modify, and distribute this software
  * and its documentation for any purpose and without fee is hereby
@@ -33,7 +33,7 @@ extern int verbose;
 int fs_seek (fs_t *fs, unsigned long offset)
 {
 /*  printf ("seek %ld, block %ld\n", offset, offset / BSDFS_BSIZE);*/
-    if (lseek (fs->fd, offset, 0) < 0) {
+    if (lseek (fs->fd, fs->part_offset + offset, 0) < 0) {
         if (verbose)
             printf ("error seeking %ld, block %ld\n",
                 offset, offset / BSDFS_BSIZE);
@@ -145,7 +145,48 @@ int fs_write (fs_t *fs, unsigned char *data, int bytes)
     return 1;
 }
 
-int fs_open (fs_t *fs, const char *filename, int writable)
+int fs_set_partition (fs_t *fs, unsigned pindex)
+{
+    unsigned char buf [512], *entry;
+
+    if (pindex > 4 || pindex < 1) {
+        fprintf (stderr, "%s: incorrect partition index=%u\n",
+            fs->filename, pindex);
+        return 0;
+    }
+    if (read (fs->fd, buf, 512) != 512) {
+        fprintf (stderr, "%s: cannot read partition table\n", fs->filename);
+        return 0;
+    }
+    if (buf[510] != 0x55 || buf[511] != 0xaa) {
+        fprintf (stderr, "%s: Warning: unexpected type of RetroBSD partition\n",
+            fs->filename);
+    }
+    /* Read partition entry. */
+    entry = &buf [446 + (pindex-1)*16];
+    fs->part_type = entry [4];
+    fs->part_offset = *(unsigned*) &entry [8];
+    fs->part_nsectors = *(unsigned*) &entry [12];
+    if (fs->part_type == 0) {
+        fprintf (stderr, "%s: Partition %u not allocated.\n",
+            fs->filename, pindex);
+        return 0;
+    }
+    if (fs->part_type != 0xb7) {
+        fprintf (stderr, "%s: Warning: unexpected type of RetroBSD partition\n",
+            fs->filename);
+    }
+    if (fs->part_offset & 1) {
+        fprintf (stderr, "%s: Incorrect partition offset=%u, must be even\n",
+            fs->filename, fs->part_offset);
+        return 0;
+    }
+    fs->part_offset *= 512;
+//printf ("Partition %u, type %02x, offset=%uk, length=%uk\n", pindex, fs->part_type, fs->part_offset/1024, fs->part_nsectors/2);
+    return 1;
+}
+
+int fs_open (fs_t *fs, const char *filename, int writable, unsigned pindex)
 {
     int i;
     unsigned magic;
@@ -158,6 +199,12 @@ int fs_open (fs_t *fs, const char *filename, int writable)
     if (fs->fd < 0)
         return 0;
     fs->writable = writable;
+
+    if (pindex > 0) {
+        /* Get offset from partition table. */
+        if (! fs_set_partition (fs, pindex))
+            return 0;
+    }
 
     if (! fs_read32 (fs, &magic) ||     /* magic word */
         magic != FSMAGIC1) {

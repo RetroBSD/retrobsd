@@ -36,9 +36,9 @@ MMBMX7          = sys/pic32/mmb-mx7/MMB-MX7
 TARGET          ?= $(MAX32)
 
 # Filesystem and swap sizes.
-FS_KBYTES       = 102400
-U_KBYTES        = 102400
-SWAP_KBYTES     = 2048
+FS_MBYTES       = 100
+U_MBYTES        = 100
+SWAP_MBYTES     = 2
 
 # Set this to the device name for your SD card.  With this
 # enabled you can use "make installfs" to copy the filesys.img
@@ -61,14 +61,12 @@ TARGETNAME   = $(shell basename $(TARGET))
 TOPSRC       = $(shell pwd)
 CONFIG       = $(TOPSRC)/tools/configsys/config
 
-all:            tools build kernel
-		$(MAKE) fs
-
-fs:             sdcard.rd
-
-.PHONY: 	tools
-tools:
+all:
 		$(MAKE) -C tools
+		$(MAKE) -C lib
+		$(MAKE) -C src install
+		$(MAKE) kernel
+		$(MAKE) fs
 
 kernel: 	$(TARGETDIR)/Makefile
 		$(MAKE) -C $(TARGETDIR)
@@ -76,32 +74,14 @@ kernel: 	$(TARGETDIR)/Makefile
 $(TARGETDIR)/Makefile: $(CONFIG) $(TARGETDIR)/$(TARGETNAME)
 		cd $(TARGETDIR) && ../../../tools/configsys/config $(TARGETNAME)
 
-.PHONY: 	lib
-lib:
-		$(MAKE) -C lib
+fs:             sdcard.img
 
-build: 		tools lib
-		$(MAKE) -C src install
-
-filesys.img:	$(FSUTIL) rootfs.manifest #$(ALLFILES)
+.PHONY:         sdcard.img
+sdcard.img:	$(FSUTIL) rootfs.manifest userfs.manifest
 		rm -f $@
-		$(FSUTIL) -n$(FS_KBYTES) -Mrootfs.manifest $@ .
-
-swap.img:
-		dd if=/dev/zero of=$@ bs=1k count=$(SWAP_KBYTES)
-
-user.img:	$(FSUTIL) userfs.manifest
-ifneq ($(U_KBYTES), 0)
-		rm -f $@
-		$(FSUTIL) -n$(U_KBYTES) -Muserfs.manifest $@ u
-endif
-
-sdcard.rd:	filesys.img swap.img user.img
-ifneq ($(U_KBYTES), 0)
-		tools/mkrd/mkrd -out $@ -boot filesys.img -swap swap.img -fs user.img
-else
-		tools/mkrd/mkrd -out $@ -boot filesys.img -swap swap.img
-endif
+		$(FSUTIL) --repartition=fs=$(FS_MBYTES)M:swap=$(SWAP_MBYTES)M:fs=$(U_MBYTES)M $@
+		$(FSUTIL) --new --partition=1 --manifest=rootfs.manifest $@ .
+		$(FSUTIL) --new --partition=3 --manifest=userfs.manifest $@ u
 
 $(FSUTIL):
 		cd tools/fsutil; $(MAKE)

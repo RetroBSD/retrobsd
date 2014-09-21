@@ -1,7 +1,7 @@
 /*
  * Data structures for 2.xBSD filesystem.
  *
- * Copyright (C) 2006-2011 Serge Vakulenko, <serge@vak.ru>
+ * Copyright (C) 2006-2014 Serge Vakulenko, <serge@vak.ru>
  *
  * Permission to use, copy, modify, and distribute this software
  * and its documentation for any purpose and without fee is hereby
@@ -62,6 +62,9 @@ typedef struct {
     int             writable;
     int             dirty;              /* sync needed */
     int             modified;           /* write_block was called */
+    unsigned char   part_type;
+    unsigned        part_offset;
+    unsigned        part_nsectors;
 
     unsigned        isize;              /* size in blocks of superblock + I list */
     unsigned        fsize;              /* size in blocks of entire volume */
@@ -163,10 +166,11 @@ int fs_write32 (fs_t *fs, unsigned val);
 int fs_read (fs_t *fs, unsigned char *data, int bytes);
 int fs_write (fs_t *fs, unsigned char *data, int bytes);
 
-int fs_open (fs_t *fs, const char *filename, int writable);
+int fs_open (fs_t *fs, const char *filename, int writable, unsigned pindex);
 void fs_close (fs_t *fs);
+int fs_set_partition (fs_t *fs, unsigned pindex);
 int fs_sync (fs_t *fs, int force);
-int fs_create (fs_t *fs, const char *filename, unsigned kbytes,
+int fs_create (fs_t *fs, const char *filename, int kbytes,
     unsigned swap_kbytes);
 int fs_check (fs_t *fs);
 void fs_print (fs_t *fs, FILE *out);

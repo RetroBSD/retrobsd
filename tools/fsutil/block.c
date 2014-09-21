@@ -1,7 +1,7 @@
 /*
  * Block handling for 2.xBSD filesystem.
  *
- * Copyright (C) 2006-2011 Serge Vakulenko, <serge@vak.ru>
+ * Copyright (C) 2006-2014 Serge Vakulenko, <serge@vak.ru>
  *
  * Permission to use, copy, modify, and distribute this software
  * and its documentation for any purpose and without fee is hereby

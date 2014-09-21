@@ -1,7 +1,7 @@
 /*
  * Create new 2.xBSD filesystem.
  *
- * Copyright (C) 2006-2011 Serge Vakulenko, <serge@vak.ru>
+ * Copyright (C) 2006-2014 Serge Vakulenko, <serge@vak.ru>
  *
  * Permission to use, copy, modify, and distribute this software
  * and its documentation for any purpose and without fee is hereby
@@ -325,7 +325,7 @@ static int create_swap_file (fs_t *fs)
     return 1;
 }
 
-int fs_create (fs_t *fs, const char *filename, unsigned kbytes,
+int fs_create (fs_t *fs, const char *filename, int kbytes,
     unsigned swap_kbytes)
 {
     int n;
@@ -336,9 +336,20 @@ int fs_create (fs_t *fs, const char *filename, unsigned kbytes,
     fs->filename = filename;
     fs->seek = 0;
 
-    fs->fd = open (fs->filename, O_CREAT | O_RDWR, 0666);
-    if (fs->fd < 0)
-        return 0;
+    if (kbytes < 0) {
+        fs->fd = open (fs->filename, O_RDWR);
+        if (fs->fd < 0)
+            return 0;
+
+        /* Get size and offset from partition table. */
+        if (! fs_set_partition (fs, -kbytes))
+            return 0;
+        kbytes = fs->part_nsectors / 2;
+    } else {
+        fs->fd = open (fs->filename, O_CREAT | O_RDWR, 0666);
+        if (fs->fd < 0)
+            return 0;
+    }
     fs->writable = 1;
 
     /* get total disk size
@@ -351,14 +362,14 @@ int fs_create (fs_t *fs, const char *filename, unsigned kbytes,
         return 0;
 
     /* make sure the file is of proper size */
-    offset = lseek (fs->fd, bytes-1, SEEK_SET);
-    if (offset != bytes-1)
+    offset = lseek (fs->fd, fs->part_offset + bytes-1, SEEK_SET);
+    if (offset != fs->part_offset + bytes-1)
         return 0;
     if (write (fs->fd, "", 1) != 1) {
         perror ("write");
         return 0;
     }
-    lseek (fs->fd, 0, SEEK_SET);
+    lseek (fs->fd, fs->part_offset, SEEK_SET);
 
     /* build a list of free blocks */
     fs->swapsz = swap_kbytes * 1024 / BSDFS_BSIZE;

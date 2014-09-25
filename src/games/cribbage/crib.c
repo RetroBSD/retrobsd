@@ -523,6 +523,7 @@ char	*argv[];
 	signal(SIGINT, bye);
 	crmode();
 	noecho();
+        nonl();
 	Playwin = subwin(stdscr, PLAY_Y, PLAY_X, 0, 0);
 	Tablewin = subwin(stdscr, TABLE_Y, TABLE_X, 0, PLAY_X);
 	Compwin = subwin(stdscr, COMP_Y, COMP_X, 0, TABLE_X + PLAY_X);
@@ -537,9 +538,11 @@ char	*argv[];
 	    if (getuchar() == 'Y') {
 		endwin();
 		fflush(stdout);
-		system(INSTRCMD);
+		if (system(INSTRCMD) < 0)
+                        /*ignore*/;
 		crmode();
 		noecho();
+                nonl();
 		clear();
 		refresh();
 		msg("For the rules of this program, do \"man cribbage\"");

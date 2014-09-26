@@ -16,7 +16,10 @@
 #
 #	@(#)Makefile	1.9 (2.11BSD) 1998/1/24
 #
-MDIR=	/usr/man/cat1
+TOPSRC = $(shell cd ../../..; pwd)
+include $(TOPSRC)/target.mk
+
+MDIR=	/share/man/cat1
 SRCS=	adb.1 addbib.1 apply.1 apropos.1 as.1 at.1 atq.1 atrm.1 \
 	awk.1 basename.1 bc.1 biff.1 binmail.1 cal.1 calendar.1 cat.1 \
 	cb.1 cc.1 cd.1 checknr.1 chgrp.1 chmod.1 clear.1 cmp.1 col.1 \
@@ -29,7 +32,7 @@ SRCS=	adb.1 addbib.1 apply.1 apropos.1 as.1 at.1 atq.1 atrm.1 \
 	learn.1 leave.1 lex.1 lint.1 lisp.1 ln.1 logger.1 login.1 \
 	look.1 lookbib.1 lorder.1 lpq.1 lpr.1 lprm.1 lptest.1 ls.1 \
 	lxref.1 m4.1 mail.1 make.1 man.1 mesg.1 mkdep.1 mkdir.1 mkstr.1 \
-	more.1 mset.1 msgs.1 mt.1 mv.1 netstat.1 newaliases.1 nice.1 nm.1 
+	more.1 mset.1 msgs.1 mt.1 mv.1 netstat.1 newaliases.1 nice.1 nm.1
 SRCS1=	nroff.1 nslookup.1 od.1 pagesize.1 pdx.1 pi.1 pix.1 \
 	plot.1 pmerge.1 pr.1 printenv.1 prof.1 ps.1 ptx.1 pwd.1 px.1 pxp.1 \
 	pxref.1 quota.1 ratfor.1 rcp.1 rdist.1 refer.1 rev.1 \
@@ -77,65 +80,44 @@ OBJS2=	nroff.0 nslookup.0 od.0 pagesize.0 pdx.0 pi.0 pix.0 \
 .SUFFIXES: .1 .0
 
 .1.0:
-	${DESTDIR}/usr/man/manroff $*.1 > $*.0
+	${MANROFF} $*.1 > $*.0
 
-all: _make_01 _make_02 
+all: _make_01 _make_02
 
 _make_01: ${OBJS1}
 
 _make_02: ${OBJS2}
 
 eqn.0:
-	eqn eqn.1 | ${DESTDIR}/usr/man/manroff > $@
+	eqn eqn.1 | ${MANROFF} > $@
 
 clean: FRC
 	rm -f ${OBJS1}
 	rm -f ${OBJS2}
 
 install: _make_01 _make_02
-	install -c -o bin -g bin -m 444 ${OBJS1} ${DESTDIR}${MDIR}
-	install -c -o bin -g bin -m 444 ${OBJS2} ${DESTDIR}${MDIR}
-	rm -f ${DESTDIR}${MDIR}/case.0
-	ln ${DESTDIR}/${MDIR}/sh.0 ${DESTDIR}${MDIR}/case.0
-	rm -f ${DESTDIR}${MDIR}/checkeq.0
-	ln ${DESTDIR}/${MDIR}/eqn.0 ${DESTDIR}${MDIR}/checkeq.0
-	rm -f ${DESTDIR}${MDIR}/cu.0
-	ln ${DESTDIR}${MDIR}/tip.0 ${DESTDIR}${MDIR}/cu.0
-	rm -f ${DESTDIR}${MDIR}/diffh.0
-	ln ${DESTDIR}${MDIR}/diff.0 ${DESTDIR}${MDIR}/diffh.0
-	rm -f ${DESTDIR}${MDIR}/edit.0
-	ln ${DESTDIR}${MDIR}/ex.0 ${DESTDIR}${MDIR}/edit.0
-	rm -f ${DESTDIR}${MDIR}/egrep.0
-	ln ${DESTDIR}${MDIR}/grep.0 ${DESTDIR}${MDIR}/egrep.0
-	rm -f ${DESTDIR}${MDIR}/explain.0
-	ln ${DESTDIR}${MDIR}/diction.0 ${DESTDIR}${MDIR}/explain.0
-	rm -f ${DESTDIR}${MDIR}/fgrep.0
-	ln ${DESTDIR}${MDIR}/grep.0 ${DESTDIR}${MDIR}/fgrep.0
-	rm -f ${DESTDIR}${MDIR}/for.0
-	ln ${DESTDIR}${MDIR}/sh.0 ${DESTDIR}${MDIR}/for.0
-	rm -f ${DESTDIR}${MDIR}/if.0
-	ln ${DESTDIR}${MDIR}/sh.0 ${DESTDIR}${MDIR}/if.0
-	rm -f ${DESTDIR}${MDIR}/indxbib.0
-	ln ${DESTDIR}${MDIR}/lookbib.0 ${DESTDIR}${MDIR}/indxbib.0
-	rm -f ${DESTDIR}${MDIR}/neqn.0
-	ln ${DESTDIR}${MDIR}/eqn.0 ${DESTDIR}${MDIR}/neqn.0
-	rm -f ${DESTDIR}${MDIR}/nohup.0
-	ln ${DESTDIR}${MDIR}/nice.0 ${DESTDIR}${MDIR}/nohup.0
-	rm -f ${DESTDIR}${MDIR}/page.0
-	ln ${DESTDIR}${MDIR}/more.0 ${DESTDIR}${MDIR}/page.0
-	rm -f ${DESTDIR}${MDIR}/spellin.0
-	ln ${DESTDIR}${MDIR}/spell.0 ${DESTDIR}${MDIR}/spellin.0
-	rm -f ${DESTDIR}${MDIR}/spellout.0
-	ln ${DESTDIR}${MDIR}/spell.0 ${DESTDIR}${MDIR}/spellout.0
-	rm -f ${DESTDIR}${MDIR}/uncompress.0
-	ln ${DESTDIR}${MDIR}/compress.0 ${DESTDIR}${MDIR}/uncompress.0
-	rm -f ${DESTDIR}${MDIR}/unexpand.0
-	ln ${DESTDIR}${MDIR}/expand.0 ${DESTDIR}${MDIR}/unexpand.0
-	rm -f ${DESTDIR}${MDIR}/uudecode.0
-	ln ${DESTDIR}${MDIR}/uuencode.0 ${DESTDIR}${MDIR}/uudecode.0
-	rm -f ${DESTDIR}${MDIR}/while.0
-	ln ${DESTDIR}${MDIR}/sh.0 ${DESTDIR}${MDIR}/while.0
-	rm -f ${DESTDIR}${MDIR}/zcat.0
-	ln ${DESTDIR}${MDIR}/compress.0 ${DESTDIR}${MDIR}/zcat.0
+	cp ${OBJS1} ${DESTDIR}${MDIR}
+	cp ${OBJS2} ${DESTDIR}${MDIR}
+	ln -f ${DESTDIR}/${MDIR}/sh.0 ${DESTDIR}${MDIR}/case.0
+	ln -f ${DESTDIR}/${MDIR}/eqn.0 ${DESTDIR}${MDIR}/checkeq.0
+	ln -f ${DESTDIR}${MDIR}/tip.0 ${DESTDIR}${MDIR}/cu.0
+	ln -f ${DESTDIR}${MDIR}/diff.0 ${DESTDIR}${MDIR}/diffh.0
+	ln -f ${DESTDIR}${MDIR}/ex.0 ${DESTDIR}${MDIR}/edit.0
+	ln -f ${DESTDIR}${MDIR}/grep.0 ${DESTDIR}${MDIR}/egrep.0
+	ln -f ${DESTDIR}${MDIR}/diction.0 ${DESTDIR}${MDIR}/explain.0
+	ln -f ${DESTDIR}${MDIR}/grep.0 ${DESTDIR}${MDIR}/fgrep.0
+	ln -f ${DESTDIR}${MDIR}/sh.0 ${DESTDIR}${MDIR}/for.0
+	ln -f ${DESTDIR}${MDIR}/sh.0 ${DESTDIR}${MDIR}/if.0
+	ln -f ${DESTDIR}${MDIR}/lookbib.0 ${DESTDIR}${MDIR}/indxbib.0
+	ln -f ${DESTDIR}${MDIR}/eqn.0 ${DESTDIR}${MDIR}/neqn.0
+	ln -f ${DESTDIR}${MDIR}/nice.0 ${DESTDIR}${MDIR}/nohup.0
+	ln -f ${DESTDIR}${MDIR}/more.0 ${DESTDIR}${MDIR}/page.0
+	ln -f ${DESTDIR}${MDIR}/spell.0 ${DESTDIR}${MDIR}/spellin.0
+	ln -f ${DESTDIR}${MDIR}/spell.0 ${DESTDIR}${MDIR}/spellout.0
+	ln -f ${DESTDIR}${MDIR}/compress.0 ${DESTDIR}${MDIR}/uncompress.0
+	ln -f ${DESTDIR}${MDIR}/expand.0 ${DESTDIR}${MDIR}/unexpand.0
+	ln -f ${DESTDIR}${MDIR}/uuencode.0 ${DESTDIR}${MDIR}/uudecode.0
+	ln -f ${DESTDIR}${MDIR}/sh.0 ${DESTDIR}${MDIR}/while.0
+	ln -f ${DESTDIR}${MDIR}/compress.0 ${DESTDIR}${MDIR}/zcat.0
 
 FRC:

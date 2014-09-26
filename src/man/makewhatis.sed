@@ -17,12 +17,12 @@
 #
 #	@(#)makewhatis.sed	5.3 (Berkeley) 7/9/88
 #
-/(\([a-zA-Z0-9]*\).*UNIX Programmer's Manual/ {
-	s;.*(\([a-zA-Z0-9]*\).*UNIX.*;\1;
+/(\([a-zA-Z0-9]*\).* Manual/ {
+	s;.*(\([a-zA-Z0-9]*\).* Manual.*;\1;
 	h
 	d
 }
-/^NAME/!d
+/^NNAAMMEE/!d
 
 :name
 	s;.*;;
@@ -37,8 +37,9 @@
 :print
 	x
 	s;\n;;g
+	s;^  *;;
 	/-/!d
-	s;\([a-z][A-z]\)-[	 ][	 ]*;\1;
+	s;\([a-z][A-Z]\)-[	 ][	 ]*;\1;
 	s;\([a-zA-Z0-9,]\)[	 ][	 ]*;\1 ;g
 	s;[^a-zA-Z0-9]*\([a-zA-Z0-9]*\)[^a-zA-Z0-9]*\(.*\) - \(.*\);\2 (\1) - \3;
 	p

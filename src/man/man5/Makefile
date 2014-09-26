@@ -16,7 +16,10 @@
 #
 #	@(#)Makefile	5.4.3 (2.11BSD GTE) 1996/3/20
 #
-MDIR=	/usr/man/cat5
+TOPSRC = $(shell cd ../../..; pwd)
+include $(TOPSRC)/target.mk
+
+MDIR=	/share/man/cat5
 SRCS=	L-devices.5 L-dialcodes.5 L.aliases.5 L.cmds.5 L.sys.5 \
 	USERFILE.5 a.out.5 acct.5 aliases.5 core.5 dbx.5 \
 	dir.5 disktab.5 dtab.5 dump.5 fs.5 fstab.5 gettytab.5 \
@@ -37,7 +40,7 @@ OBJS=	L-devices.0 L-dialcodes.0 L.aliases.0 L.cmds.0 L.sys.0 \
 .SUFFIXES: .5 .0
 
 .5.0:
-	${DESTDIR}/usr/man/manroff $*.5 > $*.0
+	${MANROFF} $*.5 > $*.0
 
 all: _make_01
 
@@ -47,13 +50,9 @@ clean: FRC
 	rm -f ${OBJS}
 
 install: _make_01
-	install -c -o bin -g bin -m 444 ${OBJS} ${DESTDIR}${MDIR}
-	rm -f ${DESTDIR}${MDIR}/inode.0
-	ln ${DESTDIR}${MDIR}/fs.0 ${DESTDIR}${MDIR}/inode.0
-	rm -f ${DESTDIR}${MDIR}/dumpdates.0
-	ln ${DESTDIR}${MDIR}/dump.0 ${DESTDIR}${MDIR}/dumpdates.0
-	rm -f ${DESTDIR}${MDIR}/wtmp.0
-	ln ${DESTDIR}${MDIR}/utmp.0 ${DESTDIR}${MDIR}/wtmp.0
+	cp ${OBJS} ${DESTDIR}${MDIR}
+	ln -f ${DESTDIR}${MDIR}/fs.0 ${DESTDIR}${MDIR}/inode.0
+	ln -f ${DESTDIR}${MDIR}/dump.0 ${DESTDIR}${MDIR}/dumpdates.0
+	ln -f ${DESTDIR}${MDIR}/utmp.0 ${DESTDIR}${MDIR}/wtmp.0
 
 FRC:
-

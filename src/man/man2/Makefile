@@ -16,7 +16,10 @@
 #
 #	@(#)Makefile	2.11 (2.11BSD) 2000/3/4
 #
-MDIR=	/usr/man/cat2
+TOPSRC = $(shell cd ../../..; pwd)
+include $(TOPSRC)/target.mk
+
+MDIR=	/share/man/cat2
 SRCS=	accept.2 access.2 acct.2 adjtime.2 bind.2 brk.2 chdir.2 chmod.2 \
 	chown.2 chroot.2 close.2 connect.2 creat.2 dup.2 execve.2 exit.2 \
 	chflags.2 \
@@ -59,7 +62,7 @@ OBJS=	accept.0 access.0 acct.0 adjtime.0 bind.0 brk.0 chdir.0 chmod.0 \
 .SUFFIXES: .2 .0
 
 .2.0:
-	${DESTDIR}/usr/man/manroff $*.2 > $*.0
+	${MANROFF} $*.2 > $*.0
 
 all: _make_01
 
@@ -79,44 +82,41 @@ REM= sbrk.0 dup2.0 fstat.0 lstat.0 readv.0 recvfrom.0 sendmsg.0 recvmsg.0 \
 	seteuid.0 setegid.0 getegid.0
 
 install: _make_01
-	install -c -o bin -g bin -m 444 ${OBJS} ${P}
-	for i in ${REM}; do \
-		rm -f  ${P}/$$i; \
-	done
-	ln ${P}/dup.0 ${P}/dup2.0
-	ln ${P}/brk.0 ${P}/sbrk.0
-	ln ${P}/stat.0 ${P}/fstat.0
-	ln ${P}/stat.0 ${P}/lstat.0
-	ln ${P}/read.0 ${P}/readv.0
-	ln ${P}/recv.0 ${P}/recvfrom.0
-	ln ${P}/recv.0 ${P}/recvmsg.0
-	ln ${P}/send.0 ${P}/sendmsg.0
-	ln ${P}/send.0 ${P}/sendto.0
-	ln ${P}/statfs.0 ${P}/fstatfs.0
-	ln ${P}/wait.0 ${P}/wait3.0
-	ln ${P}/wait.0 ${P}/wait4.0
-	ln ${P}/wait.0 ${P}/waitpid.0
-	ln ${P}/chmod.0 ${P}/fchdir.0
-	ln ${P}/chflags.0 ${P}/fchflags.0
-	ln ${P}/chmod.0 ${P}/fchmod.0
-	ln ${P}/chown.0 ${P}/fchown.0
-	ln ${P}/mount.0 ${P}/umount.0
-	ln ${P}/select.0 ${P}/pselect.0
-	ln ${P}/write.0 ${P}/writev.0
-	ln ${P}/getpid.0 ${P}/getppid.0
-	ln ${P}/truncate.0 ${P}/ftruncate.0
-	ln ${P}/gethostid.0 ${P}/sethostid.0
-	ln ${P}/getitimer.0 ${P}/setitimer.0
-	ln ${P}/getrlimit.0 ${P}/setrlimit.0
-	ln ${P}/getsockopt.0 ${P}/setsockopt.0
-	ln ${P}/gethostname.0 ${P}/sethostname.0
-	ln ${P}/getpriority.0 ${P}/setpriority.0
-	ln ${P}/gettimeofday.0 ${P}/settimeofday.0
-	ln ${P}/getlogin.0 ${P}/setlogin.0
-	ln ${P}/getuid.0 ${P}/geteuid.0
-	ln ${P}/getgid.0 ${P}/getegid.0
-	ln ${P}/setuid.0 ${P}/setgid.0
-	ln ${P}/setuid.0 ${P}/seteuid.0
-	ln ${P}/setuid.0 ${P}/setegid.0
+	cp ${OBJS} ${P}
+	ln -f ${P}/dup.0 ${P}/dup2.0
+	ln -f ${P}/brk.0 ${P}/sbrk.0
+	ln -f ${P}/stat.0 ${P}/fstat.0
+	ln -f ${P}/stat.0 ${P}/lstat.0
+	ln -f ${P}/read.0 ${P}/readv.0
+	ln -f ${P}/recv.0 ${P}/recvfrom.0
+	ln -f ${P}/recv.0 ${P}/recvmsg.0
+	ln -f ${P}/send.0 ${P}/sendmsg.0
+	ln -f ${P}/send.0 ${P}/sendto.0
+	ln -f ${P}/statfs.0 ${P}/fstatfs.0
+	ln -f ${P}/wait.0 ${P}/wait3.0
+	ln -f ${P}/wait.0 ${P}/wait4.0
+	ln -f ${P}/wait.0 ${P}/waitpid.0
+	ln -f ${P}/chmod.0 ${P}/fchdir.0
+	ln -f ${P}/chflags.0 ${P}/fchflags.0
+	ln -f ${P}/chmod.0 ${P}/fchmod.0
+	ln -f ${P}/chown.0 ${P}/fchown.0
+	ln -f ${P}/mount.0 ${P}/umount.0
+	ln -f ${P}/select.0 ${P}/pselect.0
+	ln -f ${P}/write.0 ${P}/writev.0
+	ln -f ${P}/getpid.0 ${P}/getppid.0
+	ln -f ${P}/truncate.0 ${P}/ftruncate.0
+	ln -f ${P}/gethostid.0 ${P}/sethostid.0
+	ln -f ${P}/getitimer.0 ${P}/setitimer.0
+	ln -f ${P}/getrlimit.0 ${P}/setrlimit.0
+	ln -f ${P}/getsockopt.0 ${P}/setsockopt.0
+	ln -f ${P}/gethostname.0 ${P}/sethostname.0
+	ln -f ${P}/getpriority.0 ${P}/setpriority.0
+	ln -f ${P}/gettimeofday.0 ${P}/settimeofday.0
+	ln -f ${P}/getlogin.0 ${P}/setlogin.0
+	ln -f ${P}/getuid.0 ${P}/geteuid.0
+	ln -f ${P}/getgid.0 ${P}/getegid.0
+	ln -f ${P}/setuid.0 ${P}/setgid.0
+	ln -f ${P}/setuid.0 ${P}/seteuid.0
+	ln -f ${P}/setuid.0 ${P}/setegid.0
 
 FRC:

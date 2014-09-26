@@ -16,7 +16,10 @@
 #
 #	@(#)Makefile	5.4.1 (2.11BSD) 1996/01/26
 #
-MDIR=	/usr/man/cat6
+TOPSRC = $(shell cd ../../..; pwd)
+include $(TOPSRC)/target.mk
+
+MDIR=	/share/man/cat6
 SRCS=	aardvark.6 adventure.6 arithmetic.6 backgammon.6 banner.6 \
 	bcd.6 bj.6 boggle.6 canfield.6 chess.6 ching.6 \
 	cribbage.6 doctor.6 fish.6 fortune.6 hangman.6 hunt.6 mille.6 \
@@ -31,7 +34,7 @@ OBJS=	aardvark.0 adventure.0 arithmetic.0 backgammon.0 banner.0 \
 .SUFFIXES: .6 .0
 
 .6.0:
-	${DESTDIR}/usr/man/manroff $*.6 > $*.0
+	${MANROFF} $*.6 > $*.0
 
 all: _make_01
 
@@ -41,10 +44,7 @@ clean: FRC
 	rm -f ${OBJS}
 
 install: _make_01
-	install -c -o bin -g bin -m 444 ${OBJS} ${DESTDIR}${MDIR}
-	rm -f ${DESTDIR}${MDIR}/snscore.0
-	ln ${DESTDIR}${MDIR}/snake.0 ${DESTDIR}${MDIR}/snscore.0
-	rm -f ${DESTDIR}${MDIR}/cfscores.0
-	ln ${DESTDIR}${MDIR}/canfield.0 ${DESTDIR}${MDIR}/cfscores.0
+	cp ${OBJS} ${DESTDIR}${MDIR}
+	ln -f ${DESTDIR}${MDIR}/snake.0 ${DESTDIR}${MDIR}/snscore.0
+	ln -f ${DESTDIR}${MDIR}/canfield.0 ${DESTDIR}${MDIR}/cfscores.0
 FRC:
-

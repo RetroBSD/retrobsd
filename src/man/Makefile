@@ -16,40 +16,44 @@
 #
 #	@(#)Makefile	5.3 (Berkeley) 7/9/88
 #
+TOPSRC = $(shell cd ../..; pwd)
+include $(TOPSRC)/target.mk
+
 DIRS=	man1 man2 man3 man3f man4 man5 man6 \
 	man7 man8
 CDIRS=	cat1 cat2 cat3 cat3f cat4 cat5 cat6 \
 	cat7 cat8
 LCDIRS=	cat1 cat2 cat3 cat4 cat5 cat6 cat7 cat8
 
-all: scriptinstall FRC
+all:
 	for i in ${DIRS}; do \
-		(cd $$i; echo "Starting $$i"; make ${MFLAGS}); \
+		${MAKE} -C $$i; \
 	done
 
-scriptinstall: FRC
-	install -c -o bin -g bin -m 444 makewhatis.sed ${DESTDIR}/usr/man/makewhatis.sed
-	install -c -o bin -g bin -m 755 manroff ${DESTDIR}/usr/man/manroff
-
-install: FRC
-	for i in ${DIRS}; do \
-		(cd $$i; make ${MFLAGS} DESTDIR=${DESTDIR} install); \
-	done
+whatis.db:
 	cp /dev/null whatis_tmp
-	for dirext in /usr/man/cat* ; do \
+	for dirext in ${DESTDIR}/share/man/cat* ; do \
 	echo $$dirext; \
 	for file in `find $$dirext -type f -name '*.0' -print`; do \
-		sed -n -f /usr/man/makewhatis.sed $$file; \
+		sed -n -f makewhatis.sed $$file; \
 	done >> whatis_tmp; \
 	done
 	sort -u whatis_tmp > whatis.db
 	-rm -f whatis_tmp
-	install -o bin -g bin -m 444 whatis.db ${DESTDIR}/usr/man/whatis
-	install -c -o bin -g bin -m 444 man.template ${DESTDIR}/usr/man/man.template
+
+install: FRC
+	for i in ${DIRS}; do \
+		${MAKE} -C $$i install; \
+	done
+	${MAKE} whatis.db
+	cp whatis.db ${DESTDIR}/share/man/whatis
+	cp man.template ${DESTDIR}/share/man/man.template
+#	cp makewhatis.sed ${DESTDIR}/share/man/makewhatis.sed
+#	install -c -m 755 manroff ${DESTDIR}/share/man/manroff
 
 clean: FRC
 	for i in ${DIRS}; do \
-		(cd $$i; make ${MFLAGS} clean); \
+		${MAKE} -C $$i clean; \
 	done
 	rm -f whatis_tmp whatis.db
 

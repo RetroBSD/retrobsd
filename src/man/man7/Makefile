@@ -16,7 +16,10 @@
 #
 #	@(#)Makefile	5.4.1 (2.11BSD) 1996/01/26
 #
-MDIR=	/usr/man/cat7
+TOPSRC = $(shell cd ../../..; pwd)
+include $(TOPSRC)/target.mk
+
+MDIR=	/share/man/cat7
 SRCS=	ascii.7 environ.7 eqnchar.7 hier.7 hostname.7  intro.7 mailaddr.7 \
 	man.7 me.7 ms.7 term.7
 OBJS=	ascii.0 environ.0 eqnchar.0 hier.0 hostname.0 intro.0 mailaddr.0 \
@@ -25,7 +28,7 @@ OBJS=	ascii.0 environ.0 eqnchar.0 hier.0 hostname.0 intro.0 mailaddr.0 \
 .SUFFIXES: .7 .0
 
 .7.0:
-	${DESTDIR}/usr/man/manroff $*.7 > $*.0
+	${MANROFF} $*.7 > $*.0
 
 all: _make_01
 
@@ -35,8 +38,7 @@ clean: FRC
 	rm -f ${OBJS}
 
 install: _make_01
-	install -c -o bin -g bin -m 444 ${OBJS} ${DESTDIR}${MDIR}
-	rm -f ${DESTDIR}${MDIR}/miscellaneous.0
-	ln ${DESTDIR}${MDIR}/intro.0 ${DESTDIR}${MDIR}/miscellaneous.0
+	cp ${OBJS} ${DESTDIR}${MDIR}
+	ln -f ${DESTDIR}${MDIR}/intro.0 ${DESTDIR}${MDIR}/miscellaneous.0
 
 FRC:

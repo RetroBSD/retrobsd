@@ -16,8 +16,10 @@
 #
 #	@(#)Makefile	5.4.3 (2.11BSD) 1997/5/31
 #
-DESTDIR=
-MDIR=	${DESTDIR}/usr/man/cat4
+TOPSRC = $(shell cd ../../..; pwd)
+include $(TOPSRC)/target.mk
+
+MDIR=	${DESTDIR}/share/man/cat4
 SRCS=	acc.4 arp.4 bk.4 br.4 cons.4 css.4 de.4 dh.4 dhu.4 dhv.4 \
 	dmc.4 dr.4 dz.4  \
 	ec.4 en.4 fd.4 hk.4 ht.4 hy.4 icmp.4 idp.4 il.4 imp.4 impconf.4 inet.4 \
@@ -34,7 +36,7 @@ OBJS=	acc.0 arp.0 bk.0 br.0 cons.0 css.0 de.0 dh.0 dhu.0 dhv.0 \
 .SUFFIXES: .4 .0
 
 .4.0:
-	${DESTDIR}/usr/man/manroff $*.4 > $*.0
+	${MANROFF} $*.4 > $*.0
 
 all: ${OBJS}
 
@@ -42,20 +44,14 @@ clean: FRC
 	rm -f ${OBJS}
 
 install: all
-	install -c -o bin -g bin -m 444 ${OBJS} ${MDIR}
-	rm -f ${MDIR}/dvhp.0
-	ln ${MDIR}/xp.0 ${MDIR}/dvhp.0
-	rm -f ${MDIR}/hp.0
-	ln ${MDIR}/xp.0 ${MDIR}/hp.0
-	rm -f ${MDIR}/rm.0
-	ln ${MDIR}/xp.0 ${MDIR}/rm.0
-	rm -f ${MDIR}/rp.0
-	ln ${MDIR}/xp.0 ${MDIR}/rp.0
-	rm -f ${MDIR}/kmem.0
-	ln ${MDIR}/mem.0 ${MDIR}/kmem.0
-	rm -f ${MDIR}/stdin.0 rm -f ${MDIR}/stderr.0 rm -f ${MDIR}/stdout.0
-	ln ${MDIR}/fd.0 ${MDIR}/stdin.0
-	ln ${MDIR}/fd.0 ${MDIR}/stderr.0
-	ln ${MDIR}/fd.0 ${MDIR}/stdout.0
+	cp ${OBJS} ${MDIR}
+	ln -f ${MDIR}/xp.0 ${MDIR}/dvhp.0
+	ln -f ${MDIR}/xp.0 ${MDIR}/hp.0
+	ln -f ${MDIR}/xp.0 ${MDIR}/rm.0
+	ln -f ${MDIR}/xp.0 ${MDIR}/rp.0
+	ln -f ${MDIR}/mem.0 ${MDIR}/kmem.0
+	ln -f ${MDIR}/fd.0 ${MDIR}/stdin.0
+	ln -f ${MDIR}/fd.0 ${MDIR}/stderr.0
+	ln -f ${MDIR}/fd.0 ${MDIR}/stdout.0
 
 FRC:

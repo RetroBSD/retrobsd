@@ -41,7 +41,7 @@ U_MBYTES        = 100
 SWAP_MBYTES     = 2
 
 # Set this to the device name for your SD card.  With this
-# enabled you can use "make installfs" to copy the filesys.img
+# enabled you can use "make installfs" to copy the sdcard.img
 # to the SD card.
 
 #SDCARD          = /dev/sdb
@@ -95,22 +95,19 @@ clean:
 
 cleanall:       clean
 		$(MAKE) -C lib clean
-		rm -f sys/pic32/*/unix.hex bin/* sbin/* games/[a-k]* games/[m-z]* libexec/* share/man/cat*/*
-		rm -f games/lib/adventure.dat
-		rm -f games/lib/cfscores
-		rm -f share/re.help
-		rm -f share/emg.keys
-		rm -f share/misc/more.help
+		rm -f sys/pic32/*/unix.hex bin/* sbin/* libexec/*
+		rm -f games/[a-k]* games/[m-z]* share/man/cat*/*
+		rm -f games/lib/adventure.dat games/lib/cfscores
+		rm -f share/re.help share/emg.keys share/misc/more.help
 		rm -f etc/termcap etc/remote etc/phones
-		rm -rf share/unixbench
-		rm -f games/lib/adventure.dat games/lib/cfscores share/re.help share/misc/more.help etc/termcap
 		rm -f tools/configsys/.depend
 		rm -f var/log/aculog
-		rm -rf var/lock
+		rm -rf var/lock share/unixbench
 
-installfs:      filesys.img
+installfs:
 ifdef SDCARD
-		sudo dd bs=32k if=sdcard.rd of=$(SDCARD)
+		@[ -f sdcard.img ] || $(MAKE) sdcard.img
+		sudo dd bs=32k if=sdcard.img of=$(SDCARD)
 else
 		@echo "Error: No SDCARD defined."
 endif

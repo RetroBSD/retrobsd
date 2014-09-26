@@ -1,0 +1,36 @@
+.\" Copyright (c) 1980 Regents of the University of California.
+.\" All rights reserved.  The Berkeley software License Agreement
+.\" specifies the terms and conditions for redistribution.
+.\"
+.\"	@(#)nostk.2	2.3 (Berkeley) 6/24/87
+.\"
+.TH NOSTK 2 "June 24, 1987"
+.UC 2
+.SH NAME
+nostk \- allow process to manage its own stack (2BSD)
+.SH SYNOPSYS
+.B nostk();
+.SH DESCRIPTION
+.I Nostk
+informs the system that the process
+wishes to manage its own stack.
+The system releases the stack segment(s)
+it has reserved, making
+them available for allocation
+(via
+.IR brk (2))
+by the user.
+.PP
+C programs should use
+.I nostk
+only with great caution and understanding
+of the C language calling and stack
+conventions.
+It is most useful for assembler programs
+that want to use the entire available
+address space.
+.SH "SEE ALSO"
+stack(5)
+.SH BUGS
+.I Nostk
+is unique to the PDP-11 and 2BSD; its use is discouraged.

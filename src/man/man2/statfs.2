@@ -1,0 +1,171 @@
+.\" Copyright (c) 1989, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"	This product includes software developed by the University of
+.\"	California, Berkeley and its contributors.
+.\" 4. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"	@(#)statfs.2	8.3.2 (2.11BSD) 1995/12/26
+.\"
+.TH STATFS 2 "December 26, 1995"
+.UC 7
+.SH NAME
+\fBstatfs\fP, \fBfstatfs\fP \- get file system statistics
+.SH SYNOPSIS
+.B #include <sys/param.h>
+.br
+.B #include <sys/mount.h>
+.sp
+.I int
+.br
+\fBstatfs\fP(path,buf)
+.br
+.I char *path;
+.br
+.I struct statfs *buf;
+.sp
+.I int
+.br
+\fBfstatfs\fP(fd,buf)
+.br
+.I int fd;
+.br
+.I struct statfs *buf;
+.SH DESCRIPTION
+.BR Statfs ()
+returns information about a mounted file system.
+.I Path
+is the path name of any file within the mounted filesystem.
+.I Buf
+is a pointer to a
+.I statfs
+structure defined as follows:
+.sp
+.nf
+.cs R 20
+
+#define MNAMELEN 90       /* length of buffer for returned name */
+
+struct statfs {
+short   f_type;           /* type of filesystem (see below) */
+short   f_flags;          /* copy of mount flags */
+short   f_bsize;          /* fundamental file system block size */
+short   f_iosize;         /* optimal transfer block size */
+long    f_blocks;         /* total data blocks in file system */
+long    f_bfree;          /* free blocks in fs */
+long    f_bavail;         /* free blocks avail to non-superuser */
+ino_t   f_files;          /* total file nodes in file system */
+ino_t   f_ffree;          /* free file nodes in fs */
+u_long  f_fsid[2];        /* file system id */
+long    f_spare[4];       /* spare for later */
+char    f_mntonname[MNAMELEN];    /* mount point */
+char    f_mntfromname[MNAMELEN];  /* mounted filesystem */
+};
+/*
+* File system types. - Only UFS is supported so the other types are not
+* given.
+*/
+#define	MOUNT_UFS	1	/* Fast Filesystem */
+.br
+.fi
+.cs R
+.PP
+Fields that are undefined for a particular file system are set to -1.
+.BR Fstatfs ()
+returns the same information about an open file referenced by descriptor
+.IR fd .
+.SH RETURN VALUES
+Upon successful completion, a value of 0 is returned.
+Otherwise, -1 is returned and the global variable
+.I errno
+is set to indicate the error.
+.SH ERRORS
+.BR Statfs ()
+fails if one or more of the following are true:
+.sp
+.TP 20
+[ENOTDIR]
+A component of the path prefix of
+.I Path
+is not a directory.
+.TP 20
+[EINVAL]
+.I path
+contains a character with the high-order bit set.
+.TP 20
+[ENAMETOOLONG]
+The length of a component of
+.I path
+exceeds 63 characters,
+or the length of
+.I path
+exceeds 255 characters.
+.TP 20
+[ENOENT]
+The file referred to by
+.I path
+does not exist.
+.TP 20
+[EACCES]
+Search permission is denied for a component of the path prefix of
+.IR path .
+.TP 20
+[ELOOP]
+Too many symbolic links were encountered in translating
+.IR path .
+.TP 20
+[EFAULT]
+.I Buf
+or
+.I path
+points to an invalid address.
+.TP 20
+[EIO]
+An
+I/O
+error occurred while reading from or writing to the file system.
+.PP
+.BR Fstatfs ()
+fails if one or more of the following are true:
+.sp
+.TP 20
+[EBADF]
+.I Fd
+is not a valid open file descriptor.
+.TP 20
+[EFAULT]
+.I Buf
+points to an invalid address.
+.TP 20
+[EIO]
+An
+I/O
+error occurred while reading from or writing to the file system.
+.SH HISTORY
+The
+.B statfs
+function first appeared in 4.4BSD.

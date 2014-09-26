@@ -1,0 +1,92 @@
+.\" Copyright (c) 1980 Regents of the University of California.
+.\" All rights reserved.  The Berkeley software License Agreement
+.\" specifies the terms and conditions for redistribution.
+.\"
+.\"	@(#)stack.5	2.3 (Berkeley) 6/24/87
+.\"
+.TH STACK 5
+.UC 2
+.SH NAME
+stack \-  2.10BSD PDP-11 C stack frame conventions
+.SH DESCRIPTION
+The standard C stack frame layout:
+.RS
+.nf
+.ta 8 16 24 32 40 48 56 64
+
+------------------
+|...nth argument |		push arguments in reverse order
+------------------
+|second argument |
+------------------
+| first argument |
+------------------		JSR PC,*$_FOO
+| return address |
+------------------		JSR R5,CSV
+|  old R5 value  | <----- 
+------------------	|
+|previous overlay|	|
+|     number	 |	|
+------------------	|
+|	r4	 |	|
+------------------	|
+|	r3	 |	|
+------------------	|
+|	r2	 |	|
+------------------	|
+| first local var|	| This is the top of the stack
+------------------	| when the called routine ``starts''
+|     routine	 |	|
+|    allocates	 |	|
+|     storage	 |	|	SUB $n,SP
+|    temporary	 |	|
+------------------	|
+| push arguments |	|
+| of next routine|	|
+------------------	|	JSR PC,*$_BAR
+| return address |	|
+------------------	|	JSR R5,CSV
+| old R5 value---+-------
+------------------	^
+|previous overlay|	|
+|     number	 |	|
+------------------	|
+| r4/43/r2/...	 |	|
+------------------
+| and so on..... |
+
+.fi
+.RE
+.DT
+.PP
+The stack pushes downward through memory addresses.  Overlay numbers saved
+in non-overlaid objects are always zero, but the simplification of not
+having to maintain two different stack frame formats more than outweighs
+the extra few micro seconds (less than four) necessary to save the zero ...
+.PP
+Functions returning integers leave their return value in R0; functions
+returning floating constants use FR0; functions returning longs leave
+return values in R1/R0 (R0 high word, R1 low); functions returning
+structures leave a pointer to bss storage (one chunk of which is allocated
+for each such routine) in R0, and the caller will copy from that bss
+storage to the local destination.
+.PP
+Local variables are allocated in such a way that they are referred to as
+``-N(R5)'', arguments are referred to as ``+N(R5)''; arguments start at
+4(R5), the first integer local declared will be at -10(R5).
+.PP
+The SP normally points at the first word available for parameter pushing.
+A function taking only single word as a parameter can be called simply by
+moving the parameter into (SP) and calling the function, without having to
+clean the parameter off the stack on return.  Any parameters passed after
+the first (actually "Nth") must be pushed before the call and cleaned off
+afterwards.  If the function has no local variables and calls no functions,
+it will allocate no stack and the word labelled ``first local var'' will be unused.
+.PP
+It is important to note that routines know how many arguments they pass to a
+function, and will adjust the stack accordingly after a function returns.
+.SH NOTE
+This stack frame format is the same as that used by overlaid objects in
+2.9BSD.
+.SH AUTHOR
+John F. Woods, MIT Concouse Computer Center

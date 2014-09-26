@@ -1,0 +1,150 @@
+.\" Copyright (c) 1986 Regents of the University of California.
+.\" All rights reserved.  The Berkeley software License Agreement
+.\" specifies the terms and conditions for redistribution.
+.\"
+.\"	@(#)tmscp.4	1.2 (2.11BSD) 1995/12/22
+.\"
+.TH TMSCP 4 "December 22, 1995"
+.UC 2
+.SH NAME
+tmscp \- DEC TMSCP magtape interface
+.SH SYNOPSIS
+.ft B
+.nf
+/sys/conf/SYSTEM:
+
+        NTMSCP       1     # TMSCP controllers
+        NTMS         1     # TMSCP drives
+        TMSCP_DEBUG  NO    # debugging code in in TMSCP drive (EXPENSIVE)
+
+/etc/dtab:
+.ta .5i +\w'#Name 'u +\w'Unit# 'u +\w'177777 'u +\w'Vector 'u +\w'Br 'u +\w'xxxxxxx 'u +\w'xxxxxxx 'u
+	#Name	Unit#	Addr	Vector	Br	Handler(s)		# Comments
+	tms	?	174500	260	5	tmsintr		# tmscp driver
+	tms	?	164334	0	5	tmsintr		# alternate
+.DT
+
+major device number(s):
+
+       raw: 23
+       block: 12
+
+minor device encoding:
+
+bit:    |7 | 6 | 5 | 4 | 3 | 2 | 1 | 0|
+        -------------------------------
+         C   C   X   D   D   N   U   U
+
+       C = Controller # (max of 4 controllers)
+       D = Density
+       N = Norewind on close
+       U = Unit (drive) number (max of 4 drives per controller)
+.fi
+.ft R
+.SH DESCRIPTION
+Tape controllers compatible with the DEC
+Tape Mass Storage Control Protocol (TMSCP) architecture
+such as the TU81 and the TK50
+provide a standard tape drive interface 
+as described in
+.IR mtio (4).
+The controller communicates with the host through a packet
+oriented protocol.
+Consult the file
+.IR < pdp/tmscp.h >
+for a detailed 
+description of this protocol.
+.SH FILES
+.ta \w'/dev/MAKEDEV.local  'u
+/dev/MAKEDEV	script to create special files
+.br
+/dev/MAKEDEV.local	script to localize special files
+.DT
+.PP
+The vector specified in \fB/etc/dtab\fP may be given as an explicit
+value in which case \fIautoconfig(8)\fP will attempt to allocate the 
+specified vector.  The vector may also be (if the system is at revision
+level 100 or higher) given as \fB0\fP - in which case \fIautoconfig(8)\fP
+will request the kernel to allocate the next available vector (beginning
+at 01000 and proceeding downward) which \fIautoconfig(8)\fP will
+initialize.
+.PP
+Multiple drives on a single controller are supported.  Multiple controllers
+are also supported.
+.PP
+Density selection is specified by bits 3 and 4 in the minor device number.
+A value of 0 requests the lowest density of a drive and a value of 3
+the highest density.  Values of 1 and 2 are essentially equivalent
+(because because TMSCP only defines values for three densities) and
+request the middle density (for tri-density tape drives).
+.SH DIAGNOSTICS
+.BR "tms: !drives" .
+Not enough drives were declared when the kernel was built.  The NTMS parameter
+in the kernel config file needs to be increased by at least one.
+.PP
+.BR "tms%d stepN init failed: sa %x" .
+Step N of the 4 step initialization sequence has failed.
+.PP
+.BR "tms%d: random intr" .
+An unexpected interrupt was received.  This is indicative of some other
+device using the same interrupt vector as the TMSCP controller.
+The interrupt is ignored.
+.PP
+.BR "tms%d Ver %d Mod %d" .
+The version and model number of the controller are displayed when the
+controller is initialized.  This is an information message and not an error.
+.PP
+.BR "tms%d: state %d" .
+The controller state is not one of the 4 initialization states or the RUN
+state.  This indicates a serious problem in the driver and possibly the
+hardware.
+.PP
+.BR "tms%d:  fatal error %x" .
+The controller detected a ``fatal error'' in the status returned
+to the host.  The contents of the status register are displayed.
+.PP
+.BR "tms%d init fail" .
+The controller failed to initialize.  Indicative of a hardware problem.
+.PP
+.BR "tms%d,%d flush fail" .
+The cache failed to flush during a close operation.  Data loss is possible
+in this case.
+.PP
+.BR "tms%d,%d: sa %x state %d" .
+A fatal error.  The controller will be reset in an attempt to resume
+operation.
+.PP
+.BR "tms ioctl" .
+An invalid internal ioctl function call has been made.  This is a driver
+bug.
+.PP
+.BR "tms%d,%d inv end" .
+An invalid end (completion) code has been detected.  A drive has returned
+0 as the opcode originally issued.  This is a hardware problem.
+.PP
+.BR "tms%d,%d bad rsp: %x" .
+An unrecognized response has been received.  This is a driver bug.
+.PP
+.BR "tms%d,%d cache lost"
+The cache on the drive has been lost.  Data loss is likely.  Usually due to
+a hardware problem.
+.PP
+The following error is produced when a TMSCP error log datagram is received:
+.sp
+.BR "tms%d,%d dgram fmt=%x evt=%x grp=%x flg=%x pos=%D" .
+.PP
+Earlier versions of the driver consumed a noticeable amount of kernel D-space
+decoding and pretty printing more detailed information.  This has been 
+removed in favor of a shorter message.  In the future an error
+log daemon will be written and the datagrams from the MSCP and TMSCP
+drivers passed to it for analysis.
+.SH "SEE ALSO"
+mt(1), tar(1), tp(1), mtio(4), tm(4), ts(4), ut(4), dmesg(8), dtab(5),
+autoconfig(8)
+.SH BUGS
+If any non-data error is encountered on non-raw tape, it refuses to do anything
+more until closed.
+.PP
+On quad-density tape drives (the Kennedy 9662 for example) the middle density 
+of 3200bpi is not host selectable (it can be manually selected from the
+drive's front panel) because TMSCP only defines 800, 1600 and 6250bpi.

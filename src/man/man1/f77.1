@@ -1,0 +1,313 @@
+.TH F77 1
+.UC
+.SH NAME
+f77 \- Fortran77 compiler
+.SH SYNTAX
+.B f77
+[ option ] ... file ...
+.SH DESCRIPTION
+.I F77
+is the UNIX Fortran77 compiler.
+It accepts several types of arguments:
+.PP
+Arguments whose names end with `.f' are taken to be
+Fortran77 source programs;
+they are compiled, and
+each object program is left on the file in the current directory
+whose name is that of the source with `.o' substituted
+for '.f'.
+.PP
+Arguments whose names end with `.r' or `.e' are taken to be Ratfor or EFL
+source programs, respectively; these are first transformed by the
+appropriate preprocessor, then compiled by f77.
+.PP
+In the same way,
+arguments whose names end with `.c' or `.s' are taken to be C or assembly source programs
+and are compiled or assembled, producing a `.o' file.
+.PP
+The following options have the same meaning as in \fIcc\fP\|(1).
+See \fIld\fP\|(1)
+for load-time options.
+.TP
+.B \-\^c
+Suppress loading and produce `.o' files for each source 
+file.
+.TP
+.B \-\^p
+Prepare object files for profiling, see \fIprof\fP\|(1)
+.TP
+.SM
+.B \-\^O
+Invoke an
+object-code optimizer.
+.TP
+.SM
+.B \-\^S
+Compile the named programs, and leave the
+assembler-language output on corresponding files suffixed `.s'.
+(No `.o' is created.).
+.TP
+.B \-\^f
+Use a floating point interpreter (for PDP11's that lack
+11/70-style floating point).
+.TP
+.BR \-\^o " output"
+Name the final output file
+.I output
+instead of `a.out'.
+.PP
+The following options are peculiar to
+.IR f77 :
+.TP
+.SM
+.BR \-\^onetrip
+Compile DO loops that are performed at least once if reached.
+(Fortran77 DO loops are not performed at all if the upper limit is smaller than the lower limit.)
+.TP
+.BR \-\^u
+Make the default type of a variable `undefined' rather than using the default Fortran rules.
+.TP
+.BR \-\^C
+Compile code to check that subscripts are within declared array bounds.
+.TP
+.BR \-\^w
+Suppress all warning messages.
+If the option is `\-w66', only Fortran 66 compatibility warnings are suppressed.
+.TP
+.BR \-\^F
+Apply EFL and Ratfor preprocessor to relevant files, put the result in the file
+with the suffix changed to `.f', but do not compile.
+.TP
+.BR \-\^m
+Apply the M4 preprocessor to each `.r' or `.e' file before transforming
+it with the Ratfor or EFL preprocessor.
+.TP
+.TP
+.BI \-\^E x
+Use the string
+.I x
+as an EFL option in processing `.e' files.
+.TP
+.BI \-\^R x
+Use the string 
+.I x
+as a Ratfor option in processing `.r' files.
+.TP
+.BR \-\^U
+Do not convert upper case letters to lower case.
+.TP
+.BR \-\^I 2
+Make default integer size 16 bit.
+.TP
+.BR \-\^I 4
+Make default integer size 32 bit (default).
+.TP
+.BR \-\^v
+Verbose.  Print information showing what compiler is doing.
+.TP
+.BR \-\^d
+Debug prints out intermediate information, leaves temporary files in
+\fI/tmp\fP and often produces a core file.
+.PP
+Other arguments
+are taken
+to be either loader option arguments, or F77-compatible
+object programs, typically produced by an earlier
+run,
+or perhaps libraries of F77-compatible routines.
+These programs, together with the results of any
+compilations specified, are loaded (in the order
+given) to produce an executable program with name
+`a.out'.
+.SH FILES
+.nf
+.ta 2i
+file.[fresc]	input file
+file.o	object file
+a.out	loaded output
+./fort[pid].?	temporary
+/usr/libexec/f77pass1	compiler pass 1
+/lib/c1	compiler pass 2
+/lib/c2	optional optimizer
+/usr/lib/libF77.a	intrinsic function library
+/usr/lib/libI77.a	Fortran I/O library
+/usr/lib/libU77.a	Fortran system call library
+/lib/libc.a	C library, see section 3
+/temp/fortPID.[xsad SopzA]	temporary files
+.fi
+.PP
+Different versions of the compiler tools may be used with the following
+flags followed immediately (no space) by the path name of the desired module:
+.PP
+.ta \w'\-TM1234567 'u +\w'macro pack12345  'u
+.nf
+\-T1	pass1	/lib/f77pass1
+\-T2	pass2	/lib/c1
+\-Ta	assembler	/bin/as
+\-Tl	loader	/bin/ld
+\-TF	footname	/lib/crt0.o
+\-TM	macro pack	m4
+.fi
+.SH "SEE ALSO"
+S. I. Feldman,
+P. J. Weinberger,
+.I
+A Portable Fortran77 Compiler
+.br
+cc(1), ld(1), prof(1)
+.SH DIAGNOSTICS
+The diagnostics produced by
+.I f77
+itself are intended to be
+self-explanatory.
+Occasional messages may be produced by the loader.
+.TP
+\-d
+causes the intermediate files to be saves in \fI/tmp\fP and causes the
+compiler to print out what it is doing.
+.PP
+Run-time diagnostics for the input/output library are as follows:
+.sp
+.nf
+/* 100 */	"error in format"
+		See error message output for the location
+		of the error in the format. Can be caused
+		by more than 10 levels of nested (), or
+		an extremely long format statement.
+.bp
+/* 101 */	"illegal unit number"
+		It is illegal to close logical unit 0.
+		Negative unit numbers are not allowed.
+		The upper limit is system dependent.
+
+/* 102 */	"formatted io not allowed"
+		The logical unit was opened for
+		unformatted I/O.
+
+/* 103 */	"unformatted io not allowed"
+		The logical unit was opened for
+		formatted I/O.
+
+/* 104 */	"direct io not allowed"
+		The logical unit was opened for sequential
+		access, or the logical record length was
+		specified as 0.
+
+/* 105 */	"sequential io not allowed"
+		The logical unit was opened for direct
+		access I/O.
+
+/* 106 */	"can't backspace file"
+		The file associated with the logical unit
+		can't seek. May be a device or a pipe.
+
+/* 107 */	"off beginning of record"
+		The format specified a left tab off the
+		beginning of the record.
+
+/* 108 */	"can't stat file"
+		The system can't return status information
+		about the file. Perhaps the directory is
+		unreadable.
+
+/* 109 */	"no * after repeat count"
+		Repeat counts in list-directed I/O must be
+		followed by an * with no blank spaces.
+
+.DE
+.DS
+/* 110 */	"off end of record"
+		A formatted write tried to go beyond the
+		logical end-of-record. An unformatted read
+		or write will also cause this.
+
+/* 111 */	"truncation failed"
+		The truncation of external sequential files
+		on 'close', 'backspace', or 'rewind' tries
+		to do a copy. It failed. Perhaps the temp
+		file couldn't be created.
+
+/* 112 */	"incomprehensible list input"
+		List input has to be just right.
+
+/* 113 */	"out of free space"
+		The library dynamically creates buffers for
+		internal use. You ran out of memory for this.
+		Your program is too big!
+
+/* 114 */	"unit not connected"
+		The logical unit was not open.
+
+/* 115 */	"read unexpected character"
+		Certain format conversions can't tolerate
+		non-numeric data. Logical data must be
+		T or F.
+
+/* 116 */	"blank logical input field"
+
+/* 117 */	"'new' file exists"
+		You tried to open an existing file with
+		"status='new'".
+
+/* 118 */	"can't find 'old' file"
+		You tried to open a nonexistent file
+		with "status='old'".
+
+/* 119 */	"unknown system error"
+		Shouldn't happen, but .....
+		(Send me a documented example.)
+
+/* 120 */	"requires seek ability"
+		Direct access requires seek ability.
+		Sequential unformatted I/O requires seek
+		ability on the file due to the special
+		data structure required. Tabbing left
+		also requires seek ability.
+
+/* 121 */	"illegal argument"
+		Certain arguments to 'open', etc. will be
+		checked for legitimacy. Often only non-
+		default forms are looked for.
+
+/* 122 */	"negative repeat count"
+
+/* 123 */	"illegal operation for channel or device"
+.fi
+.SH BUGS
+The Fortran66 subset of the language has been
+exercised extensively;
+the newer features have not.
+.PP
+Fortran style read/write routines take up 23 Kbytes of
+addressing space.
+.PP
+The compiler is not intelligent enough to know when to
+split up assemblies and loads. Occasionally this causes
+the loader \fIld\fP\|(1) to produce the informative \fBlocal symbol botch\fP
+error message when local symbols like argument names are
+defined with different types. Thus one must split up such
+offensive modules into separate compilations.
+.PP
+All mathematics for reals is done in double precision.
+.br
+Integer*4 byte alignment is unlike DEC and everyone else's.
+.br
+There is no symbolic debugger.
+.PP
+The optimizer should be used with caution.  It is known to occasionally
+produce incorrect code.
+.SH EXAMPLES
+.TP
+\fBf77  \-O  \-c  myprog.f\fP
+creates myprog.o using C optimizer
+.TP
+\fBf77  \-i  \-O myprog.f  another.f  anon.o  \-lplot\fP
+compiles .f files, loads all files using separate i&d space and linking
+in routines in the plot library.
+.TP
+\fBf77 myprog.f  mine.c  >&errors\fP
+Compiles and loads both files putting error output into file called errors.  
+This is the C shell (\fBcsh\fP) version.
+The Bourne shell (\fBsh\fP) version is:
+.LP
+\fBf77  myprog.f  mine.c  2>errors  1>errors\fP

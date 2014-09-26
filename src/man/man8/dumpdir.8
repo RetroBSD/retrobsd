@@ -1,0 +1,49 @@
+.TH DUMPDIR 8 
+.UC
+.SH NAME
+dumpdir, 512dumpdir \- print the names of files on a dump tape
+.SH SYNOPSIS
+.I dumpdir
+[
+.B f
+filename ]
+.br
+.I 512dumpdir
+[
+.B f
+filename ]
+.SH DESCRIPTION
+.I Dumpdir
+is used to read magtapes dumped with the
+.I dump
+command and list the names and inode numbers
+of all the files and directories on the tape.
+.PP
+The
+.B f
+option causes
+.I filename
+as the name of the tape instead
+of the default.
+.PP
+.I 512dumpdir
+is a version of
+.I dumpdir
+that can read tapes written from 512-byte block file systems.
+.SH FILES
+.ta 2i
+/dev/rmt1	default file name
+.br
+rst*	temporary files
+.SH "SEE ALSO"
+dump(8), restor(8)
+.SH DIAGNOSTICS
+If the dump extends over more than one tape,
+it may ask you to change tapes.
+Reply with a newline when the next tape has been mounted.
+.SH BUGS
+There is redundant information on the tape
+that could be used in case of tape reading problems.
+Unfortunately,
+.IR dumpdir " and " 512dumpdir
+don't use it.

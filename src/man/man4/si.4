@@ -1,0 +1,138 @@
+.\" Copyright (c) 1980 Regents of the University of California.
+.\" All rights reserved.  The Berkeley software License Agreement
+.\" specifies the terms and conditions for redistribution.
+.\"
+.\"	@(#)si.4	6.2 (Berkeley) 8/20/87
+.\"
+.TH SI 4 "August 20, 1987"
+.UC 2
+.SH NAME
+si \- SI 9500/CDC 9766 moving head disk
+.SH SYNOPSIS
+.ft B
+.nf
+/sys/conf/SYSTEM:
+	NSI	\fIsi_drives\fP	# SI 9500 driver for CDC 9766 disks
+
+/etc/dtab:
+.ta .5i +\w'#Name 'u +\w'Unit# 'u +\w'177777 'u +\w'Vector 'u +\w'Br 'u +\w'xxxxxxx 'u +\w'xxxxxxx 'u
+	#Name	Unit#	Addr	Vector	Br	Handler(s)		# Comments
+	si	?	176700	170	5	siintr		# si9500
+.DT
+
+major device number(s):
+	raw: 18
+	block: 9
+minor device encoding:
+	bits 0007 specify partition of SI drive
+	bits 0070 specify SI drive
+.fi
+.ft R
+.SH DESCRIPTION
+Files with minor device numbers 0 through 7 refer to various portions
+of drive 0;
+minor devices 8 through 15 refer to drive 1, etc.
+The standard device names begin with ``si'' followed by
+the drive number and then a letter a-h for partitions 0-7 respectively.
+The character ? stands here for a drive number in the range 0-7.
+.PP
+The block files access the disk via the system's normal
+buffering mechanism and may be read and written without regard to
+physical disk records.  There is also a `raw' interface
+which provides for direct transmission between the disk
+and the user's read or write buffer.
+A single read or write call results in exactly one I/O operation
+and therefore raw I/O is considerably more efficient when
+many words are transmitted.  The names of the raw files
+conventionally begin with an extra `r.'
+.PP
+In raw I/O the buffer must begin on a word (even) boundary,
+and counts should be a multiple of 512 bytes (a disk sector).
+Likewise
+.I seek
+calls should specify a multiple of 512 bytes.
+.SH "DISK SUPPORT"
+The origin and size (in sectors) of the
+pseudo-disks on each drive are as follows:
+.PP
+.nf
+.ta .5i +\w'disk  'u +\w'000000  'u +\w'000000  'u +\w'000 - 000  'u
+.ne 10
+SI 9500/CDC9766 partitions:
+	disk	 start	length	     cyls	comments
+	xp?a	     0	  9120	  0 -  14	/
+	xp?b	  9120	  9120	 15 -  29	swap
+	xp?c	 18240	234080	 30 - 414
+	xp?d	252320	247906	415 - 822*
+	xp?e	 18240	164160	 30 - 299	/usr
+	xp?f	182400	152000	300 - 549
+	xp?g	334400	165826	550 - 822*
+	xp?h	     0	500384	  0 - 822	whole pack
+.PP
+.DT
+.fi
+.PP
+Those partitions marked with an asterisk (``*'') actually stop short of the
+indicated ending cylinder to protect any bad block forwarding information
+on the packs.  The indicated lengths are correct.  Partition ``h'' must be
+used to access the bad block forwarding area.
+.B N.B.:
+the
+.I si
+driver does not support bad block forwarding; the space is reserved in the
+event bad block forwarding is ever added to the driver.
+.SH FILES
+.ta \w'/dev/MAKEDEV.local  'u
+/dev/si[0-7][a-h]	block files
+.br
+/dev/rsi[0-7][a-h]	raw files
+.br
+/dev/MAKEDEV	script to create special files
+.br
+/dev/MAKEDEV.local	script to localize special files
+.SH SEE ALSO
+hk(4),
+ra(4),
+ram(4),
+rk(4),
+rl(4),
+rp(4),
+rx(4),
+xp(4),
+dtab(5),
+autoconfig(8)
+.SH DIAGNOSTICS
+\fBsi%d%c: hard error sn%d cnr=%b err=%b\fR.  An unrecoverable
+error occurred during transfer of the specified sector of the specified
+disk partition.  The contents of the two error registers are also printed
+in octal and symbolically with bits decoded.
+The error was either unrecoverable, or a large number of retry attempts
+(including offset positioning and drive recalibration) could not
+recover the error.
+.PP
+\fBsi%d%c: hard error sn%d ssr=%b err=%b\fR.  An unrecoverable
+error occurred during transfer of the specified sector of the specified
+disk partition.  The contents of the two error registers are also printed
+in octal and symbolically with bits decoded.
+The error was either unrecoverable, or a large number of retry attempts
+(including offset positioning and drive recalibration) could not
+recover the error.
+.SH BUGS
+In raw I/O
+.I read
+and
+.IR write (2)
+truncate file offsets to 512-byte block boundaries,
+and
+.I write
+scribbles on the tail of incomplete blocks.
+Thus,
+in programs that are likely to access raw devices,
+.I read, write
+and
+.IR lseek (2)
+should always deal in 512-byte multiples.
+.PP
+The partition tables for the file systems should be read off of each
+pack, as they are never quite what any single installation would prefer,
+and this would make packs more portable.

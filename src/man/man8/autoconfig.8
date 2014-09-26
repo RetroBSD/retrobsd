@@ -1,0 +1,117 @@
+.\" Copyright (c) 1980 Regents of the University of California.
+.\" All rights reserved.  The Berkeley software License Agreement
+.\" specifies the terms and conditions for redistribution.
+.\"
+.\"	@(#)autoconfig.8	2.7 (2.11BSD GTE) 1996/5/24
+.\"
+.TH AUTOCONFIG 8 "December 30, 1992"
+.UC 2
+.SH NAME
+autoconfig \- configure the running system to the hardware
+.SH SYNOPSIS
+.B "autoconfig [\-i ifile] [\-n nfile] [\-k kfile] [\-v] [\-d] [\-c]"
+.SH DESCRIPTION
+.PP
+.I Autoconfig
+is called by
+.IR init (8)
+to configure the currently running system.
+Init checks the exit status of autoconfig to determine if
+the configuration was successful.
+.I Autoconfig
+reads the device table
+.I /etc/dtab
+for a list of devices which may be on the system.
+It first verifies that the kernel has an attach routine
+for each device (and therefore has a device handler)
+and that the kernel
+has a probe routine.
+It then checks each of these devices to see if it is present,
+and if it is,
+attempts to make it interrupt (if possible) to verify that the interrupt
+vector is correct.
+The interrupt vector is checked to see that it has not previously been used.
+An interrupt through any of the device's consecutive vectors is sufficient.
+.PP
+Devices which use programmable vectors (MSCP and TMSCP) are permitted
+to have a value of 0 in the dtab vector field.  This special value tells
+autoconfig to call the kernel's get next available vector routine and
+assign that to the device.  For programmable vector devices if the dtab
+vector field is non 0 then the value specified in the dtab file is used.
+In both cases the driver is called at its xxVec() routine with the vector
+being assigned to the device.
+.PP
+If the address and vector are correct, it then attaches the device
+by passing the address and unit number
+to the kernel's attach routine and setting up the interrupt vector according to
+the interrupt handlers and priority listed in the device table.
+If the unit number is given as a '?' in the device table,
+it will be assigned the next available unit number if the device exists.
+If the device is not present or the vector is incorrect,
+and if the unit number was specified (not a '?'),
+then the kernel is notified that that unit is not present,
+preventing accesses to a nonexistent device address.
+.PP
+There are only a few flags which are mostly useful for debugging
+but for completeness, here they are.
+.TP "\w'\fB\-k\fI kfile\fR  'u"
+\fB\-\^i\fI ifile\fR
+Use
+.I ifile
+instead of
+.I /etc/dtab
+as the device table.
+.TP
+\fB\-\^n\fI nfile\fR
+Use
+.I nfile
+instead of
+.I /unix
+for finding the namelist of the currently running kernel.
+.TP
+\fB\-\^k\fI kfile\fR
+The file
+.I kfile
+should be used instead of
+.I /dev/kmem
+to alter and read kernel memory.
+.TP
+\fB\-\^v\fR
+Verbose output, indicates reason for rejecting any device in the device
+table.  Normally only attached devices are reported.
+.TP
+\fB\-\^c\fR
+Report error messages for devices skipped because of problems with
+their interrupt vectors.
+.TP
+\fB\-\^d\fR
+Turn on debugging mode.  Shows many gory details of autoconfig's internal
+processing.
+.SH BUGS
+Devices of the same type must be listed with ascending unit numbers
+or with wildcards.
+.PP
+Disks that could be root devices must have their addresses
+and vectors initialized in the kernel;
+the kernel uses a root attach entry in the block device switch
+to allow disk drivers to do any probes necessary before autoconfiguration.
+.PP
+Must be run only by
+.IR init (8).
+There is a flag set in the kernel that autoconfig has already run, running
+autoconfig a second time results in the error:
+.TP
+"namelist doesn't match running kernel."
+Autoconfig attempts to open /dev/kmem for write.  If the kernel is in
+securelevel 1 or higher the open of /dev/kmem will fail.
+.SH FILES
+.ta 2i
+/etc/dtab	device table
+.br
+/unix
+.br
+/dev/kmem
+.SH SEE ALSO
+ucall(2), 
+nlist(3),
+dtab(5)

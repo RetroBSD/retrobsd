@@ -1,0 +1,99 @@
+.\" Copyright (c) 1986, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"	This product includes software developed by the University of
+.\"	California, Berkeley and its contributors.
+.\" 4. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"     @(#)sleep.3	8.1.1 (2.11BSD) 1997/9/26
+.\"
+.TH SLEEP 3 "September 26,1997"
+.UC 3
+.SH NAME
+\fBsleep\fP, usleep \- suspend process execution
+.SH SYNOPSIS
+.B #include <unistd.h>
+.sp
+.nf
+unsigned int
+sleep(seconds)
+      unsigned int seconds;
+.sp
+void
+usleep(microseconds)
+       long microseconds;
+.fi
+.SH DESCRIPTION
+The
+.B sleep
+function suspends execution of the calling process for
+.I seconds
+of clock time, or until interrupted by a signal.
+.PP
+The
+.B usleep
+function suspends execution of the calling process for
+.I microseconds
+of clock time, or until interrupted by a signal.
+.PP
+System activity may lengthen the suspension.
+.SH RETURN VALUES
+The
+.B sleep
+function returns 0, or if interrupted before
+.IR seconds,
+the amount not slept (the requested time minus the time actually slept)
+in seconds.  The
+.B usleep
+function does not return anything (meaningful).
+.SH SEE ALSO
+select(2)
+.SH COMPATIBILITY
+Previous implementations of
+.B sleep
+and
+.B usleep
+re-suspended the process if interrupted by a signal.
+This implementation has been changed to return in that case,
+to conform to POSIX 1003.1-88.
+.PP
+On the PDP-11 the previous version of \fBusleep\fP took a \fIu_int\fP as 
+the input parameter.  This has been changed to be \fIlong\fP so that
+\fBusleep\fP can be used for more than 65 milliseconds (a u_int could only
+count 65535 microseconds) of sleep.  Thus it is now possible for 
+\fBusleep\fP to handle longer sleep durations than \fBsleep\fP.
+.SH BUGS
+On the PDP-11 the clock resolution is limited to the line frequency (usually
+60Hz in the U.S.A. and 50Hz elsewhere).
+.SH HISTORY
+A
+.B usleep
+function appeared in
+4.3BSD.
+A
+.B sleep
+function appeared in V7.

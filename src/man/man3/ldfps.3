@@ -1,0 +1,27 @@
+.\" Copyright (c) 1980 Regents of the University of California.
+.\" All rights reserved.  The Berkeley software License Agreement
+.\" specifies the terms and conditions for redistribution.
+.\"
+.\"	@(#)ldfps.3	1.1 (Berkeley) 8/10/88
+.\"
+.TH LDFPS 3 "August 10, 1988"
+.UC 2
+.SH NAME
+ldfps \- load floating point status register
+.SH SYNOPSIS
+.nf
+.ft B
+void ldfps(fps)
+unsigned int fps;
+.ft P
+.fi
+.SH DESCRIPTION
+.I Ldfps
+loads the hardware floating point status register with
+.IR fps .
+See the PDP-11 hardware handbook for a description of the meaning of the
+various bits in
+.IR fps .
+.SH BUGS
+.I Ldfps
+is unique to the PDP-11 and 2BSD; its use is discouraged.

@@ -1,0 +1,118 @@
+.\" Copyright (c) 1980 Regents of the University of California.
+.\" All rights reserved.  The Berkeley software License Agreement
+.\" specifies the terms and conditions for redistribution.
+.\"
+.\"	@(#)dr.4	6.2.1 (2.11BSD) 1996/1/27
+.\"
+.TH DR 4 "January 27, 1996"
+.UC 2
+.SH NAME
+dr \- DR11-W general purpose interface driver
+.SH SYNOPSIS
+.ft B
+.nf
+/sys/conf/SYSTEM:
+	NDR	\fIdr11-w_units\fP	# DR11-W
+
+/etc/dtab:
+.ta .5i +\w'#Name 'u +\w'Unit# 'u +\w'177777 'u +\w'Vector 'u +\w'Br 'u +\w'xxxxxxx 'u +\w'xxxxxxx 'u
+	#Name	Unit#	Addr	Vector	Br	Handler(s)		# Comments
+	dr	?	172410	124	5	drintr		# dr11-w (b-bus emulator)
+	dr	?	172430	130	5	drintr		# dr11-w (gc-bus emulator)
+	dr	?	172450	134	5	drintr		# dr11-w (em-2 interface)
+.DT
+
+major device number(s):
+	raw: 12
+minor device encoding:
+	bits 0007 specify DR unit
+.fi
+.ft R
+.SH DESCRIPTION
+The
+.I "Digital Equipment 1981-82 Peripherals Handbook"
+states the following about the DR11-W:
+.RS
+.PP
+The The DR11-W is a general purpose, direct memory access (DMA) interface to
+the PDP-11 UNIBUS or VAX UNIBUS.  The DR11-W moves data directly between
+memory and the UNIBUS to and from the user's peripheral.
+.PP
+It features:
+.IP \(bu
+Word or byte transfers.
+.IP \(bu
+Programmed or direct memory access (DMA) block transfers.
+.IP \(bu
+Burst data transfers.
+.IP \(bu
+User-controlled transfer rates up to memory speed.
+.PP
+The DR11-W is a 53-line direct memory access (DMA) interface to the PDP-11
+UNIBUS or VAX UBA, which allows the user to control data transfers between
+the host processor and a peripheral.  The DR11-W has 32 data lines (for
+transferring 16-bit parallel data) and 21 control lines (for transferring
+control and status information.
+.PP
+When used as an interprocessor buffer (IPB), the DR11-W allows
+data transfers between two processors.  Interprocessor communication is
+accomplished by attaching one DR11-W to each processor UNIBUS
+or UBA and then cabling the two DR11-Ws together.
+.RE
+.PP
+There.  Now you know as much about it as I do.
+.PP
+A number of \fIioctl\fP(2) calls apply to the dr devices, and
+have the form
+.RS
+.nf
+.ft B
+#include <pdpuba/drreg.h>
+ioctl(fildes, code, arg)
+int *arg;
+.ft R
+.fi
+.RE
+The applicable codes are:
+.IP DRGTTY 18
+Get DR11-W status.
+.IP DRSTTY 18
+Set flags and function.
+.IP DRSFUN 18
+Set function.
+.IP DRSFLAG 18
+Set flags.
+.IP DRGCSR 18
+Get CSR and WCR.
+.IP DRSSIG 18
+Set signal for ATTN interrupt.
+.IP DRESET 18
+Reset DR11-W interface.
+.IP DRSTIME 18
+Set timeout.
+.IP DRCTIME 18
+Set timeout inactive.
+.IP DROUTPUT 18
+Put word in output data register.
+.IP DRINPUT 18
+Get word from input data register.
+.IP DRITIME 18
+Don't ignore errors on timeout.
+.SH FILES
+.ta \w'/dev/MAKEDEV.local  'u
+/dev/dr[0-7]	device special files
+.br
+/dev/MAKEDEV	script to create special files
+.br
+/dev/MAKEDEV.local	script to localize special files
+.DT
+.SH "SEE ALSO"
+dtab(5),
+autoconfig(8)
+.SH DIAGNOSTICS
+\fBdr%d: error csr=%b, eir=%b\fR
+.PP
+\fBdr%d: timeout error\fR
+.SH BUGS
+This interface is only available under 2.9BSD and 2.11BSD.  No documentation
+exists on how to use it.

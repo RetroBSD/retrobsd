@@ -1,0 +1,264 @@
+.\" Copyright (c) 1988, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"	This product includes software developed by the University of
+.\"	California, Berkeley and its contributors.
+.\" 4. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"     @(#)getopt.3	8.4.1 (2.11BSD) 1996/1/12
+.\"
+.TH GETOPT 3 "January 12, 1996"
+.UC 6
+.SH NAME
+\fBgetopt\fP \- get option character from command line argument list
+.SH SYNOPSIS
+.B #include <stdlib.h>
+.sp
+.B extern char *optarg;
+.br
+.B extern int   optind;
+.br
+.B extern int   optopt;
+.br
+.B extern int   opterr;
+.br
+.B extern int   optreset;
+.sp
+.I int
+.br
+\fBgetopt\fP(argc, argv, optstring)
+.br
+.I int argc;
+.br
+.I char **argv;
+.br
+.I char *optstring;
+.SH DESCRIPTION
+The
+.BR getopt ()
+function incrementally parses a command line argument list
+.I argv
+and returns the next
+.I known
+option character.
+An option character is
+.I known
+if it has been specified in the string of accepted option characters,
+.IR optstring .
+.PP
+The option string
+.I optstring
+may contain the following elements: individual characters, and
+characters followed by a colon to indicate an option argument
+is to follow.
+For example, an option string
+"\&""x""
+recognizes an option
+``\-\fBx\fP'',
+and an option string
+"\&""x:""
+recognizes an option and argument
+``\fB\-x\fP \fIargument\fP''.
+It does not matter to
+.BR getopt ()
+if a following argument has leading white space.
+.PP
+On return from
+.BR getopt (),
+.I optarg
+points to an option argument, if it is anticipated,
+and the variable
+.I optind
+contains the index to the next
+.I argv
+argument for a subsequent call
+to
+.BR getopt ().
+The variable
+.I optopt
+saves the last
+.I known
+option character returned by
+.BR getopt ().
+.PP
+The variable
+.I opterr
+and
+.I optind
+are both initialized to 1.
+The
+.I optind
+variable may be set to another value before a set of calls to
+.BR getopt ()
+in order to skip over more or less argv entries.
+.PP
+In order to use
+.BR getopt ()
+to evaluate multiple sets of arguments, or to evaluate a single set of
+arguments multiple times,
+the variable
+.I optreset
+must be set to 1 before the second and each additional set of calls to
+.BR getopt (),
+and the variable
+.I optind
+must be reinitialized.
+.PP
+The
+.BR getopt ()
+function
+returns an
+.B EOF
+when the argument list is exhausted, or a non-recognized
+option is encountered.
+The interpretation of options in the argument list may be cancelled
+by the option `\-\-'
+(double dash) which causes
+.BR getopt ()
+to signal the end of argument processing and return an
+.BR EOF . 
+When all options have been processed (i.e., up to the first non-option
+argument),
+.BR getopt ()
+returns
+.BR EOF .
+.SH DIAGNOSTICS
+If the
+.BR getopt ()
+function encounters a character not found in the string
+.I optarg
+or detects
+a missing option argument it writes an error message and returns `?'
+to the
+.IR stderr .
+Setting
+.I opterr
+to a zero will disable these error messages.
+If
+.I optstring 
+has a leading 
+`\&:'
+then a missing option argument causes a
+`\&:'
+to be returned in addition to suppressing any error messages.
+.PP
+Option arguments are allowed to begin with
+`\-';
+this is reasonable but
+reduces the amount of error checking possible.
+.SH EXTENSIONS
+The
+.I optreset
+variable was added to make it possible to call the
+.BR getopt ()
+function multiple times.
+This is an extension to the
+IEEE Std1003.2 (``POSIX'')
+specification.
+.SH EXAMPLE
+.nf
+.cs R 24
+extern char *optarg;
+extern int optind;
+int bflag, ch, fd;
+
+bflag = 0;
+while ((ch = getopt(argc, argv, "bf:")) != EOF)
+	switch(ch) {
+	case 'b':
+		bflag = 1;
+		break;
+	case 'f':
+		if ((fd = open(optarg, O_RDONLY, 0)) < 0) {
+			(void)fprintf(stderr,
+			    "myname: %s: %s\en", optarg, strerror(errno));
+			exit(1);
+		}
+		break;
+	case '?':
+	default:
+		usage();
+}
+argc -= optind;
+argv += optind;
+.br
+.cs R
+.fi
+.SH HISTORY
+The
+.BR getopt ()
+function appeared 4.3BSD.
+.SH BUGS
+A single dash ``\-''
+may be specified as an character in
+.I optstring ,
+however it should
+.B never
+have an argument associated with it.
+This allows
+.BR getopt ()
+to be used with programs that expect
+``\-''
+as an option flag.
+This practice is wrong, and should not be used in any current development.
+It is provided for backward compatibility
+.B only .
+By default, a single dash causes
+.BR getopt ()
+to return
+.BR EOF .
+This is, we believe, compatible with System V.
+.PP
+It is also possible to handle digits as option letters.
+This allows
+.BR getopt ()
+to be used with programs that expect a number
+(``-3'')
+as an option.
+This practice is wrong, and should not be used in any current development.
+It is provided for backward compatibility
+.BR only .
+The following code fragment works in most cases.
+.sp
+.nf
+.cs R 24
+int length;
+char *p;
+
+while ((c = getopt(argc, argv, "0123456789")) != EOF)
+	switch (c) {
+	case '0': case '1': case '2': case '3': case '4':
+	case '5': case '6': case '7': case '8': case '9':
+		p = argv[optind - 1];
+		if (p[0] == '-' && p[1] == ch && !p[2])
+			length = atoi(++p);
+		else
+			length = atoi(argv[optind] + 1);
+		break;
+	}
+}
+.cs R

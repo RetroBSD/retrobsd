@@ -1,0 +1,52 @@
+.\" Copyright (c) 1983 Regents of the University of California.
+.\" All rights reserved.  The Berkeley software License Agreement
+.\" specifies the terms and conditions for redistribution.
+.\"
+.\"	@(#)ucall.2	2.3 (Berkeley) 1/22/87
+.\"
+.TH UCALL 2 "January 22, 1987"
+.UC 2
+.SH NAME
+ucall \- call a kernel subroutine from user mode (2BSD)
+.SH SYNOPSIS
+.nf
+.ft B
+#include <pdp/psl.h>
+#include <sys/types.h>
+
+ucall(priority, function, arg0, arg1)
+int priority, arg0, arg1;
+caddr_t function;
+.fi
+.ft R
+.SH DESCRIPTION
+.I Ucall
+causes the processor priority to be set to
+.I priority
+and the specified kernel
+.I function
+to be called with arguments
+.IR arg0 " and " arg1 .
+.I Priority
+is one of PSL_BR0, \&..., PSL_BR7.
+Processor priority is reset to PSL_BR0 when
+.I function
+returns.
+.PP
+.I Ucall
+is allowed only if the user is the superuser.
+It is obviously extremely dangerous if misused.
+It's only current use is
+at system boot time to configure system devices by
+calling device drivers \&...
+.SH ERRORS
+.TP 15
+[EPERM]
+The caller is not the super-user.
+.SH SEE ALSO
+autoconfig(8)
+.SH BUGS
+No address validations are attempted.
+.PP
+.I Ucall
+is unique to the PDP-11 and 2BSD; its use is discouraged.

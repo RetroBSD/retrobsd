@@ -1,0 +1,961 @@
+.\" Copyright (c) 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"	This product includes software developed by the University of
+.\"	California, Berkeley and its contributors.
+.\" 4. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"	@(#)sysctl.3	8.1.1 (2.11BSD GTE) 1/13/95
+.\"
+.TH SYSCTL 3 "January 13, 1995"
+.UC 4
+.SH NAME
+sysctl \- get or set system information
+.SH SYNOPSIS
+.nf
+.ft B
+#include <sys/sysctl.h>
+
+int
+sysctl(name, namelen, oldp, *oldlenp, *newp, newlen)
+   int *name;
+   u_int namelen;
+   void *oldp;
+   size_t *oldlenp;
+   void *newp;
+   size_t newlen
+.ft R
+.fi
+.SH DESCRIPTION
+The
+\fBsysctl\fP
+function retrieves system information and allows processes with
+appropriate privileges to set system information.
+The information available from
+\fBsysctl\fP
+consists of integers, strings, and tables.
+Information may be retrieved and set from the command interface
+using the 
+\fIsysctl\fP(1)
+utility.
+.PP
+Unless explicitly noted below,
+\fBsysctl\fP
+returns a consistent snapshot of the data requested.
+Calls to
+\fBsysctl\fP
+are serialized to avoid deadlock.
+.PP
+The state is described using a ``Management Information Base'' (MIB)
+style name, listed in
+\fIname\fP ,
+which is a
+\fInamelen\fP
+length array of integers.
+.PP
+The information is copied into the buffer specified by
+\fIoldp\fP .
+The size of the buffer is given by the location specified by
+\fIoldlenp\fP
+before the call,
+and that location gives the amount of data copied after a successful call.
+If the amount of data available is greater
+than the size of the buffer supplied,
+the call supplies as much data as fits in the buffer provided
+and returns with the error code ENOMEM.
+If the old value is not desired,
+\fIoldp\fP
+and
+\fIoldlenp\fP
+should be set to NULL.
+.PP
+The size of the available data can be determined by calling 
+\fBsysctl\fP
+with a NULL parameter for
+\fIoldp\fP.
+The size of the available data will be returned in the location pointed to by
+\fIoldlenp\fP.
+For some operations, the amount of space may change often.
+For these operations,
+the system attempts to round up so that the returned size is
+large enough for a call to return the data shortly thereafter.
+.PP
+To set a new value,
+\fInewp\fP
+is set to point to a buffer of length
+\fInewlen\fP
+from which the requested value is to be taken.
+If a new value is not to be set,
+\fInewp\fP
+should be set to NULL and
+\fInewlen\fP
+set to 0.
+.PP
+The top level names are defined with a CTL_ prefix in
+\fI<sys/sysctl.h>\fP,
+and are as follows.
+The next and subsequent levels down are found in the include files
+listed here, and described in separate sections below.
+.PP
+.nf
+.ta .25i 1.5i 3.75i 4.5i
+	Name	Next level names	Description
+	CTL\_DEBUG	sys/sysctl.h	Debugging
+	CTL\_FS	sys/sysctl.h	File system
+	CTL\_HW	sys/sysctl.h	Generic CPU, I/O
+	CTL\_KERN	sys/sysctl.h	High kernel limits
+	CTL\_MACHDEP	sys/sysctl.h	Machine dependent
+	CTL\_NET	sys/socket.h	Networking
+	CTL\_USER	sys/sysctl.h	User-level
+	CTL\_VM	vm/vm_param.h	Virtual memory
+.fi
+.PP
+For example, the following retrieves the maximum number of processes allowed
+in the system:
+.sp
+.nf
+.in +.5i
+int mib[2], maxproc;
+size_t len;
+.sp
+mib[0] = CTL_KERN;
+mib[1] = KERN_MAXPROC;
+len = sizeof(maxproc);
+sysctl(mib, 2, &maxproc, &len, NULL, 0);
+.in -.5i
+.sp
+To retrieve the standard search path for the system utilities:
+.sp
+.nf
+.in +.5i
+int mib[2];
+size_t len;
+char *p;
+
+mib[0] = CTL_USER;
+mib[1] = USER_CS_PATH;
+sysctl(mib, 2, NULL, &len, NULL, 0);
+p = malloc(len);
+sysctl(mib, 2, p, &len, NULL, 0);
+.in -.5i
+.fi
+.SH CTL_DEBUG
+The debugging variables vary from system to system.
+A debugging variable may be added or deleted without need to recompile
+\fBsysctl\fP
+to know about it.
+Each time it runs,
+\fBsysctl\fP
+gets the list of debugging variables from the kernel and
+displays their current values.
+The system defines twenty 
+\fIstruct ctldebug\fP
+variables named 
+\fIdebug0\fP
+through
+\fIdebug19\fP.
+They are declared as separate variables so that they can be
+individually initialized at the location of their associated variable.
+The loader prevents multiple use of the same variable by issuing errors
+if a variable is initialized in more than one place.
+For example, to export the variable
+\fIdospecialcheck\fP
+as a debugging variable, the following declaration would be used:
+.sp
+.nf
+.in +.5i
+int dospecialcheck = 1;
+struct ctldebug debug5 = { "dospecialcheck", &dospecialcheck };
+.in -.5i
+.fi
+.SH CTL_FS
+There are currently no second level names for the file system.
+.SH CTL_HW
+The string and integer information available for the CTL_HW level
+is detailed below.
+The changeable column shows whether a process with appropriate
+privilege may change the value.
+.sp
+.nf
+.ta .25i 2.75i 3.75i
+	Second level name	Type	Changeable
+	HW\_MACHINE	string	no
+	HW\_MODEL	string	no
+	HW\_NCPU	integer	no
+	HW\_BYTEORDER	integer	no
+	HW\_PHYSMEM	integer	no
+	HW\_USERMEM	integer	no
+	HW\_PAGESIZE	integer	no
+.\".It HW\_DISKNAMES	integer	no
+.\".It HW\_DISKSTATS	integer	no
+.fi
+.PP
+.ta .5i
+HW_MACHINE
+.br
+	The machine class.
+.sp
+HW_MODEL
+.br
+	The machine model
+.sp
+HW_NCPU
+.br
+	The number of cpus.
+.sp
+HW_BYTEORDER
+.br
+	The byteorder (3412, 4321, or 1234).
+.sp
+HW_PHYSMEM
+.br
+	The bytes of physical memory.
+.sp
+HW_USERMEM
+.br
+	The bytes of non-kernel memory.
+.sp
+HW_PAGESIZE
+.br
+	The software page size.
+.sp
+.\".It Fa HW_DISKNAMES
+.\".It Fa HW_DISKSTATS
+.SH CTL_KERN
+The string and integer information available for the CTL_KERN level
+is detailed below.
+The changeable column shows whether a process with appropriate
+privilege may change the value.
+The types of data currently available are process information,
+system inodes, the open file entries, routing table entries,
+virtual memory statistics, load average history, and clock rate
+information.
+.sp
+.nf
+.ta .25i 2.75i 4.5i
+
+	Second level name	Type	Changeable
+	KERN\_ARGMAX	integer	no
+	KERN\_BOOTTIME	struct timeval	no
+	KERN\_CHOWN\_RESTRICTED	integer	no
+	KERN\_CLOCKRATE	struct clockinfo	no
+	KERN\_FILE	struct file	no
+	KERN\_HOSTID	long	yes
+	KERN\_HOSTNAME	string	yes
+	KERN\_JOB\_CONTROL	integer	no
+.\"KERN\_LINK\_MAX	integer	no
+	KERN\_MAXFILES	integer	no
+	KERN\_MAXPROC	integer	no
+	KERN\_MAXINODES	integer	no
+	KERN\_MAXTEXTS	integer	no
+.\"KERN\_MAX\_CANON	integer	no
+.\"KERN\_MAX\_INPUT	integer	no
+.\"KERN\_NAME\_MAX	integer	no
+	KERN\_NGROUPS	integer	no
+.\"KERN\_NO\_TRUNC	integer	no
+	KERN\_OSRELEASE	string	no
+	KERN\_OSREV	integer	no
+	KERN\_OSTYPE	string	no
+.\"KERN\_PATH\_MAX	integer	no
+.\"KERN\_PIPE\_BUF	integer	no
+	KERN\_POSIX1	integer	no
+	KERN\_PROC	struct proc	no
+	KERN\_PROF	node	not applicable
+	KERN\_SAVED\_IDS	integer	no
+	KERN\_SECURELVL	integer	raise only
+	KERN\_TEXT	struct text	no
+.\"KERN\_VDISABLE	integer	no
+	KERN\_VERSION	string	no
+	KERN\_INODE	struct inode	no
+.fi
+.PP
+KERN_ARGMAX
+.br
+.in +.5i
+The maximum bytes of argument to \fBexec(2)\fP.
+.sp
+.in -.5i
+KERN_BOOTTIME
+.br
+.in +.5i
+A \fIstruct timeval\fP structure is returned.
+This structure contains the time that the system was booted.
+.sp
+.in -.5i
+.\"KERN_CHOWN_RESTRICTED
+.\"Return 1 if appropriate privileges are required for the
+.\".Xr chown 2
+.\"system call, otherwise 0.
+KERN_CLOCKRATE
+.br
+.in +.5i
+A \fIstruct clockinfo\fP structure is returned.
+This structure contains the clock, statistics clock and profiling clock
+frequencies, and the number of micro-seconds per hz tick.
+.sp
+.in -.5i
+KERN_FILE
+.br
+.in +.5i
+Return the entire file table as an array of extended \fIfile\fP
+structures.
+Each element of the array contains the kernel address of a file
+\fIstruct inode *\fP
+followed by the file itself
+\fIstruct file\fP.  There can never be more than \fBKERN_MAXFILES\fP
+inodes returned.
+.sp
+.in -.5i
+KERN_HOSTID
+.br
+.in +.5i
+Get or set the host id.
+.sp
+.in -.5i
+KERN_HOSTNAME
+.br
+.in +.5i
+Get or set the hostname.
+.sp
+.in -.5i
+KERN_JOB_CONTROL
+.br
+.in +.5i
+Return 1 if job control is available on this system, otherwise 0.
+.sp
+.in -.5i
+.\"KERN_LINK_MAX
+.\"The maximum file link count.
+KERN_MAXFILES
+.br
+.in +.5i
+The maximum number of open files that may be open in the system.
+.sp
+.in -.5i
+KERN_MAXPROC
+.br
+.in +.5i
+The maximum number of simultaneous processes the system will allow.
+.sp
+.in -.5i
+KERN_MAXINODES
+.br
+.in +.5i
+The maximum number of inodes available on the system.
+.sp
+.in -.5i
+KERN_MAXTEXTS
+.br
+.in +.5i
+The maximum number of text structures available on the system.
+.sp
+.in -.5i
+.\"KERN_MAX_CANON
+.\"The maximum number of bytes in terminal canonical input line.
+.\"KERN_MAX_INPUT
+.\"The minimum maximum number of bytes for which space is available in
+.\"a terminal input queue.
+.\"KERN_NAME_MAX
+.\"The maximum number of bytes in a file name.
+KERN_NGROUPS
+.br
+.in +.5i
+The maximum number of supplemental groups.
+.sp
+.in -.5i
+.\"KERN_NO_TRUNC
+.\"Return 1 if file names longer than KERN_NAME_MAX are truncated.
+KERN_OSRELEASE
+.br
+.in +.5i
+The system release string.
+.sp
+.in -.5i
+KERN_OSREV
+.br
+.in +.5i
+The system revision string.
+.sp
+.in -.5i
+KERN_OSTYPE
+.br
+.in +.5i
+The system type string.
+.sp
+.in -.5i
+.\"KERN_PATH_MAX
+.\"The maximum number of bytes in a pathname.
+.\"KERN_PIPE_BUF
+.\"The maximum number of bytes which will be written atomically to a pipe.
+KERN_POSIX1
+.br
+.in +.5i
+The version of ISO/IEC 9945 (POSIX 1003.1) with which the system
+attempts to comply.
+.sp
+.in -.5i
+KERN_PROC
+.br
+.in +.5i
+Return the entire process table, or a subset of it.
+An array of
+\fIstruct kinfo_proc\fP
+structures is returned,
+whose size depends on the current number of such objects in the system.
+.sp
+.in -.5i
+The third and fourth level names are as follows:
+.sp
+.nf
+.ta .25i 3.0i
+	Third level name	Fourth level is:
+	KERN\_PROC\_ALL	None
+	KERN\_PROC\_PID	A process ID
+	KERN\_PROC\_PGRP	A process group
+	KERN\_PROC\_TTY	A tty device
+	KERN\_PROC\_UID	A user ID
+	KERN\_PROC\_RUID	A real user ID
+	KERN\_PROF	Return kernel profiling information.
+.fi
+.sp
+.in + .5i
+If the kernel is not compiled for profiling,
+attempts to retrieve any of the KERN_PROF values will
+fail with EOPNOTSUPP.
+.sp
+.in -.5i
+The third level names for the string and integer profiling information 
+is detailed below.
+The changeable column shows whether a process with appropriate
+privilege may change the value.
+.sp
+.in +.5i
+.nf
+.ta .25i 2.25i 4.25i
+Third level name	Type	Changeable
+	GPROF\_STATE	integer	yes
+	GPROF\_COUNT	u_short[\|]	yes
+	GPROF\_FROMS	u_short[\|]	yes
+	GPROF\_TOS	struct tostruct	yes
+	GPROF\_GMONPARAM	struct gmonparam	no
+.fi
+.PP
+The variables are as follows:
+.sp
+GPROF_STATE
+.br
+.in +.5i
+Returns GMON_PROF_ON or GMON_PROF_OFF to show that profiling
+is running or stopped.
+.sp
+.in -.5i
+GPROF_COUNT
+.br
+.in +.5i
+Array of statistical program counter counts.
+.sp
+.in -.5i
+GPROF_FROMS
+.br
+.in +.5i
+Array indexed by program counter of call-from points.
+.sp
+.in -.5i
+GPROF_TOS
+.br
+.in +.5i
+Array of
+\fIstruct tostruct\fP
+describing destination of calls and their counts.
+.sp
+.in -.5i
+GPROF_GMONPARAM
+.br
+.in +.5i
+Structure giving the sizes of the above arrays.
+.in -.5i
+.sp
+KERN_SAVED_IDS
+.br
+.in +.5i
+Returns 1 if saved set-group and saved set-user ID is available.
+.sp
+.in -.5i
+.in -.5i
+KERN_SECURELVL
+.br
+.in +.5i
+The system security level.
+This level may be raised by processes with appropriate privilege.
+It may only be lowered by process 1.
+.sp
+.in -.5i
+.\"KERN_VDISABLE
+.\"Returns the terminal character disabling value.
+KERN_VERSION
+.br
+.in +.5i
+The system version string.
+.sp
+.in -.5i
+KERN_INODE
+.br
+.in +.5i
+Return the entire inode table.
+Note, the inode table is not necessarily a consistent snapshot of
+the system.
+The returned data consists of an array whose size depends on the
+current number of such objects in the system.
+Each element of the array contains the kernel address of a inode
+\fIstruct inode *\fP
+followed by the inode itself
+\fIstruct inode\fP.  There can never be more than \fBKERN_MAXINODES\fP
+inodes returned.
+.sp
+.in -.5i
+KERN_TEXT
+.br
+.in +.5i
+Return the entire text table.  The returned data consists of an array whose
+size depends on the current number of such objects active in the system. 
+Each element of the array contains the kernel address of a text
+\fIstruct text *\fP followed by the text structure itself
+\fIstruct text\fP.  There can never be more structures than returned
+by \fBKERN_MAXTEXTS\fP.
+.in -.5i
+.SH CTL_MACHDEP
+The set of variables defined is architecture dependent.
+Most architectures define at least the following variables.
+.nf
+.sp
+.ta .25i 2.75i 3.75i
+	Second level name	Type	Changeable
+	CPU_CONSDEV	dev_t	no
+.fi
+.SH CTL_NET
+The string and integer information available for the CTL_NET level
+is detailed below.
+The changeable column shows whether a process with appropriate
+privilege may change the value.
+.nf
+.sp
+.ta .25i 2.25i 4.0i
+	Second level name	Type	Changeable
+	PF\_ROUTE	routing messages	no
+	PF\_INET	internet values	yes
+.fi
+.PP
+PF_ROUTE
+.br
+.in +.5i
+Return the entire routing table or a subset of it.
+The data is returned as a sequence of routing messages (see
+\fIroute(4)\fP
+for the header file, format and meaning).
+The length of each message is contained in the message header.
+.in -.5i
+.PP
+The third level name is a protocol number, which is currently always 0.
+The fourth level name is an address family, which may be set to 0 to
+select all address families.
+The fifth and sixth level names are as follows:
+.nf
+.sp
+.ta .25i 2.75i
+	Fifth level name	Sixth level is:
+	NET\_RT\_FLAGS	rtflags
+	NET\_RT\_DUMP	None
+	NET\_RT\_IFLIST	None
+.fi
+.sp
+PF_INET
+.br
+.in +.5i
+Get or set various global information about the internet protocols.
+The third level name is the protocol.
+The fourth level name is the variable name.
+The currently defined protocols and names are:
+.sp
+.in -.5i
+.nf
+.ta .25i 2.0i 3.75i 4.75i
+	Protocol name	Variable name	Type	Changeable
+	ip	forwarding	integer	yes
+	ip	redirect	integer	yes
+	ip	ttl	integer	yes
+	icmp	maskrepl	integer	yes
+	udp	checksum	integer	yes
+.fi
+.PP
+The variables are as follows:
+.sp
+ip.forwarding
+.br
+.in +.5i
+Returns 1 when IP forwarding is enabled for the host,
+meaning that the host is acting as a router.
+.sp
+.in -.5i
+ip.redirect
+.br
+.in +.5i
+Returns 1 when ICMP redirects may be sent by the host.
+This option is ignored unless the host is routing IP packets,
+and should normally be enabled on all systems.
+.sp
+.in -.5i
+ip.ttl
+.br
+.in +.5i
+The maximum time-to-live (hop count) value for an IP packet sourced by
+the system.
+This value applies to normal transport protocols, not to ICMP.
+.sp
+.in -.5i
+icmp.maskrepl
+.br
+.in +.5i
+Returns 1 if ICMP network mask requests are to be answered.
+.sp
+.in -.5i
+udp.checksum
+.br
+.in +.5i
+Returns 1 when UDP checksums are being computed and checked.
+Disabling UDP checksums is strongly discouraged.
+.sp
+.in -.5i
+.SH CTL_USER
+The string and integer information available for the CTL_USER level
+is detailed below.
+The changeable column shows whether a process with appropriate
+privilege may change the value.
+.sp
+.nf
+.ta .25i 3.0i 4.25i
+	Second level name	Type	Changeable
+	USER\_BC\_BASE\_MAX	integer	no
+	USER\_BC\_DIM\_MAX	integer	no
+	USER\_BC\_SCALE\_MAX	integer	no
+	USER\_BC\_STRING\_MAX	integer	no
+	USER\_COLL\_WEIGHTS\_MAX	integer	no
+	USER\_CS\_PATH	string	no
+	USER\_EXPR\_NEST\_MAX	integer	no
+	USER\_LINE\_MAX	integer	no
+	USER\_POSIX2\_CHAR\_TERM	integer	no
+	USER\_POSIX2\_C\_BIND	integer	no
+	USER\_POSIX2\_C\_DEV	integer	no
+	USER\_POSIX2\_FORT\_DEV	integer	no
+	USER\_POSIX2\_FORT\_RUN	integer	no
+	USER\_POSIX2\_LOCALEDEF	integer	no
+	USER\_POSIX2\_SW\_DEV	integer	no
+	USER\_POSIX2\_UPE	integer	no
+	USER\_POSIX2\_VERSION	integer	no
+	USER\_RE\_DUP\_MAX	integer	no
+	USER\_STREAM\_MAX	integer	no
+	USER\_TZNAME\_MAX	integer	no
+.fi
+.PP
+USER_BC_BASE_MAX
+.br
+.in +.5i
+The maximum ibase/obase values in the
+\fIbc(1)\fP
+utility.
+.sp
+.in -.5i
+USER_BC_DIM_MAX
+.br
+.in +.5i
+The maximum array size in the
+\fIbc(1)\fP
+utility.
+.sp
+.in -.5i
+USER_BC_SCALE_MAX
+.br
+.in +.5i
+The maximum scale value in the
+\fIbc(1)\fP
+utility.
+.sp
+.in -.5i
+USER_BC_STRING_MAX
+.br
+.in +.5i
+The maximum string length in the
+\fIbc(1)\fP
+utility.
+.sp
+.in -.5i
+USER_COLL_WEIGHTS_MAX
+.br
+.in +.5i
+The maximum number of weights that can be assigned to any entry of
+the LC_COLLATE order keyword in the locale definition file.
+.sp
+.in -.5i
+USER_CS_PATH
+.br
+.in +.5i
+Return a value for the
+\fIPATH\fP
+environment variable that finds all the standard utilities.
+.sp
+.in -.5i
+USER_EXPR_NEST_MAX
+.br
+.in +.5i
+The maximum number of expressions that can be nested within
+parenthesis by the
+\fIexpr(1)\fP
+utility.
+.sp
+.in -.5i
+USER_LINE_MAX
+.br
+.in +.5i
+The maximum length in bytes of a text-processing utility's input
+line.
+.sp
+.in -.5i
+USER_POSIX2_CHAR_TERM
+.br
+.in +.5i
+Return 1 if the system supports at least one terminal type capable of
+all operations described in POSIX 1003.2, otherwise 0.
+.sp
+.in -.5i
+USER_POSIX2_C_BIND
+.br
+.in +.5i
+Return 1 if the system's C-language development facilities support the
+C-Language Bindings Option, otherwise 0.
+.sp
+.in -.5i
+USER_POSIX2_C_DEV
+.br
+.in +.5i
+Return 1 if the system supports the C-Language Development Utilities Option,
+otherwise 0.
+.sp
+.in -.5i
+USER_POSIX2_FORT_DEV
+.br
+.in +.5i
+Return 1 if the system supports the FORTRAN Development Utilities Option,
+otherwise 0.
+.sp
+.in -.5i
+USER_POSIX2_FORT_RUN
+.br
+.in +.5i
+Return 1 if the system supports the FORTRAN Runtime Utilities Option,
+otherwise 0.
+.sp
+.in -.5i
+USER_POSIX2_LOCALEDEF
+.br
+.in +.5i
+Return 1 if the system supports the creation of locales, otherwise 0.
+.sp
+.in -.5i
+USER_POSIX2_SW_DEV
+.br
+.in +.5i
+Return 1 if the system supports the Software Development Utilities Option,
+otherwise 0.
+.sp
+.in -.5i
+USER_POSIX2_UPE
+.br
+.in +.5i
+Return 1 if the system supports the User Portability Utilities Option,
+otherwise 0.
+.sp
+.in -.5i
+USER_POSIX2_VERSION
+.br
+.in +.5i
+The version of POSIX 1003.2 with which the system attempts to comply.
+.sp
+.in -.5i
+USER_RE_DUP_MAX
+.br
+.in +.5i
+The maximum number of repeated occurrences of a regular expression
+permitted when using interval notation.
+.sp
+.in -.5i
+USER_STREAM_MAX
+.br
+.in +.5i
+The minimum maximum number of streams that a process may have open
+at any one time.
+.sp
+.in -.5i
+USER_TZNAME_MAX
+.br
+.in +.5i
+The minimum maximum number of types supported for the name of a
+timezone.
+.br
+.in -.5i
+.SH CTL_VM
+The string and integer information available for the CTL_VM level
+is detailed below.
+The changeable column shows whether a process with appropriate
+privilege may change the value.
+.sp
+.nf
+.ta .25i 2.25i 4.0i
+	Second level name	Type	Changeable
+	VM\_LOADAVG	struct loadavg	no
+	VM\_METER	struct vmtotal	no
+	VM\_SWAPMAP	struct map	no
+	VM\_COREMAP	struct map	no
+.fi
+.PP
+VM_LOADAVG
+.br
+.in +.5i
+Return the load average history.
+The returned data consists of a
+\fIstruct loadavg\fP.
+.sp
+.in -.5i
+VM_METER
+.br
+.in +.5i
+Return the system wide virtual memory statistics.
+The returned data consists of a
+\fIstruct vmtotal\fP.
+.br
+.in -.5i
+.sp
+VM_SWAPMAP
+.br
+.in +.5i
+Return the swapmap.  The size of this structure is fixed and may be
+determined by specifying a \fBoldlenp\fP initialized to zero, the kernel
+will fill in the size of the swapmap.
+.in -.5i
+.sp
+VM_COREMAP
+.br
+.in +.5i
+Same as for swapmap above except that the core allocation map is
+returned.
+.in -.5i
+.SH RETURN VALUES
+If the call to
+\fBsysctl\fP
+is successful, 0 is returned.
+Otherwise \-1 is returned and
+\fIerrno\fP
+is set appropriately.
+.SH ERRORS
+The following errors may be reported:
+.TP 15
+EFAULT
+The buffer
+\fIname\fP,
+\fIoldp\fP ,
+\fInewp\fP ,
+or length pointer
+\fIoldlenp\fP
+contains an invalid address.
+.TP 15
+EINVAL
+The
+\fIname\fP
+array is less than two or greater than CTL_MAXNAME.
+.TP 15
+EINVAL
+A non-null
+\fInewp\fP
+is given and its specified length in
+\fInewlen\fP
+is too large or too small.
+.TP 15
+ENOMEM
+The length pointed to by
+\fIoldlenp\fP
+is too short to hold the requested value.
+.TP 15
+ENOTDIR
+The
+\fIname\fP
+array specifies an intermediate rather than terminal name.
+.TP 15
+EOPNOTSUPP
+The
+\fIname\fP
+array specifies a value that is unknown.
+.TP 15
+EPERM
+An attempt is made to set a read-only value.
+.TP 15
+EPERM
+A process without appropriate privilege attempts to set a value.
+.SH FILES
+.TP 15
+<sys/sysctl.h>
+definitions for top level identifiers, second level kernel and hardware
+identifiers, and user level identifiers
+.TP 15
+<sys/socket.h>
+definitions for second level network identifiers
+.TP 15
+<sys/gmon.h>
+definitions for third level profiling identifiers
+.TP 15
+<sys/vmparam.h>
+definitions for second level virtual memory identifiers
+.TP 15
+<netinet/in.h>
+definitions for third level Internet identifiers and
+fourth level IP identifiers
+.TP 15
+<netinet/icmp_var.h>
+definitions for fourth level ICMP identifiers
+.TP 15
+<netinet/udp_var.h>
+definitions for fourth level UDP identifiers
+.SH SEE ALSO
+.I sysctl(8)
+.SH HISTORY
+The
+.B sysctl
+function first appeared in 4.4BSD.
+.PP
+The KERN_TEXT, KERN_MAXTEXTS, VM_SWAPMAP, VM_COREMAP options are
+2.11BSD specific extensions to the 4.4BSD \fIsysctl\fP implmentation.
+.PP
+Having KERN_FILE return the address of the file structure before the
+actual \fIstruct file\fP is a 2.11BSD enhancement.  The \fIinode\fP
+(\fIvnode\fP under 4.4) table was handled this way.

@@ -1,0 +1,39 @@
+.\" Public domain 1994 - Steven Schultz
+.\"
+.\"	@(#)strcompact.1	1.0 (2.11BSD GTE) 1/25/94
+.\"
+.TH strcompact 1 "January 25, 1994"
+.UC 2
+.SH NAME
+strcompact \- string compaction for object files
+.SH SYNOPSIS
+strcompact [ \fBobject_name\fP ... ]
+.SH DESCRIPTION
+strcompact
+scans the symbol and string tables of an object file looking for multiple
+references in the symbol table to the same string.  The string offset of
+symbol table entries is updated to preserve only one copy of the string.
+.PP
+.B
+strcompact
+cut the size of the kernel string table by about 25%.
+.PP
+The user must have write permission to the object/executable file.
+.PP
+.B strcompact
+writes to \fIstderr\fP the number of shared strings found.
+.PP
+strcompact
+exits 0 if successful, and >0 if an error occurred.
+.SH SEE ALSO
+sort(1), symcompact(1), symorder(1), uniq(1)
+.SH BUGS
+Execution speed leaves much to be desired - on a 11/73 it takes about
+4 minutes to process the string table of the kernel.  Fortunately this
+is only done once when the kernel is created.
+.PP
+Although
+.B strcompact
+may be run on .o files as well as executables but this is probably not
+worth the trouble since the linker will not create shared strings in the
+final executable.

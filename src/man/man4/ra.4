@@ -1,0 +1,151 @@
+.\" Copyright (c) 1980 Regents of the University of California.
+.\" All rights reserved.  The Berkeley software License Agreement
+.\" specifies the terms and conditions for redistribution.
+.\"
+.\"	@(#)ra.4	6.2.1 (2.11BSD) 1995/06/17
+.\"
+.TH RA 4 "September 6, 1987"
+.UC 2
+.SH NAME
+ra \- MSCP disk controller interface
+.SH SYNOPSIS
+.ft B
+.nf
+.ta .5i +\w'NRAC 'u +\w'ra_controllers 'u
+/sys/conf/SYSTEM:
+	NRAC	\fIra_controllers\fP	# NRAD controllers
+	NRAD	\fIra_drives\fP	# RX33/50, RC25, RD51/52/53/54, RA60/80/81/82
+.DT
+
+/etc/dtab:
+.ta .5i +\w'#Name 'u +\w'Unit# 'u +\w'177777 'u +\w'Vector 'u +\w'Br 'u +\w'xxxxxxx 'u +\w'xxxxxxx 'u
+	#Name	Unit#	Addr	Vector	Br	Handler(s)		# Comments
+	ra	?	172150	154	5	raintr		# uda50, rqdx1/2/3
+.DT
+
+major device number(s):
+	raw: 14
+	block: 5
+minor device encoding:
+	bits 0007 specify partition of RA drive
+	bits 0070 specify RA drive
+	bits 0300 specify RA controller
+.fi
+.ft R
+.SH DESCRIPTION
+This is a driver for the DEC UDA-50 disk controller
+and for other compatible controllers.
+The UDA-50 communicates with the host through a packet
+oriented protocol termed the Mass Storage Control Protocol (MSCP).
+Consult the file
+.RI < pdp/mscp.h >
+for a detailed description of this protocol.
+.PP
+Files with minor device numbers 0 through 7 refer to various portions
+of drive 0;
+minor devices 8 through 15 refer to drive 1, etc.
+The standard device names begin with ``ra'' followed by
+the drive number and then a letter a-h for partitions 0-7 respectively.
+The character ? stands here for a drive number in the range 0-7.
+.PP
+The block files access the disk via the system's normal
+buffering mechanism and may be read and written without regard to
+physical disk records.  There is also a `raw' interface
+which provides for direct transmission between the disk
+and the user's read or write buffer.
+A single read or write call results in exactly one I/O operation
+and therefore raw I/O is considerably more efficient when
+many words are transmitted.  The names of the raw files
+conventionally begin with an extra `r.'
+.PP
+In raw I/O the buffer must begin on a word (even) boundary,
+and counts should be a multiple of 512 bytes (a disk sector).
+Likewise
+.I seek
+calls should specify a multiple of 512 bytes.
+.SH "DISK SUPPORT"
+This driver configures the drive type of each drive
+when it is first opened.  Partition information is read from the disklabel.
+If there is no label or the label is corrupt then the 'a' partition is
+used to span the entire drive.
+.PP
+The ra?a partition is normally used for the root file system,
+the ra?b partition as a swap area,
+and the ra?c partition for pack-pack copying (it maps the entire disk).
+.SH FILES
+.ta \w'/dev/MAKEDEV.local  'u
+/dev/ra[0-7][a-h]
+.br
+/dev/rra[0-7][a-h]
+.br
+/dev/MAKEDEV	script to create special files
+.br
+.SH SEE ALSO
+hk(4),
+ram(4),
+rk(4),
+rl(4),
+rp(4),
+rx(4),
+si(4),
+xp(4),
+dtab(5),
+autoconfig(8),
+disklabel(8)
+.SH DIAGNOSTICS
+.BR "rasa %o, state %d" .
+(Additional status information given after a hard i/o error.)
+The values of the UDA-50 status register and the internal
+driver state are printed.
+.PP
+.BR "ra%d: interrupt in unknown state %d ignored" .
+An interrupt was received when the driver was in an unknown
+internal state.  Indicates a hardware problem or a driver bug.
+.PP
+.BR "ra%d: fatal error (%o)" .
+The UDA-50 indicated a ``fatal error'' in the status returned
+to the host.  The contents of the status register are displayed.
+.PP
+.BR "ra%d,%d: OFFLINE" .
+(Additional status information given after a hard i/o error.)
+A hard i/o error occurred because the drive was not on-line.
+The attached unit number and the MSCP unit numbers are printed.
+.PP
+.BR "status %o" .
+(Additional status information given after a hard i/o error.)
+The status information returned from the UDA-50 is tacked onto
+the end of the hard error message printed on the console.
+.PP
+.BR "ra: unknown packet opcode=0%o" .
+An MSCP packet of unknown type was received from the UDA-50.
+Check the cabling to the controller.
+.PP
+The following errors are interpretations of MSCP error messages
+returned by the UDA-50 to the host.
+.PP
+.BR "ra: %s error, controller error, event 0%o" .
+.PP
+.BR "ra: %s error, host memory access error, event 0%o, addr 0%o" .
+.PP
+.BR "ra: %s error, disk transfer error, unit %d, grp 0x%x, hdr 0x%x" .
+.PP
+.BR "ra: %s error, SDI error, unit %d, event 0%o, hdr 0x%x" .
+.PP
+.BR "ra: %s error, small disk error, unit %d, event 0%o, cyl %d" .
+.PP
+.BR "ra: %s error, unknown error, unit %d, format 0%o, event 0%o" .
+.SH BUGS
+In raw I/O
+.I read
+and
+.IR write (2)
+truncate file offsets to 512-byte block boundaries,
+and
+.I write
+scribbles on the tail of incomplete blocks.
+Thus,
+in programs that are likely to access raw devices,
+.I read, write
+and
+.IR lseek (2)
+should always deal in 512-byte multiples.

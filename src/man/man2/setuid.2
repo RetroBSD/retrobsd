@@ -1,0 +1,126 @@
+.\" Copyright (c) 1983, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"	This product includes software developed by the University of
+.\"	California, Berkeley and its contributors.
+.\" 4. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"     @(#)setuid.2	8.1.1 (2.11BSD) 1997/12/3
+.\"
+.TH SETUID 2 "December 3, 1997"
+.UC 5
+.SH NAME
+\fBsetuid\fP, \fBseteuid\fP,\fBsetgid\fP,\fBsetegid\fP \- set user and group ID
+.SH SYNOPSIS
+.nf
+.B #include <sys/types.h>
+.B #include <unistd.h>
+.sp
+\fIint\fP
+\fBsetuid\fP(uid)
+\ \ \ \ uid_t uid
+.sp
+\fIint\fP
+\fBseteuid\fP(euid)
+\ \ \ \ uid_t euid
+.sp
+\fIint\fP
+\fBsetgid\fP(gid)
+\ \ \ \ gid_t gid
+.sp
+\fIint\fP
+\fBsetegid\fP(egid)
+\ \ \ \ gid_t egid
+.fi
+.SH DESCRIPTION
+The
+.B setuid
+function
+sets the real and effective
+user IDs and the saved set-user-ID of the current process
+to the specified value.
+The
+.B setuid
+function is permitted if the specified ID is equal to the real user ID
+of the process, or if the effective user ID is that of the super user.
+.PP
+The
+.B setgid
+function
+sets the real and effective
+group IDs and the saved set-group-ID of the current process
+to the specified value.
+The
+.B setgid
+function is permitted if the specified ID is equal to the real group ID
+of the process, or if the effective user ID is that of the super user.
+.PP
+The
+.B seteuid
+function
+(\fBsetegid\fP)
+sets the effective user ID (group ID) of the
+current process.
+The effective user ID may be set to the value
+of the real user ID or the saved set-user-ID (see
+intro(2)
+and
+execve(2);
+in this way, the effective user ID of a set-user-ID executable
+may be toggled by switching to the real user ID, then re-enabled
+by reverting to the set-user-ID value.
+Similarly, the effective group ID may be set to the value
+of the real group ID or the saved set-user-ID.
+.PP
+.SH RETURN VALUES
+Upon success, these functions return 0;
+otherwise \-1 is returned.
+.PP
+If the user is not the super user, or the uid
+specified is not the real, effective ID, or saved ID,
+these functions return \-1.
+.SH SEE ALSO
+getuid(2), getgid(2)
+.SH STANDARDS
+The
+.B setuid
+and
+.B setgid
+functions are compliant with the
+IEEE Std 1003.1-1988 (``POSIX'')
+specification with
+_POSIX_SAVED_IDS
+not defined.
+The
+.B seteuid
+and
+.B setegid
+functions are extensions based on the 
+POSIX
+concept of
+_POSIX_SAVED_IDS ,
+and have been proposed for a future revision of the standard.

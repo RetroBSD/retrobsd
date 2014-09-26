@@ -1,0 +1,114 @@
+.TH AS 1
+.UC
+.SH NAME
+as \- assembler
+.SH SYNOPSIS
+.B as
+[
+.B \-u
+] [
+.B \-V
+] [
+.B \-o
+objfile
+] file ... 
+.SH DESCRIPTION
+.I As
+assembles the concatenation of the named files.
+The options are:
+.TP
+.B \-u
+Treat all undefined symbols in the assembly as external globals.
+.TP
+.B \-\^V
+Produce an object suitable for loading into an automatic text overlaid
+program.
+.TP
+.B \-\^o
+Use
+.I objfil
+for the name of the resultant object.  If this is omitted,
+.I a.out
+is used.  If no errors occurred during the assembly and if
+there were no unresolved external references, it is made executable.
+.P
+The special file name
+.B \-\-
+serves two purposes.  It signals the end of all options and causes
+.I stdin
+to be read for input.  Thus it is now possible to pipe data to the
+assembler:
+.br
+.sp
+/lib/cpp -E foo.s | sed -e ';^#;/;' | as -o foo.o --
+.br
+.sp
+The file name
+.B \-\-
+may be placed between normal files, when EOF is detected on 
+.I stdin
+the next file in the argument list is opened and read.
+.br
+.sp
+If no input files are specified then 
+.I stdin
+is read.
+.SH FILES
+/tmp/atm1	temporary
+.br
+a.out	object
+.SH "SEE ALSO"
+adb(1), ld(1), nm(1), a.out(5)
+.br
+.I "UNIX Assembler Manual"
+by D. M. Ritchie
+.SH DIAGNOSTICS
+When
+an input file cannot be read, its name
+followed by a question mark is typed and assembly
+ceases.
+When syntactic or semantic errors occur, a single-character diagnostic is typed out
+together with the line number and the file name in which it
+occurred.
+Errors in pass 1 cause cancellation of pass 2.
+The possible errors are:
+.PP
+.ta 3
+)	Parentheses error
+.br
+]	Parentheses error
+.br
+<	String not terminated properly
+.br
+*	Indirection used illegally
+.br
+.li
+\fB.\fP	Illegal assignment to `\fB.\fP'
+.br
+a	Error in address
+.br
+b	Branch instruction is odd or too remote
+.br
+e	Error in expression
+.br
+f	Error in local (`f' or `b') type symbol
+.br
+g	Garbage (unknown) character
+.br
+i	End of file inside an if
+.br
+m	Multiply defined symbol as label
+.br
+o	Word quantity assembled at odd address
+.br
+p	`\fB.\fP' different in pass 1 and 2
+.br
+r	Relocation error
+.br
+u	Undefined symbol
+.br
+x	Syntax error
+.br
+.SH BUGS
+Syntax errors can cause incorrect line numbers
+in following diagnostics.

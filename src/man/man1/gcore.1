@@ -1,0 +1,41 @@
+.\" Copyright (c) 1983 Regents of the University of California.
+.\" All rights reserved.  The Berkeley software License Agreement
+.\" specifies the terms and conditions for redistribution.
+.\"
+.\"	@(#)gcore.1	1.1 (2.11BSD GTE) 4/15/94
+.\"
+.TH GCORE 1 "April 15, 1994"
+.UC 5
+.SH NAME
+gcore \- get core image of running process
+.SH SYNOPSIS
+.B gcore
+[\fB-s\fP][\fB-c core\fP] \fIpid\fP
+.SH DESCRIPTION
+.I gcore
+creates a core image of each specified process,
+suitable for use with
+.IR adb (1).
+By default the core image is written to the file \fI<pid>.core\fP.
+.PP
+The options are:
+.TP
+\fB-c\fP
+Write the core file to the specified file instead of \fI<pid>.core\fP.
+.TP
+\fB-s\fP
+Stop the process while creating the core image and resume it when done.
+This makes sure that the core dump will be in a consistent state.  The 
+process is resumed even if it was already stopped.  Of course, you can
+obtain the same result by manually stopping the process with kill(1).
+.PP
+The core image name was changed from \fIcore.<pid>\fP to \fI<pid>.core\fP
+to prevent matching names like \fIcore.h\fP and \fIcore.c\fP when using
+programs such as \fIfind(1)\fP.
+.SH FILES
+<process-id>.core	The core image.
+.SH BUGS
+If \fBgcore\fP encounters an error while creating the core image and
+the \fB-s\fP option was used the process will remain stopped.
+.PP
+Swapped out processes and system processes (the swapper) may not be gcore'd.

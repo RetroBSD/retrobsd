@@ -1,0 +1,223 @@
+.\" Copyright (c) 1980, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" This code is derived from software contributed to Berkeley by
+.\" the American National Standards Committee X3, on Information
+.\" Processing Systems.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"	This product includes software developed by the University of
+.\"	California, Berkeley and its contributors.
+.\" 4. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"     @(#)setbuf.3	8.1.1 (2.11BSD) 1997/7/28
+.\"
+.TH SETBUF 3 "July 28, 1997"
+.UC 4
+.SH NAME
+.BR setbuf ,
+.BR setbuffer ,
+.BR setlinebuf ,
+.BR setvbuf
+\-stream buffering operations
+.SH SYNOPSIS
+.nf
+.B #include <stdio.h>
+.B #include <sys/types.h>
+.sp
+.B void
+\fBsetbuf\fP(\fIstream\fP, \fIbuf\fP)
+.SM
+\ \ \ \ \ \ \ FILE\ *stream;
+\ \ \ \ \ \ \ char\ *buf;
+.sp
+.B void
+\fBsetbuffer\fP(\fIstream\fP, \fIbuf\fP, \fIsize\fP)
+.SM
+\ \ \ \ \ \ \ FILE\ *stream;
+\ \ \ \ \ \ \ char\ *buf;
+\ \ \ \ \ \ \ size_t\ size;
+.sp
+.B int
+\fBsetlinebuf\fP(\fIstream\fP)
+.SM
+\ \ \ \ \ \ \ FILE\ *stream;
+.sp
+.B int
+.br
+\fBsetvbuf\fP(\fIstream\fP, \fIbuf\fP, \fImode\fP, \fIsize\fP)
+.SM
+\ \ \ \ \ \ \ FILE\ *stream;
+\ \ \ \ \ \ \ char\ *buf;
+\ \ \ \ \ \ \ int\ mode;
+\ \ \ \ \ \ \ size_t\ size
+.fi
+.SH DESCRIPTION
+The three types of buffering available are unbuffered, block buffered,
+and line buffered.
+When an output stream is unbuffered, information appears on the
+destination file or terminal as soon as written;
+when it is block buffered many characters are saved up and written as a block;
+when it is line buffered characters are saved up until a newline is
+output or input is read from any stream attached to a terminal device
+(typically stdin).
+The function
+fflush(3)
+may be used to force the block out early.
+(See fclose(3).)
+.PP
+Normally all files are block buffered.
+When the first
+I/O
+operation occurs on a file,
+malloc(3)
+is called,
+and an optimally-sized buffer is obtained.
+If a stream refers to a terminal
+(as
+.I stdout
+normally does) it is line buffered.
+The standard error stream
+.I stderr
+is always unbuffered.
+.PP
+The
+.B setvbuf
+function
+may be used to alter the buffering behavior of a stream.
+The
+.I mode
+parameter must be one of the following three macros:
+.PP
+.nf
+.ta .5i 1.5i
+	_IONBF	unbuffered
+.sp
+	_IOLBF	line buffered
+.sp
+	_IOFBF	fully buffered
+.fi
+.PP
+The
+.I size
+parameter may be given as zero
+to obtain deferred optimal-size buffer allocation as usual.
+If it is not zero,
+then except for unbuffered files, the 
+.I buf
+argument should point to a buffer at least
+.I size
+bytes long;
+this buffer will be used instead of the current buffer.
+(If the
+.I size
+argument
+is not zero but
+.I buf
+is
+NULL,
+a buffer of the given size will be allocated immediately,
+and released on close.
+This is an extension to ANSI C;
+portable code should use a size of 0 with any
+NULL buffer.)
+.PP
+The
+.B setvbuf
+function may be used at any time,
+but may have peculiar side effects
+(such as discarding input or flushing output)
+if the stream is ``active''.
+Portable applications should call it only once on any given stream,
+and before any 
+I/O
+is performed.
+.PP
+The other three calls are, in effect, simply aliases for calls to
+.BR setvbuf .
+Except for the lack of a return value, the
+.B setbuf
+function is exactly equivalent to the call
+.PP
+.in +0.5i
+setvbuf(stream, buf, buf ? _IOFBF : _IONBF, BUFSIZ);
+.in -0.5i
+.PP
+The
+.B setbuffer
+function
+is the same, except that the size of the buffer is up to the caller,
+rather than being determined by the default
+BUFSIZ.
+The
+.B setlinebuf
+function
+is exactly equivalent to the call:
+.PP
+.in +0.5i
+setvbuf(stream, (char *)NULL, _IOLBF, 0);
+.in -0.5i
+.SH RETURN VALUES
+The
+.B setvbuf
+function returns 0 on success, or EOF
+if the request cannot be honored
+(note that the stream is still functional in this case).
+.PP
+The
+.B setlinebuf
+function returns what the equivalent
+.B setvbuf
+would have returned.
+.SH SEE ALSO
+fopen(3),
+fclose(3),
+fread(3),
+malloc(3),
+puts(3),
+printf(3)
+.SH STANDARDS
+The
+.B setbuf
+and
+.B setvbuf
+functions
+conform to
+ANSI C X3.159\-1989 (``ANSI C'').
+.SH BUGS
+The
+.B setbuffer
+and
+.B setlinebuf
+functions are not portable to versions of
+BSD
+before
+4.2BSD.
+On
+2BSD
+systems,
+.B setbuf
+always uses a 1kb buffer size.

@@ -1,0 +1,69 @@
+.\" Public Domain, March 1996, Steven M. Schultz
+.\"
+.\"	@(#)syserrlst.3	1.1 (2.11BSD) 1996/3/26
+.\"
+.TH SYSERRLST 3  "March 26, 1996"
+.UC 2
+.SH NAME
+syserrlst, __errlst \- read system error messages from file
+.SH SYNOPSIS
+.nf
+.B char *
+.B syserrlst(err)
+.B int err;
+.PP
+.B char *
+.B __errlst(err, path);
+.B int err;
+.B char *path;
+.fi
+.SH DESCRIPTION
+.BR Syserrlst (3)
+reads the error message string corresponding to \fIerr\fP from the
+file \fI/etc/syserrlst\fP.
+.PP
+.BR __errlst(3)
+reads the error message string corresponding to \fIerr\fP from the
+file \fIpath\fP.  The file \fIpath\fP must be in the format described
+in 
+.BR syserrlst (5).
+.PP
+.B NULL
+is returned if \fIerr\fP is out of bounds (negative or greater than the
+highest message number in \fI/etc/syserrlst\fP or \fIpath\fP) or if the
+error message file can not be opened.  It is the
+responsibility of the caller (\fBstrerror\fP(3))
+to check for and properly handle the \fINULL\fP return.
+.SH "RETURN VALUE"
+.B NULL
+if an error was encountered in opening the error message file, if the
+error was out of bounds, or if the file did not start with the correct
+magic number.  Otherwise a 
+.B "char *"
+is returned pointing to a static buffer containing the text of the error
+message.
+.SH ERRORS
+.BR syserrlst (3)
+and
+.BR __errlst (3)
+can return any of the errors for the
+.BR open (2),
+.BR lseek (2),
+or
+.BR read (2)
+system calls.
+.SH "SEE ALSO"
+perror(3),
+strerror(3),
+syserrlst(5)
+.SH HISTORY
+.BR syserrlst (3),
+and
+.BR __errlst (3)
+were created for 2.11BSD with the aim of saving 2kb of \fBData\fP space
+in programs which called 
+.BR perror (3),
+or
+.BR strerror (3).
+.SH BUGS
+The information is stored in a static buffer.

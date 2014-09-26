@@ -1,0 +1,139 @@
+.\" Copyright (c) 1980 Regents of the University of California.
+.\" All rights reserved.  The Berkeley software License Agreement
+.\" specifies the terms and conditions for redistribution.
+.\"
+.\"	@(#)intro.4	6.3.1 (2.11BSD) 1996/1/27
+.\"
+.TH INTRO 4 "January 27, 1996"
+.UC 4
+.SH NAME
+intro \- introduction to special files and hardware support
+.SH DESCRIPTION
+This section describes the special files, related driver functions,
+and networking support
+available in the system.
+In this part of the manual, the SYNOPSIS section of
+each configurable device gives a sample specification
+for use in constructing a system description for the
+.IR /sys/conf/config script,
+the
+.IR autoconfig (8),
+program and descibes the major and minor device numbers and their encoding.
+The DIAGNOSTICS section lists messages which may appear on the console
+and/or in the system error log
+.I /usr/adm/messages
+due to errors in device operation.
+.PP
+This section contains both devices
+which may be configured into the system, ``4'' entries,
+and network related information,
+``4N'', ``4P'', and ``4F'' entries;
+The networking support is introduced in
+.IR intro (4N).
+.SH "PDP DEVICE SUPPORT"
+This section describes the hardware supported on the DEC PDP-11.
+Software support for these devices comes in two forms.  A hardware
+device may be supported with a character or block
+.IR "device driver" ,
+or it may be used within the networking subsystem and have a
+.IR "network interface driver" .
+Block and character devices are accessed through files in the file
+system of a special type; c.f.
+.IR mknod (8).
+Network interfaces are indirectly accessed through the interprocess
+communication facilities provided by the system; see
+.IR socket (2).
+.PP
+A hardware device is identified to the system at configuration time
+and the appropriate device or network interface driver is then compiled
+into the system.  When the resultant system is booted, the
+autoconfiguration facilities in the system probe for the device
+on either the UNIBUS (or Q-bus) or MASSBUS and, if found, enable the software
+support for it.  If a device does not respond at autoconfiguration
+time it is not accessible at any time afterwards.  To
+enable a device which did not autoconfigure, the system will have to
+be rebooted.
+.PP
+The autoconfiguration system is described in
+.IR autoconfig (8).
+A list of the supported devices is given below.
+.SH SEE ALSO
+intro(4), networking(4), config(8).
+.SH "LIST OF DEVICES"
+The devices listed below are supported in this incarnation of
+the system.  Pseudo-devices are not listed.
+Listed also are devices which are in various stages of porting to
+2.11BSD from 4.3BSD.
+.PP
+Devices are indicated by their functional interface.
+If second vendor products provide functionally identical interfaces
+they should be usable with the supplied software.
+(\fBBeware, however, that we promise the software works
+ONLY with the hardware indicated on the appropriate manual page.\fP)
+Occasionally, new devices of a similar type may be added
+simply by creating appropriate table entries in the driver.
+.sp
+.ta 1.0i
+.nf
+.ne 4
+.B "The following are known to work:"
+acc	ACC LH/DH IMP communications interface
+de	DEC DEUNA 10Mb/s Ethernet controller
+dh	DH-11 emulators, terminal multiplexor
+dhu	DHU-11 terminal multiplexor
+dz	DZ-11 terminal multiplexor
+ec	3Com 10Mb/s Ethernet controller
+hk	RK6-11/RK06 and RK07 moving head disk
+ht	TM03 MASSBUS tape drive interface (with TE-16, TU-45, TU-77)
+il	Interlan 1010, 1010A, 2010A 10Mb/s Ethernet controller
+lp	LP-11 parallel line printer interface
+qe	DEC DEQNA Q-bus 10 Mb/s Ethernet interface
+ra	DEC UDA-50, RQDX, KLESI disk controllers
+rk	DEC RK05 disk controller
+rl	DEC RL-11 disk controller
+rx	DEC RX02 floppy interface
+si	SI 9500 disk controller
+tm	TM-11/TE-10 tape drive interface
+tmscp	TMSCP-compatible tape controllers (e.g., TU81, TK50)
+ts	TS-11 tape drive interface
+vv	Proteon proNET 10Mb/s and 80Mb/s ring network interface
+xp	General purpose SMD disk controller
+
+.ne 4
+.B "The following should work:"
+dr	DR-11W general purpose DMA UNIBUS interface
+
+.ne 4
+.B "The following worked in the past but will probably require work:"
+css	DEC IMP-11A communications interface
+dmc	DEC DMC-11/DMR-11 point-to-point communications device
+en	Xerox 3Mb/s Ethernet controller (obsolete)
+sri	DR-11C IMP interface
+
+.ne 4
+.B "It should be possible to port these from 4.3BSD:"
+ex	Excelan 10Mb/s Ethernet controller
+ix	Interlan NP-100 10Mb/s Ethernet controller
+np	Interlan NP-100 10Mb/s Ethernet controller (intelligent mode)
+pcl	DEC PCL-11 communications interface
+
+.ne 4
+.B "No idea whether any of the following could be ported:"
+ad	Data translation A/D interface
+ct	C/A/T or APS phototypesetter
+ddn	ACC ACP625 DDN Standard Mode X.25 IMP interface
+dmf	DEC DMF-32 terminal multiplexor and parallel printer interface
+dmz	DEC DMZ-32 terminal multiplexor
+dn	DEC DN-11 autodialer interface
+hdh	ACC IF-11/HDH IMP interface
+hp	MASSBUS disk interface (with RP06, RM03, RM05, etc.)
+hy	DR-11B or GI-13 interface to an NSC Hyperchannel
+kg	KL-11/DL-11W line clock
+mt	TM78 MASSBUS tape drive interface
+tu	VAX-11/730 TU58 console cassette interface
+un	DR-11W interface to Ungermann-Bass
+up	Emulex SC-21V, SC-31 UNIBUS disk controller
+ut	UNIBUS TU-45 tape drive interface
+uu	TU58 dual cassette drive interface (DL11)
+va	Benson-Varian printer/plotter interface
+vp	Versatec printer/plotter interface

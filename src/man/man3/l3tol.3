@@ -1,0 +1,45 @@
+.\" Copyright (c) 1980 Regents of the University of California.
+.\" All rights reserved.  The Berkeley software License Agreement
+.\" specifies the terms and conditions for redistribution.
+.\"
+.\"	@(#)l3tol.3	2.3 (Berkeley) 1/22/87
+.\"
+.TH L3TOL 3 
+.UC 2
+.SH NAME
+l3tol, ltol3 \- convert between 3-byte and long integers (2BSD)
+.SH SYNOPSIS
+.nf
+.ft B
+l3tol(lp, cp, n)
+long *lp;
+char *cp;
+
+ltol3(cp, lp, n)
+char *cp;
+long *lp;
+.fi
+.ft R
+.SH DESCRIPTION
+.I L3tol
+converts a list of
+.I n
+three-byte integers packed into a character string
+pointed to by 
+.I cp
+into a list of long integers pointed to by
+.IR lp .
+.PP
+.I Ltol3
+performs the inverse conversion from long integers
+.RI ( lp )
+to three-byte integers
+.RI ( cp ).
+.PP
+These functions are useful for file-system maintenance under
+2BSD where disk addresses within inodes are three bytes long.
+.SH SEE ALSO
+fs(5)
+.SH BUGS
+.IR l3tol " and " ltol3
+are unique to the PDP-11 and 2BSD; their use is discouraged.

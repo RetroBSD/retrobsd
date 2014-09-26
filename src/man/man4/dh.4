@@ -1,0 +1,92 @@
+.\" Copyright (c) 1980 Regents of the University of California.
+.\" All rights reserved.  The Berkeley software License Agreement
+.\" specifies the terms and conditions for redistribution.
+.\"
+.\"	@(#)dh.4	6.4 (2.11BSD) 1997/5/31
+.\"
+.TH DH 4 "May 31, 1997"
+.UC 2
+.SH NAME
+dh \- DH-11/DM-11 communications multiplexer
+.SH SYNOPSIS
+.ft B
+.nf
+/sys/conf/SYSTEM:
+	NDH	\fIdh_units\fP	# DH11; NDH is in units of boards (16 each)
+	NDM	\fIdm_units\fP	# DM11; NDM is in units of boards (16 each)
+
+/etc/dtab:
+.ta .5i +\w'#Name 'u +\w'Unit# 'u +\w'177777 'u +\w'Vector 'u +\w'Br 'u +\w'xxxxxxx 'u +\w'xxxxxxx 'u
+	#Name	Unit#	Addr	Vector	Br	Handler(s)		# Comments
+	dm	?	170500	310	4	dmintr		# dm11 dh modem control
+	dh	?	160020	320	5	dhrint	dhxint	# dh11 terminal mux
+.DT
+
+major device number(s):
+	raw: 3
+minor device encoding:
+	bits 0017 specify line on DH unit
+	bits 0060 specify DH unit
+	bit  0100 specify RTS/CTS (``hardware'') flowcontrol
+	bit  0200 specifies non-blocking open (``CD always on'')
+.fi
+.ft R
+.SH DESCRIPTION
+A dh-11 provides 16 communication lines; dm-11's may be optionally
+paired with dh-11's to provide modem control for the lines.
+If there are fewer dm-11's than dh-11's, the dm-11's are assumed
+to be paired with the first \fIdm_units\fP dh-11's.
+.PP
+Each line attached to the DH-11 communications multiplexer
+behaves as described in
+.IR tty (4).
+Input and output for each line may independently
+be set to run at any of 16 speeds;
+see
+.IR tty (4)
+for the encoding.
+.PP
+Bit
+.I 0200
+of the minor device number for DH lines
+may be set to say that a line is not properly
+connected, and that the line should be treated as hard-wired with carrier
+always present.  Thus creating the special character device node "3, 130" via
+.I "mknod /dev/ttyh2 c 3 130"
+would cause line ttyh2 to be treated in this way.  Bit
+.I 0100
+of the minor device number enables RTS/CTS (also called ``hardware'') flow
+control. It is enabled by adding 64 to the minor device number:
+.I "mknod /dev/ttyh2 c 3 194"
+.PP
+The
+.I dh
+driver monitors the rate of input on each board,
+and switches between the use of character-at-a-time interrupts
+and input silos.
+While the silo is enabled during periods of high-speed input,
+the driver polls for input 30 times per second.
+.SH FILES
+.ta \w'/dev/MAKEDEV.local  'u
+/dev/tty[h-k][0-9a-f]
+.br
+/dev/ttyd[0-9a-f]
+.br
+/dev/MAKEDEV	script to create special files
+.br
+/dev/MAKEDEV.local	script to localize special files
+.DT
+.SH "SEE ALSO"
+tty(4),
+dtab(5),
+autoconfig(8)
+.SH DIAGNOSTICS
+\fBdh%d NXM\fR.  No response from UNIBUS on a dma transfer
+within a timeout period.  This has never been observed on a PDP-11 and is
+a carryover from the VAX driver when it was ported.
+It is not serious.
+.PP
+\fBdh%d %d overruns\fR.  The character input silo overflowed
+before it could be serviced.  This message is only printed at line close time.
+It is not serious but does indicate that the system was not able to keep up
+with the data flow.

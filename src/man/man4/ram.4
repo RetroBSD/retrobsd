@@ -1,0 +1,99 @@
+.\" Copyright (c) 1980 Regents of the University of California.
+.\" All rights reserved.  The Berkeley software License Agreement
+.\" specifies the terms and conditions for redistribution.
+.\"
+.\"	@(#)ram.4	1.2 (2.11BSD) 1996/1/27
+.\"
+.TH RAM 4 "Januray 27, 1996"
+.UC 2
+.SH NAME
+ram \- ram disk driver
+.SH SYNOPSIS
+.ft B
+.nf
+/sys/conf/SYSTEM:
+	NRAM	\fIram_size\fP	# RAM disk size (512-byte blocks)
+
+major device number(s):
+	block: 3
+minor device encoding:
+	must be zero (0)
+.fi
+.ft R
+.SH DESCRIPTION
+The
+.I ram
+pseudo-device provides a very fast extended memory store.  It's use is
+intended for file systems like
+.I /tmp
+and applications which need to access a reasonably large amount of data
+quickly.
+.PP
+The amount of memory dedicated to the ram device is controlled by the NRAM
+definition in units of 512-byte blocks.  This is also patchable in the
+system binary through the variable
+.IR ram_size
+(though a patched system would have to be rebooted before any change took
+effect; see
+.IR adb (1)).
+This makes it easy to test the effects of different ram disk sizes on
+system performance.  It's important to note that any space given to the ram
+device is permanently allocated at system boot time.  Dedicating too much
+memory can adversely affect system performance by forcing the system to
+swap heavily as in a memory poor environment.
+.PP
+The block file accesses the ram disk via the system's buffering mechanism
+through a buffer sharing arrangement with the buffer cache.  It may be read
+and written without regard to physical disk records.  There is no `raw'
+interface since no speed advantage is gained by such an interface with
+the ram disk.
+.SH "DISK SUPPORT"
+The
+.I ram
+driver does not support pseudo-disks (partitions).  The special files
+refer to the entire `drive' as a single sequentially addressed file.
+.PP
+A typical use for the ram disk would be to mount
+.I /tmp
+on it.  Note that if this arrangement is recorded in
+.I /etc/fstab
+then
+.I /etc/rc
+will have to be modified slightly to do a
+.IR mkfs (8)
+on the ram disk
+.B before
+the standard file system checks are done.
+.SH FILES
+.ta \w'/dev/MAKEDEV.local  'u
+/dev/ram	block file
+.br
+/dev/MAKEDEV	script to create special files
+.br
+/dev/MAKEDEV.local	script to localize special files
+.DT
+.SH "SEE ALSO"
+hk(4),
+ra(4),
+rl(4),
+rk(4),
+rp(4),
+rx(4),
+si(4),
+xp(4)
+dtab(5),
+autoconfig(8)
+.SH DIAGNOSTICS
+\fBram: no space\fR.  There is not enough memory to allocate the space needed
+by the ram disk.  The ram disk is disabled.  Any attempts to access
+it will return an error.
+.PP
+\fBram: not allocated\fR.  No memory was allocated to the ram disk and an
+attempt was made to open it.  Either not enough memory was available at
+boot time or the kernel variable
+.I ram_size
+was set to zero.
+.SH BUGS
+The
+.I ram
+driver is only available under 2.11BSD.

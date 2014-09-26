@@ -1,0 +1,74 @@
+.\" Copyright (c) 1983 Regents of the University of California.
+.\" All rights reserved.  The Berkeley software License Agreement
+.\" specifies the terms and conditions for redistribution.
+.\"
+.\"	@(#)phys.2	2.3 (Berkeley) 1/22/87
+.\"
+.TH PHYS 2 "January 22, 1987"
+.UC 2
+.SH NAME
+phys \- allow a process to access physical addresses (2BSD)
+.SH SYNOPSIS
+.nf
+.ft B
+phys(segreg, size, physaddr)
+unsigned int segreg, size, physaddr;
+.fi
+.ft R
+.SH DESCRIPTION
+The argument
+.I segreg
+specifies a process virtual (data-space) address
+range of 8K bytes starting
+at virtual address
+.IR segreg \(mu8K
+bytes.
+This address range is mapped into
+physical address
+.IR physaddr \(mu64
+bytes.
+Only the first
+.IR size \(mu64
+bytes of this mapping is addressable.
+If
+.I size
+is zero,
+any previous mapping of this
+virtual address range is nullified.
+For example,
+the call
+.PP
+	phys(7, 1, 0177775);
+.PP
+will map virtual addresses 0160000-0160077 into
+physical addresses 017777500-017777577.
+In particular,
+virtual address 0160060 is the PDP-11 console
+located at physical address 017777560.
+.PP
+This call may only be executed by the super-user.
+.SH ERRORS
+.TP 15
+[EPERM]
+The process's effective user ID is not the super-user.
+.TP 15
+[EINVAL]
+.I Segreg
+is less than 0 or greater than 7.
+.TP 15
+[EINVAL]
+.I Size
+is less than 0 or greater than 128.
+.SH "SEE ALSO"
+PDP-11 segmentation hardware
+.SH BUGS
+.PP
+On systems with ENABLE/34(tm) memory mapping boards,
+\fIphys\fP cannot be used to map in the I/O page.
+.PP
+This system call is very dangerous.
+It is not considered
+a permanent part of the system.
+.PP
+.I Phys
+is unique to the PDP-11 and 2BSD; its use is discouraged.

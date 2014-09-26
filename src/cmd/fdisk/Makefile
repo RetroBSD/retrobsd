@@ -32,7 +32,7 @@ depend:         ${SRCS}
 
 install:        all
 		install -m 755 $(BIN) ${DESTDIR}/sbin
-		install -m 755 $(MAN) ${DESTDIR}/share/man/cat8
+		cp $(MAN) ${DESTDIR}/share/man/cat8
 
 lint:           ${SRCS}
 		lint -hax ${SRCS}

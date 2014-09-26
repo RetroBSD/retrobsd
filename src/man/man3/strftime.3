@@ -1,0 +1,188 @@
+.\" Copyright (c) 1989, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" This code is derived from software contributed to Berkeley by
+.\" the American National Standards Committee X3, on Information
+.\" Processing Systems.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"	This product includes software developed by the University of
+.\"	California, Berkeley and its contributors.
+.\" 4. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"     @(#)strftime.3	8.1.1 (2.11BSD) 1995/04/01
+.\"
+.TH STRFTIME 3 "April 1, 1995"
+.UC 5
+.SH NAME
+strftime \- format date and time
+.SH SYNOPSIS
+.B #include <sys/types.h>
+.br
+.B #include <time.h>
+.br
+.B #include <string.h>
+.br
+.sp
+.B size_t strftime(buf, maxsize, format, timeptr)
+.br
+.B char *buf;
+.br
+.B size_t maxsize;
+.br
+.B char *format;
+.br
+.B struct tm *timeptr;
+.PP
+.SH DESCRIPTION
+The
+.B strftime()
+function formats the information from
+.I timeptr
+into the buffer
+.I buf
+according to the string pointed to by \fIformat\fP.
+.PP
+The
+.I format
+string consists of zero or more conversion specifications and
+ordinary characters.
+All ordinary characters are copied directly into the buffer.
+A conversion specification consists of a percent sign
+``%''
+and one other character.
+.PP
+No more than
+.I maxsize
+characters will be placed into the array.
+If the total number of resulting characters, including the terminating
+null character, is not more than
+.IR maxsize ,
+.B strftime()
+returns the number of characters in the array, not counting the
+terminating null.
+Otherwise, zero is returned.
+.PP
+Each conversion specification is replaced by the characters as
+follows which are then copied into the buffer.
+.IP \&%A \w'xxxx'u+3
+is replaced by the full weekday name.
+.IP %a \w'xxxx'u+3
+is replaced by the abbreviated weekday name, where the abbreviation
+is the first three characters.
+.IP \&%B \w'xxxx'u+3
+is replaced by the full month name.
+.IP "%b or %h" \w'xxxx'u+3
+is replaced by the abbreviated month name, where the abbreviation is
+the first three characters.
+.IP \&%C \w'xxxx'u+3	
+is equivalent to
+``%a %b %e %H:%M:%S %Y''
+(the format produced by
+.IR asctime (3)).
+.IP %c \w'xxxx'u+3
+is equivalent to
+``%m/%d/%y''.
+.IP \&%D \w'xxxx'u+3
+is replaced by the date in the format
+``mm/dd/yy''.
+.IP %d \w'xxxx'u+3
+is replaced by the day of the month as a decimal number (01-31).
+.IP %e \w'xxxx'u+3
+is replaced by the day of month as a decimal number (1-31); single
+digits are preceded by a blank.
+.IP \&%H \w'xxxx'u+3
+is replaced by the hour (24-hour clock) as a decimal number (00-23).
+.IP \&%I \w'xxxx'u+3
+is replaced by the hour (12-hour clock) as a decimal number (01-12).
+.IP %j \w'xxxx'u+3
+is replaced by the day of the year as a decimal number (001-366).
+.IP %k \w'xxxx'u+3
+is replaced by the hour (24-hour clock) as a decimal number (0-23);
+single digits are preceded by a blank.
+.IP %l \w'xxxx'u+3
+is replaced by the hour (12-hour clock) as a decimal number (1-12);
+single digits are preceded by a blank.
+.IP \&%M \w'xxxx'u+3
+is replaced by the minute as a decimal number (00-59).
+.IP %m \w'xxxx'u+3
+is replaced by the month as a decimal number (01-12).
+.IP %n \w'xxxx'u+3
+is replaced by a newline.
+.IP %p \w'xxxx'u+3
+is replaced by either
+``AM''
+or
+``PM''
+as appropriate.
+.IP \&%R \w'xxxx'u+3
+is equivalent to
+``%H:%M''
+.IP %r \w'xxxx'u+3
+is equivalent to
+``%I:%M:%S %p'' .
+.IP %t \w'xxxx'u+3
+is replaced by a tab.
+.IP \&%S \w'xxxx'u+3
+is replaced by the second as a decimal number (00-60).
+.IP "\&%T or \&%X" \w'xxxx'u+3
+is equivalent to
+"%H:%M:%S" .
+.IP \&%U \w'xxxx'u+3
+is replaced by the week number of the year (Sunday as the first day of
+the week) as a decimal number (00-53).
+.IP \&%W \w'xxxx'u+3
+is replaced by the week number of the year (Monday as the first day of
+the week) as a decimal number (00-53).
+.IP %w \w'xxxx'u+3
+is replaced by the weekday (Sunday as the first day of the week)
+as a decimal number (0-6).
+.IP %x \w'xxxx'u+3
+is equivalent to
+``%m/%d/%y %H:%M:%S'' .
+.IP \&%Y \w'xxxx'u+3
+is replaced by the year with century as a decimal number.
+.IP %y \w'xxxx'u+3
+is replaced by the year without century as a decimal number (00-99).
+.IP \&%Z \w'xxxx'u+3
+is replaced by the time zone name.
+.IP %% \w'xxxx'u+3
+is replaced by
+`%' .
+.PP
+.SH SEE ALSO
+.IR date (1),
+.IR ctime (3),
+.IR printf (1),
+.IR printf (3)
+.SH STANDARDS
+The
+.B strftime()
+function
+conforms to
+ANSI X C3.159-1989(``ANSI C'').
+.SH BUGS
+There is no conversion specification for the phase of the moon.

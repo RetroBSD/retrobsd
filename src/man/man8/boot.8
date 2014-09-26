@@ -1,0 +1,278 @@
+.\" Public domain.  May 24, 1996.
+.\"
+.\"	@(#)reboot.8	1.0 (2.11BSD) 1996/5/24
+.\"
+.TH BOOT 8 "May 24, 1996"
+.UC 2
+.SH NAME
+boot \- 2.11BSD bootstrap proceedure
+.SH DESCRIPTION
+.PP
+The 2.11BSD system is started by a two-stage process.  The first is a
+primary bootstrap (limited to 512 bytes) which is able to read in 
+relatively small stand-alone
+programs; the second (called
+.IR boot )
+is used to read in the system itself.
+.PP
+The primary bootstrap must reside in block zero of the
+boot device (the disklabel resides in block one).  It can be read 
+in and started by standard ROM cold boot
+routines or, if necessary, by keying in a small startup routine.  The
+primary bootstrap is capable of loading \fBonly\fP type 0407 executable 
+files (impure
+(non-shared), non-separate I&D.)
+Copies of the block zero bootstraps are kept in the directory
+.IR /mdec .
+.IR Disklabel (8)
+is normally used to place a copy of the appropriate bootstrap in block zero of
+new file systems.
+.PP
+The primary bootstrap loads
+.I boot
+from the file system that starts at block 0 of the drive specified to
+the boot ROM.  Normally the boot device is automatically used as the root
+filesystem.  This action can be overriden by specifying the \fB\-R\fP command
+to \fIboot\fP.
+If
+.I boot
+is not found the system will hang as the primary boot spins in an endless
+loop trying to find \fIboot\fP.
+No diagnostic message results if the file cannot
+be found.
+.IP \(bu
+.BR "In an emergency" ,
+the bootstrap methods described in the paper
+.I "Installing and Operating 2.11BSD"
+can be used to boot from a distribution tape.
+.PP
+The secondary boot program, called
+.IR boot ,
+actually brings in the system.  When read into location 0 and executed,
+.I boot
+sets up memory management, relocates itself into high memory, and types its
+name and a `:' on the console.  If this is an automatic, unattended reboot,
+.I boot
+will use a default file specification for the installation, typing the
+file's name after the prompt.  Otherwise, it reads a file specification
+from the console.  Normal line editing characters can be used to make
+corrections while typing this (see below for file specification format).
+If only a carriage return is typed, a default name (/unix) will be used.
+.I Boot
+finds the [specified] file and loads it into memory location zero, sets up
+memory management as required, and calls the program by executing a `trap'
+instruction.
+.PP
+For the system to boot,
+.I /etc/init
+must exist and be executable; if it is not, the kernel will print a message
+to that effect and loop.  Further, for a single user boot, the files
+.I /bin/sh
+and
+.I /dev/console
+must also exist and
+.I /bin/sh
+must be executable (if either of these is missing,
+.I init
+will attempt multi-user operation).
+For a multi-user boot the file
+.I /etc/ttys
+must exist (if missing,
+.I init
+will attempt single user operation).
+.PP
+.I Init
+runs the
+.IR autoconfig (8)
+program to probe for and initialize devices.
+.I Autoconfig
+only knows to look in \fI/unix\fP, thus if an alternate kernel name was
+specified none of the devices except \fI/dev/console\fP and the boot disk
+will be known.
+.PP
+If \fIautoconfig\fP problems are suspected (or if  you are simply 
+voyeuristic) the \fBdebug\fP flag can be turned on by specifying 
+\fB\-D\fP to \fIboot\fP (see below).
+.PP
+When the system is running in single user mode, it starts a single user
+shell on the console which types a `#' prompt.  After doing any file system
+checks and setting the date
+.RI ( date (1))
+a multi-user system can be brought up by typing an EOT (control-d) in
+response to the `#' prompt.
+.PP
+.B "Boot file specification format:"
+The file specifications used with
+.I boot
+are of the form:
+.IP
+.I device(ctlr,unit,part)path [-aRrDs]
+.LP
+or
+.IP
+.I \-bootcommand
+.LP
+where
+.TP
+.I device
+is the type of the device to be searched;
+.TP
+.I ctlr
+is the controller number of the disk
+.TP
+.I unit
+is the unit number of the disk or tape;
+.TP
+.I part
+is the partition number of a filesystem on the specified disk
+or the tape file number if the device is a tape.
+The underlying
+device driver \fBmust\fP support disklabels and a valid disklabel must be 
+present if \fIpart\fP is anything except 0.
+.TP
+.I path
+is the path name of a disk file to be loaded with all mount prefixes
+stripped off
+.RI ( path
+must be omitted for tape files.)  Tape files are separated by single tape
+marks.
+.PP
+Flags to \fIboot\fP may be specified in either of two places.  At the 
+\fB:\fP prompt and after the \fIfile\fP name.  The options are:
+.TP
+.B \-a
+Ask for a kernel name.  This is present for symmetry only because in order
+to specify this option you already have to be at the \fB:\fP prompt.
+.TP
+.B \-D
+Turn on the 
+.I autoconfig
+debug flag.
+.TP
+.B \-R
+force the kernel to use its compiled in root device rather than adapting
+to the boot device.
+.TP
+.B \-s
+tell 
+.I init
+to enter single user state rather than bringing the system all the way
+up to multi-user mode.
+.B \-r
+mount the root filesystem read-only.  This is not currently supported by
+the kernel mostly because pipes are implemented in the filesystem.
+.LP
+Commands (\fI\-bootcommand\fP) to \fIboot\fP are:
+.TP 20
+.B \-bootflags N
+where N is a decimal number.
+.TP 20
+.B \-bootflags flag
+where \fBflag\fP is from the list above.
+.TP 20
+.B \-bootdebug N
+where N is a decimal number.  This is a general purpose flag word used
+by \fIboot\fP and is not passed to the loaded program or kernel.
+.PP
+.I Device
+is one of the following
+.PP
+.nf
+.ne 10
+	xp	RM02/03/05, RP04/05/06, DIVA, SI Eagle, CDC 9766, Fuji 160
+	rp	RP03
+	rk	RK05
+	hk	RK06/7
+	rl	RL01/2
+	si	RM05, CDC 9766
+	ra	RA60/80/81, RX50, RD51/52/53, RC25
+	ht	TU/TE16
+	tm	TU/TE10
+	ts	TS-11
+.fi
+.PP
+The stand alone tape drive unit number is specially encoded to specify
+both unit number and tape density (BPI).  Most tape subsystems either
+automatically adjust to tape density or have switches on the drives to
+force the density to a particular setting, but for those which don't the
+following density select mechanisms may be necessary.  The \fBts\fP only
+operates at 1600BPI, so there is no special unit density encoding.  The
+\fBht\fP will operate at either 800BPI or 1600BPI.  Units 0 through 3
+correspond to 800BPI, and 4 through 7 to 1600BPI on drives 0 through 3
+respectively.  The standard DEC \fBtm\fP only supports 800BPI (and hence
+can't be used with the standard \*(2B distribution tape), but several
+widely used \fBtm\fP emulators support 1600BPI and even 6250BPI.  Units 0
+through 3 correspond to 800BPI, 4 through 7 to 1600BPI, and 8 through 11
+to 6250BPI on drives 0 through 3 respectively.
+.PP
+For example, to boot a system from unit 0 on an RK07,
+type \*(lqhk(0,0)unix\*(rq to the boot prompt.  The specification
+\*(lqra(1,0)unix\*(rq indicates an MSCP disk, unit 1.  The specification
+\*(lqra(1,0,0)unix\*(rq indicates an MSCP disk, unit 0 but on controller
+1.
+And finally the specification
+\*(lqts(0,3)\*(rq would cause the fourth file on a tape threaded on `ts'
+tape drive 0 to be loaded and executed.
+.PP
+.B "Cold boot loaders:"
+The following programs to load and execute the primary bootstrap may be
+installed in read-only memories or manually keyed into main memory.  Each
+program is position-independent but should be placed well above location 0
+so it will not be overwritten.  Each reads a block from the beginning of a
+device into core location zero.  The octal words constituting the program
+are listed on the left.
+.PP
+.nf
+.if n .ta 3 11 15 23 38
+.if t .ta .3i 1i 1.4i 2i 3.5i
+.ne 10
+RK (drive 0):
+	012700		mov	$rkda,r0
+	177412
+	005040		clr	\-(r0)	/ rkda cleared by start
+	010040		mov	r0,\-(r0)
+	012740		mov	$5,\-(r0)
+	000005
+	105710	1:	tstb	(r0)
+	002376		bge	1b
+	005007		clr	pc
+.PP
+.ne 11
+RP (drive 0)
+	012700		mov	$rpmr,r0
+	176726
+	005040		clr	\-(r0)
+	005040		clr	\-(r0)
+	005040		clr	\-(r0)
+	010040		mov	r0,\-(r0)
+	012740		mov	$5,\-(r0)
+	000005
+	105710	1:	tstb	(r0)
+	002376		bge	1b
+	005007		clr	pc
+.PP
+.ne 7
+TM (drive 0):
+	012700		mov	$tmba,r0
+	172526
+	010040		mov	r0,\-(r0)
+	012740		mov	$60003,\-(r0)
+	060003
+	000777		br	.
+.DT
+.SH FILES
+.ta \w'/mdec/xxuboot   'u
+/unix	system code
+.br
+/boot	system bootstrap
+.br
+/etc/init	system process dispatcher
+.br
+/mdec/xxuboot	sector 0 boot blocks, xx is disk type
+.SH "SEE ALSO"
+crash(8V),
+autoconfig(8),
+reboot(2),
+disklabel(8),
+fsck(8),
+init(8)

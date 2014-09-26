@@ -1,0 +1,65 @@
+.\" Public Domain, March 196, Steven M. Schultz
+.\"
+.\"	@(#)syserrlst.5	1.0 (2.11BSD) 1996/3/7
+.\"
+.TH SYSERRLST 5  "March 7, 1996"
+.UC 2
+.SH NAME
+syserrlst \- error message file format
+.SH DESCRIPTION
+.IR mkerrlst (1),
+creates error message files in the format described below.
+.PP
+An ``error message file'' consists of a header, an array of structures
+specifying the offset and length of each message, and the array of
+message strings separated by newlines.
+.PP
+The message strings are separated by newlines but the newline characters
+are \fBnot\fP included in the size of the message.  These newline characters
+serve only to make the file editable or printable (after stripping off the
+header).
+.PP
+The file format is:
+.PP
+.nf
+.cs R 20
+/*
+ * Definitions used by the 'mkerrlst' program which creates error message 
+ * files.
+ *
+ * The format of the file created is:
+ *
+ *	struct	ERRLSTHDR ehdr;
+ *	struct	ERRLST  emsg[num_of_messages];
+ *	struct	{
+ *		char	msg[] = "error message string";
+ *		char	lf = '\n';
+ *		} [num_of_messages];
+ *
+ * Note:  the newlines are NOT included in the message lengths, the newlines
+ *        are present to make it easy to 'cat' or 'vi' the file.
+*/
+
+	struct	ERRLSTHDR
+		{
+		short	magic;
+		short	maxmsgnum;
+		short	maxmsglen;
+		short	pad[5];		/* Reserved */
+		};
+
+	struct	ERRLST
+		{
+		off_t	offmsg;
+		short	lenmsg;
+		};
+
+#define	ERRMAGIC	012345
+.fi
+.cs R
+.SH "SEE ALSO"
+mkerrlst(1), syserrlst(3)
+.SH BUGS
+Format of the file isn't necessarily portable between machines.
+.SH HISTORY
+This file format is new with 2.11BSD.

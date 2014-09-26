@@ -1,0 +1,137 @@
+.\" Copyright (c) 1980 Regents of the University of California.
+.\" All rights reserved.  The Berkeley software License Agreement
+.\" specifies the terms and conditions for redistribution.
+.\"
+.\"	@(#)hk.4	6.4 (2.11BSD GTE) 1997/12/28
+.\"
+.TH HK 4 "December 28, 1997"
+.UC 2
+.SH NAME
+hk \- RK6-11/RK06 and RK07 moving head disk
+.SH SYNOPSIS
+.ft B
+.nf
+/sys/conf/SYSTEM:
+	NHK	\fIhk_drives\fP	# RK611, RK06/07
+
+/etc/dtab:
+.ta .5i +\w'#Name 'u +\w'Unit# 'u +\w'177777 'u +\w'Vector 'u +\w'Br 'u +\w'xxxxxxx 'u +\w'xxxxxxx 'u
+	#Name	Unit#	Addr	Vector	Br	Handler(s)		# Comments
+	hk	?	177440	210	5	hkintr		# rk611/711 rk06/07
+.DT
+
+major device number(s):
+	raw: 13
+	block: 4
+minor device encoding:
+	bits 0007 specify partition of HK drive
+	bits 0070 specify HK drive
+.fi
+.ft R
+.SH DESCRIPTION
+Files with minor device numbers 0 through 7 refer to various portions
+of drive 0;
+minor devices 8 through 15 refer to drive 1, etc.
+The standard device names begin with ``hk'' followed by
+the drive number and then a letter a-h for partitions 0-7 respectively.
+The character ? stands here for a drive number in the range 0-7.
+.PP
+The block files access the disk via the system's normal
+buffering mechanism and may be read and written without regard to
+physical disk records.  There is also a `raw' interface
+which provides for direct transmission between the disk
+and the user's read or write buffer.
+A single read or write call results in exactly one I/O operation
+and therefore raw I/O is considerably more efficient when
+many words are transmitted.  The names of the raw files
+conventionally begin with an extra `r.'
+.PP
+In raw I/O the buffer must begin on a word (even) boundary,
+and counts should be a multiple of 512 bytes (a disk sector).
+Likewise
+.I seek
+calls should specify a multiple of 512 bytes.
+.SH "DISK SUPPORT"
+Disks must be labeled using either the standalone \fIdisklabel\fP program on
+the boot tape or with the \fIdisklabel\fP(8) program.  There are no partition
+tables coded into the \fIhk\fP drivers, these must be placed on the drive with
+\fIdisklabel\fP.
+.PP
+Traditionally the \fIhk?a\fP partition is used for the root filesystem, the
+\fIb\fP partition as a swap area and the \fIc\fP partition for disk to disk
+copying (it spans the entire disk).
+.PP
+The kernel uses the \fIc\fP partition to access the bad block
+information stored at the end of some packs.  Extreme care must be taken when
+creating file systems on this partition to avoid overwriting any bad block
+information present.  User data should use the \fIh\fP partition
+which should be at least one track (one cylinder might be best) shorter 
+than the \fIc\fP partition.
+.SH FILES
+.ta \w'/dev/MAKEDEV.local  'u
+/dev/hk[0-7][a-h]	block files
+.br
+/dev/rhk[0-7][a-h]	raw files
+.br
+/dev/MAKEDEV	script to create special files
+.br
+/dev/MAKEDEV.local	script to localize special files
+.DT
+.SH "SEE ALSO"
+ra(4)
+ram(4),
+rk(4),
+rl(4),
+rx(4),
+si(4),
+xp(4),
+dtab(5),
+autoconfig(8),
+disklabel(8)
+.SH DIAGNOSTICS
+\fBhk%d%c: hard error sn%d cs2=%b ds=%b er=%b\fR.  An unrecoverable
+error occurred during transfer of the specified sector of the specified
+disk partition.  The contents of the cs2, ds and er registers are printed
+in octal and symbolically with bits decoded.
+The error was either unrecoverable, or a large number of retry attempts
+(including offset positioning and drive recalibration) could not
+recover the error.
+.PP
+\fBhk%d: write locked\fP.  The write protect switch was set on the drive
+when a write was attempted.  The write operation is not recoverable.
+.PP
+\fBhk%d: not ready\fR.  The drive was spun down or off line when it was
+accessed.  The i/o operation is not recoverable.
+.PP
+\fBhk%d: not ready (came back!)\fR.  The drive was not ready, but after
+printing the message about being not ready (which takes a fraction
+of a second) was ready.  The operation is recovered if no further
+errors occur.
+.PP
+\fBhk%d%c: soft ecc sn%d\fP.  A recoverable ECC error occurred on the
+specified sector of the specified disk partition. 
+This happens normally
+a few times a week.  If it happens more frequently than
+this the sectors where the errors are occuring should be checked to see
+if certain cylinders on the pack, spots on the carriage of the drive
+or heads are indicated.
+.SH BUGS
+In raw I/O
+.I read
+and
+.IR write (2)
+truncate file offsets to 512-byte block boundaries,
+and
+.I write
+scribbles on the tail of incomplete blocks.
+Thus,
+in programs that are likely to access raw devices,
+.I read, write
+and
+.IR lseek (2)
+should always deal in 512-byte multiples.
+.PP
+DEC-standard error logging should be supported.
+.PP
+A program to analyze the logged error information (even in its
+present reduced form) is needed.

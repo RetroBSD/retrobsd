@@ -1,0 +1,80 @@
+.\" Copyright (c) 1980 Regents of the University of California.
+.\" All rights reserved.  The Berkeley software License Agreement
+.\" specifies the terms and conditions for redistribution.
+.\"
+.\"	@(#)perror.3	6.1.1 (2.11BSD) 1996/3/21
+.\"
+.TH PERROR 3  "March 21, 1996"
+.UC 4
+.SH NAME
+perror, strerror \- system error messages
+.SH SYNOPSIS
+.nf
+.B perror(s)
+.B char *s;
+.sp
+.B #include <string.h>
+.sp
+.I char *
+.B strerror(errnum)
+.B int errnum;
+.fi
+.SH DESCRIPTION
+The
+.B strerror()
+and
+.B perror()
+functions look up the error message string corresponding to an error number.
+.PP
+The 
+.B strerror()
+function accepts an error number argument
+.I errnum
+and returns a pointer to the corresponding message string.
+.PP
+The
+.B perror()
+function
+finds the error message corresponding to the current value of the
+global variable
+.I errno
+(intro(2)) and writes it, followed by a newline, to the standard error
+file descriptor.  If the argument 
+.I string
+is non-NULL, it is prepended to the message string and separated
+from it by a colon and space (`: ').
+If 
+.I string
+is NULL, only the error message string is printed.
+.PP
+If
+.I errnum
+is not a recognized error number, the error message string
+will contain ``Unknown error: '' followed by the error number
+in decimal.
+.PP
+The error messages are stored in a data file now rather than an in memory
+array.  See 
+.BR syserror (5).
+.SH "SEE ALSO"
+mkerrlst(1),
+intro(2),
+psignal(3),
+strerror(3),
+syserror(3),
+syserror(5)
+.SH BUGS
+The
+.BR strerror ()
+function returns its result in a static buffer which may be
+overwritten by subsequent calls.
+.PP
+The array
+.B sys_errlist[]
+and the global
+.B sys_nerr
+are
+.B obsolete
+and should not be used.  They have, for the time being, been placed in
+an object library 
+.BR liberrlst.a .

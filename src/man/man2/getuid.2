@@ -1,0 +1,78 @@
+.\" Copyright (c) 1980, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"	This product includes software developed by the University of
+.\"	California, Berkeley and its contributors.
+.\" 4. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"     @(#)getuid.2	8.1.1 (2.11BSD) 1997/12/2
+.\"
+.TH GETUID 2 "December 2, 1997"
+.UC 5
+.SH NAME
+\fBgetuid\fP, \fBgeteuid\fP \- get user identification
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B #include <sys/types.h>
+.sp
+\fIuid_t\fP
+\fBgetuid\fP()
+.sp
+\fIuid_t\fP
+\fBgeteuid\fP()
+.fi
+.SH DESCRIPTION
+The
+.B getuid
+function returns the real user ID of the calling process.
+The
+.B geteuid
+function
+returns the effective user ID of the calling process.
+.PP
+The real user ID is that of the user who has invoked the program.
+As the effective user ID
+gives the process additional permissions during
+execution of ``\fIset-user-ID\fP''
+mode processes,
+.B getuid
+is used to determine the real-user-id of the calling process.
+.SH ERRORS
+The
+.B getuid
+and
+.B geteuid
+functions are always successful, and no return value is reserved to
+indicate an error.
+.SH SEE ALSO
+getgid(2), setreuid(2)
+.SH STANDARDS
+.B Geteuid
+and
+.B getuid
+conform to IEEE Std 1003.1-1988 (``POSIX'').

@@ -1,0 +1,185 @@
+.\" Copyright (c) 1980 Regents of the University of California.
+.\" All rights reserved.  The Berkeley software License Agreement
+.\" specifies the terms and conditions for redistribution.
+.\"
+.\"	@(#)rx.4	6.2.1 (2.11BSD) 1996/1/27
+.\"
+.TH RX 4 "January 27, 1996"
+.UC 2
+.SH NAME
+rx \- DEC RX02 floppy disk
+.SH SYNOPSIS
+.ft B
+.nf
+/sys/conf/SYSTEM:
+	NRX	\fIrx_units\fP	# RX02
+
+/etc/dtab:
+.ta .5i +\w'#Name 'u +\w'Unit# 'u +\w'177777 'u +\w'Vector 'u +\w'Br 'u +\w'xxxxxxx 'u +\w'xxxxxxx 'u
+	#Name	Unit#	Addr	Vector	Br	Handler(s)		# Comments
+	rx	?	177170	264	5	rxintr		# rx02
+.DT
+
+major device number(s):
+	raw: 17
+	block: 8
+minor device encoding:
+	bit 01 specifies drive: <rx_drive>
+	bit 02 specifies density: single: 0, double: 1
+.fi
+.ft R
+.SH DESCRIPTION
+The
+.I rx
+device provides access to a DEC RX02 floppy disk
+unit with M8256 interface module (RX211 configuration). 
+The RX02 uses 8-inch, single-sided, soft-sectored floppy
+disks (with pre-formatted industry-standard headers) in
+either single or double density.
+.PP
+Floppy disks handled by the RX02 contain 77 tracks, each with 26
+sectors (for a total of 2,002 sectors).  The sector size is 128
+bytes for single density, 256 bytes for double density.  Single 
+density disks are compatible with the RX01 floppy disk unit and with
+IBM 3740 Series Diskette 1 systems.  
+.PP
+Files with minor device numbers 0 and 1 refer to drives 0 and 1
+in single density mode;
+minor devices 2 and 3 refer to drives 0 and 1
+in double density mode.
+The standard device names begin with ``rx'' followed by
+the drive number and then a letter a-b for single and double density
+access to the drive respectively.
+The character ? stands here for a drive number in the range 0-1.
+.PP
+The block files access the disk via the system's normal
+buffering mechanism and may be read and written without regard to
+physical disk records.  There is also a `raw' interface
+which provides for direct transmission between the disk
+and the user's read or write buffer.
+A single read or write call results in exactly one I/O operation
+and therefore raw I/O is considerably more efficient when
+many words are transmitted.  The names of the raw files
+conventionally begin with an extra `r.'
+.PP
+In raw I/O the buffer must begin on a word (even) boundary,
+and counts should be a multiple of the disk's sector size
+(either 128 or 256 bytes depending on selected density.)
+Likewise
+.I seek
+calls should specify a multiple of the disk's sector size.
+.PP
+In addition to normal (`block' and `raw') i/o, the driver supports
+formatting of disks for either density.
+.SH "DISK SUPPORT"
+The
+.I rx
+driver does not support pseudo-disks (partitions).  Each file
+.I rx?[ab]
+refers to the entire drive as a single sequentially addressed
+file.  The physical disk sector size is 128 bytes for single
+density and 256 bytes for double density.  The logical block
+size is 1024 bytes.  Each diskette has 250 logical blocks in
+single density and 500 logical blocks in double density.
+.PP
+The size and density of the disks are specified as follows:
+.PP
+.nf
+.ta .5i +\w'rx00  'u +\w'minor device  'u +\w'unit  'u
+	disk	minor device	unit	density
+	rx0a	0	0	single
+	rx1a	1	1	single
+	rx0b	2	0	double
+	rx1b	3	1	double
+.DT
+.fi
+.PP
+Even though the storage capacity on a floppy disk is quite
+small, it is possible to make file systems on them.
+For example, the commands
+.nf
+.RS
+% rxformat /dev/rrx0a
+% newfs /dev/rrx0a
+.RE
+and
+.RS
+% rxformat /dev/rrx1b
+% newfs /dev/rrx1b
+.RE
+.fi
+format and make file systems on the single density disk in the left drive
+and the double density disk in the right drive with
+241 and 486 kbytes available, respectively, for file storage.
+Using
+.IR tar (1)
+gives somewhat more efficient utilization of the available
+space for file storage.
+The RX02 disks are primarily useful for small archives and transfer of
+small systems or distributions.
+.PP
+An
+.IR ioctl (2)
+call is available is available to format RX02 disks:
+.RS
+.nf
+.ft B
+#include <pdpuba/rxreg.h>
+ioctl(fildes, RXIOC_FORMAT)
+.ft R
+.fi
+.RE
+The density is determined by the device opened.
+.SH FILES
+.ta \w'/dev/MAKEDEV.local  'u
+/dev/rx[01][ab]	block files
+.br
+/dev/rrx[01][ab]	raw files
+.br
+/dev/MAKEDEV	script to create special files
+.br
+/dev/MAKEDEV.local	script to localize special files
+.DT
+.SH "SEE ALSO"
+hk(4),
+ra(4),
+ram(4),
+rk(4),
+rl(4),
+rp(4),
+si(4),
+xp(4),
+dtab(5),
+autoconfig(8),
+rxformat(8V)
+.SH DIAGNOSTICS
+\fBrx2%d: hard error sn%d cs=%b er=%b\fR.  An unrecoverable
+error occurred during transfer of the specified sector of the specified
+disk.  The contents of the two error registers are also printed
+in octal and symbolically with bits decoded.
+The error was either unrecoverable, or a large number of retry attempts
+could not recover the error.
+.SH BUGS
+In raw I/O
+.I read
+and
+.IR write (2)
+truncate file offsets to disk sector size block boundaries
+(either 128 or 256 bytes depending on the selected density),
+and
+.I write
+scribbles on the tail of incomplete blocks.
+Thus,
+in programs that are likely to access raw devices,
+.I read, write
+and
+.IR lseek (2)
+should always deal in disk sector size multiples.
+.PP
+DEC-standard error logging should be supported.
+.PP
+A program to analyze the logged error information (even in its
+present reduced form) is needed.
+.PP
+The 4.3BSD rx driver which supports more capabilities should be ported
+to 2.11BSD.

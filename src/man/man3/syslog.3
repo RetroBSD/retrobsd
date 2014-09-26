@@ -1,0 +1,269 @@
+.\" Copyright (c) 1985, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"	This product includes software developed by the University of
+.\"	California, Berkeley and its contributors.
+.\" 4. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"     @(#)syslog.3	8.1.1 (2.11BSD) 1995/04/01
+.\"
+.TH SYSLOG 3 "April 1, 1995"
+.UC 5
+.SH NAME
+syslog , vsyslog , openlog , closelog , setlogmask \- control system log
+.SH SYNOPSIS
+.B #include <syslog.h>
+.br
+.B #include <varargs.h>
+.PP
+.B void syslog(priority, message, ...);
+.br
+.B int priority;
+.br
+.B char *message;
+.PP
+.B void vsyslog(priority, message, args);
+.br
+.B int priority;
+.br
+.B char *message;
+.br
+.B va_list args;
+.PP
+.B void openlog(ident, logopt, facility);
+.br
+.B char *ident;
+.br
+.B int logopt;
+.br
+.B int facility;
+.PP
+.B void closelog();
+.PP
+.B int setlogmask(maskpri);
+.br
+.B int maskpri;
+.SH DESCRIPTION
+The
+.IR syslog ()
+function
+writes
+.I message
+to the system message logger.
+The message is then written to the system console, log files,
+logged-in users, or forwarded to other machines as appropriate. (See
+.IR syslogd (8)).
+.PP
+The message is identical to a
+.IR printf (3)
+format string, except that
+.B %m
+is replaced by the current error
+message as denoted by the global variable \fIerrno\fP.
+See
+.IR strerror (3)).
+A trailing newline is added if none is present.
+.PP
+The
+.IR vsyslog ()
+function
+is an alternate form in which the arguments have already been captured
+using the variable-length argument facilities of
+.IR varargs (3).
+.PP
+The message is tagged with
+.IR priority .
+Priorities are encoded as a
+.I facility
+and a
+.IR level .
+The facility describes the part of the system
+generating the message.
+The level is selected from the following
+.I ordered
+(high to low) list:
+.IP LOG_EMERG \w'LOG_AUTHORITY'u+3
+A panic condition.
+This is normally broadcast to all users.
+.IP LOG_ALERT \w'LOG_AUTHORITY'u+3
+A condition that should be corrected immediately, such as a corrupted
+system database.
+.IP LOG_CRIT \w'LOG_AUTHORITY'u+3
+Critical conditions, e.g., hard device errors.
+.IP LOG_ERR \w'LOG_AUTHORITY'u+3
+Errors.
+.IP LOG_WARNING \w'LOG_AUTHORITY'u+3
+Warning messages.
+.IP LOG_NOTICE \w'LOG_AUTHORITY'u+3
+Conditions that are not error conditions,
+but should possibly be handled specially.
+.IP LOG_INFO \w'LOG_AUTHORITY'u+3
+Informational messages.
+.IP LOG_DEBUG \w'LOG_AUTHORITY'u+3
+Messages that contain information
+normally of use only when debugging a program.
+.PP
+The
+.IR openlog ()
+function
+provides for more specialized processing of the messages sent
+by
+.IR syslog ()
+and
+.IR vsyslog ().
+The parameter
+.I ident
+is a string that will be prepended to every message.
+The
+.I logopt
+argument
+is a bit field specifying logging options, which is formed by
+.B OR'ing
+one or more of the following values:
+.IP LOG_CONS \w'LOG_AUTHPRIV'u+3
+If
+.IR syslog
+cannot pass the message to
+.IR syslogd
+it will attempt to write the message to the console (\fB/dev/console\fP).
+.IP LOG_NDELAY \w'LOG_AUTHPRIV'u+3
+Open the connection to
+.IR syslogd
+immediately.
+Normally the open is delayed until the first message is logged.
+Useful for programs that need to manage the order in which file
+descriptors are allocated.
+.IP LOG_PERROR \w'LOG_AUTHPRIV'u+3
+Write the message to standard error output as well to the system log.
+.IP LOG_PID \w'LOG_AUTHPRIV'u+3
+Log the process id with each message: useful for identifying
+instantiations of daemons.
+.PP
+The
+.IR facility
+parameter encodes a default facility to be assigned to all messages
+that do not have an explicit facility encoded:
+.IP LOG_AUTH \w'LOG_AUTHPRIV'u+3
+The authorization system:
+.IR login (1),
+.IR su (1),
+.IR getty (8),
+etc.
+.IP LOG_AUTHPRIV \w'LOG_AUTHPRIV'u+3
+The same as
+.B LOG_AUTH ,
+but logged to a file readable only by
+selected individuals.
+.IP LOG_CRON \w'LOG_AUTHPRIV'u+3
+The clock daemon.
+.IP LOG_DAEMON \w'LOG_AUTHPRIV'u+3
+System daemons, such as
+.IR routed (8),
+that are not provided for explicitly by other facilities.
+.IP LOG_KERN \w'LOG_AUTHPRIV'u+3
+Messages generated by the kernel.
+These cannot be generated by any user processes.
+.IP LOG_LPR \w'LOG_AUTHPRIV'u+3
+The line printer spooling system:
+.IR lpr (1),
+.IR lpc (8),
+.IR lpd (8),
+etc.
+.IP LOG_MAIL \w'LOG_AUTHPRIV'u+3
+The mail system.
+.IP LOG_NEWS \w'LOG_AUTHPRIV'u+3
+The network news system.
+.IP LOG_SYSLOG \w'LOG_AUTHPRIV'u+3
+Messages generated internally by
+.IR syslogd (8).
+.IP LOG_USER \w'LOG_AUTHPRIV'u+3
+Messages generated by random user processes.
+This is the default facility identifier if none is specified.
+.IP LOG_UUCP \w'LOG_AUTHPRIV'u+3
+The uucp system.
+.IP LOG_LOCAL0 \w'LOG_AUTHPRIV'u+3
+Reserved for local use.
+Similarly for \fBLOG_LOCAL1\fP through \fBLOG_LOCAL7\fP.
+.PP
+The
+.IR closelog
+function
+can be used to close the log file.
+.PP
+The
+.IR setlogmask
+function
+sets the log priority mask to
+.I maskpri
+and returns the previous mask.
+Calls to
+.IR syslog
+with a priority not set in
+.I maskpri
+are rejected.
+The mask for an individual priority
+.I pri
+is calculated by the macro
+.IR LOG_MASK (pri).
+The mask for all priorities up to and including
+.I toppri
+is given by the macro
+.IR LOG_UPTO (toppri).
+The default allows all priorities to be logged.
+.PP
+.SH RETURN VALUES
+The routines
+.IR closelog (),
+.IR openlog (),
+.IR syslog ()
+and
+.IR vsyslog ()
+return no value.
+.PP
+The routine
+.IR setlogmask ()
+always returns the previous log mask level.
+.PP
+.SH EXAMPLES
+.IP "" 8
+syslog(LOG_ALERT, "who: internal error 23");
+
+openlog("ftpd", LOG_PID, LOG_DAEMON);
+setlogmask(LOG_UPTO(LOG_ERR));
+syslog(LOG_INFO, "Connection from host %d", CallingHost);
+
+syslog(LOG_INFO|LOG_LOCAL2, "foobar error: %m");
+.PP
+.SH SEE ALSO
+.I logger(1), syslogd(8)
+.SH BUGS
+Under 2.11BSD the logfile \fB/usr/adm/messages\fP is used if a non
+networking kernel has been booted.  That file must be publically writeable
+in this case.
+.SH HISTORY
+These
+functions appeared in 4.2BSD.

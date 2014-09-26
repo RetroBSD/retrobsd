@@ -1,0 +1,65 @@
+.\" Copyright (c) 1980 Regents of the University of California.
+.\" All rights reserved.  The Berkeley software License Agreement
+.\" specifies the terms and conditions for redistribution.
+.\"
+.\"	@(#)dtab.5	2.3 (Berkeley) 1/22/87
+.\"
+.TH DTAB 5 "January 22, 1987"
+.UC 2
+.SH NAME
+dtab \- automatic system configuration device table (2BSD)
+.SH DESCRIPTION
+The
+.I dtab
+file contains a list of the devices that the
+.IR autoconfig (8)
+program will attempt to attach to the system.
+.PP
+Each line describes one device which may be present on the system;
+additional devices of the same type require additional lines.
+The line contains at least six fields separated by white space.
+Blank lines and comments can appear anywhere in the file except
+between fields; comments
+are delimited by `#' and new line.  The fields are (in order):
+.TP "\w'handler(s)  'u"
+dev
+The device name, usually two characters
+.TP
+unit
+Either a unit number or a `?' indicating automatic selection of unit numbers.
+.TP
+addr
+The address of the device's first register, as a 16-bit octal number.
+.TP
+vector
+The interrupt vector, in octal.
+.TP
+BR
+The priority at which the device interrupts.
+.TP
+handler(s)
+One or more routine names with which the interrupt vector is filled.
+.SH EXAMPLE
+.nf
+.sp
+.dt
+.ta .5i +\w'dm  ?  'u +\w'160020  'u +\w'Vector  'u +\w'5  'u +\w'dhrint dhxint   'u
+#               Device Configuration Table
+#    Clock and console are pre-configured and should not be listed here
+#
+# Dev#	Addr	Vector	Br	Handler(s)	# Comment
+lp	?	177514	200	4	lpio	# lp-11 line printer
+ht	0	172440	224	5	htintr	# tu 16 massbus tape
+xp	?	176700	254	5	xpio	# xp driver
+dm	?	170500	310	4	dmin	# dm11 dh modem control
+dh	?	160020	320	5	dhin dhou	# dh11 terminal mux
+dz	?	160110	330	5	dzin dzdma	# dz11 terminal mux
+.fi
+.SH FILES
+.ta 2i
+/etc/dtab	device table
+.SH SEE ALSO
+autoconfig(8)
+.SH BUGS
+.I /Etc/dtab
+is unique to the PDP-11 and 2BSD.

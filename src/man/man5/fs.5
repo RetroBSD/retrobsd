@@ -1,0 +1,398 @@
+.\" Copyright (c) 1983 Regents of the University of California.
+.\" All rights reserved.  The Berkeley software License Agreement
+.\" specifies the terms and conditions for redistribution.
+.\"
+.\"	@(#)fs.5	2.4 (2.11BSD) 1996/1/27
+.\"
+.TH FS  5 "January 27, 1996"
+.UC 2
+.SH NAME
+fs, inode \- format of file system volume (2BSD)
+.SH SYNOPSIS
+.B #include <sys/types.h>
+.br
+.B #include <sys/fs.h>
+.br
+.B #include <sys/inode.h>
+.SH DESCRIPTION
+Every file system storage volume (e.g. disk) has a common format for certain
+vital information.  Every such volume is divided into a certain number of
+blocks.  The block size is DEV_BSIZE bytes; specified in
+.RI < sys/param.h >
+\- currently 1024.
+.PP
+Each disk drive contains some number of file systems each laid out on a
+contiguous partition of the disk.  A file system consists of a
+.IR "boot block" ,
+followed by a
+.IR "super block" ,
+followed by an
+.IR "inode area" ,
+followed by a
+.I data block area
+which takes up the remainder of the disk partition.  The layout of the super
+block as defined in
+.RI < sys/fs.h >
+is:
+.PP
+.nf
+.ta \w'struct 'u +\w'daddr_t 'u +\w'fs_fsmnt[MAXMNTLEN]; 'u
+#define MAXMNTLEN 12
+
+/*
+ * Structure of the super-block
+ */
+struct fs
+{
+	u_short	fs_isize;		/* first block after i-list */
+	daddr_t	fs_fsize;		/* size in blocks of entire volume */
+	short	fs_nfree;		/* number of addresses in fs_free */
+	daddr_t	fs_free[NICFREE];	/* free block list */
+	short	fs_ninode;		/* number of inodes in fs_inode */
+	ino_t	fs_inode[NICINOD];	/* free inode list */
+	char	fs_flock;		/* lock during free list manipulation */
+	char	fs_ilock;		/* lock during i-list manipulation */
+	char	fs_fmod;		/* super block modified flag */
+	char	fs_ronly;		/* mounted read-only flag */
+	time_t	fs_time;		/* last super block update */
+	daddr_t	fs_tfree;		/* total free blocks */
+	ino_t	fs_tinode;		/* total free inodes */
+	short	fs_step;		/* optimal step in free list pattern */
+	short	fs_cyl;			/* number of blocks per pattern */
+	char	fs_fsmnt[MAXMNTLEN];	/* ordinary file mounted on */
+	ino_t	fs_lasti;		/* start place for circular search */
+	ino_t	fs_nbehind;		/* est # free inodes before s_lasti */
+	u_short	fs_flags;		/* mount time flags */
+};
+.fi
+.PP
+.IR "File system" :
+A file system is described by its super-block.  Block 0 of each file system
+partition is unused and is available to contain a bootstrap program, pack
+label, or other information.  Block 1 (SUPERB) is the super block.  The
+inode area starts immediately after the super-block, in block 2.
+.I Fs_isize
+is the address of the first block after the inode area.  Thus the inode area
+is
+.IR fs_isize \-2
+blocks long.
+.I Fs_fsize
+is the address of the first block not potentially available for allocation
+to a file.  Thus the data block area is
+.I "fs_fsize \- fs_isize"
+blocks long.
+.PP
+.IR "Super block" :
+The path name on which the file system is mounted is maintained in
+.IR fs_fsmnt .
+.IR Fs_flock ,
+.IR fs_ilock ,
+.IR fs_fmod ,
+.IR fs_ronly " and"
+.IR fs_flags
+are flags maintained in the in core copy of the super block while its file
+system is mounted and their values on disk are immaterial.
+.I Fs_fmod
+is used as a flag to indicate that the super-block has changed and should be
+copied to the disk during the next periodic update of file system information.
+.I Fs_ronly
+is a write-protection indicator.  It is a copy of the mount flags
+.I fs_flags
+anded with
+.BR MNT_RDONLY (see \fI/sys/h/mount.h\fP).
+.PP
+.I Fs_time
+is the last time the super-block of the file system was changed.  During a
+reboot, the
+.I fs_time
+of the super-block for the root file system is used to set the system's idea
+of the time.
+.PP
+.IR Inode :
+The inode is the focus of all file activity in the UNIX file system.  There
+is a unique inode allocated for each active file, each current directory,
+each mounted-on file, text file, and the root.  An inode is `named' by its
+device/i-number pair.
+.PP
+Inodes are 64 bytes long, so 16 of them fit into a block if DEV_BSIZE is 1024.
+The root inode is the root of the file system.  Inode 0 can't be used for
+normal purposes and historically bad blocks were linked to inode 1, thus the
+root inode is 2 (inode 1 is no longer used for this purpose, however numerous
+dump tapes make this assumption, so we are stuck with it).  No other i-number
+has a built-in meaning.
+.PP
+The format of an inode as given in
+.RI < sys/inode.h >
+is:
+.PP
+.nf
+.ta \w'struct 'u +\w'u_short 'u +\w'di_addr[40]; 'u
+/*
+ * Inode structure as it appears on
+ * a disk block.
+ */
+struct dinode {
+	u_short	di_mode;	/* mode and type of file */
+	short	di_nlink;	/* number of links to file */
+	uid_t	di_uid;		/* owner's user id */
+	gid_t	di_gid;		/* owner's group id */
+	off_t	di_size;	/* number of bytes in file */
+	daddr_t	di_addr[7];	/* 7 block addresses 4 bytes each */
+	u_short	di_reserved[5];	/* pad of 10 to make total size 64 */
+	u_short	di_flags;
+	time_t	di_atime;	/* time last accessed */
+	time_t	di_mtime;	/* time last modified */
+	time_t	di_ctime;	/* time created */
+};
+
+/*
+ * 28 of the di_addr address bytes are used; 7 addresses of 4
+ * bytes each: 4 direct (4Kb directly accessible) and 3 indirect.
+ */
+#define NADDR	7
+
+/* modes */
+
+.ta \w'#define 'u +\w'IWRITE 'u +\w'0170000 'u
+#define	IFMT	0170000	/* type of file */
+#define	IFCHR	0020000	/* character special */
+#define	IFDIR	0040000	/* directory */
+#define	IFBLK	0060000	/* block special */
+#define	IFREG	0100000	/* regular */
+#define	IFLNK	0120000	/* symbolic link */
+#define	IFSOCK	0140000	/* socket */
+#define	ISUID	04000	/* set user id on execution */
+#define	ISGID	02000	/* set group id on execution */
+#define	ISVTX	01000	/* save swapped text even after use */
+#define	IREAD	0400	/* read, write, execute permissions */
+#define	IWRITE	0200
+#define	IEXEC	0100
+.fi
+.PP
+.I Di_mode
+identifies the type of file the inode represents; it is encoded identically
+to the
+.IR st_mode " field of " stat (2).
+.I Di_nlink
+is the number of directory entries (links) that refer to this inode.
+.I Di_uid
+and
+.I di_gid
+are the owner's user and group IDs.
+.I Di_size
+is the number of bytes in the file.
+.I Di_atime
+and
+.I di_mtime
+are the times of last access and modification of the file contents (read,
+write or create);
+.I Di_ctime
+records the time of last modification to the inode or to the file, and is
+used to determine whether it should be dumped by
+.IR dump (8).
+.PP
+Special files are recognized by their modes.  A block-type special file is
+one which can potentially be mounted as a file system; a character-type
+special file cannot, though it is not necessarily character-oriented.  For
+special files, the first two bytes of the
+.I di_addr
+field are occupied by the device code
+.RI "(see " types (5)).
+The device codes of block and character special files overlap.
+.PP
+Disk addresses of plain files and directories are kept in the array
+.I di_addr.
+For a DEV_BSIZE of 1K bytes, 7 addresses are kept in
+.I di_addr
+using 28 of the 40 bytes.  The first 4 addresses specify device
+blocks directly.  The last 3 addresses are singly, doubly and triply
+indirect and point to blocks containing 256 further block pointers.
+There are 3 block addresses reserved as a pad to bring the total
+size of an inode to 64 bytes.
+All block addresses are of type
+.IR daddr_t " (see " types (5)).
+.PP
+For block
+.I b
+in a file to exist, it is not necessary that all blocks less than
+.I b
+exist.  A zero block number
+indicates that the corresponding block has never been
+allocated.  Such a missing block reads as if it contained all zero bytes.
+.PP
+.IR "Free block list" :
+The free data block list for each volume is maintained as follows.
+.I "Fs_free[1], ... , fs_free[fs_nfree\-1],"
+contain up to NICFREE free block numbers (NICFREE is a configuration
+constant defined in
+.RI < sys/param.h ">)."
+.I Fs_free[0]
+is the block address of the head of a chain of blocks constituting the free
+list.  The layout of each block of the free chain as defined in
+.RI < sys/fs.h >
+is:
+.PP
+.nf
+.ta \w'struct 'u +\w'daddr_t 'u +\w'df_free[NICFREE]; 'u
+struct fblk
+{
+	short	df_nfree;		/* number of addresses in df_free */
+	daddr_t	df_free[NICFREE];	/* free block list */
+};
+.fi
+.PP
+The fields
+.I df_nfree
+and
+.I df_free
+in a free block are used exactly like
+.I fs_nfree
+and 
+.I fs_free
+in the super block.
+.PP
+The algorithm used to allocate a block is:  decrement
+.I fs_nfree,
+and the new block number is
+.I fs_free[fs_nfree].
+If the new block address is 0, there are no blocks left, so give an error.
+If
+.I fs_nfree
+became 0, read the new block into
+.I fs_nfree
+and 
+.I fs_free.
+.PP
+To free a block: check if
+.I fs_nfree
+is NICFREE; if so, copy
+.I fs_nfree
+and the
+.I fs_free
+array into the newly freed block, write it out, and set
+.I fs_nfree
+to 0.  In any event set
+.I fs_free[fs_nfree]
+to the freed block's address and increment
+.I fs_nfree.
+.PP
+.IR Fs_isize " and " fs_fsize
+are used by the system to check for bad block addresses; if an `impossible'
+block address is allocated from or returned to the free list, a diagnostic
+is written on the console.  Moreover, the free array is cleared, to prevent
+further allocation from a presumably corrupted free list.
+.PP
+.IR Fs_step " and " fs_cyl
+determine the block interleaving of files for fastest access; traditionally
+these were referred to as
+.IR s_m " and " s_n " respectively."
+.I Fs_step
+is the distance between successive blocks and
+.I fs_cyl
+is the number of blocks before the pattern repeats.  A file system's
+interleaving factors are determined when it is first created by
+.IR mkfs (8).
+.I Mkfs
+lays out the initial free list with these parameters and
+.IR fsck (8)
+can be used to rebuild the free list optimally (and assign new interleaving
+factors if necessary).
+.PP
+.IR "Free inode list" :
+.I Fs_ninode
+is the number of free inode numbers in the
+.I fs_inode
+array.
+.PP
+To allocate an inode: if
+.I fs_ninode
+is greater than 0, decrement it and return
+.I fs_inode[fs_ninode].
+If it was 0, read through the inode area and place the numbers of all free
+inodes (up to NICINOD) into the
+.I fs_inode
+array, then try again.  If a search for free inodes is necessary, the search
+will start at the beginning of the inode area if
+.I fs_nbehind
+>= 4 \(mu NICINOD, otherwise starting at
+.I fs_lasti
+and continuing at the beginning of the inode area if NICINOD free inodes
+aren't found when the end of the inode area is reached.  When a search
+completes the i-number of the first inode of the last block scanned in the
+search is left in
+.IR fs_lasti .
+.PP
+To free an inode, provided
+.I fs_ninode
+is less than NICINODE, place its number into
+.I fs_inode[fs_ninode]
+and increment
+.I fs_ninode.
+If
+.I fs_ninode
+is already NICINODE, don't bother to enter the freed inode into any table
+.RI ( fs_inode
+is only to speed up the allocation process; the information as to whether
+the inode is really free or not is maintained in the inode itself).  If the
+i-number of the freed inode is less than
+.I fs_lasti
+increment
+.IR fs_nbehind .
+.SH "SEE ALSO"
+stat(2), dir(5), types(5), dcheck(8), fsck(8), icheck(8), mkfs(8), mount(8)
+.SH BUGS
+It isn't the
+.IR "4BSD fast file system" .
+The 2BSD file system is a direct descendent of the V7 file system and exists
+little changed from that ancestor.  There are many performance holes in the
+file system.
+.PP
+Some changes from the original V7 file system have resulted in better
+performance: The larger block size (1Kb as opposed to the 512 byte block
+size of V7) cuts the average number of system calls necessary to access a
+file by a factor of two; the smaller (in core) inodes allowed by the smaller
+number of direct links kept in inodes saves valuable kernel data space
+allowing the kernel buffer cache to be made larger while sacrificing only
+1Kb of direct file accessing; and starting free inode searches at the
+position the last search ended cuts the time to gather free inodes
+significantly.
+.PP
+However, the separation of inodes and data blocks into completely different
+areas of the disk, the handling of the free list, the lack of any file
+allocation layout policy encouraging locality such as that found in the 4BSD
+file system and the still too small block size often leads to extremely poor
+performance.
+.PP
+The separation of inodes and data blocks in the file system means that to
+access a file a seek will have to be made to the beginning of the disk
+partition containing the file system followed another to the the actual
+data blocks of the file (often quite distant from the inode area).
+.PP
+The free list which is laid out at file system creation for optimal file
+block allocation, becomes scrambled over time on an active file system.
+This process is slowed down by the kernel which always frees blocks from
+unlink'ed or truncated files in reverse order thereby maintaining strings
+of optimally laid out free blocks in the free list.  Eventually, however,
+since both freed and allocated blocks use the head of the free list, it's
+possible (and quite probable) to have most of the free list laid out
+optimally with the first portion totally scrambled.  As a trade off, a file
+system's free list may be rebuilt fairly frequently via
+.I icheck -s 
+or
+.I fsck -s
+and most blocks allocated will be localized as close to the the inode area
+as possible.  Because of this problem, files are sometimes scattered
+across a file system generating an unpleasant amount of disk arm movement.
+A nasty oscillation also occurs in the free block list when
+.I fs_nfree
+hovers around NICFREE and 0 causing the free array to be constantly written
+out and read back in as blocks are freed and allocated.
+.PP
+For a more in depth analysis of the 2BSD file system, its shortcomings, and
+a description of the changes made for the 4BSD file system see
+\*(lq\fBA Fast File System for UNIX\fR\*(rq
+by 
+.IR "M. McKusick" ;
+.IR "W. Joy" ;
+.IR "S. Leffler" "; and"
+.IR "R. Fabry" .

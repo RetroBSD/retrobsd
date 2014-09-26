@@ -1,0 +1,92 @@
+.\" Copyright (c) 1990, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"	This product includes software developed by the University of
+.\"	California, Berkeley and its contributors.
+.\" 4. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"     @(#)fd.4	8.1.1 (2.11BSD) 1997/2/4
+.\"
+.TH FD 4 "February 4, 1997"
+.UC 4
+.SH NAME
+.BR fd ,
+.BR stdin ,
+.BR stdout ,
+.BR stderr
+file descriptor files
+.SH DESCRIPTION
+The files
+.I /dev/fd/0
+through
+.I /dev/fd/#
+refer to file descriptors which can be accessed through the file
+system.
+If the file descriptor is open and the mode the file is being opened
+with is a subset of the mode of the existing descriptor, the call:
+.sp
+.in +0.5i
+fd = open("/dev/fd/0", mode);
+.in -0.5i
+.PP
+and the call:
+.sp
+.in +0.5i
+fd = fcntl(0, F_DUPFD, 0);
+.in -0.5i
+.PP
+are equivalent.
+.PP
+Opening the files
+.IR /dev/stdin ,
+.I /dev/stdout
+and
+.I /dev/stderr
+is equivalent to the following calls:
+.sp
+.in +0.5i
+fd = fcntl(STDIN_FILENO,  F_DUPFD, 0);
+.br
+fd = fcntl(STDOUT_FILENO, F_DUPFD, 0);
+.br
+fd = fcntl(STDERR_FILENO, F_DUPFD, 0);
+.in -0.5i
+.PP
+Flags to the
+open(2)
+call other than O_RDONLY, O_WRONLY and O_RDWR
+are ignored.
+.SH FILES
+/dev/fd/#
+.br
+/dev/stdin
+.br
+/dev/stdout
+.br
+/dev/stderr
+.SH SEE ALSO
+tty(4)

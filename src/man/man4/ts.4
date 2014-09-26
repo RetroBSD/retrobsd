@@ -1,0 +1,74 @@
+.\" Copyright (c) 1980 Regents of the University of California.
+.\" All rights reserved.  The Berkeley software License Agreement
+.\" specifies the terms and conditions for redistribution.
+.\"
+.\"	@(#)ts.4	6.1 (Berkeley) 1/28/88
+.\"
+.TH TS 4 "January 28, 1988"
+.UC 2
+.SH NAME
+ts \- TS-11 magtape interface
+.SH SYNOPSIS
+.ft B
+.nf
+/sys/conf/SYSTEM:
+	NTS	\fIts_drives\fP		# TS11
+
+/etc/dtab:
+.ta .5i +\w'#Name 'u +\w'Unit# 'u +\w'177777 'u +\w'Vector 'u +\w'Br 'u +\w'xxxxxxx 'u +\w'xxxxxxx 'u
+	#Name	Unit#	Addr	Vector	Br	Handler(s)		# Comments
+	ts	?	172520	224	5	tsintr		# ts11 driver
+.DT
+
+major device number(s):
+	raw: 8
+	block: 2
+minor device encoding:
+	bits 0003 specify TS drive
+	bit  0004 specifies no-rewind operation
+	bit  0010 ignored
+.fi
+.ft R
+.SH DESCRIPTION
+The ts-11 combination provides a standard tape drive
+interface as described in
+.IR mtio (4).
+The ts-11 operates only at 1600 bpi, and only one transport
+is possible per controller.
+.SH FILES
+.ta \w'/dev/MAKEDEV.local  'u
+/dev/MAKEDEV	script to create special files
+.br
+/dev/MAKEDEV.local	script to localize special files
+.DT
+.SH "SEE ALSO"
+mt(1),
+tar(1),
+tp(1),
+mtio(4),
+ht(4),
+tm(4),
+dtab(5),
+autoconfig(8)
+.SH DIAGNOSTICS
+\fBts%d: no write ring\fR.  An attempt was made to write on the tape drive
+when no write ring was present; this message is written on the terminal of
+the user who tried to access the tape.
+.PP
+\fBts%d: not online\fR.  An attempt was made to access the tape while it
+was offline; this message is written on the terminal of the user
+who tried to access the tape.
+.PP
+\fBts%d: hard error bn%d xs0=%b xs1=%b xs2=%b xs3=%b\fR.
+A hard error occurred on the tape
+at block \fIbn\fR; status registers 0-3 are printed in octal and symbolically
+decoded as bits.
+.PP
+\fBts%d: addr mod 4 != 0\fR.
+The address of a TS-11 command packet was not on an even longword boundary.
+.SH BUGS
+If any non-data error is encountered on non-raw tape, it refuses to do anything
+more until closed.
+.PP
+The device lives at the same address as a tm-11
+.IR tm (4).

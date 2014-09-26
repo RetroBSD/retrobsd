@@ -1,0 +1,350 @@
+.de us
+\\$1\l'|0\(ul'
+..
+.TH FSCK 8
+.UC
+.SH NAME
+fsck \- file system consistency check and interactive repair
+.SH SYNOPSIS
+.B fsck
+.BR \-p "[ # ]"
+[
+filesystem ...
+]
+.br
+.B fsck
+[
+.B \-y
+] [
+.B \-n
+] [
+.BR \-s X
+] [
+.BR \-S X
+] [
+.B \-t
+filename
+] [
+filesystem 
+] ...
+.SH DESCRIPTION
+The first form of
+.I fsck
+preens a standard set of file systems or the specified file systems.
+It is normally used in the script
+.I /etc/rc
+during automatic reboot.
+In this case
+.I fsck
+reads the table
+.I /etc/fstab
+to determine which file systems to check.
+It uses the information there to inspect groups of disks in parallel taking
+maximum advantage of i/o overlap to check the file systems
+as quickly as possible.
+Normally, the root file system will be checked on pass 1, other
+``root'' (``a'' partition) file systems on pass 2, other
+small file systems on separate passes (e.g. the ``d'' file systems
+on pass 3 and the ``e'' file systems on pass 4), and finally
+the large user file systems on the last pass, e.g. pass 5.
+Only one file system from each disk should be checked in each pass.
+A pass number of 0 in fstab causes a disk to not be checked; similarly
+partitions which are not shown as to be mounted ``rw'' or ``ro''
+are not checked.
+A number or range of numbers may be given after the
+.B \-p
+to start or end the check at a specified pass number.
+A single number specifies the starting pass (e.g. \-p2 or \-p2\-);
+a range specifies the starting and endig passes (\-p2\-4).
+A missing start means to start with pass 1 (\-p\-2).
+These can be used to stop fsck to mount a temporary file system
+before continuing the check on larger file systems requiring scratch files.
+.PP
+The system normally takes care that only a restricted class of innocuous
+inconsistencies can happen unless hardware or software failures intervene.
+These are limited to the following:
+.IP
+Unreferenced inodes
+.ns
+.IP
+Link counts in inodes too large
+.ns
+.IP
+Missing blocks in the free list
+.ns
+.IP
+Blocks in the free list also in files
+.ns
+.IP
+Counts in the superblock wrong
+.ns
+.IP
+Allocated inodes in the free inode list
+.PP
+These are the only inconsistencies which
+.I fsck
+with the
+.B \-p
+option will correct; if it encounters other inconsistencies, it exits
+with an abnormal return status and an automatic reboot will then fail.
+For each corrected inconsistency one or more lines will be printed
+identifying the file system on which the correction will take place,
+and the nature of the correction.  After successfully correcting a file
+system,
+.I fsck
+will print the number of files on that file system and the number of
+used and free blocks.
+.B Warning:
+kernel changes are required to limit the types of inconsistencies,
+and
+.B "fsck \-p"
+makes assumptions about the kernel's actions in repairing these.
+Vmunix, PDP-11 2.9BSD with the UCB_FSFIX option
+and PDP-11 2.10BSD Unix kernels have the
+appropriate modifications;
+the
+.B \-p
+option should not be used on other systems.
+.PP
+Without the
+.B \-p
+option,
+.I fsck
+audits and interactively repairs inconsistent conditions for file systems. 
+If the file system is inconsistent the operator is prompted for concurrence
+before each correction is attempted.
+It should be noted that a number of the corrective actions which are not
+fixable under the
+.B \-p
+option will result in some loss
+of data.
+The amount and severity of data lost may be determined from the diagnostic
+output.
+The default action for each consistency correction
+is to wait for the operator to respond \fByes\fP or \fBno\fP.
+If the operator does not have write permission 
+.I fsck
+will default to a 
+.BR "\-n " action.
+.PP
+.I Fsck
+has more consistency checks than
+its predecessors
+.IR "check, dcheck, fcheck, " "and" " icheck"
+combined.
+.PP
+The following flags are interpreted by
+.I fsck.
+.TP 6
+.B  \-\^y
+Assume a yes response to all questions asked by 
+.I fsck;
+this should be used with great caution as this is a free license
+to continue after essentially unlimited trouble has been encountered.
+.TP 6
+.B  \-\^n
+Assume a no response to all questions asked by 
+.I fsck;
+do not open the file system for writing.
+.TP 6
+.BR \-\^s \fIX
+Ignore the actual free list and (unconditionally) reconstruct a new
+one by rewriting the superblock of the file system.  
+The file system should be unmounted while this is done; if this
+is not possible, care should be taken that the system is quiescent
+and that it is rebooted immediately afterwards.
+This precaution is necessary so that the old, bad, in-core copy
+of the superblock will not continue to be used, or written on the file system.
+.IP
+The
+.BR \-s \fIX
+option allows for creating an optimal free list organization.
+The following forms of
+.I X
+are supported for the following devices:
+.sp
+.nf
+	\-s3 (RP03)
+	\-s4 (RP04, RP05, RP06)
+	\-sBlocks-per-cylinder\fB:\fPBlocks-to-skip (for anything else)
+.fi
+.IP "" 6
+If 
+.I X
+is not given,
+the values used when the file system was created
+are used.
+If these values were not specified, then the value
+.I 400:9
+is used.
+.TP 6
+.BR \-\^S \fIX
+Conditionally reconstruct the free list. This option
+is like
+.BR \-s \fIX
+above except that the free list is rebuilt only
+if there were no discrepancies discovered in the
+file system. Using
+.B \-S
+will force a no response to all questions asked
+by
+.I fsck.
+This option is useful for forcing free list reorganization
+on uncontaminated file systems.
+.TP 6
+.B \-\^t
+If
+.I fsck
+cannot obtain enough memory to keep its tables,
+it uses a scratch file. If the \f3\-t\fP option is
+specified, the file named in the next argument
+is used as the scratch file, if needed. Without the
+.BR "\-t " flag,
+.I fsck
+will prompt the operator for the name of the
+scratch file. The file chosen should not be on the
+file system being checked, and if it is not
+a special file or did not already exist, it is
+removed when
+.I fsck
+completes.
+.PP
+If no file systems are given to 
+.I fsck
+then a default list of file systems is read from
+the file
+.IR /etc/fstab .
+.PP
+.ne 10
+Inconsistencies checked are as follows:
+.TP 6
+1.
+Blocks claimed by more than one inode or the free list.
+.br
+.br
+.ns
+.TP 6
+2.
+Blocks claimed by an inode or the free list outside the range of the file system.
+.br
+.br
+.ns
+.TP 6
+3.
+Incorrect link counts.
+.br
+.br
+.ns
+.TP 6
+4.
+Size checks:
+.br
+.ns
+.IP "" 12
+Directory size not 16-byte aligned.
+.br
+.br
+.ns
+.TP 6
+5.
+Bad inode format.
+.br
+.br
+.ns
+.TP 6
+6.
+Blocks not accounted for anywhere.
+.br
+.br
+.ns
+.TP 6
+7.
+Directory checks:
+.br
+.br
+.ns
+.IP "" 12
+File pointing to unallocated inode.
+.br
+Inode number out of range.
+.br
+.br
+.ns
+.TP 6
+8.
+Super Block checks:
+.br
+.br
+.ns
+.IP "" 12
+More than 65536 inodes.
+.br
+More blocks for inodes than there are in the file system.
+.br
+.br
+.ns
+.TP 6
+9.
+Bad free block list format.
+.br
+.br
+.ns
+.TP 6
+10.
+Total free block and/or free inode count incorrect.
+.br
+.ns
+.TP 6
+11.
+Allocated inodes on the free inode list in the superblock.
+.PP
+Orphaned files and directories (allocated but unreferenced) are,
+with the operator's concurrence, reconnected by
+placing them in the 
+.I lost+found
+directory.
+The name assigned is the inode number. The only restriction
+is that the directory 
+.I lost+found
+must preexist
+in the root of the file system being checked and
+must have empty slots in which entries can be made.
+This can be accomplished manually by making 
+.IR lost+found ,
+copying a number of files to the directory, and then removing them
+(before
+.I
+fsck
+is executed).
+.IR Mkfs (8)
+will automatically create a
+.I lost+found
+directory.
+.PP
+Checking the raw device is almost always faster.
+The root device should not be checked using the raw device,
+however, since it cannot be unmounted.
+.SH FILES
+.ta 2i
+/etc/fstab	default list of file systems to check
+.SH DIAGNOSTICS
+The diagnostics produced by 
+.I fsck
+are intended to be self-explanatory.
+The exit codes with the
+.B \-p
+option are 0 (no problems that weren't fixed), 4 (root file system was
+modified), 8 (problems that couldn't be fixed) and 12
+.RI ( fsck
+was interrupted).
+.SH "SEE ALSO"
+filsys(5), fstab(5), crash(8), mkfs(8), mklost+found(8), reboot(8)
+.br
+T. J. Kowalski,
+.I "FSCK \- The UNIX File System Check Program"
+.SH BUGS
+Inode numbers for
+.BR . ""
+and
+.BR .. ""
+in each directory should be checked for validity.

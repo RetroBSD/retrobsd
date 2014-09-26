@@ -1,0 +1,62 @@
+.\"	@(#)sigwait.2 1.0 (2.11BSD) 1999/9/10
+.\"
+.TH SIGACTION 2 "September 10, 1999"
+.UC 7
+.SH NAME
+\fBsigwait\fP \- wait for a signal
+.SH SYNOPSIS
+.B #include <signal.h>
+.sp
+int
+\fBsigwait\fP(set, sig)
+.br
+.I sigset_t *set;
+.br
+.I int *sig;
+.SH DESCRIPTION
+.B Sigwait
+checks for a pending signal in 
+.IR set ,
+clears it from the set of pending signals and returns the signal number
+in the location referenced by
+.IR sig .
+If more than one of the signals contained in
+.I set
+is pending then
+.B sigwait
+selects only one and acts upon it.
+If no signal contained in
+.I set
+is pending, then
+.B sigwait
+waits for a signal to arrive.
+All of the signals contained in
+.I set
+should be blocked or unpredictable results may occur.
+.SH RETURN VALUES
+The
+.B sigwait
+function returns 0 if successful and the signal number is stored in the
+location referenced by
+.IR sig .
+.SH ERRORS
+The
+.B sigwait
+function may return one of the following errors:
+.TP 20
+EINVAL
+The
+.I set
+argument contains an invalid or unsupported signal number.
+.TP 20
+EFAULT
+.I Sig
+points to memory that is not a valid part of the process address space.
+.SH SEE ALSO
+sigprocmask(2)
+.SH STANDARDS
+The
+.B sigwait
+function call
+conforms to
+IEEE Std1003.1-1998 (``POSIX'').

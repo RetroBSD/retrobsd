@@ -1,0 +1,218 @@
+.\" Copyright (c) 1980, 1989, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"	This product includes software developed by the University of
+.\"	California, Berkeley and its contributors.
+.\" 4. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"     @(#)fstab.5	8.1.1 (2.11BSD) 1996/1/15
+.\"
+.TH FSTAB 5 "January 15, 1996"
+.UC 7
+.SH NAME
+\fBfstab\fP \- static information about the filesystems
+.SH SYNOPSIS
+.B #include <fstab.h>
+.SH DESCRIPTION
+The file
+.B fstab
+contains descriptive information about the various file
+systems.
+.B fstab
+is only read by programs, and not written;
+it is the duty of the system administrator to properly create 
+and maintain this file.
+Each filesystem is described on a separate line;
+fields on each line are separated by tabs or spaces.
+The order of records in
+.B fstab
+is important because
+fsck(8),
+mount(8),
+and
+umount(8)
+sequentially iterate through
+.B fstab
+doing their thing.
+.PP
+The first field,
+.IR fs_spec ,
+describes the block special device or
+remote filesystem to be mounted.
+For filesystems of type
+.IR ufs ,
+the special file name is the block special file name, 
+and not the character special file name.
+If a program needs the character special file name,
+the program must create it by appending a ``r'' after the
+last ``/'' in the special file name.
+.PP
+The second field,
+.IR fs_file ,
+describes the mount point for the filesystem.
+For swap partitions, this field should be specified as ``none''.
+.PP
+The third field,
+.IR fs_vfstype ,
+describes the type of the filesystem.
+The system currently supports only two types of filesystems:
+.TP 15
+.I ufs 
+a local UNIX filesystem
+.TP 15
+.I swap 
+a disk partition to be used for swapping
+.PP
+The fourth field,
+.IR fs_mntops ,
+describes the mount options associated with the filesystem.
+It is formatted as a comma separated list of options.
+It contains at least the type of mount (see
+.I fs_type
+below) plus any additional options
+appropriate to the filesystem type.
+.PP
+If the option ``quotas'' is specified,
+the filesystem is automatically processed by the
+quotacheck(8)
+command, and user disk quotas are enabled with
+quotaon(8).
+Filesystem quotas are maintained in the file named
+.I quotas
+located at the root of the associated filesystem.  This restriction on
+the location of the quotas file is needlessly imposed by the kernel but
+may be lifted in the future.
+Thus, if the user quota file for
+.I /tmp
+is stored in
+.IR /var/quotas/tmp.user ,
+this location can be specified as:
+.sp
+.in +.75i
+quotas=/var/quotas/tmp.user
+.br
+.in -0.75i
+.PP
+The type of the mount is extracted from the
+.I fs_mntops
+field and stored separately in the
+.I fs_type
+field (it is not deleted from the
+.I fs_mntops
+field).
+If
+.I fs_type
+is ``rw'' or ``ro'' then the filesystem whose name is given in the
+.I fs_file
+field is normally mounted read-write or read-only on the
+specified special file.
+If
+.I fs_type
+is ``sw'' then the special file is made available as a piece of swap
+space by the
+swapon(8)
+command at the end of the system reboot procedure.
+The fields other than
+.I fs_spec
+and
+.I fs_type
+are unused.
+If
+.I fs_type
+is specified as ``xx'' the entry is ignored.
+This is useful to show disk partitions which are currently unused.
+.PP
+The fifth field,
+.IR fs_freq ,
+is used for these filesystems by the
+dump(8)
+command to determine which filesystems need to be dumped.
+If the fifth field is not present, a value of zero is returned and
+dump(8)
+will assume that the filesystem does not need to be dumped.
+.PP
+The sixth field,
+.IR fs_passno ,
+is used by the
+fsck(8)
+program to determine the order in which filesystem checks are done
+at reboot time.
+The root filesystem should be specified with a
+.I fs_passno
+of 1, and other filesystems should have a 
+.I fs_passno
+of 2.
+Filesystems within a drive will be checked sequentially,
+but filesystems on different drives will be checked at the
+same time to utilize parallelism available in the hardware.
+If the sixth field is not present or zero,
+a value of zero is returned and
+fsck(8)
+will assume that the filesystem does not need to be checked.
+.br
+.nf
+.cs R 24
+
+#define	FSTAB_RW	"rw"	/* read-write device */
+#define	FSTAB_RO	"ro"	/* read-only device */
+#define	FSTAB_SW	"sw"	/* swap device */
+#define	FSTAB_XX	"xx"	/* ignore totally */
+
+struct fstab {
+	char	*fs_spec;	/* block special device name */
+	char	*fs_file;	/* filesystem path prefix */
+	char	*fs_vfstype;	/* type of filesystem */
+	char	*fs_mntops;	/* comma separated mount options */
+	char	*fs_type;	/* rw, ro, sw, or xx */
+	int	fs_freq;	/* dump frequency, in days */
+	int	fs_passno;	/* pass number on parallel dump */
+};
+.fi
+.cs R
+.PP
+The proper way to read records from
+.I fstab
+is to use the routines
+getfsent(3),
+getfsspec(3),
+getfstype(3),
+and
+getfsfile(3).
+.SH FILES
+.TP 15
+.I /etc/fstab
+The file
+.B fstab
+resides in
+.IR /etc .
+.SH SEE ALSO
+getfsent(3)
+.SH HISTORY
+The
+.B fstab
+file format appeared in
+4.0BSD.

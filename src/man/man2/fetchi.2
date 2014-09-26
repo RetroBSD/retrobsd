@@ -1,0 +1,56 @@
+.\" Copyright (c) 1983 Regents of the University of California.
+.\" All rights reserved.  The Berkeley software License Agreement
+.\" specifies the terms and conditions for redistribution.
+.\"
+.\"	@(#)fetchi.2	2.3 (Berkeley) 1/22/87
+.\"
+.TH FETCHI 2 "January 22, 1987"
+.UC 2
+.SH NAME
+fetchi \- fetch from user instruction space (2BSD)
+.SH SYNOPSIS
+.nf
+.ft B
+fetchi(addr)
+int *addr;
+.fi
+.ft R
+.SH DESCRIPTION
+.I Fetchi
+fetches the word at
+.I addr
+from the caller's instruction space.
+This system call is required
+on PDP-11's with separate instruction
+and data spaces because the
+.I mfpi
+instruction reads from
+D-space if the current
+and previous modes in the
+program status word are
+both user.
+.SH "RETURN VALUE
+Upon successful completion the contents of the caller's instruction space at
+.I addr
+are returned.  Otherwise, a value of \-1 is returned.
+.SH "ERRORS
+.TP 15
+[EINVAL]
+The kernel has not been compiled for a processor with separate I/D.
+.TP 15
+[EFAULT]
+.I Addr
+points to an address not in the process's allocated instruction space.
+.SH BUGS
+The error indication, \-1, is a legitimate function value;
+.I errno,
+(see
+.IR intro (2)),
+can be used to disambiguate.
+.PP
+.I Fetchi
+is a kludge and exists only to circumvent an alleged
+security feature on some DEC PDP-11 processors.
+.PP
+.I Fetchi
+is unique to the PDP-11 and 2BSD; its use is discouraged.

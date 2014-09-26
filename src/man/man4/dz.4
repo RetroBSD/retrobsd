@@ -1,0 +1,75 @@
+.\" Copyright (c) 1980 Regents of the University of California.
+.\" All rights reserved.  The Berkeley software License Agreement
+.\" specifies the terms and conditions for redistribution.
+.\"
+.\"	@(#)dz.4	6.2 (Berkeley) 1/28/88
+.\"
+.TH DZ 4 "January 28, 1988"
+.UC 2
+.SH NAME
+dz \- DZ-11 communications multiplexer
+.SH SYNOPSIS
+.ft B
+.nf
+/sys/conf/SYSTEM:
+	NDZ	\fIdz_units\fP	# DZ11; NDZ is in units of boards (8 each)
+
+/etc/dtab:
+.ta .5i +\w'#Name 'u +\w'Unit# 'u +\w'177777 'u +\w'Vector 'u +\w'Br 'u +\w'xxxxxxx 'u +\w'xxxxxxx 'u
+	#Name	Unit#	Addr	Vector	Br	Handler(s)		# Comments
+	dz	?	160100	310	5	dzrint	dzdma	# dz11 terminal mux
+.DT
+
+major device number:
+	raw: 2
+minor device encoding:
+	bits 0007 specify line on DZ unit
+	bits 0170 specify DZ unit
+	bit  0200 specifies non-blocking open (``CD always on'')
+.SH DESCRIPTION
+A DZ11 provides 8 communication lines with partial modem control,
+adequate for UNIX dialup use.
+Each line attached to the DZ11 communications multiplexer
+behaves as described in
+.IR tty (4)
+and may be set to run at any of 16 speeds; see
+.IR tty (4)
+for the encoding.
+.PP
+Bit
+.I 0200
+of the minor device number for DZ lines
+may be set to say that a line is not properly
+connected, and that the line should be treated as hard-wired with carrier
+always present.  Thus creating the special character device node "2, 130" via
+.I "mknod /dev/tty02 c 2 130"
+would cause line tty02 to be treated in this way.
+.PP
+The
+.I dz
+driver monitors the rate of input on each board,
+and switches between the use of character-at-a-time interrupts
+and input silos.
+While the silo is enabled during periods of high-speed input,
+the driver polls for input 30 times per second.
+.SH FILES
+.ta \w'/dev/MAKEDEV.local  'u
+/dev/tty[0-9][0-9]
+.br
+/dev/ttyd[0-9a-f]		dialups
+.br
+/dev/MAKEDEV	script to create special files
+.br
+/dev/MAKEDEV.local	script to localize special files
+.DT
+.SH "SEE ALSO"
+tty(4),
+dtab(5),
+autoconfig(8)
+.SH DIAGNOSTICS
+.PP
+\fBdz%d: silo overflow\fR.  The 64 character input silo overflowed
+before it could be serviced.  This can happen if a hard error occurs
+when the CPU is running with elevated priority, as the system will
+then print a message on the console with interrupts disabled.
+It is not serious.

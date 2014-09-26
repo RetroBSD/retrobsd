@@ -1,0 +1,412 @@
+.\" Copyright (c) 1980, 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"	This product includes software developed by the University of
+.\"	California, Berkeley and its contributors.
+.\" 4. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"	@(#)sigaction.2	8.2.1 (2.11BSD) 1997/9/3
+.\"
+.TH SIGACTION 2 "September 3, 1997"
+.UC 7
+.SH NAME
+\fBsigaction\fP \- software signal facilities
+.SH SYNOPSIS
+.B #include <signal.h>
+.sp
+.nf
+struct sigaction {
+	int     (*sa_handler)();
+	sigset_t sa_mask;
+	int	 sa_flags;
+};
+.fi
+.sp
+\fBsigaction\fP(sig, act, oact)
+.br
+.I int sig;
+.br
+.I struct sigaction *act;
+.br
+.I struct sigaction *oact;
+.SH DESCRIPTION
+The system defines a set of signals that may be delivered to a process.
+Signal delivery resembles the occurrence of a hardware interrupt:
+the signal is blocked from further occurrence, the current process 
+context is saved, and a new one is built.  A process may specify a
+.I handler
+to which a signal is delivered, or specify that a signal is to be 
+.IR ignored .
+A process may also specify that a default action is to be taken
+by the system when a signal occurs.
+A signal may also be
+.IR blocked ,
+in which case its delivery is postponed until it is
+.IR unblocked .
+The action to be taken on delivery is determined at the time
+of delivery.
+Normally, signal handlers execute on the current stack
+of the process.  This may be changed, on a per-handler basis,
+so that signals are taken on a special
+.IR "signal stack" .
+.PP
+Signal routines execute with the signal that caused their
+invocation
+.IR blocked ,
+but other signals may yet occur.
+A global 
+.IR "signal mask"
+defines the set of signals currently blocked from delivery
+to a process.  The signal mask for a process is initialized
+from that of its parent (normally empty).  It
+may be changed with a
+.BR sigprocmask (2)
+call, or when a signal is delivered to the process.
+.PP
+When a signal
+condition arises for a process, the signal is added to a set of
+signals pending for the process.
+If the signal is not currently
+.I blocked
+by the process then it is delivered to the process.
+Signals may be delivered any time a process enters the operating system
+(e.g., during a system call, page fault or trap, or clock interrupt).
+If multiple signals are ready to be delivered at the same time,
+any signals that could be caused by traps are delivered first.
+Additional signals may be processed at the same time, with each
+appearing to interrupt the handlers for the previous signals
+before their first instructions.
+The set of pending signals is returned by the
+.BR sigpending (2)
+function.
+When a caught signal
+is delivered, the current state of the process is saved,
+a new signal mask is calculated (as described below), 
+and the signal handler is invoked.  The call to the handler
+is arranged so that if the signal handling routine returns
+normally the process will resume execution in the context
+from before the signal's delivery.
+If the process wishes to resume in a different context, then it
+must arrange to restore the previous context itself.
+.PP
+When a signal is delivered to a process a new signal mask is
+installed for the duration of the process' signal handler
+(or until a
+.B sigprocmask
+call is made).
+This mask is formed by taking the union of the current signal mask set,
+the signal to be delivered, and 
+the signal mask associated with the handler to be invoked.
+.PP
+.B Sigaction
+assigns an action for a specific signal.
+If
+.I act
+is non-zero, it
+specifies an action
+(SIG_DFL,
+SIG_IGN,
+or a handler routine) and mask
+to be used when delivering the specified signal.
+If 
+.I oact
+is non-zero, the previous handling information for the signal
+is returned to the user.
+.PP
+Once a signal handler is installed, it remains installed
+until another
+.B sigaction
+call is made, or an 
+.BR execve (2)
+is performed.
+A signal-specific default action may be reset by
+setting
+.I sa_handler
+to
+SIG_DFL.
+The defaults are process termination, possibly with core dump;
+no action; stopping the process; or continuing the process.
+See the signal list below for each signal's default action.
+If
+.I sa_handler
+is
+SIG_DFL,
+the default action for the signal is to discard the signal,
+and if a signal is pending,
+the pending signal is discarded even if the signal is masked.
+If
+.I sa_handler
+is set to
+SIG_IGN
+current and pending instances
+of the signal are ignored and discarded.
+.PP
+Options may be specified by setting
+.IR sa_flags .
+If the
+SA_NOCLDSTOP
+bit is set when installing a catching function
+for the
+SIGCHLD
+signal,
+the
+SIGCHLD
+signal will be generated only when a child process exits,
+not when a child process stops.
+Further, if the
+SA_ONSTACK
+bit is set in
+.IR sa_flags ,
+the system will deliver the signal to the process on a
+.IR "signal stack" ,
+specified with
+.BR sigstack (2).
+.PP
+If a signal is caught during the system calls listed below,
+the call may be forced to terminate
+with the error
+EINTR,
+the call may return with a data transfer shorter than requested,
+or the call may be restarted.
+Restart of pending calls is requested
+by setting the
+SA_RESTART
+bit in
+.IR sa_flags .
+The affected system calls include
+.BR open (2),
+.BR read (2),
+.BR write (2),
+.BR sendto (2),
+.BR recvfrom (2),
+.BR sendmsg (2)
+and
+.BR recvmsg (2)
+on a communications channel or a slow device (such as a terminal,
+but not a regular file)
+and during a
+.BR wait (2)
+or
+.BR ioctl (2).
+However, calls that have already committed are not restarted,
+but instead return a partial success (for example, a short read count).
+.PP
+After a
+.BR fork (2)
+or
+.BR vfork (2)
+all signals, the signal mask, the signal stack,
+and the restart/interrupt flags are inherited by the child.
+.PP
+.BR Execve (2)
+reinstates the default
+action for all signals which were caught and
+resets all signals to be caught on the user stack.
+Ignored signals remain ignored;
+the signal mask remains the same;
+signals that restart pending system calls continue to do so.
+.PP
+The following is a list of all signals
+with names as in the include file
+.RI < signal.h >:
+.LP
+.in +0.5i
+.\" BE VERY VERY CAREFUL (and do not cut/paste in an xterm) below.  There are
+.\" embedded tabs present.
+.ta \w'SIGVTALRMxx'u +\w'terminatexxx'u
+NAME	Action	Description
+.br
+SIGHUP	terminate	terminal line hangup
+.br
+SIGINT	terminate	interrupt program
+.br
+SIGQUIT	core	quit program
+.br
+SIGILL	core	illegal instruction
+.br
+SIGTRAP	core	trace trap
+.br
+SIGIOT	core	abort(2) call (same as SIGABRT)
+.br
+SIGEMT	core	emulate instruction executed
+.br
+SIGFPE	core	floating-point exception
+.br
+SIGKILL	terminate	kill program
+.br
+SIGBUS	core	bus error
+.br
+SIGSEGV	core	segmentation violation
+.br
+SIGSYS	core	system call given invalid argument
+.br
+SIGPIPE	terminate	write on a pipe with no reader
+.br
+SIGALRM	terminate	real-time timer expired
+.br
+SIGTERM	terminate	software termination signal
+.br
+SIGURG	discard	urgent condition present on socket
+.br
+SIGSTOP	stop	stop (cannot be caught or ignored)
+.br
+SIGTSTP	stop	stop generated from keyboard
+.br
+SIGCONT	discard	continue after stop
+.br
+SIGCHLD	discard	child status has changed
+.br
+SIGTTIN	stop	background read attempted on control terminal
+.br
+SIGTTOU	stop	background write attemped to control terminal
+.br
+SIGIO	discard	I/O is possible on a descriptor (see fcntl(2))
+.br
+SIGXCPU	terminate	cpu time limit exceeded (see setrlimit(2))
+.br
+SIGXFSZ	terminate	file size limit exceeded (see setrlimit(2))
+.br
+SIGVTALRM	terminate	virtual time alarm (see setitimer(2))
+.br
+SIGPROF	terminate	profiling timer alarm (see setitimer(2))
+.br
+SIGWINCH	discard	Window size change
+.br
+SIGINFO	discard	status request from keyboard
+.br
+SIGUSR1	terminate	User defined signal 1
+.br
+SIGUSR2	terminate	User defined signal 2
+.br
+.in -0.5i
+.SH NOTE
+The mask specified in 
+.I act
+is not allowed to block
+SIGKILL
+or
+SIGSTOP.
+This is done silently by the system.
+.SH RETURN VALUES
+A 0 value indicated that the call succeeded.  A \-1 return value
+indicates an error occurred and
+.I errno
+is set to indicated the reason.
+.SH EXAMPLE
+The handler routine can be declared:
+.sp
+.nf
+int handler(sig, code, scp)
+int sig, code;
+struct sigcontext *scp;
+.fi
+.PP
+Here
+.I sig
+is the signal number, into which the hardware faults and traps are
+mapped.
+.I Code
+is a parameter that is either a constant
+or the code provided by
+the hardware.
+.I Scp
+is a pointer to the
+.I sigcontext
+structure (defined in
+.RI < signal.h >,
+used to restore the context from before the signal.
+.SH ERRORS
+.B Sigaction
+will fail and no new signal handler will be installed if one
+of the following occurs:
+.TP 20
+EFAULT
+Either
+.I act
+or 
+.I oact
+points to memory that is not a valid part of the process
+address space.
+.TP 20
+EINVAL
+.I Sig
+is not a valid signal number.
+.TP 20
+EINVAL
+An attempt is made to ignore or supply a handler for
+SIGKILL
+or
+SIGSTOP.
+.SH STANDARDS
+The
+.B sigaction
+function is defined by
+IEEE Std1003.1-1988 (``POSIX'').
+The
+SA_ONSTACK
+and
+SA_RESTART
+flags are Berkeley extensions,
+as are the signals,
+SIGTRAP,
+SIGEMT,
+SIGBUS,
+SIGSYS,
+SIGURG,
+SIGIO,
+SIGXCPU,
+SIGXFSZ,
+SIGVTALRM,
+SIGPROF,
+SIGWINCH,
+and
+SIGINFO.
+Those signals are available on most
+BSD\-derived
+systems.
+.SH BUGS
+The networking related syscalls are not properly restarted in 2.11BSD.  The
+SIGINFO signal is not implemented in 2.11BSD.
+.SH SEE ALSO
+kill(1),
+fcntl(2),
+ptrace(2),
+kill(2),
+setitimer(2),
+setrlimit(2),
+sigaction(2),
+sigprocmask(2),
+sigsuspend(2),
+sigblock(2),
+sigsetmask(2),
+sigpause(2),
+sigstack(2),
+sigvec(2),
+setjmp(3),
+siginterrupt(3),
+sigsetops(3),
+tty(4)

@@ -1,0 +1,33 @@
+.\" Copyright (c) 1980 Regents of the University of California.
+.\" All rights reserved.  The Berkeley software License Agreement
+.\" specifies the terms and conditions for redistribution.
+.\"
+.\"	@(#)cons.4	6.2 (Berkeley) 7/27/87
+.\"
+.TH CONS 4 "July 27, 1987"
+.UC 4
+.SH NAME
+cons \- PDP-11 console interface
+.SH DESCRIPTION
+The console is available to the processor through the console registers.
+It acts like a normal terminal, except that typing control-P on the
+consoles of some PDP-11's puts the console in local console mode with an
+ODT (console debugger mode) prompt.  The operation of the console in this
+mode varies per-processor.  See the PDP-11 Processor Handbook for your
+particular processor.
+.PP
+On an 11/44 the console can be put into local mode by typing a control-P.
+The ODT prompt is ``>>>''.  The processor is not stopped by entering
+local console mode.  The CPU may be halted with the ``halt'' command,
+which may be abbreviated to ``h.'' Conversational mode is re-entered by
+using the command ``c'' (continue).
+.PP
+On 11/73 the processor's front panel halt switch must be pressed to put
+the console into ODT mode.  The ODT prompt is an ``@''.  No characters
+typed on the console are special while UNIX is in control of the console.
+.SH FILES
+/dev/console
+.SH "SEE ALSO"
+tty(4), reboot(8)
+.br
+PDP-11 Hardware Handbook specific to hardware

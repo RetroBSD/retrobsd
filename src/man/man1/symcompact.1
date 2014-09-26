@@ -1,0 +1,53 @@
+.\" Public domain 1994 - Steven Schultz
+.\"
+.\"	@(#)symcompact.1	1.0 (2.11BSD GTE) 1/25/94
+.\"
+.TH symcompact 1 "January 25, 1994"
+.UC 2
+.SH NAME
+symcompact \- string compaction for object files
+.SH SYNOPSIS
+symcompact [ \fBobject_name\fP ... ]
+.SH DESCRIPTION
+symcompact
+reduces the symbol table size of an executable file.  This is done by
+removing unnecessary overlay transfer vectors (text symbols beginning with
+a tilde).  In a nonoverlaid program there is no need for both the
+underscore (_foo) and tilde (~foo) text symbol and only the underscore
+form is kept.  For overlaid programs
+if the symbol is in the base segment the tilde form is not needed and again
+only the underscore form is preserved.  Running \fBsymcompact\fP typically
+reduces the kernel symbol table size by 250 or so symbols.
+.PP
+It is possible to run both \fBsymcompact\fP and \fBstrcompact\fP to
+achieve an even higher degree of symbol and string table compaction.  The
+normal sequence is to run \fBsymcompact\fP first followed by \fBstrcompact\fP.
+If \fBsymcompact\fP runs out of memory it will be necessary to reverse the
+order and run \fBsymcompact\fP a second time - see the BUGS note below.
+.PP
+The user must have write permission to the object/executable file.
+.PP
+.B
+symcompact
+writes to \fIstderr\fP the count of symbols removed from the symbol table.
+.PP
+.B
+symcompact
+exits 0 if successful, and >0 if an error occurred.
+.SH SEE ALSO
+symcompact(1), symorder(1)
+.SH BUGS
+This program can partially negate the benefits of \fBstrcompact\fP because
+multiple references to identical strings cause additional strings to be
+placed in the string table.  Running \fBstrcompact\fP again after running
+this program fixes this problem.
+.PP
+The \fIregister\fP local symbol type is removed from the executable/object
+file.  Since the debugger really doesn't know how to deal with those symbols
+this is not much of a loss and saves quite a bit of space both in the
+symbol table and the string table.
+.PP
+.B symcompact
+should not be run on .o files that will be passed to the linker.  The linker
+will need the tilde form of the symbol if an overlaid executable is being
+created.

@@ -1,0 +1,162 @@
+.\" Copyright (c) 1980 Regents of the University of California.
+.\" All rights reserved.  The Berkeley software License Agreement
+.\" specifies the terms and conditions for redistribution.
+.\"
+.\"	@(#)xp.4	6.4 (2.11BSD GTE) 1995/08/14
+.\"
+.TH XP 4 "August 14, 1995"
+.UC 2
+.SH NAME
+xp \- generic SMD moving-head disk
+.SH SYNOPSIS
+.ft B
+.nf
+/sys/conf/SYSTEM:
+.ta .5i +\w'BADSECT 'u +\w'xp_controllers 'u
+	NXPC	\fIxp_controllers\fP	# Number of controllers
+	NXPD	\fIxp_drives\fP		# RM02/03/05, RP04/05/06, 
+					# CDC 9766, Fuji 160, etc.
+	BADSECT	\fINO\fP		# Bad sector handling (see BUGS)
+.DT
+
+/etc/dtab:
+.ta .5i +\w'#Name 'u +\w'Unit# 'u +\w'177777 'u +\w'Vector 'u +\w'Br 'u +\w'xxxxxxx 'u +\w'xxxxxxx 'u
+	#Name	Unit#	Addr	Vector	Br	Handler(s)		# Comments
+	xp	?	176700	254	5	xpintr		# xp driver
+.DT
+
+major device number(s):
+	raw: 19
+	block: 10
+minor device encoding:
+	bits 0007 specify partition of XP drive
+	bits 0370 specify XP drive
+.fi
+.ft R
+.SH DESCRIPTION
+The
+.I xp
+driver is a generic SMD storage module disk driver.  It can be adapted to
+most SMD controllers although bootstrapping will not necessarily be
+directly possible.  The drives are numbered from 0 to
+.I n
+on
+controller 0, from
+.IR n +1
+to
+.I m
+on controller 1, etc.  The drives may have different geometries.  
+.PP
+The \fIxp\fP
+driver is unique amoungst 2BSD drivers in its numbering of drives.
+Other drivers (\fIra\fP for example) number drives 0 thru 7 on controller
+1, 8 thru 15 on controller 2 and so on.  \fIxp\fP on the other hand can
+have drives 0 and 1 on controller 1, drives 2, 3, 4 and 5 on controller 2 and
+drives 6, 7 and 8 on controller 3.  This is different from \fBboot\fP's
+view of the world, so if you are booting from other than unit 0 you may
+have to experiment a bit.
+.PP
+Files with minor device numbers 0 through 7 refer to various portions
+of drive 0;
+minor devices 8 through 15 refer to drive 1, etc.
+The standard device names begin with ``xp'' followed by
+the drive number and then a letter a-h for partitions 0-7 respectively.
+The character ? stands here for a drive number in the range 0-7.
+.PP
+The block files access the disk via the system's normal
+buffering mechanism and may be read and written without regard to
+physical disk records.  There is also a `raw' interface
+which provides for direct transmission between the disk
+and the user's read or write buffer.
+A single read or write call results in exactly one I/O operation
+and therefore raw I/O is considerably more efficient when
+many words are transmitted.  The names of the raw files
+conventionally begin with an extra `r.'
+.PP
+In raw I/O the buffer must begin on a word (even) boundary,
+and counts should be a multiple of 512 bytes (a disk sector).
+Likewise
+.I lseek
+calls should specify a multiple of 512 bytes.
+.SH "DISK SUPPORT"
+Disks must be labeled using either the standalone \fIdisklabel\fP program
+on the boot tape or with the
+.IR disklabel (8)
+program.  The kernel no longer attempts to determine the drive type and
+geometry, instead reading this information from the disklabel.  There are
+no partition tables coded into the \fIxp\fP driver, these must be placed
+on the drive with \fIdisklabel\fP.
+.PP
+Special files should only be created for the
+partitions that are actually used,
+as the overlap in these addresses could lead to confusion otherwise.
+Traditionally
+the xp?a partition is normally used for the root file system,
+the xp?b partition as a swap area,
+and the xp?c partition for pack-pack copying (it maps the entire disk).  
+.SH FILES
+.ta \w'/dev/MAKEDEV.local  'u
+/dev/xp[0-7][a-h]	block files
+.br
+/dev/rxp[0-7][a-h]	raw files
+.br
+/dev/MAKEDEV	script to create special files
+.br
+/dev/MAKEDEV.local	script to localize special files
+.SH SEE ALSO
+hk(4),
+ra(4),
+ram(4),
+rk(4),
+rl(4),
+rp(4),
+rx(4),
+si(4),
+dtab(5),
+autoconfig(8),
+newfs(8)
+.SH DIAGNOSTICS
+\fBxp%d%c: hard error sn%d cs2=%b er1=%b\fR.  An unrecoverable
+error occurred during transfer of the specified sector of the specified
+disk partition.  The contents of the two error registers are also printed
+in octal and symbolically with bits decoded.
+The error was either unrecoverable, or a large number of retry attempts
+(including offset positioning and drive recalibration) could not
+recover the error.
+.PP
+\fBxp%d: write locked\fR.  The write protect switch was set on the drive
+when a write was attempted.  The write operation is not recoverable.
+.PP
+\fBxp%d%c: soft ecc sn%d\fR.  A recoverable ECC error occurred on the
+specified sector of the specified disk partition.  This happens normally
+a few times a week.  If it happens more frequently than
+this the sectors where the errors are occurring should be checked to see
+if certain cylinders on the pack, spots on the carriage of the drive
+or heads are indicated.
+.PP
+\fBxp%d: unknown device type 0%o\fR.  The number in the drive's drive
+type register is unknown to the xp driver.
+.SH BUGS
+In raw I/O
+.I read
+and
+.IR write (2)
+truncate file offsets to 512-byte block boundaries,
+and
+.I write
+scribbles on the tail of incomplete blocks.
+Thus,
+in programs that are likely to access raw devices,
+.I read, write
+and
+.IR lseek (2)
+should always deal in 512-byte multiples.
+.PP
+DEC-standard error logging should be supported.
+.PP
+The kernel uses partition 'h' to access the badblock information.  This 
+should have been 'c' except that almost all of the /etc/disktab entries
+(and thus existing systems) use 'h' for this purpose.  Unless you are
+very careful with \fIdisklabel\fP|(8) (to make certain that no data
+partition overlaps the badblock area) you should probably leave BADSECT
+undefined in the kernel config file.

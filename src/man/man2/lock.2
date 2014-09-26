@@ -1,0 +1,41 @@
+.\" Copyright (c) 1983 Regents of the University of California.
+.\" All rights reserved.  The Berkeley software License Agreement
+.\" specifies the terms and conditions for redistribution.
+.\"
+.\"	@(#)lock.2	2.3 (Berkeley) 1/22/87
+.\"
+.TH LOCK 2 "January 22, 1987"
+.UC 2
+.SH NAME
+lock \- lock a process in primary memory (2BSD)
+.SH SYNOPSIS
+.nf
+.ft B
+lock(flag)
+int flag
+.fi
+.ft R
+.SH DESCRIPTION
+If the
+.I flag
+argument is non-zero,
+the process executing this call
+will not be swapped unless it is required to grow.
+If the argument is zero,
+the process is
+.RI un lock ed.
+This call may only be executed by
+the super-user.
+.SH ERRORS
+.TP 15
+[EPERM]
+The caller is not the super-user.
+.SH BUGS
+.IR Lock ed
+processes interfere with the compaction of primary memory
+and can cause deadlock.
+This system call is not considered
+a permanent part of the system.
+.PP
+.I Lock
+is unique to the PDP-11 and 2BSD; its use is discouraged.

@@ -1,0 +1,64 @@
+.\" Copyright (c) 1980 Regents of the University of California.
+.\" All rights reserved.  The Berkeley software License Agreement
+.\" specifies the terms and conditions for redistribution.
+.\"
+.\"	@(#)mem.4	6.2 (Berkeley) 1/28/88
+.\"
+.TH MEM 4 "January 28, 1988"
+.UC 2
+.SH NAME
+mem, kmem \- main memory
+.SH SYNOPSIS
+.ft B
+.nf
+major device number(s):
+	raw: 1
+minor device encoding:
+	mem: 0;  kmem: 1;  null: 2
+.fi
+.ft R
+.SH DESCRIPTION
+.I Mem
+is a special file that is an image of the main memory
+of the computer.
+It may be used, for example, to examine
+(and even to patch) the system.
+.PP
+Byte addresses in
+.I mem
+are interpreted as physical memory addresses.
+References to non-existent locations cause errors to be returned.
+.PP
+The file
+.I kmem
+is the same as 
+.I mem
+except that kernel virtual memory
+rather than physical memory is accessed.
+Only kernel virtual addresses that are mapped to memory are allowed.
+Examining and patching device registers is likely
+to lead to unexpected results when read-only or write-only
+bits are present.
+.PP
+On PDP-11s, the I/O page
+begins at location 0160000 of
+.I kmem
+and the per-process data segment for the current process
+begins at 0140000 and is USIZE clicks (64 bytes each) long.
+.SH FILES
+.ta \w'/dev/MAKEDEV.local  'u
+/dev/mem
+.br
+/dev/kmem
+.br
+/dev/MAKEDEV	script to create special files
+.br
+/dev/MAKEDEV.local	script to localize special files
+.DT
+.SH BUGS
+.PP
+On PDP-11's, specifying an odd kernel or user address, or an odd transfer
+count is [generally] slower than using all even parameters.
+.PP
+On machines with ENABLE/34(tm) memory mapping boards
+the I/O page can be accessed only through \fIkmem\fP.

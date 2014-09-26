@@ -819,7 +819,7 @@ file /share/man/cat8/reboot.0
 file /share/man/cat8/renice.0
 file /share/man/cat8/shutdown.0
 file /share/man/cat8/sysctl.0
-file /share/man/cat8/talloc.0
+#file /share/man/cat8/talloc.0
 file /share/man/cat8/umount.0
 file /share/man/cat8/update.0
 file /share/man/cat8/vipw.0

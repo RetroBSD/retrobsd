@@ -1,0 +1,64 @@
+.\" Copyright (c) 1980 Regents of the University of California.
+.\" All rights reserved.  The Berkeley software License Agreement
+.\" specifies the terms and conditions for redistribution.
+.\"
+.\"	@(#)core.5	2.3 (Berkeley) 1/26/87
+.\"
+.TH CORE 5 "January 26, 1987"
+.UC 2
+.SH NAME
+core \- format of memory image file
+.SH SYNOPSIS
+.B #include <sys/param.h>
+.SH DESCRIPTION
+The UNIX System writes out a memory image of a terminated
+process when any of various errors occur.  See
+.IR sigvec (2)
+for the list of reasons; the most common are memory violations, illegal
+instructions, bus errors, and user-generated quit signals.
+The memory image is called `core' and is written in the process's
+working directory (provided it can be; normal access controls apply).
+.PP
+The core file consists of the
+.I u.
+area, whose size (in 64 byte `clicks') is
+defined by the USIZE manifest in the
+.RI < sys/param.h >
+file.  The 
+.I u.
+area starts with a 
+.I user
+structure as given in
+.RI < sys/user.h >.
+The rest of the
+.I u.
+area consists of the kernel stack for the terminated process which includes
+(among other things) the processor registers at the time of the fault;
+see the system listings for the format of this area.
+The remainder of the core file consists first of the data pages and then
+the stack pages of the process image.
+The amount of data space image in the core file is given (in clicks) by the
+variable
+.I u_dsize
+in the
+.I u.
+area.
+If the text segment was not write-only and and shared it is included
+as the first
+.I etext
+bytes of the data image where
+.I etext
+is taken from the symbol table of the object file which generated the
+memory image.
+The amount of stack image in the core file is given (in clicks) by the
+variable 
+.I u_ssize
+in the 
+.I u.
+area.
+.PP
+In general the debugger
+.IR adb (1)
+is sufficient to deal with core images.
+.SH "SEE ALSO"
+adb(1), sigvec(2), stack(5)

@@ -94,8 +94,8 @@ static void print_help (char *progname)
     printf ("Options:\n");
     printf ("  -c, --check         Check filesystem, use -c -f to fix.\n");
     printf ("  -f, --fix           Fix bugs in filesystem.\n");
-    printf ("  -n NUM, --new=NUM   Create new filesystem, size in kbytes.\n");
-    printf ("                      Add files from specified directory (optional)\n");
+    printf ("  -n, --new           Create new filesystem; add files from\n");
+    printf ("                      specified directory and manifest (optional)\n");
     printf ("  -s NUM, --size=NUM  Size of filesystem in kbytes.\n");
     printf ("  -M file, --manifest=file\n");
     printf ("                      List of files and attributes to create.\n");

@@ -2,7 +2,7 @@
 
 core pic32mx7
 mapping fubarino
-linker bootloader
+linker bootloader-max32
 
 device kernel led=21 cpu_khz=80000 bus_khz=80000
 device console device=ttyUSB0
@@ -12,5 +12,3 @@ device adc
 device glcd
 device oc
 device gpio
-
-device bootloader led=21 button=23 crystal=8 jump=0x9d000000

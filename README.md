@@ -45,8 +45,6 @@ TARGET = $(DUINOMITE)      # for the Duinomite board with USB console
 TARGET = $(DUINOMITEUART)  # for the Duinomite board with UART console
 TARGET = $(DUINOMITEE)     # for the Duinomite E board with USB console
 TARGET = $(DUINOMITEEUART) # for the Duinomite E board with UART console
-TARGET = $(PINGUINO)       # for the Pinguino-Micro board
-TARGET = $(DIP)            # for the DIP board
 TARGET = $(BAREMETAL)      # Bare PIC32 chip on a breakout board
 TARGET = $(FUBARINO)       # Fubarino SD board
 TARGET = $(FUBARINOBIG)    # Fubarino SD board with 8MB SRAM RAMDISK
@@ -163,4 +161,3 @@ For building under Ubuntu you need the following packages installed:
 ```shell
 $ sudo apt-get install byacc libelf-dev
 ```
-

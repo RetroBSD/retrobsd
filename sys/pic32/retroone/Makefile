@@ -62,7 +62,7 @@ include ../gcc-config.mk
 
 CC		= $(GCCPREFIX)gcc -EL -g -mips32r2
 CC		+= -nostdinc -fno-builtin -Werror -Wall -fno-dwarf2-cfi-asm
-LDFLAGS         += -nostdlib -T bare-metal.ld -Wl,-Map=unix.map
+LDFLAGS         += -nostdlib -T ../cfg/bare.ld -Wl,-Map=unix.map
 SIZE		= $(GCCPREFIX)size
 OBJDUMP		= $(GCCPREFIX)objdump
 OBJCOPY		= $(GCCPREFIX)objcopy
@@ -81,7 +81,7 @@ KERNOBJ		+= init_main.o init_sysent.o kern_clock.o \
 		   kern_subr.o kern_synch.o kern_sysctl.o kern_time.o \
 		   subr_log.o subr_prf.o subr_rmap.o \
 		   sys_generic.o sys_inode.o syscalls.o \
-		   sys_pipe.o sys_process.o tty.o \
+		   sys_pipe.o sys_process.o tty.o exec_conf.o exec_subr.o \
 		   tty_subr.o tty_tty.o ufs_alloc.o ufs_bio.o \
 		   ufs_bmap.o ufs_dsort.o ufs_fio.o \
 		   ufs_inode.o ufs_mount.o ufs_namei.o ufs_subr.o \
@@ -89,7 +89,7 @@ KERNOBJ		+= init_main.o init_sysent.o kern_clock.o \
 		   vm_sched.o vm_swap.o vm_swp.o kern_glob.o swap.o spi_bus.o
 
 # Drivers.
-KERNOBJ		+= sd.o
+KERNOBJ		+= rd_sd.o rdisk.o
 
 # Configuration-dependent files.
 KERNOBJ		+= vers.o devcfg.o
@@ -119,7 +119,7 @@ sys:
 machine:
 		ln -s .. $@
 
-unix.elf:	$(KERNOBJ) bare-metal.ld
+unix.elf:	$(KERNOBJ) ../cfg/bare.ld
 		$(CC) $(LDFLAGS) $(KERNOBJ) -o $@
 		chmod -x $@
 		$(OBJDUMP) -d -S $@ > unix.dis

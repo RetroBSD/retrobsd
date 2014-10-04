@@ -103,7 +103,7 @@ typedef union __attribute__ ((packed))
         unsigned long Length3;
         unsigned char Type4;		// End of sections list indicator goes here, fill with 0xFF.
         unsigned char ExtraPadBytes[33];
-    };
+    } query;
 } packet_t;
 
 static packet_t send;           // 64-byte send buffer (EP1 IN to the PC)
@@ -469,13 +469,13 @@ static int handle_packet()
         // Prepare a response packet, which lets the PC software know
         // about the memory ranges of this device.
         memzero (&send, PACKET_SIZE);
-        send.Command = QUERY_DEVICE;
-        send.PacketDataFieldSize = REQUEST_SIZE;
-        send.DeviceFamily = 3;            /* PIC32 */
-        send.Type1 = 1;                   /* 'program' memory type */
-        send.Address1 = FLASH_USER;
-        send.Length1 = FLASH_BASE + BMXPFMSZ - FLASH_USER;
-        send.Type2 = 0xFF;                /* end of list */
+        send.query.Command = QUERY_DEVICE;
+        send.query.PacketDataFieldSize = REQUEST_SIZE;
+        send.query.DeviceFamily = 3;            /* PIC32 */
+        send.query.Type1 = 1;                   /* 'program' memory type */
+        send.query.Address1 = FLASH_USER;
+        send.query.Length1 = FLASH_BASE + BMXPFMSZ - FLASH_USER;
+        send.query.Type2 = 0xFF;                /* end of list */
         return 1;
 
     case UNLOCK_CONFIG:
@@ -509,8 +509,7 @@ static int handle_packet()
 
                 // Data field is right justified.
                 // Need to put it in the buffer left justified.
-                buf [buf_index++] =
-                    receive.Data [(REQUEST_SIZE - receive.Size) / sizeof(unsigned) + i];
+                buf [buf_index++] = receive.Data [index];
                 base_address += sizeof(unsigned);
                 if (buf_index == REQUEST_SIZE / sizeof(unsigned)) {
                     write_flash_block();

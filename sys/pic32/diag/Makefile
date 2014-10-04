@@ -18,7 +18,7 @@ DEFS		+= -DBUS_KHZ=80000
 # Ethernet/USB Starter Kit with I/O Expansion board
 # =================================================
 #
-#LDSCRIPT        = ../strater-kit/using-bootloader.ld
+#LDSCRIPT        = ../cfg/bootloader.ld
 
 # Console on USB
 # For Windows, use the driver: http://www.schmalzhaus.com/UBW32/FW/UBW32inf.zip
@@ -39,7 +39,7 @@ DEFS  		+= -DUSB_NUM_STRING_DESCRIPTORS=3 -DUSB_MAX_EP_NUMBER=3
 # UBW32 board
 # ===========
 #
-LDSCRIPT        = ../ubw32/using-bootloader.ld
+LDSCRIPT        = ../cfg/bootloader-ubw32.ld
 
 # SD/MMC card driver on SPI1
 # /CS0 at pin A9 (and optional /CS1 at pin A10)

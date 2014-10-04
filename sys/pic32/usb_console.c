@@ -219,7 +219,7 @@ static void cn_rx (int c)
 
     if ((tp->t_state & TS_ISOPEN) == 0)
         return;
-    ttinput (c, tp);
+    ttyinput (c, tp);
 }
 
 /*

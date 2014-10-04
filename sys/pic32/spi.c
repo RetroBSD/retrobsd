@@ -122,7 +122,7 @@ int spidev_ioctl (dev_t dev, u_int cmd, caddr_t addr, int flag)
     static unsigned volatile *const tris[8] = {
         0, &TRISA,&TRISB,&TRISC,&TRISD,&TRISE,&TRISF,&TRISG,
     };
-    int mask, portnum;
+    int portnum;
 
     //PRINTDBG ("spi%d: ioctl (cmd=%08x, addr=%08x)\n", channel+1, cmd, addr);
     if (channel >= NSPI)
@@ -151,11 +151,12 @@ int spidev_ioctl (dev_t dev, u_int cmd, caddr_t addr, int flag)
         return 0;
 
     case SPICTL_SETSELPIN:      /* set select pin */
-        mask = 1 << ((unsigned int) addr & 15);
         portnum = ((unsigned int) addr >> 8) & 7;
         if (! portnum)
             return 0;
-        spi_set_cspin(spi_fd[channel], (unsigned int *)tris[((unsigned int) addr >> 8) & 7], (unsigned int) addr & 15);
+        spi_set_cspin(spi_fd[channel],
+            (unsigned int *)tris[portnum],
+            (unsigned int) addr & 15);
         return 0;
 
     case SPICTL_IO8(0):         /* transfer n*8 bits */

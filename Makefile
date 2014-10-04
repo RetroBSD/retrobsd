@@ -24,12 +24,11 @@ DUINOMITE       = sys/pic32/duinomite/DUINOMITE
 DUINOMITEUART   = sys/pic32/duinomite-uart/DUINOMITE-UART
 DUINOMITEE      = sys/pic32/duinomite-e/DUINOMITE-E
 DUINOMITEEUART  = sys/pic32/duinomite-e-uart/DUINOMITE-E-UART
-PINGUINO        = sys/pic32/pinguino-micro/PINGUINO-MICRO
-DIP             = sys/pic32/dip/DIP
 BAREMETAL       = sys/pic32/baremetal/BAREMETAL
 RETROONE        = sys/pic32/retroone/RETROONE
 FUBARINO        = sys/pic32/fubarino/FUBARINO
 FUBARINOBIG     = sys/pic32/fubarino/FUBARINO-UART2CONS-UART1-SRAMC
+SDXL            = sys/pic32/sdxl/SDXL
 MMBMX7          = sys/pic32/mmb-mx7/MMB-MX7
 
 # Select target board

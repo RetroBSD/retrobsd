@@ -1,7 +1,7 @@
 /*
  * Linker script for PIC32 bootloader.
  */
-OUTPUT_FORMAT("elf32-tradlittlemips")
+OUTPUT_FORMAT("elf32-littlemips")
 OUTPUT_ARCH(mips)
 ENTRY(_start)
 MEMORY

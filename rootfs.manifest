@@ -732,6 +732,22 @@ file /share/smallc/test3.c
 file /share/smallc/webserver.c
 
 #
+# Files: /share/smallerc
+#
+dir /share/smallerc
+file /share/smallerc/adc.c
+file /share/smallerc/gpio.c
+file /share/smallerc/hello.c
+file /share/smallerc/Makefile
+file /share/smallerc/primelist.c
+file /share/smallerc/primesum.c
+file /share/smallerc/q8.c
+file /share/smallerc/rain.c
+file /share/smallerc/test1.c
+file /share/smallerc/test2.c
+file /share/smallerc/test3.c
+
+#
 # Files: /var
 #
 dir /var

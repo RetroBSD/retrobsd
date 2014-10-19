@@ -103,8 +103,8 @@ int main(void)
     printf("  pi = %d (8)\n",  pi);
     printf("++pi = %d (12)\n", ++pi);
     printf("pi-- = %d (12)\n", pi--);
-    printf("  pi = %d (8)\n",  pi); // TBD!!! can't be -8; bug in tokPostSub: operands reversed
-    printf("--pi = %d (4)\n",  --pi); // TBD!!! can't be -12
+    printf("  pi = %d (8)\n",  pi);
+    printf("--pi = %d (4)\n",  --pi);
     printf("\n");
 
     pic = 4;

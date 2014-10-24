@@ -60,7 +60,7 @@ TARGETNAME   = $(shell basename $(TARGET))
 TOPSRC       = $(shell pwd)
 CONFIG       = $(TOPSRC)/tools/configsys/config
 
-all:
+all:            .profile
 		$(MAKE) -C tools
 		$(MAKE) -C lib
 		$(MAKE) -C src install

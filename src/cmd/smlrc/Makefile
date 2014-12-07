@@ -3,7 +3,7 @@ include $(TOPSRC)/target.mk
 
 CFLAGS          = -Os -Wall -DMIPS -DNO_ANNOTATIONS -DNO_PREPROCESSOR \
                   -DNO_PPACK -D_RETROBSD -D__SMALLER_C_SCHAR__ \
-                  -D__SMALLER_C__ -D__SMALLER_C_32__
+                  -D__SMALLER_C__ -D__SMALLER_C_32__ -DSTATIC
 
 # For cross compile
 #include $(TOPSRC)/cross.mk

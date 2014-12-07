@@ -1,6 +1,4 @@
-extern int printf();
-
-int main()
+main()
 {
     printf ("Hello, SmallC World!\n");
 }

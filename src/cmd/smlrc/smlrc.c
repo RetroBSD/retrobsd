@@ -29,29 +29,32 @@ either expressed or implied, of the FreeBSD Project.
 
 /*****************************************************************************/
 /*                                                                           */
-/*                                Smaller C                                  */
+/*                                 Smaller C                                 */
 /*                                                                           */
-/*       A simple and small single-pass C compiler ("small C" class).        */
+/*                 A simple and small single-pass C compiler                 */
 /*                                                                           */
 /*            Produces 16/32-bit 80386 assembly output for NASM.             */
 /*             Produces 32-bit MIPS assembly output for gcc/as.              */
 /*                                                                           */
-/*                                Main file                                  */
+/*                                 Main file                                 */
 /*                                                                           */
 /*****************************************************************************/
 
-// You need to declare __setargv__ as an extern symbol when bootstrapping with
-// Turbo C++ in order to access main()'s argc and argv params.
-//
-// This is no longer supported since the compiler is too big to be compiled
-// with itself into object files and then linked with Turbo C++'s standard C library.
-//
-// extern char _setargv__;
+// Making most functions static helps with code optimization,
+// use that to further reduce compiler's code size on RetroBSD.
+#ifndef STATIC
+#define STATIC
+#else
+#undef STATIC
+#define STATIC static
+#endif
 
 #ifdef NO_EXTRAS
 #define NO_PPACK
 #define NO_TYPEDEF_ENUM
 #define NO_FUNC_
+#define NO_EXTRA_WARNS
+#define NO_FOR_DECL
 #endif
 
 #ifndef __SMALLER_C__
@@ -153,9 +156,9 @@ int vfprintf(FILE*, char*, void*);
 // all public macros
 
 #ifndef MAX_IDENT_LEN
-#define MAX_IDENT_LEN        31
+#define MAX_IDENT_LEN        63
 #endif
-#define MAX_STRING_LEN       127
+#define MAX_STRING_LEN       255
 #define MAX_CHAR_QUEUE_LEN   256
 
 #ifndef MAX_MACRO_TABLE_LEN
@@ -171,7 +174,7 @@ int vfprintf(FILE*, char*, void*);
 #endif
 
 #ifndef SYNTAX_STACK_MAX
-#define SYNTAX_STACK_MAX (2048+512+32)
+#define SYNTAX_STACK_MAX (2048+512+64)
 #endif
 
 #ifndef MAX_FILE_NAME_LEN
@@ -325,109 +328,182 @@ int vfprintf(FILE*, char*, void*);
 #define SymLocalArr  5
 
 // all public prototypes
+STATIC
 int uint2int(unsigned);
+STATIC
 unsigned truncUint(unsigned);
+STATIC
 int truncInt(int);
 
+STATIC
 int GetToken(void);
+STATIC
 char* GetTokenName(int token);
 
 #ifndef NO_PREPROCESSOR
 #ifndef NO_ANNOTATIONS
+STATIC
 void DumpMacroTable(void);
 #endif
 #endif
 
+STATIC
 void PurgeStringTable(void);
+STATIC
 void AddString(int label, char* str, int len);
+STATIC
 char* FindString(int label);
 
+STATIC
 int AddIdent(char* name);
+STATIC
 int FindIdent(char* name);
 #ifndef NO_ANNOTATIONS
+STATIC
 void DumpIdentTable(void);
 #endif
+STATIC
 char* lab2str(char* p, int n);
 
+STATIC
 void GenInit(void);
+STATIC
 void GenFin(void);
+STATIC
 int GenInitParams(int argc, char** argv, int* idx);
+STATIC
 void GenInitFinalize(void);
+STATIC
 void GenStartCommentLine(void);
+STATIC
 void GenWordAlignment(void);
+STATIC
 void GenLabel(char* Label, int Static);
+STATIC
 void GenNumLabel(int Label);
+STATIC
 void GenZeroData(unsigned Size);
+STATIC
 void GenIntData(int Size, int Val);
+STATIC
 void GenStartAsciiString(void);
+STATIC
 void GenAddrData(int Size, char* Label, int ofs);
 
+STATIC
 void GenJumpUncond(int Label);
+STATIC
 void GenJumpIfZero(int Label);
+STATIC
 void GenJumpIfNotZero(int Label);
-void GenJumpIfNotEqual(int val, int Label);
+#ifndef USE_SWITCH_TAB
+STATIC
+void GenJumpIfEqual(int val, int Label);
+#endif
 
+STATIC
 void GenFxnProlog(void);
+STATIC
 void GenFxnEpilog(void);
 void GenIsrProlog(void);
 void GenIsrEpilog(void);
 
+STATIC
 void GenLocalAlloc(int Size);
 
+STATIC
 unsigned GenStrData(int generatingCode, unsigned requiredLen);
+STATIC
 void GenExpr(void);
 
+STATIC
 void PushSyntax(int t);
+STATIC
 void PushSyntax2(int t, int v);
 
 #ifndef NO_ANNOTATIONS
+STATIC
 void DumpSynDecls(void);
 #endif
 
+STATIC
 void push2(int v, int v2);
+STATIC
 void ins2(int pos, int v, int v2);
+STATIC
 void ins(int pos, int v);
+STATIC
 void del(int pos, int cnt);
 
+STATIC
 int TokenStartsDeclaration(int t, int params);
+STATIC
 int ParseDecl(int tok, unsigned structInfo[4], int cast, int label);
 
+STATIC
 void ShiftChar(void);
+STATIC
 int puts2(char*);
+STATIC
 int printf2(char*, ...);
 
+STATIC
 void error(char* format, ...);
+STATIC
 void warning(char* format, ...);
+STATIC
 void errorFile(char* n);
+STATIC
 void errorFileName(void);
+STATIC
 void errorInternal(int n);
+STATIC
 void errorChrStr(void);
+STATIC
 void errorUnexpectedToken(int tok);
+STATIC
 void errorDirective(void);
+STATIC
 void errorCtrlOutOfScope(void);
+STATIC
 void errorDecl(void);
+STATIC
 void errorVarSize(void);
+STATIC
 void errorInit(void);
+STATIC
 void errorUnexpectedVoid(void);
+STATIC
 void errorOpType(void);
+STATIC
 void errorNotLvalue(void);
+STATIC
 void errorNotConst(void);
+STATIC
 void errorLongExpr(void);
 
+STATIC
 int FindSymbol(char* s);
+STATIC
 int SymType(int SynPtr);
+STATIC
 int FindTaggedDecl(char* s, int start, int* CurScope);
 #ifndef NO_TYPEDEF_ENUM
+STATIC
 int FindTypedef(char* s, int* CurScope, int forUse);
 #endif
+STATIC
 int GetDeclSize(int SyntaxPtr, int SizeForDeref);
 
+STATIC
 int ParseExpr(int tok, int* GotUnary, int* ExprTypeSynPtr, int* ConstExpr, int* ConstVal, int option, int option2);
-int GetFxnInfo(int ExprTypeSynPtr, int* MinParams, int* MaxParams, int* ReturnExprTypeSynPtr);
+STATIC
+int GetFxnInfo(int ExprTypeSynPtr, int* MinParams, int* MaxParams, int* ReturnExprTypeSynPtr, int* FirstParamSynPtr);
 
 // all data
 
 int verbose = 0;
+int warnings = 0;
 int warnCnt = 0;
 
 // prep.c data
@@ -458,7 +534,7 @@ int MacroTableLen = 0;
   String table entry format:
     labell uchar:   temporary identifier's (char*) label number low 8 bits
     labelh uchar:   temporary identifier's (char*) label number high 8 bits
-    len char:       string length (<= 127)
+    len uchar:      string length (<= 255)
     str char[len]:  string (ASCII)
 */
 char StringTable[MAX_STRING_TABLE_LEN];
@@ -480,6 +556,15 @@ int gotoLabels[MAX_GOTO_LABELS][2];
 char gotoLabStat[MAX_GOTO_LABELS];
 int gotoLabCnt = 0;
 
+#ifndef MAX_CASES
+#define MAX_CASES 128
+#endif
+int Cases[MAX_CASES][2]; // [0] is case constant, [1] is case label number
+int CasesCnt = 0;
+#ifdef USE_SWITCH_TAB
+int SwitchJmpLabel; // label of the function to do table-based switch()
+#endif
+
 // Data structures to support #include
 int FileCnt = 0;
 char FileNames[MAX_INCLUDES][MAX_FILE_NAME_LEN + 1];
@@ -488,6 +573,8 @@ FILE* OutFile;
 char CharQueues[MAX_INCLUDES][3];
 int LineNos[MAX_INCLUDES];
 int LinePoss[MAX_INCLUDES];
+char SysSearchPaths[MAX_SEARCH_PATH];
+int SysSearchPathsLen = 0;
 char SearchPaths[MAX_SEARCH_PATH];
 int SearchPathsLen = 0;
 
@@ -589,6 +676,7 @@ int SyntaxStackCnt = 8; // number of explicitly initialized elements in SyntaxSt
 
 // all code
 
+STATIC
 int uint2int(unsigned n)
 {
   int r;
@@ -612,6 +700,7 @@ int uint2int(unsigned n)
   return r;
 }
 
+STATIC
 unsigned truncUint(unsigned n)
 {
   // Truncate n to SizeOfWord * 8 bits
@@ -624,6 +713,7 @@ unsigned truncUint(unsigned n)
   return n;
 }
 
+STATIC
 int truncInt(int n)
 {
   // Truncate n to SizeOfWord * 8 bits and then sign-extend it
@@ -646,6 +736,7 @@ int truncInt(int n)
 // prep.c code
 
 #ifndef NO_PREPROCESSOR
+STATIC
 int FindMacro(char* name)
 {
   int i;
@@ -662,6 +753,7 @@ int FindMacro(char* name)
   return -1;
 }
 
+STATIC
 int UndefineMacro(char* name)
 {
   int i;
@@ -688,6 +780,7 @@ int UndefineMacro(char* name)
   return 0;
 }
 
+STATIC
 void AddMacroIdent(char* name)
 {
   int l = strlen(name);
@@ -705,6 +798,7 @@ void AddMacroIdent(char* name)
   MacroTable[MacroTableLen] = 0; // exlen
 }
 
+STATIC
 void AddMacroExpansionChar(char e)
 {
   if (e == '\0')
@@ -728,6 +822,7 @@ void AddMacroExpansionChar(char e)
   MacroTable[MacroTableLen]++;
 }
 
+STATIC
 void DefineMacro(char* name, char* expansion)
 {
   AddMacroIdent(name);
@@ -738,6 +833,7 @@ void DefineMacro(char* name, char* expansion)
 }
 
 #ifndef NO_ANNOTATIONS
+STATIC
 void DumpMacroTable(void)
 {
   int i, j;
@@ -761,15 +857,17 @@ void DumpMacroTable(void)
 
 int KeepStringTable = 0;
 
+STATIC
 void PurgeStringTable(void)
 {
   if (!KeepStringTable)
     StringTableLen = 0;
 }
 
+STATIC
 void AddString(int label, char* str, int len)
 {
-  if (len > 127)
+  if (len > MAX_STRING_LEN)
     error("String literal too long\n");
 
   if (MAX_STRING_TABLE_LEN - StringTableLen < 2 + 1 + len)
@@ -783,6 +881,7 @@ void AddString(int label, char* str, int len)
   StringTableLen += len;
 }
 
+STATIC
 char* FindString(int label)
 {
   int i;
@@ -798,12 +897,13 @@ char* FindString(int label)
       return StringTable + i + 2;
 
     i += 2;
-    i += 1 + StringTable[i];
+    i += 1 + (StringTable[i] & 0xFF);
   }
 
   return NULL;
 }
 
+STATIC
 int FindIdent(char* name)
 {
   int i;
@@ -816,6 +916,7 @@ int FindIdent(char* name)
   return -1;
 }
 
+STATIC
 int AddIdent(char* name)
 {
   int i, len;
@@ -839,6 +940,7 @@ int AddIdent(char* name)
   return i;
 }
 
+STATIC
 int AddNumericIdent__(int n)
 {
   char s[1 + 2 + (2 + CHAR_BIT * sizeof n) / 3];
@@ -850,6 +952,7 @@ int AddNumericIdent__(int n)
   return AddIdent(p);
 }
 
+STATIC
 int AddGotoLabel(char* name, int label)
 {
   int i;
@@ -871,6 +974,7 @@ int AddGotoLabel(char* name, int label)
   return gotoLabels[gotoLabCnt++][1];
 }
 
+STATIC
 void UndoNonLabelIdents(int len)
 {
   int i;
@@ -887,7 +991,18 @@ void UndoNonLabelIdents(int len)
     }
 }
 
+STATIC
+void AddCase(int val, int label)
+{
+  if (CasesCnt >= MAX_CASES)
+    error("Case table exhausted\n");
+
+  Cases[CasesCnt][0] = val;
+  Cases[CasesCnt++][1] = label;
+}
+
 #ifndef NO_ANNOTATIONS
+STATIC
 void DumpIdentTable(void)
 {
   int i;
@@ -924,6 +1039,7 @@ unsigned char rwtk[] =
   tokIntr
 };
 
+STATIC
 int GetTokenByWord(char* word)
 {
   unsigned i;
@@ -979,63 +1095,12 @@ char* tks[] =
   "signed char", "short", "long", "unsigned char", "unsigned short", "unsigned long",
 };
 
+STATIC
 char* GetTokenName(int token)
 {
   unsigned i;
 
 /* +-~* /% &|^! << >> && || < <= > >= == !=  () *[] ++ -- = += -= ~= *= /= %= &= |= ^= <<= >>= {} ,;: -> ... */
-/*
-  switch (token)
-  {
-  case tokEof: return "<EOF>";
-  // Single-character operators and punctuators:
-  case '+': return "+";                  case '-': return "-";
-  case '~': return "~";                  case '*': return "*";
-  case '/': return "/";                  case '%': return "%";
-  case '&': return "&";                  case '|': return "|";
-  case '^': return "^";                  case '!': return "!";
-  case '<': return "<";                  case '>': return ">";
-  case '(': return "(";                  case ')': return ")";
-  case '[': return "[";                  case ']': return "]";
-  case '{': return "{";                  case '}': return "}";
-  case '=': return "=";                  case ',': return ",";
-  case ';': return ";";                  case ':': return ":";
-  case '.': return ".";                  case '?': return "?";
-  // Multi-character operators and punctuators:
-  case tokLShift: return "<<";           case tokRShift: return ">>";
-  case tokLogAnd: return "&&";           case tokLogOr: return "||";
-  case tokEQ: return "==";               case tokNEQ: return "!=";
-  case tokLEQ: return "<=";              case tokGEQ: return ">=";
-  case tokInc: return "++";              case tokDec: return "--";
-  case tokArrow: return "->";            case tokEllipsis: return "...";
-  case tokAssignMul: return "*=";        case tokAssignDiv: return "/=";
-  case tokAssignMod: return "%=";        case tokAssignAdd: return "+=";
-  case tokAssignSub: return "-=";        case tokAssignLSh: return "<<=";
-  case tokAssignRSh: return ">>=";       case tokAssignAnd: return "&=";
-  case tokAssignXor: return "^=";        case tokAssignOr: return "|=";
-
-  // Some of the above tokens get converted into these in the process:
-  case tokUnaryAnd: return "&u";         case tokUnaryStar: return "*u";
-  case tokUnaryPlus: return "+u";        case tokUnaryMinus: return "-u";
-  case tokPostInc: return "++p";         case tokPostDec: return "--p";
-  case tokPostAdd: return "+=p";         case tokPostSub: return "-=p";
-  case tokULess: return "<u";            case tokUGreater: return ">u";
-  case tokULEQ: return "<=u";            case tokUGEQ: return ">=u";
-  case tokURShift: return ">>u";         case tokAssignURSh: return ">>=u";
-  case tokUDiv: return "/u";             case tokAssignUDiv: return "/=u";
-  case tokUMod: return "%u";             case tokAssignUMod: return "%=u";
-  case tokComma: return ",b";
-
-  // Helper (pseudo-)tokens:
-  case tokNumInt: return "<NumInt>";     case tokNumUint: return "<NumUint>";
-  case tokLitStr: return "<LitStr>";     case tokIdent: return "<Ident>";
-  case tokLocalOfs: return "<LocalOfs>"; case tokShortCirc: return "<ShortCirc>";
-
-  case tokSChar: return "signed char";   case tokUChar: return "unsigned char";
-  case tokShort: return "short";         case tokUShort: return "unsigned short";
-  case tokLong: return "long";           case tokULong: return "unsigned long";
-  }
-*/
 
   // Tokens other than reserved keywords:
   for (i = 0; i < sizeof tktk / sizeof tktk[0]; i++)
@@ -1052,6 +1117,7 @@ char* GetTokenName(int token)
   return "";
 }
 
+STATIC
 int GetNextChar(void)
 {
   int ch = EOF;
@@ -1074,6 +1140,7 @@ int GetNextChar(void)
   return ch;
 }
 
+STATIC
 void ShiftChar(void)
 {
   if (CharQueueLen)
@@ -1089,6 +1156,7 @@ void ShiftChar(void)
   }
 }
 
+STATIC
 void ShiftCharN(int n)
 {
   while (n-- > 0)
@@ -1099,6 +1167,7 @@ void ShiftCharN(int n)
 }
 
 #ifndef NO_PREPROCESSOR
+STATIC
 void IncludeFile(int quot)
 {
   int nlen = strlen(TokenValueString);
@@ -1123,44 +1192,54 @@ void IncludeFile(int quot)
 
   // DONE: differentiate between quot == '\"' and quot == '<'
 
-  // first, try opening "file" in the current directory
+  // First, try opening "file" in the current directory
+  // (Open Watcom C/C++ 1.9, Turbo C++ 1.01 use the current directory,
+  // unlike gcc, which uses the same directory as the current file)
   if (quot == '\"')
   {
     strcpy(FileNames[FileCnt], TokenValueString);
     Files[FileCnt] = fopen(FileNames[FileCnt], "r");
   }
 
-  // next, iterate the search paths trying to open "file" or <file>
+  // Next, iterate the search paths trying to open "file" or <file>.
+  // "file" is first searched using the list provided by the -I option.
+  // "file" is then searched using the list provided by the -SI option.
+  // <file> is searched using the list provided by the -SI option.
   if (Files[FileCnt] == NULL)
   {
     int i;
-    for (i = 0; i < SearchPathsLen; )
+    char *paths = SearchPaths;
+    int pl = SearchPathsLen;
+    for (;;)
     {
-      int plen = strlen(SearchPaths + i);
-      if (plen + 1 + nlen < MAX_FILE_NAME_LEN)
+      if (quot == '<')
       {
-        strcpy(FileNames[FileCnt], SearchPaths + i);
-        strcpy(FileNames[FileCnt] + plen + 1, TokenValueString);
-        // first, try '/' as a separator (Linux/Unix)
-        FileNames[FileCnt][plen] = '/';
-        if ((Files[FileCnt] = fopen(FileNames[FileCnt], "r")) == NULL)
-        {
-          // next, try '\\' as a separator (DOS/Windows)
-          FileNames[FileCnt][plen] = '\\';
-          Files[FileCnt] = fopen(FileNames[FileCnt], "r");
-        }
-        if (Files[FileCnt])
-          break;
+        paths = SysSearchPaths;
+        pl = SysSearchPathsLen;
       }
-      i += plen + 1;
+      for (i = 0; i < pl; )
+      {
+        int plen = strlen(paths + i);
+        if (plen + 1 + nlen < MAX_FILE_NAME_LEN)
+        {
+          strcpy(FileNames[FileCnt], paths + i);
+          strcpy(FileNames[FileCnt] + plen + 1, TokenValueString);
+          // Use '/' as a separator, typical for Linux/Unix,
+          // but also supported by file APIs in DOS/Windows just as '\\'
+          FileNames[FileCnt][plen] = '/';
+          if ((Files[FileCnt] = fopen(FileNames[FileCnt], "r")) != NULL)
+            break;
+        }
+        i += plen + 1;
+      }
+      if (Files[FileCnt] || quot == '<')
+        break;
+      quot = '<';
     }
   }
 
   if (Files[FileCnt] == NULL)
   {
-    //if (quot == '<' && !SearchPathsLen)
-    //  error("Cannot open file \"%s\", include search path unspecified\n", TokenValueString);
-
     //error("Cannot open file \"%s\"\n", TokenValueString);
     errorFile(TokenValueString);
   }
@@ -1175,6 +1254,7 @@ void IncludeFile(int quot)
 }
 #endif // #ifndef NO_PREPROCESSOR
 
+STATIC
 int EndOfFiles(void)
 {
   // if there are no including files, we're done
@@ -1190,6 +1270,7 @@ int EndOfFiles(void)
   return 0;
 }
 
+STATIC
 void SkipSpace(int SkipNewLines)
 {
   char* p = CharQueue;
@@ -1263,6 +1344,7 @@ void SkipSpace(int SkipNewLines)
 }
 
 #ifndef NO_PREPROCESSOR
+STATIC
 void SkipLine(void)
 {
   char* p = CharQueue;
@@ -1287,6 +1369,7 @@ void SkipLine(void)
 }
 #endif
 
+STATIC
 void GetIdent(void)
 {
   char* p = CharQueue;
@@ -1314,6 +1397,7 @@ void GetIdent(void)
   }
 }
 
+STATIC
 void GetString(char terminator, int SkipNewLines)
 {
   char* p = CharQueue;
@@ -1325,14 +1409,14 @@ void GetString(char terminator, int SkipNewLines)
   for (;;)
   {
     ShiftCharN(1);
-    while (!(*p == terminator || strchr("\a\b\f\n\r\t\v", *p)))
+    while (!(*p == terminator || strchr("\n\r", *p)))
     {
       ch = *p;
       if (ch == '\\')
       {
         ShiftCharN(1);
         ch = *p;
-        if (strchr("\a\b\f\n\r\t\v", ch))
+        if (strchr("\n\r", ch))
           break;
         switch (ch)
         {
@@ -1362,7 +1446,7 @@ void GetString(char terminator, int SkipNewLines)
             if (!cnt)
               //error("Unsupported or invalid character/string constant\n");
               errorChrStr();
-            c -= (c >= 0x80 && CHAR_MIN) * 0x100;
+            c -= (c >= 0x80 && CHAR_MIN < 0) * 0x100;
             ch = c;
           }
           break;
@@ -1381,7 +1465,7 @@ void GetString(char terminator, int SkipNewLines)
               if (++cnt == 3)
                 break;
             }
-            c -= (c >= 0x80 && CHAR_MIN) * 0x100;
+            c -= (c >= 0x80 && CHAR_MIN < 0) * 0x100;
             ch = c;
           }
           else
@@ -1407,7 +1491,7 @@ void GetString(char terminator, int SkipNewLines)
 
       TokenValueString[TokenStringLen++] = ch;
       TokenValueString[TokenStringLen] = '\0';
-    } // endof while (!(*p == '\0' || *p == terminator || strchr("\a\b\f\n\r\t\v", *p)))
+    } // endof while (!(*p == '\0' || *p == terminator || strchr("\n\r", *p)))
 
     if (*p != terminator)
       //error("Unsupported or invalid character/string constant\n");
@@ -1427,6 +1511,7 @@ void GetString(char terminator, int SkipNewLines)
 }
 
 #ifndef NO_PREPROCESSOR
+STATIC
 void pushPrep(int NoSkip)
 {
   if (PrepSp >= PREP_STACK_SIZE)
@@ -1436,6 +1521,7 @@ void pushPrep(int NoSkip)
   PrepDontSkipTokens &= NoSkip;
 }
 
+STATIC
 int popPrep(void)
 {
   if (PrepSp <= 0)
@@ -1445,6 +1531,7 @@ int popPrep(void)
 }
 #endif
 
+STATIC
 int GetNumber(void)
 {
   char* p = CharQueue;
@@ -1571,6 +1658,7 @@ int GetNumber(void)
   return tokNumUint;
 }
 
+STATIC
 int GetTokenInner(void)
 {
   char* p = CharQueue;
@@ -1663,8 +1751,24 @@ int GetTokenInner(void)
   return tokEof;
 }
 
+#ifndef NO_PREPROCESSOR
+STATIC
+void Reserve4Expansion(char* name, int len)
+{
+  if (MAX_CHAR_QUEUE_LEN - CharQueueLen < len + 1)
+    error("Too long expansion of macro '%s'\n", name);
+
+  memmove(CharQueue + len + 1, CharQueue, CharQueueLen);
+
+  CharQueue[len] = ' '; // space to avoid concatenation
+
+  CharQueueLen += len + 1;
+}
+#endif
+
 // TBD??? implement file I/O for input source code and output code (use fxn ptrs/wrappers to make librarization possible)
 // DONE: support string literals
+STATIC
 int GetToken(void)
 {
   char* p = CharQueue;
@@ -1711,21 +1815,31 @@ int GetToken(void)
 #ifndef NO_PREPROCESSOR
       // TBD!!! think of expanding macros in the context of concatenating string literals,
       // maybe factor out this piece of code
-      if ((midx = FindMacro(TokenIdentName)) >= 0)
+      if (!strcmp(TokenIdentName, "__FILE__"))
+      {
+        char* p = FileNames[FileCnt - 1];
+        int len = strlen(p);
+        Reserve4Expansion(TokenIdentName, len + 2);
+        *CharQueue = '"';
+        memcpy(CharQueue + 1, p, len);
+        CharQueue[len + 1] = '"';
+        continue;
+      }
+      else if (!strcmp(TokenIdentName, "__LINE__"))
+      {
+        char s[(2 + CHAR_BIT * sizeof LineNo) / 3];
+        char *p = lab2str(s + sizeof s, LineNo);
+        int len = s + sizeof s - p;
+        Reserve4Expansion(TokenIdentName, len);
+        memcpy(CharQueue, p, len);
+        continue;
+      }
+      else if ((midx = FindMacro(TokenIdentName)) >= 0)
       {
         // this is a macro identifier, need to expand it
         int len = MacroTable[midx];
-
-        if (MAX_CHAR_QUEUE_LEN - CharQueueLen < len + 1)
-          error("Too long expansion of macro '%s'\n", TokenIdentName);
-
-        memmove(CharQueue + len + 1, CharQueue, CharQueueLen);
-
+        Reserve4Expansion(TokenIdentName, len);
         memcpy(CharQueue, MacroTable + midx + 1, len);
-        CharQueue[len] = ' '; // space to avoid concatenation
-
-        CharQueueLen += len + 1;
-
         continue;
       }
 #endif
@@ -2064,6 +2178,7 @@ int GetToken(void)
 
 // expr.c code
 
+STATIC
 void push2(int v, int v2)
 {
   if (sp >= STACK_SIZE)
@@ -2073,11 +2188,13 @@ void push2(int v, int v2)
   stack[sp++][1] = v2;
 }
 
+STATIC
 void push(int v)
 {
   push2(v, 0);
 }
 
+STATIC
 int stacktop()
 {
   if (sp == 0)
@@ -2086,6 +2203,7 @@ int stacktop()
   return stack[sp - 1][0];
 }
 
+STATIC
 int pop2(int* v2)
 {
   int v = stacktop();
@@ -2100,6 +2218,7 @@ int pop()
   return pop2(&v2);
 }
 
+STATIC
 void ins2(int pos, int v, int v2)
 {
   if (sp >= STACK_SIZE)
@@ -2111,11 +2230,13 @@ void ins2(int pos, int v, int v2)
   sp++;
 }
 
+STATIC
 void ins(int pos, int v)
 {
   ins2(pos, v, 0);
 }
 
+STATIC
 void del(int pos, int cnt)
 {
   memmove(stack[pos],
@@ -2124,6 +2245,7 @@ void del(int pos, int cnt)
   sp -= cnt;
 }
 
+STATIC
 void pushop2(int v, int v2)
 {
   if (opsp >= OPERATOR_STACK_SIZE)
@@ -2133,11 +2255,13 @@ void pushop2(int v, int v2)
   opstack[opsp++][1] = v2;
 }
 
+STATIC
 void pushop(int v)
 {
   pushop2(v, 0);
 }
 
+STATIC
 int opstacktop()
 {
   if (opsp == 0)
@@ -2146,6 +2270,7 @@ int opstacktop()
   return opstack[opsp - 1][0];
 }
 
+STATIC
 int popop2(int* v2)
 {
   int v = opstacktop();
@@ -2154,43 +2279,16 @@ int popop2(int* v2)
   return v;
 }
 
+STATIC
 int popop()
 {
   int v2;
   return popop2(&v2);
 }
 
+STATIC
 int isop(int tok)
 {
-/*
-  switch (tok)
-  {
-  case '!':
-  case '~':
-  case '&':
-  case '*':
-  case '/': case '%':
-  case '+': case '-':
-  case '|': case '^':
-  case '<': case '>':
-  case '=':
-  case tokLogOr: case tokLogAnd:
-  case tokEQ: case tokNEQ:
-  case tokLEQ: case tokGEQ:
-  case tokLShift: case tokRShift:
-  case tokInc: case tokDec:
-  case tokSizeof:
-  case tokAssignMul: case tokAssignDiv: case tokAssignMod:
-  case tokAssignAdd: case tokAssignSub:
-  case tokAssignLSh: case tokAssignRSh:
-  case tokAssignAnd: case tokAssignXor: case tokAssignOr:
-  case tokComma:
-  case '?':
-    return 1;
-  default:
-    return 0;
-  }
-*/
   static unsigned char toks[] =
   {
     '!',
@@ -2222,11 +2320,13 @@ int isop(int tok)
   return 0;
 }
 
+STATIC
 int isunary(int tok)
 {
   return (tok == '!') | (tok == '~') | (tok == tokInc) | (tok == tokDec) | (tok == tokSizeof);
 }
 
+STATIC
 int preced(int tok)
 {
   switch (tok)
@@ -2254,6 +2354,7 @@ int preced(int tok)
   return 0;
 }
 
+STATIC
 int precedGEQ(int lfttok, int rhttok)
 {
   // DONE: rethink the comma operator as it could be implemented similarly
@@ -2269,8 +2370,10 @@ int precedGEQ(int lfttok, int rhttok)
   return pl >= pr;
 }
 
+STATIC
 int expr(int tok, int* gotUnary, int commaSeparator);
 
+STATIC
 char* lab2str(char* p, int n)
 {
   do
@@ -2282,6 +2385,7 @@ char* lab2str(char* p, int n)
   return p;
 }
 
+STATIC
 int exprUnary(int tok, int* gotUnary, int commaSeparator, int argOfSizeOf)
 {
   int decl = 0;
@@ -2537,6 +2641,7 @@ int exprUnary(int tok, int* gotUnary, int commaSeparator, int argOfSizeOf)
   return tok;
 }
 
+STATIC
 int expr(int tok, int* gotUnary, int commaSeparator)
 {
   *gotUnary = 0;
@@ -2615,6 +2720,7 @@ int expr(int tok, int* gotUnary, int commaSeparator)
   return tok;
 }
 
+STATIC
 void decayArray(int* ExprTypeSynPtr, int arithmetic)
 {
   // Dacay arrays to pointers to their first elements in
@@ -2657,6 +2763,7 @@ void decayArray(int* ExprTypeSynPtr, int arithmetic)
   }
 }
 
+STATIC
 void nonVoidTypeCheck(int ExprTypeSynPtr)
 {
   if (ExprTypeSynPtr >= 0 && SyntaxStack[ExprTypeSynPtr][0] == tokVoid)
@@ -2664,6 +2771,7 @@ void nonVoidTypeCheck(int ExprTypeSynPtr)
     errorUnexpectedVoid();
 }
 
+STATIC
 void scalarTypeCheck(int ExprTypeSynPtr)
 {
   nonVoidTypeCheck(ExprTypeSynPtr);
@@ -2672,6 +2780,7 @@ void scalarTypeCheck(int ExprTypeSynPtr)
     errorOpType();
 }
 
+STATIC
 void numericTypeCheck(int ExprTypeSynPtr)
 {
   if (ExprTypeSynPtr >= 0 &&
@@ -2689,6 +2798,7 @@ void numericTypeCheck(int ExprTypeSynPtr)
   errorOpType();
 }
 
+STATIC
 void compatCheck(int* ExprTypeSynPtr, int TheOtherExprTypeSynPtr, int ConstExpr[2], int lidx, int ridx)
 {
   int exprTypeSynPtr = *ExprTypeSynPtr;
@@ -2793,6 +2903,7 @@ void compatCheck(int* ExprTypeSynPtr, int TheOtherExprTypeSynPtr, int ConstExpr[
   }
 }
 
+STATIC
 void shiftCountCheck(int *psr, int idx, int ExprTypeSynPtr)
 {
   int sr = *psr;
@@ -2811,6 +2922,7 @@ void shiftCountCheck(int *psr, int idx, int ExprTypeSynPtr)
   }
 }
 
+STATIC
 int divCheckAndCalc(int tok, int* psl, int sr, int Unsigned, int ConstExpr[2])
 {
   int div0 = 0;
@@ -2871,6 +2983,7 @@ int divCheckAndCalc(int tok, int* psl, int sr, int Unsigned, int ConstExpr[2])
   return !div0;
 }
 
+STATIC
 void promoteType(int* ExprTypeSynPtr, int* TheOtherExprTypeSynPtr)
 {
   // chars must be promoted to ints in expressions as the very first thing
@@ -2891,7 +3004,8 @@ void promoteType(int* ExprTypeSynPtr, int* TheOtherExprTypeSynPtr)
     *ExprTypeSynPtr = SymUintSynPtr;
 }
 
-int GetFxnInfo(int ExprTypeSynPtr, int* MinParams, int* MaxParams, int* ReturnExprTypeSynPtr)
+STATIC
+int GetFxnInfo(int ExprTypeSynPtr, int* MinParams, int* MaxParams, int* ReturnExprTypeSynPtr, int* FirstParamSynPtr)
 {
   int ptr = 0;
 
@@ -2917,6 +3031,9 @@ int GetFxnInfo(int ExprTypeSynPtr, int* MinParams, int* MaxParams, int* ReturnEx
   while (SyntaxStack[ExprTypeSynPtr][0] != '(')
     ExprTypeSynPtr++;
   ExprTypeSynPtr++;
+
+  if (FirstParamSynPtr)
+    *FirstParamSynPtr = ExprTypeSynPtr;
 
   if (SyntaxStack[ExprTypeSynPtr][0] == ')')
   {
@@ -2974,6 +3091,7 @@ int GetFxnInfo(int ExprTypeSynPtr, int* MinParams, int* MaxParams, int* ReturnEx
   return 1;
 }
 
+STATIC
 void simplifyConstExpr(int val, int isConst, int* ExprTypeSynPtr, int top, int bottom)
 {
   if (!isConst || stack[top][0] == tokNumInt || stack[top][0] == tokNumUint)
@@ -2992,6 +3110,7 @@ void simplifyConstExpr(int val, int isConst, int* ExprTypeSynPtr, int top, int b
 // DONE: "sizeof expr"
 // DONE: constant expressions
 // DONE: collapse constant subexpressions into constants
+STATIC
 int exprval(int* idx, int* ExprTypeSynPtr, int* ConstExpr)
 {
   int tok;
@@ -3536,11 +3655,11 @@ int exprval(int* idx, int* ExprTypeSynPtr, int* ConstExpr)
         // allowed, while (a = b).c should be allowed.
 
         // transform "*psleft = *psright" into "*fxn(sizeof *psright, psright, psleft)"
-
+/*
         if (stack[oldIdxLeft - (oldSpLeft - sp)][0] != tokUnaryStar ||
             stack[oldIdxRight - (oldSpRight - sp)][0] != tokUnaryStar)
           errorInternal(18);
-
+*/
         stack[oldIdxLeft - (oldSpLeft - sp)][0] = ','; // replace '*' with ','
         stack[oldIdxRight - (oldSpRight - sp)][0] = ','; // replace '*' with ','
 
@@ -3886,14 +4005,15 @@ int exprval(int* idx, int* ExprTypeSynPtr, int* ConstExpr)
     {
       int tmpSynPtr, c;
       int minParams, maxParams;
+      int firstParamSynPtr;
       exprval(idx, ExprTypeSynPtr, ConstExpr);
 
-      if (!GetFxnInfo(*ExprTypeSynPtr, &minParams, &maxParams, ExprTypeSynPtr))
+      if (!GetFxnInfo(*ExprTypeSynPtr, &minParams, &maxParams, ExprTypeSynPtr, &firstParamSynPtr))
         //error("exprval(): function or function pointer expected\n");
         errorOpType();
 
       // DONE: validate the number of function parameters
-      // TBD??? warnings/errors on int<->pointer substitution in params
+      // DONE: warnings on int<->pointer substitution in params
 
       // evaluate function parameters
       c = 0;
@@ -3910,6 +4030,49 @@ int exprval(int* idx, int* ExprTypeSynPtr, int* ConstExpr)
 
         if (++c > maxParams)
           error("Too many function parameters\n");
+
+#ifndef NO_EXTRA_WARNS
+        // Issue a warning if the parameter has to be a pointer but isn't and vice versa.
+        // TBD??? Compare pointer types deeply as in compatCheck()???
+        // TBD??? Issue a similar warning for return values and initializers???
+        if (c <= minParams)
+        {
+          int gotPtr = tmpSynPtr < 0;
+          int needPtr;
+          int t;
+          if (!gotPtr)
+          {
+            t = SyntaxStack[tmpSynPtr][0];
+            gotPtr = (t == '*') | (t == '[') | (t == '('); // arrays and functions decay to pointers
+          }
+          // Find the type of the formal parameter in the function declaration
+          while ((t = SyntaxStack[firstParamSynPtr][0]) != tokIdent)
+          {
+            if (t == '(')
+            {
+              // skip parameters in parameters
+              int c = 1;
+              while (c)
+              {
+                t = SyntaxStack[++firstParamSynPtr][0];
+                c += (t == '(') - (t == ')');
+              }
+            }
+            firstParamSynPtr++;
+          }
+          firstParamSynPtr++;
+          needPtr = SyntaxStack[firstParamSynPtr][0] == '*';
+          if (needPtr != gotPtr &&
+              // Make an exception for integer constants equal to 0, treat them as NULL pointers
+              !(
+                 needPtr &&
+                 *ConstExpr &&
+                 !stack[*idx + 1][1]
+               )
+             )
+            warning("Expected %spointer in parameter %d\n", needPtr ? "" : "non-", c);
+        }
+#endif // NO_EXTRA_WARNS
 
         if (stack[*idx][0] == ',')
           --*idx;
@@ -4106,11 +4269,11 @@ int exprval(int* idx, int* ExprTypeSynPtr, int* ConstExpr)
           errorOpType();
 
         // transform "cond ? a : b" into "*(cond ? &a : &b)"
-
+/*
         if (stack[oldIdxLeft - (oldSpLeft - sp)][0] != tokUnaryStar ||
             stack[oldIdxRight - (oldSpRight - sp)][0] != tokUnaryStar)
           errorInternal(19);
-
+*/
         del(oldIdxLeft - (oldSpLeft - sp), 1); // delete '*'
         del(oldIdxRight - (oldSpRight - sp), 1); // delete '*'
         ins2(oldIdxRight + 2 - (oldSpRight - sp), tokUnaryStar, 0); // use 0 deref size to drop meaningless dereferences
@@ -4218,12 +4381,13 @@ int exprval(int* idx, int* ExprTypeSynPtr, int* ConstExpr)
 
   default:
     //error("exprval(): Unexpected token %s\n", GetTokenName(tok));
-    errorUnexpectedToken(tok);
+    errorInternal(21);
   }
 
   return s;
 }
 
+STATIC
 int ParseExpr(int tok, int* GotUnary, int* ExprTypeSynPtr, int* ConstExpr, int* ConstVal, int option, int option2)
 {
   int identFirst = tok == tokIdent;
@@ -4385,6 +4549,7 @@ int ParseExpr(int tok, int* GotUnary, int* ExprTypeSynPtr, int* ConstExpr, int* 
 // smc.c code
 
 #ifdef __SMALLER_C__
+#ifdef DETERMINE_VA_LIST
 // 2 if va_list is a one-element array containing a pointer
 //   (typical for x86 Open Watcom C/C++)
 // 1 if va_list is a pointer
@@ -4395,6 +4560,7 @@ int VaListType = 0;
 
 // Attempts to determine the type of va_list as
 // expected by the standard library
+STATIC
 void DetermineVaListType(void)
 {
   void* testptr[2];
@@ -4428,10 +4594,12 @@ void DetermineVaListType(void)
     exit(-1);
   }
 }
-#endif
+#endif // DETERMINE_VA_LIST
+#endif // __SMALLER_C__
 
 // Equivalent to puts() but outputs to OutFile
 // if it's not NULL.
+STATIC
 int puts2(char* s)
 {
   int res;
@@ -4454,6 +4622,7 @@ int puts2(char* s)
 
 // Equivalent to printf() but outputs to OutFile
 // if it's not NULL.
+STATIC
 int printf2(char* format, ...)
 {
   int res;
@@ -4472,15 +4641,8 @@ int printf2(char* format, ...)
     res = vprintf(format, vl);
 #else
   // TBD!!! This is not good. Really need the va_something macros.
-  if (VaListType == 1)
-  {
-    // va_list is a pointer
-    if (OutFile)
-      res = vfprintf(OutFile, format, vl);
-    else
-      res = vprintf(format, vl);
-  }
-  else // if (VaListType == 2)
+#ifdef DETERMINE_VA_LIST
+  if (VaListType == 2)
   {
     // va_list is a one-element array containing a pointer
     if (OutFile)
@@ -4488,7 +4650,17 @@ int printf2(char* format, ...)
     else
       res = vprintf(format, &vl);
   }
-#endif
+  else // if (VaListType == 1)
+  // fallthrough
+#endif // DETERMINE_VA_LIST
+  {
+    // va_list is a pointer
+    if (OutFile)
+      res = vfprintf(OutFile, format, vl);
+    else
+      res = vprintf(format, vl);
+  }
+#endif // __SMALLER_C__
 
 #ifndef __SMALLER_C__
   va_end(vl);
@@ -4497,6 +4669,7 @@ int printf2(char* format, ...)
   return res;
 }
 
+STATIC
 void error(char* format, ...)
 {
   int i, fidx = FileCnt - 1 + !FileCnt;
@@ -4544,17 +4717,20 @@ void error(char* format, ...)
   vprintf(format, vl);
 #else
   // TBD!!! This is not good. Really need the va_something macros.
-  if (VaListType == 1)
-  {
-    // va_list is a pointer
-    vprintf(format, vl);
-  }
-  else // if (VaListType == 2)
+#ifdef DETERMINE_VA_LIST
+  if (VaListType == 2)
   {
     // va_list is a one-element array containing a pointer
     vprintf(format, &vl);
   }
-#endif
+  else // if (VaListType == 1)
+  // fallthrough
+#endif // DETERMINE_VA_LIST
+  {
+    // va_list is a pointer
+    vprintf(format, vl);
+  }
+#endif // __SMALLER_C__
 
 #ifndef __SMALLER_C__
   va_end(vl);
@@ -4563,6 +4739,7 @@ void error(char* format, ...)
   exit(-1);
 }
 
+STATIC
 void warning(char* format, ...)
 {
   int fidx = FileCnt - 1 + !FileCnt;
@@ -4575,7 +4752,7 @@ void warning(char* format, ...)
 
   warnCnt++;
 
-  if (!(verbose && OutFile))
+  if (!(warnings && OutFile))
     return;
 
   printf("Warning in \"%s\" (%d:%d)\n", FileNames[fidx], LineNo, LinePos);
@@ -4584,103 +4761,123 @@ void warning(char* format, ...)
   vprintf(format, vl);
 #else
   // TBD!!! This is not good. Really need the va_something macros.
-  if (VaListType == 1)
-  {
-    // va_list is a pointer
-    vprintf(format, vl);
-  }
-  else // if (VaListType == 2)
+#ifdef DETERMINE_VA_LIST
+  if (VaListType == 2)
   {
     // va_list is a one-element array containing a pointer
     vprintf(format, &vl);
   }
-#endif
+  else // if (VaListType == 1)
+  // fallthrough
+#endif // DETERMINE_VA_LIST
+  {
+    // va_list is a pointer
+    vprintf(format, vl);
+  }
+#endif // __SMALLER_C__
 
 #ifndef __SMALLER_C__
   va_end(vl);
 #endif
 }
 
+STATIC
 void errorFile(char* n)
 {
   error("Unable to open, read, write or close file \"%s\"\n", n);
 }
 
+STATIC
 void errorFileName(void)
 {
   error("Invalid or too long file name or path name\n");
 }
 
+STATIC
 void errorInternal(int n)
 {
   error("%d (internal)\n", n);
 }
 
+STATIC
 void errorChrStr(void)
 {
   error("Invalid or unsupported character constant or string literal\n");
 }
 
+STATIC
 void errorUnexpectedToken(int tok)
 {
-  error("Unexpected token %s\n", GetTokenName(tok));
+  error("Unexpected token %s\n", (tok == tokIdent) ? TokenIdentName : GetTokenName(tok));
 }
 
+STATIC
 void errorDirective(void)
 {
   error("Invalid or unsupported preprocessor directive\n");
 }
 
+STATIC
 void errorCtrlOutOfScope(void)
 {
   error("break, continue, case or default in wrong scope\n");
 }
 
+STATIC
 void errorDecl(void)
 {
   error("Invalid or unsupported declaration\n");
 }
 
+STATIC
 void errorTagRedef(int ident)
 {
   error("Redefinition of type tagged '%s'\n", IdentTable + ident);
 }
 
+STATIC
 void errorRedef(char* s)
 {
   error("Redefinition of identifier '%s'\n", s);
 }
 
+STATIC
 void errorVarSize(void)
 {
   error("Variable(s) take(s) too much space\n");
 }
 
+STATIC
 void errorInit(void)
 {
   error("Invalid or unsupported initialization\n");
 }
 
+STATIC
 void errorUnexpectedVoid(void)
 {
   error("Unexpected declaration or expression of type void\n");
 }
 
+STATIC
 void errorOpType(void)
 {
   error("Unexpected operand type\n");
 }
 
+STATIC
 void errorNotLvalue(void)
 {
   error("lvalue expected\n");
 }
 
+STATIC
 void errorNotConst(void)
 {
   error("Non-constant expression\n");
 }
 
+STATIC
 void errorLongExpr(void)
 {
   error("Too long expression\n");
@@ -4693,6 +4890,7 @@ int tsd[] =
   tokStruct, tokUnion,
 };
 
+STATIC
 int TokenStartsDeclaration(int t, int params)
 {
 #ifndef NO_TYPEDEF_ENUM
@@ -4720,6 +4918,7 @@ int TokenStartsDeclaration(int t, int params)
                       t == tokStatic));
 }
 
+STATIC
 void PushSyntax2(int t, int v)
 {
   if (SyntaxStackCnt >= SYNTAX_STACK_MAX)
@@ -4728,11 +4927,13 @@ void PushSyntax2(int t, int v)
   SyntaxStack[SyntaxStackCnt++][1] = v;
 }
 
+STATIC
 void PushSyntax(int t)
 {
   PushSyntax2(t, 0);
 }
 
+STATIC
 void InsertSyntax2(int pos, int t, int v)
 {
   if (SyntaxStackCnt >= SYNTAX_STACK_MAX)
@@ -4745,11 +4946,13 @@ void InsertSyntax2(int pos, int t, int v)
   SyntaxStackCnt++;
 }
 
+STATIC
 void InsertSyntax(int pos, int t)
 {
   InsertSyntax2(pos, t, 0);
 }
 
+STATIC
 void DeleteSyntax(int pos, int cnt)
 {
   memmove(SyntaxStack[pos],
@@ -4758,6 +4961,7 @@ void DeleteSyntax(int pos, int cnt)
   SyntaxStackCnt -= cnt;
 }
 
+STATIC
 int FindSymbol(char* s)
 {
   int i;
@@ -4792,6 +4996,7 @@ int FindSymbol(char* s)
   return -1;
 }
 
+STATIC
 int SymType(int SynPtr)
 {
   int local = 0;
@@ -4819,6 +5024,7 @@ int SymType(int SynPtr)
   }
 }
 
+STATIC
 int FindTaggedDecl(char* s, int start, int* CurScope)
 {
   int i;
@@ -4855,6 +5061,7 @@ int FindTaggedDecl(char* s, int start, int* CurScope)
 
 #ifndef NO_TYPEDEF_ENUM
 // TBD??? rename this fxn? Cleanup/unify search functions?
+STATIC
 int FindTypedef(char* s, int* CurScope, int forUse)
 {
   int i;
@@ -4897,6 +5104,7 @@ int FindTypedef(char* s, int* CurScope, int forUse)
 }
 #endif
 
+STATIC
 int GetDeclSize(int SyntaxPtr, int SizeForDeref)
 {
   int i;
@@ -4990,6 +5198,7 @@ int GetDeclSize(int SyntaxPtr, int SizeForDeref)
   return 0;
 }
 
+STATIC
 int GetDeclAlignment(int SyntaxPtr)
 {
   int i;
@@ -5047,6 +5256,7 @@ int GetDeclAlignment(int SyntaxPtr)
 }
 
 #ifndef NO_ANNOTATIONS
+STATIC
 void DumpDecl(int SyntaxPtr, int IsParam)
 {
   int i;
@@ -5192,6 +5402,7 @@ void DumpDecl(int SyntaxPtr, int IsParam)
 #endif
 
 #ifndef NO_ANNOTATIONS
+STATIC
 void DumpSynDecls(void)
 {
   int used = SyntaxStackCnt * sizeof SyntaxStack[0];
@@ -5202,6 +5413,7 @@ void DumpSynDecls(void)
 }
 #endif
 
+STATIC
 int ParseArrayDimension(int AllowEmptyDimension)
 {
   int tok;
@@ -5251,10 +5463,14 @@ int ParseArrayDimension(int AllowEmptyDimension)
   return tok;
 }
 
+STATIC
 void ParseFxnParams(int tok);
-int ParseBlock(int BrkCntSwchTarget[4], int switchBody);
+STATIC
+int ParseBlock(int BrkCntTarget[2], int casesIdx);
+STATIC
 void AddFxnParamSymbols(int SyntaxPtr);
 
+STATIC
 int ParseBase(int tok, int base[2])
 {
 #ifndef NO_TYPEDEF_ENUM
@@ -5611,6 +5827,7 @@ int ParseBase(int tok, int base[2])
   base *3 (*2 (*1 name []1) []2) []3  ->  name : []1 *1 []2 *2 []3 *3 base
 */
 
+STATIC
 int ParseDerived(int tok)
 {
   int stars = 0;
@@ -5724,6 +5941,7 @@ int ParseDerived(int tok)
   return tok;
 }
 
+STATIC
 void PushBase(int base[2])
 {
 #ifndef NO_TYPEDEF_ENUM
@@ -5777,10 +5995,14 @@ void PushBase(int base[2])
     errorUnexpectedVoid();
 }
 
+STATIC
 int InitScalar(int synPtr, int tok);
+STATIC
 int InitArray(int synPtr, int tok);
+STATIC
 int InitStruct(int synPtr, int tok);
 
+STATIC
 int InitVar(int synPtr, int tok)
 {
   int p = synPtr, t;
@@ -5833,7 +6055,7 @@ int InitVar(int synPtr, int tok)
       IdentTableLen = undoIdents; // remove all temporary identifier names from e.g. "sizeof" or "str"
 
       i += 2;
-      i += 1 + StringTable[i];
+      i += 1 + (StringTable[i] & 0xFF);
     }
   }
 
@@ -5843,6 +6065,7 @@ int InitVar(int synPtr, int tok)
   return tok;
 }
 
+STATIC
 int InitScalar(int synPtr, int tok)
 {
   unsigned elementSz = GetDeclSize(synPtr, 0);
@@ -5905,6 +6128,7 @@ int InitScalar(int synPtr, int tok)
   return tok;
 }
 
+STATIC
 int InitArray(int synPtr, int tok)
 {
   int elementTypePtr = synPtr + 3;
@@ -6003,6 +6227,7 @@ int InitArray(int synPtr, int tok)
   return tok;
 }
 
+STATIC
 int InitStruct(int synPtr, int tok)
 {
   int isUnion;
@@ -6087,6 +6312,7 @@ int InitStruct(int synPtr, int tok)
 // DONE: support simple non-array initializations with string literals
 // DONE: support basic 1-d array initialization
 // DONE: global/static data allocations
+STATIC
 int ParseDecl(int tok, unsigned structInfo[4], int cast, int label)
 {
   int base[2];
@@ -6611,7 +6837,7 @@ int ParseDecl(int tok, unsigned structInfo[4], int cast, int label)
           printf("%s()\n", CurFxnName);
 
         ParseLevel++;
-        GetFxnInfo(lastSyntaxPtr, &CurFxnParamCntMin, &CurFxnParamCntMax, &CurFxnReturnExprTypeSynPtr); // get return type
+        GetFxnInfo(lastSyntaxPtr, &CurFxnParamCntMin, &CurFxnParamCntMax, &CurFxnReturnExprTypeSynPtr, NULL); // get return type
 
         if (OutputFormat != FormatFlat)
           puts2(CodeHeader);
@@ -6741,6 +6967,7 @@ int ParseDecl(int tok, unsigned structInfo[4], int cast, int label)
   return tok;
 }
 
+STATIC
 void ParseFxnParams(int tok)
 {
   int base[2];
@@ -6850,6 +7077,7 @@ void ParseFxnParams(int tok)
   }
 }
 
+STATIC
 void AddFxnParamSymbols(int SyntaxPtr)
 {
   int i;
@@ -6945,7 +7173,8 @@ void AddFxnParamSymbols(int SyntaxPtr)
   }
 }
 
-int ParseStatement(int tok, int BrkCntSwchTarget[4], int switchBody)
+STATIC
+int ParseStatement(int tok, int BrkCntTarget[2], int casesIdx)
 {
 /*
   labeled statements:
@@ -6976,7 +7205,7 @@ int ParseStatement(int tok, int BrkCntSwchTarget[4], int switchBody)
   + return expression-opt ;
 */
   int gotUnary, synPtr,  constExpr, exprVal;
-  int brkCntSwchTarget[4];
+  int brkCntTarget[2];
   int statementNeeded;
 
   do
@@ -6997,7 +7226,7 @@ int ParseStatement(int tok, int BrkCntSwchTarget[4], int switchBody)
       GenStartCommentLine(); printf2("{\n");
 #endif
       ParseLevel++;
-      tok = ParseBlock(BrkCntSwchTarget, switchBody / 2);
+      tok = ParseBlock(BrkCntTarget, casesIdx);
       ParseLevel--;
       if (tok != '}')
         //error("ParseStatement(): '}' expected. Unexpected token %s\n", GetTokenName(tok));
@@ -7095,9 +7324,9 @@ int ParseStatement(int tok, int BrkCntSwchTarget[4], int switchBody)
       }
 
       tok = GetToken();
-      brkCntSwchTarget[0] = labelAfter; // break target
-      brkCntSwchTarget[1] = labelBefore; // continue target
-      tok = ParseStatement(tok, brkCntSwchTarget, 0);
+      brkCntTarget[0] = labelAfter; // break target
+      brkCntTarget[1] = labelBefore; // continue target
+      tok = ParseStatement(tok, brkCntTarget, casesIdx);
 
       GenJumpUncond(labelBefore);
       GenNumLabel(labelAfter);
@@ -7113,9 +7342,9 @@ int ParseStatement(int tok, int BrkCntSwchTarget[4], int switchBody)
       GenNumLabel(labelBefore);
 
       tok = GetToken();
-      brkCntSwchTarget[0] = labelAfter; // break target
-      brkCntSwchTarget[1] = labelWhile; // continue target
-      tok = ParseStatement(tok, brkCntSwchTarget, 0);
+      brkCntTarget[0] = labelAfter; // break target
+      brkCntTarget[1] = labelWhile; // continue target
+      tok = ParseStatement(tok, brkCntTarget, casesIdx);
       if (tok != tokWhile)
         //error("ParseStatement(): 'while' expected after 'do statement'\n");
         errorUnexpectedToken(tok);
@@ -7221,7 +7450,7 @@ int ParseStatement(int tok, int BrkCntSwchTarget[4], int switchBody)
       }
 
       tok = GetToken();
-      tok = ParseStatement(tok, BrkCntSwchTarget, 0);
+      tok = ParseStatement(tok, BrkCntTarget, casesIdx);
 
       // DONE: else
       if (tok == tokElse)
@@ -7232,7 +7461,7 @@ int ParseStatement(int tok, int BrkCntSwchTarget[4], int switchBody)
         GenStartCommentLine(); printf2("else\n");
 #endif
         tok = GetToken();
-        tok = ParseStatement(tok, BrkCntSwchTarget, 0);
+        tok = ParseStatement(tok, BrkCntTarget, casesIdx);
         GenNumLabel(labelAfterElse);
       }
       else
@@ -7246,6 +7475,10 @@ int ParseStatement(int tok, int BrkCntSwchTarget[4], int switchBody)
       int labelExpr3 = LabelCnt++;
       int labelBody = LabelCnt++;
       int labelAfter = LabelCnt++;
+#ifndef NO_FOR_DECL
+      int decl = 0;
+      int undoSymbolsPtr = 0, undoLocalOfs = 0, undoIdents = 0;
+#endif
 #ifndef NO_ANNOTATIONS
       GenStartCommentLine(); printf2("for\n");
 #endif
@@ -7255,16 +7488,35 @@ int ParseStatement(int tok, int BrkCntSwchTarget[4], int switchBody)
         errorUnexpectedToken(tok);
 
       tok = GetToken();
-      if ((tok = ParseExpr(tok, &gotUnary, &synPtr, &constExpr, &exprVal, 0, 0)) != ';')
-        //error("ParseStatement(): ';' expected after 'for ( expression'\n");
-        errorUnexpectedToken(tok);
-      if (gotUnary)
+#ifndef NO_FOR_DECL
+      if (TokenStartsDeclaration(tok, 1))
       {
-        GenExpr();
+        decl = 1;
+        undoSymbolsPtr = SyntaxStackCnt;
+        undoLocalOfs = CurFxnLocalOfs;
+        undoIdents = IdentTableLen;
+        // Declarations made in the first clause of for should not:
+        // - collide with previous outer declarations
+        // - be visible/exist outside for
+        // For this reason the declaration gets its own subscope.
+        PushSyntax('#'); // mark the beginning of a new scope
+        tok = ParseDecl(tok, NULL, 0, 0);
+      }
+      else
+      // fallthrough
+#endif
+      {
+        if ((tok = ParseExpr(tok, &gotUnary, &synPtr, &constExpr, &exprVal, 0, 0)) != ';')
+          //error("ParseStatement(): ';' expected after 'for ( expression'\n");
+          errorUnexpectedToken(tok);
+        if (gotUnary)
+        {
+          GenExpr();
+        }
+        tok = GetToken();
       }
 
       GenNumLabel(labelBefore);
-      tok = GetToken();
       if ((tok = ParseExpr(tok, &gotUnary, &synPtr, &constExpr, &exprVal, 0, 0)) != ';')
         //error("ParseStatement(): ';' expected after 'for ( expression ; expression'\n");
         errorUnexpectedToken(tok);
@@ -7310,12 +7562,22 @@ int ParseStatement(int tok, int BrkCntSwchTarget[4], int switchBody)
 
       GenNumLabel(labelBody);
       tok = GetToken();
-      brkCntSwchTarget[0] = labelAfter; // break target
-      brkCntSwchTarget[1] = labelExpr3; // continue target
-      tok = ParseStatement(tok, brkCntSwchTarget, 0);
+      brkCntTarget[0] = labelAfter; // break target
+      brkCntTarget[1] = labelExpr3; // continue target
+      tok = ParseStatement(tok, brkCntTarget, casesIdx);
       GenJumpUncond(labelExpr3);
 
       GenNumLabel(labelAfter);
+
+#ifndef NO_FOR_DECL
+      // undo any declarations done in the for() parameter set. 
+      if (decl)
+      {
+        UndoNonLabelIdents(undoIdents); // remove all identifier names, except those of labels
+        SyntaxStackCnt = undoSymbolsPtr; // remove all params and locals
+        CurFxnLocalOfs = undoLocalOfs; // destroy on-stack local variables
+      } 
+#endif
     }
     else if (tok == tokBreak)
     {
@@ -7326,10 +7588,10 @@ int ParseStatement(int tok, int BrkCntSwchTarget[4], int switchBody)
         //error("ParseStatement(): ';' expected\n");
         errorUnexpectedToken(tok);
       tok = GetToken();
-      if (BrkCntSwchTarget == NULL)
+      if (BrkCntTarget == NULL)
         //error("ParseStatement(): 'break' must be within 'while', 'for' or 'switch' statement\n");
         errorCtrlOutOfScope();
-      GenJumpUncond(BrkCntSwchTarget[0]);
+      GenJumpUncond(BrkCntTarget[0]);
     }
     else if (tok == tokCont)
     {
@@ -7340,13 +7602,21 @@ int ParseStatement(int tok, int BrkCntSwchTarget[4], int switchBody)
         //error("ParseStatement(): ';' expected\n");
         errorUnexpectedToken(tok);
       tok = GetToken();
-      if (BrkCntSwchTarget == NULL || BrkCntSwchTarget[1] == 0)
+      if (BrkCntTarget == NULL || BrkCntTarget[1] == 0)
         //error("ParseStatement(): 'continue' must be within 'while' or 'for' statement\n");
         errorCtrlOutOfScope();
-      GenJumpUncond(BrkCntSwchTarget[1]);
+      GenJumpUncond(BrkCntTarget[1]);
     }
     else if (tok == tokSwitch)
     {
+      int undoCases = CasesCnt;
+      int brkLabel = LabelCnt++;
+#ifdef USE_SWITCH_TAB
+      int tblLabel = LabelCnt++;
+#else
+      int lbl = LabelCnt++;
+#endif
+      int i;
 #ifndef NO_ANNOTATIONS
       GenStartCommentLine(); printf2("switch\n");
 #endif
@@ -7369,61 +7639,122 @@ int ParseStatement(int tok, int BrkCntSwchTarget[4], int switchBody)
       //error("ParseStatement(): unexpected 'void' expression in 'switch ( expression )'\n");
       scalarTypeCheck(synPtr);
 
+#ifdef USE_SWITCH_TAB
+      // Generate a call to the function that will do table-based switch()
+      if (!SwitchJmpLabel)
+        SwitchJmpLabel = LabelCnt++;
+
+      ins2(0, '(', SizeOfWord * 2);
+      push(',');
+      push2(tokIdent, AddNumericIdent__(tblLabel));
+      push(',');
+      push2(tokIdent, AddNumericIdent__(SwitchJmpLabel));
+      push2(')', SizeOfWord * 2);
+#else
+#endif
+
       GenExpr();
 
       tok = GetToken();
-      if (tok != '{')
-        //error("ParseStatement(): '{' expected after 'switch ( expression )'\n");
-        errorUnexpectedToken(tok);
 
-      brkCntSwchTarget[0] = LabelCnt++; // break target
-      brkCntSwchTarget[1] = 0; // continue target
-      if (BrkCntSwchTarget)
+#ifndef USE_SWITCH_TAB
+      // Skip the code for the cases
+      GenJumpUncond(lbl);
+#endif
+
+      brkCntTarget[0] = brkLabel; // break target
+      brkCntTarget[1] = 0; // continue target
+      if (BrkCntTarget)
       {
-        // preserve the continue target
-        brkCntSwchTarget[1] = BrkCntSwchTarget[1]; // continue target
+        // Preserve the continue target
+        brkCntTarget[1] = BrkCntTarget[1]; // continue target
       }
-      brkCntSwchTarget[2] = LabelCnt++; // default target
-      brkCntSwchTarget[3] = (LabelCnt += 2) - 2; // next case target
-/*
-    ParseBlock(0)
-      ParseStatement(0)
-        switch
-          ParseStatement(2)            // 2 needed to disallow new locals
-            {                          // { in switch(expr){
-              ParseBlock(1)            // new locals are allocated here
-                ParseStatement(1)      // 1 needed for case/default
-                  {                    // inner {} in switch(expr){{}}
-                    ParseBlock(0)
-                    ...
-                  switch               // another switch
-                    ParseStatement(2)  // needed to disallow new locals
-                    ...
-*/
-      GenJumpUncond(brkCntSwchTarget[3]); // next case target
 
-      tok = ParseStatement(tok, brkCntSwchTarget, 2);
+      // Reserve a slot in the case table for the default label
+      AddCase(0, 0);
 
-      // force 'break' if the last 'case'/'default' doesn't end with 'break'
-      GenJumpUncond(brkCntSwchTarget[0]);
+      tok = ParseStatement(tok, brkCntTarget, CasesCnt);
 
-      // next, non-existent case (reached after none of the 'cases' have matched)
-      GenNumLabel(brkCntSwchTarget[3]);
+      // If there's no default target, will use the break target as default
+      if (!Cases[undoCases][1])
+        Cases[undoCases][1] = brkLabel;
 
-      // if there's 'default', 'goto default;' after all unmatched 'cases'
-      if (brkCntSwchTarget[2] < 0)
-        GenJumpUncond(-brkCntSwchTarget[2]);
+#ifdef USE_SWITCH_TAB
+      GenNumLabel(brkLabel); // break label
 
-      GenNumLabel(brkCntSwchTarget[0]); // break label
+      // Generate the case/jump table
+
+      // Store the number of cases in the default slot
+      Cases[undoCases][0] = CasesCnt - undoCases - 1;
+
+      if (OutputFormat != FormatFlat)
+      {
+        puts2(CodeFooter);
+        puts2(DataHeader);
+      }
+      else
+      {
+        GenJumpUncond(brkLabel = LabelCnt++);
+      }
+
+      GenWordAlignment();
+
+      {
+        char s[1 + 2 + (2 + CHAR_BIT * sizeof tblLabel) / 3];
+        char *p = s + sizeof s;
+
+        *--p = '\0';
+        p = lab2str(p, tblLabel);
+        *--p = '_';
+        *--p = '_';
+
+        GenLabel(p, 1);
+      }
+
+      for (i = undoCases; i < CasesCnt; i++)
+      {
+        char s[1 + (2 + CHAR_BIT * sizeof(int)) / 3];
+        char *p = s + sizeof s;
+        *--p = '\0';
+        p = lab2str(p, Cases[i][1]);
+        GenIntData(SizeOfWord, Cases[i][0]);
+        GenAddrData(SizeOfWord, p, 0);
+      }
+
+      if (OutputFormat != FormatFlat)
+      {
+        puts2(DataFooter);
+        puts2(CodeHeader);
+      }
+      else
+      {
+        GenNumLabel(brkLabel);
+      }
+#else
+      // End of switch reached (not via break), skip conditional jumps
+      GenJumpUncond(brkLabel);
+      // Generate conditional jumps
+      GenNumLabel(lbl);
+      for (i = undoCases + 1; i < CasesCnt; i++)
+      {
+        GenJumpIfEqual(Cases[i][0], Cases[i][1]);
+      }
+      // If none of the cases matches, take the default case
+      if (Cases[undoCases][1] != brkLabel)
+        GenJumpUncond(Cases[undoCases][1]);
+      GenNumLabel(brkLabel); // break label
+#endif
+
+      CasesCnt = undoCases;
     }
     else if (tok == tokCase)
     {
-      int lnext;
+      int i;
 #ifndef NO_ANNOTATIONS
       GenStartCommentLine(); printf2("case\n");
 #endif
 
-      if (!switchBody)
+      if (!casesIdx)
         //error("ParseStatement(): 'case' must be within 'switch' statement\n");
         errorCtrlOutOfScope();
 
@@ -7436,16 +7767,16 @@ int ParseStatement(int tok, int BrkCntSwchTarget[4], int switchBody)
         //error("ParseStatement(): constant integer expression expected in 'case expression :'\n");
         errorNotConst();
 
+      // Check for dups
+      exprVal = truncInt(exprVal);
+      for (i = casesIdx; i < CasesCnt; i++)
+        if (Cases[i][0] == exprVal)
+          error("Duplicate case value\n");
+
+      AddCase(exprVal, LabelCnt);
+      GenNumLabel(LabelCnt++); // case exprVal:
+
       tok = GetToken();
-
-      lnext = (LabelCnt += 2) - 2;
-
-      GenJumpUncond(BrkCntSwchTarget[3] + 1); // fallthrough
-      GenNumLabel(BrkCntSwchTarget[3]);
-      GenJumpIfNotEqual(exprVal, lnext);
-      GenNumLabel(BrkCntSwchTarget[3] + 1);
-
-      BrkCntSwchTarget[3] = lnext;
 
       // a statement is needed after "case:"
       statementNeeded = 1;
@@ -7456,24 +7787,22 @@ int ParseStatement(int tok, int BrkCntSwchTarget[4], int switchBody)
       GenStartCommentLine(); printf2("default\n");
 #endif
 
-      if (!switchBody)
+      if (!casesIdx)
         //error("ParseStatement(): 'default' must be within 'switch' statement\n");
         errorCtrlOutOfScope();
+
+      if (Cases[casesIdx - 1][1])
+        //error("ParseStatement(): only one 'default' allowed in 'switch'\n");
+        errorUnexpectedToken(tok);
 
       tok = GetToken();
       if (tok != ':')
         //error("ParseStatement(): ':' expected after 'default'\n");
         errorUnexpectedToken(tok);
 
-      if (BrkCntSwchTarget[2] < 0)
-        //error("ParseStatement(): only one 'default' allowed in 'switch'\n");
-        errorUnexpectedToken(tokDefault);
-
       tok = GetToken();
 
-      GenNumLabel(BrkCntSwchTarget[2]); // default:
-
-      BrkCntSwchTarget[2] *= -1; // remember presence of default:
+      GenNumLabel(Cases[casesIdx - 1][1] = LabelCnt++); // default:
 
       // a statement is needed after "default:"
       statementNeeded = 1;
@@ -7544,8 +7873,9 @@ int ParseStatement(int tok, int BrkCntSwchTarget[4], int switchBody)
   return tok;
 }
 
-// TBD!!! think of ways of getting rid of switchBody
-int ParseBlock(int BrkCntSwchTarget[4], int switchBody)
+// TBD!!! think of ways of getting rid of casesIdx
+STATIC
+int ParseBlock(int BrkCntTarget[2], int casesIdx)
 {
   int tok = GetToken();
 
@@ -7572,13 +7902,13 @@ int ParseBlock(int BrkCntSwchTarget[4], int switchBody)
         GenNumLabel(AddGotoLabel(TokenIdentName, 1));
         tok = GetToken();
         // a statement is needed after "label:"
-        tok = ParseStatement(tok, BrkCntSwchTarget, switchBody);
+        tok = ParseStatement(tok, BrkCntTarget, casesIdx);
       }
 #endif
     }
     else if (ParseLevel > 0 || tok == tok_Asm)
     {
-      tok = ParseStatement(tok, BrkCntSwchTarget, switchBody);
+      tok = ParseStatement(tok, BrkCntTarget, casesIdx);
     }
     else
       //error("ParseBlock(): Unexpected token %s\n", GetTokenName(tok));
@@ -7592,7 +7922,9 @@ int main(int argc, char** argv)
   int i;
 
 #ifdef __SMALLER_C__
+#ifdef DETERMINE_VA_LIST
   DetermineVaListType();
+#endif
 #endif
 
   GenInit();
@@ -7654,23 +7986,45 @@ int main(int argc, char** argv)
     }
     else if (!strcmp(argv[i], "-verbose"))
     {
-      verbose = 1;
+      warnings = verbose = 1;
+      continue;
+    }
+    else if (!strcmp(argv[i], "-Wall"))
+    {
+      warnings = 1;
       continue;
     }
 #ifndef NO_PREPROCESSOR
-    else if (!strcmp(argv[i], "-I"))
+    else if (!strcmp(argv[i], "-I") || !strcmp(argv[i], "-SI"))
     {
       if (i + 1 < argc)
       {
-        int len = strlen(argv[++i]);
-        if (MAX_SEARCH_PATH - SearchPathsLen < len + 1)
-          //error("Path name too long\n");
-          errorFileName();
-        strcpy(SearchPaths + SearchPathsLen, argv[i]);
-        SearchPathsLen += len + 1;
+        int len = strlen(argv[++i]) + 1;
+        if (argv[i - 1][1] == 'I')
+        {
+          if (MAX_SEARCH_PATH - SearchPathsLen < len)
+            //error("Path name too long\n");
+            errorFileName();
+          strcpy(SearchPaths + SearchPathsLen, argv[i]);
+          SearchPathsLen += len;
+        }
+        else
+        {
+          if (MAX_SEARCH_PATH - SysSearchPathsLen < len)
+            //error("Path name too long\n");
+            errorFileName();
+          strcpy(SysSearchPaths + SysSearchPathsLen, argv[i]);
+          SysSearchPathsLen += len;
+        }
         continue;
       }
     }
+/*
+    else if (!strcmp(argv[i], "-no-pp"))
+    {
+      // TBD!!! don't do preprocessing when this option is present
+    }
+*/
     // DONE: '-D macro[=expansion]': '#define macro 1' when there's no '=expansion'
     else if (!strcmp(argv[i], "-D"))
     {
@@ -7748,8 +8102,14 @@ int main(int argc, char** argv)
   DefineMacro("__SMALLER_C__", "0x0100");
   if (SizeOfWord == 2)
     DefineMacro("__SMALLER_C_16__", "");
+#ifdef CAN_COMPILE_32BIT
   else if (SizeOfWord == 4)
     DefineMacro("__SMALLER_C_32__", "");
+#endif
+#ifdef CAN_COMPILE_32BIT
+  if (OutputFormat == FormatSegHuge)
+    DefineMacro("__HUGE__", "");
+#endif
   if (CharIsSigned)
     DefineMacro("__SMALLER_C_SCHAR__", "");
   else
@@ -7783,7 +8143,7 @@ int main(int argc, char** argv)
 
   GenStartCommentLine(); printf2("Next label number: %d\n", LabelCnt);
 
-  if (verbose && warnCnt && OutFile)
+  if (warnings && warnCnt && OutFile)
     printf("%d warnings\n", warnCnt);
   GenStartCommentLine(); printf2("Compilation succeeded.\n");
 
@@ -7792,3 +8152,4 @@ int main(int argc, char** argv)
 
   return 0;
 }
+

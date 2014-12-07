@@ -44,6 +44,7 @@ either expressed or implied, of the FreeBSD Project.
 
 int UseGp = 0;
 
+STATIC
 void GenInit(void)
 {
   // initialization of target-specific code generator
@@ -59,6 +60,7 @@ void GenInit(void)
 #endif
 }
 
+STATIC
 int GenInitParams(int argc, char** argv, int* idx)
 {
   (void)argc;
@@ -77,21 +79,25 @@ int GenInitParams(int argc, char** argv, int* idx)
   return 0;
 }
 
+STATIC
 void GenInitFinalize(void)
 {
   // finalization of initialization of target-specific code generator
 }
 
+STATIC
 void GenStartCommentLine(void)
 {
   printf2(" # ");
 }
 
+STATIC
 void GenWordAlignment(void)
 {
   printf2("\t.align 2\n");
 }
 
+STATIC
 void GenLabel(char* Label, int Static)
 {
   {
@@ -101,6 +107,7 @@ void GenLabel(char* Label, int Static)
   }
 }
 
+STATIC
 void GenPrintLabel(char* Label)
 {
   {
@@ -111,21 +118,25 @@ void GenPrintLabel(char* Label)
   }
 }
 
+STATIC
 void GenNumLabel(int Label)
 {
   printf2("$L%d:\n", Label);
 }
 
+STATIC
 void GenPrintNumLabel(int label)
 {
   printf2("$L%d", label);
 }
 
+STATIC
 void GenZeroData(unsigned Size)
 {
   printf2("\t.space\t%u\n", truncUint(Size)); // or ".fill size"
 }
 
+STATIC
 void GenIntData(int Size, int Val)
 {
   Val = truncInt(Val);
@@ -137,11 +148,13 @@ void GenIntData(int Size, int Val)
     printf2("\t.word\t%d\n", Val);
 }
 
+STATIC
 void GenStartAsciiString(void)
 {
   printf2("\t.ascii\t");
 }
 
+STATIC
 void GenAddrData(int Size, char* Label, int ofs)
 {
   ofs = truncInt(ofs);
@@ -198,6 +211,7 @@ void GenAddrData(int Size, char* Label, int ofs)
 //#define MipsInstrBGTZ   0x26
 //#define MipsInstrBreak  0x27
 
+STATIC
 void GenPrintInstr(int instr, int val)
 {
   char* p = "";
@@ -302,12 +316,14 @@ void GenPrintInstr(int instr, int val)
 #define MipsOpIndLocal                   MipsOpIndRegFp
 
 #ifdef REORDER_WORKAROUND
+STATIC
 void GenNop(void)
 {
   puts2("\tnop");
 }
 #endif
 
+STATIC
 void GenPrintOperand(int op, int val)
 {
   if (op >= MipsOpRegZero && op <= MipsOpRegRa)
@@ -348,22 +364,19 @@ void GenPrintOperand(int op, int val)
   }
 }
 
+STATIC
 void GenPrintOperandSeparator(void)
 {
   printf2(", ");
 }
 
+STATIC
 void GenPrintNewLine(void)
 {
   puts2("");
 }
 
-void GenPrintInstrNoOperand(int instr)
-{
-  GenPrintInstr(instr, 0);
-  GenPrintNewLine();
-}
-
+STATIC
 void GenPrintInstr1Operand(int instr, int instrval, int operand, int operandval)
 {
   GenPrintInstr(instr, instrval);
@@ -376,6 +389,7 @@ void GenPrintInstr1Operand(int instr, int instrval, int operand, int operandval)
 #endif
 }
 
+STATIC
 void GenPrintInstr2Operands(int instr, int instrval, int operand1, int operand1val, int operand2, int operand2val)
 {
   if (operand2 == MipsOpConst && operand2val == 0 &&
@@ -389,6 +403,7 @@ void GenPrintInstr2Operands(int instr, int instrval, int operand1, int operand1v
   GenPrintNewLine();
 }
 
+STATIC
 void GenPrintInstr3Operands(int instr, int instrval,
                             int operand1, int operand1val,
                             int operand2, int operand2val,
@@ -470,6 +485,7 @@ void GenPrintInstr3Operands(int instr, int instrval,
 #endif
 }
 
+STATIC
 void GenExtendRegIfNeeded(int reg, int opSz)
 {
   if (opSz == -1)
@@ -510,23 +526,28 @@ void GenExtendRegIfNeeded(int reg, int opSz)
   }
 }
 
+STATIC
 void GenJumpUncond(int label)
 {
   GenPrintInstr1Operand(MipsInstrJ, 0,
                         MipsOpNumLabel, label);
 }
 
-void GenJumpIfNotEqual(int val, int label)
+#ifndef USE_SWITCH_TAB
+STATIC
+void GenJumpIfEqual(int val, int label)
 {
   GenPrintInstr2Operands(MipsInstrLI, 0,
                          MipsOpRegT1, 0,
                          MipsOpConst, val);
-  GenPrintInstr3Operands(MipsInstrBNE, 0,
+  GenPrintInstr3Operands(MipsInstrBEQ, 0,
                          MipsOpRegV0, 0,
                          MipsOpRegT1, 0,
                          MipsOpNumLabel, label);
 }
+#endif
 
+STATIC
 void GenJumpIfZero(int label)
 {
 #ifndef NO_ANNOTATIONS
@@ -538,6 +559,7 @@ void GenJumpIfZero(int label)
                          MipsOpNumLabel, label);
 }
 
+STATIC
 void GenJumpIfNotZero(int label)
 {
 #ifndef NO_ANNOTATIONS
@@ -549,6 +571,7 @@ void GenJumpIfNotZero(int label)
                          MipsOpNumLabel, label);
 }
 
+STATIC
 void GenFxnProlog(void)
 {
   GenPrintInstr3Operands(MipsInstrSubU, 0,
@@ -580,6 +603,7 @@ void GenFxnProlog(void)
   }
 }
 
+STATIC
 void GenLocalAlloc(int size)
 {
   GenPrintInstr3Operands(MipsInstrSubU, 0,
@@ -588,6 +612,7 @@ void GenLocalAlloc(int size)
                          MipsOpConst, size);
 }
 
+STATIC
 void GenFxnEpilog(void)
 {
   GenPrintInstr2Operands(MipsInstrMov, 0,
@@ -611,6 +636,7 @@ void GenFxnEpilog(void)
                         MipsOpRegRa, 0);
 }
 
+STATIC
 int GenGetBinaryOperatorInstr(int tok)
 {
   switch (tok)
@@ -673,6 +699,7 @@ int GenGetBinaryOperatorInstr(int tok)
   }
 }
 
+STATIC
 void GenPreIdentAccess(int label)
 {
   if (UseGp)
@@ -682,6 +709,7 @@ void GenPreIdentAccess(int label)
   puts2(")");
 }
 
+STATIC
 void GenPostIdentAccess(void)
 {
   if (UseGp)
@@ -689,6 +717,7 @@ void GenPostIdentAccess(void)
   puts2("\t.set\tat");
 }
 
+STATIC
 void GenReadIdent(int regDst, int opSz, int label)
 {
   int instr = MipsInstrLW;
@@ -715,6 +744,7 @@ void GenReadIdent(int regDst, int opSz, int label)
   GenPostIdentAccess();
 }
 
+STATIC
 void GenReadLocal(int regDst, int opSz, int ofs)
 {
   int instr = MipsInstrLW;
@@ -739,6 +769,7 @@ void GenReadLocal(int regDst, int opSz, int ofs)
                          MipsOpIndRegFp, ofs);
 }
 
+STATIC
 void GenReadIndirect(int regDst, int regSrc, int opSz)
 {
   int instr = MipsInstrLW;
@@ -763,6 +794,7 @@ void GenReadIndirect(int regDst, int regSrc, int opSz)
                          regSrc + MipsOpIndRegZero, 0);
 }
 
+STATIC
 void GenWriteIdent(int regSrc, int opSz, int label)
 {
   int instr = MipsInstrSW;
@@ -781,6 +813,7 @@ void GenWriteIdent(int regSrc, int opSz, int label)
   GenPostIdentAccess();
 }
 
+STATIC
 void GenWriteLocal(int regSrc, int opSz, int ofs)
 {
   int instr = MipsInstrSW;
@@ -797,6 +830,7 @@ void GenWriteLocal(int regSrc, int opSz, int ofs)
                          MipsOpIndRegFp, ofs);
 }
 
+STATIC
 void GenWriteIndirect(int regDst, int regSrc, int opSz)
 {
   int instr = MipsInstrSW;
@@ -813,6 +847,7 @@ void GenWriteIndirect(int regDst, int regSrc, int opSz)
                          regDst + MipsOpIndRegZero, 0);
 }
 
+STATIC
 void GenIncDecIdent(int regDst, int opSz, int label, int tok)
 {
   int instr = MipsInstrAddU;
@@ -829,6 +864,7 @@ void GenIncDecIdent(int regDst, int opSz, int label, int tok)
   GenExtendRegIfNeeded(regDst, opSz);
 }
 
+STATIC
 void GenIncDecLocal(int regDst, int opSz, int ofs, int tok)
 {
   int instr = MipsInstrAddU;
@@ -845,6 +881,7 @@ void GenIncDecLocal(int regDst, int opSz, int ofs, int tok)
   GenExtendRegIfNeeded(regDst, opSz);
 }
 
+STATIC
 void GenIncDecIndirect(int regDst, int regSrc, int opSz, int tok)
 {
   int instr = MipsInstrAddU;
@@ -861,6 +898,7 @@ void GenIncDecIndirect(int regDst, int regSrc, int opSz, int tok)
   GenExtendRegIfNeeded(regDst, opSz);
 }
 
+STATIC
 void GenPostIncDecIdent(int regDst, int opSz, int label, int tok)
 {
   int instr = MipsInstrAddU;
@@ -881,6 +919,7 @@ void GenPostIncDecIdent(int regDst, int opSz, int label, int tok)
   GenExtendRegIfNeeded(regDst, opSz);
 }
 
+STATIC
 void GenPostIncDecLocal(int regDst, int opSz, int ofs, int tok)
 {
   int instr = MipsInstrAddU;
@@ -901,6 +940,7 @@ void GenPostIncDecLocal(int regDst, int opSz, int ofs, int tok)
   GenExtendRegIfNeeded(regDst, opSz);
 }
 
+STATIC
 void GenPostIncDecIndirect(int regDst, int regSrc, int opSz, int tok)
 {
   int instr = MipsInstrAddU;
@@ -924,6 +964,7 @@ void GenPostIncDecIndirect(int regDst, int regSrc, int opSz, int tok)
 int CanUseTempRegs;
 int TempsUsed;
 
+STATIC
 void GenPushReg(int reg)
 {
   if (CanUseTempRegs && TempsUsed < 6)
@@ -947,6 +988,7 @@ void GenPushReg(int reg)
   TempsUsed++;
 }
 
+STATIC
 int GenPopReg(int reg)
 {
   TempsUsed--;
@@ -969,6 +1011,7 @@ int GenPopReg(int reg)
 
 // Original, primitive stack-based code generator
 // DONE: test 32-bit code generation
+STATIC
 void GenExpr0(void)
 {
   int i;
@@ -1546,6 +1589,7 @@ void GenExpr0(void)
   }
 }
 
+STATIC
 unsigned GenStrData(int generatingCode, unsigned requiredLen)
 {
   int i;
@@ -1562,7 +1606,7 @@ unsigned GenStrData(int generatingCode, unsigned requiredLen)
       unsigned len;
 
       p = FindString(label);
-      len = *p++;
+      len = *p++ & 0xFF;
 
       // If this is a string literal initializing an array of char,
       // truncate or pad it as necessary.
@@ -1639,12 +1683,14 @@ unsigned GenStrData(int generatingCode, unsigned requiredLen)
   return total;
 }
 
+STATIC
 void GenExpr(void)
 {
   GenStrData(1, 0);
   GenExpr0();
 }
 
+STATIC
 void GenFin(void)
 {
   if (StructCpyLabel)
@@ -1684,4 +1730,62 @@ void GenFin(void)
     if (OutputFormat != FormatFlat)
       puts2(CodeFooter);
   }
+
+#ifdef USE_SWITCH_TAB
+  if (SwitchJmpLabel)
+  {
+    char s[1 + 2 + (2 + CHAR_BIT * sizeof SwitchJmpLabel) / 3];
+    char *p = s + sizeof s;
+    int lbl = (LabelCnt += 3) - 3;
+
+    *--p = '\0';
+    p = lab2str(p, SwitchJmpLabel);
+    *--p = '_';
+    *--p = '_';
+
+    if (OutputFormat != FormatFlat)
+      puts2(CodeHeader);
+
+    GenLabel(p, 1);
+
+    puts2("\tlw\t$2, 0($4)\n"
+          "\tlw\t$31, 4($4)");
+    printf2("\tbeq\t$2, $0, "); GenPrintNumLabel(lbl + 2); // beq $2, $0, L3
+    puts2("");
+#ifdef REORDER_WORKAROUND
+    GenNop();
+#endif
+    GenNumLabel(lbl); // L1:
+    puts2("\taddiu\t$4, $4, 8\n"
+          "\tlw\t$6, 0($4)");
+    printf2("\tbne\t$6, $5, "); GenPrintNumLabel(lbl + 1); // bne $6, $6, L2
+    puts2("");
+#ifdef REORDER_WORKAROUND
+    GenNop();
+#endif
+    puts2("\tlw\t$31, 4($4)");
+    printf2("\tj "); GenPrintNumLabel(lbl + 2); // j L3
+    puts2("");
+#ifdef REORDER_WORKAROUND
+    GenNop();
+#endif
+    GenNumLabel(lbl + 1); // L2:
+    puts2("\taddiu\t$2, $2, -1");
+    printf2("\tbne\t$2, $0, "); GenPrintNumLabel(lbl); // bne $2, $0, L1
+    puts2("");
+#ifdef REORDER_WORKAROUND
+    GenNop();
+#endif
+    GenNumLabel(lbl + 2); // L3:
+    puts2("\taddiu\t$29, $29, 16\n"
+          "\tj\t$31");
+#ifdef REORDER_WORKAROUND
+    GenNop();
+#endif
+
+    if (OutputFormat != FormatFlat)
+      puts2(CodeFooter);
+  }
+#endif
 }
+

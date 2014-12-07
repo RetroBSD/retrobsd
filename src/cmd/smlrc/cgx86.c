@@ -39,6 +39,11 @@ either expressed or implied, of the FreeBSD Project.
 
 // TBD!!! compress/clean up
 
+#ifdef CAN_COMPILE_32BIT
+int WindowsStack = 0;
+int WinChkStkLabel = 0;
+#endif
+
 #define MAX_GLOBALS_TABLE_LEN MAX_IDENT_TABLE_LEN
 
 /*
@@ -50,6 +55,7 @@ either expressed or implied, of the FreeBSD Project.
 char GlobalsTable[MAX_GLOBALS_TABLE_LEN];
 int GlobalsTableLen = 0;
 
+STATIC
 void GenAddGlobal(char* s, int use)
 {
   int i = 0;
@@ -75,6 +81,7 @@ void GenAddGlobal(char* s, int use)
   }
 }
 
+STATIC
 void GenInit(void)
 {
   // initialization of target-specific code generator
@@ -83,6 +90,7 @@ void GenInit(void)
   UseLeadingUnderscores = 1;
 }
 
+STATIC
 int GenInitParams(int argc, char** argv, int* idx)
 {
   (void)argc;
@@ -120,11 +128,17 @@ int GenInitParams(int argc, char** argv, int* idx)
     OutputFormat = FormatSegHuge; SizeOfWord = 4;
     return 1;
   }
+  else if (!strcmp(argv[*idx], "-winstack"))
+  {
+    WindowsStack = 1;
+    return 1;
+  }
 #endif
 
   return 0;
 }
 
+STATIC
 void GenInitFinalize(void)
 {
   // finalization of initialization of target-specific code generator
@@ -153,16 +167,19 @@ void GenInitFinalize(void)
   }
 }
 
+STATIC
 void GenStartCommentLine(void)
 {
   printf2("; ");
 }
 
+STATIC
 void GenWordAlignment(void)
 {
   printf2("\talign %d\n", SizeOfWord);
 }
 
+STATIC
 void GenLabel(char* Label, int Static)
 {
   if (UseLeadingUnderscores)
@@ -180,6 +197,7 @@ void GenLabel(char* Label, int Static)
   GenAddGlobal(Label, 1);
 }
 
+STATIC
 void GenPrintLabel(char* Label)
 {
   if (UseLeadingUnderscores)
@@ -198,6 +216,7 @@ void GenPrintLabel(char* Label)
   }
 }
 
+STATIC
 void GenNumLabel(int Label)
 {
   if (UseLeadingUnderscores)
@@ -206,6 +225,7 @@ void GenNumLabel(int Label)
     printf2("..@L%d:\n", Label);
 }
 
+STATIC
 void GenPrintNumLabel(int label)
 {
   if (UseLeadingUnderscores)
@@ -214,11 +234,13 @@ void GenPrintNumLabel(int label)
     printf2("..@L%d", label);
 }
 
+STATIC
 void GenZeroData(unsigned Size)
 {
   printf2("\ttimes\t%u db 0\n", truncUint(Size));
 }
 
+STATIC
 void GenIntData(int Size, int Val)
 {
   Val = truncInt(Val);
@@ -232,11 +254,13 @@ void GenIntData(int Size, int Val)
 #endif
 }
 
+STATIC
 void GenStartAsciiString(void)
 {
   printf2("\tdb\t");
 }
 
+STATIC
 void GenAddrData(int Size, char* Label, int ofs)
 {
   ofs = truncInt(ofs);
@@ -340,6 +364,7 @@ char* winstrs[] =
   "jmp",
 };
 
+STATIC
 void GenPrintInstr(int instr, int val)
 {
   char* p = "";
@@ -451,6 +476,7 @@ void GenPrintInstr(int instr, int val)
 #define X86OpIndRegBExplicitHalfWord    0x1D
 #define X86OpIndRegBExplicitByteOrWord  0x1E
 
+STATIC
 int GenSelectByteOrWord(int op, int opSz)
 {
   switch (op)
@@ -504,6 +530,7 @@ int GenSelectByteOrWord(int op, int opSz)
   return op;
 }
 
+STATIC
 void GenPrintOperand(int op, int val)
 {
   if (SizeOfWord == 2)
@@ -537,7 +564,7 @@ void GenPrintOperand(int op, int val)
   else
   {
     char* frame = (OutputFormat == FormatSegHuge) ? "bp" : "ebp";
-    char* base = (OutputFormat == FormatSegHuge) ? "bx" : "ebx";
+    char* base = (OutputFormat == FormatSegHuge) ? "si" : "ebx";
     switch (op)
     {
     case X86OpRegAByte: printf2("al"); break;
@@ -571,16 +598,19 @@ void GenPrintOperand(int op, int val)
 #endif
 }
 
+STATIC
 void GenPrintOperandSeparator(void)
 {
   printf2(", ");
 }
 
+STATIC
 void GenPrintNewLine(void)
 {
   puts2("");
 }
 
+STATIC
 void GenPrintInstrNoOperand(int instr)
 {
   GenPrintInstr(instr, 0);
@@ -588,19 +618,15 @@ void GenPrintInstrNoOperand(int instr)
 }
 
 #ifdef CAN_COMPILE_32BIT
-void GenSaveRestoreRegB(int restore)
-{
-  if (OutputFormat == FormatSegHuge)
-    puts2(restore ? "\tpop\tebx" : "\tpush\tebx");
-}
-
+STATIC
 void GenRegB2Seg(void)
 {
   if (OutputFormat == FormatSegHuge)
-    puts2("\tror\tebx, 4\n\tmov\tds, bx\n\tshr\tebx, 28");
+    puts2("\tmov\tesi, ebx\n\tror\tesi, 4\n\tmov\tds, si\n\tshr\tesi, 28");
 }
 #endif
 
+STATIC
 void GenPrintInstr1Operand(int instr, int instrval, int operand, int operandval)
 {
 #ifdef CAN_COMPILE_32BIT
@@ -629,6 +655,7 @@ void GenPrintInstr1Operand(int instr, int instrval, int operand, int operandval)
   GenPrintNewLine();
 }
 
+STATIC
 void GenPrintInstr2Operands(int instr, int instrval, int operand1, int operand1val, int operand2, int operand2val)
 {
   if (operand2 == X86OpConst && truncUint(operand2val) == 0 &&
@@ -694,6 +721,7 @@ void GenPrintInstr2Operands(int instr, int instrval, int operand1, int operand1v
   GenPrintNewLine();
 }
 
+STATIC
 void GenPrintInstr3Operands(int instr, int instrval,
                             int operand1, int operand1val,
                             int operand2, int operand2val,
@@ -708,6 +736,7 @@ void GenPrintInstr3Operands(int instr, int instrval,
   GenPrintNewLine();
 }
 
+STATIC
 void GenExtendRegAIfNeeded(int opSz)
 {
   if (SizeOfWord == 2)
@@ -742,21 +771,26 @@ void GenExtendRegAIfNeeded(int opSz)
 #endif
 }
 
+STATIC
 void GenJumpUncond(int label)
 {
   GenPrintInstr1Operand(X86InstrJmp, 0,
                         X86OpNumLabel, label);
 }
 
-void GenJumpIfNotEqual(int val, int label)
+#ifndef USE_SWITCH_TAB
+STATIC
+void GenJumpIfEqual(int val, int label)
 {
   GenPrintInstr2Operands(X86InstrCmp, 0,
                          X86OpRegAWord, 0,
                          X86OpConst, val);
-  GenPrintInstr1Operand(X86InstrJcc, tokNEQ,
+  GenPrintInstr1Operand(X86InstrJcc, tokEQ,
                         X86OpNumLabel, label);
 }
+#endif
 
+STATIC
 void GenJumpIfZero(int label)
 {
 #ifndef NO_ANNOTATIONS
@@ -769,6 +803,7 @@ void GenJumpIfZero(int label)
                         X86OpNumLabel, label);
 }
 
+STATIC
 void GenJumpIfNotZero(int label)
 {
 #ifndef NO_ANNOTATIONS
@@ -781,6 +816,7 @@ void GenJumpIfNotZero(int label)
                         X86OpNumLabel, label);
 }
 
+STATIC
 void GenFxnProlog(void)
 {
   GenPrintInstr1Operand(X86InstrPush, 0,
@@ -790,13 +826,41 @@ void GenFxnProlog(void)
                          X86OpRegSpWord, 0);
 }
 
+STATIC
 void GenLocalAlloc(int size)
 {
+#ifdef CAN_COMPILE_32BIT
+  if (SizeOfWord == 4 &&
+      OutputFormat != FormatSegHuge &&
+      WindowsStack &&
+      size >= 4096)
+  {
+    // When targeting Windows, call equivalent of _chkstk() to
+    // correctly grow the stack page by page by probing it
+    char s[1 + 2 + (2 + CHAR_BIT * sizeof WinChkStkLabel) / 3];
+    char *p = s + sizeof s;
+
+    if (!WinChkStkLabel)
+      WinChkStkLabel = LabelCnt++;
+
+    GenPrintInstr2Operands(X86InstrMov, 0,
+                           X86OpRegAWord, 0,
+                           X86OpConst, size);
+    *--p = '\0';
+    p = lab2str(p, WinChkStkLabel);
+    *--p = '_';
+    *--p = '_';
+    printf2("\tcall\t");
+    GenPrintLabel(p);
+    puts2("");
+  }
+#endif
   GenPrintInstr2Operands(X86InstrSub, 0,
                          X86OpRegSpWord, 0,
                          X86OpConst, size);
 }
 
+STATIC
 void GenFxnEpilog(void)
 {
   GenPrintInstrNoOperand(X86InstrLeave);
@@ -876,6 +940,7 @@ void GenIsrEpilog(void)
 }
 #endif
 
+STATIC
 void GenReadIdent(int opSz, int label)
 {
   GenPrintInstr2Operands(X86InstrMov, 0,
@@ -884,6 +949,7 @@ void GenReadIdent(int opSz, int label)
   GenExtendRegAIfNeeded(opSz);
 }
 
+STATIC
 void GenReadLocal(int opSz, int ofs)
 {
   GenPrintInstr2Operands(X86InstrMov, 0,
@@ -892,24 +958,22 @@ void GenReadLocal(int opSz, int ofs)
   GenExtendRegAIfNeeded(opSz);
 }
 
+STATIC
 void GenReadIndirect(int opSz)
 {
   GenPrintInstr2Operands(X86InstrMov, 0,
                          X86OpRegBWord, 0,
                          X86OpRegAWord, 0);
 #ifdef CAN_COMPILE_32BIT
-  GenSaveRestoreRegB(0);
   GenRegB2Seg();
 #endif
   GenPrintInstr2Operands(X86InstrMov, 0,
                          GenSelectByteOrWord(X86OpRegAByteOrWord, opSz), 0,
                          X86OpIndRegB, 0);
-#ifdef CAN_COMPILE_32BIT
-  GenSaveRestoreRegB(1);
-#endif
   GenExtendRegAIfNeeded(opSz);
 }
 
+STATIC
 void GenReadCRegIdent(int opSz, int label)
 {
   if (opSz == -1)
@@ -939,6 +1003,7 @@ void GenReadCRegIdent(int opSz, int label)
                            X86OpIndLabel, label);
 }
 
+STATIC
 void GenReadCRegLocal(int opSz, int ofs)
 {
   if (opSz == -1)
@@ -968,13 +1033,13 @@ void GenReadCRegLocal(int opSz, int ofs)
                            X86OpIndLocal, ofs);
 }
 
+STATIC
 void GenReadCRegIndirect(int opSz)
 {
   GenPrintInstr2Operands(X86InstrMov, 0,
                          X86OpRegBWord, 0,
                          X86OpRegAWord, 0);
 #ifdef CAN_COMPILE_32BIT
-  GenSaveRestoreRegB(0);
   GenRegB2Seg();
 #endif
   if (opSz == -1)
@@ -1002,11 +1067,9 @@ void GenReadCRegIndirect(int opSz)
     GenPrintInstr2Operands(X86InstrMov, 0,
                            X86OpRegCWord, 0,
                            X86OpIndRegB, 0);
-#ifdef CAN_COMPILE_32BIT
-  GenSaveRestoreRegB(1);
-#endif
 }
 
+STATIC
 void GenIncDecIdent(int opSz, int label, int tok)
 {
   int instr = X86InstrInc;
@@ -1022,6 +1085,7 @@ void GenIncDecIdent(int opSz, int label, int tok)
   GenExtendRegAIfNeeded(opSz);
 }
 
+STATIC
 void GenIncDecLocal(int opSz, int ofs, int tok)
 {
   int instr = X86InstrInc;
@@ -1037,6 +1101,7 @@ void GenIncDecLocal(int opSz, int ofs, int tok)
   GenExtendRegAIfNeeded(opSz);
 }
 
+STATIC
 void GenIncDecIndirect(int opSz, int tok)
 {
   int instr = X86InstrInc;
@@ -1048,7 +1113,6 @@ void GenIncDecIndirect(int opSz, int tok)
                          X86OpRegBWord, 0,
                          X86OpRegAWord, 0);
 #ifdef CAN_COMPILE_32BIT
-  GenSaveRestoreRegB(0);
   GenRegB2Seg();
 #endif
   GenPrintInstr1Operand(instr, 0,
@@ -1056,12 +1120,10 @@ void GenIncDecIndirect(int opSz, int tok)
   GenPrintInstr2Operands(X86InstrMov, 0,
                          GenSelectByteOrWord(X86OpRegAByteOrWord, opSz), 0,
                          X86OpIndRegB, 0);
-#ifdef CAN_COMPILE_32BIT
-  GenSaveRestoreRegB(1);
-#endif
   GenExtendRegAIfNeeded(opSz);
 }
 
+STATIC
 void GenPostIncDecIdent(int opSz, int label, int tok)
 {
   int instr = X86InstrInc;
@@ -1077,6 +1139,7 @@ void GenPostIncDecIdent(int opSz, int label, int tok)
                         GenSelectByteOrWord(X86OpIndLabelExplicitByteOrWord, opSz), label);
 }
 
+STATIC
 void GenPostIncDecLocal(int opSz, int ofs, int tok)
 {
   int instr = X86InstrInc;
@@ -1092,6 +1155,7 @@ void GenPostIncDecLocal(int opSz, int ofs, int tok)
                         GenSelectByteOrWord(X86OpIndLocalExplicitByteOrWord, opSz), ofs);
 }
 
+STATIC
 void GenPostIncDecIndirect(int opSz, int tok)
 {
   int instr = X86InstrInc;
@@ -1103,7 +1167,6 @@ void GenPostIncDecIndirect(int opSz, int tok)
                          X86OpRegBWord, 0,
                          X86OpRegAWord, 0);
 #ifdef CAN_COMPILE_32BIT
-  GenSaveRestoreRegB(0);
   GenRegB2Seg();
 #endif
   GenPrintInstr2Operands(X86InstrMov, 0,
@@ -1112,11 +1175,9 @@ void GenPostIncDecIndirect(int opSz, int tok)
   GenExtendRegAIfNeeded(opSz);
   GenPrintInstr1Operand(instr, 0,
                         GenSelectByteOrWord(X86OpIndRegBExplicitByteOrWord, opSz), 0);
-#ifdef CAN_COMPILE_32BIT
-  GenSaveRestoreRegB(1);
-#endif
 }
 
+STATIC
 void GenPostAddSubIdent(int opSz, int val, int label, int tok)
 {
   int instr = X86InstrAdd;
@@ -1133,6 +1194,7 @@ void GenPostAddSubIdent(int opSz, int val, int label, int tok)
                          X86OpConst, val);
 }
 
+STATIC
 void GenPostAddSubLocal(int opSz, int val, int ofs, int tok)
 {
   int instr = X86InstrAdd;
@@ -1149,6 +1211,7 @@ void GenPostAddSubLocal(int opSz, int val, int ofs, int tok)
                          X86OpConst, val);
 }
 
+STATIC
 void GenPostAddSubIndirect(int opSz, int val, int tok)
 {
   int instr = X86InstrAdd;
@@ -1160,7 +1223,6 @@ void GenPostAddSubIndirect(int opSz, int val, int tok)
                          X86OpRegBWord, 0,
                          X86OpRegAWord, 0);
 #ifdef CAN_COMPILE_32BIT
-  GenSaveRestoreRegB(0);
   GenRegB2Seg();
 #endif
   GenPrintInstr2Operands(X86InstrMov, 0,
@@ -1170,9 +1232,6 @@ void GenPostAddSubIndirect(int opSz, int val, int tok)
   GenPrintInstr2Operands(instr, 0,
                          GenSelectByteOrWord(X86OpIndRegBExplicitByteOrWord, opSz), 0,
                          X86OpConst, val);
-#ifdef CAN_COMPILE_32BIT
-  GenSaveRestoreRegB(1);
-#endif
 }
 
 #define tokOpNumInt      0x100
@@ -1188,6 +1247,7 @@ void GenPostAddSubIndirect(int opSz, int val, int tok)
 
 #define tokPushAcc       0x200
 
+STATIC
 int GetOperandInfo(int idx, int lvalSize, int* val, int* size, int* delDeref)
 {
   int idx0 = idx;
@@ -1272,6 +1332,7 @@ l2:
   }
 }
 
+STATIC
 void GenFuse(int* idx)
 {
   int tok;
@@ -1643,6 +1704,7 @@ l3:
   }
 }
 
+STATIC
 int GenGetBinaryOperatorInstr(int tok)
 {
   switch (tok)
@@ -1708,6 +1770,7 @@ int GenGetBinaryOperatorInstr(int tok)
 // Newer, less stack-dependent code generator,
 // generates more compact code (~30% less) than the stack-based generator
 #ifndef CG_STACK_BASED
+STATIC
 void GenExpr1(void)
 {
   int s = sp - 1;
@@ -2129,15 +2192,11 @@ void GenExpr1(void)
         GenPrintInstr1Operand(X86InstrPop, 0,
                               X86OpRegBWord, 0);
 #ifdef CAN_COMPILE_32BIT
-        GenSaveRestoreRegB(0);
         GenRegB2Seg();
 #endif
         GenPrintInstr2Operands(X86InstrMov, 0,
                                GenSelectByteOrWord(X86OpRegAByteOrWord, v / 16 - 8), 0,
                                X86OpIndRegB, 0);
-#ifdef CAN_COMPILE_32BIT
-        GenSaveRestoreRegB(1);
-#endif
         GenExtendRegAIfNeeded(v / 16 - 8);
         break;
       }
@@ -2541,15 +2600,11 @@ void GenExpr1(void)
         case tokOpIndAcc:
         case tokOpIndStack:
 #ifdef CAN_COMPILE_32BIT
-          GenSaveRestoreRegB(0);
           GenRegB2Seg();
 #endif
           GenPrintInstr2Operands(X86InstrMov, 0,
                                  X86OpIndRegB, 0,
                                  GenSelectByteOrWord(X86OpRegAByteOrWord, v / 16 - 8), 0);
-#ifdef CAN_COMPILE_32BIT
-          GenSaveRestoreRegB(1);
-#endif
           break;
         }
         // the result of the expression is of type of the
@@ -2622,6 +2677,7 @@ void GenExpr1(void)
 #else // #ifndef CG_STACK_BASED
 // Original, primitive stack-based code generator
 // DONE: test 32-bit code generation
+STATIC
 void GenExpr0(void)
 {
   int i;
@@ -2816,7 +2872,6 @@ void GenExpr0(void)
         GenPrintInstr1Operand(X86InstrPop, 0,
                               X86OpRegBWord, 0);
 #ifdef CAN_COMPILE_32BIT
-        GenSaveRestoreRegB(0);
         GenRegB2Seg();
 #endif
         GenPrintInstr2Operands(X86InstrMov, 0,
@@ -2828,9 +2883,6 @@ void GenExpr0(void)
         GenPrintInstr2Operands(instr, 0,
                                X86OpIndRegB, 0,
                                GenSelectByteOrWord(X86OpRegCByteOrWord, v), 0);
-#ifdef CAN_COMPILE_32BIT
-        GenSaveRestoreRegB(1);
-#endif
         GenExtendRegAIfNeeded(v);
       }
       break;
@@ -2846,7 +2898,6 @@ void GenExpr0(void)
         GenPrintInstr1Operand(X86InstrPop, 0,
                               X86OpRegBWord, 0);
 #ifdef CAN_COMPILE_32BIT
-        GenSaveRestoreRegB(0);
         GenRegB2Seg();
 #endif
         if (tok != tokAssignMul)
@@ -2866,9 +2917,6 @@ void GenExpr0(void)
                                  X86OpIndRegB, 0,
                                  GenSelectByteOrWord(X86OpRegAByteOrWord, v), 0);
         }
-#ifdef CAN_COMPILE_32BIT
-        GenSaveRestoreRegB(1);
-#endif
         GenExtendRegAIfNeeded(v);
       }
       break;
@@ -2880,7 +2928,6 @@ void GenExpr0(void)
       GenPrintInstr1Operand(X86InstrPop, 0,
                             X86OpRegBWord, 0);
 #ifdef CAN_COMPILE_32BIT
-      GenSaveRestoreRegB(0);
       GenRegB2Seg();
 #endif
       GenPrintInstr2Operands(X86InstrMov, 0,
@@ -2916,9 +2963,6 @@ void GenExpr0(void)
       GenPrintInstr2Operands(X86InstrMov, 0,
                              X86OpIndRegB, 0,
                              GenSelectByteOrWord(X86OpRegAByteOrWord, v), 0);
-#ifdef CAN_COMPILE_32BIT
-      GenSaveRestoreRegB(1);
-#endif
       GenExtendRegAIfNeeded(v);
       break;
 
@@ -2930,7 +2974,6 @@ void GenExpr0(void)
         GenPrintInstr1Operand(X86InstrPop, 0,
                               X86OpRegBWord, 0);
 #ifdef CAN_COMPILE_32BIT
-        GenSaveRestoreRegB(0);
         GenRegB2Seg();
 #endif
         GenPrintInstr2Operands(X86InstrMov, 0,
@@ -2942,9 +2985,6 @@ void GenExpr0(void)
         GenPrintInstr2Operands(X86InstrMov, 0,
                                GenSelectByteOrWord(X86OpRegAByteOrWord, v), 0,
                                X86OpIndRegB, 0);
-#ifdef CAN_COMPILE_32BIT
-        GenSaveRestoreRegB(1);
-#endif
         GenExtendRegAIfNeeded(v);
       }
       break;
@@ -2953,15 +2993,11 @@ void GenExpr0(void)
       GenPrintInstr1Operand(X86InstrPop, 0,
                             X86OpRegBWord, 0);
 #ifdef CAN_COMPILE_32BIT
-      GenSaveRestoreRegB(0);
       GenRegB2Seg();
 #endif
       GenPrintInstr2Operands(X86InstrMov, 0,
                              X86OpIndRegB, 0,
                              GenSelectByteOrWord(X86OpRegAByteOrWord, v), 0);
-#ifdef CAN_COMPILE_32BIT
-      GenSaveRestoreRegB(1);
-#endif
       GenExtendRegAIfNeeded(v);
       break;
 
@@ -3065,6 +3101,7 @@ void GenExpr0(void)
 }
 #endif // #ifndef CG_STACK_BASED
 
+STATIC
 unsigned GenStrData(int generatingCode, unsigned requiredLen)
 {
   int i;
@@ -3082,7 +3119,7 @@ unsigned GenStrData(int generatingCode, unsigned requiredLen)
       unsigned len;
 
       p = FindString(label);
-      len = *p++;
+      len = *p++ & 0xFF;
 
       // If this is a string literal initializing an array of char,
       // truncate or pad it as necessary.
@@ -3174,6 +3211,7 @@ unsigned GenStrData(int generatingCode, unsigned requiredLen)
   return total;
 }
 
+STATIC
 void GenExpr(void)
 {
   if (OutputFormat != FormatFlat && GenExterns)
@@ -3191,6 +3229,7 @@ void GenExpr(void)
 #endif
 }
 
+STATIC
 void GenFin(void)
 {
   if (StructCpyLabel)
@@ -3279,6 +3318,148 @@ void GenFin(void)
       puts2(CodeFooter);
   }
 
+#ifdef USE_SWITCH_TAB
+  if (SwitchJmpLabel)
+  {
+    char s[1 + 2 + (2 + CHAR_BIT * sizeof SwitchJmpLabel) / 3];
+    char *p = s + sizeof s;
+
+    *--p = '\0';
+    p = lab2str(p, SwitchJmpLabel);
+    *--p = '_';
+    *--p = '_';
+
+    if (OutputFormat != FormatFlat)
+      puts2(CodeHeader);
+
+    GenLabel(p, 1);
+    GenFxnProlog();
+
+    if (SizeOfWord == 2)
+    {
+      int lbl = (LabelCnt += 3) - 3;
+      puts2("\tmov\tbx, [bp + 4]\n"
+            "\tmov\tsi, [bx + 2]\n"
+            "\tmov\tcx, [bx]");
+      printf2("\tjcxz\t"); GenPrintNumLabel(lbl + 2); // jcxz L3
+      puts2("\n\tmov\tax, [bp + 6]");
+      GenNumLabel(lbl); // L1:
+      puts2("\tadd\tbx, 4\n"
+            "\tcmp\tax, [bx]");
+      printf2("\tjne\t"); GenPrintNumLabel(lbl + 1); // jne L2
+      puts2("\n\tmov\tsi, [bx + 2]");
+      printf2("\tjmp\t"); GenPrintNumLabel(lbl + 2); // jmp L3
+      puts2("");
+      GenNumLabel(lbl + 1); // L2:
+      printf2("\tloop\t"); GenPrintNumLabel(lbl); // loop L1
+      puts2("");
+      GenNumLabel(lbl + 2); // L3:
+      puts2("\tmov\t[bp + 2], si\n"
+            "\tleave\n"
+            "\tret\t4");
+    }
+#ifdef CAN_COMPILE_32BIT
+    else if (OutputFormat != FormatSegHuge)
+    {
+      int lbl = (LabelCnt += 3) - 3;
+      puts2("\tmov\tebx, [ebp + 8]\n"
+            "\tmov\tesi, [ebx + 4]\n"
+            "\tmov\tecx, [ebx]");
+      printf2("\tjecxz\t"); GenPrintNumLabel(lbl + 2); // jecxz L3
+      puts2("\n\tmov\teax, [ebp + 12]");
+      GenNumLabel(lbl); // L1:
+      puts2("\tadd\tebx, 8\n"
+            "\tcmp\teax, [ebx]");
+      printf2("\tjne\t"); GenPrintNumLabel(lbl + 1); // jne L2
+      puts2("\n\tmov\tesi, [ebx + 4]");
+      printf2("\tjmp\t"); GenPrintNumLabel(lbl + 2); // jmp L3
+      puts2("");
+      GenNumLabel(lbl + 1); // L2:
+      printf2("\tloop\t"); GenPrintNumLabel(lbl); // loop L1
+      puts2("");
+      GenNumLabel(lbl + 2); // L3:
+      puts2("\tmov\t[ebp + 4], esi\n"
+            "\tleave\n"
+            "\tret\t8");
+    }
+    else
+    {
+      int lbl = (LabelCnt += 3) - 3;
+      puts2("\tmov\tebx, [bp + 8]\n"
+            "\tror\tebx, 4\n"
+            "\tmov\tds, ebx\n"
+            "\tshr\tebx, 28\n"
+            "\tmov\tsi, [bx + 4]\n"
+            "\tmov\tcx, [bx]"); // use only 16 bits of case counter
+      printf2("\tjcxz\t"); GenPrintNumLabel(lbl + 2); // jcxz L3
+      puts2("\n\tmov\teax, [bp + 12]");
+      GenNumLabel(lbl); // L1:
+      // No segment reload inside the loop, hence the number of cases is limited to ~8190
+      puts2("\tadd\tbx, 8\n"
+            "\tcmp\teax, [bx]");
+      printf2("\tjne\t"); GenPrintNumLabel(lbl + 1); // jne L2
+      puts2("\n\tmov\tsi, [bx + 4]");
+      printf2("\tjmp\t"); GenPrintNumLabel(lbl + 2); // jmp L3
+      puts2("");
+      GenNumLabel(lbl + 1); // L2:
+      printf2("\tloop\t"); GenPrintNumLabel(lbl); // loop L1
+      puts2("");
+      GenNumLabel(lbl + 2); // L3:
+      // Preserve CS on return
+      puts2("\tmov\tax, [bp + 6]\n"
+            "\tshl\tax, 4\n"
+            "\tsub\tsi, ax\n"
+            "\tmov\t[bp + 4], si\n"
+            "\tdb\t0x66\n"
+            "\tleave\n"
+            "\tretf\t8");
+    }
+#endif
+
+    // Not using GenFxnEpilog() here because we need to remove the parameters
+    // from the stack
+//    GenFxnEpilog();
+
+    if (OutputFormat != FormatFlat)
+      puts2(CodeFooter);
+  }
+#endif
+
+#ifdef CAN_COMPILE_32BIT
+  if (WinChkStkLabel)
+  {
+    // When targeting Windows, simulate _chkstk() to
+    // correctly grow the stack page by page by probing it
+    char s[1 + 2 + (2 + CHAR_BIT * sizeof WinChkStkLabel) / 3];
+    char *p = s + sizeof s;
+    int lbl = LabelCnt++;
+
+    *--p = '\0';
+    p = lab2str(p, WinChkStkLabel);
+    *--p = '_';
+    *--p = '_';
+
+    if (OutputFormat != FormatFlat)
+      puts2(CodeHeader);
+
+    GenLabel(p, 1);
+    puts2("\tlea\tebx, [esp+4]\n"
+          "\tmov\tecx, ebx\n"
+          "\tsub\tecx, eax\n"
+          "\tand\tebx, -4096\n"
+          "\tand\tecx, -4096");
+    GenNumLabel(lbl); // L1:
+    puts2("\tsub\tebx, 4096\n"
+          "\tmov\tal, [ebx]\n"
+          "\tcmp\tebx, ecx");
+    printf2("\tjne\t"); GenPrintNumLabel(lbl); // jne L1
+    puts2("\n\tret");
+
+    if (OutputFormat != FormatFlat)
+      puts2(CodeFooter);
+  }
+#endif
+
   if (OutputFormat != FormatFlat && GenExterns)
   {
     int i = 0;
@@ -3296,3 +3477,4 @@ void GenFin(void)
     }
   }
 }
+

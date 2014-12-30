@@ -1,5 +1,5 @@
 
-all:	ashello echo chello
+all:	ashello echo chello stdarg skeleton
 
 ashello: ashello.o
 	$(LD) ashello.o -o $@
@@ -10,5 +10,11 @@ chello: chello.o
 echo:   echo.o
 	$(LD) $@.o -o $@
 
+stdarg: stdarg.o
+	$(CC) stdarg.o -o $@
+
+skeleton: skeleton.o
+	$(CC) skeleton.o -o $@
+
 clean:
-	rm -f *.o ashello echo chello *.dis *~
+	rm -f *.o ashello echo chello stdarg skeleton *.dis *~

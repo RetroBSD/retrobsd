@@ -71,7 +71,7 @@ To compile the kernel and build a filesystem image, run:
 $ make
 ```
 
-A resulting root filesystem image is in file `sdcard.rd`.
+A resulting root filesystem image is in file `sdcard.img`.
 A kernel is in file `unix.hex` in your target board subdirectory.
 
 
@@ -82,7 +82,7 @@ Win32DiskImager utility (https://launchpad.net/win32-image-writer/+download).
 On Linux, run:
 
 ```shell
-$ sudo dd if=sdcard.rd of=/dev/XYZ
+$ sudo dd if=sdcard.img of=/dev/XYZ
 ```
 
 Here `XYZ` is a device name of SD card, as recognized by Linux (sdb in my case).

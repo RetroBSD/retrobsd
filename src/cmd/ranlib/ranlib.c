@@ -68,7 +68,12 @@
 #include <ar.h>
 #include <ranlib.h>
 #include <a.out.h>
-#include "archive.h"
+
+#ifdef CROSS
+#   include "../ar/archive.h"
+#else
+#   include "archive.h"
+#endif
 
 u_int options;				/* UNUSED -- keep open_archive happy */
 

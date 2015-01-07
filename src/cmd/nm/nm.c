@@ -23,7 +23,11 @@
 #include <ar.h>
 #include <a.out.h>
 
-#include "archive.h"
+#ifdef CROSS
+#   include "../ar/archive.h"
+#else
+#   include "archive.h"
+#endif
 
 CHDR	chdr;
 

@@ -183,7 +183,7 @@ int fs_set_partition (fs_t *fs, unsigned pindex)
     }
     fs->part_offset *= 512;
 //printf ("Partition %u, type %02x, offset=%uk, length=%uk\n", pindex, fs->part_type, fs->part_offset/1024, fs->part_nsectors/2);
-    return 1;
+    return fs_seek (fs, 0);
 }
 
 int fs_open (fs_t *fs, const char *filename, int writable, unsigned pindex)

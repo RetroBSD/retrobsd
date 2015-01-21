@@ -1568,10 +1568,19 @@ loop:
 				if (ce == 0) {
 					tp->t_rocount = 0;
 					if (ttyoutput(*cp, tp) >= 0) {
-					    /* no c-lists, wait a bit */
-					    ttstart(tp);
-					    sleep((caddr_t)&lbolt, TTOPRI);
-					    goto loop;
+overflow:                                       /* out of c-lists */
+                                                s = spltty();
+                                                ttstart(tp);
+                                                if (flag & IO_NDELAY) {
+                                                        splx(s);
+                                                        uio->uio_resid += cc;
+                                                        return (uio->uio_resid == cnt ?
+                                                                EWOULDBLOCK : 0);
+                                                }
+                                                tp->t_state |= TS_ASLEEP;
+                                                sleep((caddr_t)&tp->t_outq, TTOPRI);
+                                                splx(s);
+                                                goto loop;
 					}
 					cp++, cc--;
 					if (tp->t_flags & FLUSHO ||
@@ -1597,10 +1606,8 @@ loop:
  			tk_nout += ce;
 #endif
 			if (i > 0) {
-				/* out of c-lists, wait a bit */
-				ttstart(tp);
-				sleep((caddr_t)&lbolt, TTOPRI);
-				goto loop;
+                                /* out of c-lists */
+                                goto overflow;
 			}
 			if (tp->t_flags & FLUSHO || tp->t_outq.c_cc > hiwat)
 				break;

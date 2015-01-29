@@ -30,6 +30,7 @@ FUBARINO        = sys/pic32/fubarino/FUBARINO
 FUBARINOBIG     = sys/pic32/fubarino/FUBARINO-UART2CONS-UART1-SRAMC
 SDXL            = sys/pic32/sdxl/SDXL
 MMBMX7          = sys/pic32/mmb-mx7/MMB-MX7
+WF32            = sys/pic32/wf32/WF32
 
 # Select target board
 TARGET          ?= $(MAX32)

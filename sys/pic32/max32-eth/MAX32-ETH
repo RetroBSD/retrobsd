@@ -17,7 +17,7 @@ device uart2 baud=115200
 device uart3 baud=115200
 device uart4 baud=115200
 
-device sd0 port=2 cs=4
+device sd0 port=2 cs=4 mhz=10
 device gpio
 device spi
 device adc

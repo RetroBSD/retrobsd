@@ -12,25 +12,24 @@
 # Supported boards
 #
 MAX32           = sys/pic32/max32/MAX32
-MAX32-ETH       = sys/pic32/max32-eth/MAX32-ETH
-UBW32           = sys/pic32/ubw32/UBW32
-UBW32UART       = sys/pic32/ubw32-uart/UBW32-UART
-UBW32UARTSDRAM  = sys/pic32/ubw32-uart-sdram/UBW32-UART-SDRAM
+FUBARINO        = sys/pic32/fubarino/FUBARINO
+FUBARINOBIG     = sys/pic32/fubarino/FUBARINO-UART2CONS-UART1-SRAMC
+SDXL            = sys/pic32/sdxl/SDXL
 MAXIMITE        = sys/pic32/maximite/MAXIMITE
 MAXCOLOR        = sys/pic32/maximite-color/MAXCOLOR
-EXPLORER16      = sys/pic32/explorer16/EXPLORER16
-STARTERKIT      = sys/pic32/starter-kit/STARTER-KIT
 DUINOMITE       = sys/pic32/duinomite/DUINOMITE
 DUINOMITEUART   = sys/pic32/duinomite-uart/DUINOMITE-UART
 DUINOMITEE      = sys/pic32/duinomite-e/DUINOMITE-E
 DUINOMITEEUART  = sys/pic32/duinomite-e-uart/DUINOMITE-E-UART
-BAREMETAL       = sys/pic32/baremetal/BAREMETAL
-RETROONE        = sys/pic32/retroone/RETROONE
-FUBARINO        = sys/pic32/fubarino/FUBARINO
-FUBARINOBIG     = sys/pic32/fubarino/FUBARINO-UART2CONS-UART1-SRAMC
-SDXL            = sys/pic32/sdxl/SDXL
 MMBMX7          = sys/pic32/mmb-mx7/MMB-MX7
 WF32            = sys/pic32/wf32/WF32
+UBW32           = sys/pic32/ubw32/UBW32
+UBW32UART       = sys/pic32/ubw32-uart/UBW32-UART
+UBW32UARTSDRAM  = sys/pic32/ubw32-uart-sdram/UBW32-UART-SDRAM
+EXPLORER16      = sys/pic32/explorer16/EXPLORER16
+STARTERKIT      = sys/pic32/starter-kit/STARTER-KIT
+BAREMETAL       = sys/pic32/baremetal/BAREMETAL
+RETROONE        = sys/pic32/retroone/RETROONE
 
 # Select target board
 TARGET          ?= $(MAX32)

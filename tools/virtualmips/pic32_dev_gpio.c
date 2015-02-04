@@ -38,8 +38,8 @@
 #define MASKD_PS2D      (1 << 7)
 
 #elif defined MAX32
-#define MASKD_CS0       (1 << 3)            // D3: sd0 on SPI4
-#define MASKD_CS1       (1 << 4)            // D4: sd1 on SPI4
+#define MASKC_CS0       (1 << 14)           // C14: sd0 on SPI2
+#define MASKD_CS1       (1 << 1)            // D1:  sd1 on SPI2
 
 #elif defined EXPLORER16
 #define MASKB_CS0       (1 << 1)            // B1: sd0 on SPI1
@@ -257,6 +257,13 @@ lat_c:      d->lat_c = write_op (d->lat_c, *data, offset);
             else
                 dev_swap_ldaddr (cpu, 1);
 #endif
+#ifdef MAX32
+            /* Control SD card 0 */
+            if (d->lat_c & MASKC_CS0)
+                dev_sdcard_select (cpu, 0, 0);
+            else
+                dev_sdcard_select (cpu, 0, 1);
+#endif
         }
         break;
 
@@ -312,12 +319,6 @@ lat_c:      d->lat_c = write_op (d->lat_c, *data, offset);
         } else {
 lat_d:      d->lat_d = write_op (d->lat_d, *data, offset);
 #ifdef MAX32
-            /* Control SD card 0 */
-            if (d->lat_d & MASKD_CS0)
-                dev_sdcard_select (cpu, 0, 0);
-            else
-                dev_sdcard_select (cpu, 0, 1);
-
             /* Control SD card 1 */
             if (d->lat_d & MASKD_CS1)
                 dev_sdcard_select (cpu, 1, 0);

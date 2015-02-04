@@ -40,23 +40,22 @@ To select another target board, edit a top-level user-specific Makefile called "
 and set a TARGET value:
 
 ```Makefile
-TARGET = $(UBW32)          # for the UBW32 board with USB console
-TARGET = $(UBW32UART)      # for the UBW32 board with UART console
-TARGET = $(UBW32UARTSDRAM) # for the UBW32 boars with UART console and 8MB SRAM ramdisk
+TARGET = $(MAX32)          # for the chipKIT Max32 board with SD card shield (default)
+TARGET = $(FUBARINO)       # Fubarino SD board
+TARGET = $(FUBARINOBIG)    # Fubarino SD board with 8MB SRAM RAMDISK
 TARGET = $(MAXIMITE)       # for the Maximite board
 TARGET = $(MAXCOLOR)       # for the Colour Maximite board
-TARGET = $(EXPLORER16)     # for the Explorer 16 board
-TARGET = $(STARTERKIT)     # for the PIC32 USB or Ethernet Starter Kit
-TARGET = $(MAX32)          # default
-TARGET = $(MAX32-ETH)      # for the chipKIT MAX32 board with Arduino Ethernet shield
 TARGET = $(DUINOMITE)      # for the Duinomite board with USB console
 TARGET = $(DUINOMITEUART)  # for the Duinomite board with UART console
 TARGET = $(DUINOMITEE)     # for the Duinomite E board with USB console
 TARGET = $(DUINOMITEEUART) # for the Duinomite E board with UART console
-TARGET = $(BAREMETAL)      # Bare PIC32 chip on a breakout board
-TARGET = $(FUBARINO)       # Fubarino SD board
-TARGET = $(FUBARINOBIG)    # Fubarino SD board with 8MB SRAM RAMDISK
 TARGET = $(MMBMX7)         # MMB MX7 board
+TARGET = $(UBW32)          # for the UBW32 board with USB console
+TARGET = $(UBW32UART)      # for the UBW32 board with UART console
+TARGET = $(UBW32UARTSDRAM) # for the UBW32 boars with UART console and 8MB SRAM ramdisk
+TARGET = $(EXPLORER16)     # for the Explorer 16 board
+TARGET = $(STARTERKIT)     # for the PIC32 USB or Ethernet Starter Kit
+TARGET = $(BAREMETAL)      # Bare PIC32 chip on a breakout board
 ```
 
 You can also change a desired filesystem size and swap area size,
@@ -94,11 +93,11 @@ Kernel image should be written to PIC32 flash memory.  The procedure depends
 on a board used.
 
 #### Max32 board:
+Use a pic32prog utility (http://code.google.com/p/pic32prog/)
+and a USB cable to install a kernel:
+
 ```shell
-$ cd sys/pic32/ubw32
-$ AVRTOOLS=/Applications/Mpide.app/Contents/Resources/Java/hardware/tools/avr
-    $AVRTOOLS/bin/avrdude -C$AVRTOOLS/etc/avrdude.conf -c stk500v2 -p pic32 \
-    -P /dev/tty.usbserial-* -b 115200 -v -U flash:w:unix.hex:i
+$ pic32prog -d /dev/ttyUSB0 sys/pic32/max32/unix.hex
 ```
 
 Here you need to change AVRTOOLS path and tty name according to your system.

@@ -68,7 +68,7 @@ DEFS += -DUCB_METER
 
 LDSCRIPT = ../../../tools/configsys/../../sys/pic32/cfg/bootloader-max32.ld
 
-CONFIG = MAX32-ETH
+CONFIG = MAX32
 CONFIGPATH = ../../../tools/configsys
 
 include ../../../tools/configsys/../../sys/pic32/kernel-post.mk

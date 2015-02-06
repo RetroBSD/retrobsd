@@ -21,5 +21,6 @@ device sd0 port=2 cs=4 mhz=10
 device gpio
 device spi
 device adc
+#device skel
 
 device foreignbootloader

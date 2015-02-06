@@ -58,6 +58,10 @@ extern int strcmp(char *s1, char *s2);
 #   include "hx8357.h"
 #endif
 
+#ifdef SKEL_ENABLED
+#   include "skel.h"
+#endif
+
 /*
  * Null routine; placed in insignificant entries
  * in the bdevsw and cdevsw tables.
@@ -82,7 +86,6 @@ int noioctl (dev, cmd, data, flag)
     int flag;
 {
     return EIO;
-;
 }
 
 /*
@@ -254,6 +257,14 @@ const struct cdevsw cdevsw[] = {
     hx8357_open,    hx8357_close,   hx8357_read,    hx8357_write,
     hx8357_ioctl,   nulldev,        hx8357_ttys,    hx8357_select,
     nostrategy,     hx8357_getc,    hx8357_putc,    hx8357devs
+},
+#endif
+
+#ifdef SKEL_ENABLED
+{
+    skeldev_open,   skeldev_close,  skeldev_read,   skeldev_write,
+    skeldev_ioctl,  nulldev,        0,              seltrue,
+    nostrategy,     0,              0,              skeldevs
 },
 #endif
 

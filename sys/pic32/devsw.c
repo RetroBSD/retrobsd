@@ -23,39 +23,39 @@
 extern int strcmp(char *s1, char *s2);
 
 #ifdef UARTUSB_ENABLED
-#include "usb_uart.h"
+#   include "usb_uart.h"
 #endif
 
 #ifdef GPIO_ENABLED
-#include "gpio.h"
+#   include "gpio.h"
 #endif
 
 #ifdef ADC_ENABLED
-#include "adc.h"
+#   include "adc.h"
 #endif
 
 #ifdef SPI_ENABLED
-#include "spi.h"
+#   include "spi.h"
 #endif
 
 #ifdef GLCD_ENABLED
-#include "glcd.h"
+#   include "glcd.h"
 #endif
 
 #ifdef OC_ENABLED
-#include "oc.h"
+#   include "oc.h"
 #endif
 
 #ifdef PICGA_ENABLED
-#include "picga.h"
+#   include "picga.h"
 #endif
 
 #ifdef PTY_ENABLED
-#include "pty.h"
+#   include "pty.h"
 #endif
 
 #ifdef HX8357_ENABLED
-#include "hx8357.h"
+#   include "hx8357.h"
 #endif
 
 /*
@@ -117,13 +117,16 @@ const struct bdevsw bdevsw[] = {
 
 const int nblkdev = sizeof(bdevsw) / sizeof(bdevsw[0]) - 1;
 
-// The RetroDisks require the same master number as the disk entry in the
-// rdisk.c file.  A bit of a bind, but it means that the RetroDisk
-// devices must be numbered from master 0 upwards.
+/*
+ * The RetroDisks require the same master number as the disk entry in the
+ * rdisk.c file.  A bit of a bind, but it means that the RetroDisk
+ * devices must be numbered from master 0 upwards.
+ */
+const struct cdevsw cdevsw[] = {
 
-const struct cdevsw     cdevsw[] = {
-
-// Static drivers - every system has these:
+/*
+ * Static drivers - every system has these:
+ */
 
 { /* cn = 0 */
     cnopen,         cnclose,        cnread,         cnwrite,
@@ -155,18 +158,21 @@ const struct cdevsw     cdevsw[] = {
     nostrategy,     0,              0,              swapcdevs
 },
 
-
-// Optional drivers from here on:
+/*
+ * Optional drivers from here on:
+ */
 
 #ifdef LOG_ENABLED
-{ /* log = 3 */
+{
     logopen,        logclose,       logread,        norw,
     logioctl,       nulldev,        0,              logselect,
     nostrategy,     0,              0,              logdevs
 },
 #endif
 
-#if defined(UART1_ENABLED) || defined(UART2_ENABLED) || defined(UART3_ENABLED) || defined(UART4_ENABLED) || defined(UART5_ENABLED) || defined(UART6_ENABLED)
+#if defined(UART1_ENABLED) || defined(UART2_ENABLED) || \
+    defined(UART3_ENABLED) || defined(UART4_ENABLED) || \
+    defined(UART5_ENABLED) || defined(UART6_ENABLED)
 {
     uartopen,       uartclose,      uartread,       uartwrite,
     uartioctl,      nulldev,        uartttys,       uartselect,
@@ -251,13 +257,12 @@ const struct cdevsw     cdevsw[] = {
 },
 #endif
 
-// End the list with a blank entry
-{
-    0,              0,              0,              0,
-    0,              0,              0,              0,
-    0,              0,              0,              0
-},
+/*
+ * End the list with a blank entry
+ */
+{ 0 },
 };
+
 const int nchrdev = sizeof(cdevsw) / sizeof(cdevsw[0]) - 1;
 
 /*

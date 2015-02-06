@@ -1,0 +1,4 @@
+always
+    file skel.o
+    define SKEL_ENABLED YES
+end always

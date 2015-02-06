@@ -21,7 +21,7 @@
  * arising out of or in connection with the use or performance of
  * this software.
  */
-#ifndef	_SKEL_H
+#ifndef _SKEL_H
 #define _SKEL_H
 
 #include <sys/ioctl.h>

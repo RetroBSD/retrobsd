@@ -64,24 +64,24 @@ extern int strcmp(char *s1, char *s2);
  */
 int nulldev ()
 {
-	return (0);
+    return (0);
 }
 
 int norw (dev, uio, flag)
-	dev_t dev;
-	struct uio *uio;
-	int flag;
+    dev_t dev;
+    struct uio *uio;
+    int flag;
 {
-	return (0);
+    return (0);
 }
 
 int noioctl (dev, cmd, data, flag)
-	dev_t dev;
-	u_int cmd;
-	caddr_t data;
-	int flag;
+    dev_t dev;
+    u_int cmd;
+    caddr_t data;
+    int flag;
 {
-	return EIO; 
+    return EIO;
 ;
 }
 
@@ -89,30 +89,30 @@ int noioctl (dev, cmd, data, flag)
  * root attach routine
  */
 void noroot (csr)
-	caddr_t csr;
+    caddr_t csr;
 {
-	/* Empty. */
+    /* Empty. */
 }
 
-const struct bdevsw	bdevsw[] = {
-{ 
-	rdopen,		rdclose,	rdstrategy,
-	noroot,		rdsize,		rdioctl,	0, rd0devs },
-{ 
-	rdopen,		rdclose,	rdstrategy,
-	noroot,		rdsize,		rdioctl,	0, rd1devs },
-{ 
-	rdopen,		rdclose,	rdstrategy,
-	noroot,		rdsize,		rdioctl,	0, rd2devs },
-{ 
-	rdopen,		rdclose,	rdstrategy,
-	noroot,		rdsize,		rdioctl,	0, rd3devs },
-{ 
-	swopen,		swclose,	swstrategy,
-	noroot,		swsize,		swcioctl,	0, swapbdevs },
+const struct bdevsw bdevsw[] = {
 {
-    0,          0,          0,
-    0,          0,          0,          0, 0 },
+    rdopen,         rdclose,        rdstrategy,
+    noroot,         rdsize,         rdioctl,        0, rd0devs },
+{
+    rdopen,         rdclose,        rdstrategy,
+    noroot,         rdsize,         rdioctl,        0, rd1devs },
+{
+    rdopen,         rdclose,        rdstrategy,
+    noroot,         rdsize,         rdioctl,        0, rd2devs },
+{
+    rdopen,         rdclose,        rdstrategy,
+    noroot,         rdsize,         rdioctl,        0, rd3devs },
+{
+    swopen,         swclose,        swstrategy,
+    noroot,         swsize,         swcioctl,       0, swapbdevs },
+{
+    0,              0,              0,
+    0,              0,              0,              0, 0 },
 };
 
 const int nblkdev = sizeof(bdevsw) / sizeof(bdevsw[0]) - 1;
@@ -121,38 +121,38 @@ const int nblkdev = sizeof(bdevsw) / sizeof(bdevsw[0]) - 1;
 // rdisk.c file.  A bit of a bind, but it means that the RetroDisk
 // devices must be numbered from master 0 upwards.
 
-const struct cdevsw	cdevsw[] = {
+const struct cdevsw     cdevsw[] = {
 
 // Static drivers - every system has these:
 
 { /* cn = 0 */
-	cnopen,		cnclose,	cnread,		cnwrite,
-	cnioctl,	nulldev,	cnttys,		cnselect,
-	nostrategy, 0, 0, cndevs 
+    cnopen,         cnclose,        cnread,         cnwrite,
+    cnioctl,        nulldev,        cnttys,         cnselect,
+    nostrategy,     0,              0,              cndevs
 },
 
 { /* mem = 1 */
-	nulldev,	nulldev,	mmrw,		mmrw,
-	noioctl,	nulldev,	0,		seltrue,
-	nostrategy, 0, 0, mmdevs 
+    nulldev,        nulldev,        mmrw,           mmrw,
+    noioctl,        nulldev,        0,              seltrue,
+    nostrategy,     0,              0,              mmdevs
 },
 
 { /* tty = 2 */
-	syopen,		nulldev,	syread,		sywrite,
-	syioctl,	nulldev,	0,		syselect,
-	nostrategy, 0, 0, sydevs 
+    syopen,         nulldev,        syread,         sywrite,
+    syioctl,        nulldev,        0,              syselect,
+    nostrategy,     0,              0,              sydevs
 },
 
 { /* fd = 3 */
-	fdopen,		nulldev,	norw,		norw,
-	noioctl,	nulldev,	0,		seltrue,
-	nostrategy, 0, 0, fddevs 
+    fdopen,         nulldev,        norw,           norw,
+    noioctl,        nulldev,        0,              seltrue,
+    nostrategy,     0,              0,              fddevs
 },
 
 { /* swap = 4 */
-	swcopen,	swcclose,	swcread,	swcwrite,
-	swcioctl,	nulldev,	0,		seltrue,
-	nostrategy, 0, 0, swapcdevs 
+    swcopen,        swcclose,       swcread,        swcwrite,
+    swcioctl,       nulldev,        0,              seltrue,
+    nostrategy,     0,              0,              swapcdevs
 },
 
 
@@ -160,17 +160,17 @@ const struct cdevsw	cdevsw[] = {
 
 #ifdef LOG_ENABLED
 { /* log = 3 */
-	logopen,	logclose,	logread,	norw,
-	logioctl,	nulldev,	0,		logselect,
-	nostrategy, 0, 0, logdevs 
+    logopen,        logclose,       logread,        norw,
+    logioctl,       nulldev,        0,              logselect,
+    nostrategy,     0,              0,              logdevs
 },
 #endif
 
 #if defined(UART1_ENABLED) || defined(UART2_ENABLED) || defined(UART3_ENABLED) || defined(UART4_ENABLED) || defined(UART5_ENABLED) || defined(UART6_ENABLED)
 {
-    uartopen,      uartclose,     uartread,      uartwrite,
-    uartioctl,     nulldev,       uartttys,      uartselect,
-    nostrategy,    uartgetc,      uartputc,      uartdevs 
+    uartopen,       uartclose,      uartread,       uartwrite,
+    uartioctl,      nulldev,        uartttys,       uartselect,
+    nostrategy,     uartgetc,       uartputc,       uartdevs
 },
 #endif
 
@@ -178,51 +178,51 @@ const struct cdevsw	cdevsw[] = {
 {
     usbopen,        usbclose,       usbread,        usbwrite,
     usbioctl,       nulldev,        usbttys,        usbselect,
-    nostrategy, usbgetc, usbputc, usbdevs
+    nostrategy,     usbgetc,        usbputc,        usbdevs
 },
 #endif
 
 #ifdef PTY_ENABLED
-{  
+{
     ptsopen,        ptsclose,       ptsread,        ptswrite,
-    ptyioctl,       nulldev,        pt_tty,        ptcselect,
-    nostrategy, 0, 0, ptsdevs
+    ptyioctl,       nulldev,        pt_tty,         ptcselect,
+    nostrategy,     0,              0,              ptsdevs
 }, {
     ptcopen,        ptcclose,       ptcread,        ptcwrite,
-    ptyioctl,       nulldev,        pt_tty,        ptcselect,
-    nostrategy, 0, 0, ptcdevs
+    ptyioctl,       nulldev,        pt_tty,         ptcselect,
+    nostrategy,     0,              0,              ptcdevs
 },
 #endif
 
 #ifdef GPIO_ENABLED
 {
-	gpioopen,	gpioclose,	gpioread,	gpiowrite,
-	gpioioctl,	nulldev,	0,              seltrue,
-	nostrategy, 0, 0, gpiodevs 
+    gpioopen,       gpioclose,      gpioread,       gpiowrite,
+    gpioioctl,      nulldev,        0,              seltrue,
+    nostrategy,     0,              0,              gpiodevs
 },
 #endif
 
 #ifdef ADC_ENABLED
 {
-	adc_open,	adc_close,	adc_read,	adc_write,
-	adc_ioctl,	nulldev,	0,              seltrue,
-	nostrategy, 0, 0, adcdevs
+    adc_open,       adc_close,      adc_read,       adc_write,
+    adc_ioctl,      nulldev,        0,              seltrue,
+    nostrategy,     0,              0,              adcdevs
 },
 #endif
 
 #ifdef SPI_ENABLED
 {
-	spidev_open,	spidev_close,	spidev_read,	spidev_write,
-	spidev_ioctl,	nulldev,	0,              seltrue,
-	nostrategy, 0, 0, spidevs
+    spidev_open,    spidev_close,   spidev_read,    spidev_write,
+    spidev_ioctl,   nulldev,        0,              seltrue,
+    nostrategy,     0,              0,              spidevs
 },
 #endif
 
 #ifdef GLCD_ENABLED
-{ 
+{
     glcd_open,      glcd_close,     glcd_read,      glcd_write,
     glcd_ioctl,     nulldev,        0,              seltrue,
-    nostrategy,  0, 0, glcddevs
+    nostrategy,     0,              0,              glcddevs
 },
 #endif
 
@@ -230,7 +230,7 @@ const struct cdevsw	cdevsw[] = {
 {
     oc_open,        oc_close,       oc_read,        oc_write,
     oc_ioctl,       nulldev,        0,              seltrue,
-    nostrategy, 0, 0, ocdevs
+    nostrategy,     0,              0,              ocdevs
 },
 #endif
 
@@ -239,15 +239,15 @@ const struct cdevsw	cdevsw[] = {
 {
     picga_open,     picga_close,    picga_read,     picga_write,
     picga_ioctl,    nulldev,        0,              seltrue,
-    nostrategy, 0, 0, picgadevs
+    nostrategy,     0,              0,              picgadevs
 },
 #endif
 
 #ifdef HX8357_ENABLED
 {
-    hx8357_open,     hx8357_close,    hx8357_read,     hx8357_write,
-    hx8357_ioctl,    nulldev,        hx8357_ttys,      hx8357_select,
-    nostrategy, hx8357_getc, hx8357_putc, hx8357devs
+    hx8357_open,    hx8357_close,   hx8357_read,    hx8357_write,
+    hx8357_ioctl,   nulldev,        hx8357_ttys,    hx8357_select,
+    nostrategy,     hx8357_getc,    hx8357_putc,    hx8357devs
 },
 #endif
 
@@ -255,7 +255,7 @@ const struct cdevsw	cdevsw[] = {
 {
     0,              0,              0,              0,
     0,              0,              0,              0,
-    0, 0 
+    0,              0,              0,              0
 },
 };
 const int nchrdev = sizeof(cdevsw) / sizeof(cdevsw[0]) - 1;
@@ -267,11 +267,11 @@ const int nchrdev = sizeof(cdevsw) / sizeof(cdevsw[0]) - 1;
  */
 int
 iskmemdev(dev)
-	register dev_t dev;
+    register dev_t dev;
 {
-	if (major(dev) == 1 && (minor(dev) == 0 || minor(dev) == 1))
-		return (1);
-	return (0);
+    if (major(dev) == 1 && (minor(dev) == 0 || minor(dev) == 1))
+        return (1);
+    return (0);
 }
 
 /*
@@ -281,34 +281,34 @@ iskmemdev(dev)
  */
 int
 isdisk(dev, type)
-	dev_t dev;
-	register int type;
+    dev_t dev;
+    register int type;
 {
-	switch (major(dev)) {
-	case 0:			/* sd */
-	case 1:			/* sw */
-	case 2:
-	case 3:
-	case 4:
-		if (type == IFBLK)
-			return (1);
-		return (0);
-	default:
-		return (0);
-	}
-	/* NOTREACHED */
+    switch (major(dev)) {
+    case 0:                 /* sd */
+    case 1:                 /* sw */
+    case 2:
+    case 3:
+    case 4:
+        if (type == IFBLK)
+            return (1);
+        return (0);
+    default:
+        return (0);
+    }
+    /* NOTREACHED */
 }
 
-#define MAXDEV	7
+#define MAXDEV  7
 static const char chrtoblktbl[MAXDEV] =  {
-	/* CHR */      /* BLK */
-	/* 0 */		NODEV,
-	/* 1 */		NODEV,
-	/* 2 */		NODEV,
-	/* 3 */		0,		/* sd */
-	/* 4 */		NODEV,
-	/* 5 */		NODEV,
-	/* 6 */		1,
+    /* CHR */      /* BLK */
+    /* 0 */         NODEV,
+    /* 1 */         NODEV,
+    /* 2 */         NODEV,
+    /* 3 */         0,              /* sd */
+    /* 4 */         NODEV,
+    /* 5 */         NODEV,
+    /* 6 */         1,
 };
 
 /*
@@ -318,13 +318,13 @@ static const char chrtoblktbl[MAXDEV] =  {
  */
 int
 chrtoblk(dev)
-	register dev_t dev;
+    register dev_t dev;
 {
-	register int blkmaj;
+    register int blkmaj;
 
-	if (major(dev) >= MAXDEV || (blkmaj = chrtoblktbl[major(dev)]) == NODEV)
-		return (NODEV);
-	return (makedev(blkmaj, minor(dev)));
+    if (major(dev) >= MAXDEV || (blkmaj = chrtoblktbl[major(dev)]) == NODEV)
+        return (NODEV);
+    return (makedev(blkmaj, minor(dev)));
 }
 
 /*
@@ -339,30 +339,29 @@ chrtoblk(dev)
  */
 int
 blktochr(dev)
-	register dev_t dev;
+    register dev_t dev;
 {
-	register int maj = major(dev);
-	register int i;
+    register int maj = major(dev);
+    register int i;
 
-	for (i = 0; i < MAXDEV; i++) {
-		if (maj == chrtoblktbl[i])
-			return(i);
-	}
-	return(NODEV);
+    for (i = 0; i < MAXDEV; i++) {
+        if (maj == chrtoblktbl[i])
+            return(i);
+    }
+    return(NODEV);
 }
 
 /*
  * Search through the devspec entries in the cdevsw
  * table looking for a device name match.
  */
-
 dev_t get_cdev_by_name(char *name)
 {
     int maj, i;
 
     for (maj = 0; maj < nchrdev; maj++) {
         for (i = 0; cdevsw[maj].devs[i].devname != 0; i++) {
-            if (!strcmp(cdevsw[maj].devs[i].devname, name)) {
+            if (strcmp(cdevsw[maj].devs[i].devname, name) == 0) {
                 return makedev(maj, cdevsw[maj].devs[i].unit);
             }
         }

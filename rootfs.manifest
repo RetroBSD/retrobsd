@@ -203,6 +203,7 @@ file /bin/dd
 file /bin/df
 mode 02755
 file /bin/diff
+file /bin/diskspeed
 file /bin/du
 file /bin/echo
 file /bin/ed

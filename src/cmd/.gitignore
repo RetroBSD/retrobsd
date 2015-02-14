@@ -11,6 +11,7 @@ comm
 cp
 dd
 df
+diskspeed
 du
 echo
 ed

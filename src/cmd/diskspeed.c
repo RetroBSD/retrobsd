@@ -21,7 +21,6 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <stdint.h>
 #include <sys/time.h>
 
 #define MAX_BLOCK_SZ    64      /* kbytes */
@@ -153,6 +152,9 @@ int main(int argc, char **argv)
      * Write data to file.
      */
     sync();
+    usleep(200000);
+    sync();
+    usleep(200000);
     t0 = current_msec();
     nbytes = blocksize_kbytes * 1024;
     for (n=0; n<datasize_mbytes*1024/blocksize_kbytes; n++) {
@@ -170,6 +172,9 @@ int main(int argc, char **argv)
      * Read data from file.
      */
     sync();
+    usleep(200000);
+    sync();
+    usleep(200000);
     lseek(fd, 0, SEEK_SET);
     t0 = current_msec();
     for (n=0; n<datasize_mbytes*1024/blocksize_kbytes; n++) {

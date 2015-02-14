@@ -33,11 +33,11 @@ SCRIPT		= false nohup true #lorder mkdep
 # C programs that live in the current directory and do not need
 # explicit make lines.
 #
-STD		= basename cal cat cb chgrp chmod cmp col comm cp dd du \
-		  echo ed fgrep file grep head hostid join kill last ln \
-                  mesg mkdir mv nice od pagesize pr printenv pwd rev rm rmail rmdir \
-                  size sleep sort split sum sync tail tar tee time touch tr \
-                  tsort tty uniq w wc whereis who diskspeed
+STD		= basename cal cat cb chgrp chmod cmp col comm cp dd \
+                  diskspeed du echo ed fgrep file grep head hostid join \
+                  kill last ln mesg mkdir mv nice od pagesize pr printenv \
+                  pwd rev rm rmail rmdir size sleep sort split sum sync \
+                  tail tar tee time touch tr tsort tty uniq w wc whereis who
 
 # C programs that live in the current directory and need explicit make lines.
 #

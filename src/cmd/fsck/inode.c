@@ -87,7 +87,7 @@ ckinode(dp, idesc)
     idesc->id_filesize = dp->di_size;
     if (SPECIAL(dp))
         return (KEEPON);
-    dino = *dp;
+    bcopy(dp, &dino, sizeof dino);
     for (ap = &dino.di_addr[0]; ap < &dino.di_addr[NDADDR]; ap++) {
         if (*ap == 0)
             continue;

@@ -187,7 +187,7 @@ daddr_t n_free;         /* number of free blocks */
 int badblk, dupblk;
 
 #define outrange(x) (x < fsmin || x >= fsmax)
-#define zapino(x)   (*(x) = zino)
+#define zapino(x)   bzero(x, sizeof *x)
 struct  dinode  zino;
 
 #define setlncnt(x,n)   dolncnt(x,0,n)

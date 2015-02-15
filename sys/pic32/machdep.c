@@ -337,8 +337,30 @@ startup()
         *dest1++ = *src1++;
     }
 #endif
+#endif /* __MPLABX__ */
 
+    /*
+     * Setup peripheral bus clock divisor.
+     */
+    unsigned osccon = OSCCON & ~PIC32_OSCCON_PBDIV_MASK;
+#if BUS_DIV == 1
+    osccon |= PIC32_OSCCON_PBDIV_1;
+#elif BUS_DIV == 2
+    osccon |= PIC32_OSCCON_PBDIV_2;
+#elif BUS_DIV == 4
+    osccon |= PIC32_OSCCON_PBDIV_4;
+#elif BUS_DIV == 8
+    osccon |= PIC32_OSCCON_PBDIV_8;
+#else
+#error Incorrect BUS_DIV value!
 #endif
+    /* Unlock access to OSCCON register */
+    SYSKEY = 0;
+    SYSKEY = 0xaa996655;
+    SYSKEY = 0x556699aa;
+
+    OSCCON = osccon;
+
     /*
      * Setup UART registers.
      * Compute the divisor for 115.2 kbaud.

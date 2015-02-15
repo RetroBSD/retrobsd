@@ -105,7 +105,7 @@ main()
 	register struct fs *fs = NULL;
 	char inbuf[4];
 	char inch;
-    int s __attribute__((unused));
+        int s __attribute__((unused));
 
 	startup();
 	printf ("\n%s", version);
@@ -218,12 +218,12 @@ retry:
 	printf ("user mem  = %u kbytes\n", MAXMEM / 1024);
 	if(minor(rootdev)==0)
 	{
-		printf ("root dev  = rd%d (%d,%d)\n", 
+		printf ("root dev  = rd%d (%d,%d)\n",
 			major(rootdev),
 			major(rootdev), minor(rootdev)
 		);
 	} else {
-		printf ("root dev  = rd%d%c (%d,%d)\n", 
+		printf ("root dev  = rd%d%c (%d,%d)\n",
 			major(rootdev), 'a'+minor(rootdev)-1,
 			major(rootdev), minor(rootdev)
 		);
@@ -291,12 +291,12 @@ retry:
 
 	if(minor(swapdev)==0)
 	{
-		printf ("swap dev  = rd%d (%d,%d)\n", 
+		printf ("swap dev  = rd%d (%d,%d)\n",
 			major(swapdev),
 			major(swapdev), minor(swapdev)
 		);
 	} else {
-		printf ("swap dev  = rd%d%c (%d,%d)\n", 
+		printf ("swap dev  = rd%d%c (%d,%d)\n",
 			major(swapdev), 'a'+minor(swapdev)-1,
 			major(swapdev), minor(swapdev)
 		);

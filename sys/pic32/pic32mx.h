@@ -851,7 +851,10 @@
 /*--------------------------------------
  * System controller registers.
  */
-#define OSCCON          PIC32_R (0xf000)
+#define OSCCON          PIC32_R (0xf000)        /* Oscillator Control */
+#define OSCCONCLR       PIC32_R (0xf004)
+#define OSCCONSET       PIC32_R (0xf008)
+#define OSCCONINV       PIC32_R (0xf00C)
 #define OSCTUN          PIC32_R (0xf010)
 #define DDPCON          PIC32_R (0xf200)        /* Debug Data Port Control */
 #define DEVID           PIC32_R (0xf220)
@@ -864,6 +867,29 @@
 #define RSWRSTCLR       PIC32_R (0xf614)
 #define RSWRSTSET       PIC32_R (0xf618)
 #define RSWRSTINV       PIC32_R (0xf61C)
+
+/*
+ * Oscillator control register.
+ */
+#define PIC32_OSCCON_OSWEN      0x00000001 /* Oscillator switch enable */
+#define PIC32_OSCCON_SOSCEN     0x00000002 /* Secondary oscillator enable */
+#define PIC32_OSCCON_UFRCEN     0x00000004 /* USB FRC clock enable */
+#define PIC32_OSCCON_CF         0x00000008 /* Clock fail detect */
+#define PIC32_OSCCON_SLPEN      0x00000010 /* Sleep mode enable */
+#define PIC32_OSCCON_LOCK       0x00000020 /* PLL lock status */
+#define PIC32_OSCCON_ULOCK      0x00000040 /* USB PLL lock status */
+#define PIC32_OSCCON_CLKLOCK    0x00000080 /* Clock selection lock enable */
+#define PIC32_OSCCON_NOSC       0x00000700 /* New oscillator selection */
+#define PIC32_OSCCON_COSC       0x00007000 /* Current oscillator selection */
+#define PIC32_OSCCON_PLLMULT    0x00070000 /* PLL multiplier */
+#define PIC32_OSCCON_PBDIV_MASK 0x00180000 /* Peripheral bus clock divisor */
+#define PIC32_OSCCON_PBDIV_1    0x00000000 /* SYSCLK / 1 */
+#define PIC32_OSCCON_PBDIV_2    0x00080000 /* SYSCLK / 2 */
+#define PIC32_OSCCON_PBDIV_4    0x00100000 /* SYSCLK / 4 */
+#define PIC32_OSCCON_PBDIV_8    0x00180000 /* SYSCLK / 8 */
+#define PIC32_OSCCON_SOSCRDY    0x00400000 /* Secondary oscillator ready */
+#define PIC32_OSCCON_FRCDIV     0x07000000 /* Fast internal RC clock divider */
+#define PIC32_OSCCON_PLLODIV    0x38000000 /* Output divider for PLL */
 
 /*
  * Reset control register.

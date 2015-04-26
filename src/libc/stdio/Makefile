@@ -13,7 +13,7 @@ SRCS		= ${STDSRC} fgetc.c fgets.c fputc.c fputs.c gets.c puts.c \
 OBJS		= ${STDOBJ} fgetc.o fgets.o fputc.o fputs.o gets.o puts.o \
                   feof.o ferror.o fileno.o
 
-STDSRC		= clrerr.c doscan.c exit.c fdopen.c filbuf.c findiop.c \
+STDSRC		= clrerr.c doscan.c exit.c clnup.c fdopen.c filbuf.c findiop.c \
 		  flsbuf.c fopen.c fprintf.c fread.c freopen.c fseek.c \
 		  ftell.c fwrite.c getchar.c getw.c printf.c putchar.c putw.c \
 		  rew.c scanf.c setbuf.c setbuffer.c setvbuf.c snprintf.c sprintf.c \

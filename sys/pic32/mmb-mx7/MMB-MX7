@@ -18,4 +18,4 @@ device gpio
 device adc
 device uart1
 
-device bootloader button=A10 crystal=8 jump=0x9d000000 invled=A0 invled2=A1 invled3=D9 clear=D2
+#device bootloader button=A10 crystal=8 jump=0x9d000000 invled=A0 invled2=A1 invled3=D9 clear=D2

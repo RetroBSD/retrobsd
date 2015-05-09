@@ -17,10 +17,7 @@ char *
 ctime(t)
 time_t *t;
 {
-	struct tm	*localtime();
-	char	*asctime();
-
-	return(asctime(localtime(t)));
+	return asctime(localtime(t));
 }
 
 /*

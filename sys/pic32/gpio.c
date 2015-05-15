@@ -155,7 +155,7 @@ filter_out (mask, portnum, portaddr, pin)
 }
 
 /*
- * Some pins are not available in harsware or used by other drivers.
+ * Some pins are not available in hardware or used by other drivers.
  * Remove them from the mask.
  */
 static u_int
@@ -245,7 +245,7 @@ gpio_print (dev, buf)
         register u_int mask, conf, tris;
         register char c;
 
-        conf = gpio_confmask [unit];
+        conf = gpio_confmask[unit];
         tris = reg->tris;
         if (minor(dev) & MINOR_CONF) {
                 /* /dev/confX device: port configuration mask */
@@ -293,28 +293,35 @@ gpio_parse (dev, buf)
                         c = *buf++;
                         if (c <= ' ' || c > '~')
                                 break;
-                        if (c == 'x' || c == 'X')
-                                gpio_confmask [unit] &= ~mask;
-                        else if (c == 'i' || c == 'I')
+
+                        if (c == 'x' || c == 'X') {
+                                gpio_confmask[unit] &= ~mask;
                                 reg->trisset = mask;
-                        else if (c == 'o' || c == 'O') {
+                        } else if (c == 'i' || c == 'I') {
+                                gpio_confmask[unit] |= mask;
+                                reg->trisset = mask;
+                        } else if (c == 'o' || c == 'O') {
+                                gpio_confmask[unit] |= mask;
                                 reg->odcclr = mask;
                                 reg->trisclr = mask;
                         } else if (c == 'd' || c == 'D') {
+                                gpio_confmask[unit] |= mask;
                                 reg->odcset = mask;
                                 reg->trisclr = mask;
                         }
                 }
         } else {
                 /* /dev/portX device: port value mask */
-                u_int conf = gpio_confmask [unit];
+                u_int conf = gpio_confmask[unit];
                 u_int tris = reg->tris;
                 for (mask=1<<(NPINS-1); mask; mask>>=1) {
                         c = *buf++;
                         if (c <= ' ' || c > '~')
                                 break;
+
                         if (! (conf & mask) || (tris & mask))
                                 continue;
+
                         if (c == '0')
                                 reg->latclr = mask;
                         else
@@ -555,16 +562,16 @@ gpioioctl (dev, cmd, addr, flag)
 	if (cmd & GPIO_COMMAND & (GPIO_CONFIN | GPIO_CONFOUT | GPIO_CONFOD))
                 mask = gpio_filter (mask, unit);
         else
-                mask &= gpio_confmask [unit];
+                mask &= gpio_confmask[unit];
 
 	if (cmd & GPIO_COMMAND & GPIO_CONFIN) {
                 /* configure as input */
                 PRINTDBG ("TRIS%cSET %p := %04x\n", unit+'A', &reg->trisset, mask);
                 reg->trisset = mask;
-                gpio_confmask [unit] |= mask;
+                gpio_confmask[unit] |= mask;
 
                 /* skip output-only bits */
-                gpio_confmask [unit] ^= mask & ~reg->tris;
+                gpio_confmask[unit] ^= mask & ~reg->tris;
         }
         if (cmd & GPIO_COMMAND & (GPIO_CONFOUT | GPIO_CONFOD)) {
                 if (cmd & GPIO_COMMAND & GPIO_CONFOUT) {
@@ -578,20 +585,20 @@ gpioioctl (dev, cmd, addr, flag)
                 }
                 PRINTDBG ("TRIS%cCLR %p := %04x\n", unit+'A', &reg->trisclr, mask);
                 reg->trisclr = mask;
-                gpio_confmask [unit] |= mask;
+                gpio_confmask[unit] |= mask;
 
                 /* skip input-only bits */
-                gpio_confmask [unit] ^= mask & reg->tris;
+                gpio_confmask[unit] ^= mask & reg->tris;
         }
         if (cmd & GPIO_COMMAND & GPIO_DECONF) {
                 /* deconfigure */
-                gpio_confmask [unit] &= ~mask;
+                gpio_confmask[unit] &= ~mask;
         }
         if (cmd & GPIO_COMMAND & GPIO_STORE) {
                 /* store all outputs */
                 value = reg->lat;
                 PRINTDBG ("LAT%c %p -> %04x\n", unit+'A', &reg->lat, value);
-                value &= ~gpio_confmask [unit];
+                value &= ~gpio_confmask[unit];
                 value |= mask;
                 PRINTDBG ("LAT%c %p := %04x\n", unit+'A', &reg->lat, value);
                 reg->lat = value;

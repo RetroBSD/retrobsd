@@ -698,55 +698,92 @@ file /share/dict/words
 file /share/misc/more.help
 
 #
-# Files: /share/example
+# Files: /share/examples/asm
 #
 default
 filemode 0664
-dir /share/example
-file /share/example/ashello.S
-file /share/example/blkjack.bas
-file /share/example/chello.c
-file /share/example/echo.S
-file /share/example/fact.fth
-file /share/example/hilow.bas
-file /share/example/Makefile
-file /share/example/prime.scm
-file /share/example/skeleton.c
-file /share/example/stars.bas
-file /share/example/stdarg.c
+dir /share/examples
+dir /share/examples/asm
+file /share/examples/asm/Makefile
+file /share/examples/asm/ashello.S
+file /share/examples/asm/echo.S
 
 #
-# Files: /share/smallc
+# Files: /share/examples/basic
 #
-dir /share/smallc
-file /share/smallc/adc.c
-file /share/smallc/gpio.c
-file /share/smallc/hello.c
-file /share/smallc/Makefile
-file /share/smallc/primelist.c
-file /share/smallc/primesum.c
-file /share/smallc/q8.c
-file /share/smallc/rain.c
-file /share/smallc/test1.c
-file /share/smallc/test2.c
-file /share/smallc/test3.c
-file /share/smallc/webserver.c
+dir /share/examples/basic
+file /share/examples/basic/blkjack.bas
+file /share/examples/basic/hilow.bas
+file /share/examples/basic/stars.bas
 
 #
-# Files: /share/smallerc
+# Files: /share/examples/forth
 #
-dir /share/smallerc
-file /share/smallerc/adc.c
-file /share/smallerc/gpio.c
-file /share/smallerc/hello.c
-file /share/smallerc/Makefile
-file /share/smallerc/primelist.c
-file /share/smallerc/primesum.c
-file /share/smallerc/q8.c
-file /share/smallerc/rain.c
-file /share/smallerc/test1.c
-file /share/smallerc/test2.c
-file /share/smallerc/test3.c
+dir /share/examples/forth
+file /share/examples/forth/fact.fth
+
+#
+# Files: /share/examples/scheme
+#
+dir /share/examples/scheme
+file /share/examples/scheme/prime.scm
+
+#
+# Files: /share/examples/c
+#
+dir /share/examples/c
+file /share/examples/c/Makefile
+file /share/examples/c/adc.c
+file /share/examples/c/gpio.c
+file /share/examples/c/hello.c
+file /share/examples/c/primelist.c
+file /share/examples/c/primesum.c
+file /share/examples/c/q8.c
+file /share/examples/c/rain.c
+file /share/examples/c/skeleton.c
+file /share/examples/c/stdarg.c
+file /share/examples/c/test1.c
+file /share/examples/c/test2.c
+file /share/examples/c/test3.c
+
+#
+# Files: /share/examples/smallc
+#
+dir /share/examples/smallc
+file /share/examples/smallc/Makefile
+file /share/examples/smallc/adc.c
+file /share/examples/smallc/gpio.c
+file /share/examples/smallc/hello.c
+file /share/examples/smallc/primelist.c
+file /share/examples/smallc/primesum.c
+file /share/examples/smallc/q8.c
+file /share/examples/smallc/rain.c
+file /share/examples/smallc/test1.c
+file /share/examples/smallc/test2.c
+file /share/examples/smallc/test3.c
+file /share/examples/smallc/webserver.c
+
+#
+# Files: /share/examples/sensors
+#
+dir /share/examples/sensors
+file /share/examples/sensors/Makefile
+file /share/examples/sensors/README.txt
+file /share/examples/sensors/buzzer.c
+file /share/examples/sensors/buzzer.sh
+file /share/examples/sensors/irled.c
+file /share/examples/sensors/laser.c
+file /share/examples/sensors/laser.sh
+file /share/examples/sensors/led2.c
+file /share/examples/sensors/led2-portio.sh
+file /share/examples/sensors/led2.sh
+file /share/examples/sensors/led3.c
+file /share/examples/sensors/led3-portio.sh
+file /share/examples/sensors/led3.sh
+file /share/examples/sensors/led7.c
+file /share/examples/sensors/pbuzz.c
+file /share/examples/sensors/relay.c
+file /share/examples/sensors/relay.sh
 
 #
 # Files: /var

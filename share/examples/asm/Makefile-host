@@ -1,0 +1,17 @@
+TOPSRC		= $(shell cd ../../..; pwd)
+include $(TOPSRC)/target.mk
+
+CFLAGS		+= -Werror
+ASFLAGS		+= -DCROSS
+ASLDFLAGS       = --oformat=elf32-tradlittlemips -N -nostartfiles -T $(TOPSRC)/src/elf32-mips.ld
+
+all:            echo
+
+echo:           echo.o
+		${LD} ${ASLDFLAGS} -o $@.elf $@.o
+		${OBJDUMP} -S $@.elf > $@.dis
+		${SIZE} $@.elf
+		${ELF2AOUT} $@.elf $@
+
+clean:
+		rm -f *.o *.elf ${MAN} echo *.elf *.dis tags *~

@@ -19,3 +19,5 @@ device sd0 port=3 cs=D5 power=B13
 
 device gpio
 device foreignbootloader
+device adc
+device oc

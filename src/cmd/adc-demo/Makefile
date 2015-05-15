@@ -10,7 +10,6 @@ include $(TOPSRC)/target.mk
 
 OBJS            = adc-demo.o
 SRCS            = adc-demo.c
-LIBS            += -lcurses -ltermcap -lc
 
 all:            adc-demo
 

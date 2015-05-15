@@ -1,0 +1,15 @@
+TOPSRC		= $(shell cd ../../..; pwd)
+include $(TOPSRC)/target.mk
+
+CFLAGS		+= -Werror
+
+all:            chello stdarg
+
+chello:         chello.o
+		${CC} ${LDFLAGS} -o chello.elf chello.o ${LIBS}
+		${OBJDUMP} -S chello.elf > chello.dis
+		${SIZE} chello.elf
+		${ELF2AOUT} chello.elf $@
+
+clean:
+		rm -f *.o *.elf ${MAN} chello stdarg *.elf *.dis tags *~

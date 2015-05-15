@@ -155,7 +155,7 @@ filter_out (mask, portnum, portaddr, pin)
 }
 
 /*
- * Some pins are not available in harsware or used by other drivers.
+ * Some pins are not available in hardware or used by other drivers.
  * Remove them from the mask.
  */
 static u_int

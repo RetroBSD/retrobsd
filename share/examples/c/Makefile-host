@@ -11,5 +11,11 @@ chello:         chello.o
 		${SIZE} chello.elf
 		${ELF2AOUT} chello.elf $@
 
+tetris:         tetris.o
+		${CC} ${LDFLAGS} -o tetris.elf tetris.o ${LIBS}
+		${OBJDUMP} -S tetris.elf > tetris.dis
+		${SIZE} tetris.elf
+		${ELF2AOUT} tetris.elf $@
+
 clean:
 		rm -f *.o *.elf ${MAN} chello stdarg *.elf *.dis tags *~

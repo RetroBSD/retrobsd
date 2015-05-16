@@ -745,6 +745,7 @@ file /share/examples/c/stdarg.c
 file /share/examples/c/test1.c
 file /share/examples/c/test2.c
 file /share/examples/c/test3.c
+file /share/examples/c/tetris.c
 
 #
 # Files: /share/examples/smallc
@@ -772,6 +773,7 @@ file /share/examples/sensors/README.txt
 file /share/examples/sensors/buzzer.c
 file /share/examples/sensors/buzzer.sh
 file /share/examples/sensors/irled.c
+file /share/examples/sensors/joystick.c
 file /share/examples/sensors/laser.c
 file /share/examples/sensors/laser.sh
 file /share/examples/sensors/led2.c

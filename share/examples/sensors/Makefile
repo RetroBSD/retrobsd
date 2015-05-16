@@ -1,4 +1,4 @@
-PROG    = led2 led3 relay buzzer laser pbuzz irled
+PROG    = led2 led3 relay buzzer laser pbuzz irled joystick
 
 all:    $(PROG)
 
@@ -21,6 +21,9 @@ led3:   led3.c
 	cc $? -o $@
 
 irled:  irled.c
+	cc $? -o $@
+
+joystick: joystick.c
 	cc $? -o $@
 
 clean:

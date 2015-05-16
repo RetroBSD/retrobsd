@@ -223,6 +223,13 @@ void gpanel_init()
     gpanel_row = 0;
     gpanel_col = 0;
 
+    /* Open GPIO driver. */
+    gpio = open("/dev/porta", 0);
+    if (gpio < 0) {
+        perror("/dev/porta");
+        exit(-1);
+    }
+
     /*
      * Set pins as outputs.
      */

@@ -151,25 +151,8 @@ dumpregs(frame)
 {
     unsigned int cause;
     const char *code = 0;
-    unsigned *stacktop = (unsigned *)0x80007ffc;
-    unsigned *p = (unsigned*)frame;
-
-    printf("************************************\n");
-    printf("*******STACK DUMP START*************\n");
-    printf("frame = %8x\n", frame);
-    printf("stack data\n");
-    while (p <= stacktop) {
-        printf(" %8x", *p++);
-        if (p <= stacktop)
-            printf(" %8x", *p++);
-        if (p <= stacktop)
-            printf(" %8x", *p++);
-        if (p <= stacktop)
-            printf(" %8x", *p++);
-        printf("\n");
-    }
-    printf("*******STACK DUMP END***************\n");
-    printf("************************************\n");
+    unsigned *stacktop = (unsigned*) 0x80007ffc;
+    unsigned *p = (unsigned*) frame;
 
     printf("\n*** 0x%08x: exception ", frame [FRAME_PC]);
 
@@ -198,16 +181,30 @@ dumpregs(frame)
         printf("*** badvaddr = 0x%08x\n",
             mips_read_c0_register(C0_BADVADDR, 0));
     }
-    printf("        t0 = %8x   s0 = %8x   t8 = %8x   lo = %8x\n",
+
+    printf("*** stack frame at %8x\n", frame);
+    while (p <= stacktop) {
+        printf(" %8x", *p++);
+        if (p <= stacktop)
+            printf(" %8x", *p++);
+        if (p <= stacktop)
+            printf(" %8x", *p++);
+        if (p <= stacktop)
+            printf(" %8x", *p++);
+        printf("\n");
+    }
+
+    printf("*** registers:\n");
+    printf("                t0 = %8x   s0 = %8x   t8 = %8x   lo = %8x\n",
         frame [FRAME_R8], frame [FRAME_R16],
         frame [FRAME_R24], frame [FRAME_LO]);
     printf("at = %8x   t1 = %8x   s1 = %8x   t9 = %8x   hi = %8x\n",
         frame [FRAME_R1], frame [FRAME_R9], frame [FRAME_R17],
         frame [FRAME_R25], frame [FRAME_HI]);
-    printf("v0 = %8x   t2 = %8x   s2 = %8x           status = %8x\n",
+    printf("v0 = %8x   t2 = %8x   s2 = %8x               status = %8x\n",
         frame [FRAME_R2], frame [FRAME_R10],
         frame [FRAME_R18], frame [FRAME_STATUS]);
-    printf("v1 = %8x   t3 = %8x   s3 = %8x            cause = %8x\n",
+    printf("v1 = %8x   t3 = %8x   s3 = %8x                cause = %8x\n",
         frame [FRAME_R3], frame [FRAME_R11],
         frame [FRAME_R19], cause);
     printf("a0 = %8x   t4 = %8x   s4 = %8x   gp = %8x  epc = %8x\n",
@@ -282,7 +279,7 @@ exception(frame)
             /*NOTREACHED*/
         case CA_IBE + USER:     /* Bus error, instruction fetch */
         case CA_DBE + USER:     /* Bus error, load or store */
-            printf("*** 0x%08x: bus error\n", frame [FRAME_PC]);
+            printf("*** 0x%08x: %s: bus error\n", frame [FRAME_PC], u.u_comm);
             psig = SIGBUS;
             break;
         case CA_RI + USER:      /* Reserved instruction */
@@ -303,8 +300,8 @@ exception(frame)
             break;
         case CA_AdEL + USER:    /* Address error, load or instruction fetch */
         case CA_AdES + USER:    /* Address error, store */
-            printf("*** 0x%08x: bad address 0x%08x\n",
-                frame [FRAME_PC], mips_read_c0_register(C0_BADVADDR, 0));
+            printf("*** 0x%08x: %s: bad address 0x%08x\n",
+                frame [FRAME_PC], u.u_comm, mips_read_c0_register(C0_BADVADDR, 0));
             psig = SIGSEGV;
             break;
         }

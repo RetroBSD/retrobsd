@@ -145,7 +145,7 @@ int joystick_get()
 static unsigned char gpanel_screen [NROW*NCOL/8];
 int gpanel_row, gpanel_col;
 
-static inline void lcd_cs(unsigned on)
+static void lcd_cs(unsigned on)
 {
     if (on) {
         ioctl(gpio, GPIO_PORTE | GPIO_SET, MASKE_LCD_CS);
@@ -154,7 +154,7 @@ static inline void lcd_cs(unsigned on)
     }
 }
 
-static inline void lcd_rst(unsigned on)
+static void lcd_rst(unsigned on)
 {
     if (on) {
         ioctl(gpio, GPIO_PORTE | GPIO_SET, MASKE_LCD_RST);
@@ -163,7 +163,7 @@ static inline void lcd_rst(unsigned on)
     }
 }
 
-static inline void lcd_dc(unsigned on)
+static void lcd_dc(unsigned on)
 {
     if (on) {
         ioctl(gpio, GPIO_PORTE | GPIO_SET, MASKE_LCD_DC);
@@ -172,7 +172,7 @@ static inline void lcd_dc(unsigned on)
     }
 }
 
-static inline void lcd_bl(unsigned on)
+static void lcd_bl(unsigned on)
 {
     if (on) {
         ioctl(gpio, GPIO_PORTE | GPIO_SET, MASKE_LCD_BL);
@@ -181,7 +181,7 @@ static inline void lcd_bl(unsigned on)
     }
 }
 
-static inline void lcd_mosi(unsigned on)
+static void lcd_mosi(unsigned on)
 {
     if (on) {
         ioctl(gpio, GPIO_PORTE | GPIO_SET, MASKE_LCD_MOSI);
@@ -190,7 +190,7 @@ static inline void lcd_mosi(unsigned on)
     }
 }
 
-static inline void lcd_sck(unsigned on)
+static void lcd_sck(unsigned on)
 {
     if (on) {
         ioctl(gpio, GPIO_PORTE | GPIO_SET, MASKE_LCD_SCK);
@@ -328,7 +328,7 @@ void gpanel_rect_filled(int x0, int y0, int x1, int y1, int color)
 /*-------------------------------------------------------------
  * Output piece coordinates given its center and angle
  */
-void translate(const shape_t *t, coord_t c, int a, coord_t *res)
+void translate(const shape_t *t, const coord_t *c, int a, coord_t *res)
 {
     coord_t org, tmp;
     int yw, xw, i;
@@ -340,12 +340,12 @@ void translate(const shape_t *t, coord_t c, int a, coord_t *res)
         xw = t->dx;
         yw = t->dy;
     }
-    org = c;
+    org = *c;
     org.x -= (xw + 1) / 2;
     org.y -= yw / 2;
     if (org.y < 0)
         org.y = 0;
-    if (org.y + yw >= PITWIDTH && c.y <= PITWIDTH)
+    if (org.y + yw >= PITWIDTH && c->y <= PITWIDTH)
         org.y = PITWIDTH-1 - yw;
     for (i=0; t->p[i].x!=FIN; i++) {
         switch (a) {
@@ -540,7 +540,7 @@ newpiece:
 
     c.y = PITWIDTH/2 - 1;
     for (c.x= -2; ; c.x++) {
-        translate(&shape[ptype], c, angle, new);
+        translate(&shape[ptype], &c, angle, new);
         for (cp=new; cp->x!=FIN; cp++) {
             if (cp->x >= 0)
                 goto ok;
@@ -564,7 +564,7 @@ ok:
             /* Timeout: move down */
             msec = 500;
             cnew.x++;
-            translate(&shape[ptype], cnew, anew, chk);
+            translate(&shape[ptype], &cnew, anew, chk);
             for (cp=chk; cp->x!=FIN; cp++) {
                 if (cp->x >= 0 && pit[cp->x][cp->y]) {
                     stopped(new);
@@ -583,7 +583,7 @@ ok:
             /* Right: rotate */
             if (--anew < 0)
                 anew = 3;
-            translate(&shape[ptype], cnew, anew, chk);
+            translate(&shape[ptype], &cnew, anew, chk);
             goto check;
         }
 
@@ -596,7 +596,7 @@ ok:
             if (cnew.y <= 0)
                 continue;
             cnew.y--;
-            translate(&shape[ptype], cnew, anew, chk);
+            translate(&shape[ptype], &cnew, anew, chk);
             goto check;
         }
 
@@ -609,7 +609,7 @@ ok:
             if (cnew.y >= PITWIDTH-1)
                 continue;
             cnew.y++;
-            translate(&shape[ptype], cnew, anew, chk);
+            translate(&shape[ptype], &cnew, anew, chk);
             goto check;
         }
 
@@ -621,11 +621,11 @@ ok:
             /* Right: drop */
             for (;;) {
                 cnew.x++;
-                translate(&shape[ptype], cnew, anew, chk);
+                translate(&shape[ptype], &cnew, anew, chk);
                 for (cp=chk; cp->x!=FIN; cp++) {
                     if (cp->x >= 0 && pit[cp->x][cp->y]) {
                         cnew.x--;
-                        translate(&shape[ptype], cnew, anew, chk);
+                        translate(&shape[ptype], &cnew, anew, chk);
                         move(new, chk);
                         stopped(chk);
                         goto newpiece;

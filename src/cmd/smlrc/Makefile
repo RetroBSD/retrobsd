@@ -4,7 +4,7 @@ include $(TOPSRC)/target.mk
 CFLAGS          = -Os -Wall -DMIPS -DNO_ANNOTATIONS -DNO_PREPROCESSOR \
                   -DNO_PPACK -D_RETROBSD -D__SMALLER_C_SCHAR__ \
                   -D__SMALLER_C__ -D__SMALLER_C_32__ -DSTATIC \
-                  -DNO_EXTRA_WARNS -DSYNTAX_STACK_MAX=2560
+                  -DNO_EXTRA_WARNS -DSYNTAX_STACK_MAX=2530
 
 # For cross compile
 #include $(TOPSRC)/cross.mk

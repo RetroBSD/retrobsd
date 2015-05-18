@@ -1,0 +1,16 @@
+TOPSRC		= $(shell cd ../../..; pwd)
+include $(TOPSRC)/target.mk
+
+CFLAGS		+= -Werror
+LIBS            += -lm
+
+#all:           demo
+
+demo:           demo.o gpio.o
+		${CC} ${LDFLAGS} -o demo.elf demo.o gpio.o ${LIBS}
+		${OBJDUMP} -S demo.elf > demo.dis
+		${SIZE} demo.elf
+		${ELF2AOUT} demo.elf $@
+
+clean:
+		rm -f *.o *.elf ${MAN} demo *.elf *.dis tags *~

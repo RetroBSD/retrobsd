@@ -788,6 +788,19 @@ file /share/examples/sensors/relay.c
 file /share/examples/sensors/relay.sh
 
 #
+# Files: /share/examples/cube
+#
+dir /share/examples/cube
+file /share/examples/cube/Makefile
+file /share/examples/cube/README.txt
+file /share/examples/cube/all.c
+file /share/examples/cube/backlight.c
+file /share/examples/cube/cube.c
+file /share/examples/cube/cube.h
+file /share/examples/cube/demo.c
+file /share/examples/cube/gpio.c
+
+#
 # Files: /var
 #
 dir /var

@@ -64,32 +64,32 @@
  * Signal assignment.
  * LED modulee is connected to pins 16,17,18 of Fubarino SD board.
  *
- * Pin  PIC32  LED module
- * ---------------
- *  16  RE0    CS
- *  17  RE1    WR
- *  18  RE2    DATA
+ * Fubarino PIC32  LED module
+ * --------------------------
+ *  16      RE0    CS
+ *  17      RE1    WR
+ *  18      RE2    DATA
  */
-#define gpio_cs_clear()         ioctl(gpio, GPIO_PORTE | GPIO_CLEAR, 1 << 0)
-#define gpio_cs_set()           ioctl(gpio, GPIO_PORTE | GPIO_SET, 1 << 0)
-#define gpio_wr_clear()         ioctl(gpio, GPIO_PORTE | GPIO_CLEAR, 1 << 1)
-#define gpio_wr_set()           ioctl(gpio, GPIO_PORTE | GPIO_SET, 1 << 1)
-#define gpio_data_clear()       ioctl(gpio, GPIO_PORTE | GPIO_CLEAR, 1 << 2)
-#define gpio_data_set()         ioctl(gpio, GPIO_PORTE | GPIO_SET, 1 << 2)
+#define gpio_cs_clear()     ioctl(gpio, GPIO_PORTE | GPIO_CLEAR, 1 << 0)
+#define gpio_cs_set()       ioctl(gpio, GPIO_PORTE | GPIO_SET,   1 << 0)
+#define gpio_wr_clear()     ioctl(gpio, GPIO_PORTE | GPIO_CLEAR, 1 << 1)
+#define gpio_wr_set()       ioctl(gpio, GPIO_PORTE | GPIO_SET,   1 << 1)
+#define gpio_data_clear()   ioctl(gpio, GPIO_PORTE | GPIO_CLEAR, 1 << 2)
+#define gpio_data_set()     ioctl(gpio, GPIO_PORTE | GPIO_SET,   1 << 2)
 
 /*
  * HT1621 commands
  */
-#define HT_SYS_DIS	0x00    /* Turn off system osc and bias generator */
-#define HT_SYS_EN	0x01    /* Turn on system oscillator */
-#define HT_LCD_OFF	0x02    /* Turn off LCD bias generator */
-#define HT_LCD_ON	0x03    /* Turn on LCD bias generator */
-#define HT_CLOCK_XTAL	0x14    /* Crystal 32kHz */
-#define HT_CLOCK_RC	0x18    /* On-chip RC oscillator 256kHz */
-#define HT_CLOCK_EXT	0x1c    /* External clock */
-#define HT_BIAS_1_3	0x21    /* LCD 1/3 bias option, 2 commons default */
-#define HT_COMMONS_3	0x04    /* 3 commons option */
-#define HT_COMMONS_4	0x08    /* 4 commons option */
+#define HT_SYS_DIS      0x00    /* Turn off system osc and bias generator */
+#define HT_SYS_EN       0x01    /* Turn on system oscillator */
+#define HT_LCD_OFF      0x02    /* Turn off LCD bias generator */
+#define HT_LCD_ON       0x03    /* Turn on LCD bias generator */
+#define HT_CLOCK_XTAL   0x14    /* Crystal 32kHz */
+#define HT_CLOCK_RC     0x18    /* On-chip RC oscillator 256kHz */
+#define HT_CLOCK_EXT    0x1c    /* External clock */
+#define HT_BIAS_1_3     0x21    /* LCD 1/3 bias option, 2 commons default */
+#define HT_COMMONS_3    0x04    /* 3 commons option */
+#define HT_COMMONS_4    0x08    /* 4 commons option */
 
 /*
  * Mapping of symbols to segments.
@@ -105,24 +105,17 @@ const char char_to_segm[] = {
     0x0F,   0x6D,   0x02,   0x00,
 };
 
+/*
+ * File descriptor for GPIO driver.
+ */
 int gpio;
 
 /*
- * Spin for a few microseconds.
+ * Suspend the process for some amount of milliseconds.
  */
-void udelay(unsigned duration)
+void mdelay(unsigned msec)
 {
-    struct timeval t0, now;
-    int usec;
-
-    gettimeofday(&t0, 0);
-    for (;;) {
-        gettimeofday(&now, 0);
-        usec = now.tv_usec - t0.tv_usec;
-        usec += (now.tv_sec - t0.tv_sec) * 1000000;
-        if (usec >= duration)
-            break;
-    }
+    usleep(msec * 1000);
 }
 
 /*
@@ -135,13 +128,11 @@ void ht_send(int nbits, int data)
     data <<= (8 - nbits);
     gpio_wr_clear();
     while (nbits-- > 0) {
-        udelay(5);
         if (data & 0x80)
             gpio_data_set();
         else
             gpio_data_clear();
         gpio_wr_set();
-        udelay(5);
         gpio_wr_clear();
         data <<= 1;
     }
@@ -182,7 +173,7 @@ void lcd_init()
         exit(-1);
     }
 
-    /* Configure pins as outputs. */
+    /* Configure pins RE0-RE2 as outputs. */
     ioctl(gpio, GPIO_PORTE | GPIO_CONFOUT, 0x07);
     gpio_cs_set();
     gpio_wr_clear();
@@ -221,7 +212,7 @@ void lcd_enable(int on)
  * Display data.
  *  val - Data to be displayed, 0-999999
  *  dot - Display decimal dot, 0-3
- *  bat - Battery level, 0-7
+ *  bat - Battery level, 0-3
  */
 void lcd_display(unsigned val, int dot, int bat)
 {
@@ -249,24 +240,16 @@ void lcd_display(unsigned val, int dot, int bat)
     default:
         break;
     }
-    if (bat & 1)
+    if (bat > 0)
         byte[3] |= 1 << 7;
-    if (bat & 2)
+    if (bat > 1)
         byte[4] |= 1 << 7;
-    if (bat & 3)
+    if (bat > 2)
         byte[5] |= 1 << 7;
 
     for (i=0; i<6; i++) {
         ht_write(i, byte[i]);
     }
-}
-
-/*
- * Suspend the process for some amount of milliseconds.
- */
-void mdelay(unsigned msec)
-{
-    usleep(msec * 1000);
 }
 
 int main()
@@ -278,13 +261,13 @@ int main()
 
     /* Blink all segments twice. */
     lcd_clear(0xff);
-    mdelay(300);
+    mdelay(1000);
     lcd_clear(0);
-    mdelay(300);
+    mdelay(1000);
     lcd_clear(0xff);
-    mdelay(300);
+    mdelay(1000);
     lcd_clear(0);
-    mdelay(300);
+    mdelay(1000);
 
     /* Show all characters on all segments. */
     for (i=0; i<sizeof(char_to_segm); i++) {
@@ -296,7 +279,7 @@ int main()
     /* Display counter 0 to 999999. */
     for (;;) {
        for (i=0; i<999999; i++) {
-            lcd_display(i, 1, i/10);
+            lcd_display(i, i/10%4, i/10%4);
             mdelay(100);
        }
     }

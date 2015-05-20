@@ -1,6 +1,6 @@
 CC      = cc
 PROG    = hello stdarg skeleton primelist primesum test1 test2 test3 \
-          gpio adc rain q8 tetris
+          gpio adc rain q8 tetris lcd6
 
 all:    $(PROG)
 
@@ -32,6 +32,9 @@ q8:     q8.c
 	$(CC) $(CFLAGS) -o $@ $(LDFLAGS) $?
 
 tetris: tetris.c
+	$(CC) $(CFLAGS) -o $@ $(LDFLAGS) $?
+
+lcd6:   lcd6.c
 	$(CC) $(CFLAGS) -o $@ $(LDFLAGS) $?
 
 test1:	test1.c

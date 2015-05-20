@@ -736,6 +736,7 @@ file /share/examples/c/Makefile
 file /share/examples/c/adc.c
 file /share/examples/c/gpio.c
 file /share/examples/c/hello.c
+file /share/examples/c/lcd6.c
 file /share/examples/c/primelist.c
 file /share/examples/c/primesum.c
 file /share/examples/c/q8.c

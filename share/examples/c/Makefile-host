@@ -1,9 +1,9 @@
 TOPSRC		= $(shell cd ../../..; pwd)
 include $(TOPSRC)/target.mk
 
-CFLAGS		+= -Werror
+CFLAGS		+= -Werror -Wall
 
-all:            chello stdarg
+all:            chello stdarg lcd6
 
 chello:         chello.o
 		${CC} ${LDFLAGS} -o chello.elf chello.o ${LIBS}
@@ -17,5 +17,11 @@ tetris:         tetris.o
 		${SIZE} tetris.elf
 		${ELF2AOUT} tetris.elf $@
 
+lcd6:           lcd6.o
+		${CC} ${LDFLAGS} -o lcd6.elf lcd6.o ${LIBS}
+		${OBJDUMP} -S lcd6.elf > lcd6.dis
+		${SIZE} lcd6.elf
+		${ELF2AOUT} lcd6.elf $@
+
 clean:
-		rm -f *.o *.elf ${MAN} chello stdarg *.elf *.dis tags *~
+		rm -f *.o *.elf ${MAN} chello stdarg lcd6 *.elf *.dis tags *~

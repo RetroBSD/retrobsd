@@ -24,7 +24,10 @@
  * this software.
  */
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
 #include <sys/gpio.h>
 
 #define PITWIDTH    12

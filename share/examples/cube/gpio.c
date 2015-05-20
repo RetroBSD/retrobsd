@@ -1,6 +1,6 @@
 /*
  * Interface to LED cube 8x8x8.
- * The cube is connected to D0-D9 pin of Duinomite board.
+ * The cube is connected to pins D0-D9 of Duinomite board.
  *
  * Pin  PIC32  Function
  * ---------------

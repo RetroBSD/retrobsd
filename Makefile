@@ -80,7 +80,9 @@ sdcard.img:	$(FSUTIL) rootfs.manifest userfs.manifest
 		rm -f $@
 		$(FSUTIL) --repartition=fs=$(FS_MBYTES)M:swap=$(SWAP_MBYTES)M:fs=$(U_MBYTES)M $@
 		$(FSUTIL) --new --partition=1 --manifest=rootfs.manifest $@ .
-		$(FSUTIL) --new --partition=3 --manifest=userfs.manifest $@ u
+# In case you need a separate /u partition,
+# uncomment the following line.
+#		$(FSUTIL) --new --partition=3 --manifest=userfs.manifest $@ u
 
 $(FSUTIL):
 		cd tools/fsutil; $(MAKE)

@@ -970,7 +970,7 @@ void Emulate(void)
       break; // addi d,s,const
     case 9: Regs[r2] = Regs[r1] + simm16; break; // addiu d,s,const
     case 10: Regs[r2] = (int32)Regs[r1] < (int32)simm16; break; // slti d,s,const
-    case 11: Regs[r2] = Regs[r1] < imm16; break; // sltiu d,s,const
+    case 11: Regs[r2] = Regs[r1] < (uint32)simm16; break; // sltiu d,s,const
     case 12: Regs[r2] = Regs[r1] & imm16; break; // andi d,s,const
     case 13: Regs[r2] = Regs[r1] | imm16; break; // ori d,s,const
     case 14: Regs[r2] = Regs[r1] ^ imm16; break; // xori d,s,const

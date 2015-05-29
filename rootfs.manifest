@@ -802,6 +802,19 @@ file /share/examples/cube/demo.c
 file /share/examples/cube/gpio.c
 
 #
+# Files: /share/examples/dhrystone
+#
+dir /share/examples/dhrystone
+file /share/examples/dhrystone/dhry_2.c
+file /share/examples/dhrystone/VARIATIONS
+file /share/examples/dhrystone/README
+file /share/examples/dhrystone/dhry.h
+file /share/examples/dhrystone/README_C
+file /share/examples/dhrystone/Makefile
+file /share/examples/dhrystone/dhry_1.c
+file /share/examples/dhrystone/RATIONALE
+
+#
 # Files: /var
 #
 dir /var

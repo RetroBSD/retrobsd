@@ -218,14 +218,14 @@ again:
   /* Dhrystones per 10^-5 sec. */
   Dhrystones_per_Millisecond = Number_Of_Runs / (Microseconds / 1000);
 
-  Dmips = Dhrystones_per_Millisecond * 1000 / DHRYSTONES_PER_DMIPS;
+  Dmips = Dhrystones_per_Millisecond * 10000 / DHRYSTONES_PER_DMIPS;
 
   printf ("Nanoseconds for one run through Dhrystone: %lu \n",
           Microseconds / (Number_Of_Runs / 1000));
   printf ("            Million Dhrystones per Second: %lu.%03lu \n",
           Dhrystones_per_Millisecond / 1000, Dhrystones_per_Millisecond % 1000);
-  printf ("                                    DMIPS: %lu \n",
-          Dmips);
+  printf ("                                    DMIPS: %lu.%lu \n",
+          Dmips / 10, Dmips % 10);
   printf ("\n");
 
   return 0;

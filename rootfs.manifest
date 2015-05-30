@@ -603,7 +603,7 @@ file /include/sys/mount.h
 file /include/sys/msgbuf.h
 file /include/sys/mtio.h
 file /include/sys/namei.h
-file /include/sys/oc.h
+file /include/sys/pwm.h
 file /include/sys/param.h
 file /include/sys/picga.h
 file /include/sys/proc.h
@@ -800,6 +800,19 @@ file /share/examples/cube/cube.c
 file /share/examples/cube/cube.h
 file /share/examples/cube/demo.c
 file /share/examples/cube/gpio.c
+
+#
+# Files: /share/examples/dhrystone
+#
+dir /share/examples/dhrystone
+file /share/examples/dhrystone/dhry_2.c
+file /share/examples/dhrystone/VARIATIONS
+file /share/examples/dhrystone/README
+file /share/examples/dhrystone/dhry.h
+file /share/examples/dhrystone/README_C
+file /share/examples/dhrystone/Makefile
+file /share/examples/dhrystone/dhry_1.c
+file /share/examples/dhrystone/RATIONALE
 
 #
 # Files: /var

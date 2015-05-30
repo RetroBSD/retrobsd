@@ -1,4 +1,0 @@
-always
-    file oc.o
-    define OC_ENABLED YES
-end always

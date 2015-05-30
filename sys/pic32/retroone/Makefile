@@ -45,7 +45,7 @@ DRIVER_ADC          = yes
 DRIVER_POWER        = no
 
 DRIVER_GLCD	    = yes
-DRIVER_OC 	    = yes
+DRIVER_PWM	    = yes
 
 POWER_LED_PORT      = TRISG
 POWER_LED_PIN       = 12

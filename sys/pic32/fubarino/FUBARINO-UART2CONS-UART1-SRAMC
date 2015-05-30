@@ -1,6 +1,6 @@
 # Fubarino SD with UART2 console, UART1 enabled and with SRAMC SWAPDISK
-# 
-core pic32mx7 
+#
+core pic32mx7
 
 # ! pin numbers here are the pin Ns. printed out on Fubarino board (ie. 12, 23)
 mapping fubarino
@@ -39,7 +39,7 @@ option nbuf=8
 
 device adc
 device spi
-device oc
+device pwm
 device gpio
 
 # Bootloader section:
@@ -52,19 +52,19 @@ device bootloader led=21 button=23 crystal=8 jump=0x9d000000
 # option crystal=8
 # option pllidiv=3
 # option pllmul=15
-# option upllidiv=2 
+# option upllidiv=2
 
 # Bootloader: for 80MHz clock:
 # option crystal=8
 # option pllidiv=2
 # option pllmul=20
-# option upllidiv=2 
+# option upllidiv=2
 
 # Bootloader: for 96MHz clock:
 # option crystal=8
 # option pllidiv=2
 # option pllmul=24
-# option upllidiv=2 
+# option upllidiv=2
 
 # Bootloader: for 120MHz clock:
 option crystal=8

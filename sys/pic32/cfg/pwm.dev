@@ -1,0 +1,4 @@
+always
+    file pwm.o
+    define PWM_ENABLED YES
+end always

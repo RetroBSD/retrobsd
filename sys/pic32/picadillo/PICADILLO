@@ -1,6 +1,9 @@
 #
 # Picadillo 35T board
 # ===================
+#
+# Console on UART1
+# SD/MMC card driver on SPI2
 
 core pic32mx7
 mapping picadillo
@@ -15,5 +18,9 @@ device rdisk
 device sd0 port=2 cs=48
 
 device gpio
+device oc
+device spi
 device adc
+device hxtft
+
 device foreignbootloader

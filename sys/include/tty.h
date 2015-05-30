@@ -211,6 +211,11 @@ int ttyselect (struct tty *tp, int rw);
  */
 void ttyflush (struct tty *tp, int rw);
 
+/*
+ * Wait for output to drain, and flush input.
+ */
+void ttywflush (struct tty *tp);
+
 #endif /* KERNEL */
 
 /* internal state bits */

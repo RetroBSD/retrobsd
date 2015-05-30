@@ -42,8 +42,8 @@ extern int strcmp(char *s1, char *s2);
 #   include "glcd.h"
 #endif
 
-#ifdef OC_ENABLED
-#   include "oc.h"
+#ifdef PWM_ENABLED
+#   include "pwm.h"
 #endif
 
 #ifdef PICGA_ENABLED
@@ -235,11 +235,11 @@ const struct cdevsw cdevsw[] = {
 },
 #endif
 
-#ifdef OC_ENABLED
+#ifdef PWM_ENABLED
 {
-    oc_open,        oc_close,       oc_read,        oc_write,
-    oc_ioctl,       nulldev,        0,              seltrue,
-    nostrategy,     0,              0,              ocdevs
+    pwm_open,       pwm_close,      pwm_read,       pwm_write,
+    pwm_ioctl,      nulldev,        0,              seltrue,
+    nostrategy,     0,              0,              pwmdevs
 },
 #endif
 

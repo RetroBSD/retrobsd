@@ -17,7 +17,7 @@ device uartusb
 device sd0 port=2 cs=SS
 
 device gpio
-device oc
+device pwm
 device spi
 device adc
 device glcd

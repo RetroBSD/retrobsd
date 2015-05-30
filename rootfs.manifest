@@ -603,7 +603,7 @@ file /include/sys/mount.h
 file /include/sys/msgbuf.h
 file /include/sys/mtio.h
 file /include/sys/namei.h
-file /include/sys/oc.h
+file /include/sys/pwm.h
 file /include/sys/param.h
 file /include/sys/picga.h
 file /include/sys/proc.h

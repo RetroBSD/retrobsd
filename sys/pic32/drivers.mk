@@ -31,9 +31,9 @@ ifeq ($(DRIVER_GLCD),yes)
 	DEFS	+= -DGLCD_ENABLED
 endif
 
-ifeq ($(DRIVER_OC),yes)
-	KERNOBJ += oc.o
-	DEFS 	+= -DOC_ENABLED
+ifeq ($(DRIVER_PWM),yes)
+	KERNOBJ += pwm.o
+	DEFS 	+= -DPWM_ENABLED
 endif
 
 ifeq ($(DRIVER_SDRAMP),yes)

@@ -6,67 +6,54 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/uio.h>
-#include <oc.h>
+#include <pwm.h>
 
-int oc;
+int pwm;
 
 void error(char *message)
 {
-    fprintf(stderr,"Error: %s: %d\n",message,errno);
+    fprintf(stderr, "Error: %s: %d\n", message, errno);
 }
 
-int openDevice(int dev)
+void open_device(int dev)
 {
     char temp[20];
-    int mode=OC_MODE_PWM;
+    int mode = PWM_MODE_PWM;
 
-    sprintf(temp,"/dev/oc%d",dev);
-    oc = open(temp,O_RDWR);
-    if(!oc)
-    {
+    sprintf(temp, "/dev/pwm%d", dev);
+    pwm = open(temp, O_RDWR);
+    if (! pwm) {
         error("Could not open PWM device");
-        return 0;
+        exit(-1);
     }
-    if(ioctl(oc,OC_SET_MODE,&mode)==-1)
-    {   
+    if (ioctl(pwm, PWM_SET_MODE, &mode) < 0) {
         error("Could not switch channel to PWM mode");
-        return 0;
+        exit(-1);
     }
-    return 1;
 }
 
 int main(int argc, char *argv[])
 {
     int unit;
-    unsigned int duty;
-    long tduty;
+    unsigned duty;
 
-    if(argc!=3)
-    {
+    if (argc != 3) {
         error("Specify a channel and a duty cycle");
-        exit(10);
+        exit(-1);
     }
 
     unit = atoi(argv[1]);
-    tduty = atol(argv[2]);
-    duty = (unsigned long)tduty;
+    duty = atol(argv[2]);
 
-    if((unit<0) || (unit>4))
-    {   
+    if (unit < 0 || unit > 4) {
         error("Invalid channel specified");
-        exit(10);
+        exit(-1);
     }
+    open_device(unit);
 
-
-    if(openDevice(unit)==0)
-        exit(10);
-
-
-    if(ioctl(oc,OC_PWM_DUTY,&duty)==-1)
-    {
+    if (ioctl(pwm, PWM_DUTY, &duty) < 0) {
         error("Could not set duty");
-        exit(10);
+        exit(-1);
     }
-
     return 0;
 }

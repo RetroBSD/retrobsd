@@ -18,7 +18,7 @@ device rdisk
 device sd0 port=2 cs=48
 
 device gpio
-device oc
+device pwm
 device spi
 device adc
 device hxtft

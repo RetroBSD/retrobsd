@@ -22,7 +22,7 @@ device sd0 port=4 cs=F3 power=B13 mhz=13
 # device sd1 port=4 cs=F8 power=D13
 
 device adc
-device oc
+device pwm
 device gpio
 
 # use SDRAM driver for the external ramdisk
@@ -41,5 +41,3 @@ option crystal=12
 option pllidiv=3
 option pllmul=20
 option upllidiv=3
-
-

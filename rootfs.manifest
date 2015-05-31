@@ -1061,8 +1061,18 @@ file /var/log/messages
 file /var/log/wtmp
 
 #
+# Files: /var/cron
+#
+default
+dirmode 0700
+dir /var/cron
+dir /var/cron/tabs
+
+#
 # Files: /share/man
 #
+default
+dirmode 0775
 dir /share/man
 dir /share/man/cat1
 dir /share/man/cat2

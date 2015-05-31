@@ -334,11 +334,16 @@ chrtoblk(dev_t dev)
 dev_t get_cdev_by_name(char *name)
 {
     int maj, i;
+    const struct devspec *devs;
 
     for (maj = 0; maj < nchrdev; maj++) {
-        for (i = 0; cdevsw[maj].devs[i].devname != 0; i++) {
-            if (strcmp(cdevsw[maj].devs[i].devname, name) == 0) {
-                return makedev(maj, cdevsw[maj].devs[i].unit);
+        devs = cdevsw[maj].devs;
+        if (! devs)
+            continue;
+
+        for (i = 0; devs[i].devname != 0; i++) {
+            if (strcmp(devs[i].devname, name) == 0) {
+                return makedev(maj, devs[i].unit);
             }
         }
     }
@@ -348,12 +353,16 @@ dev_t get_cdev_by_name(char *name)
 char *cdevname(dev_t dev)
 {
     int maj = major(dev);
+    const struct devspec *devs = cdevsw[maj].devs;
     int i;
 
-    for (i=0; cdevsw[maj].devs[i].devname != 0; i++) {
-        if (cdevsw[maj].devs[i].unit == minor(dev)) {
-            return cdevsw[maj].devs[i].devname;
+    if (! devs)
+        return 0;
+
+    for (i=0; devs[i].devname != 0; i++) {
+        if (devs[i].unit == minor(dev)) {
+            return devs[i].devname;
         }
     }
-    return NULL;
+    return 0;
 }

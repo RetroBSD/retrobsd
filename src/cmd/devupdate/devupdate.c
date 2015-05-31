@@ -17,7 +17,13 @@ struct device {
     struct device *next;
 };
 
-struct nlist nl[] = { {"_bdevsw"}, {"_cdevsw"}, {""}};
+struct nlist nl[] = {
+    { "_bdevsw" },
+    { "_cdevsw" },
+    { "_nblkdev" },
+    { "_nchrdev" },
+    {""},
+};
 
 struct device *devices = NULL;
 
@@ -63,8 +69,7 @@ void add_device(char *name, int major, int minor, char class)
 {
     struct device *dev;
 
-    if(!devices)
-    {
+    if (! devices) {
         devices = malloc(sizeof(struct device));
         dev = devices;
     } else {
@@ -82,7 +87,7 @@ void add_device(char *name, int major, int minor, char class)
 int getstring(int fd, unsigned int offset, char *buffer)
 {
     char *p = buffer;
-    lseek(fd,offset,0);
+    lseek(fd, offset, 0);
 
     read(fd, p, 1);
     while (*p != 0) {
@@ -98,22 +103,32 @@ int getdata(int fd, unsigned int offset, void *buffer, int size)
     return read(fd, buffer, size);
 }
 
-int getbdev(int fd, int num)
+int getnblkdev(int fd)
 {
-    getdata(fd, nl[0].n_value + (sizeof(struct bdevsw) * num), &bdevsw, sizeof(struct bdevsw));
-    if (bdevsw.d_open == 0) {
-        return 0;
-    }
-    return 1;
+    int value;
+
+    getdata(fd, nl[2].n_value, &value, sizeof(value));
+    return value;
 }
 
-int getcdev(int fd, int num)
+int getnchrdev(int fd)
 {
-    getdata(fd, nl[1].n_value + (sizeof(struct cdevsw) * num), &cdevsw, sizeof(struct cdevsw));
-    if (cdevsw.d_open == 0) {
-        return 0;
-    }
-    return 1;
+    int value;
+
+    getdata(fd, nl[3].n_value, &value, sizeof(value));
+    return value;
+}
+
+void getbdev(int fd, int num)
+{
+    getdata(fd, nl[0].n_value + (sizeof(struct bdevsw) * num),
+        &bdevsw, sizeof(struct bdevsw));
+}
+
+void getcdev(int fd, int num)
+{
+    getdata(fd, nl[1].n_value + (sizeof(struct cdevsw) * num),
+        &cdevsw, sizeof(struct cdevsw));
 }
 
 int getdevspec(int fd, unsigned int offset, unsigned int num)
@@ -121,7 +136,7 @@ int getdevspec(int fd, unsigned int offset, unsigned int num)
     getdata(fd, offset + (sizeof(struct devspec) * num), &devspec, sizeof(struct devspec));
     if (devspec.devname == 0) {
         return 0;
-    } 
+    }
     return 1;
 
 }
@@ -140,7 +155,7 @@ struct device *get_device(char *name)
 
 void delete_device(char *filename)
 {
-    //printf("unlink(%s)\n",filename);
+    //printf("--- unlink(%s)\n", filename);
     unlink(filename);
 }
 
@@ -149,15 +164,15 @@ void create_device(struct device *dev)
     char buffer[20];
     dev_t ds;
     mode_t mode;
-    sprintf(buffer,"/dev/%s", dev->name);
-    
+    sprintf(buffer, "/dev/%s", dev->name);
+
     ds = makedev(dev->major, dev->minor);
     if (dev->class == 'c')
         mode = 0666 | S_IFCHR;
     else
         mode = 0666 | S_IFBLK;
 
-    //printf("mknod(%s, %o, %04X)\n", buffer, mode, ds);
+    //printf("--- mknod(%s, %o, %04X)\n", buffer, mode, ds);
     mknod(buffer, mode, ds);
 }
 
@@ -174,19 +189,14 @@ void create_kmem()
 
 int main()
 {
-    int kmem;
+    int kmem, nblkdev, nchrdev, i, isgood, um, bdevnum, cdevnum;
     char buffer[20];
-    int bdevnum = 0;
-    int cdevnum = 0;
     int specno = 0;
     int dnnum = 0;
-    int i;
     DIR *dp;
     struct direct *file;
     struct device *dev;
     struct stat sb;
-    int isgood;
-    int um;
     dev_t kmd = kmemdev();
 
     knlist(nl);
@@ -194,65 +204,67 @@ int main()
     um = umask(0000);
 
     // Does kmem exist, and is it correct?
-    if (stat("/dev/kmem",&sb) == -1) {
+    if (stat("/dev/kmem", &sb) == -1) {
         create_kmem();
     } else if (
-            (!(sb.st_mode & S_IFCHR)) || 
-             (major(sb.st_rdev)!=major(kmd)) || 
+            (!(sb.st_mode & S_IFCHR)) ||
+             (major(sb.st_rdev)!=major(kmd)) ||
              (minor(sb.st_rdev)!=minor(kmd))
     ) {
         delete_device("/dev/kmem");
         create_kmem();
     }
 
-    kmem = open("/dev/kmem",O_RDONLY);
+    kmem = open("/dev/kmem", O_RDONLY);
     if (!kmem) {
         printf("devupdate: FATAL - unable to access /dev/kmem\n");
         return(10);
     }
+    nblkdev = getnblkdev(kmem);
+    nchrdev = getnchrdev(kmem);
 
     //printf("Block devices: \n");
-    while (getbdev(kmem,bdevnum) == 1) {
+    for (bdevnum = 0; bdevnum < nblkdev; bdevnum++) {
+        getbdev(kmem, bdevnum);
+        if (bdevsw.devs == 0)
+            continue;
+
         specno = 0;
-        if (bdevsw.devs != 0) {
-            while (getdevspec(kmem, (unsigned int)bdevsw.devs, specno) == 1) {
-                getstring(kmem, (unsigned int)devspec.devname, buffer);
-                specno++;
-                //printf("  %s (%d,%d)\n", buffer, bdevnum, devspec.unit);
-                add_device(buffer, bdevnum, devspec.unit, 'b');
-            }
+        while (getdevspec(kmem, (unsigned int)bdevsw.devs, specno) == 1) {
+            getstring(kmem, (unsigned int)devspec.devname, buffer);
+            specno++;
+            //printf("  %s (%d,%d)\n", buffer, bdevnum, devspec.unit);
+            add_device(buffer, bdevnum, devspec.unit, 'b');
         }
-        bdevnum++;
     }
 
-    //printf("Chatacter devices: \n");
-    while (getcdev(kmem,cdevnum) == 1) {
-        specno = 0;
-        if (cdevsw.devs != 0) {
-            while (getdevspec(kmem, (unsigned int)cdevsw.devs, specno) == 1) {
-                getstring(kmem, (unsigned int)devspec.devname, buffer);
-                specno++;
-                //printf("  %s (%d,%d)\n", buffer, cdevnum, devspec.unit);
-                add_device(buffer, cdevnum, devspec.unit, 'c');
-            }
-        }
-        cdevnum++;
-    }
+    //printf("Character devices: \n");
+    for (cdevnum = 0; cdevnum < nchrdev; cdevnum++) {
+        getcdev(kmem, cdevnum);
+        if (cdevsw.devs == 0)
+            continue;
 
+        specno = 0;
+        while (getdevspec(kmem, (unsigned int)cdevsw.devs, specno) == 1) {
+            getstring(kmem, (unsigned int)devspec.devname, buffer);
+            specno++;
+            //printf("  %s (%d,%d)\n", buffer, cdevnum, devspec.unit);
+            add_device(buffer, cdevnum, devspec.unit, 'c');
+        }
+    }
     close(kmem);
 
-
     dp = opendir("/dev");
-    
-    while(file = readdir(dp))
+
+    while (file = readdir(dp))
     {
         isgood = 0;
 
-        if (file->d_name[0] == '.') 
+        if (file->d_name[0] == '.')
             continue;
 
         dev = get_device(file->d_name);
-        sprintf(buffer,"/dev/%s",file->d_name);
+        sprintf(buffer, "/dev/%s", file->d_name);
 
         if (!dev) {
             delete_device(buffer);
@@ -299,4 +311,3 @@ int main()
     close(kmem);
     return 0;
 }
-    

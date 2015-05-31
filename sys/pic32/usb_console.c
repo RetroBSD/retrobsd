@@ -76,6 +76,7 @@ int cnclose (dev, flag, mode)
 {
     register struct tty *tp = &cnttys[0];
 
+    ttywflush(tp);
     ttyclose (tp);
     return 0;
 }

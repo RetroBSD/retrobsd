@@ -173,8 +173,10 @@ static const struct {
         { "_rate",          (int) &rate         },  /* vmstat */
         { "_sum",           (int) &sum          },  /* vmstat */
 #endif
-        { "_bdevsw",        (int) &bdevsw       },
-        { "_cdevsw",        (int) &cdevsw       },
+        { "_bdevsw",        (int) &bdevsw       },  /* devupdate */
+        { "_cdevsw",        (int) &cdevsw       },  /* devupdate */
+        { "_nblkdev",       (int) &nblkdev      },  /* devupdate */
+        { "_nchrdev",       (int) &nchrdev      },  /* devupdate */
         { 0, 0 },
 };
 

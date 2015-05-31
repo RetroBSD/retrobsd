@@ -124,7 +124,6 @@ void remque (void *element);
 
 void startup (void);			/* machine-dependent startup code */
 int chrtoblk (dev_t dev);		/* convert from character to block device number */
-int blktochr (dev_t dev);		/* convert from block to character device number */
 int isdisk (dev_t dev, int type);	/* determine if a device is a disk */
 int iskmemdev (dev_t dev);		/* identify /dev/mem and /dev/kmem */
 void boot (dev_t dev, int howto);

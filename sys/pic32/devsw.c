@@ -25,39 +25,30 @@ extern int strcmp(char *s1, char *s2);
 #ifdef UARTUSB_ENABLED
 #   include "usb_uart.h"
 #endif
-
 #ifdef GPIO_ENABLED
 #   include "gpio.h"
 #endif
-
 #ifdef ADC_ENABLED
 #   include "adc.h"
 #endif
-
 #ifdef SPI_ENABLED
 #   include "spi.h"
 #endif
-
 #ifdef GLCD_ENABLED
 #   include "glcd.h"
 #endif
-
 #ifdef PWM_ENABLED
 #   include "pwm.h"
 #endif
-
 #ifdef PICGA_ENABLED
 #   include "picga.h"
 #endif
-
 #ifdef PTY_ENABLED
 #   include "pty.h"
 #endif
-
 #ifdef HX8357_ENABLED
 #   include "hx8357.h"
 #endif
-
 #ifdef SKEL_ENABLED
 #   include "skel.h"
 #endif
@@ -97,65 +88,64 @@ void noroot (csr)
     /* Empty. */
 }
 
-const struct bdevsw bdevsw[] = {
-{
-    rdopen,         rdclose,        rdstrategy,
-    noroot,         rdsize,         rdioctl,        0, rd0devs },
-{
-    rdopen,         rdclose,        rdstrategy,
-    noroot,         rdsize,         rdioctl,        0, rd1devs },
-{
-    rdopen,         rdclose,        rdstrategy,
-    noroot,         rdsize,         rdioctl,        0, rd2devs },
-{
-    rdopen,         rdclose,        rdstrategy,
-    noroot,         rdsize,         rdioctl,        0, rd3devs },
-{
-    swopen,         swclose,        swstrategy,
-    noroot,         swsize,         swcioctl,       0, swapbdevs },
-{
-    0,              0,              0,
-    0,              0,              0,              0, 0 },
-};
-
-const int nblkdev = sizeof(bdevsw) / sizeof(bdevsw[0]) - 1;
-
 /*
  * The RetroDisks require the same master number as the disk entry in the
  * rdisk.c file.  A bit of a bind, but it means that the RetroDisk
  * devices must be numbered from master 0 upwards.
  */
+const struct bdevsw bdevsw[] = {
+{   /* 0 - rd0 */
+    rdopen,         rdclose,        rdstrategy,
+    noroot,         rdsize,         rdioctl,        0, rd0devs
+},
+{   /* 1 - rd1 */
+    rdopen,         rdclose,        rdstrategy,
+    noroot,         rdsize,         rdioctl,        0, rd1devs
+},
+{   /* 2 - rd2 */
+    rdopen,         rdclose,        rdstrategy,
+    noroot,         rdsize,         rdioctl,        0, rd2devs
+},
+{   /* 3 - rd3 */
+    rdopen,         rdclose,        rdstrategy,
+    noroot,         rdsize,         rdioctl,        0, rd3devs
+},
+{   /* 4 - swap */
+    swopen,         swclose,        swstrategy,
+    noroot,         swsize,         swcioctl,       0, swapbdevs
+},
+
+{ 0 },
+};
+
+const int nblkdev = sizeof(bdevsw) / sizeof(bdevsw[0]) - 1;
+
 const struct cdevsw cdevsw[] = {
 
 /*
  * Static drivers - every system has these:
  */
-
-{ /* cn = 0 */
+{   /* 0 - console */
     cnopen,         cnclose,        cnread,         cnwrite,
     cnioctl,        nulldev,        cnttys,         cnselect,
     nostrategy,     0,              0,              cndevs
 },
-
-{ /* mem = 1 */
+{   /* 1 - mem, kmem, null, zero */
     nulldev,        nulldev,        mmrw,           mmrw,
     noioctl,        nulldev,        0,              seltrue,
     nostrategy,     0,              0,              mmdevs
 },
-
-{ /* tty = 2 */
+{   /* 2 - tty */
     syopen,         nulldev,        syread,         sywrite,
     syioctl,        nulldev,        0,              syselect,
     nostrategy,     0,              0,              sydevs
 },
-
-{ /* fd = 3 */
+{   /* 3 - fd */
     fdopen,         nulldev,        norw,           norw,
     noioctl,        nulldev,        0,              seltrue,
     nostrategy,     0,              0,              fddevs
 },
-
-{ /* swap = 4 */
+{   /* 4 - temp (temporary allocation in swap space) */
     swcopen,        swcclose,       swcread,        swcwrite,
     swcioctl,       nulldev,        0,              seltrue,
     nostrategy,     0,              0,              swapcdevs
@@ -164,35 +154,37 @@ const struct cdevsw cdevsw[] = {
 /*
  * Optional drivers from here on:
  */
-
+{   /* 5 - log */
 #ifdef LOG_ENABLED
-{
     logopen,        logclose,       logread,        norw,
     logioctl,       nulldev,        0,              logselect,
     nostrategy,     0,              0,              logdevs
-},
+#else
+    0
 #endif
-
+},
+{   /* 6 - tty uart */
 #if defined(UART1_ENABLED) || defined(UART2_ENABLED) || \
     defined(UART3_ENABLED) || defined(UART4_ENABLED) || \
     defined(UART5_ENABLED) || defined(UART6_ENABLED)
-{
     uartopen,       uartclose,      uartread,       uartwrite,
     uartioctl,      nulldev,        uartttys,       uartselect,
     nostrategy,     uartgetc,       uartputc,       uartdevs
-},
+#else
+    0
 #endif
-
+},
+{   /* 7 - tty usb */
 #ifdef UARTUSB_ENABLED
-{
     usbopen,        usbclose,       usbread,        usbwrite,
     usbioctl,       nulldev,        usbttys,        usbselect,
     nostrategy,     usbgetc,        usbputc,        usbdevs
-},
+#else
+    0
 #endif
-
+},
+{   /* 8, 9 - pty */
 #ifdef PTY_ENABLED
-{
     ptsopen,        ptsclose,       ptsread,        ptswrite,
     ptyioctl,       nulldev,        pt_tty,         ptcselect,
     nostrategy,     0,              0,              ptsdevs
@@ -200,73 +192,82 @@ const struct cdevsw cdevsw[] = {
     ptcopen,        ptcclose,       ptcread,        ptcwrite,
     ptyioctl,       nulldev,        pt_tty,         ptcselect,
     nostrategy,     0,              0,              ptcdevs
-},
+#else
+    0 }, { 0
 #endif
-
+},
+{   /* 10 - gpio */
 #ifdef GPIO_ENABLED
-{
     gpioopen,       gpioclose,      gpioread,       gpiowrite,
     gpioioctl,      nulldev,        0,              seltrue,
     nostrategy,     0,              0,              gpiodevs
-},
+#else
+    0
 #endif
-
+},
+{   /* 11 - adc */
 #ifdef ADC_ENABLED
-{
     adc_open,       adc_close,      adc_read,       adc_write,
     adc_ioctl,      nulldev,        0,              seltrue,
     nostrategy,     0,              0,              adcdevs
-},
+#else
+    0
 #endif
-
+},
+{   /* 12 - spi */
 #ifdef SPI_ENABLED
-{
     spidev_open,    spidev_close,   spidev_read,    spidev_write,
     spidev_ioctl,   nulldev,        0,              seltrue,
     nostrategy,     0,              0,              spidevs
-},
+#else
+    0
 #endif
-
+},
+{   /* 13 - glcd */
 #ifdef GLCD_ENABLED
-{
     glcd_open,      glcd_close,     glcd_read,      glcd_write,
     glcd_ioctl,     nulldev,        0,              seltrue,
     nostrategy,     0,              0,              glcddevs
-},
+#else
+    0
 #endif
-
+},
+{   /* 14 - pwm */
 #ifdef PWM_ENABLED
-{
     pwm_open,       pwm_close,      pwm_read,       pwm_write,
     pwm_ioctl,      nulldev,        0,              seltrue,
     nostrategy,     0,              0,              pwmdevs
-},
+#else
+    0
 #endif
-
-// Ignore this for now - it's WIP.
+},
+{   /* 15 - picga */            // Ignore this for now - it's WIP.
 #ifdef PICGA_ENABLED
-{
     picga_open,     picga_close,    picga_read,     picga_write,
     picga_ioctl,    nulldev,        0,              seltrue,
     nostrategy,     0,              0,              picgadevs
-},
+#else
+    0
 #endif
-
+},
+{   /* 16 - tft */
 #ifdef HX8357_ENABLED
-{
     hx8357_open,    hx8357_close,   hx8357_read,    hx8357_write,
     hx8357_ioctl,   nulldev,        hx8357_ttys,    hx8357_select,
     nostrategy,     hx8357_getc,    hx8357_putc,    hx8357devs
-},
+#else
+    0
 #endif
-
+},
+{   /* 17 - skel */
 #ifdef SKEL_ENABLED
-{
     skeldev_open,   skeldev_close,  skeldev_read,   skeldev_write,
     skeldev_ioctl,  nulldev,        0,              seltrue,
     nostrategy,     0,              0,              skeldevs
-},
+#else
+    0
 #endif
+},
 
 /*
  * End the list with a blank entry
@@ -300,71 +301,30 @@ isdisk(dev, type)
     dev_t dev;
     register int type;
 {
+    if (type != IFBLK)
+        return 0;
+
     switch (major(dev)) {
-    case 0:                 /* sd */
-    case 1:                 /* sw */
-    case 2:
-    case 3:
-    case 4:
-        if (type == IFBLK)
-            return (1);
-        return (0);
+    case 0:                 /* rd0 */
+    case 1:                 /* rd1 */
+    case 2:                 /* rd2 */
+    case 3:                 /* rd3 */
+    case 4:                 /* sw */
+        return (1);
     default:
         return (0);
     }
     /* NOTREACHED */
 }
 
-#define MAXDEV  7
-static const char chrtoblktbl[MAXDEV] =  {
-    /* CHR */      /* BLK */
-    /* 0 */         NODEV,
-    /* 1 */         NODEV,
-    /* 2 */         NODEV,
-    /* 3 */         0,              /* sd */
-    /* 4 */         NODEV,
-    /* 5 */         NODEV,
-    /* 6 */         1,
-};
-
 /*
  * Routine to convert from character to block device number.
- *
  * A minimal stub routine can always return NODEV.
  */
 int
-chrtoblk(dev)
-    register dev_t dev;
+chrtoblk(dev_t dev)
 {
-    register int blkmaj;
-
-    if (major(dev) >= MAXDEV || (blkmaj = chrtoblktbl[major(dev)]) == NODEV)
-        return (NODEV);
-    return (makedev(blkmaj, minor(dev)));
-}
-
-/*
- * This routine returns the cdevsw[] index of the block device
- * specified by the input parameter.    Used by init_main and ufs_mount to
- * find the diskdriver's ioctl entry point so that the label and partition
- * information can be obtained for 'block' (instead of 'character') disks.
- *
- * Rather than create a whole separate table 'chrtoblktbl' is scanned
- * looking for a match.  This routine is only called a half dozen times during
- * a system's life so efficiency isn't a big concern.
- */
-int
-blktochr(dev)
-    register dev_t dev;
-{
-    register int maj = major(dev);
-    register int i;
-
-    for (i = 0; i < MAXDEV; i++) {
-        if (maj == chrtoblktbl[i])
-            return(i);
-    }
-    return(NODEV);
+    return (NODEV);
 }
 
 /*

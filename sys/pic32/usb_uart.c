@@ -110,6 +110,7 @@ int usbclose (dev, flag, mode)
 {
     register struct tty *tp = &usbttys[0];
 
+    ttywflush(tp);
     ttyclose (tp);
     return 0;
 }

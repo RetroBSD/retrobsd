@@ -3,8 +3,6 @@ HOME=/; export HOME
 PATH=/bin:/sbin; export PATH
 exec >/dev/console 2>&1
 
-/sbin/devupdate
-
 if test "$1" != "autoboot"; then
     #
     # Switch from single-user to multi-user mode.

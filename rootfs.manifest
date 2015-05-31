@@ -20,49 +20,6 @@ dir /tmp
 dir /u
 
 #
-# Character devices.
-#
-cdev /dev/console
-major 0
-minor 0
-cdev /dev/mem
-major 1
-minor 0
-cdev /dev/kmem
-major 1
-minor 1
-cdev /dev/null
-major 1
-minor 2
-mode 666
-cdev /dev/zero
-major 1
-minor 3
-mode 666
-cdev /dev/tty
-major 2
-minor 0
-mode 666
-cdev /dev/stdin
-major 3
-minor 0
-cdev /dev/stdout
-major 3
-minor 1
-cdev /dev/stderr
-major 3
-minor 2
-cdev /dev/temp0
-major 4
-minor 0
-cdev /dev/temp1
-major 4
-minor 1
-cdev /dev/temp2
-major 4
-minor 2
-
-#
 # Block devices.
 #
 bdev /dev/rd0
@@ -137,6 +94,285 @@ minor 1
 bdev /dev/swap2
 major 4
 minor 2
+
+#
+# Character devices.
+#
+cdev /dev/console
+major 0
+minor 0
+cdev /dev/mem
+major 1
+minor 0
+cdev /dev/kmem
+major 1
+minor 1
+cdev /dev/null
+major 1
+minor 2
+mode 666
+cdev /dev/zero
+major 1
+minor 3
+mode 666
+cdev /dev/tty
+major 2
+minor 0
+mode 666
+cdev /dev/stdin
+major 3
+minor 0
+cdev /dev/stdout
+major 3
+minor 1
+cdev /dev/stderr
+major 3
+minor 2
+cdev /dev/temp0
+major 4
+minor 0
+cdev /dev/temp1
+major 4
+minor 1
+cdev /dev/temp2
+major 4
+minor 2
+cdev /dev/klog
+major 5
+minor 0
+
+#
+# UART driver.
+#
+cdev /dev/tty0
+major 6
+minor 0
+cdev /dev/tty1
+major 6
+minor 1
+cdev /dev/tty2
+major 6
+minor 2
+cdev /dev/tty3
+major 6
+minor 3
+cdev /dev/tty4
+major 6
+minor 4
+cdev /dev/tty5
+major 6
+minor 5
+
+#
+# USB serial driver.
+#
+cdev /dev/ttyUSB0
+major 7
+minor 0
+
+#
+# Pseudo-terminals.
+#
+cdev /dev/ttyp0
+major 8
+minor 0
+cdev /dev/ttyp1
+major 8
+minor 1
+cdev /dev/ttyp2
+major 8
+minor 2
+cdev /dev/ttyp3
+major 8
+minor 3
+cdev /dev/ptyp0
+major 9
+minor 0
+cdev /dev/ptyp1
+major 9
+minor 1
+cdev /dev/ptyp2
+major 9
+minor 2
+cdev /dev/ptyp3
+major 9
+minor 3
+
+#
+# GPIO driver.
+#
+cdev /dev/porta
+major 10
+minor 0
+cdev /dev/portb
+major 10
+minor 1
+cdev /dev/portc
+major 10
+minor 2
+cdev /dev/portd
+major 10
+minor 3
+cdev /dev/porte
+major 10
+minor 4
+cdev /dev/portf
+major 10
+minor 5
+cdev /dev/portg
+major 10
+minor 6
+cdev /dev/confa
+major 10
+minor 64
+cdev /dev/confb
+major 10
+minor 65
+cdev /dev/confc
+major 10
+minor 66
+cdev /dev/confd
+major 10
+minor 67
+cdev /dev/confe
+major 10
+minor 68
+cdev /dev/conff
+major 10
+minor 69
+cdev /dev/confg
+major 10
+minor 70
+
+#
+# ADC driver.
+#
+cdev /dev/adc0
+major 11
+minor 0
+cdev /dev/adc1
+major 11
+minor 1
+cdev /dev/adc2
+major 11
+minor 2
+cdev /dev/adc3
+major 11
+minor 3
+cdev /dev/adc4
+major 11
+minor 4
+cdev /dev/adc5
+major 11
+minor 5
+cdev /dev/adc6
+major 11
+minor 6
+cdev /dev/adc7
+major 11
+minor 7
+cdev /dev/adc8
+major 11
+minor 8
+cdev /dev/adc9
+major 11
+minor 9
+cdev /dev/adc10
+major 11
+minor 10
+cdev /dev/adc11
+major 11
+minor 11
+cdev /dev/adc12
+major 11
+minor 12
+cdev /dev/adc13
+major 11
+minor 13
+cdev /dev/adc14
+major 11
+minor 14
+cdev /dev/adc15
+major 11
+minor 15
+
+#
+# SPI driver.
+#
+cdev /dev/spi1
+major 12
+minor 0
+cdev /dev/spi2
+major 12
+minor 1
+cdev /dev/spi3
+major 12
+minor 2
+cdev /dev/spi4
+major 12
+minor 3
+
+#
+# GLCD driver.
+#
+cdev /dev/glcd0
+major 13
+minor 0
+
+#
+# PWM driver.
+#
+cdev /dev/pwm1
+major 14
+minor 0
+cdev /dev/pwm2
+major 14
+minor 1
+cdev /dev/pwm3
+major 14
+minor 2
+cdev /dev/pwm4
+major 14
+minor 3
+cdev /dev/pwm5
+major 14
+minor 4
+
+#
+# PICGA driver.
+#
+cdev /dev/picga0
+major 15
+minor 0
+
+#
+# TFT display driver.
+#
+cdev /dev/tft0
+major 16
+minor 0
+cdev /dev/tftin0
+major 16
+minor 1
+
+#
+# Skeleton driver.
+#
+cdev /dev/skel1
+major 17
+minor 0
+cdev /dev/skel2
+major 17
+minor 1
+cdev /dev/skel3
+major 17
+minor 2
+cdev /dev/skel4
+major 17
+minor 3
+cdev /dev/skel5
+major 17
+minor 4
 
 #
 # Files: /

@@ -12,7 +12,7 @@ DEFS		+= -I. -I$(H) -DKERNEL -DPIC32MX7
 
 # CPU frequency 80 MHz.
 DEFS		+= -DCPU_KHZ=80000
-DEFS		+= -DBUS_KHZ=80000
+DEFS		+= -DBUS_KHZ=80000 -DBUS_DIV=1
 
 #
 # Ethernet/USB Starter Kit with I/O Expansion board
@@ -54,27 +54,6 @@ DEFS            += -DLED_DISK_PORT=TRISE   -DLED_DISK_PIN=1   -DLED_DISK_INVERT
 DEFS            += -DLED_KERNEL_PORT=TRISE -DLED_KERNEL_PIN=2 -DLED_KERNEL_INVERT
 DEFS            += -DLED_TTY_PORT=TRISE    -DLED_TTY_PIN=3    -DLED_TTY_INVERT
 
-#
-# Include or exclude drivers
-#
-
-# General Purpose I/O
-DRIVER_GPIO         = no
-
-# Basic ADC interface
-DRIVER_ADC          = no
-
-# Power control (power LED, and soft power-off by button)
-# requires supported PSU (ATX)
-DRIVER_POWER        = no
-
-POWER_LED_PORT      = TRISG
-POWER_LED_PIN       = 12
-POWER_SWITCH_PORT   = TRISG
-POWER_SWITCH_PIN    = 0
-POWER_CONTROL_PORT  = TRISE
-POWER_CONTROL_PIN   = 9
-
 DEPFLAGS	= -MT $@ -MD -MP -MF .deps/$*.dep
 CFLAGS		= -O $(DEFS) $(DEPFLAGS)
 ASFLAGS		= $(DEFS) $(DEPFLAGS)
@@ -100,9 +79,6 @@ KERNOBJ		+= rdisk.o rd_sd.o spi_bus.o
 
 # Include any local specific configuration overrides
 -include Makefile.local
-
-# This makefile does the work including the right files and options for the drivers
-include ../drivers.mk
 
 all:		.deps sys machine diag.elf
 		$(SIZE) diag.elf

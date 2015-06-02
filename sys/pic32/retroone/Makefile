@@ -14,7 +14,7 @@ DEFS		+= -DGLOBAL_DEBUG
 
 # CPU frequency 80 MHz.
 DEFS		+= -DCPU_KHZ=80000
-DEFS		+= -DBUS_KHZ=80000
+DEFS		+= -DBUS_KHZ=80000 -DBUS_DIV=1
 
 #
 # Basic pic32mx795f512l chip with internal oscillator
@@ -31,28 +31,6 @@ DEFS            += -DLED_DISK_PORT=TRISA   -DLED_DISK_PIN=14
 DEFS            += -DLED_KERNEL_PORT=TRISB -DLED_KERNEL_PIN=8
 DEFS            += -DLED_TTY_PORT=TRISB    -DLED_TTY_PIN=9
 DEFS            += -DLED_AUX_PORT=TRISA    -DLED_AUX_PIN=9
-
-# Include or exclude drivers
-
-# General Purpose I/O
-DRIVER_GPIO         = yes
-
-# Basic ADC interface
-DRIVER_ADC          = yes
-
-# Power control (power LED, and soft power-off by button)
-# requires supported PSU (ATX)
-DRIVER_POWER        = no
-
-DRIVER_GLCD	    = yes
-DRIVER_PWM	    = yes
-
-POWER_LED_PORT      = TRISG
-POWER_LED_PIN       = 12
-POWER_SWITCH_PORT   = TRISG
-POWER_SWITCH_PIN    = 0
-POWER_CONTROL_PORT  = TRISE
-POWER_CONTROL_PIN   = 9
 
 DEPFLAGS	= -MT $@ -MD -MP -MF .deps/$*.dep
 CFLAGS		= -O $(DEFS) $(DEPFLAGS)
@@ -97,8 +75,21 @@ KERNOBJ		+= vers.o devcfg.o
 # Include any local specific configuration overrides
 -include Makefile.local
 
-# This makefile does the work including the right files and options for the drivers
-include ../drivers.mk
+# GPIO driver
+KERNOBJ += gpio.o
+DEFS    += -DGPIO_ENABLED
+
+# ADC driver
+KERNOBJ += adc.o
+DEFS    += -DADC_ENABLED
+
+# GLCD driver
+KERNOBJ += glcd.o
+DEFS	+= -DGLCD_ENABLED
+
+# PWM driver
+KERNOBJ += pwm.o
+DEFS 	+= -DPWM_ENABLED
 
 all:		.deps sys machine unix.elf
 		$(SIZE) unix.elf

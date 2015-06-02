@@ -1,0 +1,2 @@
+This directory contains an example of RetroBSD kernel build
+using plain Makefile (no configsys or kconfig tools).

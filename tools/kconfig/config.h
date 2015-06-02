@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 1980, 1993
- *	The Regents of the University of California.  All rights reserved.
+ *  The Regents of the University of California.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -12,8 +12,8 @@
  *    documentation and/or other materials provided with the distribution.
  * 3. All advertising materials mentioning features or use of this software
  *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
+ *  This product includes software developed by the University of
+ *  California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- *	@(#)config.h	8.1 (Berkeley) 6/6/93
+ *  @(#)config.h    8.1 (Berkeley) 6/6/93
  */
 
 /*
@@ -40,95 +40,95 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define	NODEV	((dev_t)-1)
+#define NODEV   ((dev_t)-1)
 
 struct file_list {
-	struct	file_list *f_next;
-	char	*f_fn;			/* the name */
-	u_char	f_type;			/* see below */
-	u_char	f_flags;		/* see below */
-	char	*f_special;		/* special make rule if present */
-	char	*f_needs;
-	/*
-	 * Random values:
-	 *	swap space parameters for swap areas
-	 *	root device, etc. for system specifications
-	 */
-	union {
-		struct {		/* when swap specification */
-			dev_t	fuw_swapdev;
-			int	fuw_swapsize;
-			int	fuw_swapflag;
-		} fuw;
-		struct {		/* when system specification */
-			dev_t	fus_rootdev;
-			dev_t	fus_dumpdev;
-		} fus;
-		struct {		/* when component dev specification */
-			dev_t	fup_compdev;
-			int	fup_compinfo;
-		} fup;
-	} fun;
-#define	f_swapdev	fun.fuw.fuw_swapdev
-#define	f_swapsize	fun.fuw.fuw_swapsize
-#define	f_swapflag	fun.fuw.fuw_swapflag
-#define	f_rootdev	fun.fus.fus_rootdev
-#define	f_dumpdev	fun.fus.fus_dumpdev
-#define f_compdev	fun.fup.fup_compdev
-#define f_compinfo	fun.fup.fup_compinfo
+    struct  file_list *f_next;
+    char    *f_fn;          /* the name */
+    u_char  f_type;         /* see below */
+    u_char  f_flags;        /* see below */
+    char    *f_special;     /* special make rule if present */
+    char    *f_needs;
+    /*
+     * Random values:
+     *  swap space parameters for swap areas
+     *  root device, etc. for system specifications
+     */
+    union {
+        struct {            /* when swap specification */
+            dev_t   fuw_swapdev;
+            int     fuw_swapsize;
+            int     fuw_swapflag;
+        } fuw;
+        struct {            /* when system specification */
+            dev_t   fus_rootdev;
+            dev_t   fus_dumpdev;
+        } fus;
+        struct {            /* when component dev specification */
+            dev_t   fup_compdev;
+            int     fup_compinfo;
+        } fup;
+    } fun;
+#define f_swapdev   fun.fuw.fuw_swapdev
+#define f_swapsize  fun.fuw.fuw_swapsize
+#define f_swapflag  fun.fuw.fuw_swapflag
+#define f_rootdev   fun.fus.fus_rootdev
+#define f_dumpdev   fun.fus.fus_dumpdev
+#define f_compdev   fun.fup.fup_compdev
+#define f_compinfo  fun.fup.fup_compinfo
 };
 
 /*
  * Types.
  */
-#define DRIVER		1
-#define NORMAL		2
-#define	INVISIBLE	3
-#define	PROFILING	4
-#define	SYSTEMSPEC	5
-#define	SWAPSPEC	6
-#define COMPDEVICE	7
-#define COMPSPEC	8
+#define DRIVER      1
+#define NORMAL      2
+#define INVISIBLE   3
+#define PROFILING   4
+#define SYSTEMSPEC  5
+#define SWAPSPEC    6
+#define COMPDEVICE  7
+#define COMPSPEC    8
 
 /*
  * Attributes (flags).
  */
-#define	CONFIGDEP	1
+#define CONFIGDEP   1
 
-struct	idlst {
-	char	*id;
-	struct	idlst *id_next;
+struct  idlst {
+    char    *id;
+    struct  idlst *id_next;
 };
 
 struct device {
-	int	d_type;			/* CONTROLLER, DEVICE, bus adaptor */
-	struct	device *d_conn;		/* what it is connected to */
-	char	*d_name;		/* name of device (e.g. rk11) */
-	struct	idlst *d_vec;		/* interrupt vectors */
-	int	d_pri;			/* interrupt priority */
-	int	d_addr;			/* address of csr */
-	int	d_unit;			/* unit number */
-	int	d_drive;		/* drive number */
-	int	d_slave;		/* slave number */
-#define QUES	-1	/* -1 means '?' */
-#define	UNKNOWN -2	/* -2 means not set yet */
-	int	d_dk;			/* if init 1 set to number for iostat */
-	int	d_flags;		/* flags for device init */
-	char	*d_port;		/* io port base manifest constant */
-	int	d_portn;	/* io port base (if number not manifest) */
-	char	*d_mask;		/* interrupt mask */
-	int	d_maddr;		/* io memory base */
-	int	d_msize;		/* io memory size */
-	int	d_drq;			/* DMA request  */
-	int	d_irq;			/* interrupt request  */
-	struct	device *d_next;		/* Next one in list */
+    int     d_type;         /* CONTROLLER, DEVICE, bus adaptor */
+    struct  device *d_conn; /* what it is connected to */
+    char    *d_name;        /* name of device (e.g. rk11) */
+    struct  idlst *d_vec;   /* interrupt vectors */
+    int     d_pri;          /* interrupt priority */
+    int     d_addr;         /* address of csr */
+    int     d_unit;         /* unit number */
+    int     d_drive;        /* drive number */
+    int     d_slave;        /* slave number */
+#define QUES    -1          /* -1 means '?' */
+#define UNKNOWN -2          /* -2 means not set yet */
+    int     d_dk;           /* if init 1 set to number for iostat */
+    int     d_flags;        /* flags for device init */
+    char    *d_port;        /* io port base manifest constant */
+    int     d_portn;        /* io port base (if number not manifest) */
+    char    *d_mask;        /* interrupt mask */
+    int     d_maddr;        /* io memory base */
+    int     d_msize;        /* io memory size */
+    int     d_drq;          /* DMA request  */
+    int     d_irq;          /* interrupt request  */
+    struct  device *d_next; /* Next one in list */
 };
-#define TO_NEXUS	(struct device *)-1
-#define TO_VBA		(struct device *)-2
+#define TO_NEXUS    (struct device *)-1
+#define TO_VBA      (struct device *)-2
 
 struct config {
-	char	*c_dev;
-	char	*s_sysname;
+    char    *c_dev;
+    char    *s_sysname;
 };
 
 /*
@@ -138,12 +138,12 @@ struct config {
  * it will build from ``Makefile.vax'' and use ``../vax/inline''
  * in the makerules, etc.
  */
-int	machine;
-char	*machinename;
-#define	MACHINE_VAX         1
-#define	MACHINE_TAHOE       2
+int machine;
+char    *machinename;
+#define MACHINE_VAX         1
+#define MACHINE_TAHOE       2
 #define MACHINE_HP300       3
-#define	MACHINE_I386        4
+#define MACHINE_I386        4
 #define MACHINE_MIPS        5
 #define MACHINE_PMAX        6
 #define MACHINE_LUNA68K     7
@@ -155,8 +155,8 @@ char	*machinename;
  * These and the options (below) are put in the C flags in the makefile.
  */
 struct cputype {
-	char	*cpu_name;
-	struct	cputype *cpu_next;
+    char    *cpu_name;
+    struct  cputype *cpu_next;
 } *cputype;
 
 /*
@@ -165,53 +165,53 @@ struct cputype {
  * A separate set of options may be defined for make-style options.
  */
 struct opt {
-	char	*op_name;
-	char	*op_value;
-	struct	opt *op_next;
+    char    *op_name;
+    char    *op_value;
+    struct  opt *op_next;
 } *opt, *mkopt;
 
-char	*ident;
-char	*ldscript;
-char	*ns();
-char	*tc();
-char	*qu();
-char	*get_word();
-char	*get_quoted_word();
-char	*path();
-char	*raise();
+char    *ident;
+char    *ldscript;
+char    *ns();
+char    *tc();
+char    *qu();
+char    *get_word();
+char    *get_quoted_word();
+char    *path();
+char    *raise();
 
-int	do_trace;
+int do_trace;
 
 #if MACHINE_VAX
-int	seen_mba, seen_uba;
+int seen_mba, seen_uba;
 #endif
 #if MACHINE_TAHOE
-int	seen_vba;
+int seen_vba;
 #endif
 #if MACHINE_I386
-int	seen_isa;
+int seen_isa;
 #endif
-int	seen_cd;
+int seen_cd;
 
-struct	device *connect();
-struct	device *dtab;
-dev_t	nametodev();
-char	*devtoname();
+struct  device *connect();
+struct  device *dtab;
+dev_t   nametodev();
+char    *devtoname();
 
-char	errbuf[80];
-int	yyline;
+char    errbuf[80];
+int     yyline;
 
-struct	file_list *ftab, *conf_list, **confp, *comp_list, **compp;
+struct  file_list *ftab, *conf_list, **confp, *comp_list, **compp;
 
-int	zone, hadtz;
-int	dst;
-int	hz;
-int	profiling;
-int	debugging;
+int     zone, hadtz;
+int     dst;
+int     hz;
+int     profiling;
+int     debugging;
 
-int	maxusers;
+int     maxusers;
 
-#define eq(a,b)	(!strcmp(a,b))
+#define eq(a,b) (!strcmp(a,b))
 
 void init_dev(register struct device *dp);
 int yyparse(void);

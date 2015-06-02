@@ -36,8 +36,6 @@
  * the information in the files files and the
  * additional files for the machine being compiled to.
  */
-
-#include <stdio.h>
 #include <ctype.h>
 #include "y.tab.h"
 #include "config.h"
@@ -472,9 +470,9 @@ void makefile()
         perror(line);
         exit(1);
     }
-    ofp = fopen(path("Makefile"), "w");
+    ofp = fopen("Makefile", "w");
     if (ofp == 0) {
-        perror(path("Makefile"));
+        perror("Makefile");
         exit(1);
     }
     fprintf(ofp, "IDENT=-D%s", raise(ident));

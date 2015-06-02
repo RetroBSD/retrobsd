@@ -39,6 +39,7 @@
 #include <sys/types.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #define NODEV   ((dev_t)-1)
 
@@ -159,22 +160,12 @@ struct opt {
 
 char    *ident;
 char    *ldscript;
-char    *ns();
-char    *tc();
-char    *qu();
-char    *get_word();
-char    *get_quoted_word();
-char    *path();
-char    *raise();
 
 int do_trace;
 
 int seen_cd;
 
-struct  device *connect();
 struct  device *dtab;
-dev_t   nametodev();
-char    *devtoname();
 
 char    errbuf[80];
 int     yyline;
@@ -191,9 +182,14 @@ int     maxusers;
 
 #define eq(a,b) (!strcmp(a,b))
 
-void init_dev(register struct device *dp);
-int yyparse(void);
-void pic32_ioconf(void);
-void makefile(void);
-void headers(void);
-void swapconf(void);
+char    *get_word(FILE *);
+char    *get_quoted_word(FILE *);
+char    *raise(char *);
+dev_t   nametodev(char *, int, char);
+char    *devtoname(dev_t);
+void    init_dev(struct device *);
+int     yyparse(void);
+void    pic32_ioconf(void);
+void    makefile(void);
+void    headers(void);
+void    swapconf(void);

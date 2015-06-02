@@ -34,8 +34,6 @@
 /*
  * Make all the .h files for the optional entries
  */
-
-#include <stdio.h>
 #include <ctype.h>
 #include "config.h"
 #include "y.tab.h"
@@ -179,7 +177,7 @@ toheader(dev)
 {
     static char hbuf[80];
 
-    (void) strcpy(hbuf, path(dev));
+    (void) strcpy(hbuf, dev);
     (void) strcat(hbuf, ".h");
     return (hbuf);
 }

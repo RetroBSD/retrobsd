@@ -165,7 +165,7 @@ WORD            [A-Za-z_][-A-Za-z_]*
  */
 int
 kw_lookup(word)
-register char *word;
+    register char *word;
 {
     register struct kt *kp;
 
@@ -180,7 +180,7 @@ register char *word;
  */
 int
 octal(str)
-char *str;
+    char *str;
 {
     int num;
 
@@ -190,7 +190,7 @@ char *str;
 
 int
 hex(str)
-char *str;
+    char *str;
 {
     int num;
 

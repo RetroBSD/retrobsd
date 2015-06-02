@@ -30,8 +30,6 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
-
-#include <stdio.h>
 #include "y.tab.h"
 #include "config.h"
 
@@ -90,10 +88,6 @@ pseudo_ioconf(fp)
      */
     if (seen_cd)
         (void)fprintf(fp, "extern void cdattach __P((int));\n");
-    /* XXX temporary for HP300, others */
-    (void)fprintf(fp, "\n#include <sys/systm.h> /* XXX */\n");
-    (void)fprintf(fp, "#define etherattach (void (*)__P((int)))nullop\n");
-    (void)fprintf(fp, "#define iteattach (void (*) __P((int)))nullop\n");
     (void)fprintf(fp, "\nstruct pdevinit pdevinit[] = {\n");
     for (dp = dtab; dp != NULL; dp = dp->d_next)
         if (dp->d_type == PSEUDO_DEVICE)
@@ -131,9 +125,9 @@ void pic32_ioconf()
     register struct device *dp, *mp;
     FILE *fp;
 
-    fp = fopen(path("ioconf.c"), "w");
+    fp = fopen("ioconf.c", "w");
     if (fp == 0) {
-        perror(path("ioconf.c"));
+        perror("ioconf.c");
         exit(1);
     }
     fprintf(fp, "#include \"sys/types.h\"\n");

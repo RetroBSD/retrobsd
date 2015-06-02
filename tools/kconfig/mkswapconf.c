@@ -36,7 +36,6 @@
  */
 #include "config.h"
 
-#include <stdio.h>
 #include <unistd.h>
 #include <ctype.h>
 
@@ -69,9 +68,9 @@ do_swap(fl)
         return (fl->f_next);
     }
     (void) sprintf(swapname, "swap%s.c", fl->f_fn);
-    fp = fopen(path(swapname), "w");
+    fp = fopen(swapname, "w");
     if (fp == 0) {
-        perror(path(swapname));
+        perror(swapname);
         exit(1);
     }
     fprintf(fp, "#include \"sys/param.h\"\n");
@@ -84,7 +83,7 @@ do_swap(fl)
      */
     swap = fl->f_next;
     if (swap == 0 || swap->f_type != SWAPSPEC) {
-        (void) unlink(path(swapname));
+        (void) unlink(swapname);
         fclose(fp);
         return (swap);
     }

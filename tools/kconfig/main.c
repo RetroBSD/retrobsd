@@ -33,13 +33,10 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/file.h>
-#include <stdio.h>
 #include <unistd.h>
 #include <ctype.h>
 #include "y.tab.h"
 #include "config.h"
-
-static char *PREFIX;
 
 /*
  * Config builds a set of files for building a UNIX
@@ -71,25 +68,10 @@ usage:  fputs("usage: kconfig [-gp] sysname\n", stderr);
         exit(1);
     }
 
-    PREFIX = *argv;
-    if (! freopen(PREFIX, "r", stdin)) {
-        perror(PREFIX);
+    if (! freopen(*argv, "r", stdin)) {
+        perror(*argv);
         exit(2);
     }
-#if 0
-    mkdir("../../compile", 0777);
-    char *p = path((char *)NULL);
-    struct stat buf;
-    if (stat(p, &buf) < 0) {
-        if (mkdir(p, 0777) < 0) {
-            perror(p);
-            exit(2);
-        }
-    } else if ((buf.st_mode & S_IFMT) != S_IFDIR) {
-        fprintf(stderr, "config: %s isn't a directory.\n", p);
-        exit(2);
-    }
-#endif
 
     dtab = NULL;
     confp = &conf_list;
@@ -198,30 +180,4 @@ get_quoted_word(fp)
     if (ch == EOF)
         return ((char *)EOF);
     return (line);
-}
-
-/*
- * prepend the path to a filename
- */
-char *
-path(file)
-    char *file;
-{
-#if 1
-    return file;
-#else
-    register char *cp;
-
-#define CDIR    "../../compile/"
-
-    cp = malloc((unsigned int)(sizeof(CDIR) + strlen(PREFIX) +
-        (file ? strlen(file) : 0) + 2));
-    (void) strcpy(cp, CDIR);
-    (void) strcat(cp, PREFIX);
-    if (file) {
-        (void) strcat(cp, "/");
-        (void) strcat(cp, file);
-    }
-    return (cp);
-#endif
 }

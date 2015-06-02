@@ -52,11 +52,7 @@ struct kt {
     int kt_val;
 } key_words[] = {
     { "and",            AND },
-    { "args",           ARGS },
     { "at",             AT },
-#if MACHINE_I386
-    { "bio",            BIO },
-#endif
     { "config",         CONFIG },
     { "controller",     CONTROLLER },
     { "cpu",            CPU },
@@ -64,20 +60,12 @@ struct kt {
     { "device",         DEVICE },
     { "disk",           DISK },
     { "drive",          DRIVE },
-#if MACHINE_I386
-    { "drq",            DRQ },
-#endif
     { "dst",            DST },
     { "dumps",          DUMPS },
     { "flags",          FLAGS },
     { "hz",             HZ },
     { "ident",          IDENT },
     { "interleave",     INTERLEAVE },
-#if MACHINE_I386
-    { "iomem",          IOMEM },
-    { "iosiz",          IOSIZ },
-    { "irq",            IRQ },
-#endif
     { "ldscript",       LDSCRIPT },
     { "machine",        MACHINE },
     { "major",          MAJOR },
@@ -85,29 +73,16 @@ struct kt {
     { "master",         MASTER },
     { "maxusers",       MAXUSERS },
     { "minor",          MINOR },
-#if MACHINE_I386
-    { "net",            NET },
-#endif
-    { "nexus",          NEXUS },
     { "on",             ON },
     { "options",        OPTIONS },
-#if MACHINE_I386
-    { "port",           PORT },
-#endif
     { "priority",       PRIORITY },
     { "pseudo-device",  PSEUDO_DEVICE },
     { "root",           ROOT },
-#if MACHINE_HP300 || MACHINE_LUNA68K
-    { "scode",          NEXUS },
-#endif
     { "sequential",     SEQUENTIAL },
     { "size",           SIZE },
     { "slave",          SLAVE },
     { "swap",           SWAP },
     { "tape",           DEVICE },
-#if MACHINE_I386
-    { "tty",            TTY },
-#endif
     { "timezone",       TIMEZONE },
     { "trace",          TRACE },
     { "vector",         VECTOR },

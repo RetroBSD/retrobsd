@@ -115,14 +115,6 @@ static  struct users {
     int u_min;
     int u_max;
 } users[] = {
-    { 24, 8, 1024 },        /* MACHINE_VAX */
-    { 4, 2, 128 },          /* MACHINE_TAHOE */
-    { 8, 2, 64 },           /* MACHINE_HP300 */
-    { 8, 2, 64 },           /* MACHINE_I386 */
-    { 8, 2, 64 },           /* MACHINE_MIPS */
-    { 8, 2, 64 },           /* MACHINE_PMAX */
-    { 8, 2, 64 },           /* MACHINE_LUNA68K */
-    { 8, 2, 64 },           /* MACHINE_NEWS3400 */
     { 2, 1, 16 },           /* MACHINE_PIC32 */
 };
 #define NUSERS  (sizeof (users) / sizeof (users[0]))
@@ -395,9 +387,6 @@ void do_cfiles(fp)
 /*
  * Create the makerules for each file
  * which is part of the system.
- * Devices are processed with the special c2 option -i
- * which avoids any problem areas with i/o addressing
- * (e.g. for the VAX); assembler files are processed by as.
  */
 void do_rules(f)
     FILE *f;
@@ -516,8 +505,8 @@ void makefile()
     if (hadtz == 0)
         printf("timezone not specified; gmt assumed\n");
     if ((unsigned)machine > NUSERS) {
-        printf("maxusers config info isn't present, using vax\n");
-        up = &users[MACHINE_VAX-1];
+        printf("maxusers config info isn't present, using pic32\n");
+        up = &users[MACHINE_PIC32-1];
     } else
         up = &users[machine-1];
     if (maxusers == 0) {

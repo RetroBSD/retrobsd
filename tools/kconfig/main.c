@@ -97,44 +97,15 @@ usage:  fputs("usage: config [-gp] sysname\n", stderr);
     compp = &comp_list;
     if (yyparse())
         exit(3);
+
     switch (machine) {
-
-    case MACHINE_VAX:
-        vax_ioconf();       /* Print ioconf.c */
-        ubglue();           /* Create ubglue.s */
-        break;
-
-    case MACHINE_TAHOE:
-        tahoe_ioconf();
-        vbglue();
-        break;
-
-    case MACHINE_HP300:
-    case MACHINE_LUNA68K:
-        hp300_ioconf();
-        hpglue();
-        break;
-
-    case MACHINE_I386:
-        i386_ioconf();      /* Print ioconf.c */
-        vector();           /* Create vector.s */
-        break;
-
-    case MACHINE_MIPS:
-    case MACHINE_PMAX:
-        pmax_ioconf();
-        break;
 
     case MACHINE_PIC32:
         pic32_ioconf();
         break;
 
-    case MACHINE_NEWS3400:
-        news_ioconf();
-        break;
-
     default:
-        printf("Specify machine type, e.g. ``machine vax''\n");
+        printf("Specify machine type, e.g. ``machine pic32''\n");
         exit(1);
     }
     makefile();             /* build Makefile */

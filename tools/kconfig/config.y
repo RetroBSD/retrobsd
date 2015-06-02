@@ -7,9 +7,7 @@
 
 %token  AND
 %token  ANY
-%token  ARGS
 %token  AT
-%token  BIO
 %token  COMMA
 %token  CONFIG
 %token  CONTROLLER
@@ -18,7 +16,6 @@
 %token  DEVICE
 %token  DISK
 %token  DRIVE
-%token  DRQ
 %token  DST
 %token  DUMPS
 %token  EQUALS
@@ -26,9 +23,6 @@
 %token  HZ
 %token  IDENT
 %token  INTERLEAVE
-%token  IOMEM
-%token  IOSIZ
-%token  IRQ
 %token  LDSCRIPT
 %token  MACHINE
 %token  MAJOR
@@ -36,12 +30,9 @@
 %token  MAXUSERS
 %token  MINOR
 %token  MINUS
-%token  NET
-%token  NEXUS
 %token  ON
 %token  OPTIONS
 %token  MAKEOPTIONS
-%token  PORT
 %token  PRIORITY
 %token  PSEUDO_DEVICE
 %token  ROOT
@@ -51,7 +42,6 @@
 %token  SLAVE
 %token  SWAP
 %token  TIMEZONE
-%token  TTY
 %token  TRACE
 %token  VECTOR
 
@@ -154,33 +144,9 @@ Spec:
 Config_spec:
     MACHINE Save_id
         = {
-            if (!strcmp($2, "vax")) {
-                machine = MACHINE_VAX;
-                machinename = "vax";
-            } else if (!strcmp($2, "tahoe")) {
-                machine = MACHINE_TAHOE;
-                machinename = "tahoe";
-            } else if (!strcmp($2, "hp300")) {
-                machine = MACHINE_HP300;
-                machinename = "hp300";
-            } else if (!strcmp($2, "i386")) {
-                machine = MACHINE_I386;
-                machinename = "i386";
-            } else if (!strcmp($2, "mips")) {
-                machine = MACHINE_MIPS;
-                machinename = "mips";
-            } else if (!strcmp($2, "pmax")) {
-                machine = MACHINE_PMAX;
-                machinename = "pmax";
-            } else if (!strcmp($2, "pic32")) {
+            if (strcmp($2, "pic32") == 0) {
                 machine = MACHINE_PIC32;
                 machinename = "pic32";
-            } else if (!strcmp($2, "luna68k")) {
-                machine = MACHINE_LUNA68K;
-                machinename = "luna68k";
-            } else if (!strcmp($2, "news3400")) {
-                machine = MACHINE_NEWS3400;
-                machinename = "news3400";
             } else
                 yyerror("Unknown machine type");
         }
@@ -272,12 +238,10 @@ System_parameter:
     root_spec
         |
     dump_spec
-        |
-    arg_spec
     ;
 
 swap_spec:
-      SWAP optional_on swap_device_list
+    SWAP optional_on swap_device_list
     ;
 
 swap_device_list:
@@ -351,11 +315,6 @@ dump_device_spec:
         = { $$ = nametodev($1, 0, 'b'); }
         |
     major_minor
-    ;
-
-arg_spec:
-    ARGS optional_on arg_device_spec
-        = { yyerror("arg device specification obsolete, ignored"); }
     ;
 
 arg_device_spec:
@@ -576,14 +535,6 @@ Dev_name:
     Init_dev Dev NUMBER
         = {
             cur.d_name = $2;
-            if (eq($2, "mba"))
-                seen_mba = 1;
-            else if (eq($2, "uba"))
-                seen_uba = 1;
-            else if (eq($2, "vba"))
-                seen_vba = 1;
-            else if (eq($2, "isa"))
-                seen_isa = 1;
             cur.d_unit = $3;
         }
     ;
@@ -611,9 +562,6 @@ Con_info:
             }
             cur.d_conn = connect($2, $3);
         }
-        |
-    AT NEXUS NUMBER
-        = { check_nexus(&cur, $3); cur.d_conn = TO_NEXUS; }
     ;
 
 Info_list:
@@ -631,39 +579,12 @@ Info:
         |
     SLAVE NUMBER
         = {
-        if (cur.d_conn != 0 && cur.d_conn != TO_NEXUS &&
+        if (cur.d_conn != 0 &&
             cur.d_conn->d_type == MASTER)
             cur.d_slave = $2;
         else
             yyerror("can't specify slave--not to master");
         }
-        |
-    IRQ NUMBER
-        = { cur.d_irq = $2; }
-        |
-    DRQ NUMBER
-        = { cur.d_drq = $2; }
-        |
-    IOMEM NUMBER
-        = { cur.d_maddr = $2; }
-        |
-    IOSIZ NUMBER
-        = { cur.d_msize = $2; }
-        |
-    PORT device_name
-        = { cur.d_port = ns($2); }
-        |
-    PORT NUMBER
-        = { cur.d_portn = $2; }
-        |
-    TTY
-        = { cur.d_mask = "tty"; }
-        |
-    BIO
-        = { cur.d_mask = "bio"; }
-        |
-    NET
-        = { cur.d_mask = "net"; }
         |
     FLAGS NUMBER
         = { cur.d_flags = $2; }
@@ -927,12 +848,12 @@ huhcon(dev)
          * Connect it to the same thing that other similar things are
          * connected to, but make sure it is a wildcard unit
          * (e.g. up connected to sc ?, here we make connect sc? to a
-         * uba?).  If other things like this are on the NEXUS or
-         * if they aren't connected to anything, then make the same
+         * uba?).  If other things like this
+         * aren't connected to anything, then make the same
          * connection, else call ourself to connect to another
          * unspecific device.
          */
-        if (dcp == TO_NEXUS || dcp == 0)
+        if (dcp == 0)
             dp->d_conn = dcp;
         else
             dp->d_conn = connect(dcp->d_name, QUES);
@@ -968,34 +889,7 @@ void check_nexus(dev, num)
 {
     switch (machine) {
 
-    case MACHINE_VAX:
-        if (!eq(dev->d_name, "uba") && !eq(dev->d_name, "mba") &&
-            !eq(dev->d_name, "bi"))
-            yyerror("only uba's, mba's, and bi's should be connected to the nexus");
-        if (num != QUES)
-            yyerror("can't give specific nexus numbers");
-        break;
-
-    case MACHINE_TAHOE:
-        if (!eq(dev->d_name, "vba"))
-            yyerror("only vba's should be connected to the nexus");
-        break;
-
-    case MACHINE_HP300:
-    case MACHINE_LUNA68K:
-        if (num != QUES)
-            dev->d_addr = num;
-        break;
-
-    case MACHINE_I386:
-        if (!eq(dev->d_name, "isa"))
-            yyerror("only isa's should be connected to the nexus");
-        break;
-
-    case MACHINE_NEWS3400:
-        if (!eq(dev->d_name, "iop") && !eq(dev->d_name, "hb") &&
-            !eq(dev->d_name, "vme"))
-            yyerror("only iop's, hb's and vme's should be connected to the nexus");
+    case MACHINE_PIC32:
         break;
     }
 }

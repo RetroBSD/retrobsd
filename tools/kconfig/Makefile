@@ -2,7 +2,7 @@ CC		= gcc -g
 CFLAGS		= -O -Wall
 YACC            = byacc -d
 DESTDIR		= /usr/local
-OBJS            = config.o main.o lang.o mkioconf.o mkmakefile.o mkglue.o mkheaders.o \
+OBJS            = config.o main.o lang.o mkioconf.o mkmakefile.o mkheaders.o \
                   mkswapconf.o
 PROG		= kconfig
 

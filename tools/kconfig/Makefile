@@ -6,12 +6,16 @@ OBJS            = config.o main.o lang.o mkioconf.o mkmakefile.o mkheaders.o \
                   mkswapconf.o
 PROG		= kconfig
 
-all:		$(PROG)
+all:		$(PROG) $(PROG).0
 
 install:	$(PROG)
 		install -s $(PROG) ${DESTDIR}/bin/$(PROG)
+
+$(PROG).0:      $(PROG).8
+		nroff -man $< > $@
+
 clean:
-		rm -rf *~ *.o *.lst *.dis $(PROG) $(PROG).dSYM y.tab.[ch] lang.c config.c
+		rm -rf *~ *.o *.lst *.dis $(PROG) $(PROG).0 $(PROG).dSYM y.tab.[ch] lang.c config.c
 
 $(PROG):	$(OBJS)
 		$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)

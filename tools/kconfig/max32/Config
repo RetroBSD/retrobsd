@@ -25,9 +25,9 @@ options         "CPU_KHZ=80000"         # Oscillator frequency of CPU core
 options         "HZ=100"                # Frequency of clock interrupt
 
 # Root filesystem at /dev/sd0a, swap at /dev/sd0b
-config          unix    root on major 0 minor 1
-                        swap on major 0 minor 2
-                        dumps on major 0 minor 2
+config          unix    root on sd0a
+                        swap on sd0b
+                        dumps on sd0b
 
 # UART ports
 device          uart1   flags 0x614f    # pins rx=RD14, tx=RD15 - logical 39/40

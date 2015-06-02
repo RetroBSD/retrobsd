@@ -87,15 +87,17 @@ do_swap(fl)
         fclose(fp);
         return (swap);
     }
-    fprintf(fp, "dev_t\trootdev = makedev(%d, %d);\n",
-        major(fl->f_rootdev), minor(fl->f_rootdev));
-    fprintf(fp, "dev_t\tdumpdev = makedev(%d, %d);\n",
-        major(fl->f_dumpdev), minor(fl->f_dumpdev));
+    fprintf(fp, "dev_t\trootdev = makedev(%d, %d);\t/* %s */\n",
+        major(fl->f_rootdev), minor(fl->f_rootdev),
+        devtoname(fl->f_rootdev));
+    fprintf(fp, "dev_t\tdumpdev = makedev(%d, %d);\t/* %s */\n",
+        major(fl->f_dumpdev), minor(fl->f_dumpdev),
+        devtoname(fl->f_dumpdev));
     fprintf(fp, "\n");
     fprintf(fp, "struct\tswdevt swdevt[] = {\n");
     do {
         dev = swap->f_swapdev;
-        fprintf(fp, "\t{ makedev(%d, %d),\t%d,\t%d },\t/* %s */\n",
+        fprintf(fp, "\t{ makedev(%d, %d), %d, %d },\t/* %s */\n",
             major(dev), minor(dev), swap->f_swapflag,
             swap->f_swapsize, swap->f_fn);
         swap = swap->f_next;
@@ -148,10 +150,9 @@ void initdevtable()
  * terms of major/minor instead of string names.
  */
 dev_t
-nametodev(name, defunit, defpartition)
+nametodev(name, defunit)
     char *name;
     int defunit;
-    char defpartition;
 {
     char *cp, partition;
     int unit;
@@ -176,11 +177,11 @@ nametodev(name, defunit, defpartition)
         while (*cp && isdigit(*cp))
             cp++;
     }
-    partition = *cp ? *cp : defpartition;
-    if (partition < 'a' || partition > 'h') {
+    partition = *cp ? *cp : '`';
+    if (partition < '`' || partition > 'd') {
         fprintf(stderr,
             "config: %c: invalid device specification, bad partition\n", *cp);
-        partition = defpartition;   /* carry on */
+        partition = 'a';   /* carry on */
     }
     if (devtablenotread)
         initdevtable();
@@ -191,7 +192,7 @@ nametodev(name, defunit, defpartition)
         fprintf(stderr, "config: %s: unknown device\n", name);
         return (NODEV);
     }
-    return (makedev(dp->dev_major, (unit << 3) + (partition - 'a')));
+    return (makedev(dp->dev_major, (unit << 3) + (partition - '`')));
 }
 
 char *
@@ -208,7 +209,11 @@ devtoname(dev)
             break;
     if (dp == 0)
         dp = devtable;
-    (void) sprintf(buf, "%s%d%c", dp->dev_name,
-        minor(dev) >> 3, (minor(dev) & 07) + 'a');
+
+    if (minor(dev) == 0)
+        sprintf(buf, "%s%d", dp->dev_name, minor(dev) >> 3);
+    else
+        sprintf(buf, "%s%d%c", dp->dev_name, minor(dev) >> 3,
+            (minor(dev) & 07) + 'a' - 1);
     return strdup(buf);
 }

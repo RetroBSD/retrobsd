@@ -33,40 +33,6 @@
 #include "y.tab.h"
 #include "config.h"
 
-static void
-comp_config(fp)
-    FILE *fp;
-{
-    register struct file_list *fl;
-    register struct device *dp;
-
-    fprintf(fp, "\n#include \"dev/cdvar.h\"\n");
-    fprintf(fp, "\nstruct cddevice cddevice[] = {\n");
-    fprintf(fp, "/*\tunit\tileave\tflags\tdk\tdevs\t\t\t\t*/\n");
-
-    fl = comp_list;
-    while (fl) {
-        if (fl->f_type != COMPDEVICE) {
-            fl = fl->f_next;
-            continue;
-        }
-        for (dp = dtab; dp != 0; dp = dp->d_next)
-            if (dp->d_type == DEVICE &&
-                eq(dp->d_name, fl->f_fn) &&
-                dp->d_unit == fl->f_compinfo)
-                break;
-        if (dp == 0)
-            continue;
-        fprintf(fp, "\t%d,\t%d,\t%d,\t%d,\t{",
-            dp->d_unit, dp->d_pri < 0 ? 0 : dp->d_pri,
-            dp->d_flags, 1);
-        for (fl = fl->f_next; fl->f_type == COMPSPEC; fl = fl->f_next)
-            fprintf(fp, " 0x%x,", (unsigned) fl->f_compdev);
-        fprintf(fp, " NODEV },\n");
-    }
-    fprintf(fp, "\t-1,\t0,\t0,\t0,\t{ 0 },\n};\n");
-}
-
 /*
  * build the ioconf.c file
  */
@@ -76,38 +42,18 @@ pseudo_ioconf(fp)
 {
     register struct device *dp;
 
-    (void)fprintf(fp, "\n#include <sys/device.h>\n\n");
     for (dp = dtab; dp != NULL; dp = dp->d_next)
         if (dp->d_type == PSEUDO_DEVICE)
-            (void)fprintf(fp, "extern void %sattach __P((int));\n",
+            fprintf(fp, "extern void %sattach __P((int));\n",
                 dp->d_name);
-    /*
-     * XXX concatonated disks are pseudo-devices but appear as DEVICEs
-     * since they don't adhere to normal pseudo-device conventions
-     * (i.e. one entry with total count in d_slave).
-     */
-    if (seen_cd)
-        (void)fprintf(fp, "extern void cdattach __P((int));\n");
-    (void)fprintf(fp, "\nstruct pdevinit pdevinit[] = {\n");
+
+    fprintf(fp, "\nstruct conf_pdev conf_pdinit[] = {\n");
     for (dp = dtab; dp != NULL; dp = dp->d_next)
         if (dp->d_type == PSEUDO_DEVICE)
-            (void)fprintf(fp, "\t{ %sattach, %d },\n", dp->d_name,
+            fprintf(fp, "    { %sattach, %d },\n", dp->d_name,
                 dp->d_slave > 0 ? dp->d_slave : 1);
-    /*
-     * XXX count up cds and put out an entry
-     */
-    if (seen_cd) {
-        struct file_list *fl;
-        int cdmax = -1;
 
-        for (fl = comp_list; fl != NULL; fl = fl->f_next)
-            if (fl->f_type == COMPDEVICE && fl->f_compinfo > cdmax)
-                cdmax = fl->f_compinfo;
-        (void)fprintf(fp, "\t{ cdattach, %d },\n", cdmax+1);
-    }
-    (void)fprintf(fp, "\t{ 0, 0 }\n};\n");
-    if (seen_cd)
-        comp_config(fp);
+    fprintf(fp, "    { 0, 0 }\n};\n");
 }
 
 static char *
@@ -115,7 +61,7 @@ wnum(num)
 {
     if (num == QUES || num == UNKNOWN)
         return ("?");
-    (void) sprintf(errbuf, "%d", num);
+    sprintf(errbuf, "%d", num);
     return (errbuf);
 }
 
@@ -142,7 +88,7 @@ void pic32_ioconf()
         fprintf(fp, "extern struct driver %sdriver;\n", dp->d_name);
     }
     fprintf(fp, "\nstruct conf_ctlr conf_cinit[] = {\n");
-    fprintf(fp, "/*\tdriver,\t\tunit,\taddr,\t\tpri,\tflags */\n");
+    fprintf(fp, "   /* driver,\t\tunit,\taddr,\t\tpri,\tflags */\n");
     for (dp = dtab; dp != 0; dp = dp->d_next) {
         if (dp->d_type != CONTROLLER && dp->d_type != MASTER)
             continue;
@@ -154,23 +100,23 @@ void pic32_ioconf()
         if (dp->d_unit == UNKNOWN || dp->d_unit == QUES)
             dp->d_unit = 0;
         fprintf(fp,
-            "\t{ &%sdriver,\t%d,\tC 0x%08x,\t%d,\t0x%x },\n",
+               "    { &%sdriver,\t%d,\tC 0x%08x,\t%d,\t0x%x },\n",
             dp->d_name, dp->d_unit, dp->d_addr, dp->d_pri,
             dp->d_flags);
     }
-    fprintf(fp, "\t{ 0 }\n};\n");
+    fprintf(fp, "    { 0 }\n};\n");
 
     /* print devices connected to other controllers */
     fprintf(fp, "\nstruct conf_device conf_dinit[] = {\n");
     fprintf(fp,
-       "/*driver,\tcdriver,\tunit,\tctlr,\tdrive,\tslave,\tdk,\tflags*/\n");
+       "   /* driver,\t\tctlr driver,\tunit,\tctlr,\tdrive,\tslave,\tdk,\tflags */\n");
     for (dp = dtab; dp != 0; dp = dp->d_next) {
         if (dp->d_type == CONTROLLER || dp->d_type == MASTER ||
             dp->d_type == PSEUDO_DEVICE)
             continue;
 
         mp = dp->d_conn;
-        fprintf(fp, "{ &%sdriver,\t", dp->d_name);
+        fprintf(fp, "    { &%sdriver,\t", dp->d_name);
         if (mp) {
             fprintf(fp, "&%sdriver,\t%d,\t%d,\t",
                 mp->d_name, dp->d_unit, mp->d_unit);
@@ -181,8 +127,8 @@ void pic32_ioconf()
         fprintf(fp, "%d,\t%d,\t%d,\t0x%x },\n",
             dp->d_drive, dp->d_slave, dp->d_dk, dp->d_flags);
     }
-    fprintf(fp, "{ 0 }\n};\n");
+    fprintf(fp, "    { 0 }\n};\n");
     pseudo_ioconf(fp);
-    (void) fclose(fp);
+    fclose(fp);
 }
 #endif

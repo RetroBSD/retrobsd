@@ -36,7 +36,6 @@
  *
  *  @(#)lang.l  8.1 (Berkeley) 6/6/93
  */
-
 #include <ctype.h>
 #include "y.tab.h"
 #include "config.h"
@@ -46,11 +45,12 @@
 /*
  * Key word table
  */
-
 struct kt {
     char *kt_name;
     int kt_val;
-} key_words[] = {
+};
+
+static struct kt key_words[] = {
     { "and",            AND },
     { "at",             AT },
     { "config",         CONFIG },
@@ -65,7 +65,6 @@ struct kt {
     { "flags",          FLAGS },
     { "hz",             HZ },
     { "ident",          IDENT },
-    { "interleave",     INTERLEAVE },
     { "ldscript",       LDSCRIPT },
     { "machine",        MACHINE },
     { "major",          MAJOR },
@@ -89,9 +88,21 @@ struct kt {
     { 0, 0 },
 };
 
-int kw_lookup(char *word);
-int octal(char *str);
-int hex(char *str);
+/*
+ * Look up a string in the keyword table.  Returns a -1 if the
+ * string is not a keyword otherwise it returns the keyword number
+ */
+static int
+kw_lookup(word)
+    register char *word;
+{
+    register struct kt *kp;
+
+    for (kp = key_words; kp->kt_name != 0; kp++)
+        if (eq(word, kp->kt_name))
+            return kp->kt_val;
+    return -1;
+}
 %}
 WORD            [A-Za-z_][-A-Za-z_]*
 %%
@@ -113,12 +124,12 @@ WORD            [A-Za-z_][-A-Za-z_]*
                     return ID;
                 }
 0[0-7]*         {
-                    yylval.val = octal(yytext);
+                    yylval.val = strtoul(yytext, 0, 8);
                     tprintf("#O:%o ", yylval.val);
                     return NUMBER;
                 }
 0x[0-9a-fA-F]+  {
-                    yylval.val = hex(yytext);
+                    yylval.val = strtoul(yytext, 0, 16);
                     tprintf("#X:%x ", yylval.val);
                     return NUMBER;
                 }
@@ -158,42 +169,3 @@ WORD            [A-Za-z_][-A-Za-z_]*
 .               {   return yytext[0];   }
 
 %%
-/*
- * kw_lookup
- *  Look up a string in the keyword table.  Returns a -1 if the
- *  string is not a keyword otherwise it returns the keyword number
- */
-int
-kw_lookup(word)
-    register char *word;
-{
-    register struct kt *kp;
-
-    for (kp = key_words; kp->kt_name != 0; kp++)
-        if (eq(word, kp->kt_name))
-            return kp->kt_val;
-    return -1;
-}
-
-/*
- * Number conversion routines
- */
-int
-octal(str)
-    char *str;
-{
-    int num;
-
-    (void) sscanf(str, "%o", &num);
-    return num;
-}
-
-int
-hex(str)
-    char *str;
-{
-    int num;
-
-    (void) sscanf(str+2, "%x", &num);
-    return num;
-}

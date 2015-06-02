@@ -22,7 +22,6 @@
 %token  FLAGS
 %token  HZ
 %token  IDENT
-%token  INTERLEAVE
 %token  LDSCRIPT
 %token  MACHINE
 %token  MAJOR
@@ -57,11 +56,9 @@
 %type   <val>   optional_sflag
 %type   <str>   device_name
 %type   <val>   major_minor
-%type   <val>   arg_device_spec
 %type   <val>   root_device_spec
 %type   <val>   dump_device_spec
 %type   <file>  swap_device_spec
-%type   <file>  comp_device_spec
 
 %{
 
@@ -263,7 +260,7 @@ swap_device_spec:
             if (eq($1, "generic"))
                 fl->f_fn = $1;
             else {
-                fl->f_swapdev = nametodev($1, 0, 'b');
+                fl->f_swapdev = nametodev($1, 0);
                 fl->f_fn = devtoname(fl->f_swapdev);
             }
             $$ = fl;
@@ -293,7 +290,7 @@ root_spec:
 
 root_device_spec:
     device_name
-        = { $$ = nametodev($1, 0, 'a'); }
+        = { $$ = nametodev($1, 0); }
         |
     major_minor
     ;
@@ -312,14 +309,7 @@ dump_spec:
 
 dump_device_spec:
     device_name
-        = { $$ = nametodev($1, 0, 'b'); }
-        |
-    major_minor
-    ;
-
-arg_device_spec:
-    device_name
-        = { $$ = nametodev($1, 0, 'b'); }
+        = { $$ = nametodev($1, 0); }
         |
     major_minor
     ;
@@ -469,68 +459,6 @@ Device_spec:
             cur.d_type = PSEUDO_DEVICE;
             cur.d_slave = $4;
         }
-        |
-    PSEUDO_DEVICE Dev_name Cdev_init Cdev_info
-        = {
-            if (!eq(cur.d_name, "cd"))
-                yyerror("improper spec for pseudo-device");
-            seen_cd = 1;
-            cur.d_type = DEVICE;
-            verifycomp(*compp);
-        }
-    ;
-
-Cdev_init:
-    /* lambda */
-        = { mkcomp(&cur); };
-
-Cdev_info:
-    optional_on comp_device_list comp_option_list
-    ;
-
-comp_device_list:
-    comp_device_list AND comp_device
-        |
-    comp_device
-    ;
-
-comp_device:
-    comp_device_spec
-        = { addcomp(*compp, $1); }
-    ;
-
-comp_device_spec:
-    device_name
-        = {
-            struct file_list *fl = newflist(COMPSPEC);
-
-            fl->f_compdev = nametodev($1, 0, 'c');
-            fl->f_fn = devtoname(fl->f_compdev);
-            $$ = fl;
-        }
-        |
-    major_minor
-        = {
-            struct file_list *fl = newflist(COMPSPEC);
-
-            fl->f_compdev = $1;
-            fl->f_fn = devtoname($1);
-            $$ = fl;
-        }
-    ;
-
-comp_option_list:
-    comp_option_list comp_option
-        |
-    /* lambda */
-    ;
-
-comp_option:
-    INTERLEAVE NUMBER
-        = { cur.d_pri = $2; }
-        |
-    FLAGS NUMBER
-        = { cur.d_flags = $2; }
     ;
 
 Dev_name:
@@ -556,14 +484,7 @@ Dev_info:
 
 Con_info:
     AT Dev NUMBER
-        = {
-            if (eq(cur.d_name, "mba") || eq(cur.d_name, "uba")) {
-                (void) sprintf(errbuf,
-                    "%s must be connected to a nexus", cur.d_name);
-                yyerror(errbuf);
-            }
-            cur.d_conn = connect($2, $3);
-        }
+        = { cur.d_conn = connect($2, $3); }
     ;
 
 Info_list:
@@ -712,49 +633,11 @@ void mkswap(system, fl, size, flag)
      */
     if (system->f_fn)
         return;
+
     if (eq(fl->f_fn, "generic"))
         system->f_fn = strdup(fl->f_fn);
     else
         system->f_fn = strdup(system->f_needs);
-}
-
-void mkcomp(dp)
-    register struct device *dp;
-{
-    register struct file_list *fl, **flp;
-    char buf[80];
-
-    fl = (struct file_list *) malloc(sizeof *fl);
-    fl->f_type = COMPDEVICE;
-    fl->f_compinfo = dp->d_unit;
-    fl->f_fn = strdup(dp->d_name);
-    (void) sprintf(buf, "%s%d", dp->d_name, dp->d_unit);
-    fl->f_needs = strdup(buf);
-    fl->f_next = 0;
-    for (flp = compp; *flp; flp = &(*flp)->f_next)
-        ;
-    *flp = fl;
-    compp = flp;
-}
-
-void addcomp(compdev, fl)
-    struct file_list *compdev, *fl;
-{
-    register struct file_list **flp;
-
-    if (compdev == 0 || compdev->f_type != COMPDEVICE) {
-        yyerror("component spec precedes device specification");
-        return;
-    }
-
-    /*
-     * Append description to the end of the list.
-     */
-    flp = &compdev->f_next;
-    for (; *flp && (*flp)->f_type == COMPSPEC; flp = &(*flp)->f_next)
-        ;
-    fl->f_next = *flp;
-    *flp = fl;
 }
 
 /*
@@ -932,7 +815,7 @@ void checksystemspec(fl)
             yyerror(buf);
         }
         swap->f_swapdev =
-           makedev(major(dev), (minor(dev) &~ 07) | ('b' - 'a'));
+           makedev(major(dev), (minor(dev) &~ 07) | ('b' - 'a' + 1));
         swap->f_fn = devtoname(swap->f_swapdev);
         mkswap(fl, swap, 0, 0);
     }
@@ -1016,23 +899,6 @@ verifyswap(fl, checked, pchecked)
         *pchecked++ = fl->f_swapdev;
     }
     return (pchecked);
-}
-
-/*
- * Verify that components of a compound device have themselves been config'ed
- */
-void verifycomp(fl)
-    register struct file_list *fl;
-{
-    char *dname = fl->f_needs;
-
-    for (fl = fl->f_next; fl; fl = fl->f_next) {
-        if (fl->f_type != COMPSPEC || finddev(fl->f_compdev))
-            continue;
-        fprintf(stderr,
-            "config: %s: component device %s not configured\n",
-            dname, fl->f_needs);
-    }
 }
 
 /*

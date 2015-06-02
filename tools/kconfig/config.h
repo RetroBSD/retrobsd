@@ -88,8 +88,6 @@ struct file_list {
 #define PROFILING   4
 #define SYSTEMSPEC  5
 #define SWAPSPEC    6
-#define COMPDEVICE  7
-#define COMPSPEC    8
 
 /*
  * Attributes (flags).
@@ -163,8 +161,6 @@ char    *ldscript;
 
 int do_trace;
 
-int seen_cd;
-
 struct  device *dtab;
 
 char    errbuf[80];
@@ -185,7 +181,7 @@ int     maxusers;
 char    *get_word(FILE *);
 char    *get_quoted_word(FILE *);
 char    *raise(char *);
-dev_t   nametodev(char *, int, char);
+dev_t   nametodev(char *, int);
 char    *devtoname(dev_t);
 void    init_dev(struct device *);
 int     yyparse(void);

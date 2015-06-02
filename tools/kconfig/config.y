@@ -155,7 +155,7 @@ Config_spec:
         = {
             struct cputype *cp =
                 (struct cputype *)malloc(sizeof (struct cputype));
-            cp->cpu_name = ns($2);
+            cp->cpu_name = strdup($2);
             cp->cpu_next = cputype;
             cputype = cp;
             free(temp_id);
@@ -166,10 +166,10 @@ Config_spec:
     MAKEOPTIONS Mkopt_list
         |
     IDENT ID
-        = { ident = ns($2); }
+        = { ident = strdup($2); }
         |
     LDSCRIPT ID
-        = { ldscript = ns($2); }
+        = { ldscript = strdup($2); }
         |
     System_spec
         |
@@ -360,7 +360,8 @@ device_name:
             char buf[80];
 
             (void) sprintf(buf, "%s%d", $1, $2);
-            $$ = ns(buf); free($1);
+            $$ = strdup(buf);
+            free($1);
         }
         |
     Save_id NUMBER ID
@@ -368,7 +369,8 @@ device_name:
             char buf[80];
 
             (void) sprintf(buf, "%s%d%s", $1, $2, $3);
-            $$ = ns(buf); free($1);
+            $$ = strdup(buf);
+            free($1);
         }
     ;
 
@@ -382,7 +384,7 @@ Option:
     Save_id
         = {
             struct opt *op = (struct opt *)malloc(sizeof (struct opt));
-            op->op_name = ns($1);
+            op->op_name = strdup($1);
             op->op_next = opt;
             op->op_value = 0;
             opt = op;
@@ -392,9 +394,9 @@ Option:
     Save_id EQUALS Opt_value
         = {
             struct opt *op = (struct opt *)malloc(sizeof (struct opt));
-            op->op_name = ns($1);
+            op->op_name = strdup($1);
             op->op_next = opt;
-            op->op_value = ns($3);
+            op->op_value = strdup($3);
             opt = op;
             free(temp_id);
             free(val_id);
@@ -403,19 +405,19 @@ Option:
 
 Opt_value:
     ID
-        = { $$ = val_id = ns($1); }
+        = { $$ = val_id = strdup($1); }
         |
     NUMBER
         = {
             char nb[16];
             (void) sprintf(nb, "%d", $1);
-            $$ = val_id = ns(nb);
+            $$ = val_id = strdup(nb);
         }
     ;
 
 Save_id:
     ID
-        = { $$ = temp_id = ns($1); }
+        = { $$ = temp_id = strdup($1); }
     ;
 
 Mkopt_list:
@@ -428,9 +430,9 @@ Mkoption:
     Save_id EQUALS Opt_value
         = {
             struct opt *op = (struct opt *)malloc(sizeof (struct opt));
-            op->op_name = ns($1);
+            op->op_name = strdup($1);
             op->op_next = mkopt;
-            op->op_value = ns($3);
+            op->op_value = strdup($3);
             mkopt = op;
             free(temp_id);
             free(val_id);
@@ -439,7 +441,7 @@ Mkoption:
 
 Dev:
     ID
-        = { $$ = ns($1); }
+        = { $$ = strdup($1); }
     ;
 
 Device_spec:
@@ -622,20 +624,6 @@ void yyerror(s)
 }
 
 /*
- * return the passed string in a new space
- */
-char *
-ns(str)
-    register char *str;
-{
-    register char *cp;
-
-    cp = malloc((unsigned)(strlen(str)+1));
-    (void) strcpy(cp, str);
-    return (cp);
-}
-
-/*
  * add a device to the list of devices
  */
 void newdev(dp)
@@ -725,9 +713,9 @@ void mkswap(system, fl, size, flag)
     if (system->f_fn)
         return;
     if (eq(fl->f_fn, "generic"))
-        system->f_fn = ns(fl->f_fn);
+        system->f_fn = strdup(fl->f_fn);
     else
-        system->f_fn = ns(system->f_needs);
+        system->f_fn = strdup(system->f_needs);
 }
 
 void mkcomp(dp)
@@ -739,9 +727,9 @@ void mkcomp(dp)
     fl = (struct file_list *) malloc(sizeof *fl);
     fl->f_type = COMPDEVICE;
     fl->f_compinfo = dp->d_unit;
-    fl->f_fn = ns(dp->d_name);
+    fl->f_fn = strdup(dp->d_name);
     (void) sprintf(buf, "%s%d", dp->d_name, dp->d_unit);
-    fl->f_needs = ns(buf);
+    fl->f_needs = strdup(buf);
     fl->f_next = 0;
     for (flp = compp; *flp; flp = &(*flp)->f_next)
         ;
@@ -839,7 +827,7 @@ huhcon(dev)
         dp = &rdev;
         init_dev(dp);
         dp->d_unit = QUES;
-        dp->d_name = ns(dev);
+        dp->d_name = strdup(dev);
         dp->d_type = oldtype;
         newdev(dp);
         dp = curp;

@@ -152,8 +152,7 @@ void read_files()
     int nreqs, first = 1, configdep, isdup, std, filetype;
 
     ftab = 0;
-    (void) strcpy(fname, "../../conf/files");
-openit:
+    (void) strcpy(fname, "../files.kconf");
     fp = fopen(fname, "r");
     if (fp == 0) {
         perror(fname);
@@ -169,11 +168,6 @@ next:
     if (wd == (char *)EOF) {
         (void) fclose(fp);
         if (first == 1) {
-            (void) sprintf(fname, "files.%s", machinename);
-            first++;
-            goto openit;
-        }
-        if (first == 2) {
             (void) sprintf(fname, "files.%s", raise(ident));
             first++;
             fp = fopen(fname, "r");
@@ -184,7 +178,7 @@ next:
     }
     if (wd == 0)
         goto next;
-    this = ns(wd);
+    this = strdup(wd);
     next_word(fp, wd);
     if (wd == 0) {
         printf("%s: No type for %s.\n",
@@ -226,7 +220,7 @@ nextparam:
                    fname);
             exit(1);
         }
-        special = ns(wd);
+        special = strdup(wd);
         goto nextparam;
     }
     nreqs++;
@@ -239,7 +233,7 @@ nextparam:
         goto nextparam;
     }
     if (needs == 0 && nreqs == 1)
-        needs = ns(wd);
+        needs = strdup(wd);
     if (isdup)
         goto invis;
     for (dp = dtab; dp != 0; save_dp = dp, dp = dp->d_next)
@@ -252,7 +246,7 @@ nextparam:
     if (std) {
         dp = (struct device *) malloc(sizeof *dp);
         init_dev(dp);
-        dp->d_name = ns(wd);
+        dp->d_name = strdup(wd);
         dp->d_type = PSEUDO_DEVICE;
         dp->d_slave = 1;
         if (save_dp)
@@ -471,8 +465,8 @@ void makefile()
     struct users *up;
 
     read_files();
-    strcpy(line, "Makefile.");
-    (void) strcat(line, machinename);
+    strcpy(line, "../Makefile.kconf");
+    //(void) strcat(line, machinename);
     ifp = fopen(line, "r");
     if (ifp == 0) {
         perror(line);

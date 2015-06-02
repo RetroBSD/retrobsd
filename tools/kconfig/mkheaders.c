@@ -70,7 +70,7 @@ void do_header(dev, hname, count)
             break;
         if ((inw = get_word(inf)) == 0 || inw == (char *)EOF)
             break;
-        inw = ns(inw);
+        inw = strdup(inw);
         cp = get_word(inf);
         if (cp == 0 || cp == (char *)EOF)
             break;

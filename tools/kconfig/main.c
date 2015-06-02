@@ -49,12 +49,7 @@ int main(argc, argv)
     int argc;
     char **argv;
 {
-
-    extern char *optarg;
-    extern int optind;
-    struct stat buf;
     int ch;
-    char *p;
 
     while ((ch = getopt(argc, argv, "gp")) != EOF)
         switch (ch) {
@@ -72,25 +67,29 @@ int main(argc, argv)
     argv += optind;
 
     if (argc != 1) {
-usage:  fputs("usage: config [-gp] sysname\n", stderr);
+usage:  fputs("usage: kconfig [-gp] sysname\n", stderr);
         exit(1);
     }
 
-    if (freopen(PREFIX = *argv, "r", stdin) == NULL) {
+    PREFIX = *argv;
+    if (! freopen(PREFIX, "r", stdin)) {
         perror(PREFIX);
         exit(2);
     }
+#if 0
     mkdir("../../compile", 0777);
-    if (stat(p = path((char *)NULL), &buf)) {
-        if (mkdir(p, 0777)) {
+    char *p = path((char *)NULL);
+    struct stat buf;
+    if (stat(p, &buf) < 0) {
+        if (mkdir(p, 0777) < 0) {
             perror(p);
             exit(2);
         }
-    }
-    else if ((buf.st_mode & S_IFMT) != S_IFDIR) {
+    } else if ((buf.st_mode & S_IFMT) != S_IFDIR) {
         fprintf(stderr, "config: %s isn't a directory.\n", p);
         exit(2);
     }
+#endif
 
     dtab = NULL;
     confp = &conf_list;
@@ -208,6 +207,9 @@ char *
 path(file)
     char *file;
 {
+#if 1
+    return file;
+#else
     register char *cp;
 
 #define CDIR    "../../compile/"
@@ -221,4 +223,5 @@ path(file)
         (void) strcat(cp, file);
     }
     return (cp);
+#endif
 }

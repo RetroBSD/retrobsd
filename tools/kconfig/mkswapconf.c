@@ -122,7 +122,7 @@ void initdevtable()
     register struct devdescription **dp = &devtable;
     FILE *fp;
 
-    (void) sprintf(buf, "../conf/devices.%s", machinename);
+    (void) sprintf(buf, "../devices.kconf");
     fp = fopen(buf, "r");
     if (fp == NULL) {
         fprintf(stderr, "config: can't open %s\n", buf);
@@ -130,7 +130,7 @@ void initdevtable()
     }
     while (fscanf(fp, "%s\t%d\n", buf, &maj) == 2) {
         *dp = (struct devdescription *)malloc(sizeof (**dp));
-        (*dp)->dev_name = ns(buf);
+        (*dp)->dev_name = strdup(buf);
         (*dp)->dev_major = maj;
         dp = &(*dp)->dev_next;
     }
@@ -211,5 +211,5 @@ devtoname(dev)
         dp = devtable;
     (void) sprintf(buf, "%s%d%c", dp->dev_name,
         minor(dev) >> 3, (minor(dev) & 07) + 'a');
-    return (ns(buf));
+    return strdup(buf);
 }

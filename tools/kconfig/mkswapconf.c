@@ -31,10 +31,6 @@
  * SUCH DAMAGE.
  */
 
-#ifndef lint
-static char sccsid[] = "@(#)mkswapconf.c	8.1 (Berkeley) 6/6/93";
-#endif /* not lint */
-
 /*
  * Build a swap configuration file.
  */

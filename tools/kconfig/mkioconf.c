@@ -31,10 +31,6 @@
  * SUCH DAMAGE.
  */
 
-#ifndef lint
-static char sccsid[] = "@(#)mkioconf.c	8.2 (Berkeley) 1/21/94";
-#endif /* not lint */
-
 #include <stdio.h>
 #include "y.tab.h"
 #include "config.h"
@@ -604,8 +600,7 @@ char *sirq(int);
 
 void i386_ioconf()
 {
-	register struct device *dp, *mp, *np;
-	register int uba_n, slave;
+	register struct device *dp, *mp;
 	FILE *fp;
 
 	fp = fopen(path("ioconf.c"), "w");

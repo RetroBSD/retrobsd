@@ -709,7 +709,6 @@ void mkswap(system, fl, size, flag)
 	int size, flag;
 {
 	register struct file_list **flp;
-	char name[80];
 
 	if (system == 0 || system->f_type != SYSTEMSPEC) {
 		yyerror("\"swap\" spec precedes \"config\" specification");
@@ -765,7 +764,6 @@ void addcomp(compdev, fl)
 	struct file_list *compdev, *fl;
 {
 	register struct file_list **flp;
-	char name[80];
 
 	if (compdev == 0 || compdev->f_type != COMPDEVICE) {
 		yyerror("component spec precedes device specification");

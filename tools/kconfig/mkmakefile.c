@@ -31,10 +31,6 @@
  * SUCH DAMAGE.
  */
 
-#ifndef lint
-static char sccsid[] = "@(#)mkmakefile.c	8.1 (Berkeley) 6/6/93";
-#endif /* not lint */
-
 /*
  * Build the makefile for the system, from
  * the information in the files files and the
@@ -157,7 +153,7 @@ void read_files()
 	FILE *fp;
 	register struct file_list *tp, *pf;
 	register struct device *dp;
-	struct device *save_dp;
+	struct device *save_dp = 0;
 	register struct opt *op;
 	char *wd, *this, *needs, *special;
 	char fname[32];
@@ -267,7 +263,8 @@ nextparam:
 		dp->d_name = ns(wd);
 		dp->d_type = PSEUDO_DEVICE;
 		dp->d_slave = 1;
-		save_dp->d_next = dp;
+		if (save_dp)
+                        save_dp->d_next = dp;
 		goto nextparam;
 	}
 	for (op = opt; op != 0; op = op->op_next)
@@ -297,7 +294,6 @@ doneparam:
 		exit(1);
 	}
 
-save:
 	if (wd) {
 		printf("%s: syntax error describing %s\n",
 		    fname, this);
@@ -406,7 +402,7 @@ void do_cfiles(fp)
 void do_rules(f)
 	FILE *f;
 {
-	register char *cp, *np, och, *tp;
+	register char *cp, *np, och;
 	register struct file_list *ftp;
 	char *special;
 
@@ -421,7 +417,6 @@ void do_rules(f)
 			continue;
 		}
 		fprintf(f, "%so: $S/%s%c\n", tail(np), np, och);
-		tp = tail(np);
 		special = ftp->f_special;
 		if (special == 0) {
 			char *ftype;

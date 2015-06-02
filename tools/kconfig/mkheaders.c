@@ -31,10 +31,6 @@
  * SUCH DAMAGE.
  */
 
-#ifndef lint
-static char sccsid[] = "@(#)mkheaders.c	8.1 (Berkeley) 6/6/93";
-#endif /* not lint */
-
 /*
  * Make all the .h files for the optional entries
  */

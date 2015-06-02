@@ -31,10 +31,6 @@
  * SUCH DAMAGE.
  */
 
-#ifndef lint
-static char sccsid[] = "@(#)mkglue.c	8.1 (Berkeley) 6/6/93";
-#endif /* not lint */
-
 /*
  * Make the bus adaptor interrupt glue files.
  */
@@ -331,13 +327,16 @@ void vbglue()
  * HP9000/300 interrupts are auto-vectored.
  * Code is hardwired in locore.s
  */
-void hpglue() {}
+void hpglue()
+{
+}
 
 /*
  * Create the ISA interrupt vector glue file.
  */
-void vector() {
-	register FILE *fp, *gp;
+void vector()
+{
+	register FILE *fp;
 	register struct device *dp, *mp;
 	int count;
 

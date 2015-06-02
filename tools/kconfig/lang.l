@@ -1,3 +1,6 @@
+%option noinput
+%option nounput
+%option noyywrap
 %{
 /*-
  * Copyright (c) 1980, 1993

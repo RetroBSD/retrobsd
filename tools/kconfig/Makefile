@@ -1,12 +1,17 @@
-#	@(#)Makefile	8.1 (Berkeley) 6/6/93
+CC		= gcc -g
+CFLAGS		= -O -Wall
+YACC            = byacc -d
+DESTDIR		= /usr/local
+OBJS            = config.o main.o lang.o mkioconf.o mkmakefile.o mkglue.o mkheaders.o \
+                  mkswapconf.o
+PROG		= kconfig
 
-PROG=	config
-CFLAGS+=-I. -I${.CURDIR}
-SRCS=	config.c main.c lang.c mkioconf.c mkmakefile.c mkglue.c mkheaders.c \
-	mkswapconf.c
-MAN8=	config.0
-DPADD=	${LIBL}
-LDADD=	-ll
-CLEANFILES+=y.tab.h lang.c config.c y.tab.c config.0
+all:		$(PROG)
 
-.include <local.prog.mk>
+install:	$(PROG)
+		install -s $(PROG) ${DESTDIR}/bin/$(PROG)
+clean:
+		rm -rf *~ *.o *.lst *.dis $(PROG) $(PROG).dSYM y.tab.[ch] lang.c config.c
+
+$(PROG):	$(OBJS)
+		$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)

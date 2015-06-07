@@ -825,7 +825,7 @@ int main (int argc, char **argv)
         return -1;
     }
     if (! fs_open (&fs, argv[i], (add + mount != 0), pindex)) {
-        fprintf (stderr, "%s: cannot open\n", argv[i]);
+        fprintf (stderr, "%s: cannot open filesystem\n", argv[i]);
         return -1;
     }
 

@@ -52,6 +52,13 @@ ifeq (/usr/local/mips-2013.11/bin/mips-sde-elf-gcc,$(wildcard /usr/local/mips-20
     INCLUDES    =
 endif
 endif
+ifndef GCCPREFIX
+ifeq (/usr/local/mips-2014.05/bin/mips-sde-elf-gcc,$(wildcard /usr/local/mips-2014.05/bin/mips-sde-elf-gcc))
+    GCCPREFIX   = /usr/local/mips-2014.05/bin/mips-sde-elf-
+    LDFLAGS     = -Wl,--oformat=elf32-tradlittlemips
+    INCLUDES    =
+endif
+endif
 
 ifndef GCCPREFIX
     $(error Unable to locate any GCC MIPS toolchain!)

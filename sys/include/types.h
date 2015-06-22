@@ -50,7 +50,10 @@ typedef int     ssize_t;
 #define _SSIZE_T
 #endif
 #endif
-typedef	long	time_t;
+#ifndef _TIME_T
+#define _TIME_T
+typedef long time_t;
+#endif
 typedef	int	dev_t;
 #ifndef	_OFF_T
 #define	_OFF_T

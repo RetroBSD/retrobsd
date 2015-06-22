@@ -983,6 +983,8 @@ file /share/examples/c/test1.c
 file /share/examples/c/test2.c
 file /share/examples/c/test3.c
 file /share/examples/c/tetris.c
+file /share/examples/c/tft.c
+file /share/examples/c/tftetris.c
 
 #
 # Files: /share/examples/smallc
@@ -1035,7 +1037,8 @@ file /share/examples/cube/backlight.c
 file /share/examples/cube/cube.c
 file /share/examples/cube/cube.h
 file /share/examples/cube/demo.c
-file /share/examples/cube/gpio.c
+file /share/examples/cube/fubarino.c
+file /share/examples/cube/duinomite.c
 
 #
 # Files: /share/examples/dhrystone

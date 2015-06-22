@@ -121,11 +121,11 @@ void dev_sdcard_select (cpu_mips_t *cpu, int unit, int on)
     sdcard_t *d = &pic32->sdcard[unit];
 
     if (on) {
-        TRACE ("sdcard%d: (((\n", unit);
+        //TRACE ("sdcard%d: (((\n", unit);
         d->select = 1;
         d->count = 0;
     } else {
-        TRACE ("sdcard%d: )))\n", unit);
+        //TRACE ("sdcard%d: )))\n", unit);
         d->select = 0;
     }
 }
@@ -142,7 +142,7 @@ unsigned dev_sdcard_io (cpu_mips_t *cpu, unsigned data)
     unsigned reply;
 
     if (! d || ! d->fd) {
-        TRACE ("sdcard: unselected i/o\n");
+        //TRACE ("sdcard: unselected i/o\n");
         return 0xFF;
     }
     data = (unsigned char) data;
@@ -354,6 +354,6 @@ unsigned dev_sdcard_io (cpu_mips_t *cpu, unsigned data)
             break;
         }
     }
-    TRACE ("sdcard%d: send %02x, reply %02x\n", d->unit, data, reply);
+    //TRACE ("sdcard%d: send %02x, reply %02x\n", d->unit, data, reply);
     return reply;
 }

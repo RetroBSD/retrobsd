@@ -1987,7 +1987,7 @@ void pass1 ()
                 stab[cval].n_type &= ~N_TYPE;
                 stab[cval].n_type |= segmtype [segm];
                 continue;
-            } else if (clex=='=' || clex==LEQU) {
+            } else if (clex=='=') {
                 /* Symbol definition. */
                 cval = lookname();
                 stab[cval].n_value = getexpr (&csegm);
@@ -1995,22 +1995,6 @@ void pass1 ()
                     uerror ("indirect equivalence");
                 stab[cval].n_type &= N_EXT;
                 stab[cval].n_type |= segmtype [csegm];
-                break;
-            } else if (clex==LCOMM) {
-                /* name .comm len */
-                cval = lookname();
-                if (stab[cval].n_type != N_UNDF &&
-                    stab[cval].n_type != N_LOC &&
-                    (stab[cval].n_type & N_TYPE) != N_COMM)
-                    uerror ("name already defined");
-                if (stab[cval].n_type & N_LOC)
-                    stab[cval].n_type = N_COMM;
-                else
-                    stab[cval].n_type = N_EXT | N_COMM;
-                getexpr (&tval);
-                if (tval != SABS)
-                    uerror ("bad .comm length");
-                stab[cval].n_value = intval;
                 break;
             }
             /* Machine instruction. */
@@ -2164,6 +2148,24 @@ void pass1 ()
                     break;
                 }
             }
+            break;
+        case LEQU:
+            /* .equ name,value */
+            if (getlex (&cval) != LNAME)
+                uerror ("bad parameter of .equ");
+            cval = lookname();
+            if (stab[cval].n_type != N_UNDF &&
+                stab[cval].n_type != N_LOC &&
+                (stab[cval].n_type & N_TYPE) != N_COMM)
+                uerror ("name already defined");
+            clex = getlex (&tval);
+            if (clex != ',')
+                uerror ("bad value of .equ");
+            stab[cval].n_value = getexpr (&csegm);
+            if (csegm == SEXT)
+                uerror ("indirect equivalence");
+            stab[cval].n_type &= N_EXT;
+            stab[cval].n_type |= segmtype [csegm];
             break;
         case LCOMM:
             /* .comm name,len[,alignment] */

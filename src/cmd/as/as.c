@@ -1225,8 +1225,8 @@ unsigned getexpr (s)
 void reorder_flush ()
 {
     if (reorder_full) {
-        fputword (reorder_word, sfile[segm]);
-        fputrel (&reorder_rel, rfile[segm]);
+        fputword (reorder_word, sfile[STEXT]);
+        fputrel (&reorder_rel, rfile[STEXT]);
         reorder_full = 0;
     }
 }
@@ -1945,7 +1945,7 @@ void pass1 ()
         clex = getlex (&cval);
         switch (clex) {
         case LEOF:
-            reorder_flush();
+done:       reorder_flush();
             segm = STEXT;
             align (2);
             segm = SDATA;
@@ -2340,11 +2340,10 @@ void pass1 ()
             uerror ("bad syntax");
         }
         clex = getlex (&cval);
-        if (clex != LEOL) {
-            if (clex == LEOF)
-                return;
+        if (clex == LEOF)
+            goto done;
+        if (clex != LEOL)
             uerror ("bad instruction arguments");
-        }
     }
 }
 

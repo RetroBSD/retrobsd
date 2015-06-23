@@ -5,7 +5,9 @@
  */
 #define	BSD		211	/* 2.11 * 100, as cpp doesn't do floats */
 
+#ifndef offsetof
 #define offsetof(type, member)  ((size_t)(&((type *)0)->member))
+#endif
 
 /*
  * Machine type dependent parameters.

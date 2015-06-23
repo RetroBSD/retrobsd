@@ -8,9 +8,8 @@ CFLAGS		+= -Wall -Werror -I../../../sys/include
 
 SRCS            = pwm.c
 OBJS            = pwm.o
-MAN             = pwm.0
 
-all:            pwm ${MAN}
+all:            pwm
 
 pwm:    ${OBJS}
 		${CC} ${LDFLAGS} -o pwm.elf ${OBJS} ${LIBS}
@@ -20,11 +19,8 @@ pwm:    ${OBJS}
 
 .SUFFIXES:      .0 .1
 
-.1.0:
-		${MANROFF} $*.1 > $@
-
 clean:
-		rm -f *.o *.elf ${MAN} *.elf *.dis tags *~ pwm
+		rm -f *.o *.elf *.elf *.dis tags *~ pwm
 
 depend:         ${SRCS}
 		mkdep ${CFLAGS} ${SRCS}

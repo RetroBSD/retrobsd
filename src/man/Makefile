@@ -19,10 +19,8 @@
 TOPSRC = $(shell cd ../..; pwd)
 include $(TOPSRC)/target.mk
 
-DIRS=	man1 man2 man3 man3f man4 man5 man6 \
-	man7 man8
-CDIRS=	cat1 cat2 cat3 cat3f cat4 cat5 cat6 \
-	cat7 cat8
+DIRS=	man1 man2 man3 man4 man5 man6 man7 man8
+CDIRS=	cat1 cat2 cat3 cat4 cat5 cat6 cat7 cat8
 LCDIRS=	cat1 cat2 cat3 cat4 cat5 cat6 cat7 cat8
 
 all:

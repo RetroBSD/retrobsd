@@ -8,9 +8,8 @@ CFLAGS		+= -Werror -I../../../sys/include
 
 SRCS            = glcdtest.c
 OBJS            = glcdtest.o
-MAN             = glcdtest.0
 
-all:            glcdtest ${MAN}
+all:            glcdtest
 
 glcdtest:    ${OBJS}
 		${CC} ${LDFLAGS} -o glcdtest.elf ${OBJS} ${LIBS}
@@ -20,11 +19,8 @@ glcdtest:    ${OBJS}
 
 .SUFFIXES:      .0 .1
 
-.1.0:
-		${MANROFF} $*.1 > $@
-
 clean:
-		rm -f *.o *.elf ${MAN} *.elf *.dis tags *~ glcdtest
+		rm -f *.o *.elf *.elf *.dis tags *~ glcdtest
 
 depend:         ${SRCS}
 		mkdep ${CFLAGS} ${SRCS}

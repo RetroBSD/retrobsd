@@ -39,7 +39,7 @@ SRCS1=	nroff.1 nslookup.1 od.1 pagesize.1 pdx.1 pi.1 pix.1 \
 	rlogin.1 rm.1 rmail.1 rmdir.1 roffbib.1 rsh.1 ruptime.1 rwho.1 \
 	sccs.1 script.1 sed.1 sendbug.1 sh.1 size.1 sleep.1 soelim.1 \
 	sort.1 sortbib.1 spell.1 spline.1 split.1 strcompact.1 strings.1 \
-	strip.1 struct.1 style.1 su.1 sum.1 symcompact.1 symorder.1 \
+	strip.1 style.1 su.1 sum.1 symcompact.1 symorder.1 \
 	tabs.1 tail.1 talk.1 \
 	tar.1 tbl.1 tc.1 tcopy.1 tee.1 telnet.1 time.1 \
 	tip.1 tk.1 tn3270.1 touch.1 tp.1 tr.1 troff.1 true.1 \
@@ -67,7 +67,7 @@ OBJS2=	nroff.0 nslookup.0 od.0 pagesize.0 pdx.0 pi.0 pix.0 \
 	rlogin.0 rm.0 rmail.0 rmdir.0 roffbib.0 rsh.0 ruptime.0 rwho.0 \
 	sccs.0 script.0 sed.0 sendbug.0 sh.0 size.0 sleep.0 soelim.0 \
 	sort.0 sortbib.0 spell.0 spline.0 split.0 strcompact.0 strings.0 \
-	strip.0 struct.0 style.0 su.0 sum.0 symcompact.0 symorder.0 \
+	strip.0 style.0 su.0 sum.0 symcompact.0 symorder.0 \
 	tabs.0 tail.0 talk.0 \
 	tar.0 tbl.0 tc.0 tcopy.0 tee.0 telnet.0 time.0 \
 	tip.0 tk.0 tn3270.0 touch.0 tp.0 tr.0 troff.0 true.0 \

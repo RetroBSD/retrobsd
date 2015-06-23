@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
+#include <unistd.h>
 #include <sys/param.h>
 #include <sys/inode.h>
 #include <sys/fs.h>
@@ -30,69 +31,10 @@ usage ()
     printf ("    -t file  Filename for temporary data.\n");
 }
 
-main(argc, argv)
-    int argc;
-    char    *argv[];
-{
-    struct fstab *fsp;
-    int pid, passno, anygtr, sumstatus;
-    char *name, inbuf[128], outbuf[128];
-
-    setbuffer(stdin, inbuf, sizeof (inbuf));
-    setbuffer(stdout, outbuf, sizeof (outbuf));
-    setlinebuf(stdout);
-    sync();
-
-    while (--argc > 0 && **++argv == '-') {
-        switch (*++*argv) {
-
-        case 't':
-            if (**++argv == '-' || --argc <= 0)
-                errexit("Bad -t option\n");
-            strcpy(scrfile, *argv);
-            break;
-
-        case 'd':
-            debug++;
-            break;
-
-        case 'n':   /* default no answer flag */
-            nflag++;
-            yflag = 0;
-            break;
-
-        case 'y':   /* default yes answer flag */
-            yflag++;
-            nflag = 0;
-            break;
-
-        default:
-            errexit("%c option?\n", **argv);
-        }
-    }
-    if (argc == 0) {
-        usage();
-        return 0;
-    }
-
-    memsize = sizeof (memdata);
-    membase = memdata;
-
-    if (signal(SIGINT, SIG_IGN) != SIG_IGN)
-        (void)signal(SIGINT, catch);
-    if (preen)
-        (void)signal(SIGQUIT, catchquit);
-    while (argc-- > 0) {
-        hotroot = 0;
-        checkfilesys(*argv++);
-    }
-    return 0;
-}
-
+void
 checkfilesys(filesys)
     char *filesys;
 {
-    daddr_t n_ffree, n_bfree;
     register ino_t *zp;
 
     devnam = filesys;
@@ -194,4 +136,62 @@ checkfilesys(filesys)
         sync();
         exit(4);
     }
+}
+
+int
+main(argc, argv)
+    int argc;
+    char    *argv[];
+{
+    char inbuf[128], outbuf[128];
+
+    setbuffer(stdin, inbuf, sizeof (inbuf));
+    setbuffer(stdout, outbuf, sizeof (outbuf));
+    setlinebuf(stdout);
+    sync();
+
+    while (--argc > 0 && **++argv == '-') {
+        switch (*++*argv) {
+
+        case 't':
+            if (**++argv == '-' || --argc <= 0)
+                errexit("Bad -t option\n");
+            strcpy(scrfile, *argv);
+            break;
+
+        case 'd':
+            debug++;
+            break;
+
+        case 'n':   /* default no answer flag */
+            nflag++;
+            yflag = 0;
+            break;
+
+        case 'y':   /* default yes answer flag */
+            yflag++;
+            nflag = 0;
+            break;
+
+        default:
+            errexit("%c option?\n", **argv);
+        }
+    }
+    if (argc == 0) {
+        usage();
+        return 0;
+    }
+
+    memsize = sizeof (memdata);
+    membase = memdata;
+
+    if (signal(SIGINT, SIG_IGN) != SIG_IGN)
+        (void)signal(SIGINT, catch);
+    if (preen)
+        (void)signal(SIGQUIT, catchquit);
+    while (argc-- > 0) {
+        hotroot = 0;
+        checkfilesys(*argv++);
+    }
+    return 0;
 }

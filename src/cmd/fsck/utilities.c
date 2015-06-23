@@ -5,10 +5,9 @@
  */
 #ifdef CROSS
 #include </usr/include/stdio.h>
-#define off_t unsigned long long
+//#define off_t unsigned long long
 #else
 #include <stdio.h>
-#include <ctype.h>
 #endif
 #include <stdlib.h>
 #include <string.h>
@@ -22,6 +21,8 @@
 #include <sys/ioctl.h>
 #include <sys/swap.h>
 #include "fsck.h"
+
+#define isspace(n) (n==' ' || n=='\t')
 
 int returntosingle;
 

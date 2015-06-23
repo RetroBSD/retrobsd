@@ -6,7 +6,15 @@
 #ifndef _TIME_H
 #define _TIME_H
 
-#include <sys/types.h>		/* for time_t */
+#ifndef _TIME_T
+#define _TIME_T
+typedef long time_t;
+#endif
+
+#ifndef _SIZE_T
+#define _SIZE_T
+typedef unsigned size_t;
+#endif
 
 /*
  * Structure returned by gmtime and localtime calls (see ctime(3)).

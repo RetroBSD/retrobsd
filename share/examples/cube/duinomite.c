@@ -112,7 +112,7 @@ void gpio_plane(unsigned char *data)
     int i, n, val;
 
     /* Send 8 bytes of tada to shift registers. */
-    for (i=0; i<8; i++) {
+    for (i=0; i<8; i+=2) {
         val = *data++;
         for (n=0; n<8; n++) {
             /* SDI signal at RE5. */
@@ -126,6 +126,20 @@ void gpio_plane(unsigned char *data)
             ioctl(gpio, GPIO_PORTE | GPIO_CLEAR, 1 << 6);
 
             val <<= 1;
+        }
+        val = *data++;
+        for (n=0; n<8; n++) {
+            /* SDI signal at RE5. */
+            if (val & 1)
+                ioctl(gpio, GPIO_PORTE | GPIO_SET, 1 << 5);
+            else
+                ioctl(gpio, GPIO_PORTE | GPIO_CLEAR, 1 << 5);
+
+            /* CLK signal at RE6. */
+            ioctl(gpio, GPIO_PORTE | GPIO_SET, 1 << 6);
+            ioctl(gpio, GPIO_PORTE | GPIO_CLEAR, 1 << 6);
+
+            val >>= 1;
         }
     }
 }

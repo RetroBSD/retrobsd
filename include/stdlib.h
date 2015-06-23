@@ -43,8 +43,6 @@
 #ifndef _STDLIB_H_
 #define _STDLIB_H_
 
-#include <sys/types.h>
-
 #ifndef NULL
 #define	NULL	0
 #endif
@@ -53,6 +51,11 @@
 #define	EXIT_SUCCESS	0
 
 #define	RAND_MAX	0x7fff
+
+#ifndef _SIZE_T
+#define _SIZE_T
+typedef unsigned size_t;
+#endif
 
 void	abort (void);
 int	abs (int);
@@ -83,7 +86,7 @@ char	*_findenv (const char *name, int *offset);
 void	*alloca (size_t size);
 
 int	daemon (int, int);
-char	*devname (dev_t dev, mode_t type);
+char	*devname (int dev, int type);
 int	getloadavg (unsigned loadavg[], int nelem);
 
 extern char *suboptarg;			/* getsubopt(3) external variable */

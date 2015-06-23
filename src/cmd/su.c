@@ -6,7 +6,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <pwd.h>
-#include <grp.h>
 #include <syslog.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -14,6 +13,7 @@
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/resource.h>
+#include <grp.h>
 
 char    userbuf[64] = "USER=";
 char    homebuf[128]    = "HOME=";

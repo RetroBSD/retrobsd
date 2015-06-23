@@ -722,7 +722,8 @@ create_file:
     }
     if (verbose > 2)
         printf ("*** name '%.*s' at offset %lu\n", namlen, namptr, offset+sizeof(dirent));
-    if (! fs_inode_write (&dir, offset+sizeof(dirent), (unsigned char*) namptr, namlen)) {
+    if (! fs_inode_write (&dir, offset+sizeof(dirent), (unsigned char*) namptr, namlen) ||
+        ! fs_inode_write (&dir, offset+sizeof(dirent)+namlen, (unsigned char*) "", 1)) {
         fprintf (stderr, "inode %d: write error at offset %ld\n",
             dir.number, offset+sizeof(dirent));
         return 0;

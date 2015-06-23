@@ -5,8 +5,6 @@
  */
 #ifndef FILE
 
-#include <sys/types.h>
-
 #define	BUFSIZ	1024
 extern	struct	_iobuf {
 	int	_cnt;
@@ -38,6 +36,11 @@ extern	struct	_iobuf {
 
 #ifndef	NULL
 #define	NULL	0
+#endif
+
+#ifndef _SIZE_T
+#define _SIZE_T
+typedef unsigned size_t;
 #endif
 
 #define	FILE	struct _iobuf

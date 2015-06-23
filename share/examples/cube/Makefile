@@ -1,5 +1,10 @@
 PROG    = all backlight cube demo
-OBJS    = gpio.o
+
+# Duinomite board
+#OBJS    = duinomite.o
+
+# Fubarino board
+OBJS    = fubarino.o
 
 all:    $(PROG)
 

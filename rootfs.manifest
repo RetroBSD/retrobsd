@@ -2005,545 +2005,545 @@ target /share/man/cat1/nice.0
 file /share/man/cat3/comp.0
 link /share/man/cat3/re_comp.0
 target /share/man/cat3/comp.0
-#link /share/man/cat3/re_exec.0
-#target /share/man/cat3/comp.0
-#link /share/man/cat3/regex.0
-#target /share/man/cat3/comp.0
-
-#file /share/man/cat3/perror.0
-#link /share/man/cat3/strerror.0
-#target /share/man/cat3/perror.0
-
-#file /share/man/cat3/sleep.0
-#link /share/man/cat3/usleep.0
-#target /share/man/cat3/sleep.0
-
-#file /share/man/cat3/endfsent.0
-#link /share/man/cat3/getfsent.0
-#target /share/man/cat3/endfsent.0
-#link /share/man/cat3/getfsfile.0
-#target /share/man/cat3/endfsent.0
-#link /share/man/cat3/getfsspec.0
-#target /share/man/cat3/endfsent.0
-#link /share/man/cat3/getfstype.0
-#target /share/man/cat3/endfsent.0
-#link /share/man/cat3/setfsent.0
-#target /share/man/cat3/endfsent.0
-
-#file /share/man/cat1/case.0
-#link /share/man/cat1/for.0
-#target /share/man/cat1/case.0
-#link /share/man/cat1/if.0
-#target /share/man/cat1/case.0
-#link /share/man/cat1/sh.0
-#target /share/man/cat1/case.0
-#link /share/man/cat1/while.0
-#target /share/man/cat1/case.0
-
-#file /share/man/cat3/crypt.0
-#link /share/man/cat3/encrypt.0
-#target /share/man/cat3/crypt.0
-#link /share/man/cat3/setkey.0
-#target /share/man/cat3/crypt.0
-
-#file /share/man/cat2/dup.0
-#link /share/man/cat2/dup2.0
-#target /share/man/cat2/dup.0
-
-#file /share/man/cat1/uudecode.0
-#link /share/man/cat1/uuencode.0
-#target /share/man/cat1/uudecode.0
-
-#file /share/man/cat3/alphasort.0
-#link /share/man/cat3/scandir.0
-#target /share/man/cat3/alphasort.0
-
-#file /share/man/cat3/err.0
-#link /share/man/cat3/errx.0
-#target /share/man/cat3/err.0
-#link /share/man/cat3/verr.0
-#target /share/man/cat3/err.0
-#link /share/man/cat3/verrx.0
-#target /share/man/cat3/err.0
-#link /share/man/cat3/vwarnx.0
-#target /share/man/cat3/err.0
-#link /share/man/cat3/warn.0
-#target /share/man/cat3/err.0
-#link /share/man/cat3/warnx.0
-#target /share/man/cat3/err.0
-
-#file /share/man/cat2/ftruncate.0
-#link /share/man/cat2/truncate.0
-#target /share/man/cat2/ftruncate.0
-
-#file /share/man/cat3/sigaddset.0
-#link /share/man/cat3/sigdelset.0
-#target /share/man/cat3/sigaddset.0
-#link /share/man/cat3/sigemptyset.0
-#target /share/man/cat3/sigaddset.0
-#link /share/man/cat3/sigfillset.0
-#target /share/man/cat3/sigaddset.0
-#link /share/man/cat3/sigismember.0
-#target /share/man/cat3/sigaddset.0
-#link /share/man/cat3/sigsetops.0
-#target /share/man/cat3/sigaddset.0
-
-#file /share/man/cat2/gettimeofday.0
-#link /share/man/cat2/settimeofday.0
-#target /share/man/cat2/gettimeofday.0
-
-#file /share/man/cat2/brk.0
-#link /share/man/cat2/sbrk.0
-#target /share/man/cat2/brk.0
-
-#file /share/man/cat2/setegid.0
-#link /share/man/cat2/seteuid.0
-#target /share/man/cat2/setegid.0
-#link /share/man/cat2/setgid.0
-#target /share/man/cat2/setegid.0
-#link /share/man/cat2/setuid.0
-#target /share/man/cat2/setegid.0
-
-#file /share/man/cat3/endprotoent.0
-#link /share/man/cat3/getprotobyname.0
-#target /share/man/cat3/endprotoent.0
-#link /share/man/cat3/getprotobynumber.0
-#target /share/man/cat3/endprotoent.0
-#link /share/man/cat3/getprotoent.0
-#target /share/man/cat3/endprotoent.0
-#link /share/man/cat3/setprotoent.0
-#target /share/man/cat3/endprotoent.0
-
-#file /share/man/cat3/ns.0
-#link /share/man/cat3/ns_addr.0
-#target /share/man/cat3/ns.0
-#link /share/man/cat3/ns_ntoa.0
-#target /share/man/cat3/ns.0
-
-#file /share/man/cat3/gamma.0
-#link /share/man/cat3/lgamma.0
-#target /share/man/cat3/gamma.0
-
-#file /share/man/cat3/endnetent.0
-#link /share/man/cat3/getnetbyaddr.0
-#target /share/man/cat3/endnetent.0
-#link /share/man/cat3/getnetbyname.0
-#target /share/man/cat3/endnetent.0
-#link /share/man/cat3/getnetent.0
-#target /share/man/cat3/endnetent.0
-#link /share/man/cat3/setnetent.0
-#target /share/man/cat3/endnetent.0
-
-#file /share/man/cat2/getpriority.0
-#link /share/man/cat2/setpriority.0
-#target /share/man/cat2/getpriority.0
-
-#file /share/man/cat3/ftime.0
-#link /share/man/cat3/time.0
-#target /share/man/cat3/ftime.0
-
-#file /share/man/cat3/endservent.0
-#link /share/man/cat3/getservbyname.0
-#target /share/man/cat3/endservent.0
-#link /share/man/cat3/getservbyport.0
-#target /share/man/cat3/endservent.0
-#link /share/man/cat3/getservent.0
-#target /share/man/cat3/endservent.0
-#link /share/man/cat3/setservent.0
-#target /share/man/cat3/endservent.0
-
-#file /share/man/cat2/getlogin.0
-#link /share/man/cat2/setlogin.0
-#target /share/man/cat2/getlogin.0
-
-#file /share/man/cat3/_longjmp.0
-#link /share/man/cat3/longjmp.0
-#target /share/man/cat3/_longjmp.0
-#link /share/man/cat3/_setjmp.0
-#target /share/man/cat3/_longjmp.0
-#link /share/man/cat3/setjmp.0
-#target /share/man/cat3/_longjmp.0
-
-#file /share/man/cat2/chown.0
-#link /share/man/cat2/fchown.0
-#target /share/man/cat2/chown.0
-
-#file /share/man/cat1/indxbib.0
-#link /share/man/cat1/lookbib.0
-#target /share/man/cat1/indxbib.0
-
-#file /share/man/cat6/snake.0
-#link /share/man/cat6/snscore.0
-#target /share/man/cat6/snake.0
-
-#file /share/man/cat3/fdopen.0
-#link /share/man/cat3/fopen.0
-#target /share/man/cat3/fdopen.0
-#link /share/man/cat3/freopen.0
-#target /share/man/cat3/fdopen.0
-
-#file /share/man/cat2/chflags.0
-#link /share/man/cat2/fchflags.0
-#target /share/man/cat2/chflags.0
-
-#file /share/man/cat3/closedir.0
-#link /share/man/cat3/directory.0
-#target /share/man/cat3/closedir.0
-#link /share/man/cat3/opendir.0
-#target /share/man/cat3/closedir.0
-#link /share/man/cat3/readdir.0
-#target /share/man/cat3/closedir.0
-#link /share/man/cat3/rewinddir.0
-#target /share/man/cat3/closedir.0
-#link /share/man/cat3/seekdir.0
-#target /share/man/cat3/closedir.0
-#link /share/man/cat3/telldir.0
-#target /share/man/cat3/closedir.0
-
-#file /share/man/cat6/canfield.0
-#link /share/man/cat6/cfscores.0
-#target /share/man/cat6/canfield.0
-
-#file /share/man/cat3/copysign.0
-#link /share/man/cat3/drem.0
-#target /share/man/cat3/copysign.0
-#link /share/man/cat3/finite.0
-#target /share/man/cat3/copysign.0
-#link /share/man/cat3/ieee.0
-#target /share/man/cat3/copysign.0
-#link /share/man/cat3/logb.0
-#target /share/man/cat3/copysign.0
-#link /share/man/cat3/scalb.0
-#target /share/man/cat3/copysign.0
-
-#file /share/man/cat2/fstatfs.0
-#link /share/man/cat2/statfs.0
-#target /share/man/cat2/fstatfs.0
-
-#file /share/man/cat1/spell.0
-#link /share/man/cat1/spellin.0
-#target /share/man/cat1/spell.0
-#link /share/man/cat1/spellout.0
-#target /share/man/cat1/spell.0
-
-#file /share/man/cat2/read.0
-#link /share/man/cat2/readv.0
-#target /share/man/cat2/read.0
-
-#file /share/man/cat2/chmod.0
-#link /share/man/cat2/fchdir.0
-#target /share/man/cat2/chmod.0
-#link /share/man/cat2/fchmod.0
-#target /share/man/cat2/chmod.0
-
-#file /share/man/cat1/edit.0
-#link /share/man/cat1/ex.0
-#target /share/man/cat1/edit.0
-
-#file /share/man/cat2/send.0
-#link /share/man/cat2/sendmsg.0
-#target /share/man/cat2/send.0
-#link /share/man/cat2/sendto.0
-#target /share/man/cat2/send.0
-
-#file /share/man/cat3/alloca.0
-#link /share/man/cat3/calloc.0
-#target /share/man/cat3/alloca.0
-#link /share/man/cat3/free.0
-#target /share/man/cat3/alloca.0
-#link /share/man/cat3/malloc.0
-#target /share/man/cat3/alloca.0
-#link /share/man/cat3/realloc.0
-#target /share/man/cat3/alloca.0
-
-#file /share/man/cat3/moncontrol.0
-#link /share/man/cat3/monitor.0
-#target /share/man/cat3/moncontrol.0
-#link /share/man/cat3/monstartup.0
-#target /share/man/cat3/moncontrol.0
-
-#file /share/man/cat8/fastboot.0
-#link /share/man/cat8/halt.0
-#target /share/man/cat8/fastboot.0
-#link /share/man/cat8/reboot.0
-#target /share/man/cat8/fastboot.0
-
-#file /share/man/cat3/dbm.0
-#link /share/man/cat3/dbminit.0
-#target /share/man/cat3/dbm.0
-#link /share/man/cat3/delete.0
-#target /share/man/cat3/dbm.0
-#link /share/man/cat3/fetch.0
-#target /share/man/cat3/dbm.0
-#link /share/man/cat3/firstkey.0
-#target /share/man/cat3/dbm.0
-#link /share/man/cat3/nextkey.0
-#target /share/man/cat3/dbm.0
-#link /share/man/cat3/store.0
-#target /share/man/cat3/dbm.0
-
-#file /share/man/cat2/getitimer.0
-#link /share/man/cat2/setitimer.0
-#target /share/man/cat2/getitimer.0
-
-#file /share/man/cat3/initstate.0
-#link /share/man/cat3/random.0
-#target /share/man/cat3/initstate.0
-#link /share/man/cat3/setstate.0
-#target /share/man/cat3/initstate.0
-#link /share/man/cat3/srandom.0
-#target /share/man/cat3/initstate.0
-
-#file /share/man/cat2/write.0
-#link /share/man/cat2/writev.0
-#target /share/man/cat2/write.0
-
-#file /share/man/cat3/setbuf.0
-#link /share/man/cat3/setbuffer.0
-#target /share/man/cat3/setbuf.0
-#link /share/man/cat3/setlinebuf.0
-#target /share/man/cat3/setbuf.0
-#link /share/man/cat3/setvbuf.0
-#target /share/man/cat3/setbuf.0
-
-#file /share/man/cat3/exp.0
-#link /share/man/cat3/expm1.0
-#target /share/man/cat3/exp.0
-#link /share/man/cat3/log.0
-#target /share/man/cat3/exp.0
-#link /share/man/cat3/log10.0
-#target /share/man/cat3/exp.0
-#link /share/man/cat3/log1p.0
-#target /share/man/cat3/exp.0
-#link /share/man/cat3/pow.0
-#target /share/man/cat3/exp.0
-
-#file /share/man/cat3/acos.0
-#link /share/man/cat3/asin.0
-#target /share/man/cat3/acos.0
-#link /share/man/cat3/atan.0
-#target /share/man/cat3/acos.0
-#link /share/man/cat3/atan2.0
-#target /share/man/cat3/acos.0
-#link /share/man/cat3/cos.0
-#target /share/man/cat3/acos.0
-#link /share/man/cat3/sin.0
-#target /share/man/cat3/acos.0
-#link /share/man/cat3/tan.0
-#target /share/man/cat3/acos.0
-
-#file /share/man/cat2/getrlimit.0
-#link /share/man/cat2/setrlimit.0
-#target /share/man/cat2/getrlimit.0
-
-#file /share/man/cat3/termcap.0
-#link /share/man/cat3/tgetent.0
-#target /share/man/cat3/termcap.0
-#link /share/man/cat3/tgetflag.0
-#target /share/man/cat3/termcap.0
-#link /share/man/cat3/tgetnum.0
-#target /share/man/cat3/termcap.0
-#link /share/man/cat3/tgetstr.0
-#target /share/man/cat3/termcap.0
-#link /share/man/cat3/tgoto.0
-#target /share/man/cat3/termcap.0
-#link /share/man/cat3/tputs.0
-#target /share/man/cat3/termcap.0
-
-#file /share/man/cat5/dump.0
-#link /share/man/cat5/dumpdates.0
-#target /share/man/cat5/dump.0
-
-#file /share/man/cat1/chfn.0
-#link /share/man/cat1/chpass.0
-#target /share/man/cat1/chfn.0
-#link /share/man/cat1/chsh.0
-#target /share/man/cat1/chfn.0
-
-#file /share/man/cat2/recv.0
-#link /share/man/cat2/recvfrom.0
-#target /share/man/cat2/recv.0
-#link /share/man/cat2/recvmsg.0
-#target /share/man/cat2/recv.0
-
-#file /share/man/cat3/rcmd.0
-#link /share/man/cat3/rresvport.0
-#target /share/man/cat3/rcmd.0
-#link /share/man/cat3/ruserok.0
-#target /share/man/cat3/rcmd.0
-
-#file /share/man/cat5/utmp.0
-#link /share/man/cat5/wtmp.0
-#target /share/man/cat5/utmp.0
-
-#file /share/man/cat1/egrep.0
-#link /share/man/cat1/fgrep.0
-#target /share/man/cat1/egrep.0
-#link /share/man/cat1/grep.0
-#target /share/man/cat1/egrep.0
-
-#file /share/man/cat3/environ.0
-#link /share/man/cat3/execl.0
-#target /share/man/cat3/environ.0
-#link /share/man/cat3/execle.0
-#target /share/man/cat3/environ.0
-#link /share/man/cat3/execlp.0
-#target /share/man/cat3/environ.0
-#link /share/man/cat3/exect.0
-#target /share/man/cat3/environ.0
-#link /share/man/cat3/execv.0
-#target /share/man/cat3/environ.0
-#link /share/man/cat3/execve.0
-#target /share/man/cat3/environ.0
-#link /share/man/cat3/execvp.0
-#target /share/man/cat3/environ.0
-
-#file /share/man/cat3/endpwent.0
-#link /share/man/cat3/getpwent.0
-#target /share/man/cat3/endpwent.0
-#link /share/man/cat3/getpwnam.0
-#target /share/man/cat3/endpwent.0
-#link /share/man/cat3/getpwuid.0
-#target /share/man/cat3/endpwent.0
-#link /share/man/cat3/setpwent.0
-#target /share/man/cat3/endpwent.0
-#link /share/man/cat3/setpwfile.0
-#target /share/man/cat3/endpwent.0
-
-#file /share/man/cat3/asctime.0
-#link /share/man/cat3/ctime.0
-#target /share/man/cat3/asctime.0
-#link /share/man/cat3/gmtime.0
-#target /share/man/cat3/asctime.0
-#link /share/man/cat3/localtime.0
-#target /share/man/cat3/asctime.0
-#link /share/man/cat3/timezone.0
-#target /share/man/cat3/asctime.0
-
-#file /share/man/cat2/mount.0
-#link /share/man/cat2/umount.0
-#target /share/man/cat2/mount.0
-
-#file /share/man/cat3/endttyent.0
-#link /share/man/cat3/getttyent.0
-#target /share/man/cat3/endttyent.0
-#link /share/man/cat3/getttynam.0
-#target /share/man/cat3/endttyent.0
-#link /share/man/cat3/setttyent.0
-#target /share/man/cat3/endttyent.0
-
-#file /share/man/cat1/compress.0
-#link /share/man/cat1/uncompress.0
-#target /share/man/cat1/compress.0
-#link /share/man/cat1/zcat.0
-#target /share/man/cat1/compress.0
-
-#file /share/man/cat2/fstat.0
-#link /share/man/cat2/lstat.0
-#target /share/man/cat2/fstat.0
-#link /share/man/cat2/stat.0
-#target /share/man/cat2/fstat.0
-
-#file /share/man/cat3/endhostent.0
-#link /share/man/cat3/gethostbyaddr.0
-#target /share/man/cat3/endhostent.0
-#link /share/man/cat3/gethostbyname.0
-#target /share/man/cat3/endhostent.0
-#link /share/man/cat3/gethostent.0
-#target /share/man/cat3/endhostent.0
-#link /share/man/cat3/sethostent.0
-#target /share/man/cat3/endhostent.0
-#link /share/man/cat3/sethostfile.0
-#target /share/man/cat3/endhostent.0
-
-#file /share/man/cat3/fscanf.0
-#link /share/man/cat3/scanf.0
-#target /share/man/cat3/fscanf.0
-#link /share/man/cat3/sscanf.0
-#target /share/man/cat3/fscanf.0
-
-#file /share/man/cat1/checkeq.0
-#link /share/man/cat1/eqn.0
-#target /share/man/cat1/checkeq.0
-#link /share/man/cat1/neqn.0
-#target /share/man/cat1/checkeq.0
-
-#file /share/man/cat3/fprintf.0
-#link /share/man/cat3/printf.0
-#target /share/man/cat3/fprintf.0
-#link /share/man/cat3/sprintf.0
-#target /share/man/cat3/fprintf.0
-#link /share/man/cat3/vfprintf.0
-#target /share/man/cat3/fprintf.0
-#link /share/man/cat3/vprintf.0
-#target /share/man/cat3/fprintf.0
-#link /share/man/cat3/vsprintf.0
-#target /share/man/cat3/fprintf.0
-
-#file /share/man/cat2/getpid.0
-#link /share/man/cat2/getppid.0
-#target /share/man/cat2/getpid.0
-
-#file /share/man/cat4/dvhp.0
-#link /share/man/cat4/hp.0
-#target /share/man/cat4/dvhp.0
-#link /share/man/cat4/rm.0
-#target /share/man/cat4/dvhp.0
-#link /share/man/cat4/rp.0
-#target /share/man/cat4/dvhp.0
-#link /share/man/cat4/xp.0
-#target /share/man/cat4/dvhp.0
-
-#file /share/man/cat3/closelog.0
-#link /share/man/cat3/openlog.0
-#target /share/man/cat3/closelog.0
-#link /share/man/cat3/setlogmask.0
-#target /share/man/cat3/closelog.0
-#link /share/man/cat3/syslog.0
-#target /share/man/cat3/closelog.0
-
-#file /share/man/cat1/diff.0
-#link /share/man/cat1/diffh.0
-#target /share/man/cat1/diff.0
-
-#file /share/man/cat8/uucico.0
-#link /share/man/cat8/uucpd.0
-#target /share/man/cat8/uucico.0
-
-#file /share/man/cat2/pselect.0
-#link /share/man/cat2/select.0
-#target /share/man/cat2/pselect.0
-
-#file /share/man/cat2/getsockopt.0
-#link /share/man/cat2/setsockopt.0
-#target /share/man/cat2/getsockopt.0
-
-#file /share/man/cat7/intro.0
-#link /share/man/cat7/miscellaneous.0
-#target /share/man/cat7/intro.0
-
-#file /share/man/cat3/erf.0
-#link /share/man/cat3/erfc.0
-#target /share/man/cat3/erf.0
-
-#file /share/man/cat2/wait.0
-#link /share/man/cat2/wait3.0
-#target /share/man/cat2/wait.0
-#link /share/man/cat2/wait4.0
-#target /share/man/cat2/wait.0
-#link /share/man/cat2/waitpid.0
-#target /share/man/cat2/wait.0
-
-#file /share/man/cat3/endgrent.0
-#link /share/man/cat3/getgrent.0
-#target /share/man/cat3/endgrent.0
-#link /share/man/cat3/getgrgid.0
-#target /share/man/cat3/endgrent.0
-#link /share/man/cat3/getgrnam.0
-#target /share/man/cat3/endgrent.0
-#link /share/man/cat3/setgrent.0
-#target /share/man/cat3/endgrent.0
-
-#file /share/man/cat1/more.0
-#link /share/man/cat1/page.0
-#target /share/man/cat1/more.0
+link /share/man/cat3/re_exec.0
+target /share/man/cat3/comp.0
+link /share/man/cat3/regex.0
+target /share/man/cat3/comp.0
+
+file /share/man/cat3/perror.0
+link /share/man/cat3/strerror.0
+target /share/man/cat3/perror.0
+
+file /share/man/cat3/sleep.0
+link /share/man/cat3/usleep.0
+target /share/man/cat3/sleep.0
+
+file /share/man/cat3/endfsent.0
+link /share/man/cat3/getfsent.0
+target /share/man/cat3/endfsent.0
+link /share/man/cat3/getfsfile.0
+target /share/man/cat3/endfsent.0
+link /share/man/cat3/getfsspec.0
+target /share/man/cat3/endfsent.0
+link /share/man/cat3/getfstype.0
+target /share/man/cat3/endfsent.0
+link /share/man/cat3/setfsent.0
+target /share/man/cat3/endfsent.0
+
+file /share/man/cat1/case.0
+link /share/man/cat1/for.0
+target /share/man/cat1/case.0
+link /share/man/cat1/if.0
+target /share/man/cat1/case.0
+link /share/man/cat1/sh.0
+target /share/man/cat1/case.0
+link /share/man/cat1/while.0
+target /share/man/cat1/case.0
+
+file /share/man/cat3/crypt.0
+link /share/man/cat3/encrypt.0
+target /share/man/cat3/crypt.0
+link /share/man/cat3/setkey.0
+target /share/man/cat3/crypt.0
+
+file /share/man/cat2/dup.0
+link /share/man/cat2/dup2.0
+target /share/man/cat2/dup.0
+
+file /share/man/cat1/uudecode.0
+link /share/man/cat1/uuencode.0
+target /share/man/cat1/uudecode.0
+
+file /share/man/cat3/alphasort.0
+link /share/man/cat3/scandir.0
+target /share/man/cat3/alphasort.0
+
+file /share/man/cat3/err.0
+link /share/man/cat3/errx.0
+target /share/man/cat3/err.0
+link /share/man/cat3/verr.0
+target /share/man/cat3/err.0
+link /share/man/cat3/verrx.0
+target /share/man/cat3/err.0
+link /share/man/cat3/vwarnx.0
+target /share/man/cat3/err.0
+link /share/man/cat3/warn.0
+target /share/man/cat3/err.0
+link /share/man/cat3/warnx.0
+target /share/man/cat3/err.0
+
+file /share/man/cat2/ftruncate.0
+link /share/man/cat2/truncate.0
+target /share/man/cat2/ftruncate.0
+
+file /share/man/cat3/sigaddset.0
+link /share/man/cat3/sigdelset.0
+target /share/man/cat3/sigaddset.0
+link /share/man/cat3/sigemptyset.0
+target /share/man/cat3/sigaddset.0
+link /share/man/cat3/sigfillset.0
+target /share/man/cat3/sigaddset.0
+link /share/man/cat3/sigismember.0
+target /share/man/cat3/sigaddset.0
+link /share/man/cat3/sigsetops.0
+target /share/man/cat3/sigaddset.0
+
+file /share/man/cat2/gettimeofday.0
+link /share/man/cat2/settimeofday.0
+target /share/man/cat2/gettimeofday.0
+
+file /share/man/cat2/brk.0
+link /share/man/cat2/sbrk.0
+target /share/man/cat2/brk.0
+
+file /share/man/cat2/setegid.0
+link /share/man/cat2/seteuid.0
+target /share/man/cat2/setegid.0
+link /share/man/cat2/setgid.0
+target /share/man/cat2/setegid.0
+link /share/man/cat2/setuid.0
+target /share/man/cat2/setegid.0
+
+file /share/man/cat3/endprotoent.0
+link /share/man/cat3/getprotobyname.0
+target /share/man/cat3/endprotoent.0
+link /share/man/cat3/getprotobynumber.0
+target /share/man/cat3/endprotoent.0
+link /share/man/cat3/getprotoent.0
+target /share/man/cat3/endprotoent.0
+link /share/man/cat3/setprotoent.0
+target /share/man/cat3/endprotoent.0
+
+file /share/man/cat3/ns.0
+link /share/man/cat3/ns_addr.0
+target /share/man/cat3/ns.0
+link /share/man/cat3/ns_ntoa.0
+target /share/man/cat3/ns.0
+
+file /share/man/cat3/gamma.0
+link /share/man/cat3/lgamma.0
+target /share/man/cat3/gamma.0
+
+file /share/man/cat3/endnetent.0
+link /share/man/cat3/getnetbyaddr.0
+target /share/man/cat3/endnetent.0
+link /share/man/cat3/getnetbyname.0
+target /share/man/cat3/endnetent.0
+link /share/man/cat3/getnetent.0
+target /share/man/cat3/endnetent.0
+link /share/man/cat3/setnetent.0
+target /share/man/cat3/endnetent.0
+
+file /share/man/cat2/getpriority.0
+link /share/man/cat2/setpriority.0
+target /share/man/cat2/getpriority.0
+
+file /share/man/cat3/ftime.0
+link /share/man/cat3/time.0
+target /share/man/cat3/ftime.0
+
+file /share/man/cat3/endservent.0
+link /share/man/cat3/getservbyname.0
+target /share/man/cat3/endservent.0
+link /share/man/cat3/getservbyport.0
+target /share/man/cat3/endservent.0
+link /share/man/cat3/getservent.0
+target /share/man/cat3/endservent.0
+link /share/man/cat3/setservent.0
+target /share/man/cat3/endservent.0
+
+file /share/man/cat2/getlogin.0
+link /share/man/cat2/setlogin.0
+target /share/man/cat2/getlogin.0
+
+file /share/man/cat3/_longjmp.0
+link /share/man/cat3/longjmp.0
+target /share/man/cat3/_longjmp.0
+link /share/man/cat3/_setjmp.0
+target /share/man/cat3/_longjmp.0
+link /share/man/cat3/setjmp.0
+target /share/man/cat3/_longjmp.0
+
+file /share/man/cat2/chown.0
+link /share/man/cat2/fchown.0
+target /share/man/cat2/chown.0
+
+file /share/man/cat1/indxbib.0
+link /share/man/cat1/lookbib.0
+target /share/man/cat1/indxbib.0
+
+file /share/man/cat6/snake.0
+link /share/man/cat6/snscore.0
+target /share/man/cat6/snake.0
+
+file /share/man/cat3/fdopen.0
+link /share/man/cat3/fopen.0
+target /share/man/cat3/fdopen.0
+link /share/man/cat3/freopen.0
+target /share/man/cat3/fdopen.0
+
+file /share/man/cat2/chflags.0
+link /share/man/cat2/fchflags.0
+target /share/man/cat2/chflags.0
+
+file /share/man/cat3/closedir.0
+link /share/man/cat3/directory.0
+target /share/man/cat3/closedir.0
+link /share/man/cat3/opendir.0
+target /share/man/cat3/closedir.0
+link /share/man/cat3/readdir.0
+target /share/man/cat3/closedir.0
+link /share/man/cat3/rewinddir.0
+target /share/man/cat3/closedir.0
+link /share/man/cat3/seekdir.0
+target /share/man/cat3/closedir.0
+link /share/man/cat3/telldir.0
+target /share/man/cat3/closedir.0
+
+file /share/man/cat6/canfield.0
+link /share/man/cat6/cfscores.0
+target /share/man/cat6/canfield.0
+
+file /share/man/cat3/copysign.0
+link /share/man/cat3/drem.0
+target /share/man/cat3/copysign.0
+link /share/man/cat3/finite.0
+target /share/man/cat3/copysign.0
+link /share/man/cat3/ieee.0
+target /share/man/cat3/copysign.0
+link /share/man/cat3/logb.0
+target /share/man/cat3/copysign.0
+link /share/man/cat3/scalb.0
+target /share/man/cat3/copysign.0
+
+file /share/man/cat2/fstatfs.0
+link /share/man/cat2/statfs.0
+target /share/man/cat2/fstatfs.0
+
+file /share/man/cat1/spell.0
+link /share/man/cat1/spellin.0
+target /share/man/cat1/spell.0
+link /share/man/cat1/spellout.0
+target /share/man/cat1/spell.0
+
+file /share/man/cat2/read.0
+link /share/man/cat2/readv.0
+target /share/man/cat2/read.0
+
+file /share/man/cat2/chmod.0
+link /share/man/cat2/fchdir.0
+target /share/man/cat2/chmod.0
+link /share/man/cat2/fchmod.0
+target /share/man/cat2/chmod.0
+
+file /share/man/cat1/edit.0
+link /share/man/cat1/ex.0
+target /share/man/cat1/edit.0
+
+file /share/man/cat2/send.0
+link /share/man/cat2/sendmsg.0
+target /share/man/cat2/send.0
+link /share/man/cat2/sendto.0
+target /share/man/cat2/send.0
+
+file /share/man/cat3/alloca.0
+link /share/man/cat3/calloc.0
+target /share/man/cat3/alloca.0
+link /share/man/cat3/free.0
+target /share/man/cat3/alloca.0
+link /share/man/cat3/malloc.0
+target /share/man/cat3/alloca.0
+link /share/man/cat3/realloc.0
+target /share/man/cat3/alloca.0
+
+file /share/man/cat3/moncontrol.0
+link /share/man/cat3/monitor.0
+target /share/man/cat3/moncontrol.0
+link /share/man/cat3/monstartup.0
+target /share/man/cat3/moncontrol.0
+
+file /share/man/cat8/fastboot.0
+link /share/man/cat8/halt.0
+target /share/man/cat8/fastboot.0
+link /share/man/cat8/reboot.0
+target /share/man/cat8/fastboot.0
+
+file /share/man/cat3/dbm.0
+link /share/man/cat3/dbminit.0
+target /share/man/cat3/dbm.0
+link /share/man/cat3/delete.0
+target /share/man/cat3/dbm.0
+link /share/man/cat3/fetch.0
+target /share/man/cat3/dbm.0
+link /share/man/cat3/firstkey.0
+target /share/man/cat3/dbm.0
+link /share/man/cat3/nextkey.0
+target /share/man/cat3/dbm.0
+link /share/man/cat3/store.0
+target /share/man/cat3/dbm.0
+
+file /share/man/cat2/getitimer.0
+link /share/man/cat2/setitimer.0
+target /share/man/cat2/getitimer.0
+
+file /share/man/cat3/initstate.0
+link /share/man/cat3/random.0
+target /share/man/cat3/initstate.0
+link /share/man/cat3/setstate.0
+target /share/man/cat3/initstate.0
+link /share/man/cat3/srandom.0
+target /share/man/cat3/initstate.0
+
+file /share/man/cat2/write.0
+link /share/man/cat2/writev.0
+target /share/man/cat2/write.0
+
+file /share/man/cat3/setbuf.0
+link /share/man/cat3/setbuffer.0
+target /share/man/cat3/setbuf.0
+link /share/man/cat3/setlinebuf.0
+target /share/man/cat3/setbuf.0
+link /share/man/cat3/setvbuf.0
+target /share/man/cat3/setbuf.0
+
+file /share/man/cat3/exp.0
+link /share/man/cat3/expm1.0
+target /share/man/cat3/exp.0
+link /share/man/cat3/log.0
+target /share/man/cat3/exp.0
+link /share/man/cat3/log10.0
+target /share/man/cat3/exp.0
+link /share/man/cat3/log1p.0
+target /share/man/cat3/exp.0
+link /share/man/cat3/pow.0
+target /share/man/cat3/exp.0
+
+file /share/man/cat3/acos.0
+link /share/man/cat3/asin.0
+target /share/man/cat3/acos.0
+link /share/man/cat3/atan.0
+target /share/man/cat3/acos.0
+link /share/man/cat3/atan2.0
+target /share/man/cat3/acos.0
+link /share/man/cat3/cos.0
+target /share/man/cat3/acos.0
+link /share/man/cat3/sin.0
+target /share/man/cat3/acos.0
+link /share/man/cat3/tan.0
+target /share/man/cat3/acos.0
+
+file /share/man/cat2/getrlimit.0
+link /share/man/cat2/setrlimit.0
+target /share/man/cat2/getrlimit.0
+
+file /share/man/cat3/termcap.0
+link /share/man/cat3/tgetent.0
+target /share/man/cat3/termcap.0
+link /share/man/cat3/tgetflag.0
+target /share/man/cat3/termcap.0
+link /share/man/cat3/tgetnum.0
+target /share/man/cat3/termcap.0
+link /share/man/cat3/tgetstr.0
+target /share/man/cat3/termcap.0
+link /share/man/cat3/tgoto.0
+target /share/man/cat3/termcap.0
+link /share/man/cat3/tputs.0
+target /share/man/cat3/termcap.0
+
+file /share/man/cat5/dump.0
+link /share/man/cat5/dumpdates.0
+target /share/man/cat5/dump.0
+
+file /share/man/cat1/chfn.0
+link /share/man/cat1/chpass.0
+target /share/man/cat1/chfn.0
+link /share/man/cat1/chsh.0
+target /share/man/cat1/chfn.0
+
+file /share/man/cat2/recv.0
+link /share/man/cat2/recvfrom.0
+target /share/man/cat2/recv.0
+link /share/man/cat2/recvmsg.0
+target /share/man/cat2/recv.0
+
+file /share/man/cat3/rcmd.0
+link /share/man/cat3/rresvport.0
+target /share/man/cat3/rcmd.0
+link /share/man/cat3/ruserok.0
+target /share/man/cat3/rcmd.0
+
+file /share/man/cat5/utmp.0
+link /share/man/cat5/wtmp.0
+target /share/man/cat5/utmp.0
+
+file /share/man/cat1/egrep.0
+link /share/man/cat1/fgrep.0
+target /share/man/cat1/egrep.0
+link /share/man/cat1/grep.0
+target /share/man/cat1/egrep.0
+
+file /share/man/cat3/environ.0
+link /share/man/cat3/execl.0
+target /share/man/cat3/environ.0
+link /share/man/cat3/execle.0
+target /share/man/cat3/environ.0
+link /share/man/cat3/execlp.0
+target /share/man/cat3/environ.0
+link /share/man/cat3/exect.0
+target /share/man/cat3/environ.0
+link /share/man/cat3/execv.0
+target /share/man/cat3/environ.0
+link /share/man/cat3/execve.0
+target /share/man/cat3/environ.0
+link /share/man/cat3/execvp.0
+target /share/man/cat3/environ.0
+
+file /share/man/cat3/endpwent.0
+link /share/man/cat3/getpwent.0
+target /share/man/cat3/endpwent.0
+link /share/man/cat3/getpwnam.0
+target /share/man/cat3/endpwent.0
+link /share/man/cat3/getpwuid.0
+target /share/man/cat3/endpwent.0
+link /share/man/cat3/setpwent.0
+target /share/man/cat3/endpwent.0
+link /share/man/cat3/setpwfile.0
+target /share/man/cat3/endpwent.0
+
+file /share/man/cat3/asctime.0
+link /share/man/cat3/ctime.0
+target /share/man/cat3/asctime.0
+link /share/man/cat3/gmtime.0
+target /share/man/cat3/asctime.0
+link /share/man/cat3/localtime.0
+target /share/man/cat3/asctime.0
+link /share/man/cat3/timezone.0
+target /share/man/cat3/asctime.0
+
+file /share/man/cat2/mount.0
+link /share/man/cat2/umount.0
+target /share/man/cat2/mount.0
+
+file /share/man/cat3/endttyent.0
+link /share/man/cat3/getttyent.0
+target /share/man/cat3/endttyent.0
+link /share/man/cat3/getttynam.0
+target /share/man/cat3/endttyent.0
+link /share/man/cat3/setttyent.0
+target /share/man/cat3/endttyent.0
+
+file /share/man/cat1/compress.0
+link /share/man/cat1/uncompress.0
+target /share/man/cat1/compress.0
+link /share/man/cat1/zcat.0
+target /share/man/cat1/compress.0
+
+file /share/man/cat2/fstat.0
+link /share/man/cat2/lstat.0
+target /share/man/cat2/fstat.0
+link /share/man/cat2/stat.0
+target /share/man/cat2/fstat.0
+
+file /share/man/cat3/endhostent.0
+link /share/man/cat3/gethostbyaddr.0
+target /share/man/cat3/endhostent.0
+link /share/man/cat3/gethostbyname.0
+target /share/man/cat3/endhostent.0
+link /share/man/cat3/gethostent.0
+target /share/man/cat3/endhostent.0
+link /share/man/cat3/sethostent.0
+target /share/man/cat3/endhostent.0
+link /share/man/cat3/sethostfile.0
+target /share/man/cat3/endhostent.0
+
+file /share/man/cat3/fscanf.0
+link /share/man/cat3/scanf.0
+target /share/man/cat3/fscanf.0
+link /share/man/cat3/sscanf.0
+target /share/man/cat3/fscanf.0
+
+file /share/man/cat1/checkeq.0
+link /share/man/cat1/eqn.0
+target /share/man/cat1/checkeq.0
+link /share/man/cat1/neqn.0
+target /share/man/cat1/checkeq.0
+
+file /share/man/cat3/fprintf.0
+link /share/man/cat3/printf.0
+target /share/man/cat3/fprintf.0
+link /share/man/cat3/sprintf.0
+target /share/man/cat3/fprintf.0
+link /share/man/cat3/vfprintf.0
+target /share/man/cat3/fprintf.0
+link /share/man/cat3/vprintf.0
+target /share/man/cat3/fprintf.0
+link /share/man/cat3/vsprintf.0
+target /share/man/cat3/fprintf.0
+
+file /share/man/cat2/getpid.0
+link /share/man/cat2/getppid.0
+target /share/man/cat2/getpid.0
+
+file /share/man/cat4/dvhp.0
+link /share/man/cat4/hp.0
+target /share/man/cat4/dvhp.0
+link /share/man/cat4/rm.0
+target /share/man/cat4/dvhp.0
+link /share/man/cat4/rp.0
+target /share/man/cat4/dvhp.0
+link /share/man/cat4/xp.0
+target /share/man/cat4/dvhp.0
+
+file /share/man/cat3/closelog.0
+link /share/man/cat3/openlog.0
+target /share/man/cat3/closelog.0
+link /share/man/cat3/setlogmask.0
+target /share/man/cat3/closelog.0
+link /share/man/cat3/syslog.0
+target /share/man/cat3/closelog.0
+
+file /share/man/cat1/diff.0
+link /share/man/cat1/diffh.0
+target /share/man/cat1/diff.0
+
+file /share/man/cat8/uucico.0
+link /share/man/cat8/uucpd.0
+target /share/man/cat8/uucico.0
+
+file /share/man/cat2/pselect.0
+link /share/man/cat2/select.0
+target /share/man/cat2/pselect.0
+
+file /share/man/cat2/getsockopt.0
+link /share/man/cat2/setsockopt.0
+target /share/man/cat2/getsockopt.0
+
+file /share/man/cat7/intro.0
+link /share/man/cat7/miscellaneous.0
+target /share/man/cat7/intro.0
+
+file /share/man/cat3/erf.0
+link /share/man/cat3/erfc.0
+target /share/man/cat3/erf.0
+
+file /share/man/cat2/wait.0
+link /share/man/cat2/wait3.0
+target /share/man/cat2/wait.0
+link /share/man/cat2/wait4.0
+target /share/man/cat2/wait.0
+link /share/man/cat2/waitpid.0
+target /share/man/cat2/wait.0
+
+file /share/man/cat3/endgrent.0
+link /share/man/cat3/getgrent.0
+target /share/man/cat3/endgrent.0
+link /share/man/cat3/getgrgid.0
+target /share/man/cat3/endgrent.0
+link /share/man/cat3/getgrnam.0
+target /share/man/cat3/endgrent.0
+link /share/man/cat3/setgrent.0
+target /share/man/cat3/endgrent.0
+
+file /share/man/cat1/more.0
+link /share/man/cat1/page.0
+target /share/man/cat1/more.0

@@ -39,12 +39,8 @@ setup(dev)
         printf("Can't stat %s\n", dev);
         return (0);
     }
-    rawflg = 0;
-    if ((statb.st_mode & S_IFMT) == S_IFBLK)
-        ;
-    else if ((statb.st_mode & S_IFMT) == S_IFCHR)
-        rawflg++;
-    else {
+    if ((statb.st_mode & S_IFMT) != S_IFBLK &&
+        (statb.st_mode & S_IFMT) != S_IFCHR) {
 #ifndef CROSS
         if (reply("file is not a block or character device; OK") == 0)
             return (0);

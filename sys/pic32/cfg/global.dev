@@ -1,35 +1,6 @@
 # Special device for global options
 
 always
-    file devcfg.o
-    define DC0_DEBUG            DEVCFG0_DEBUG_DISABLED
-    define DC0_ICE              0
-
-    define DC1_FNOSC            DEVCFG1_FNOSC_PRIPLL
-    define DC1_SOSC             0
-    define DC1_IESO             DEVCFG1_IESO
-    define DC1_POSCMOD          DEVCFG1_POSCMOD_HS
-    define DC1_OSCIOFNC         0
-    define DC1_PBDIV            DEVCFG1_FPBDIV_1
-    define DC1_CKM              0
-    define DC1_CKS              0
-    define DC1_WDTPS            DEVCFG1_WDTPS_1
-    define DC1_WDTEN            0
-
-    define DC2_PLLIDIV          DEVCFG2_FPLLIDIV_2
-    define DC2_PLLMUL           DEVCFG2_FPLLMUL_20
-    define DC2_UPLLIDIV         DEVCFG2_UPLLIDIV_2
-    define DC2_UPLL             0
-    define DC2_PLLODIV          DEVCFG2_FPLLODIV_1
-
-    define DC3_USERID           0xffff
-    define DC3_SRS              DEVCFG3_FSRSSEL_7
-    define DC3_MII              DEVCFG3_FMIIEN
-    define DC3_ETH              DEVCFG3_FETHIO
-    define DC3_CAN              DEVCFG3_FCANIO
-    define DC3_USBID            DEVCFG3_FUSBIDIO
-    define DC3_VBUSON           DEVCFG3_FVBUSONIO
-
     define BUS_DIV      1
     define CPU_IDIV     2
     define CPU_ODIV     1
@@ -129,10 +100,10 @@ end option
 
 option switchover=on
     define DC1_IESO     DEVCFG1_IESO
-option 
+option
 option switchover=off
     define DC1_IESO     0
-option 
+option
 
 option osc=ext
     define DC1_POSCMOD  DEVCFG1_POSCMOD_EXT
@@ -453,4 +424,3 @@ end option
 option vbuson=io
     define DC3_VBUSON       0
 end option
-

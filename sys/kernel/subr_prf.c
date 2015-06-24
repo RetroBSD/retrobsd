@@ -14,16 +14,16 @@
 #include "systm.h"
 #include "syslog.h"
 
-#define TOCONS	0x1
-#define TOTTY	0x2
-#define TOLOG	0x4
+#define TOCONS  0x1
+#define TOTTY   0x2
+#define TOLOG   0x4
 
 /*
  * In case console is off,
  * panicstr contains argument to last
  * call to panic.
  */
-char	*panicstr;
+char    *panicstr;
 
 /*
  * Print a character on console or users terminal.
@@ -32,38 +32,38 @@ char	*panicstr;
  */
 static void
 putchar (c, flags, tp)
-	int c, flags;
-	register struct tty *tp;
+    int c, flags;
+    register struct tty *tp;
 {
-	if (flags & TOTTY) {
-		register int s = spltty();
+    if (flags & TOTTY) {
+        register int s = spltty();
 
-		if (tp && (tp->t_state & (TS_CARR_ON | TS_ISOPEN)) ==
-			(TS_CARR_ON | TS_ISOPEN)) {
-			if (c == '\n')
-				(void) ttyoutput('\r', tp);
-			(void) ttyoutput(c, tp);
-			ttstart(tp);
-		}
-		splx(s);
-	}
+        if (tp && (tp->t_state & (TS_CARR_ON | TS_ISOPEN)) ==
+            (TS_CARR_ON | TS_ISOPEN)) {
+            if (c == '\n')
+                (void) ttyoutput('\r', tp);
+            (void) ttyoutput(c, tp);
+            ttstart(tp);
+        }
+        splx(s);
+    }
 #ifdef LOG_ENABLED
-	if ((flags & TOLOG) && c != '\0' && c != '\r' && c != 0177) {
-		char sym = c;
-		logwrt (&sym, 1, logMSG);
-	}
+    if ((flags & TOLOG) && c != '\0' && c != '\r' && c != 0177) {
+        char sym = c;
+        logwrt (&sym, 1, logMSG);
+    }
 #endif
-	if ((flags & TOCONS) && c != '\0')
-		cnputc(c);
+    if ((flags & TOCONS) && c != '\0')
+        cnputc(c);
 }
 
 static unsigned
 mkhex (unsigned ch)
 {
-	ch &= 15;
-	if (ch > 9)
-		return ch + 'a' - 10;
-	return ch + '0';
+    ch &= 15;
+    if (ch > 9)
+        return ch + 'a' - 10;
+    return ch + '0';
 }
 
 /*
@@ -75,27 +75,27 @@ mkhex (unsigned ch)
 static char *
 ksprintn (char *nbuf, unsigned long ul, int base, int width, int *lenp)
 {
-	char *p;
+    char *p;
 
-	p = nbuf;
-	*p = 0;
-	for (;;) {
-		*++p = mkhex (ul % base);
-		ul /= base;
-		if (--width > 0)
-			continue;
-		if (! ul)
-			break;
-	}
-	if (lenp)
-		*lenp = p - nbuf;
-	return (p);
+    p = nbuf;
+    *p = 0;
+    for (;;) {
+        *++p = mkhex (ul % base);
+        ul /= base;
+        if (--width > 0)
+            continue;
+        if (! ul)
+            break;
+    }
+    if (lenp)
+        *lenp = p - nbuf;
+    return (p);
 }
 
 void puts(char *s, int flags, struct tty *ttyp)
 {
     while(*s)
-        putchar(*(s++), flags, ttyp);
+    putchar(*(s++), flags, ttyp);
 }
 
 /*
@@ -107,7 +107,7 @@ void puts(char *s, int flags, struct tty *ttyp)
  * The format %b is supported to decode error registers.
  * Its usage is:
  *
- *	printf("reg=%b\n", regval, "<base><arg>*");
+ *  printf("reg=%b\n", regval, "<base><arg>*");
  *
  * where <base> is the output base expressed as a control character, e.g.
  * \10 gives octal; \20 gives hex.  Each arg is a sequence of characters,
@@ -115,17 +115,17 @@ void puts(char *s, int flags, struct tty *ttyp)
  * the next characters (up to a control character, i.e. a character <= 32),
  * give the name of the register.  Thus:
  *
- *	kvprintf("reg=%b\n", 3, "\10\2BITTWO\1BITONE\n");
+ *  kvprintf("reg=%b\n", 3, "\10\2BITTWO\1BITONE\n");
  *
  * would produce output:
  *
- *	reg=3<BITTWO,BITONE>
+ *  reg=3<BITTWO,BITONE>
  *
  * The format %D -- Hexdump, takes a pointer. Sharp flag - use `:' as
  * a separator, instead of a space. For example:
  *
- *	("%6D", ptr)       -> XX XX XX XX XX XX
- *	("%#*D", len, ptr) -> XX:XX:XX:XX ...
+ *  ("%6D", ptr)       -> XX XX XX XX XX XX
+ *  ("%#*D", len, ptr) -> XX:XX:XX:XX ...
  */
 
 #define PUTC(C) putchar(C,flags,ttyp)
@@ -134,296 +134,307 @@ void puts(char *s, int flags, struct tty *ttyp)
 #define HIOFF "\e[0m"
 static void
 prf (fmt, ap, flags, ttyp)
-	register char *fmt;
-	register u_int *ap;
-	int flags;
-	struct tty *ttyp;
+    register char *fmt;
+    register u_int *ap;
+    int flags;
+    struct tty *ttyp;
 {
-#define va_arg(ap,type)	*(type*) (void*) (ap++)
+#define va_arg(ap,type) *(type*) (void*) (ap++)
 
-	char *q, nbuf [sizeof(long) * 8 + 1];
-	const char *s;
-	int c, padding, base, lflag, ladjust, sharpflag, neg, dot, size;
-	int n, width, dwidth, uppercase, extrazeros, sign;
-	unsigned long ul;
+    char *q, nbuf [sizeof(long) * 8 + 1];
+    const char *s;
+    int c, padding, base, lflag, ladjust, sharpflag, neg, dot, size;
+    int n, width, dwidth, uppercase, extrazeros, sign;
+    unsigned long ul;
 
 #ifdef KERNEL_HIGHLIGHT
-    puts(HION,flags,ttyp);
+    puts(HION, flags, ttyp);
 #endif
 
-	if (! fmt)
-		fmt = "(null)\n";
+    if (! fmt)
+        fmt = "(null)\n";
 
-	for (;;) {
-		while ((c = *fmt++) != '%') {
-			if (! c) {
+    for (;;) {
+        while ((c = *fmt++) != '%') {
+            if (! c) {
 #ifdef KERNEL_HIGHLIGHT
-                puts(HIOFF,flags,ttyp);
+                puts(HIOFF, flags, ttyp);
 #endif
-				return;
+                return;
             }
-			PUTC (c);
-		}
-		padding = ' ';
-		width = 0; extrazeros = 0;
-		lflag = 0; ladjust = 0; sharpflag = 0; neg = 0;
-		sign = 0; dot = 0; uppercase = 0; dwidth = -1;
-reswitch:	c = *fmt++;
-		switch (c) {
-		case '.':
-			dot = 1;
-			padding = ' ';
-			dwidth = 0;
-			goto reswitch;
+            PUTC (c);
+        }
+        padding = ' ';
+        width = 0; extrazeros = 0;
+        lflag = 0; ladjust = 0; sharpflag = 0; neg = 0;
+        sign = 0; dot = 0; uppercase = 0; dwidth = -1;
+reswitch:
+        c = *fmt++;
+        switch (c) {
+        case '.':
+            dot = 1;
+            padding = ' ';
+            dwidth = 0;
+            goto reswitch;
 
-		case '#':
-			sharpflag = 1;
-			goto reswitch;
+        case '#':
+            sharpflag = 1;
+            goto reswitch;
 
-		case '+':
-			sign = -1;
-			goto reswitch;
+        case '+':
+            sign = -1;
+            goto reswitch;
 
-		case '-':
-			ladjust = 1;
-			goto reswitch;
+        case '-':
+            ladjust = 1;
+            goto reswitch;
 
-		case '%':
-			PUTC (c);
-			break;
+        case '%':
+            PUTC (c);
+            break;
 
-		case '*':
-			if (! dot) {
-				width = va_arg (ap, int);
-				if (width < 0) {
-					ladjust = !ladjust;
-					width = -width;
-				}
-			} else {
-				dwidth = va_arg (ap, int);
-			}
-			goto reswitch;
+        case '*':
+            if (! dot) {
+                width = va_arg (ap, int);
+                if (width < 0) {
+                    ladjust = !ladjust;
+                    width = -width;
+                }
+            } else {
+                dwidth = va_arg (ap, int);
+            }
+            goto reswitch;
 
-		case '0':
-			if (! dot) {
-				padding = '0';
-				goto reswitch;
-			}
-		case '1': case '2': case '3': case '4':
-		case '5': case '6': case '7': case '8': case '9':
-			for (n=0; ; ++fmt) {
-				n = n * 10 + c - '0';
-				c = *fmt;
-				if (c < '0' || c > '9')
-					break;
-			}
-			if (dot)
-				dwidth = n;
-			else
-				width = n;
-			goto reswitch;
+        case '0':
+            if (! dot) {
+                padding = '0';
+                goto reswitch;
+            }
+        case '1': case '2': case '3': case '4':
+        case '5': case '6': case '7': case '8': case '9':
+            for (n=0; ; ++fmt) {
+                n = n * 10 + c - '0';
+                c = *fmt;
+                if (c < '0' || c > '9')
+                    break;
+            }
+            if (dot)
+                dwidth = n;
+            else
+                width = n;
+            goto reswitch;
 
-		case 'b':
-			ul = va_arg (ap, int);
-			s = va_arg (ap, const char*);
-			q = ksprintn (nbuf, ul, *s++, -1, 0);
-			while (*q)
-				PUTC (*q--);
+        case 'b':
+            ul = va_arg (ap, int);
+            s = va_arg (ap, const char*);
+            q = ksprintn (nbuf, ul, *s++, -1, 0);
+            while (*q)
+                PUTC (*q--);
 
-			if (! ul)
-				break;
-			size = 0;
-			while (*s) {
-				n = *s++;
-				if ((char) (ul >> (n-1)) & 1) {
-					PUTC (size ? ',' : '<');
-					for (; (n = *s) > ' '; ++s)
-						PUTC (n);
-					size = 1;
-				} else
-					while (*s > ' ')
-						++s;
-			}
-			if (size)
-				PUTC ('>');
-			break;
+            if (! ul)
+                break;
+            size = 0;
+            while (*s) {
+                n = *s++;
+                if ((char) (ul >> (n-1)) & 1) {
+                    PUTC (size ? ',' : '<');
+                    for (; (n = *s) > ' '; ++s)
+                        PUTC (n);
+                    size = 1;
+                } else {
+                    while (*s > ' ')
+                        ++s;
+                }
+            }
+            if (size)
+                PUTC ('>');
+            break;
 
-		case 'c':
-			if (! ladjust && width > 0)
-				while (width--)
-					PUTC (' ');
+        case 'c':
+            if (! ladjust && width > 0) {
+                while (width--)
+                    PUTC (' ');
+            }
 
-			PUTC (va_arg (ap, int));
+            PUTC (va_arg (ap, int));
 
-			if (ladjust && width > 0)
-				while (width--)
-					PUTC (' ');
-			break;
+            if (ladjust && width > 0) {
+                while (width--)
+                    PUTC (' ');
+            }
+            break;
 
-		case 'D':
-			s = va_arg (ap, const char*);
-			if (! width)
-				width = 16;
-			if (sharpflag)
-				padding = ':';
-			while (width--) {
-				c = *s++;
-				PUTC (mkhex (c >> 4));
-				PUTC (mkhex (c));
-				if (width)
-					PUTC (padding);
-			}
-			break;
+        case 'D':
+            s = va_arg (ap, const char*);
+            if (! width)
+                width = 16;
+            if (sharpflag)
+                padding = ':';
+            while (width--) {
+                c = *s++;
+                PUTC (mkhex (c >> 4));
+                PUTC (mkhex (c));
+                if (width)
+                    PUTC (padding);
+            }
+            break;
 
-		case 'd':
-			ul = lflag ? va_arg (ap, long) : va_arg (ap, int);
-			if (! sign) sign = 1;
-			base = 10;
-			goto number;
+        case 'd':
+            ul = lflag ? va_arg (ap, long) : va_arg (ap, int);
+            if (! sign) sign = 1;
+            base = 10;
+            goto number;
 
-		case 'l':
-			lflag = 1;
-			goto reswitch;
+        case 'l':
+            lflag = 1;
+            goto reswitch;
 
-		case 'o':
-			ul = lflag ? va_arg (ap, unsigned long) :
-				va_arg (ap, unsigned int);
-			base = 8;
-			goto nosign;
+        case 'o':
+            ul = lflag ? va_arg (ap, unsigned long) :
+                va_arg (ap, unsigned int);
+            base = 8;
+            goto nosign;
 
-		case 'p':
-			ul = (size_t) va_arg (ap, void*);
-			if (! ul) {
-				s = "(nil)";
-				goto const_string;
-			}
-			base = 16;
-			sharpflag = (width == 0);
-			goto nosign;
+        case 'p':
+            ul = (size_t) va_arg (ap, void*);
+            if (! ul) {
+                s = "(nil)";
+                goto const_string;
+            }
+            base = 16;
+            sharpflag = (width == 0);
+            goto nosign;
 
-		case 'n':
-			ul = lflag ? va_arg (ap, unsigned long) :
-				sign ? (unsigned long) va_arg (ap, int) :
-				va_arg (ap, unsigned int);
-			base = 10;
-			goto number;
+        case 'n':
+            ul = lflag ? va_arg (ap, unsigned long) :
+                sign ? (unsigned long) va_arg (ap, int) :
+                va_arg (ap, unsigned int);
+            base = 10;
+            goto number;
 
-		case 's':
-			s = va_arg (ap, char*);
-			if (! s)
-				s = (const char*) "(null)";
+        case 's':
+            s = va_arg (ap, char*);
+            if (! s)
+                s = (const char*) "(null)";
 const_string:
-			if (! dot)
-				n = strlen (s);
-			else
-				for (n=0; n<dwidth && s[n]; n++)
-					continue;
+            if (! dot)
+                n = strlen (s);
+            else
+                for (n=0; n<dwidth && s[n]; n++)
+                    continue;
 
-			width -= n;
+            width -= n;
 
-			if (! ladjust && width > 0)
-				while (width--)
-					PUTC (' ');
-			while (n--)
-				PUTC (*s++);
-			if (ladjust && width > 0)
-				while (width--)
-					PUTC (' ');
-			break;
+            if (! ladjust && width > 0) {
+                while (width--)
+                    PUTC (' ');
+            }
+            while (n--)
+                PUTC (*s++);
+            if (ladjust && width > 0) {
+                while (width--)
+                    PUTC (' ');
+            }
+            break;
 
-		case 'u':
-			ul = lflag ? va_arg (ap, unsigned long) :
-				va_arg (ap, unsigned int);
-			base = 10;
-			goto nosign;
+        case 'u':
+            ul = lflag ? va_arg (ap, unsigned long) :
+                va_arg (ap, unsigned int);
+            base = 10;
+            goto nosign;
 
-		case 'x':
-		case 'X':
-			ul = lflag ? va_arg (ap, unsigned long) :
-				va_arg (ap, unsigned int);
-			base = 16;
-			uppercase = (c == 'X');
-			goto nosign;
-		case 'z':
-		case 'Z':
-			ul = lflag ? va_arg (ap, unsigned long) :
-				sign ? (unsigned long) va_arg (ap, int) :
-				va_arg (ap, unsigned int);
-			base = 16;
-			uppercase = (c == 'Z');
-			goto number;
+        case 'x':
+        case 'X':
+            ul = lflag ? va_arg (ap, unsigned long) :
+                va_arg (ap, unsigned int);
+            base = 16;
+            uppercase = (c == 'X');
+            goto nosign;
+        case 'z':
+        case 'Z':
+            ul = lflag ? va_arg (ap, unsigned long) :
+                sign ? (unsigned long) va_arg (ap, int) :
+                va_arg (ap, unsigned int);
+            base = 16;
+            uppercase = (c == 'Z');
+            goto number;
+nosign:
+            sign = 0;
+number:
+            if (sign && ((long) ul != 0L)) {
+                if ((long) ul < 0L) {
+                    neg = '-';
+                    ul = -(long) ul;
+                } else if (sign < 0)
+                    neg = '+';
+            }
+            if (dwidth >= (int) sizeof(nbuf)) {
+                extrazeros = dwidth - sizeof(nbuf) + 1;
+                dwidth = sizeof(nbuf) - 1;
+            }
+            s = ksprintn (nbuf, ul, base, dwidth, &size);
+            if (sharpflag && ul != 0) {
+                if (base == 8)
+                    size++;
+                else if (base == 16)
+                    size += 2;
+            }
+            if (neg)
+                size++;
 
-nosign:			sign = 0;
-number:			if (sign && ((long) ul != 0L)) {
-				if ((long) ul < 0L) {
-					neg = '-';
-					ul = -(long) ul;
-				} else if (sign < 0)
-					neg = '+';
-			}
-			if (dwidth >= (int) sizeof(nbuf)) {
-				extrazeros = dwidth - sizeof(nbuf) + 1;
-				dwidth = sizeof(nbuf) - 1;
-			}
-			s = ksprintn (nbuf, ul, base, dwidth, &size);
-			if (sharpflag && ul != 0) {
-				if (base == 8)
-					size++;
-				else if (base == 16)
-					size += 2;
-			}
-			if (neg)
-				size++;
+            if (! ladjust && width && padding == ' ' &&
+                (width -= size) > 0) {
+                do {
+                    PUTC (' ');
+                } while (--width > 0);
+            }
 
-			if (! ladjust && width && padding == ' ' &&
-			    (width -= size) > 0)
-				do {
-					PUTC (' ');
-				} while (--width > 0);
+            if (neg)
+                PUTC (neg);
 
-			if (neg)
-				PUTC (neg);
+            if (sharpflag && ul != 0) {
+                if (base == 8) {
+                    PUTC ('0');
+                } else if (base == 16) {
+                    PUTC ('0');
+                    PUTC (uppercase ? 'X' : 'x');
+                }
+            }
 
-			if (sharpflag && ul != 0) {
-				if (base == 8) {
-					PUTC ('0');
-				} else if (base == 16) {
-					PUTC ('0');
-					PUTC (uppercase ? 'X' : 'x');
-				}
-			}
+            if (extrazeros) {
+                do {
+                    PUTC ('0');
+                } while (--extrazeros > 0);
+            }
 
-			if (extrazeros)
-				do {
-					PUTC ('0');
-				} while (--extrazeros > 0);
+            if (! ladjust && width && (width -= size) > 0) {
+                do {
+                    PUTC (padding);
+                } while (--width > 0);
+            }
 
-			if (! ladjust && width && (width -= size) > 0)
-				do {
-					PUTC (padding);
-				} while (--width > 0);
+            for (; *s; --s) {
+                if (uppercase && *s>='a' && *s<='z') {
+                    PUTC (*s + 'A' - 'a');
+                } else {
+                    PUTC (*s);
+                }
+            }
 
-			for (; *s; --s) {
-				if (uppercase && *s>='a' && *s<='z') {
-					PUTC (*s + 'A' - 'a');
-				} else {
-					PUTC (*s);
-				}
-			}
-
-			if (ladjust && width && (width -= size) > 0)
-				do {
-					PUTC (' ');
-				} while (--width > 0);
-			break;
-		default:
-			PUTC ('%');
-			if (lflag)
-				PUTC ('l');
-			PUTC (c);
-			break;
-		}
-	}
+            if (ladjust && width && (width -= size) > 0) {
+                do {
+                    PUTC (' ');
+                } while (--width > 0);
+            }
+            break;
+        default:
+            PUTC ('%');
+            if (lflag)
+                PUTC ('l');
+            PUTC (c);
+            break;
+        }
+    }
 #ifdef KERNEL_HIGHLIGHT
     puts(HIOFF,flags,ttyp);
 #endif
@@ -431,11 +442,11 @@ number:			if (sign && ((long) ul != 0L)) {
 
 static void
 logpri (level)
-	int level;
+    int level;
 {
-	putchar ('<', TOLOG, (struct tty*) 0);
-	prf ("%u", &level, TOLOG, (struct tty*) 0);
-	putchar ('>', TOLOG, (struct tty*) 0);
+    putchar ('<', TOLOG, (struct tty*) 0);
+    prf ("%u", &level, TOLOG, (struct tty*) 0);
+    putchar ('>', TOLOG, (struct tty*) 0);
 }
 
 /*
@@ -446,20 +457,20 @@ logpri (level)
  *
  * One additional format: %b is supported to decode error registers.
  * Usage is:
- *	printf("reg=%b\n", regval, "<base><arg>*");
+ *  printf("reg=%b\n", regval, "<base><arg>*");
  * Where <base> is the output base expressed as a control character,
  * e.g. \10 gives octal; \20 gives hex.  Each arg is a sequence of
  * characters, the first of which gives the bit number to be inspected
  * (origin 1), and the next characters (up to a control character, i.e.
  * a character <= 32), give the name of the register.  Thus
- *	printf("reg=%b\n", 3, "\10\2BITTWO\1BITONE\n");
+ *  printf("reg=%b\n", 3, "\10\2BITTWO\1BITONE\n");
  * would produce output:
- *	reg=3<BITTWO,BITONE>
+ *  reg=3<BITTWO,BITONE>
  */
 void
 printf(char *fmt, ...)
 {
-	prf(fmt, &fmt + 1, TOCONS | TOLOG, (struct tty *)0);
+    prf(fmt, &fmt + 1, TOCONS | TOLOG, (struct tty *)0);
 }
 
 /*
@@ -488,14 +499,14 @@ void _printf_cdnopsuxX(char *fmt, ...)
 void
 uprintf (char *fmt, ...)
 {
-	register struct tty *tp;
+    register struct tty *tp;
 
-	tp = u.u_ttyp;
-	if (tp == NULL)
-		return;
+    tp = u.u_ttyp;
+    if (tp == NULL)
+        return;
 
-	if (ttycheckoutq (tp, 1))
-		prf (fmt, &fmt+1, TOTTY, tp);
+    if (ttycheckoutq (tp, 1))
+        prf (fmt, &fmt+1, TOTTY, tp);
 }
 
 /*
@@ -507,16 +518,16 @@ uprintf (char *fmt, ...)
 void
 tprintf (register struct tty *tp, char *fmt, ...)
 {
-	int flags = TOTTY | TOLOG;
+    int flags = TOTTY | TOLOG;
 
-	logpri (LOG_INFO);
-	if (tp == (struct tty*) NULL)
-		tp = &cnttys[0];
-	if (ttycheckoutq (tp, 0) == 0)
-		flags = TOLOG;
-	prf (fmt, &fmt + 1, flags, tp);
+    logpri (LOG_INFO);
+    if (tp == (struct tty*) NULL)
+        tp = &cnttys[0];
+    if (ttycheckoutq (tp, 0) == 0)
+        flags = TOLOG;
+    prf (fmt, &fmt + 1, flags, tp);
 #ifdef LOG_ENABLED
-	logwakeup (logMSG);
+    logwakeup (logMSG);
 #endif
 }
 
@@ -529,17 +540,17 @@ tprintf (register struct tty *tp, char *fmt, ...)
 void
 log (int level, char *fmt, ...)
 {
-	register int s = splhigh();
+    register int s = splhigh();
 
-	logpri(level);
-	prf(fmt, &fmt + 1, TOLOG, (struct tty *)0);
-	splx(s);
+    logpri(level);
+    prf(fmt, &fmt + 1, TOLOG, (struct tty *)0);
+    splx(s);
 #ifdef LOG_ENABLED
-	if (! logisopen(logMSG))
+    if (! logisopen(logMSG))
 #endif
-		prf(fmt, &fmt + 1, TOCONS, (struct tty *)0);
+        prf(fmt, &fmt + 1, TOCONS, (struct tty *)0);
 #ifdef LOG_ENABLED
-	logwakeup(logMSG);
+    logwakeup(logMSG);
 #endif
 }
 
@@ -551,15 +562,15 @@ log (int level, char *fmt, ...)
  */
 void
 panic(s)
-	char *s;
+    char *s;
 {
-	int bootopt = RB_HALT | RB_DUMP;
+    int bootopt = RB_HALT | RB_DUMP;
 
-	if (panicstr) {
-		bootopt |= RB_NOSYNC;
-	} else {
-		panicstr = s;
-	}
-	printf ("panic: %s\n", s);
-	boot (rootdev, bootopt);
+    if (panicstr) {
+        bootopt |= RB_NOSYNC;
+    } else {
+        panicstr = s;
+    }
+    printf ("panic: %s\n", s);
+    boot (rootdev, bootopt);
 }

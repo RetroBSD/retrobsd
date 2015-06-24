@@ -13,12 +13,12 @@
  */
 int
 inferior(p)
-	register struct proc *p;
+    register struct proc *p;
 {
-	for (; p != u.u_procp; p = p->p_pptr)
-		if (p->p_ppid == 0)
-			return (0);
-	return (1);
+    for (; p != u.u_procp; p = p->p_pptr)
+        if (p->p_ppid == 0)
+            return (0);
+    return (1);
 }
 
 /*
@@ -26,14 +26,14 @@ inferior(p)
  */
 struct proc *
 pfind (pid)
-	register int pid;
+    register int pid;
 {
-	register struct proc *p = pidhash [PIDHASH(pid)];
+    register struct proc *p = pidhash [PIDHASH(pid)];
 
-	for (; p; p = p->p_hash)
-		if (p->p_pid == pid)
-			return (p);
-	return ((struct proc *)0);
+    for (; p; p = p->p_hash)
+        if (p->p_pid == pid)
+            return (p);
+    return ((struct proc *)0);
 }
 
 /*
@@ -42,24 +42,24 @@ pfind (pid)
 void
 pqinit()
 {
-	register struct proc *p;
+    register struct proc *p;
 
-	/*
-	 * most procs are initially on freequeue
-	 *	nb: we place them there in their "natural" order.
-	 */
+    /*
+     * most procs are initially on freequeue
+     *  nb: we place them there in their "natural" order.
+     */
 
-	freeproc = NULL;
-	for (p = proc+NPROC; --p > proc; freeproc = p)
-		p->p_nxt = freeproc;
+    freeproc = NULL;
+    for (p = proc+NPROC; --p > proc; freeproc = p)
+        p->p_nxt = freeproc;
 
-	/*
-	 * but proc[0] is special ...
-	 */
+    /*
+     * but proc[0] is special ...
+     */
 
-	allproc = p;
-	p->p_nxt = NULL;
-	p->p_prev = &allproc;
+    allproc = p;
+    p->p_nxt = NULL;
+    p->p_prev = &allproc;
 
-	zombproc = NULL;
+    zombproc = NULL;
 }

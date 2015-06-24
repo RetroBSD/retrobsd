@@ -18,12 +18,10 @@ void power_off()
 
 void power_switch_check()
 {
-    if(PORT_VAL(POWER_SWITCH_PORT) & (1<<POWER_SWITCH_PIN))
-    {
-        countdown=COUNTDOWN;
-        psCounter=0;
-        if(psCounter>0)
-        {
+    if (PORT_VAL(POWER_SWITCH_PORT) & (1<<POWER_SWITCH_PIN)) {
+        countdown = COUNTDOWN;
+        psCounter = 0;
+        if (psCounter > 0) {
             LAT_SET(POWER_LED_PORT) = 1<<POWER_LED_PIN;
             printf("power: switch released - power down aborted\n");
         }
@@ -31,10 +29,8 @@ void power_switch_check()
         psCounter++;
     }
 
-    if(psCounter==20)
-    {
-        if(countdown==0)
-        {
+    if (psCounter == 20) {
+        if (countdown == 0) {
             printf("power: powering off\n");
             boot(0,RB_HALT | RB_POWEROFF);
         }
@@ -44,8 +40,7 @@ void power_switch_check()
         countdown--;
 
 #ifdef POWER_LED_PORT
-        if((countdown%2)==0)
-        {
+        if (countdown%2 == 0) {
             LAT_SET(POWER_LED_PORT) = 1<<POWER_LED_PIN;
         } else {
             LAT_CLR(POWER_LED_PORT) = 1<<POWER_LED_PIN;

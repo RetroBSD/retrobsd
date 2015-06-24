@@ -29,15 +29,15 @@
 //
 // Section: USB Descriptors
 //
-#define USB_DESCRIPTOR_DEVICE		0x01	// bDescriptorType for a Device Descriptor.
-#define USB_DESCRIPTOR_CONFIGURATION	0x02	// bDescriptorType for a Configuration Descriptor.
-#define USB_DESCRIPTOR_STRING		0x03	// bDescriptorType for a String Descriptor.
-#define USB_DESCRIPTOR_INTERFACE	0x04	// bDescriptorType for an Interface Descriptor.
-#define USB_DESCRIPTOR_ENDPOINT		0x05	// bDescriptorType for an Endpoint Descriptor.
-#define USB_DESCRIPTOR_DEVICE_QUALIFIER	0x06	// bDescriptorType for a Device Qualifier.
-#define USB_DESCRIPTOR_OTHER_SPEED	0x07	// bDescriptorType for a Other Speed Configuration.
-#define USB_DESCRIPTOR_INTERFACE_POWER	0x08	// bDescriptorType for Interface Power.
-#define USB_DESCRIPTOR_OTG		0x09	// bDescriptorType for an OTG Descriptor.
+#define USB_DESCRIPTOR_DEVICE           0x01    // bDescriptorType for a Device Descriptor.
+#define USB_DESCRIPTOR_CONFIGURATION    0x02    // bDescriptorType for a Configuration Descriptor.
+#define USB_DESCRIPTOR_STRING           0x03    // bDescriptorType for a String Descriptor.
+#define USB_DESCRIPTOR_INTERFACE        0x04    // bDescriptorType for an Interface Descriptor.
+#define USB_DESCRIPTOR_ENDPOINT         0x05    // bDescriptorType for an Endpoint Descriptor.
+#define USB_DESCRIPTOR_DEVICE_QUALIFIER 0x06    // bDescriptorType for a Device Qualifier.
+#define USB_DESCRIPTOR_OTHER_SPEED      0x07    // bDescriptorType for a Other Speed Configuration.
+#define USB_DESCRIPTOR_INTERFACE_POWER  0x08    // bDescriptorType for Interface Power.
+#define USB_DESCRIPTOR_OTG              0x09    // bDescriptorType for an OTG Descriptor.
 
 /*
  * USB Device Descriptor Structure
@@ -48,20 +48,20 @@
  */
 typedef struct __attribute__ ((packed)) _USB_DEVICE_DESCRIPTOR
 {
-	unsigned char bLength;			// Length of this descriptor.
-	unsigned char bDescriptorType;		// DEVICE descriptor type (USB_DESCRIPTOR_DEVICE).
-	unsigned short bcdUSB;			// USB Spec Release Number (BCD).
-	unsigned char bDeviceClass;		// Class code (assigned by the USB-IF). 0xFF-Vendor specific.
-	unsigned char bDeviceSubClass;		// Subclass code (assigned by the USB-IF).
-	unsigned char bDeviceProtocol;		// Protocol code (assigned by the USB-IF). 0xFF-Vendor specific.
-	unsigned char bMaxPacketSize0;		// Maximum packet size for endpoint 0.
-	unsigned short idVendor;		// Vendor ID (assigned by the USB-IF).
-	unsigned short idProduct;		// Product ID (assigned by the manufacturer).
-	unsigned short bcdDevice;		// Device release number (BCD).
-	unsigned char iManufacturer;		// Index of String Descriptor describing the manufacturer.
-	unsigned char iProduct;			// Index of String Descriptor describing the product.
-	unsigned char iSerialNumber;		// Index of String Descriptor with the device's serial number.
-	unsigned char bNumConfigurations;	// Number of possible configurations.
+    unsigned char bLength;              // Length of this descriptor.
+    unsigned char bDescriptorType;      // DEVICE descriptor type (USB_DESCRIPTOR_DEVICE).
+    unsigned short bcdUSB;              // USB Spec Release Number (BCD).
+    unsigned char bDeviceClass;         // Class code (assigned by the USB-IF). 0xFF-Vendor specific.
+    unsigned char bDeviceSubClass;      // Subclass code (assigned by the USB-IF).
+    unsigned char bDeviceProtocol;      // Protocol code (assigned by the USB-IF). 0xFF-Vendor specific.
+    unsigned char bMaxPacketSize0;      // Maximum packet size for endpoint 0.
+    unsigned short idVendor;            // Vendor ID (assigned by the USB-IF).
+    unsigned short idProduct;           // Product ID (assigned by the manufacturer).
+    unsigned short bcdDevice;           // Device release number (BCD).
+    unsigned char iManufacturer;        // Index of String Descriptor describing the manufacturer.
+    unsigned char iProduct;             // Index of String Descriptor describing the product.
+    unsigned char iSerialNumber;        // Index of String Descriptor with the device's serial number.
+    unsigned char bNumConfigurations;   // Number of possible configurations.
 } USB_DEVICE_DESCRIPTOR;
 
 
@@ -74,20 +74,20 @@ typedef struct __attribute__ ((packed)) _USB_DEVICE_DESCRIPTOR
  */
 typedef struct __attribute__ ((packed)) _USB_CONFIGURATION_DESCRIPTOR
 {
-	unsigned char bLength;			// Length of this descriptor.
-	unsigned char bDescriptorType;		// CONFIGURATION descriptor type (USB_DESCRIPTOR_CONFIGURATION).
-	unsigned short wTotalLength;		// Total length of all descriptors for this configuration.
-	unsigned char bNumInterfaces;		// Number of interfaces in this configuration.
-	unsigned char bConfigurationValue;	// Value of this configuration (1 based).
-	unsigned char iConfiguration;		// Index of String Descriptor describing the configuration.
-	unsigned char bmAttributes;		// Configuration characteristics.
-	unsigned char bMaxPower;		// Maximum power consumed by this configuration.
+    unsigned char bLength;              // Length of this descriptor.
+    unsigned char bDescriptorType;      // CONFIGURATION descriptor type (USB_DESCRIPTOR_CONFIGURATION).
+    unsigned short wTotalLength;        // Total length of all descriptors for this configuration.
+    unsigned char bNumInterfaces;       // Number of interfaces in this configuration.
+    unsigned char bConfigurationValue;  // Value of this configuration (1 based).
+    unsigned char iConfiguration;       // Index of String Descriptor describing the configuration.
+    unsigned char bmAttributes;         // Configuration characteristics.
+    unsigned char bMaxPower;            // Maximum power consumed by this configuration.
 } USB_CONFIGURATION_DESCRIPTOR;
 
 // Attributes bits
-#define USB_CFG_DSC_REQUIRED	0x80				// Required attribute
-#define USB_CFG_DSC_SELF_PWR	(0x40 | USB_CFG_DSC_REQUIRED)	// Device is self powered.
-#define USB_CFG_DSC_REM_WAKE	(0x20 | USB_CFG_DSC_REQUIRED)	// Device can request remote wakup
+#define USB_CFG_DSC_REQUIRED    0x80                            // Required attribute
+#define USB_CFG_DSC_SELF_PWR    (0x40 | USB_CFG_DSC_REQUIRED)   // Device is self powered.
+#define USB_CFG_DSC_REM_WAKE    (0x20 | USB_CFG_DSC_REQUIRED)   // Device can request remote wakup
 
 
 /*
@@ -99,15 +99,15 @@ typedef struct __attribute__ ((packed)) _USB_CONFIGURATION_DESCRIPTOR
  */
 typedef struct __attribute__ ((packed)) _USB_INTERFACE_DESCRIPTOR
 {
-	unsigned char bLength;			// Length of this descriptor.
-	unsigned char bDescriptorType;		// INTERFACE descriptor type (USB_DESCRIPTOR_INTERFACE).
-	unsigned char bInterfaceNumber;		// Number of this interface (0 based).
-	unsigned char bAlternateSetting;	// Value of this alternate interface setting.
-	unsigned char bNumEndpoints;		// Number of endpoints in this interface.
-	unsigned char bInterfaceClass;		// Class code (assigned by the USB-IF).  0xFF-Vendor specific.
-	unsigned char bInterfaceSubClass;	// Subclass code (assigned by the USB-IF).
-	unsigned char bInterfaceProtocol;	// Protocol code (assigned by the USB-IF).  0xFF-Vendor specific.
-	unsigned char iInterface;		// Index of String Descriptor describing the interface.
+    unsigned char bLength;              // Length of this descriptor.
+    unsigned char bDescriptorType;      // INTERFACE descriptor type (USB_DESCRIPTOR_INTERFACE).
+    unsigned char bInterfaceNumber;     // Number of this interface (0 based).
+    unsigned char bAlternateSetting;    // Value of this alternate interface setting.
+    unsigned char bNumEndpoints;        // Number of endpoints in this interface.
+    unsigned char bInterfaceClass;      // Class code (assigned by the USB-IF).  0xFF-Vendor specific.
+    unsigned char bInterfaceSubClass;   // Subclass code (assigned by the USB-IF).
+    unsigned char bInterfaceProtocol;   // Protocol code (assigned by the USB-IF).  0xFF-Vendor specific.
+    unsigned char iInterface;           // Index of String Descriptor describing the interface.
 } USB_INTERFACE_DESCRIPTOR;
 
 
@@ -120,12 +120,12 @@ the correct fields when used on some device architectures.
 */
 typedef struct __attribute__ ((packed)) _USB_ENDPOINT_DESCRIPTOR
 {
-	unsigned char bLength;		// Length of this descriptor.
-	unsigned char bDescriptorType;	// ENDPOINT descriptor type (USB_DESCRIPTOR_ENDPOINT).
-	unsigned char bEndpointAddress;	// Endpoint address. Bit 7 indicates direction (0=OUT, 1=IN).
-	unsigned char bmAttributes;	// Endpoint transfer type.
-	unsigned short wMaxPacketSize;  // Maximum packet size.
-	unsigned char bInterval;	// Polling interval in frames.
+    unsigned char bLength;          // Length of this descriptor.
+    unsigned char bDescriptorType;  // ENDPOINT descriptor type (USB_DESCRIPTOR_ENDPOINT).
+    unsigned char bEndpointAddress; // Endpoint address. Bit 7 indicates direction (0=OUT, 1=IN).
+    unsigned char bmAttributes;     // Endpoint transfer type.
+    unsigned short wMaxPacketSize;  // Maximum packet size.
+    unsigned char bInterval;        // Polling interval in frames.
 } USB_ENDPOINT_DESCRIPTOR;
 
 
@@ -174,9 +174,9 @@ the correct fields when used on some device architectures.
 */
 typedef struct __attribute__ ((packed)) _USB_OTG_DESCRIPTOR
 {
-	unsigned char bLength;		// Length of this descriptor.
-	unsigned char bDescriptorType;	// OTG descriptor type (USB_DESCRIPTOR_OTG).
-	unsigned char bmAttributes;	// OTG attributes.
+    unsigned char bLength;          // Length of this descriptor.
+    unsigned char bDescriptorType;  // OTG descriptor type (USB_DESCRIPTOR_OTG).
+    unsigned char bmAttributes;     // OTG attributes.
 } USB_OTG_DESCRIPTOR;
 
 
@@ -198,15 +198,15 @@ typedef struct __attribute__ ((packed)) _USB_OTG_DESCRIPTOR
 
 typedef struct __attribute__ ((packed)) _USB_STRING_DSC
 {
-	unsigned char bLength;		// Size of this descriptor
-	unsigned char bDescriptorType;	// Type, USB_DSC_STRING
+    unsigned char bLength;          // Size of this descriptor
+    unsigned char bDescriptorType;  // Type, USB_DSC_STRING
 
 } USB_STRING_DESCRIPTOR;
 
 #define USB_STRING_INIT(nchars) struct {\
-	unsigned char bLength;          \
-	unsigned char bDescriptorType;	\
-        unsigned short string[nchars];  \
+    unsigned char bLength;          \
+    unsigned char bDescriptorType;  \
+    unsigned short string[nchars];  \
 }
 
 
@@ -223,15 +223,15 @@ typedef struct __attribute__ ((packed)) _USB_STRING_DSC
 
 typedef struct __attribute__ ((packed)) _USB_DEVICE_QUALIFIER_DESCRIPTOR
 {
-	unsigned char bLength;			// Size of this descriptor
-	unsigned char bType;			// Type, always USB_DESCRIPTOR_DEVICE_QUALIFIER
-	unsigned short bcdUSB;			// USB spec version, in BCD
-	unsigned char bDeviceClass;		// Device class code
-	unsigned char bDeviceSubClass;		// Device sub-class code
-	unsigned char bDeviceProtocol;		// Device protocol
-	unsigned char bMaxPacketSize0;		// EP0, max packet size
-	unsigned char bNumConfigurations;	// Number of "other-speed" configurations
-	unsigned char bReserved;		// Always zero (0)
+    unsigned char bLength;              // Size of this descriptor
+    unsigned char bType;                // Type, always USB_DESCRIPTOR_DEVICE_QUALIFIER
+    unsigned short bcdUSB;              // USB spec version, in BCD
+    unsigned char bDeviceClass;         // Device class code
+    unsigned char bDeviceSubClass;      // Device sub-class code
+    unsigned char bDeviceProtocol;      // Device protocol
+    unsigned char bMaxPacketSize0;      // EP0, max packet size
+    unsigned char bNumConfigurations;   // Number of "other-speed" configurations
+    unsigned char bReserved;            // Always zero (0)
 
 } USB_DEVICE_QUALIFIER_DESCRIPTOR;
 
@@ -248,20 +248,20 @@ typedef struct __attribute__ ((packed)) _USB_DEVICE_QUALIFIER_DESCRIPTOR
 
 typedef struct __attribute__ ((packed))
 {
-	union					// offset   description
-	{					// ------   ------------------------
-		unsigned char bmRequestType;	//   0      Bit-map of request type
-		struct {
-			unsigned recipient:  5;	//          Recipient of the request
-			unsigned type:       2;	//          Type of request
-			unsigned direction:  1;	//          Direction of data X-fer
-		};
-	} requestInfo;
+    union                               // offset   description
+    {                                   // ------   ------------------------
+        unsigned char bmRequestType;    //   0      Bit-map of request type
+        struct {
+            unsigned recipient:  5;     //          Recipient of the request
+            unsigned type:       2;     //          Type of request
+            unsigned direction:  1;     //          Direction of data X-fer
+        };
+    } requestInfo;
 
-	unsigned char bRequest;			//   1      Request type
-	unsigned short wValue;			//   2      Depends on bRequest
-	unsigned short wIndex;			//   4      Depends on bRequest
-	unsigned short wLength;			//   6      Depends on bRequest
+    unsigned char bRequest;             //   1      Request type
+    unsigned short wValue;              //   2      Depends on bRequest
+    unsigned short wIndex;              //   4      Depends on bRequest
+    unsigned short wLength;             //   6      Depends on bRequest
 
 } SETUP_PKT, *PSETUP_PKT;
 
@@ -271,95 +271,91 @@ typedef struct __attribute__ ((packed))
 //
 
 // Section: Valid PID Values
-//DOM-IGNORE-BEGIN
-#define PID_OUT                                 0x1     // PID for an OUT token
-#define PID_ACK                                 0x2     // PID for an ACK handshake
-#define PID_DATA0                               0x3     // PID for DATA0 data
-#define PID_PING                                0x4     // Special PID PING
-#define PID_SOF                                 0x5     // PID for a SOF token
-#define PID_NYET                                0x6     // PID for a NYET handshake
-#define PID_DATA2                               0x7     // PID for DATA2 data
-#define PID_SPLIT                               0x8     // Special PID SPLIT
-#define PID_IN                                  0x9     // PID for a IN token
-#define PID_NAK                                 0xA     // PID for a NAK handshake
-#define PID_DATA1                               0xB     // PID for DATA1 data
-#define PID_PRE                                 0xC     // Special PID PRE (Same as PID_ERR)
-#define PID_ERR                                 0xC     // Special PID ERR (Same as PID_PRE)
-#define PID_SETUP                               0xD     // PID for a SETUP token
-#define PID_STALL                               0xE     // PID for a STALL handshake
-#define PID_MDATA                               0xF     // PID for MDATA data
+#define PID_OUT                             0x1     // PID for an OUT token
+#define PID_ACK                             0x2     // PID for an ACK handshake
+#define PID_DATA0                           0x3     // PID for DATA0 data
+#define PID_PING                            0x4     // Special PID PING
+#define PID_SOF                             0x5     // PID for a SOF token
+#define PID_NYET                            0x6     // PID for a NYET handshake
+#define PID_DATA2                           0x7     // PID for DATA2 data
+#define PID_SPLIT                           0x8     // Special PID SPLIT
+#define PID_IN                              0x9     // PID for a IN token
+#define PID_NAK                             0xA     // PID for a NAK handshake
+#define PID_DATA1                           0xB     // PID for DATA1 data
+#define PID_PRE                             0xC     // Special PID PRE (Same as PID_ERR)
+#define PID_ERR                             0xC     // Special PID ERR (Same as PID_PRE)
+#define PID_SETUP                           0xD     // PID for a SETUP token
+#define PID_STALL                           0xE     // PID for a STALL handshake
+#define PID_MDATA                           0xF     // PID for MDATA data
 
-#define PID_MASK_DATA                           0x03    // Data PID mask
-#define PID_MASK_DATA_SHIFTED                  (PID_MASK_DATA << 2) // Data PID shift to proper position
-//DOM-IGNORE-END
+#define PID_MASK_DATA                       0x03    // Data PID mask
+#define PID_MASK_DATA_SHIFTED               (PID_MASK_DATA << 2) // Data PID shift to proper position
 
 // Section: USB Token Types
-//DOM-IGNORE-BEGIN
-#define USB_TOKEN_OUT                           0x01    // U1TOK - OUT token
-#define USB_TOKEN_IN                            0x09    // U1TOK - IN token
-#define USB_TOKEN_SETUP                         0x0D    // U1TOK - SETUP token
-//DOM-IGNORE-END
+#define USB_TOKEN_OUT                       0x01    // U1TOK - OUT token
+#define USB_TOKEN_IN                        0x09    // U1TOK - IN token
+#define USB_TOKEN_SETUP                     0x0D    // U1TOK - SETUP token
 
 // Section: OTG Descriptor Constants
 
-#define OTG_HNP_SUPPORT                         0x02    // OTG Descriptor bmAttributes - HNP support flag
-#define OTG_SRP_SUPPORT                         0x01    // OTG Descriptor bmAttributes - SRP support flag
+#define OTG_HNP_SUPPORT                     0x02    // OTG Descriptor bmAttributes - HNP support flag
+#define OTG_SRP_SUPPORT                     0x01    // OTG Descriptor bmAttributes - SRP support flag
 
 // Section: Endpoint Directions
 
-#define USB_IN_EP                               0x80    // IN endpoint mask
-#define USB_OUT_EP                              0x00    // OUT endpoint mask
+#define USB_IN_EP                           0x80    // IN endpoint mask
+#define USB_OUT_EP                          0x00    // OUT endpoint mask
 
 // Section: Standard Device Requests
 
-#define USB_REQUEST_GET_STATUS                  0       // Standard Device Request - GET STATUS
-#define USB_REQUEST_CLEAR_FEATURE               1       // Standard Device Request - CLEAR FEATURE
-#define USB_REQUEST_SET_FEATURE                 3       // Standard Device Request - SET FEATURE
-#define USB_REQUEST_SET_ADDRESS                 5       // Standard Device Request - SET ADDRESS
-#define USB_REQUEST_GET_DESCRIPTOR              6       // Standard Device Request - GET DESCRIPTOR
-#define USB_REQUEST_SET_DESCRIPTOR              7       // Standard Device Request - SET DESCRIPTOR
-#define USB_REQUEST_GET_CONFIGURATION           8       // Standard Device Request - GET CONFIGURATION
-#define USB_REQUEST_SET_CONFIGURATION           9       // Standard Device Request - SET CONFIGURATION
-#define USB_REQUEST_GET_INTERFACE               10      // Standard Device Request - GET INTERFACE
-#define USB_REQUEST_SET_INTERFACE               11      // Standard Device Request - SET INTERFACE
-#define USB_REQUEST_SYNCH_FRAME                 12      // Standard Device Request - SYNCH FRAME
+#define USB_REQUEST_GET_STATUS              0       // Standard Device Request - GET STATUS
+#define USB_REQUEST_CLEAR_FEATURE           1       // Standard Device Request - CLEAR FEATURE
+#define USB_REQUEST_SET_FEATURE             3       // Standard Device Request - SET FEATURE
+#define USB_REQUEST_SET_ADDRESS             5       // Standard Device Request - SET ADDRESS
+#define USB_REQUEST_GET_DESCRIPTOR          6       // Standard Device Request - GET DESCRIPTOR
+#define USB_REQUEST_SET_DESCRIPTOR          7       // Standard Device Request - SET DESCRIPTOR
+#define USB_REQUEST_GET_CONFIGURATION       8       // Standard Device Request - GET CONFIGURATION
+#define USB_REQUEST_SET_CONFIGURATION       9       // Standard Device Request - SET CONFIGURATION
+#define USB_REQUEST_GET_INTERFACE           10      // Standard Device Request - GET INTERFACE
+#define USB_REQUEST_SET_INTERFACE           11      // Standard Device Request - SET INTERFACE
+#define USB_REQUEST_SYNCH_FRAME             12      // Standard Device Request - SYNCH FRAME
 
-#define USB_FEATURE_ENDPOINT_HALT               0       // CLEAR/SET FEATURE - Endpoint Halt
-#define USB_FEATURE_DEVICE_REMOTE_WAKEUP        1       // CLEAR/SET FEATURE - Device remote wake-up
-#define USB_FEATURE_TEST_MODE                   2       // CLEAR/SET FEATURE - Test mode
+#define USB_FEATURE_ENDPOINT_HALT           0       // CLEAR/SET FEATURE - Endpoint Halt
+#define USB_FEATURE_DEVICE_REMOTE_WAKEUP    1       // CLEAR/SET FEATURE - Device remote wake-up
+#define USB_FEATURE_TEST_MODE               2       // CLEAR/SET FEATURE - Test mode
 
 // Section: Setup Data Constants
 
-#define USB_SETUP_HOST_TO_DEVICE                0x00    // Device Request bmRequestType transfer direction - host to device transfer
-#define USB_SETUP_DEVICE_TO_HOST                0x80    // Device Request bmRequestType transfer direction - device to host transfer
-#define USB_SETUP_TYPE_STANDARD                 0x00    // Device Request bmRequestType type - standard
-#define USB_SETUP_TYPE_CLASS                    0x20    // Device Request bmRequestType type - class
-#define USB_SETUP_TYPE_VENDOR                   0x40    // Device Request bmRequestType type - vendor
-#define USB_SETUP_RECIPIENT_DEVICE              0x00    // Device Request bmRequestType recipient - device
-#define USB_SETUP_RECIPIENT_INTERFACE           0x01    // Device Request bmRequestType recipient - interface
-#define USB_SETUP_RECIPIENT_ENDPOINT            0x02    // Device Request bmRequestType recipient - endpoint
-#define USB_SETUP_RECIPIENT_OTHER               0x03    // Device Request bmRequestType recipient - other
+#define USB_SETUP_HOST_TO_DEVICE            0x00    // Device Request bmRequestType transfer direction - host to device transfer
+#define USB_SETUP_DEVICE_TO_HOST            0x80    // Device Request bmRequestType transfer direction - device to host transfer
+#define USB_SETUP_TYPE_STANDARD             0x00    // Device Request bmRequestType type - standard
+#define USB_SETUP_TYPE_CLASS                0x20    // Device Request bmRequestType type - class
+#define USB_SETUP_TYPE_VENDOR               0x40    // Device Request bmRequestType type - vendor
+#define USB_SETUP_RECIPIENT_DEVICE          0x00    // Device Request bmRequestType recipient - device
+#define USB_SETUP_RECIPIENT_INTERFACE       0x01    // Device Request bmRequestType recipient - interface
+#define USB_SETUP_RECIPIENT_ENDPOINT        0x02    // Device Request bmRequestType recipient - endpoint
+#define USB_SETUP_RECIPIENT_OTHER           0x03    // Device Request bmRequestType recipient - other
 
 // Section: OTG SET FEATURE Constants
 
-#define OTG_FEATURE_B_HNP_ENABLE                3       // SET FEATURE OTG - Enable B device to perform HNP
-#define OTG_FEATURE_A_HNP_SUPPORT               4       // SET FEATURE OTG - A device supports HNP
-#define OTG_FEATURE_A_ALT_HNP_SUPPORT           5       // SET FEATURE OTG - Another port on the A device supports HNP
+#define OTG_FEATURE_B_HNP_ENABLE            3       // SET FEATURE OTG - Enable B device to perform HNP
+#define OTG_FEATURE_A_HNP_SUPPORT           4       // SET FEATURE OTG - A device supports HNP
+#define OTG_FEATURE_A_ALT_HNP_SUPPORT       5       // SET FEATURE OTG - Another port on the A device supports HNP
 
 // Section: USB Endpoint Transfer Types
 
-#define USB_TRANSFER_TYPE_CONTROL               0x00    // Endpoint is a control endpoint.
-#define USB_TRANSFER_TYPE_ISOCHRONOUS           0x01    // Endpoint is an isochronous endpoint.
-#define USB_TRANSFER_TYPE_BULK                  0x02    // Endpoint is a bulk endpoint.
-#define USB_TRANSFER_TYPE_INTERRUPT             0x03    // Endpoint is an interrupt endpoint.
+#define USB_TRANSFER_TYPE_CONTROL           0x00    // Endpoint is a control endpoint.
+#define USB_TRANSFER_TYPE_ISOCHRONOUS       0x01    // Endpoint is an isochronous endpoint.
+#define USB_TRANSFER_TYPE_BULK              0x02    // Endpoint is a bulk endpoint.
+#define USB_TRANSFER_TYPE_INTERRUPT         0x03    // Endpoint is an interrupt endpoint.
 
 // Section: Standard Feature Selectors for CLEAR_FEATURE Requests
-#define USB_FEATURE_ENDPOINT_STALL              0       // Endpoint recipient
-#define USB_FEATURE_DEVICE_REMOTE_WAKEUP        1       // Device recipient
-#define USB_FEATURE_TEST_MODE                   2       // Device recipient
+#define USB_FEATURE_ENDPOINT_STALL          0       // Endpoint recipient
+#define USB_FEATURE_DEVICE_REMOTE_WAKEUP    1       // Device recipient
+#define USB_FEATURE_TEST_MODE               2       // Device recipient
 
 
 // Section: USB Class Code Definitions
-#define USB_HUB_CLASSCODE                       0x09    //  Class code for a hub.
+#define USB_HUB_CLASSCODE                   0x09    //  Class code for a hub.
 
 #endif  // _USB_CH9_H_

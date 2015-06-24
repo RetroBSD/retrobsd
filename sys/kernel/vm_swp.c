@@ -10,7 +10,6 @@
 #include "conf.h"
 #include "systm.h"
 #include "vm.h"
-#include "trace.h"
 #include "uio.h"
 
 /*
@@ -18,52 +17,51 @@
  */
 void
 swap (blkno, coreaddr, count, rdflg)
-	size_t blkno, coreaddr;
-	register int count;
-	int rdflg;
+    size_t blkno, coreaddr;
+    register int count;
+    int rdflg;
 {
-	register struct buf *bp;
-	int s;
+    register struct buf *bp;
+    int s;
 
 //printf ("swap (%u, %08x, %d, %s)\n", blkno, coreaddr, count, rdflg ? "R" : "W");
 #ifdef UCB_METER
-	if (rdflg) {
-		cnt.v_kbin += (count + 1023) / 1024;
-	} else {
-		cnt.v_kbout += (count + 1023) / 1024;
-	}
+    if (rdflg) {
+        cnt.v_kbin += (count + 1023) / 1024;
+    } else {
+        cnt.v_kbout += (count + 1023) / 1024;
+    }
 #endif
-	bp = geteblk();			/* allocate a buffer header */
+    bp = geteblk();         /* allocate a buffer header */
 
-	while (count) {
-		bp->b_flags = B_BUSY | B_PHYS | B_INVAL | rdflg;
-		bp->b_dev = swapdev;
-		bp->b_bcount = count;
-		bp->b_blkno = blkno;
-		bp->b_addr = (caddr_t) coreaddr;
-		trace (TR_SWAPIO);
-		(*bdevsw[major(swapdev)].d_strategy) (bp);
-		s = splbio();
-		while ((bp->b_flags & B_DONE) == 0)
-			sleep ((caddr_t)bp, PSWP);
-		splx (s);
-		if ((bp->b_flags & B_ERROR) || bp->b_resid)
-			panic ("hard err: swap");
-		count -= count;
-		coreaddr += count;
-		blkno += btod (count);
-	}
-	brelse(bp);
+    while (count) {
+        bp->b_flags = B_BUSY | B_PHYS | B_INVAL | rdflg;
+        bp->b_dev = swapdev;
+        bp->b_bcount = count;
+        bp->b_blkno = blkno;
+        bp->b_addr = (caddr_t) coreaddr;
+        (*bdevsw[major(swapdev)].d_strategy) (bp);
+        s = splbio();
+        while ((bp->b_flags & B_DONE) == 0)
+            sleep ((caddr_t)bp, PSWP);
+        splx (s);
+        if ((bp->b_flags & B_ERROR) || bp->b_resid)
+            panic ("hard err: swap");
+        count -= count;
+        coreaddr += count;
+        blkno += btod (count);
+    }
+    brelse(bp);
 }
 
 /*
  * Raw I/O. The arguments are
- *	The strategy routine for the device
- *	A buffer, which may be a special buffer header
- *	  owned exclusively by the device for this purpose or
- *	  NULL if one is to be allocated.
- *	The device number
- *	Read/write flag
+ *  The strategy routine for the device
+ *  A buffer, which may be a special buffer header
+ *    owned exclusively by the device for this purpose or
+ *    NULL if one is to be allocated.
+ *  The device number
+ *  Read/write flag
  * Essentially all the work is computing physical addresses and
  * validating them.
  *
@@ -91,87 +89,87 @@ swap (blkno, coreaddr, count, rdflg)
  */
 int
 physio(strat, bp, dev, rw, uio)
-	void (*strat) (struct buf*);
-	register struct buf *bp;
-	dev_t dev;
-	int rw;
-	register struct uio *uio;
+    void (*strat) (struct buf*);
+    register struct buf *bp;
+    dev_t dev;
+    int rw;
+    register struct uio *uio;
 {
-	int error = 0, s, c, allocbuf = 0;
-	register struct iovec *iov;
+    int error = 0, s, c, allocbuf = 0;
+    register struct iovec *iov;
 
-	if (! bp) {
-		allocbuf++;
-		bp = geteblk();
-	}
-	u.u_procp->p_flag |= SLOCK;
-	for ( ; uio->uio_iovcnt; uio->uio_iov++, uio->uio_iovcnt--) {
-		iov = uio->uio_iov;
-		if (iov->iov_base >= iov->iov_base + iov->iov_len) {
-			error = EFAULT;
-			break;
-		}
-		/*
-		 * Check that transfer is either entirely in the
-		 * data or in the stack: that is, either
-		 * the end is in the data or the start is in the stack
-		 * (remember wraparound was already checked).
-		 */
-		if (baduaddr (iov->iov_base) ||
-                    baduaddr (iov->iov_base + iov->iov_len - 1)) {
-			error = EFAULT;
-			break;
-		}
-		if (! allocbuf) {
-			s = splbio();
-			while (bp->b_flags & B_BUSY) {
-				bp->b_flags |= B_WANTED;
-				sleep((caddr_t)bp, PRIBIO+1);
-			}
-			splx(s);
-		}
-		bp->b_error = 0;
-		while (iov->iov_len) {
-			bp->b_flags = B_BUSY | B_PHYS | B_INVAL | rw;
-			bp->b_dev = dev;
-			bp->b_addr = iov->iov_base;
-			bp->b_blkno = (unsigned) uio->uio_offset >> DEV_BSHIFT;
-			bp->b_bcount = iov->iov_len;
-			c = bp->b_bcount;
-			(*strat)(bp);
-			s = splbio();
-			while ((bp->b_flags & B_DONE) == 0)
-				sleep((caddr_t)bp, PRIBIO);
-			if (bp->b_flags & B_WANTED)	/* rare */
-				wakeup((caddr_t)bp);
-			splx(s);
-			c -= bp->b_resid;
-			iov->iov_base += c;
-			iov->iov_len -= c;
-			uio->uio_resid -= c;
-			uio->uio_offset += c;
-			/* temp kludge for tape drives */
-			if (bp->b_resid || (bp->b_flags & B_ERROR))
-				break;
-		}
-		bp->b_flags &= ~(B_BUSY | B_WANTED);
-		error = geterror(bp);
-		/* temp kludge for tape drives */
-		if (bp->b_resid || error)
-			break;
-	}
-	if (allocbuf)
-		brelse(bp);
-	u.u_procp->p_flag &= ~SLOCK;
-	return(error);
+    if (! bp) {
+        allocbuf++;
+        bp = geteblk();
+    }
+    u.u_procp->p_flag |= SLOCK;
+    for ( ; uio->uio_iovcnt; uio->uio_iov++, uio->uio_iovcnt--) {
+        iov = uio->uio_iov;
+        if (iov->iov_base >= iov->iov_base + iov->iov_len) {
+            error = EFAULT;
+            break;
+        }
+        /*
+         * Check that transfer is either entirely in the
+         * data or in the stack: that is, either
+         * the end is in the data or the start is in the stack
+         * (remember wraparound was already checked).
+         */
+        if (baduaddr (iov->iov_base) ||
+            baduaddr (iov->iov_base + iov->iov_len - 1)) {
+            error = EFAULT;
+            break;
+        }
+        if (! allocbuf) {
+            s = splbio();
+            while (bp->b_flags & B_BUSY) {
+                bp->b_flags |= B_WANTED;
+                sleep((caddr_t)bp, PRIBIO+1);
+            }
+            splx(s);
+        }
+        bp->b_error = 0;
+        while (iov->iov_len) {
+            bp->b_flags = B_BUSY | B_PHYS | B_INVAL | rw;
+            bp->b_dev = dev;
+            bp->b_addr = iov->iov_base;
+            bp->b_blkno = (unsigned) uio->uio_offset >> DEV_BSHIFT;
+            bp->b_bcount = iov->iov_len;
+            c = bp->b_bcount;
+            (*strat)(bp);
+            s = splbio();
+            while ((bp->b_flags & B_DONE) == 0)
+                sleep((caddr_t)bp, PRIBIO);
+            if (bp->b_flags & B_WANTED) /* rare */
+                wakeup((caddr_t)bp);
+            splx(s);
+            c -= bp->b_resid;
+            iov->iov_base += c;
+            iov->iov_len -= c;
+            uio->uio_resid -= c;
+            uio->uio_offset += c;
+            /* temp kludge for tape drives */
+            if (bp->b_resid || (bp->b_flags & B_ERROR))
+                break;
+        }
+        bp->b_flags &= ~(B_BUSY | B_WANTED);
+        error = geterror(bp);
+        /* temp kludge for tape drives */
+        if (bp->b_resid || error)
+            break;
+    }
+    if (allocbuf)
+        brelse(bp);
+    u.u_procp->p_flag &= ~SLOCK;
+    return(error);
 }
 
 int
 rawrw (dev, uio, flag)
-	dev_t dev;
-	register struct uio *uio;
-	int flag;
+    dev_t dev;
+    register struct uio *uio;
+    int flag;
 {
-	return (physio(cdevsw[major(dev)].d_strategy, (struct buf *)NULL, dev,
-		uio->uio_rw == UIO_READ ? B_READ : B_WRITE, uio));
+    return (physio(cdevsw[major(dev)].d_strategy, (struct buf *)NULL, dev,
+        uio->uio_rw == UIO_READ ? B_READ : B_WRITE, uio));
 }

@@ -11,7 +11,6 @@
 #include "dk.h"
 #include "systm.h"
 #include "map.h"
-#include "trace.h"
 #include "proc.h"
 
 /*
@@ -19,23 +18,21 @@
  */
 struct buf *
 bread (dev, blkno)
-	dev_t dev;
-	daddr_t blkno;
+    dev_t dev;
+    daddr_t blkno;
 {
-	register struct buf *bp;
+    register struct buf *bp;
 
-	bp = getblk(dev, blkno);
-	if (bp->b_flags&(B_DONE|B_DELWRI)) {
-		trace(TR_BREADHIT);
-		return (bp);
-	}
-	bp->b_flags |= B_READ;
-	bp->b_bcount = DEV_BSIZE;	/* XXX? KB */
-	(*bdevsw[major(dev)].d_strategy)(bp);
-	trace(TR_BREADMISS);
-	u.u_ru.ru_inblock++;		/* pay for read */
-	biowait(bp);
-	return(bp);
+    bp = getblk(dev, blkno);
+    if (bp->b_flags&(B_DONE|B_DELWRI)) {
+        return (bp);
+    }
+    bp->b_flags |= B_READ;
+    bp->b_bcount = DEV_BSIZE;           /* XXX? KB */
+    (*bdevsw[major(dev)].d_strategy)(bp);
+    u.u_ru.ru_inblock++;                /* pay for read */
+    biowait(bp);
+    return(bp);
 }
 
 /*
@@ -44,61 +41,55 @@ bread (dev, blkno)
  */
 struct buf *
 breada(dev, blkno, rablkno)
-	register dev_t dev;
-	daddr_t blkno;
-	daddr_t rablkno;
+    register dev_t dev;
+    daddr_t blkno;
+    daddr_t rablkno;
 {
-	register struct buf *bp, *rabp;
+    register struct buf *bp, *rabp;
 
-	bp = NULL;
-	/*
-	 * If the block isn't in core, then allocate
-	 * a buffer and initiate i/o (getblk checks
-	 * for a cache hit).
-	 */
-	if (! incore (dev, blkno)) {
-		bp = getblk(dev, blkno);
-		if ((bp->b_flags&(B_DONE|B_DELWRI)) == 0) {
-			bp->b_flags |= B_READ;
-			bp->b_bcount = DEV_BSIZE;	/* XXX? KB */
-			(*bdevsw[major(dev)].d_strategy)(bp);
-			trace(TR_BREADMISS);
-			u.u_ru.ru_inblock++;		/* pay for read */
-		}
-		else
-			trace(TR_BREADHIT);
-	}
+    bp = NULL;
+    /*
+     * If the block isn't in core, then allocate
+     * a buffer and initiate i/o (getblk checks
+     * for a cache hit).
+     */
+    if (! incore (dev, blkno)) {
+        bp = getblk(dev, blkno);
+        if ((bp->b_flags&(B_DONE|B_DELWRI)) == 0) {
+            bp->b_flags |= B_READ;
+            bp->b_bcount = DEV_BSIZE;           /* XXX? KB */
+            (*bdevsw[major(dev)].d_strategy)(bp);
+            u.u_ru.ru_inblock++;                /* pay for read */
+        }
+    }
 
-	/*
-	 * If there's a read-ahead block, start i/o
-	 * on it also (as above).
-	 */
-	if (rablkno) {
-		if (! incore (dev, rablkno)) {
-			rabp = getblk(dev, rablkno);
-			if (rabp->b_flags & (B_DONE|B_DELWRI)) {
-				brelse(rabp);
-				trace(TR_BREADHITRA);
-			} else {
-				rabp->b_flags |= B_READ|B_ASYNC;
-				rabp->b_bcount = DEV_BSIZE;	/* XXX? KB */
-				(*bdevsw[major(dev)].d_strategy)(rabp);
-				trace(TR_BREADMISSRA);
-				u.u_ru.ru_inblock++;	/* pay in advance */
-			}
-		} else
-			trace(TR_BREADHITRA);
-	}
+    /*
+     * If there's a read-ahead block, start i/o
+     * on it also (as above).
+     */
+    if (rablkno) {
+        if (! incore (dev, rablkno)) {
+            rabp = getblk(dev, rablkno);
+            if (rabp->b_flags & (B_DONE|B_DELWRI)) {
+                brelse(rabp);
+            } else {
+                rabp->b_flags |= B_READ|B_ASYNC;
+                rabp->b_bcount = DEV_BSIZE;     /* XXX? KB */
+                (*bdevsw[major(dev)].d_strategy)(rabp);
+                u.u_ru.ru_inblock++;            /* pay in advance */
+            }
+        }
+    }
 
-	/*
-	 * If block was in core, let bread get it.
-	 * If block wasn't in core, then the read was started
-	 * above, and just wait for it.
-	 */
-	if (bp == NULL)
-		return (bread(dev, blkno));
-	biowait(bp);
-	return (bp);
+    /*
+     * If block was in core, let bread get it.
+     * If block wasn't in core, then the read was started
+     * above, and just wait for it.
+     */
+    if (bp == NULL)
+        return (bread(dev, blkno));
+    biowait(bp);
+    return (bp);
 }
 
 /*
@@ -107,28 +98,27 @@ breada(dev, blkno, rablkno)
  */
 void
 bwrite(bp)
-	register struct buf *bp;
+    register struct buf *bp;
 {
-	register int flag;
+    register int flag;
 
-	flag = bp->b_flags;
-	bp->b_flags &= ~(B_READ | B_DONE | B_ERROR | B_DELWRI);
-	if ((flag&B_DELWRI) == 0)
-		u.u_ru.ru_oublock++;		/* noone paid yet */
-	trace(TR_BWRITE);
-	bp->b_bcount = DEV_BSIZE;		/* XXX? KB */
-	(*bdevsw[major(bp->b_dev)].d_strategy)(bp);
+    flag = bp->b_flags;
+    bp->b_flags &= ~(B_READ | B_DONE | B_ERROR | B_DELWRI);
+    if ((flag&B_DELWRI) == 0)
+        u.u_ru.ru_oublock++;                /* noone paid yet */
+    bp->b_bcount = DEV_BSIZE;               /* XXX? KB */
+    (*bdevsw[major(bp->b_dev)].d_strategy)(bp);
 
-	/*
-	 * If the write was synchronous, then await i/o completion.
-	 * If the write was "delayed", then we put the buffer on
-	 * the q of blocks awaiting i/o completion status.
-	 */
-	if ((flag&B_ASYNC) == 0) {
-		biowait(bp);
-		brelse(bp);
-	} else if (flag & B_DELWRI)
-		bp->b_flags |= B_AGE;
+    /*
+     * If the write was synchronous, then await i/o completion.
+     * If the write was "delayed", then we put the buffer on
+     * the q of blocks awaiting i/o completion status.
+     */
+    if ((flag&B_ASYNC) == 0) {
+        biowait(bp);
+        brelse(bp);
+    } else if (flag & B_DELWRI)
+        bp->b_flags |= B_AGE;
 }
 
 /*
@@ -141,18 +131,18 @@ bwrite(bp)
  */
 void
 bdwrite (bp)
-	register struct buf *bp;
+    register struct buf *bp;
 {
 
-	if ((bp->b_flags&B_DELWRI) == 0)
-		u.u_ru.ru_oublock++;		/* noone paid yet */
-	if (bdevsw[major(bp->b_dev)].d_flags & B_TAPE) {
-		bawrite(bp);
-	}
-	else {
-		bp->b_flags |= B_DELWRI | B_DONE;
-		brelse(bp);
-	}
+    if ((bp->b_flags&B_DELWRI) == 0)
+        u.u_ru.ru_oublock++;        /* noone paid yet */
+    if (bdevsw[major(bp->b_dev)].d_flags & B_TAPE) {
+        bawrite(bp);
+    }
+    else {
+        bp->b_flags |= B_DELWRI | B_DONE;
+        brelse(bp);
+    }
 }
 
 /*
@@ -160,47 +150,46 @@ bdwrite (bp)
  */
 void
 brelse (bp)
-	register struct buf *bp;
+    register struct buf *bp;
 {
-	register struct buf *flist;
-	register int s;
+    register struct buf *flist;
+    register int s;
 
-	trace(TR_BRELSE);
-	/*
-	 * If someone's waiting for the buffer, or
-	 * is waiting for a buffer, wake 'em up.
-	 */
-	if (bp->b_flags&B_WANTED)
-		wakeup((caddr_t)bp);
-	if (bfreelist[0].b_flags&B_WANTED) {
-		bfreelist[0].b_flags &= ~B_WANTED;
-		wakeup((caddr_t)bfreelist);
-	}
-	if (bp->b_flags&B_ERROR) {
-		if (bp->b_flags & B_LOCKED)
-			bp->b_flags &= ~B_ERROR;	/* try again later */
-		else
-			bp->b_dev = NODEV;  		/* no assoc */
-	}
-	/*
-	 * Stick the buffer back on a free list.
-	 */
-	s = splbio();
-	if (bp->b_flags & (B_ERROR|B_INVAL)) {
-		/* block has no info ... put at front of most free list */
-		flist = &bfreelist[BQ_AGE];
-		binsheadfree(bp, flist);
-	} else {
-		if (bp->b_flags & B_LOCKED)
-			flist = &bfreelist[BQ_LOCKED];
-		else if (bp->b_flags & B_AGE)
-			flist = &bfreelist[BQ_AGE];
-		else
-			flist = &bfreelist[BQ_LRU];
-		binstailfree(bp, flist);
-	}
-	bp->b_flags &= ~(B_WANTED|B_BUSY|B_ASYNC|B_AGE);
-	splx(s);
+    /*
+     * If someone's waiting for the buffer, or
+     * is waiting for a buffer, wake 'em up.
+     */
+    if (bp->b_flags&B_WANTED)
+        wakeup((caddr_t)bp);
+    if (bfreelist[0].b_flags&B_WANTED) {
+        bfreelist[0].b_flags &= ~B_WANTED;
+        wakeup((caddr_t)bfreelist);
+    }
+    if (bp->b_flags&B_ERROR) {
+        if (bp->b_flags & B_LOCKED)
+            bp->b_flags &= ~B_ERROR;    /* try again later */
+        else
+            bp->b_dev = NODEV;          /* no assoc */
+    }
+    /*
+     * Stick the buffer back on a free list.
+     */
+    s = splbio();
+    if (bp->b_flags & (B_ERROR|B_INVAL)) {
+        /* block has no info ... put at front of most free list */
+        flist = &bfreelist[BQ_AGE];
+        binsheadfree(bp, flist);
+    } else {
+        if (bp->b_flags & B_LOCKED)
+            flist = &bfreelist[BQ_LOCKED];
+        else if (bp->b_flags & B_AGE)
+            flist = &bfreelist[BQ_AGE];
+        else
+            flist = &bfreelist[BQ_LRU];
+        binstailfree(bp, flist);
+    }
+    bp->b_flags &= ~(B_WANTED|B_BUSY|B_ASYNC|B_AGE);
+    splx(s);
 }
 
 /*
@@ -209,19 +198,19 @@ brelse (bp)
  */
 int
 incore (dev, blkno)
-	register dev_t dev;
-	daddr_t blkno;
+    register dev_t dev;
+    daddr_t blkno;
 {
-	register struct buf *bp;
-	register struct buf *dp;
+    register struct buf *bp;
+    register struct buf *dp;
 
-	dp = BUFHASH(dev, blkno);
-	blkno = fsbtodb(blkno);
-	for (bp = dp->b_forw; bp != dp; bp = bp->b_forw)
-		if (bp->b_blkno == blkno && bp->b_dev == dev &&
-		    (bp->b_flags & B_INVAL) == 0)
-			return (1);
-	return (0);
+    dp = BUFHASH(dev, blkno);
+    blkno = fsbtodb(blkno);
+    for (bp = dp->b_forw; bp != dp; bp = bp->b_forw)
+        if (bp->b_blkno == blkno && bp->b_dev == dev &&
+            (bp->b_flags & B_INVAL) == 0)
+            return (1);
+    return (0);
 }
 
 /*
@@ -232,37 +221,36 @@ incore (dev, blkno)
 struct buf *
 getnewbuf()
 {
-	register struct buf *bp, *dp;
-	int s;
+    register struct buf *bp, *dp;
+    int s;
 
 loop:
-	s = splbio();
-	for (dp = &bfreelist[BQ_AGE]; dp > bfreelist; dp--)
-		if (dp->av_forw != dp)
-			break;
-	if (dp == bfreelist) {		/* no free blocks */
-		dp->b_flags |= B_WANTED;
-		sleep((caddr_t)dp, PRIBIO+1);
-		splx(s);
-		goto loop;
-	}
-	splx(s);
-	bp = dp->av_forw;
-	notavail(bp);
-	if (bp->b_flags & B_DELWRI) {
-		bawrite(bp);
-		goto loop;
-	}
-	if(bp->b_flags & (B_RAMREMAP|B_PHYS)) {
+    s = splbio();
+    for (dp = &bfreelist[BQ_AGE]; dp > bfreelist; dp--)
+        if (dp->av_forw != dp)
+            break;
+    if (dp == bfreelist) {      /* no free blocks */
+        dp->b_flags |= B_WANTED;
+        sleep((caddr_t)dp, PRIBIO+1);
+        splx(s);
+        goto loop;
+    }
+    splx(s);
+    bp = dp->av_forw;
+    notavail(bp);
+    if (bp->b_flags & B_DELWRI) {
+        bawrite(bp);
+        goto loop;
+    }
+    if(bp->b_flags & (B_RAMREMAP|B_PHYS)) {
 #ifdef DIAGNOSTIC
-		if ((bp < &buf[0]) || (bp >= &buf[NBUF]))
-			panic("getnewbuf: RAMREMAP bp addr");
+        if ((bp < &buf[0]) || (bp >= &buf[NBUF]))
+            panic("getnewbuf: RAMREMAP bp addr");
 #endif
-		bp->b_addr = bufdata + DEV_BSIZE * (bp - buf);
-	}
-	trace(TR_BRELSE);
-	bp->b_flags = B_BUSY;
-	return (bp);
+        bp->b_addr = bufdata + DEV_BSIZE * (bp - buf);
+    }
+    bp->b_flags = B_BUSY;
+    return (bp);
 }
 
 /*
@@ -276,48 +264,48 @@ loop:
  */
 struct buf *
 getblk(dev, blkno)
-	register dev_t dev;
-	daddr_t blkno;
+    register dev_t dev;
+    daddr_t blkno;
 {
-	register struct buf *bp, *dp;
-	daddr_t dblkno;
-	int s;
+    register struct buf *bp, *dp;
+    daddr_t dblkno;
+    int s;
 
 #ifdef DIAGNOSTIC
-	if (major(dev) >= nblkdev)
-		panic("blkdev");
+    if (major(dev) >= nblkdev)
+        panic("blkdev");
 #endif
-	/*
-	 * Search the cache for the block.  If we hit, but
-	 * the buffer is in use for i/o, then we wait until
-	 * the i/o has completed.
-	 */
-	dp = BUFHASH(dev, blkno);
-	dblkno = fsbtodb(blkno);
+    /*
+     * Search the cache for the block.  If we hit, but
+     * the buffer is in use for i/o, then we wait until
+     * the i/o has completed.
+     */
+    dp = BUFHASH(dev, blkno);
+    dblkno = fsbtodb(blkno);
 loop:
-	for (bp = dp->b_forw; bp != dp; bp = bp->b_forw) {
-		if (bp->b_blkno != dblkno || bp->b_dev != dev ||
-		    bp->b_flags&B_INVAL)
-			continue;
-		s = splbio();
-		if (bp->b_flags&B_BUSY) {
-			bp->b_flags |= B_WANTED;
-			sleep((caddr_t)bp, PRIBIO+1);
-			splx(s);
-			goto loop;
-		}
-		splx(s);
-		notavail(bp);
-		return (bp);
-	}
-	bp = getnewbuf();
-	bfree(bp);
-	bremhash(bp);
-	binshash(bp, dp);
-	bp->b_dev = dev;
-	bp->b_blkno = dblkno;
-	bp->b_error = 0;
-	return (bp);
+    for (bp = dp->b_forw; bp != dp; bp = bp->b_forw) {
+        if (bp->b_blkno != dblkno || bp->b_dev != dev ||
+            bp->b_flags&B_INVAL)
+            continue;
+        s = splbio();
+        if (bp->b_flags&B_BUSY) {
+            bp->b_flags |= B_WANTED;
+            sleep((caddr_t)bp, PRIBIO+1);
+            splx(s);
+            goto loop;
+        }
+        splx(s);
+        notavail(bp);
+        return (bp);
+    }
+    bp = getnewbuf();
+    bfree(bp);
+    bremhash(bp);
+    binshash(bp, dp);
+    bp->b_dev = dev;
+    bp->b_blkno = dblkno;
+    bp->b_error = 0;
+    return (bp);
 }
 
 /*
@@ -327,17 +315,17 @@ loop:
 struct buf *
 geteblk()
 {
-	register struct buf *bp, *flist;
+    register struct buf *bp, *flist;
 
-	bp = getnewbuf();
-	bp->b_flags |= B_INVAL;
-	bfree(bp);
-	bremhash(bp);
-	flist = &bfreelist[BQ_AGE];
-	binshash(bp, flist);
-	bp->b_dev = (dev_t)NODEV;
-	bp->b_error = 0;
-	return (bp);
+    bp = getnewbuf();
+    bp->b_flags |= B_INVAL;
+    bfree(bp);
+    bremhash(bp);
+    flist = &bfreelist[BQ_AGE];
+    binshash(bp, flist);
+    bp->b_dev = (dev_t)NODEV;
+    bp->b_error = 0;
+    return (bp);
 }
 
 /*
@@ -346,16 +334,16 @@ geteblk()
  */
 void
 biowait(bp)
-	register struct buf *bp;
+    register struct buf *bp;
 {
-	register int s;
+    register int s;
 
-	s = splbio();
-	while ((bp->b_flags & B_DONE) == 0)
-		sleep((caddr_t)bp, PRIBIO);
-	splx(s);
-	if (! u.u_error)			/* XXX */
-		u.u_error = geterror(bp);
+    s = splbio();
+    while ((bp->b_flags & B_DONE) == 0)
+        sleep((caddr_t)bp, PRIBIO);
+    splx(s);
+    if (! u.u_error)            /* XXX */
+        u.u_error = geterror(bp);
 }
 
 /*
@@ -364,17 +352,17 @@ biowait(bp)
  */
 void
 biodone(bp)
-	register struct buf *bp;
+    register struct buf *bp;
 {
-	if (bp->b_flags & B_DONE)
-		panic("dup biodone");
-	bp->b_flags |= B_DONE;
-	if (bp->b_flags & B_ASYNC)
-		brelse(bp);
-	else {
-		bp->b_flags &= ~B_WANTED;
-		wakeup((caddr_t)bp);
-	}
+    if (bp->b_flags & B_DONE)
+        panic("dup biodone");
+    bp->b_flags |= B_DONE;
+    if (bp->b_flags & B_ASYNC)
+        brelse(bp);
+    else {
+        bp->b_flags &= ~B_WANTED;
+        wakeup((caddr_t)bp);
+    }
 }
 
 /*
@@ -382,35 +370,35 @@ biodone(bp)
  */
 void
 blkflush (dev, blkno)
-	register dev_t dev;
-	daddr_t blkno;
+    register dev_t dev;
+    daddr_t blkno;
 {
-	register struct buf *ep;
-	struct buf *dp;
-	register int s;
+    register struct buf *ep;
+    struct buf *dp;
+    register int s;
 
-	dp = BUFHASH(dev, blkno);
-	blkno = fsbtodb(blkno);
+    dp = BUFHASH(dev, blkno);
+    blkno = fsbtodb(blkno);
 loop:
-	for (ep = dp->b_forw; ep != dp; ep = ep->b_forw) {
-		if (ep->b_blkno != blkno || ep->b_dev != dev ||
-		    (ep->b_flags&B_INVAL))
-			continue;
-		s = splbio();
-		if (ep->b_flags&B_BUSY) {
-			ep->b_flags |= B_WANTED;
-			sleep((caddr_t)ep, PRIBIO+1);
-			splx(s);
-			goto loop;
-		}
-		if (ep->b_flags & B_DELWRI) {
-			splx(s);
-			notavail(ep);
-			bwrite(ep);
-			goto loop;
-		}
-		splx(s);
-	}
+    for (ep = dp->b_forw; ep != dp; ep = ep->b_forw) {
+        if (ep->b_blkno != blkno || ep->b_dev != dev ||
+            (ep->b_flags&B_INVAL))
+            continue;
+        s = splbio();
+        if (ep->b_flags&B_BUSY) {
+            ep->b_flags |= B_WANTED;
+            sleep((caddr_t)ep, PRIBIO+1);
+            splx(s);
+            goto loop;
+        }
+        if (ep->b_flags & B_DELWRI) {
+            splx(s);
+            notavail(ep);
+            bwrite(ep);
+            goto loop;
+        }
+        splx(s);
+    }
 }
 
 /*
@@ -419,28 +407,28 @@ loop:
  */
 void
 bflush(dev)
-	register dev_t dev;
+    register dev_t dev;
 {
-	register struct buf *bp;
-	register struct buf *flist;
-	int s;
+    register struct buf *bp;
+    register struct buf *flist;
+    int s;
 
 loop:
-	s = splbio();
-	for (flist = bfreelist; flist < &bfreelist[BQ_EMPTY]; flist++) {
-                for (bp = flist->av_forw; bp != flist; bp = bp->av_forw) {
-                        if ((bp->b_flags & B_DELWRI) == 0)
-                                continue;
-                        if (dev == bp->b_dev) {
-                                bp->b_flags |= B_ASYNC;
-                                notavail(bp);
-                                bwrite(bp);
-                                splx(s);
-                                goto loop;
-                        }
-                }
-	}
-	splx(s);
+    s = splbio();
+    for (flist = bfreelist; flist < &bfreelist[BQ_EMPTY]; flist++) {
+        for (bp = flist->av_forw; bp != flist; bp = bp->av_forw) {
+            if ((bp->b_flags & B_DELWRI) == 0)
+                continue;
+            if (dev == bp->b_dev) {
+                bp->b_flags |= B_ASYNC;
+                notavail(bp);
+                bwrite(bp);
+                splx(s);
+                goto loop;
+            }
+        }
+    }
+    splx(s);
 }
 
 /*
@@ -449,14 +437,14 @@ loop:
  */
 int
 geterror (bp)
-	register struct buf *bp;
+    register struct buf *bp;
 {
-	register int error = 0;
+    register int error = 0;
 
-	if (bp->b_flags&B_ERROR)
-		if ((error = bp->b_error)==0)
-			return(EIO);
-	return (error);
+    if (bp->b_flags&B_ERROR)
+        if ((error = bp->b_error)==0)
+            return(EIO);
+    return (error);
 }
 
 /*
@@ -468,18 +456,18 @@ geterror (bp)
  * being used for i/o. Eventually, all disc drivers should be forced to
  * have a close routine, which ought ensure that the queue is empty, then
  * properly flush the queues. Until that happy day, this suffices for
- * correctness.						... kre
+ * correctness.                     ... kre
  */
 void
 binval(dev)
-	register dev_t dev;
+    register dev_t dev;
 {
-	register struct buf *bp;
-	register struct bufhd *hp;
+    register struct buf *bp;
+    register struct bufhd *hp;
 #define dp ((struct buf *)hp)
 
-	for (hp = bufhash; hp < &bufhash[BUFHSZ]; hp++)
-		for (bp = dp->b_forw; bp != dp; bp = bp->b_forw)
-			if (bp->b_dev == dev)
-				bp->b_flags |= B_INVAL;
+    for (hp = bufhash; hp < &bufhash[BUFHSZ]; hp++)
+        for (bp = dp->b_forw; bp != dp; bp = bp->b_forw)
+            if (bp->b_dev == dev)
+                bp->b_flags |= B_INVAL;
 }

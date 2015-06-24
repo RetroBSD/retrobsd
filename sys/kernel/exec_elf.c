@@ -1,4 +1,4 @@
-/*	$NetBSD: exec_elf32.c,v 1.49.2.2 2000/11/03 20:00:38 tv Exp $	*/
+/*  $NetBSD: exec_elf32.c,v 1.49.2.2 2000/11/03 20:00:38 tv Exp $   */
 
 /*-
  * Copyright (c) 1994 The NetBSD Foundation, Inc.
@@ -17,8 +17,8 @@
  *    documentation and/or other materials provided with the distribution.
  * 3. All advertising materials mentioning features or use of this software
  *    must display the following acknowledgement:
- *	This product includes software developed by the NetBSD
- *	Foundation, Inc. and its contributors.
+ *  This product includes software developed by the NetBSD
+ *  Foundation, Inc. and its contributors.
  * 4. Neither the name of The NetBSD Foundation nor the names of its
  *    contributors may be used to endorse or promote products derived
  *    from this software without specific prior written permission.
@@ -70,24 +70,20 @@
 #include "map.h"
 #include "user.h"
 #include "proc.h"
-//#include "malloc.h"
 #include "inode.h"
 #include "namei.h"
-//#include "vnode.h"
 #include "exec.h"
 #include "exec_elf.h"
 #include "fcntl.h"
-//#include "syscall.h"
 #include "signalvar.h"
 #include "mount.h"
 #include "stat.h"
 
-
 extern char sigcode[], esigcode[];
 
 /* round up and down to page boundaries. */
-#define	ELF_ROUND(a, b)		(((a) + (b) - 1) & ~((b) - 1))
-#define	ELF_TRUNC(a, b)		((a) & ~((b) - 1))
+#define ELF_ROUND(a, b)     (((a) + (b) - 1) & ~((b) - 1))
+#define ELF_TRUNC(a, b)     ((a) & ~((b) - 1))
 
 /*
  * elf_check(): Prepare an Elf binary's exec package
@@ -101,107 +97,107 @@ extern char sigcode[], esigcode[];
 int
 exec_elf_check(struct exec_params *epp)
 {
-	struct elf_phdr *ph;
-	int error, i, phsize;
+    struct elf_phdr *ph;
+    int error, i, phsize;
 
-	const char elfident[] = {ELFMAG0, ELFMAG1, ELFMAG2, ELFMAG3,
-				 ELFCLASS32, ELFDATA2LSB, EV_CURRENT, ELFOSABI_SYSV, 0};
+    const char elfident[] = {ELFMAG0, ELFMAG1, ELFMAG2, ELFMAG3,
+                 ELFCLASS32, ELFDATA2LSB, EV_CURRENT, ELFOSABI_SYSV, 0};
 
-	/*
-	 * Check that this is an ELF file that we can handle,
-	 * and do some sanity checks on the header
-	 */
-	if (epp->hdr_len < sizeof(struct elf_ehdr))
-		return ENOEXEC;
-	for (i = 0; i < sizeof elfident; i++)
-		if (epp->hdr.elf.e_ident[i] !=  elfident[i])
-			return ENOEXEC;
-	if (epp->hdr.elf.e_type != ET_EXEC)
-		return ENOEXEC;
-	if (epp->hdr.elf.e_machine != EM_MIPS || epp->hdr.elf.e_version != EV_CURRENT)
-		return ENOEXEC;
-	if (epp->hdr.elf.e_phentsize != sizeof(struct elf_phdr) || epp->hdr.elf.e_phoff == 0 || epp->hdr.elf.e_phnum == 0)
-		return ENOEXEC;
-	if (epp->hdr.elf.e_shnum == 0 || epp->hdr.elf.e_shentsize != sizeof(struct elf_shdr))
-		return ENOEXEC;
+    /*
+     * Check that this is an ELF file that we can handle,
+     * and do some sanity checks on the header
+     */
+    if (epp->hdr_len < sizeof(struct elf_ehdr))
+        return ENOEXEC;
+    for (i = 0; i < sizeof elfident; i++)
+        if (epp->hdr.elf.e_ident[i] !=  elfident[i])
+            return ENOEXEC;
+    if (epp->hdr.elf.e_type != ET_EXEC)
+        return ENOEXEC;
+    if (epp->hdr.elf.e_machine != EM_MIPS || epp->hdr.elf.e_version != EV_CURRENT)
+        return ENOEXEC;
+    if (epp->hdr.elf.e_phentsize != sizeof(struct elf_phdr) || epp->hdr.elf.e_phoff == 0 || epp->hdr.elf.e_phnum == 0)
+        return ENOEXEC;
+    if (epp->hdr.elf.e_shnum == 0 || epp->hdr.elf.e_shentsize != sizeof(struct elf_shdr))
+        return ENOEXEC;
 
-	/*
-	 * Read program headers
-	 */
-	phsize = epp->hdr.elf.e_phnum * sizeof(struct elf_phdr);
-	ph = exec_alloc(phsize, NBPW, epp);
-	if (ph == NULL) {
-		printf("can't alloc ph[] sz=%d\n", phsize);
-		return ENOEXEC;
-	}
-	if ((error = rdwri(UIO_READ, epp->ip, (caddr_t)ph, phsize, epp->hdr.elf.e_phoff, IO_UNIT, 0)) != 0)
-		return ENOEXEC;
+    /*
+     * Read program headers
+     */
+    phsize = epp->hdr.elf.e_phnum * sizeof(struct elf_phdr);
+    ph = exec_alloc(phsize, NBPW, epp);
+    if (ph == NULL) {
+        printf("can't alloc ph[] sz=%d\n", phsize);
+        return ENOEXEC;
+    }
+    if ((error = rdwri(UIO_READ, epp->ip, (caddr_t)ph, phsize, epp->hdr.elf.e_phoff, IO_UNIT, 0)) != 0)
+        return ENOEXEC;
 
-	epp->text.len = epp->data.len = epp->bss.len = epp->stack.len = epp->heap.len = 0;
-	epp->text.vaddr = epp->data.vaddr = epp->bss.vaddr = epp->stack.vaddr = epp->heap.vaddr = NO_ADDR;
+    epp->text.len = epp->data.len = epp->bss.len = epp->stack.len = epp->heap.len = 0;
+    epp->text.vaddr = epp->data.vaddr = epp->bss.vaddr = epp->stack.vaddr = epp->heap.vaddr = NO_ADDR;
 
-	if (epp->hdr.elf.e_phnum == 1 && ph[0].p_type == PT_LOAD && ph[0].p_flags == (PF_R|PF_W|PF_X)) {
-		/*
-		 * In the simple a.out type link, in elf format, there is only
-		 * one loadable segment that is RWE containing everything
-		 * Here we fix the memory allocation, and we are done.
-		 */
-		epp->data.vaddr = (caddr_t)ph[0].p_vaddr;
-		epp->data.len = ph[0].p_memsz;
-		epp->heap.vaddr = (caddr_t)ph[0].p_vaddr + ph[0].p_memsz;
-		epp->heap.len = 0;
-		epp->stack.len = SSIZE + epp->argbc + epp->envbc + (epp->argc+epp->envc+4)*NBPW;
-		epp->stack.vaddr = (caddr_t)USER_DATA_END - epp->stack.len;
+    if (epp->hdr.elf.e_phnum == 1 && ph[0].p_type == PT_LOAD && ph[0].p_flags == (PF_R|PF_W|PF_X)) {
+        /*
+         * In the simple a.out type link, in elf format, there is only
+         * one loadable segment that is RWE containing everything
+         * Here we fix the memory allocation, and we are done.
+         */
+        epp->data.vaddr = (caddr_t)ph[0].p_vaddr;
+        epp->data.len = ph[0].p_memsz;
+        epp->heap.vaddr = (caddr_t)ph[0].p_vaddr + ph[0].p_memsz;
+        epp->heap.len = 0;
+        epp->stack.len = SSIZE + epp->argbc + epp->envbc + (epp->argc+epp->envc+4)*NBPW;
+        epp->stack.vaddr = (caddr_t)USER_DATA_END - epp->stack.len;
 
-		/*
-		 * We assume .bss is the different between the memory data
-		 * section size and the file size.
-		 */
-		epp->bss.vaddr = epp->data.vaddr + ph[0].p_filesz;
-		epp->bss.len = ph[0].p_memsz - ph[0].p_filesz;
-		epp->data.len = epp->bss.vaddr - epp->data.vaddr;
-	} else {
-		/*
-		 * At the current moment we don't handle anything else
-		 * The rest of the code is implemented as need arise.
-		 */
-		return ENOEXEC;
-	}
+        /*
+         * We assume .bss is the different between the memory data
+         * section size and the file size.
+         */
+        epp->bss.vaddr = epp->data.vaddr + ph[0].p_filesz;
+        epp->bss.len = ph[0].p_memsz - ph[0].p_filesz;
+        epp->data.len = epp->bss.vaddr - epp->data.vaddr;
+    } else {
+        /*
+         * At the current moment we don't handle anything else
+         * The rest of the code is implemented as need arise.
+         */
+        return ENOEXEC;
+    }
 
-	/*
-	 * Save arglist
-	 */
-	exec_save_args(epp);
+    /*
+     * Save arglist
+     */
+    exec_save_args(epp);
 
-	/*
-	 * Establish memory
-	 */
-	if ((error = exec_estab(epp)) != 0)
-		return error;
+    /*
+     * Establish memory
+     */
+    if ((error = exec_estab(epp)) != 0)
+        return error;
 
-	/*
-	 * Now load the program sections into memory
-	 */
-	for (i = 0; i < epp->hdr.elf.e_phnum; i++) {
-		if (ph[i].p_type != PT_LOAD)
-			continue;
-		/*
-		 * Sanity check that the load is to our intended address space.
-		 */
-		if (!((epp->text.vaddr != NO_ADDR
-		       && ((caddr_t)ph[i].p_vaddr >= epp->text.vaddr
-			   && (caddr_t)ph[i].p_vaddr + ph[i].p_filesz <= epp->text.vaddr + epp->text.len))
-		      || (epp->data.vaddr != NO_ADDR
-			  && (caddr_t)ph[i].p_vaddr >= epp->data.vaddr
-			  && (caddr_t)ph[i].p_vaddr + ph[i].p_filesz <= epp->data.vaddr + epp->data.len))
-		    || ph[i].p_filesz >= ph[i].p_memsz || ph[i].p_filesz <= 0)
-			return ENOEXEC;
-		
-			error = rdwri(UIO_READ, epp->ip, (caddr_t)ph[i].p_vaddr, ph[i].p_filesz, ph[i].p_offset, IO_UNIT, 0);
-	}
+    /*
+     * Now load the program sections into memory
+     */
+    for (i = 0; i < epp->hdr.elf.e_phnum; i++) {
+        if (ph[i].p_type != PT_LOAD)
+            continue;
+        /*
+         * Sanity check that the load is to our intended address space.
+         */
+        if (!((epp->text.vaddr != NO_ADDR
+               && ((caddr_t)ph[i].p_vaddr >= epp->text.vaddr
+               && (caddr_t)ph[i].p_vaddr + ph[i].p_filesz <= epp->text.vaddr + epp->text.len))
+              || (epp->data.vaddr != NO_ADDR
+              && (caddr_t)ph[i].p_vaddr >= epp->data.vaddr
+              && (caddr_t)ph[i].p_vaddr + ph[i].p_filesz <= epp->data.vaddr + epp->data.len))
+            || ph[i].p_filesz >= ph[i].p_memsz || ph[i].p_filesz <= 0)
+            return ENOEXEC;
 
-	exec_clear(epp);
-	exec_setupstack(epp->hdr.elf.e_entry, epp);
-	
-	return 0;
+            error = rdwri(UIO_READ, epp->ip, (caddr_t)ph[i].p_vaddr, ph[i].p_filesz, ph[i].p_offset, IO_UNIT, 0);
+    }
+
+    exec_clear(epp);
+    exec_setupstack(epp->hdr.elf.e_entry, epp);
+
+    return 0;
 }

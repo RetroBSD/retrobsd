@@ -12,10 +12,10 @@
 void
 clkstart()
 {
-	unsigned count = mips_read_c0_register (C0_COUNT, 0);
+    unsigned count = mips_read_c0_register (C0_COUNT, 0);
 
-	mips_write_c0_register (C0_COMPARE, 0,
-                count + (CPU_KHZ * 1000 / HZ + 1) / 2);
+    mips_write_c0_register (C0_COMPARE, 0,
+        count + (CPU_KHZ * 1000 / HZ + 1) / 2);
 
-	IECSET(0) = 1 << PIC32_IRQ_CT;
+    IECSET(0) = 1 << PIC32_IRQ_CT;
 }

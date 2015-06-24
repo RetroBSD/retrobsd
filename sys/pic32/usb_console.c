@@ -131,7 +131,7 @@ void cnstart (tp)
 
     s = spltty();
     if (tp->t_state & (TS_TIMEOUT | TS_BUSY | TS_TTSTOP)) {
-out:	/* Disable transmit_interrupt. */
+out:    /* Disable transmit_interrupt. */
         led_control (LED_TTY, 0);
         splx (s);
         return;
@@ -327,8 +327,8 @@ const unsigned char usb_config1_descriptor[] =
 {
     /* Configuration Descriptor */
     9,                                  // sizeof(USB_CFG_DSC)
-    USB_DESCRIPTOR_CONFIGURATION,	// CONFIGURATION descriptor type
-    67, 0,				// Total length of data for this cfg
+    USB_DESCRIPTOR_CONFIGURATION,       // CONFIGURATION descriptor type
+    67, 0,                              // Total length of data for this cfg
     2,                                  // Number of interfaces in this cfg
     1,                                  // Index value of this configuration
     0,                                  // Configuration string index
@@ -342,8 +342,8 @@ const unsigned char usb_config1_descriptor[] =
     0,                                  // Alternate Setting Number
     1,                                  // Number of endpoints in this intf
     COMM_INTF,                          // Class code
-    ABSTRACT_CONTROL_MODEL,		// Subclass code
-    V25TER,				// Protocol code
+    ABSTRACT_CONTROL_MODEL,             // Subclass code
+    V25TER,                             // Protocol code
     0,                                  // Interface string index
 
     /* CDC Class-Specific Descriptors */
@@ -371,38 +371,38 @@ const unsigned char usb_config1_descriptor[] =
 
     /* Endpoint Descriptor */
     7,                                  // sizeof(USB_EP_DSC)
-    USB_DESCRIPTOR_ENDPOINT,	        // Endpoint Descriptor
-    _EP02_IN,			        // EndpointAddress
-    _INTERRUPT,			        // Attributes
-    0x08, 0x00,			        // size
-    0x02,				// Interval
+    USB_DESCRIPTOR_ENDPOINT,            // Endpoint Descriptor
+    _EP02_IN,                           // EndpointAddress
+    _INTERRUPT,                         // Attributes
+    0x08, 0x00,                         // size
+    0x02,                               // Interval
 
     /* Interface Descriptor */
-    9,				        // sizeof(USB_INTF_DSC)
-    USB_DESCRIPTOR_INTERFACE,	        // INTERFACE descriptor type
-    1,				        // Interface Number
-    0,				        // Alternate Setting Number
-    2,				        // Number of endpoints in this intf
-    DATA_INTF,			        // Class code
-    0,				        // Subclass code
-    NO_PROTOCOL,			// Protocol code
-    0,				        // Interface string index
+    9,                                  // sizeof(USB_INTF_DSC)
+    USB_DESCRIPTOR_INTERFACE,           // INTERFACE descriptor type
+    1,                                  // Interface Number
+    0,                                  // Alternate Setting Number
+    2,                                  // Number of endpoints in this intf
+    DATA_INTF,                          // Class code
+    0,                                  // Subclass code
+    NO_PROTOCOL,                        // Protocol code
+    0,                                  // Interface string index
 
     /* Endpoint Descriptor */
     7,                                  // sizeof(USB_EP_DSC)
-    USB_DESCRIPTOR_ENDPOINT,	        // Endpoint Descriptor
-    _EP03_OUT,			        // EndpointAddress
-    _BULK,				// Attributes
-    0x40, 0x00,			        // size
-    0x00,				// Interval
+    USB_DESCRIPTOR_ENDPOINT,            // Endpoint Descriptor
+    _EP03_OUT,                          // EndpointAddress
+    _BULK,                              // Attributes
+    0x40, 0x00,                         // size
+    0x00,                               // Interval
 
     /* Endpoint Descriptor */
     7,                                  // sizeof(USB_EP_DSC)
-    USB_DESCRIPTOR_ENDPOINT,	        // Endpoint Descriptor
-    _EP03_IN,			        // EndpointAddress
-    _BULK,				// Attributes
-    0x40, 0x00,			        // size
-    0x00,				// Interval
+    USB_DESCRIPTOR_ENDPOINT,            // Endpoint Descriptor
+    _EP03_IN,                           // EndpointAddress
+    _BULK,                              // Attributes
+    0x40, 0x00,                         // size
+    0x00,                               // Interval
 };
 
 

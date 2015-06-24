@@ -32,25 +32,25 @@
  * Default CDC configuration.
  */
 #ifndef CDC_COMM_INTF_ID
-#   define CDC_COMM_INTF_ID	0x0
+#   define CDC_COMM_INTF_ID     0x0
 #endif
 #ifndef CDC_COMM_EP
-#   define CDC_COMM_EP		2
+#   define CDC_COMM_EP          2
 #endif
 #ifndef CDC_COMM_IN_EP_SIZE
-#   define CDC_COMM_IN_EP_SIZE	8
+#   define CDC_COMM_IN_EP_SIZE  8
 #endif
 #ifndef CDC_DATA_INTF_ID
-#   define CDC_DATA_INTF_ID	0x01
+#   define CDC_DATA_INTF_ID     0x01
 #endif
 #ifndef CDC_DATA_EP
-#   define CDC_DATA_EP		3
+#   define CDC_DATA_EP          3
 #endif
 #ifndef CDC_DATA_OUT_EP_SIZE
-#   define CDC_DATA_OUT_EP_SIZE	64
+#   define CDC_DATA_OUT_EP_SIZE 64
 #endif
 #ifndef CDC_DATA_IN_EP_SIZE
-#   define CDC_DATA_IN_EP_SIZE	64
+#   define CDC_DATA_IN_EP_SIZE  64
 #endif
 
 /* Class-Specific Requests */

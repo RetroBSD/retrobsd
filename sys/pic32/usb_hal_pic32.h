@@ -71,7 +71,7 @@ typedef union __attribute__ ((packed)) _BD_STAT
     };
     struct __attribute__ ((packed)){
         unsigned            :2;
-        unsigned    PID     :4;         //Packet Identifier
+        unsigned    PID     :4;     //Packet Identifier
     };
     unsigned short  Val;
 } BD_STAT;
@@ -83,7 +83,7 @@ typedef union __attribute__ ((packed))__BDT
     {
         BD_STAT     STAT;
         unsigned    CNT:10;
-        unsigned char *ADR;		//Buffer Address
+        unsigned char *ADR;         //Buffer Address
     };
     struct __attribute__ ((packed))
     {
@@ -107,10 +107,10 @@ typedef union __attribute__ ((packed))__BDT
 
 #define UEP_STALL 0x0002
 
-//#define USB_PING_PONG__NO_PING_PONG	0x00
-//#define USB_PING_PONG__EP0_OUT_ONLY	0x01
-#define USB_PING_PONG__FULL_PING_PONG	0x02
-//#define USB_PING_PONG__ALL_BUT_EP0	0x03
+//#define USB_PING_PONG__NO_PING_PONG   0x00
+//#define USB_PING_PONG__EP0_OUT_ONLY   0x01
+#define USB_PING_PONG__FULL_PING_PONG   0x02
+//#define USB_PING_PONG__ALL_BUT_EP0    0x03
 
 /*
  * Translate virtual address to physical one.
@@ -130,7 +130,7 @@ static inline void *ConvertToPhysicalAddress (volatile void *addr)
             phys = virt & 0x1fffffff;
         }
     } else {
-	// kuseg
+        // kuseg
         phys = virt + 0x40000000;
     }
     return (void*) phys;
@@ -140,10 +140,10 @@ static inline void *ConvertToPhysicalAddress (volatile void *addr)
  * This macro is used to disable the USB module
  */
 #define usb_module_disable() {\
-	U1CON = 0;\
-	U1IE = 0;\
-	U1OTGIE = 0;\
-	U1PWR |= PIC32_U1PWR_USBPWR;\
-	usb_device_state = DETACHED_STATE;\
+        U1CON = 0;\
+        U1IE = 0;\
+        U1OTGIE = 0;\
+        U1PWR |= PIC32_U1PWR_USBPWR;\
+        usb_device_state = DETACHED_STATE;\
 }
 #endif

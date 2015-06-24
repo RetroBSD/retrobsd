@@ -21,7 +21,6 @@
  * arising out of or in connection with the use or performance of
  * this software.
  */
-
 #include "param.h"
 #include "conf.h"
 #include "user.h"
@@ -43,7 +42,6 @@ typedef struct {
     unsigned char endGlyph;
     unsigned char bitsPerPixel;
 } FontHeader;
-
 
 struct tty hx8357_ttys[1];
 
@@ -102,19 +100,22 @@ const struct devspec hx8357devs[] = {
     { 0, 0 }
 };
 
-void inline static writeCommand(unsigned short c) {
+void inline static writeCommand(unsigned short c)
+{
     while (PMMODE & PIC32_PMMODE_BUSY);
     PMADDR = 0x0000;
     PMDIN = c;
 }
 
-void inline static writeData(unsigned short c) {
+void inline static writeData(unsigned short c)
+{
     while (PMMODE & PIC32_PMMODE_BUSY);
     PMADDR = 0x0001;
     PMDIN = c;
 }
 
-void initDisplay() {
+void initDisplay()
+{
     PMCONCLR = PIC32_PMCON_ON;
     asm volatile("nop");
 
@@ -124,7 +125,6 @@ void initDisplay() {
     PMMODE = PIC32_PMMODE_MODE16 | PIC32_PMMODE_MODE_MAST2;
     PMADDR = 0;
     PMCONSET = PIC32_PMCON_ON;
-
 
     writeCommand(HX8357_EXIT_SLEEP_MODE); //Sleep Out
     udelay(150000);
@@ -232,7 +232,8 @@ void initDisplay() {
     }
 }
 
-void inline static setAddrWindow(unsigned short x0, unsigned short y0, unsigned short x1, unsigned short y1) {
+void inline static setAddrWindow(unsigned short x0, unsigned short y0, unsigned short x1, unsigned short y1)
+{
     writeCommand(HX8357_SET_COLUMN_ADDRESS); // Column addr set
     writeData((x0) >> 8);
     writeData(x0);     // XSTART
@@ -248,7 +249,8 @@ void inline static setAddrWindow(unsigned short x0, unsigned short y0, unsigned 
     writeCommand(HX8357_WRITE_MEMORY_START); //Write SRAM Data
 }
 
-void inline static setPixel(int x, int y, unsigned short color) {
+void inline static setPixel(int x, int y, unsigned short color)
+{
     if((x < 0) ||(x >= _width) || (y < 0) || (y >= _height))
         return;
     setAddrWindow(x,y,x+1,y+1);
@@ -276,36 +278,36 @@ void inline static setRotation(unsigned char m)
 {
     writeCommand(HX8357_SET_ADDRESS_MODE);
     rotation = m % 4; // can't be higher than 3
-    switch (rotation)
-    {
-        case 0:
-            //PORTRAIT
-            writeData(0x0000);
-            _width  = 320;
-            _height = 480;
-            break;
-        case 1:
-            //LANDSCAPE
-            writeData(0x0060);
-            _width  = 480;
-            _height = 320;
-            break;
-        case 2:
-            //UPSIDE DOWN PORTRAIT
-            writeData(0x00C0);
-            _width  = 320;
-            _height = 480;
-            break;
-        case 3:
-            //UPSIDE DOWN LANDSCAPE
-            writeData(0x00A0);
-            _width  = 480;
-            _height = 320;
-            break;
+    switch (rotation) {
+    case 0:
+        //PORTRAIT
+        writeData(0x0000);
+        _width  = 320;
+        _height = 480;
+        break;
+    case 1:
+        //LANDSCAPE
+        writeData(0x0060);
+        _width  = 480;
+        _height = 320;
+        break;
+    case 2:
+        //UPSIDE DOWN PORTRAIT
+        writeData(0x00C0);
+        _width  = 320;
+        _height = 480;
+        break;
+    case 3:
+        //UPSIDE DOWN LANDSCAPE
+        writeData(0x00A0);
+        _width  = 480;
+        _height = 320;
+        break;
     }
 }
 
-unsigned short inline static mix(unsigned short a, unsigned short b, unsigned char pct) {
+unsigned short inline static mix(unsigned short a, unsigned short b, unsigned char pct)
+{
     Color565 col_a;
     Color565 col_b;
     Color565 col_out;
@@ -322,8 +324,8 @@ unsigned short inline static mix(unsigned short a, unsigned short b, unsigned ch
 }
 
 
-unsigned char drawChar(int x, int y, unsigned char c, unsigned short color, unsigned short bg) {
-
+unsigned char drawChar(int x, int y, unsigned char c, unsigned short color, unsigned short bg)
+{
     if (font == NULL) {
         return 0;
     }
@@ -373,17 +375,20 @@ unsigned char drawChar(int x, int y, unsigned char c, unsigned short color, unsi
     return charwidth;
 }
 
-void updateLine(int l) {
-    if (l < 0) return;
-    if (l > 39) return;
+void updateLine(int l)
+{
+    if (l < 0 || l > 39)
+        return;
 
     int c;
     for (c = 0; c < 80; c++) {
-        drawChar(c * _font_width, l * _font_height, frame[l][c] & 0x7F, frame[l][c] & 0x80 ? texthicolor : textcolor, textbgcolor);
+        drawChar(c * _font_width, l * _font_height, frame[l][c] & 0x7F,
+            frame[l][c] & 0x80 ? texthicolor : textcolor, textbgcolor);
     }
 }
 
-void scrollUp() {
+void scrollUp()
+{
     int l, c;
     for (l = 0; l < 39; l++) {
         for (c = 0; c < 80; c++) {
@@ -404,208 +409,206 @@ int edVal[4];
 
 int bold = 0;
 
-void printChar(unsigned char c) {
+void printChar(unsigned char c)
+{
     switch (c) {
-        case '\n':
-            cursor_y ++;
-            if (cursor_y > 39) {
-                scrollUp();
-                cursor_y = 39;
+    case '\n':
+        cursor_y ++;
+        if (cursor_y > 39) {
+            scrollUp();
+            cursor_y = 39;
+        }
+        break;
+    case '\r':
+        cursor_x = 0;
+        break;
+    case 8:
+        cursor_x--;
+        if (cursor_x < 0) {
+            cursor_x = 79;
+            cursor_y--;
+            if (cursor_y < 0) {
+                cursor_y = 0;
             }
-            break;
-        case '\r':
+        }
+        break;
+    default:
+        frame[cursor_y][cursor_x] = c | (bold ? 0x80 : 0x00);
+        cursor_x++;
+        if (cursor_x == 80) {
             cursor_x = 0;
-            break;
-        case 8:
-            cursor_x--;
-            if (cursor_x < 0) {
-                cursor_x = 79;
-                cursor_y--;
-                if (cursor_y < 0) {
-                    cursor_y = 0;
-                }
+            cursor_y++;
+            if (cursor_y == 40) {
+                cursor_y = 39;
+                scrollUp();
             }
-            break;
-        default:
-            frame[cursor_y][cursor_x] = c | (bold ? 0x80 : 0x00);
-            cursor_x++;
-            if (cursor_x == 80) {
-                cursor_x = 0;
-                cursor_y++;
-                if (cursor_y == 40) {
-                    cursor_y = 39;
-                    scrollUp();
-                }
-            }
-            updateLine(cursor_y);
-       
+        }
+        updateLine(cursor_y);
     }
 }
 
 int extended = 0;
 
-void writeChar(unsigned char c) {
-
+void writeChar(unsigned char c)
+{
     int i, j;
     updateLine(cursor_y);
 
     if (inEscape == 1) {
-
         switch (c) {
-            case 27:
-                inEscape = 0;
-                printChar('^');
-                printChar('[');
-                break;
-            case '[':
-                extended = 1;
-                break;
-            case '0':
-            case '1':
-            case '2':
-            case '3':
-            case '4':
-            case '5':
-            case '6':
-            case '7':
-            case '8':
-            case '9':
-                edVal[edValPos%4] *= 10;
-                edVal[edValPos%4] += c - '0';
-                break;
-            case ';':
-                edValPos++;
-                edVal[edValPos%4] = 0;
-                break;
-            case 'J':
-                if (extended == 1) {
-                    if (edVal[0] == 0) {
-                        for (i = cursor_y; i < 40; i++) {
-                            for (j = 0; j < 80; j++) {
-                                frame[i][j] = ' ';
-                            }
-                            updateLine(i);
+        case 27:
+            inEscape = 0;
+            printChar('^');
+            printChar('[');
+            break;
+        case '[':
+            extended = 1;
+            break;
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+            edVal[edValPos%4] *= 10;
+            edVal[edValPos%4] += c - '0';
+            break;
+        case ';':
+            edValPos++;
+            edVal[edValPos%4] = 0;
+            break;
+        case 'J':
+            if (extended == 1) {
+                if (edVal[0] == 0) {
+                    for (i = cursor_y; i < 40; i++) {
+                        for (j = 0; j < 80; j++) {
+                            frame[i][j] = ' ';
                         }
-                    } else if (edVal[0] == 1) {
-                        for (i = 0; i < cursor_y; i++) {
-                            for (j = 0; j < 80; j++) {
-                                frame[i][j] = ' ';
-                            }
-                            updateLine(i);
-                        }
-                    } else if (edVal[0] == 2) {
-                        for (i = 0; i < 40; i++) {
-                            for (j = 0; j < 80; j++) {
-                                frame[i][j] = ' ';
-                            }
-                            updateLine(i);
-                        }
-                    } 
-                }
-                inEscape = 0;
-                break;
-            case 'H':
-                if (extended == 1) {
-                    if (edVal[0] == 0) {
-                        edVal[0] = 1;
+                        updateLine(i);
                     }
-                    if (edVal[1] == 0) {
-                        edVal[1] = 1;
+                } else if (edVal[0] == 1) {
+                    for (i = 0; i < cursor_y; i++) {
+                        for (j = 0; j < 80; j++) {
+                            frame[i][j] = ' ';
+                        }
+                        updateLine(i);
                     }
-                    cursor_x = (edVal[1] - 1) % 80;
-                    cursor_y = (edVal[0] - 1) % 40;
-                }
-                inEscape = 0;
-                break;
-            case 'm':
-                if (extended == 1) {
-                    if (edVal[0] == 0) {
-                        bold = 0;
-                    } else if (edVal[0] == 1) {
-                        bold = 1;
+                } else if (edVal[0] == 2) {
+                    for (i = 0; i < 40; i++) {
+                        for (j = 0; j < 80; j++) {
+                            frame[i][j] = ' ';
+                        }
+                        updateLine(i);
                     }
                 }
-                inEscape = 0;
-                break;
+            }
+            inEscape = 0;
+            break;
+        case 'H':
+            if (extended == 1) {
+                if (edVal[0] == 0) {
+                    edVal[0] = 1;
+                }
+                if (edVal[1] == 0) {
+                    edVal[1] = 1;
+                }
+                cursor_x = (edVal[1] - 1) % 80;
+                cursor_y = (edVal[0] - 1) % 40;
+            }
+            inEscape = 0;
+            break;
+        case 'm':
+            if (extended == 1) {
+                if (edVal[0] == 0) {
+                    bold = 0;
+                } else if (edVal[0] == 1) {
+                    bold = 1;
+                }
+            }
+            inEscape = 0;
+            break;
 
-            case 'A':
-                if (extended == 0) {
-                    cursor_y--;
-                    if (cursor_y > 0) {
-                        cursor_y = 39;
-                    }
+        case 'A':
+            if (extended == 0) {
+                cursor_y--;
+                if (cursor_y > 0) {
+                    cursor_y = 39;
                 }
-                inEscape = 0;
-                break;
+            }
+            inEscape = 0;
+            break;
 
-            case 'B':
-                if (extended == 0) {
+        case 'B':
+            if (extended == 0) {
+                cursor_y++;
+                if (cursor_y == 40) {
+                    cursor_y = 0;
+                }
+            }
+            inEscape = 0;
+            break;
+
+        case 'C':
+            if (extended == 0) {
+                cursor_x++;
+                if (cursor_x == 80) {
+                    cursor_x = 0;
                     cursor_y++;
                     if (cursor_y == 40) {
                         cursor_y = 0;
                     }
                 }
-                inEscape = 0;
-                break;
+            }
+            inEscape = 0;
+            break;
 
-            case 'C':
-                if (extended == 0) {
-                    cursor_x++;
-                    if (cursor_x == 80) {
-                        cursor_x = 0;
-                        cursor_y++;
-                        if (cursor_y == 40) {
-                            cursor_y = 0;
-                        }
+        case 'D':
+            if (extended == 0) {
+                cursor_x--;
+                if (cursor_x < 0) {
+                    cursor_x = 79;
+                    cursor_y--;
+                    if (cursor_y < 0) {
+                        cursor_y = 39;
                     }
                 }
-                inEscape = 0;
-                break;
+            }
+            inEscape = 0;
+            break;
 
-            case 'D':
-                if (extended == 0) {
-                    cursor_x--;
-                    if (cursor_x < 0) {
-                        cursor_x = 79;
-                        cursor_y--;
-                        if (cursor_y < 0) {
-                            cursor_y = 39;
-                        }
+        case 'K':
+            if (extended == 1) {
+                if (edVal[0] == 0) {
+                    for (i = cursor_x; i < 80; i++) {
+                        frame[cursor_y][i] = ' ';
                     }
-                }
-                inEscape = 0;
-                break;
-
-            case 'K':
-                if (extended == 1) {
-                    if (edVal[0] == 0) {
-                        for (i = cursor_x; i < 80; i++) {
-                            frame[cursor_y][i] = ' ';
-                        }
-                    } else if (edVal[1] == 1) {
-                        for (i = 0; i < cursor_x; i++) {
-                            frame[cursor_y][i] = ' ';
-                        }
-                    } else {
-                        for (i = 0; i < 80; i++) {
-                            frame[cursor_y][i] = ' ';
-                        }
+                } else if (edVal[1] == 1) {
+                    for (i = 0; i < cursor_x; i++) {
+                        frame[cursor_y][i] = ' ';
                     }
-                    updateLine(cursor_y);
-                }
-                inEscape = 0;
-                break;
-
-            default:
-                if (extended) {
-                    printf("Unhandled extended escape code %c\n", c);
                 } else {
-                    printf("Unhandled escape code %c\n", c);
+                    for (i = 0; i < 80; i++) {
+                        frame[cursor_y][i] = ' ';
+                    }
                 }
-                inEscape = 0;
-                break;
-       } 
+                updateLine(cursor_y);
+            }
+            inEscape = 0;
+            break;
 
+        default:
+            if (extended) {
+                printf("Unhandled extended escape code %c\n", c);
+            } else {
+                printf("Unhandled escape code %c\n", c);
+            }
+            inEscape = 0;
+            break;
+       }
     } else {
         if (c == 27) {
             inEscape = 1;
@@ -616,14 +619,19 @@ void writeChar(unsigned char c) {
             printChar(c);
         }
     }
-    drawChar(cursor_x * _font_width, cursor_y * _font_height, frame[cursor_y][cursor_x] & 0x7F, 0x0000, bold ? texthicolor : textcolor);
-//    for (i = 0; i < _font_width; i++) {
-//        setPixel(cursor_x * _font_width + i, (cursor_y + 1) * _font_height - 1, 0xFFFF);
-//    }
-
+    drawChar(cursor_x * _font_width, cursor_y * _font_height,
+        frame[cursor_y][cursor_x] & 0x7F, 0x0000,
+        bold ? texthicolor : textcolor);
+#if 0
+    for (i = 0; i < _font_width; i++) {
+        setPixel(cursor_x * _font_width + i,
+            (cursor_y + 1) * _font_height - 1, 0xFFFF);
+    }
+#endif
 }
 
-void hx8357_start(struct tty *tp) {
+void hx8357_start(struct tty *tp)
+{
     register int s;
 
     s = spltty();
@@ -641,7 +649,8 @@ void hx8357_start(struct tty *tp) {
     splx (s);
 }
 
-void hx8357_init() {
+void hx8357_init()
+{
     initDisplay();
     setRotation(1);
     int i,j;
@@ -655,7 +664,8 @@ void hx8357_init() {
 
 int ttyIsOpen = 0;
 
-int hx8357_open(dev_t dev, int flag, int mode) {
+int hx8357_open(dev_t dev, int flag, int mode)
+{
     int unit = minor(dev);
 
     if (unit == 0) {
@@ -675,7 +685,8 @@ int hx8357_open(dev_t dev, int flag, int mode) {
     return ENODEV;
 }
 
-int hx8357_close(dev_t dev, int flag, int mode) {
+int hx8357_close(dev_t dev, int flag, int mode)
+{
     int unit = minor(dev);
 
     if (unit == 0) {
@@ -691,7 +702,8 @@ int hx8357_close(dev_t dev, int flag, int mode) {
     return ENODEV;
 }
 
-int hx8357_read(dev_t dev, struct uio *uio, int flag) {
+int hx8357_read(dev_t dev, struct uio *uio, int flag)
+{
     int unit = minor(dev);
 
     if (unit == 0) {
@@ -705,7 +717,8 @@ int hx8357_read(dev_t dev, struct uio *uio, int flag) {
     return ENODEV;
 }
 
-int hx8357_write(dev_t dev, struct uio *uio, int flag) {
+int hx8357_write(dev_t dev, struct uio *uio, int flag)
+{
     int unit = minor(dev);
 
     if (unit == 0) {
@@ -728,11 +741,12 @@ int hx8357_write(dev_t dev, struct uio *uio, int flag) {
             uio->uio_offset ++;
         }
         return 0;
-    } 
+    }
     return ENODEV;
 }
 
-int hx8357_ioctl(dev_t dev, register u_int cmd, caddr_t addr, int flag) {
+int hx8357_ioctl(dev_t dev, register u_int cmd, caddr_t addr, int flag)
+{
     int unit = minor(dev);
 
     if (unit == 0) {
@@ -752,15 +766,18 @@ int hx8357_ioctl(dev_t dev, register u_int cmd, caddr_t addr, int flag) {
 
 }
 
-void hx8357_putc(dev_t dev, char c) {
+void hx8357_putc(dev_t dev, char c)
+{
     writeChar(c);
 }
 
-char hx8357_getc(dev_t dev) {
+char hx8357_getc(dev_t dev)
+{
     return 0;
 }
 
-int hx8357_select (dev_t dev, int rw) {
+int hx8357_select (dev_t dev, int rw)
+{
     int unit = minor(dev);
     if (unit == 0) {
         struct tty *tp = &hx8357_ttys[unit];
@@ -771,4 +788,3 @@ int hx8357_select (dev_t dev, int rw) {
     }
     return ENODEV;
 }
-

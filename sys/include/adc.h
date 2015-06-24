@@ -3,10 +3,10 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  *
- *	@(#)adc.h	1.4 (2.11BSD GTE) 1997/3/28
+ *  @(#)adc.h   1.4 (2.11BSD GTE) 1997/3/28
  */
 
-#ifndef	_ADC_H
+#ifndef _ADC_H
 #define _ADC_H
 
 #include <sys/ioctl.h>

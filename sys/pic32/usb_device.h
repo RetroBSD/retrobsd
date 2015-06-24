@@ -38,70 +38,70 @@
  * NOTE: Do not use these values for checking against USTAT.
  * To check against USTAT, use values defined in usbd.h.
  */
-#define _EP_IN		0x80
-#define _EP_OUT		0x00
-#define _EP01_OUT	0x01
-#define _EP01_IN	0x81
-#define _EP02_OUT	0x02
-#define _EP02_IN	0x82
-#define _EP03_OUT	0x03
-#define _EP03_IN	0x83
-#define _EP04_OUT	0x04
-#define _EP04_IN	0x84
-#define _EP05_OUT	0x05
-#define _EP05_IN	0x85
-#define _EP06_OUT	0x06
-#define _EP06_IN	0x86
-#define _EP07_OUT	0x07
-#define _EP07_IN	0x87
-#define _EP08_OUT	0x08
-#define _EP08_IN	0x88
-#define _EP09_OUT	0x09
-#define _EP09_IN	0x89
-#define _EP10_OUT	0x0A
-#define _EP10_IN	0x8A
-#define _EP11_OUT	0x0B
-#define _EP11_IN	0x8B
-#define _EP12_OUT	0x0C
-#define _EP12_IN	0x8C
-#define _EP13_OUT	0x0D
-#define _EP13_IN	0x8D
-#define _EP14_OUT	0x0E
-#define _EP14_IN	0x8E
-#define _EP15_OUT	0x0F
-#define _EP15_IN	0x8F
+#define _EP_IN          0x80
+#define _EP_OUT         0x00
+#define _EP01_OUT       0x01
+#define _EP01_IN        0x81
+#define _EP02_OUT       0x02
+#define _EP02_IN        0x82
+#define _EP03_OUT       0x03
+#define _EP03_IN        0x83
+#define _EP04_OUT       0x04
+#define _EP04_IN        0x84
+#define _EP05_OUT       0x05
+#define _EP05_IN        0x85
+#define _EP06_OUT       0x06
+#define _EP06_IN        0x86
+#define _EP07_OUT       0x07
+#define _EP07_IN        0x87
+#define _EP08_OUT       0x08
+#define _EP08_IN        0x88
+#define _EP09_OUT       0x09
+#define _EP09_IN        0x89
+#define _EP10_OUT       0x0A
+#define _EP10_IN        0x8A
+#define _EP11_OUT       0x0B
+#define _EP11_IN        0x8B
+#define _EP12_OUT       0x0C
+#define _EP12_IN        0x8C
+#define _EP13_OUT       0x0D
+#define _EP13_IN        0x8D
+#define _EP14_OUT       0x0E
+#define _EP14_IN        0x8E
+#define _EP15_OUT       0x0F
+#define _EP15_IN        0x8F
 
 /* Configuration Attributes */
-#define _DEFAULT	(0x01 << 7)	// Default Value (Bit 7 is set)
-#define _SELF		(0x01 << 6)	// Self-powered (Supports if set)
-#define _RWU		(0x01 << 5)	// Remote Wakeup (Supports if set)
-#define _HNP		(0x01 << 1)	// HNP (Supports if set)
-#define _SRP		(0x01)		// SRP (Supports if set)
+#define _DEFAULT        (0x01 << 7)     // Default Value (Bit 7 is set)
+#define _SELF           (0x01 << 6)     // Self-powered (Supports if set)
+#define _RWU            (0x01 << 5)     // Remote Wakeup (Supports if set)
+#define _HNP            (0x01 << 1)     // HNP (Supports if set)
+#define _SRP            (0x01)          // SRP (Supports if set)
 
 /* Endpoint Transfer Type */
-#define _CTRL		0x00		// Control Transfer
-#define _ISO		0x01		// Isochronous Transfer
-#define _BULK		0x02		// Bulk Transfer
-#define _INTERRUPT	0x03		// Interrupt Transfer
+#define _CTRL           0x00            // Control Transfer
+#define _ISO            0x01            // Isochronous Transfer
+#define _BULK           0x02            // Bulk Transfer
+#define _INTERRUPT      0x03            // Interrupt Transfer
 
 /* Isochronous Endpoint Synchronization Type */
-#define _NS		(0x00 << 2)	// No Synchronization
-#define _AS		(0x01 << 2)	// Asynchronous
-#define _AD		(0x02 << 2)	// Adaptive
-#define _SY		(0x03 << 2)	// Synchronous
+#define _NS             (0x00 << 2)     // No Synchronization
+#define _AS             (0x01 << 2)     // Asynchronous
+#define _AD             (0x02 << 2)     // Adaptive
+#define _SY             (0x03 << 2)     // Synchronous
 
 /* Isochronous Endpoint Usage Type */
-#define _DE		(0x00 << 4)	// Data endpoint
-#define _FE		(0x01 << 4)	// Feedback endpoint
-#define _IE		(0x02 << 4)	// Implicit feedback Data endpoint
+#define _DE             (0x00 << 4)     // Data endpoint
+#define _FE             (0x01 << 4)     // Feedback endpoint
+#define _IE             (0x02 << 4)     // Implicit feedback Data endpoint
 
-#define _ROM		USB_INPIPES_ROM
-#define _RAM		USB_INPIPES_RAM
+#define _ROM            USB_INPIPES_ROM
+#define _RAM            USB_INPIPES_RAM
 
 //These are the directional indicators used for the usb_transfer_one_packet()
 //  function.
-#define OUT_FROM_HOST	0
-#define IN_TO_HOST	1
+#define OUT_FROM_HOST   0
+#define IN_TO_HOST      1
 
 /*
  * CTRL_TRF_SETUP: Every setup packet has 8 bytes.  This structure
@@ -114,26 +114,26 @@ typedef union __attribute__ ((packed)) _CTRL_TRF_SETUP
     struct __attribute__ ((packed))
     {
         unsigned char bmRequestType; //from table 9-2 of USB2.0 spec
-        unsigned char bRequest; //from table 9-2 of USB2.0 spec
-        unsigned short wValue; //from table 9-2 of USB2.0 spec
-        unsigned short wIndex; //from table 9-2 of USB2.0 spec
-        unsigned short wLength; //from table 9-2 of USB2.0 spec
+        unsigned char bRequest;     //from table 9-2 of USB2.0 spec
+        unsigned short wValue;      //from table 9-2 of USB2.0 spec
+        unsigned short wIndex;      //from table 9-2 of USB2.0 spec
+        unsigned short wLength;     //from table 9-2 of USB2.0 spec
     };
     struct __attribute__ ((packed))
     {
         unsigned :8;
         unsigned :8;
-        unsigned short W_Value; //from table 9-2 of USB2.0 spec, allows byte/bitwise access
-        unsigned short W_Index; //from table 9-2 of USB2.0 spec, allows byte/bitwise access
-        unsigned short W_Length; //from table 9-2 of USB2.0 spec, allows byte/bitwise access
+        unsigned short W_Value;     //from table 9-2 of USB2.0 spec, allows byte/bitwise access
+        unsigned short W_Index;     //from table 9-2 of USB2.0 spec, allows byte/bitwise access
+        unsigned short W_Length;    //from table 9-2 of USB2.0 spec, allows byte/bitwise access
     };
     struct __attribute__ ((packed))
     {
-        unsigned Recipient:5;   //Device,Interface,Endpoint,Other
-        unsigned RequestType:2; //Standard,Class,Vendor,Reserved
-        unsigned DataDir:1;     //Host-to-device,Device-to-host
+        unsigned Recipient:5;       //Device,Interface,Endpoint,Other
+        unsigned RequestType:2;     //Standard,Class,Vendor,Reserved
+        unsigned DataDir:1;         //Host-to-device,Device-to-host
         unsigned :8;
-        unsigned char bFeature;          //DEVICE_REMOTE_WAKEUP,ENDPOINT_HALT
+        unsigned char bFeature;     //DEVICE_REMOTE_WAKEUP,ENDPOINT_HALT
         unsigned :8;
         unsigned :8;
         unsigned :8;
@@ -154,8 +154,8 @@ typedef union __attribute__ ((packed)) _CTRL_TRF_SETUP
     {
         unsigned :8;
         unsigned :8;
-        unsigned char bDevADR;		//Device Address 0-127
-        unsigned char bDevADRH;         //Must equal zero
+        unsigned char bDevADR;      //Device Address 0-127
+        unsigned char bDevADRH;     //Must equal zero
         unsigned :8;
         unsigned :8;
         unsigned :8;
@@ -165,8 +165,8 @@ typedef union __attribute__ ((packed)) _CTRL_TRF_SETUP
     {
         unsigned :8;
         unsigned :8;
-        unsigned char bConfigurationValue;         //Configuration Value 0-255
-        unsigned char bCfgRSD;           //Must equal zero (Reserved)
+        unsigned char bConfigurationValue;  //Configuration Value 0-255
+        unsigned char bCfgRSD;              //Must equal zero (Reserved)
         unsigned :8;
         unsigned :8;
         unsigned :8;
@@ -176,10 +176,10 @@ typedef union __attribute__ ((packed)) _CTRL_TRF_SETUP
     {
         unsigned :8;
         unsigned :8;
-        unsigned char bAltID;            //Alternate Setting Value 0-255
-        unsigned char bAltID_H;          //Must equal zero
-        unsigned char bIntfID;           //Interface Number Value 0-255
-        unsigned char bIntfID_H;         //Must equal zero
+        unsigned char bAltID;       //Alternate Setting Value 0-255
+        unsigned char bAltID_H;     //Must equal zero
+        unsigned char bIntfID;      //Interface Number Value 0-255
+        unsigned char bIntfID_H;    //Must equal zero
         unsigned :8;
         unsigned :8;
     };
@@ -189,8 +189,8 @@ typedef union __attribute__ ((packed)) _CTRL_TRF_SETUP
         unsigned :8;
         unsigned :8;
         unsigned :8;
-        unsigned char bEPID;             //Endpoint ID (Number & Direction)
-        unsigned char bEPID_H;           //Must equal zero
+        unsigned char bEPID;        //Endpoint ID (Number & Direction)
+        unsigned char bEPID_H;      //Must equal zero
         unsigned :8;
         unsigned :8;
     };
@@ -200,9 +200,9 @@ typedef union __attribute__ ((packed)) _CTRL_TRF_SETUP
         unsigned :8;
         unsigned :8;
         unsigned :8;
-        unsigned EPNum:4;       //Endpoint Number 0-15
+        unsigned EPNum:4;           //Endpoint Number 0-15
         unsigned :3;
-        unsigned EPDir:1;       //Endpoint Direction: 0-OUT, 1-IN
+        unsigned EPDir:1;           //Endpoint Direction: 0-OUT, 1-IN
         unsigned :8;
         unsigned :8;
         unsigned :8;
@@ -356,12 +356,12 @@ typedef struct __attribute__ ((packed))
 #define SetConfigurationOptions()   {U1CNFG1 = 0;}
 
 /* UEPn Initialization Parameters */
-#define EP_CTRL		0x0C	// Cfg Control pipe for this ep
-#define EP_OUT		0x18	// Cfg OUT only pipe for this ep
-#define EP_IN		0x14	// Cfg IN only pipe for this ep
-#define EP_OUT_IN	0x1C	// Cfg both OUT & IN pipes for this ep
-#define HSHK_EN		0x01	// Enable handshake packet
-				// Handshake should be disable for isoch
+#define EP_CTRL         0x0C    // Cfg Control pipe for this ep
+#define EP_OUT          0x18    // Cfg OUT only pipe for this ep
+#define EP_IN           0x14    // Cfg IN only pipe for this ep
+#define EP_OUT_IN       0x1C    // Cfg both OUT & IN pipes for this ep
+#define HSHK_EN         0x01    // Enable handshake packet
+                                // Handshake should be disable for isoch
 
 #define USB_HANDSHAKE_ENABLED   0x01
 #define USB_HANDSHAKE_DISABLED  0x00
@@ -395,14 +395,14 @@ typedef struct __attribute__ ((packed))
  * application related data.
  */
 #ifndef USB_EP0_BUFF_SIZE
-#   define USB_EP0_BUFF_SIZE	8
+#   define USB_EP0_BUFF_SIZE    8
 #endif
 
 /*
  * Only one interface by default.
  */
 #ifndef USB_MAX_NUM_INT
-#   define USB_MAX_NUM_INT	1
+#   define USB_MAX_NUM_INT      1
 #endif
 
 // Definitions for the BDT
@@ -422,32 +422,32 @@ extern const unsigned char *const usb_string[];
 extern volatile CTRL_TRF_SETUP usb_setup_pkt;           // 8-byte only
 
 /* Control Transfer States */
-#define WAIT_SETUP		0
-#define CTRL_TRF_TX		1
-#define CTRL_TRF_RX		2
+#define WAIT_SETUP              0
+#define CTRL_TRF_TX             1
+#define CTRL_TRF_RX             2
 
 /* v2.1 fix - Short Packet States - Used by Control Transfer Read  - CTRL_TRF_TX */
-#define SHORT_PKT_NOT_USED	0
-#define SHORT_PKT_PENDING	1
-#define SHORT_PKT_SENT		2
+#define SHORT_PKT_NOT_USED      0
+#define SHORT_PKT_PENDING       1
+#define SHORT_PKT_SENT          2
 
 /* USB PID: Token Types - See chapter 8 in the USB specification */
-#define SETUP_TOKEN		0x0D    // 0b00001101
-#define OUT_TOKEN		0x01    // 0b00000001
-#define IN_TOKEN		0x09    // 0b00001001
+#define SETUP_TOKEN             0x0D    // 0b00001101
+#define OUT_TOKEN               0x01    // 0b00000001
+#define IN_TOKEN                0x09    // 0b00001001
 
 /* bmRequestType Definitions */
-#define HOST_TO_DEV		0
-#define DEV_TO_HOST		1
+#define HOST_TO_DEV             0
+#define DEV_TO_HOST             1
 
-#define STANDARD		0x00
-#define CLASS			0x01
-#define VENDOR			0x02
+#define STANDARD                0x00
+#define CLASS                   0x01
+#define VENDOR                  0x02
 
-#define RCPT_DEV		0
-#define RCPT_INTF		1
-#define RCPT_EP			2
-#define RCPT_OTH		3
+#define RCPT_DEV                0
+#define RCPT_INTF               1
+#define RCPT_EP                 2
+#define RCPT_OTH                3
 
 extern unsigned usb_device_state;
 extern unsigned usb_active_configuration;

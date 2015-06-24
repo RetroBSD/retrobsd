@@ -28,7 +28,7 @@
 unsigned cdc_trf_state;         // States are defined cdc.h
 unsigned cdc_tx_len;            // total tx length
 
-LINE_CODING cdc_line_coding;	// Buffer to store line coding information
+LINE_CODING cdc_line_coding;    // Buffer to store line coding information
 
 static USB_HANDLE data_out;
 static USB_HANDLE data_in;
@@ -130,10 +130,10 @@ void cdc_check_request()
 void cdc_init_ep()
 {
     // Abstract line coding information
-    cdc_line_coding.dwDTERate = 115200;	// baud rate
-    cdc_line_coding.bCharFormat = 0;	// 1 stop bit
-    cdc_line_coding.bParityType = 0;	// None
-    cdc_line_coding.bDataBits = 8;	// 5,6,7,8, or 16
+    cdc_line_coding.dwDTERate = 115200; // baud rate
+    cdc_line_coding.bCharFormat = 0;    // 1 stop bit
+    cdc_line_coding.bParityType = 0;    // None
+    cdc_line_coding.bDataBits = 8;      // 5,6,7,8, or 16
 
     cdc_trf_state = CDC_TX_READY;
     cdc_tx_len = 0;

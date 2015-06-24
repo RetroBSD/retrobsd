@@ -8,14 +8,14 @@
  * Number of physical address lines on sdram chip
  * one of 11, 12, 13
  */
-#define SDR_ADDRESS_LINES 12
+#define SDR_ADDRESS_LINES       12
 
 /*
  * Ram data width in bytes - 1 (8 bit) or 2 (16 bit)
- * 
+ *
  * NOT USED YET
  */
-#define SDR_DATA_BYTES 2
+#define SDR_DATA_BYTES          2
 
 /*
  * Upper/Lower Byte selection
@@ -23,9 +23,9 @@
 #define SDR_DQM_PORT TRISA
 
 #if SDR_DATA_BYTES == 2
-#define SDR_DQM_UDQM_BIT 6
+#define SDR_DQM_UDQM_BIT        6
 #endif
-#define SDR_DQM_LDQM_BIT 7
+#define SDR_DQM_LDQM_BIT        7
 
 /*
  * Bank Selection
@@ -36,27 +36,27 @@
  * must be connected to BA1.
  */
 
-#define SDR_BANK_PORT 	TRISG
-#define SDR_BANK_0_BIT 	0
+#define SDR_BANK_PORT           TRISG
+#define SDR_BANK_0_BIT          0
 
 /*
  * Clock Enable
  *
  * Connect to CKE on sdram
  */
-#define SDR_CKE_PORT 	TRISD
-#define SDR_CKE_BIT 	11
+#define SDR_CKE_PORT            TRISD
+#define SDR_CKE_BIT             11
 
 /*
  * Control Lines
  *
  * Connect to /WE, /CAS, /CS and /RAS pins on sdram
  */
-#define SDR_CONTROL_PORT 	TRISG
-#define SDR_CONTROL_WE_BIT 	15
-#define SDR_CONTROL_CAS_BIT 	13
-#define SDR_CONTROL_CS_BIT 	14
-#define SDR_CONTROL_RAS_BIT 	12
+#define SDR_CONTROL_PORT        TRISG
+#define SDR_CONTROL_WE_BIT      15
+#define SDR_CONTROL_CAS_BIT     13
+#define SDR_CONTROL_CS_BIT      14
+#define SDR_CONTROL_RAS_BIT     12
 
 /*
  * Address Lines
@@ -65,32 +65,32 @@
  * changing the address line bits is unsupported.
  */
 
-#define SDR_ADDRESS_LB_PORT 	TRISF
-#define SDR_ADDRESS_PORT 	TRISD
+#define SDR_ADDRESS_LB_PORT     TRISF
+#define SDR_ADDRESS_PORT        TRISD
 
 /***** WARNING - DO NOT CHANGE WITHOUT ALSO CHANGING CODE TO MATCH *****/
-#define SDR_ADDRESS_LB_A0_BIT 	0
-#define SDR_ADDRESS_LB_A1_BIT 	1
-#define SDR_ADDRESS_LB_A2_BIT 	2
+#define SDR_ADDRESS_LB_A0_BIT   0
+#define SDR_ADDRESS_LB_A1_BIT   1
+#define SDR_ADDRESS_LB_A2_BIT   2
 
-#define SDR_ADDRESS_A3_BIT 	1
-#define SDR_ADDRESS_A4_BIT 	2
-#define SDR_ADDRESS_A5_BIT 	3
-#define SDR_ADDRESS_A6_BIT 	4
-#define SDR_ADDRESS_A7_BIT 	5
-#define SDR_ADDRESS_A8_BIT 	6
-#define SDR_ADDRESS_A9_BIT 	7
+#define SDR_ADDRESS_A3_BIT      1
+#define SDR_ADDRESS_A4_BIT      2
+#define SDR_ADDRESS_A5_BIT      3
+#define SDR_ADDRESS_A6_BIT      4
+#define SDR_ADDRESS_A7_BIT      5
+#define SDR_ADDRESS_A8_BIT      6
+#define SDR_ADDRESS_A9_BIT      7
 
 #if SDR_ADDRESS_LINES >= 11
-#define SDR_ADDRESS_A10_BIT 	8
+#define SDR_ADDRESS_A10_BIT     8
 #endif
 
 #if SDR_ADDRESS_LINES >= 12
-#define SDR_ADDRESS_A11_BIT 	9
+#define SDR_ADDRESS_A11_BIT     9
 #endif
 
 #if SDR_ADDRESS_LINES >= 13
-#define SDR_ADDRESS_A12_BIT 	10
+#define SDR_ADDRESS_A12_BIT     10
 #endif
 
 /***** END WARNING *****/
@@ -107,7 +107,7 @@
  * logic analyzer for debugging purposes.
  */
 
-#define SDR_DATA_PORT 	TRISE
+#define SDR_DATA_PORT           TRISE
 
 /*
  * Output Compare
@@ -119,9 +119,9 @@
  * OC4CON - RD3
  */
 
-#define SDR_OCR		OC1CON
+#define SDR_OCR                 OC1CON
 
-/* 
+/*
  * Additional sdram connections
  *
  * Power and ground as appropriate.
@@ -153,19 +153,19 @@
 #define SDR_ADDRESS_A12_BITMASK 0
 #endif
 
-#define ADDRESS_LB_MASK									\
-	((1<<SDR_ADDRESS_LB_A0_BIT)|(1<<SDR_ADDRESS_LB_A1_BIT)|(1<<SDR_ADDRESS_LB_A2_BIT))
+#define ADDRESS_LB_MASK                                                                 \
+        ((1<<SDR_ADDRESS_LB_A0_BIT)|(1<<SDR_ADDRESS_LB_A1_BIT)|(1<<SDR_ADDRESS_LB_A2_BIT))
 
-#define ADDRESS_MASK 									\
-	((1<<SDR_ADDRESS_A3_BIT)|(1<<SDR_ADDRESS_A4_BIT)|(1<<SDR_ADDRESS_A5_BIT)|	\
-	 (1<<SDR_ADDRESS_A6_BIT)|(1<<SDR_ADDRESS_A7_BIT)|(1<<SDR_ADDRESS_A8_BIT)|	\
-	 (1<<SDR_ADDRESS_A9_BIT)| \
-	 SDR_ADDRESS_A10_BITMASK| \
+#define ADDRESS_MASK                                                                    \
+        ((1<<SDR_ADDRESS_A3_BIT)|(1<<SDR_ADDRESS_A4_BIT)|(1<<SDR_ADDRESS_A5_BIT)|       \
+         (1<<SDR_ADDRESS_A6_BIT)|(1<<SDR_ADDRESS_A7_BIT)|(1<<SDR_ADDRESS_A8_BIT)|       \
+         (1<<SDR_ADDRESS_A9_BIT)| \
+         SDR_ADDRESS_A10_BITMASK| \
          SDR_ADDRESS_A11_BITMASK| \
          SDR_ADDRESS_A12_BITMASK)
 
-#define CONTROL_ALL_MASK 					\
-	((1<<SDR_CONTROL_CS_BIT)|(1<<SDR_CONTROL_RAS_BIT)| 	\
+#define CONTROL_ALL_MASK                                        \
+        ((1<<SDR_CONTROL_CS_BIT)|(1<<SDR_CONTROL_RAS_BIT)|      \
          (1<<SDR_CONTROL_CAS_BIT)|(1<<SDR_CONTROL_WE_BIT))
 
 #define BANK_BITMASK 3
@@ -173,10 +173,10 @@
 
 #ifdef SDR_DQM_UDQM_BIT
 #define SDR_DQM_MASK \
-	((1<<SDR_DQM_LDQM_BIT)|(1<<SDR_DQM_UDQM_BIT))
+        ((1<<SDR_DQM_LDQM_BIT)|(1<<SDR_DQM_UDQM_BIT))
 #else
 #define SDR_DQM_MASK \
-	(1<<SDR_DQM_LDQM_BIT)
+        (1<<SDR_DQM_LDQM_BIT)
 #endif
 
 #endif

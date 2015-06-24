@@ -1,13 +1,13 @@
 #ifndef _PTY_H
 #define _PTY_H
 
-#define	PF_RCOLL	0x01
-#define	PF_WCOLL	0x02
-#define	PF_PKT		0x08		/* packet mode */
-#define	PF_STOPPED	0x10		/* user told stopped */
-#define	PF_REMOTE	0x20		/* remote and flow controlled input */
-#define	PF_NOSTOP	0x40
-#define PF_UCNTL	0x80		/* user control mode */
+#define PF_RCOLL    0x01
+#define PF_WCOLL    0x02
+#define PF_PKT      0x08        /* packet mode */
+#define PF_STOPPED  0x10        /* user told stopped */
+#define PF_REMOTE   0x20        /* remote and flow controlled input */
+#define PF_NOSTOP   0x40
+#define PF_UCNTL    0x80        /* user control mode */
 
 #ifdef KERNEL
 

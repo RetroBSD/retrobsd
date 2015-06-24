@@ -93,7 +93,7 @@
 #define CMD_SET_DSR             4
 #define CMD_IO_SEND_OCR         5           // R4, unique to IO cards
 #define CMD_SELECT_CARD         7           // R1, arg=rca[31..16] or 0
-#define CMD_SEND_IF_COND	8
+#define CMD_SEND_IF_COND        8
 #define CMD_SEND_CSD            9           // R2: R136
 #define CMD_SEND_CID            10          // R2: R136
 #define CMD_STOP_TRANSMISSION   12          // R1b: arg=stuff bits

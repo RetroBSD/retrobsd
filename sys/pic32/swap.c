@@ -24,15 +24,12 @@ const struct devspec swapcdevs[] = { { 0, "temp0" }, { 1, "temp1" }, { 2, "temp2
 
 extern struct buf *getnewbuf();
 
-static unsigned int tdsize[NTMP];	// Number of blocks allocated
+static unsigned int tdsize[NTMP];   // Number of blocks allocated
 static unsigned int tdstart[NTMP];  // Starting location in map
 
 extern dev_t swapdev;
 extern int physio(void (*strat) (struct buf*),
-			register struct buf *bp,
-			dev_t dev,
-			int rw,
-			register struct uio *uio);
+    struct buf *bp, dev_t dev, int rw, struct uio *uio);
 
 extern void swap(size_t blkno, size_t coreaddr, register int count, int rdflg);
 
@@ -81,7 +78,7 @@ int swcopen(dev_t dev, int mode, int flag)
         printf("temp%d: Device number out of range\n", minor(dev));
         return ENODEV;
     }
-	return 0;
+    return 0;
 }
 
 int swcclose(dev_t dev, int mode, int flag)
@@ -91,16 +88,16 @@ int swcclose(dev_t dev, int mode, int flag)
     if (unit >= NTMP)
         return ENODEV;
 
-	return 0;
+    return 0;
 }
 
 int swcread(dev_t dev, register struct uio *uio, int flag)
 {
-	unsigned int block;
-	unsigned int boff;
-	struct buf *bp;
-	unsigned int rsize;
-	unsigned int rlen;
+    unsigned int block;
+    unsigned int boff;
+    struct buf *bp;
+    unsigned int rsize;
+    unsigned int rlen;
     int unit = minor(dev);
 
     if (unit >= NTMP) {
@@ -108,40 +105,40 @@ int swcread(dev_t dev, register struct uio *uio, int flag)
         return ENODEV;
     }
 
-	if (tdstart[unit] == 0)
-		return EIO;
+    if (tdstart[unit] == 0)
+        return EIO;
 
-	if (uio->uio_offset >= tdsize[unit] << 10)
-		return EIO;
+    if (uio->uio_offset >= tdsize[unit] << 10)
+        return EIO;
 
-	bp = getnewbuf();
+    bp = getnewbuf();
 
-	block = uio->uio_offset >> 10;
-	boff = uio->uio_offset - (block << 10);
+    block = uio->uio_offset >> 10;
+    boff = uio->uio_offset - (block << 10);
 
-	rsize = DEV_BSIZE - boff;
-	rlen = uio->uio_iov->iov_len;
+    rsize = DEV_BSIZE - boff;
+    rlen = uio->uio_iov->iov_len;
 
-	while((rlen > 0) && (block < tdsize[unit])) {
-		swap(tdstart[unit] + block, (size_t)bp->b_addr, DEV_BSIZE, B_READ);
-		uiomove(bp->b_addr+boff, rsize, uio);
-		boff = 0;
-		block++;
-		rlen -= rsize;
-		rsize = rlen >= DEV_BSIZE ? DEV_BSIZE : rlen;
-	}
+    while((rlen > 0) && (block < tdsize[unit])) {
+        swap(tdstart[unit] + block, (size_t)bp->b_addr, DEV_BSIZE, B_READ);
+        uiomove(bp->b_addr+boff, rsize, uio);
+        boff = 0;
+        block++;
+        rlen -= rsize;
+        rsize = rlen >= DEV_BSIZE ? DEV_BSIZE : rlen;
+    }
 
-	brelse(bp);
-	return 0;
+    brelse(bp);
+    return 0;
 }
 
 int swcwrite(dev_t dev, register struct uio *uio, int flag)
 {
-	unsigned int block;
-	unsigned int boff;
-	struct buf *bp;
-	unsigned int rsize;
-	unsigned int rlen;
+    unsigned int block;
+    unsigned int boff;
+    struct buf *bp;
+    unsigned int rsize;
+    unsigned int rlen;
     int unit = minor(dev);
 
     if (unit >= NTMP) {
@@ -149,40 +146,40 @@ int swcwrite(dev_t dev, register struct uio *uio, int flag)
         return ENODEV;
     }
 
-	if (tdstart[unit] == 0) {
+    if (tdstart[unit] == 0) {
         printf("temp%d: attempt to write with no allocation\n", unit);
-		return EIO;
+        return EIO;
     }
 
-	if (uio->uio_offset >= tdsize[unit] << 10) {
+    if (uio->uio_offset >= tdsize[unit] << 10) {
         printf("temp%d: attempt to write past end of allocation\n", unit);
-		return EIO;
+        return EIO;
     }
 
-	bp = getnewbuf();
+    bp = getnewbuf();
 
-	block = uio->uio_offset >> 10;
-	boff = uio->uio_offset - (block << 10);
+    block = uio->uio_offset >> 10;
+    boff = uio->uio_offset - (block << 10);
 
-	rsize = DEV_BSIZE - boff;
-	rlen = uio->uio_iov->iov_len;
+    rsize = DEV_BSIZE - boff;
+    rlen = uio->uio_iov->iov_len;
 
-	while((rlen > 0) && (block < tdsize[unit])) {
-		uiomove(bp->b_addr+boff, rsize, uio);
-		swap(tdstart[unit] + block, (size_t)bp->b_addr, DEV_BSIZE, B_WRITE);
-		boff = 0;
-		block++;
-		rlen -= rsize;
-		rsize = rlen >= DEV_BSIZE ? DEV_BSIZE : rlen;
-	}
+    while (rlen > 0 && block < tdsize[unit]) {
+        uiomove(bp->b_addr+boff, rsize, uio);
+        swap(tdstart[unit] + block, (size_t)bp->b_addr, DEV_BSIZE, B_WRITE);
+        boff = 0;
+        block++;
+        rlen -= rsize;
+        rsize = rlen >= DEV_BSIZE ? DEV_BSIZE : rlen;
+    }
 
-	brelse(bp);
-	return 0;
+    brelse(bp);
+    return 0;
 }
 
 int swcioctl (dev_t dev, register u_int cmd, caddr_t addr, int flag)
 {
-	unsigned int *uival;
+    unsigned int *uival;
     off_t *offtval;
     int unit = minor(dev);
 
@@ -191,35 +188,34 @@ int swcioctl (dev_t dev, register u_int cmd, caddr_t addr, int flag)
         return ENODEV;
     }
 
-	uival = (unsigned int *)addr;
+    uival = (unsigned int *)addr;
     offtval = (off_t *)addr;
 
-	switch(cmd)
-	{
-		case TFALLOC:
-			if (tdstart[unit] > 0)
-				mfree(swapmap, tdsize[unit], tdstart[unit]);
+    switch (cmd) {
+    case TFALLOC:
+        if (tdstart[unit] > 0)
+            mfree(swapmap, tdsize[unit], tdstart[unit]);
 
-            if (*offtval > 0) {
-                tdstart[unit] = malloc(swapmap, *offtval);
-                if (tdstart[unit] > 0) {
-                    tdsize[unit] = *offtval;
-                    //printf("temp%d: allocated %lu blocks\n", unit, tdsize[unit]);
-                    return 0;
-                }
-                *offtval = 0;
-                printf("temp%d: failed to allocate %lu blocks\n", tdsize[unit]);
+        if (*offtval > 0) {
+            tdstart[unit] = malloc(swapmap, *offtval);
+            if (tdstart[unit] > 0) {
+                tdsize[unit] = *offtval;
+                //printf("temp%d: allocated %lu blocks\n", unit, tdsize[unit]);
                 return 0;
-            } else {
-                //printf("temp%d: released allocation\n", unit);
             }
-            break;
+            *offtval = 0;
+            printf("temp%d: failed to allocate %lu blocks\n", tdsize[unit]);
+            return 0;
+        } else {
+            //printf("temp%d: released allocation\n", unit);
+        }
+        break;
 
-        case RDGETMEDIASIZE:
-            *uival = swsize(dev);
-            break;
+    case RDGETMEDIASIZE:
+        *uival = swsize(dev);
+        break;
     }
-	return EINVAL;
+    return EINVAL;
 }
 
 void swstrategy(register struct buf *bp)

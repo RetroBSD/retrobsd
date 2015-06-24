@@ -4,16 +4,16 @@
 #include <sys/ioctl.h>
 
 struct pwm_state {
-    int mode;
-    int pwm_duty;
+    int     mode;
+    int     pwm_duty;
 };
 
-#define PWM_MAX_DEV 5
+#define PWM_MAX_DEV     5
 
-#define PWM_MODE_PWM     0x0001
+#define PWM_MODE_PWM    0x0001
 
-#define PWM_SET_MODE _IOW('i',1,int)
-#define PWM_DUTY     _IOW('i',2,int)
+#define PWM_SET_MODE    _IOW('i',1,int)
+#define PWM_DUTY        _IOW('i',2,int)
 
 #ifdef KERNEL
 #include "conf.h"

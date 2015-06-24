@@ -14,8 +14,6 @@ extern void hx8357_putc(dev_t dev, char c);
 extern char hx8357_getc(dev_t dev);
 extern void hx8357_init();
 
-
 extern struct tty hx8357_ttys[1];
-
 
 #endif

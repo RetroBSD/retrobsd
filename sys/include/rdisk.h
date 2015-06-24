@@ -3,70 +3,70 @@
 
 #include "conf.h"
 
-#define RDISK_FS 	0xB7
-#define RDISK_SWAP 	0xB8
+#define RDISK_FS        0xB7
+#define RDISK_SWAP      0xB8
 
-#define RD_DEFAULT	0x00000000UL
-#define RD_READONLY	0x00000001UL
-#define RD_PREPART	0x00000002UL
+#define RD_DEFAULT      0x00000000UL
+#define RD_READONLY     0x00000001UL
+#define RD_PREPART      0x00000002UL
 
-#define S_SILENT	0x8000
+#define S_SILENT        0x8000
 
-#define RAMDISK_PARTSPEC(n,t,s,l)       \
-m->partitions[n].type=t;                \
-m->partitions[n].lbastart=s;            \
-m->partitions[n].lbalength=l;
+#define RAMDISK_PARTSPEC(n, t, s, l) \
+    m->partitions[n].type      = t; \
+    m->partitions[n].lbastart  = s; \
+    m->partitions[n].lbalength = l;
 
 struct diskentry {
-	void (*pre_init)(int unit);
-	int (*init)(int unit,int flag);
-	int (*deinit)(int unit);
-	int (*open)(int unit, int mode, int flags);
-	int (*size)(int unit);
-	int (*read)(int unit, unsigned int offset, char *data, unsigned int bcount);
-	int (*write)(int unit, unsigned int offset, char *data, unsigned int bcount);
-	unsigned char unit;
-	unsigned int settings;
+    void    (*pre_init)(int unit);
+    int     (*init)(int unit,int flag);
+    int     (*deinit)(int unit);
+    int     (*open)(int unit, int mode, int flags);
+    int     (*size)(int unit);
+    int     (*read)(int unit, unsigned int offset, char *data, unsigned int bcount);
+    int     (*write)(int unit, unsigned int offset, char *data, unsigned int bcount);
+    unsigned char unit;
+    unsigned int settings;
 };
 
 struct diskflags {
-	unsigned char opens;
-	unsigned int start[4];
-	unsigned int len[4];
-	unsigned int blocks;
+    unsigned char   opens;
+    unsigned int    start[4];
+    unsigned int    len[4];
+    unsigned int    blocks;
 } __attribute__((packed));
 
 struct chs {
-	unsigned char head;
-	struct {
-		unsigned cylhigh:2;
-		unsigned sector:6;
-	} __attribute__((packed));
-	unsigned char cyllow;
+    unsigned char   head;
+    struct {
+        unsigned    cylhigh : 2;
+        unsigned    sector : 6;
+    } __attribute__((packed));
+    unsigned char   cyllow;
 }__attribute__((packed));
 
 struct partition {
-#define P_ACTIVE 0x80
-	unsigned char status;
-	struct chs start;
-	unsigned char type;
-	struct chs end;
-	unsigned long lbastart;
-	unsigned long lbalength;
+#define P_ACTIVE    0x80
+    unsigned char   status;
+    struct chs      start;
+    unsigned char   type;
+    struct chs      end;
+    unsigned long   lbastart;
+    unsigned long   lbalength;
 };
 
 struct mbr {
-	unsigned char bootstrap1[218];
-	unsigned short pad0000;
-	unsigned char biosdrive;
-	unsigned char secs;
-	unsigned char mins;
-	unsigned char hours;
-	unsigned char bootstrap2[216];
-	unsigned int sig;
-	unsigned short pad0001;
-	struct partition partitions[4];
-	unsigned short bootsig;
+    unsigned char   bootstrap1[218];
+    unsigned short  pad0000;
+    unsigned char   biosdrive;
+    unsigned char   secs;
+    unsigned char   mins;
+    unsigned char   hours;
+    unsigned char   bootstrap2[216];
+    unsigned int    sig;
+    unsigned short  pad0001;
+    struct partition partitions[4];
+    unsigned short  bootsig;
 }__attribute__((packed));
 
 #ifdef KERNEL
@@ -89,9 +89,9 @@ extern const struct devspec rd0devs[];
 extern const struct devspec rd1devs[];
 extern const struct devspec rd2devs[];
 extern const struct devspec rd3devs[];
-#endif 
+#endif
 
-#define RDGETMEDIASIZE _IOR('r',1,int)
-#define RDREINIT _IO('r',2)
+#define RDGETMEDIASIZE  _IOR('r', 1, int)
+#define RDREINIT        _IO('r', 2)
 
 #endif

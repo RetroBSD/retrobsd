@@ -183,7 +183,7 @@ void usb_device_tasks(void)
     // if we are in the detached state
     if (usb_device_state == DETACHED_STATE)
     {
-	// Disable module & detach from bus
+        // Disable module & detach from bus
         U1CON = 0;
 
         // Mask all USB interrupts
@@ -191,8 +191,8 @@ void usb_device_tasks(void)
 
         // Enable module & attach to bus
         while (! (U1CON & PIC32_U1CON_USBEN)) {
-		U1CON |= PIC32_U1CON_USBEN;
-	}
+            U1CON |= PIC32_U1CON_USBEN;
+        }
 
         // moved to the attached state
         usb_device_state = ATTACHED_STATE;
@@ -202,7 +202,7 @@ void usb_device_tasks(void)
         SetConfigurationOptions();
 
 #ifdef USB_SUPPORT_OTG
-	U1OTGCON = USB_OTG_DPLUS_ENABLE | USB_OTG_ENABLE;
+        U1OTGCON = USB_OTG_DPLUS_ENABLE | USB_OTG_ENABLE;
 #endif
     }
 
@@ -215,11 +215,11 @@ void usb_device_tasks(void)
          * prevent the firmware from misinterpreting this unique event
          * as a USB bus reset from the USB host.
          */
-        U1IR = 0;			// Clear all USB interrupts
-        U1IE = 0;			// Mask all USB interrupts
-	U1IE = PIC32_U1I_URST |         // Unmask RESET interrupt
-               PIC32_U1I_IDLE;		// Unmask IDLE interrupt
-	usb_device_state = POWERED_STATE;
+        U1IR = 0;                       // Clear all USB interrupts
+        U1IE = 0;                       // Mask all USB interrupts
+        U1IE = PIC32_U1I_URST |         // Unmask RESET interrupt
+               PIC32_U1I_IDLE;          // Unmask IDLE interrupt
+        usb_device_state = POWERED_STATE;
     }
 
 #ifdef USB_SUPPORT_OTG
@@ -340,9 +340,9 @@ void usb_device_tasks(void)
         // If the USB FIFO ever gets full, USB bandwidth
         // utilization can be compromised, and the device
         // won't be able to receive SETUP packets.
-	for (i = 0; i < 4; i++) {
-	    if (! (U1IR & PIC32_U1I_TRN))
-	    	break;                      // USTAT FIFO must be empty.
+        for (i = 0; i < 4; i++) {
+            if (! (U1IR & PIC32_U1I_TRN))
+                break;                      // USTAT FIFO must be empty.
 
             ustat_saved = U1STAT;
             U1IR = PIC32_U1I_TRN;
@@ -381,8 +381,8 @@ void usb_stall_handler(void)
             // Set ep0Bo to stall also
             pBDTEntryEP0OutCurrent->STAT.Val = _USIE|_DAT0|_DTSEN|_BSTALL;
         }
-	// Clear stall status
-	U1EP(0) &= ~PIC32_U1EP_EPSTALL;
+        // Clear stall status
+        U1EP(0) &= ~PIC32_U1EP_EPSTALL;
     }
 
     U1IR = PIC32_U1I_STALL;
@@ -417,7 +417,7 @@ void usb_suspend(void)
      *                          mode.
      */
 
-    U1OTGIE |= PIC32_U1OTGI_ACTV;	// Enable bus activity interrupt
+    U1OTGIE |= PIC32_U1OTGI_ACTV;   // Enable bus activity interrupt
     U1IR = PIC32_U1I_IDLE;
 
     /*
@@ -472,17 +472,17 @@ void usb_ctrl_ep_service(void)
     // If the last packet was a EP0 OUT packet
     if ((ustat_saved & USTAT_EP0_PP_MASK) == USTAT_EP0_OUT_EVEN)
     {
-	// Point to the EP0 OUT buffer of the buffer that arrived
+        // Point to the EP0 OUT buffer of the buffer that arrived
         pBDTEntryEP0OutCurrent = (volatile BDT_ENTRY*)
             &usb_buffer [(ustat_saved & USTAT_EP_MASK) >> 2];
 
-	// Set the next out to the current out packet
+        // Set the next out to the current out packet
         pBDTEntryEP0OutNext = pBDTEntryEP0OutCurrent;
 
-	// Toggle it to the next ping pong buffer (if applicable)
+        // Toggle it to the next ping pong buffer (if applicable)
         *(unsigned char*)&pBDTEntryEP0OutNext ^= USB_NEXT_EP0_OUT_PING_PONG;
 
-	// If the current EP0 OUT buffer has a SETUP token
+        // If the current EP0 OUT buffer has a SETUP token
         if (pBDTEntryEP0OutCurrent->STAT.PID == SETUP_TOKEN)
         {
             // Handle the control transfer
@@ -493,8 +493,8 @@ void usb_ctrl_ep_service(void)
         }
     } else if ((ustat_saved & USTAT_EP0_PP_MASK) == USTAT_EP0_IN)
     {
-	// Otherwise the transmission was and EP0 IN
-	// so take care of the IN transfer
+        // Otherwise the transmission was and EP0 IN
+        // so take care of the IN transfer
         usb_ctrl_trf_in_handler();
     }
 }
@@ -535,8 +535,8 @@ void usb_ctrl_trf_setup_handler(void)
     //if the SIE currently owns the buffer
     if (pBDTEntryIn[0]->STAT.UOWN != 0)
     {
-	// give control back to the CPU
-	// Compensate for after a STALL
+        // give control back to the CPU
+        // Compensate for after a STALL
         pBDTEntryIn[0]->STAT.Val = _UCPU;
     }
 
@@ -760,9 +760,9 @@ void usb_check_std_request(void)
         usb_std_set_cfg_handler();
         break;
     case GET_CFG:
-        usb_in_pipe[0].pSrc.bRam = (unsigned char*)&usb_active_configuration;	// Set Source
-        usb_in_pipe[0].info.bits.ctrl_trf_mem = _RAM;			// Set memory type
-        usb_in_pipe[0].wCount |= 0xff;					// Set data count
+        usb_in_pipe[0].pSrc.bRam = (unsigned char*)&usb_active_configuration; // Set Source
+        usb_in_pipe[0].info.bits.ctrl_trf_mem = _RAM;   // Set memory type
+        usb_in_pipe[0].wCount |= 0xff;                  // Set data count
         usb_in_pipe[0].info.bits.busy = 1;
         break;
     case GET_STATUS:
@@ -774,9 +774,9 @@ void usb_check_std_request(void)
         break;
     case GET_INTF:
         usb_in_pipe[0].pSrc.bRam = (unsigned char*)&usb_alternate_interface +
-            usb_setup_pkt.bIntfID;				// Set source
-        usb_in_pipe[0].info.bits.ctrl_trf_mem = _RAM;		// Set memory type
-        usb_in_pipe[0].wCount |= 0xff;				// Set data count
+            usb_setup_pkt.bIntfID;                      // Set source
+        usb_in_pipe[0].info.bits.ctrl_trf_mem = _RAM;   // Set memory type
+        usb_in_pipe[0].wCount |= 0xff;                  // Set data count
         usb_in_pipe[0].info.bits.busy = 1;
         break;
     case SET_INTF:
@@ -801,7 +801,7 @@ void usb_std_feature_req_handler(void)
     BDT_ENTRY *p;
     unsigned int *pUEP;
 
-#ifdef	USB_SUPPORT_OTG
+#ifdef USB_SUPPORT_OTG
     if ((usb_setup_pkt.bFeature == OTG_FEATURE_B_HNP_ENABLE)&&
         (usb_setup_pkt.Recipient == RCPT_DEV))
     {
@@ -857,7 +857,7 @@ void usb_std_feature_req_handler(void)
             p = (BDT_ENTRY*)pBDTEntryIn[usb_setup_pkt.EPNum];
         }
 
-		//if it was a SET_FEATURE request
+        //if it was a SET_FEATURE request
         if (usb_setup_pkt.bRequest == SET_FEATURE)
         {
             // Then STALL the endpoint
@@ -868,14 +868,14 @@ void usb_std_feature_req_handler(void)
             pUEP = (unsigned int*) &U1EP(0);
             pUEP += usb_setup_pkt.EPNum * 4;
 
-	    //Clear the STALL bit in the UEP register
+            //Clear the STALL bit in the UEP register
             *pUEP &= ~UEP_STALL;
 
             if (usb_setup_pkt.EPDir == 1) // IN
             {
-		// If the endpoint is an IN endpoint then we
-		// need to return it to the CPU and reset the
-		// DTS bit so that the next transfer is correct
+                // If the endpoint is an IN endpoint then we
+                // need to return it to the CPU and reset the
+                // DTS bit so that the next transfer is correct
 #if (USB_PING_PONG_MODE == USB_PING_PONG__ALL_BUT_EP0) || \
     (USB_PING_PONG_MODE == USB_PING_PONG__FULL_PING_PONG)
                 p->STAT.Val = _UCPU | _DAT0;
@@ -886,12 +886,12 @@ void usb_std_feature_req_handler(void)
                 p->STAT.Val = _UCPU | _DAT1;
 #endif
             } else {
-		// If the endpoint was an OUT endpoint then we
-		// need to give control of the endpoint back to
-		// the SIE so that the function driver can
-		// receive the data as they expected.  Also need
-		// to set the DTS bit so the next packet will be
-		// correct
+                // If the endpoint was an OUT endpoint then we
+                // need to give control of the endpoint back to
+                // the SIE so that the function driver can
+                // receive the data as they expected.  Also need
+                // to set the DTS bit so the next packet will be
+                // correct
 #if (USB_PING_PONG_MODE == USB_PING_PONG__ALL_BUT_EP0) || \
     (USB_PING_PONG_MODE == USB_PING_PONG__FULL_PING_PONG)
                 p->STAT.Val = _USIE|_DAT0|_DTSEN;
@@ -927,7 +927,7 @@ void usb_std_get_dsc_handler(void)
                 break;
             case USB_DESCRIPTOR_STRING:
 #if defined(USB_NUM_STRING_DESCRIPTORS)
-		if (usb_setup_pkt.bDscIndex < USB_NUM_STRING_DESCRIPTORS)
+                if (usb_setup_pkt.bDscIndex < USB_NUM_STRING_DESCRIPTORS)
 #else
                 if (1)
 #endif
@@ -965,7 +965,7 @@ void usb_std_get_status_handler(void)
              * [0]: bit0: Self-Powered Status [0] Bus-Powered [1] Self-Powered
              *      bit1: RemoteWakeup        [0] Disabled    [1] Enabled
              */
-	    ctrl_trf_data[0] |= 1;		// self powered
+            ctrl_trf_data[0] |= 1;          // self powered
 
             if (usb_remote_wakeup == 1) {
                 ctrl_trf_data[0] |= 2;

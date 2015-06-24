@@ -31,41 +31,41 @@
 /*
  * Offsets of register values in saved context.
  */
-#define FRAME_R1	0
-#define FRAME_R2	1
-#define FRAME_R3	2
-#define FRAME_R4	3
-#define FRAME_R5	4
-#define FRAME_R6	5
-#define FRAME_R7	6
-#define FRAME_R8	7
-#define FRAME_R9	8
-#define FRAME_R10	9
-#define FRAME_R11	10
-#define FRAME_R12	11
-#define FRAME_R13	12
-#define FRAME_R14	13
-#define FRAME_R15	14
-#define FRAME_R16	15
-#define FRAME_R17	16
-#define FRAME_R18	17
-#define FRAME_R19	18
-#define FRAME_R20	19
-#define FRAME_R21	20
-#define FRAME_R22	21
-#define FRAME_R23	22
-#define FRAME_R24	23
-#define FRAME_R25	24
-#define FRAME_GP	25
-#define FRAME_SP	26
-#define FRAME_FP	27
-#define FRAME_RA	28
-#define FRAME_LO	29
-#define FRAME_HI	30
-#define FRAME_STATUS	31
-#define FRAME_PC	32
+#define FRAME_R1        0
+#define FRAME_R2        1
+#define FRAME_R3        2
+#define FRAME_R4        3
+#define FRAME_R5        4
+#define FRAME_R6        5
+#define FRAME_R7        6
+#define FRAME_R8        7
+#define FRAME_R9        8
+#define FRAME_R10       9
+#define FRAME_R11       10
+#define FRAME_R12       11
+#define FRAME_R13       12
+#define FRAME_R14       13
+#define FRAME_R15       14
+#define FRAME_R16       15
+#define FRAME_R17       16
+#define FRAME_R18       17
+#define FRAME_R19       18
+#define FRAME_R20       19
+#define FRAME_R21       20
+#define FRAME_R22       21
+#define FRAME_R23       22
+#define FRAME_R24       23
+#define FRAME_R25       24
+#define FRAME_GP        25
+#define FRAME_SP        26
+#define FRAME_FP        27
+#define FRAME_RA        28
+#define FRAME_LO        29
+#define FRAME_HI        30
+#define FRAME_STATUS    31
+#define FRAME_PC        32
 
-#define FRAME_WORDS	33
+#define FRAME_WORDS     33
 
 #ifndef __ASSEMBLER__
 
@@ -97,9 +97,9 @@ unsigned ucall (int priority, void *address, int arg1, int arg2);
 static void inline __attribute__ ((always_inline))
 mips_set_stack_pointer (void *x)
 {
-	asm volatile (
-	"move	$sp, %0"
-	: : "r" (x) : "sp");
+    asm volatile (
+    "move   $sp, %0"
+    : : "r" (x) : "sp");
 }
 
 /*
@@ -108,34 +108,34 @@ mips_set_stack_pointer (void *x)
 static inline __attribute__ ((always_inline))
 void *mips_get_stack_pointer ()
 {
-	void *x;
+    void *x;
 
-	asm volatile (
-	"move	%0, $sp"
-	: "=r" (x));
-	return x;
+    asm volatile (
+    "move   %0, $sp"
+    : "=r" (x));
+    return x;
 }
 
 /*
  * Read C0 coprocessor register.
  */
-#define mips_read_c0_register(reg,sel)				\
-	({ int __value;						\
-	asm volatile (						\
-	"mfc0	%0, $%1, %2"					\
-	: "=r" (__value) : "K" (reg), "K" (sel));		\
-	__value;						\
-})
+#define mips_read_c0_register(reg,sel) \
+    ({  int __value; \
+        asm volatile ( \
+        "mfc0   %0, $%1, %2" \
+        : "=r" (__value) : "K" (reg), "K" (sel)); \
+        __value; \
+    })
 
 /*
  * Write C0 coprocessor register.
  */
-#define mips_write_c0_register(reg, sel, value)			\
-do {								\
-	asm volatile (						\
-	"mtc0	%z0, $%1, %2 \n	ehb"                            \
-	: : "r" ((unsigned int) (value)), "K" (reg), "K" (sel));\
-} while (0)
+#define mips_write_c0_register(reg, sel, value) \
+    do { \
+        asm volatile ( \
+        "mtc0   %z0, $%1, %2 \n ehb" \
+        : : "r" ((unsigned int) (value)), "K" (reg), "K" (sel)); \
+    } while (0)
 
 /*
  * Disable the hardware interrupts,
@@ -144,9 +144,9 @@ do {								\
 static int inline __attribute__ ((always_inline))
 mips_intr_disable ()
 {
-	int status;
-	asm volatile ("di	%0" : "=r" (status));
-	return status;
+    int status;
+    asm volatile ("di   %0" : "=r" (status));
+    return status;
 }
 
 /*
@@ -155,8 +155,8 @@ mips_intr_disable ()
 static void inline __attribute__ ((always_inline))
 mips_intr_restore (int x)
 {
-        /* C0_STATUS */
-	mips_write_c0_register (12, 0, x);
+    /* C0_STATUS */
+    mips_write_c0_register (12, 0, x);
 }
 
 /*
@@ -165,7 +165,7 @@ mips_intr_restore (int x)
 static void inline __attribute__ ((always_inline))
 mips_ehb()
 {
-	asm volatile ("ehb");
+    asm volatile ("ehb");
 }
 
 /*
@@ -174,9 +174,9 @@ mips_ehb()
 static int inline __attribute__ ((always_inline))
 mips_intr_enable ()
 {
-	int status;
-	asm volatile ("ei	%0" : "=r" (status));
-	return status;
+    int status;
+    asm volatile ("ei   %0" : "=r" (status));
+    return status;
 }
 
 /*
@@ -185,11 +185,11 @@ mips_intr_enable ()
 static int inline __attribute__ ((always_inline))
 mips_clz (unsigned x)
 {
-	int n;
+    int n;
 
-	asm volatile ("clz	%0, %1"
-		: "=r" (n) : "r" (x));
-	return n;
+    asm volatile ("clz  %0, %1"
+        : "=r" (n) : "r" (x));
+    return n;
 }
 
 /*
@@ -198,12 +198,12 @@ mips_clz (unsigned x)
 static unsigned inline __attribute__ ((always_inline))
 mips_bswap (unsigned x)
 {
-	int n;
+    int n;
 
-	asm volatile (
-        "wsbh	%0, %1 \n"
-        "rotr   %0, 16"
-                : "=r" (n) : "r" (x));
-	return n;
+    asm volatile (
+    "wsbh   %0, %1 \n"
+    "rotr   %0, 16"
+        : "=r" (n) : "r" (x));
+    return n;
 }
 #endif /* __ASSEMBLER__ */

@@ -21,19 +21,19 @@
  * as it is used internally by the resource map routines.
  */
 struct map {
-	struct mapent	*m_map;		/* start of the map */
-	struct mapent	*m_limit;	/* address of last slot in map */
-	char	*m_name;		/* name of resource */
+    struct mapent   *m_map;     /* start of the map */
+    struct mapent   *m_limit;   /* address of last slot in map */
+    char            *m_name;    /* name of resource */
 /* we use m_name when the map overflows, in warning messages */
 };
 
 struct mapent {
-	size_t	m_size;		/* size of this segment of the map */
-	size_t	m_addr;		/* resource-space addr of start of segment */
+    size_t  m_size;             /* size of this segment of the map */
+    size_t  m_addr;             /* resource-space addr of start of segment */
 };
 
 #ifdef KERNEL
-extern struct map swapmap[];	/* space for swap allocation */
+extern struct map swapmap[];    /* space for swap allocation */
 
 /*
  * Allocate units from the given map.

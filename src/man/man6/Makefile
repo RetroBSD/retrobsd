@@ -36,5 +36,5 @@ clean: FRC
 	rm -f ${OBJS}
 
 install: _make_01
-	cp ${OBJS} ${DESTDIR}${MDIR}
+#	cp ${OBJS} ${DESTDIR}${MDIR}
 FRC:

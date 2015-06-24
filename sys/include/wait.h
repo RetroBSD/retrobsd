@@ -3,7 +3,7 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  *
- *	@(#)wait.h	7.2.1 (2.11BSD GTE) 1995/06/23
+ *  @(#)wait.h  7.2.1 (2.11BSD GTE) 1995/06/23
  */
 
 /*
@@ -20,33 +20,33 @@
  * wait and wait3.  If w_stopval==WSTOPPED, then the second structure
  * describes the information returned, else the first.  See WUNTRACED below.
  */
-union wait	{
-	int	w_status;		/* used in syscall */
-	/*
-	 * Terminated process status.
-	 */
-	struct {
-		unsigned w_Termsig :7;	/* termination signal */
-		unsigned w_Coredump :1;	/* core dump indicator */
-		unsigned w_Retcode :8;	/* exit code if w_termsig==0 */
-	} w_T;
-	/*
-	 * Stopped process status.  Returned
-	 * only for traced children unless requested
-	 * with the WUNTRACED option bit.
-	 */
-	struct {
-		unsigned w_Stopval :8;	/* == W_STOPPED if stopped */
-		unsigned w_Stopsig :8;	/* signal that stopped us */
-	} w_S;
+union wait  {
+    int     w_status;           /* used in syscall */
+    /*
+     * Terminated process status.
+     */
+    struct {
+        unsigned w_Termsig :7;  /* termination signal */
+        unsigned w_Coredump :1; /* core dump indicator */
+        unsigned w_Retcode :8;  /* exit code if w_termsig==0 */
+    } w_T;
+    /*
+     * Stopped process status.  Returned
+     * only for traced children unless requested
+     * with the WUNTRACED option bit.
+     */
+    struct {
+        unsigned w_Stopval :8;  /* == W_STOPPED if stopped */
+        unsigned w_Stopsig :8;  /* signal that stopped us */
+    } w_S;
 };
-#define	w_termsig	w_T.w_Termsig
-#define w_coredump	w_T.w_Coredump
-#define w_retcode	w_T.w_Retcode
-#define w_stopval	w_S.w_Stopval
-#define w_stopsig	w_S.w_Stopsig
+#define w_termsig   w_T.w_Termsig
+#define w_coredump  w_T.w_Coredump
+#define w_retcode   w_T.w_Retcode
+#define w_stopval   w_S.w_Stopval
+#define w_stopsig   w_S.w_Stopsig
 
-#define	WSTOPPED	0177	/* value of s.stopval if process is stopped */
+#define WSTOPPED    0177        /* value of s.stopval if process is stopped */
 
 /*
  * Option bits for the second argument of wait3.  WNOHANG causes the
@@ -57,24 +57,24 @@ union wait	{
  * this option is done, it is as though they were still running... nothing
  * about them is returned.
  */
-#define WNOHANG		1	/* dont hang in wait */
-#define WUNTRACED	2	/* tell about stopped, untraced children */
+#define WNOHANG     1           /* dont hang in wait */
+#define WUNTRACED   2           /* tell about stopped, untraced children */
 
-#define WIFSTOPPED(x)	(((union wait*)&(x))->w_stopval == WSTOPPED)
-#define WIFSIGNALED(x)	(((union wait*)&(x))->w_stopval != WSTOPPED &&\
+#define WIFSTOPPED(x)   (((union wait*)&(x))->w_stopval == WSTOPPED)
+#define WIFSIGNALED(x)  (((union wait*)&(x))->w_stopval != WSTOPPED &&\
                         (((union wait*)&(x))->w_termsig != 0))
-#define WIFEXITED(x)	(((union wait*)&(x))->w_stopval != WSTOPPED &&\
+#define WIFEXITED(x)    (((union wait*)&(x))->w_stopval != WSTOPPED &&\
                         (((union wait*)&(x))->w_termsig == 0))
-#define	WEXITSTATUS(x)	(((union wait*)&(x))->w_retcode)
-#define	WTERMSIG(x)	(((union wait*)&(x))->w_termsig)
-#define	WCOREDUMP(x)	(((union wait*)&(x))->w_coredump)
-#define	WSTOPSIG(x)	(((union wait*)&(x))->w_stopsig)
+#define WEXITSTATUS(x)  (((union wait*)&(x))->w_retcode)
+#define WTERMSIG(x)     (((union wait*)&(x))->w_termsig)
+#define WCOREDUMP(x)    (((union wait*)&(x))->w_coredump)
+#define WSTOPSIG(x)     (((union wait*)&(x))->w_stopsig)
 
-#define	W_STOPCODE(sig)	((sig << 8) | WSTOPPED)
-#define	W_EXITCODE(ret,sig)	((ret << 8) | (sig))
+#define W_STOPCODE(sig)     ((sig << 8) | WSTOPPED)
+#define W_EXITCODE(ret,sig) ((ret << 8) | (sig))
 
-#define	WAIT_ANY	(-1)
-#define	WAIT_MYPGRP	0
+#define WAIT_ANY    (-1)
+#define WAIT_MYPGRP 0
 
 #ifndef KERNEL
 #include <sys/time.h>

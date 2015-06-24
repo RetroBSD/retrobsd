@@ -1,6 +1,6 @@
 /*-
  * Copyright (c) 1992, 1993
- *	The Regents of the University of California.  All rights reserved.
+ *  The Regents of the University of California.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -12,8 +12,8 @@
  *    documentation and/or other materials provided with the distribution.
  * 3. All advertising materials mentioning features or use of this software
  *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
+ *  This product includes software developed by the University of
+ *  California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -30,11 +30,11 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- *	@(#)select.h	8.2.1 (2.11BSD) 2000/2/28
+ *  @(#)select.h    8.2.1 (2.11BSD) 2000/2/28
  */
 
 #ifndef _SYS_SELECT_H_
-#define	_SYS_SELECT_H_
+#define _SYS_SELECT_H_
 
 #include <sys/types.h>
 
@@ -44,21 +44,21 @@
  * FD_SETSIZE may be defined by the user, but the default here
  * should be >= NOFILE (param.h).
  */
-#ifndef	FD_SETSIZE
-#define	FD_SETSIZE	32
+#ifndef FD_SETSIZE
+#define FD_SETSIZE  32
 #endif
 
-typedef long	fd_mask;
-#define NFDBITS	(sizeof(fd_mask) * NBBY)	/* bits per mask */
+typedef long fd_mask;
+#define NFDBITS     (sizeof(fd_mask) * NBBY)    /* bits per mask */
 
-typedef	struct fd_set {
-	fd_mask	fds_bits[1];
+typedef struct fd_set {
+    fd_mask fds_bits[1];
 } fd_set;
 
-#define	FD_SET(n, p)	((p)->fds_bits[(n)/NFDBITS] |= (1L << ((n) % NFDBITS)))
-#define	FD_CLR(n, p)	((p)->fds_bits[(n)/NFDBITS] &= ~(1L << ((n) % NFDBITS)))
-#define	FD_ISSET(n, p)	((p)->fds_bits[(n)/NFDBITS] & (1L << ((n) % NFDBITS)))
-#define FD_ZERO(p)	bzero((char *)(p), sizeof(*(p)))
+#define FD_SET(n, p)    ((p)->fds_bits[(n)/NFDBITS] |= (1L << ((n) % NFDBITS)))
+#define FD_CLR(n, p)    ((p)->fds_bits[(n)/NFDBITS] &= ~(1L << ((n) % NFDBITS)))
+#define FD_ISSET(n, p)  ((p)->fds_bits[(n)/NFDBITS] & (1L << ((n) % NFDBITS)))
+#define FD_ZERO(p)      bzero((char *)(p), sizeof(*(p)))
 
 #ifndef KERNEL
 #ifndef CROSS
@@ -68,7 +68,7 @@ void     bzero(void *, unsigned long);
 /* According to POSIX.1-2001 */
 struct timeval;
 int select (int nfds, fd_set *readfds, fd_set *writefds,
-            fd_set *exceptfds, struct timeval *timeout);
+        fd_set *exceptfds, struct timeval *timeout);
 
 #endif /* !KERNEL */
 

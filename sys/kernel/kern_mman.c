@@ -12,27 +12,27 @@
 void
 brk()
 {
-	struct a {
-		int naddr;
-	};
-	register int newsize, d;
+    struct a {
+        int naddr;
+    };
+    register int newsize, d;
 
-	/* set newsize to new data size */
-	newsize = ((struct a*)u.u_arg)->naddr - u.u_procp->p_daddr;
-	if (newsize < 0)
-		newsize = 0;
-	if (u.u_tsize + newsize + u.u_ssize > MAXMEM) {
-		u.u_error = ENOMEM;
-		return;
-	}
+    /* set newsize to new data size */
+    newsize = ((struct a*)u.u_arg)->naddr - u.u_procp->p_daddr;
+    if (newsize < 0)
+        newsize = 0;
+    if (u.u_tsize + newsize + u.u_ssize > MAXMEM) {
+        u.u_error = ENOMEM;
+        return;
+    }
 
-	u.u_procp->p_dsize = newsize;
+    u.u_procp->p_dsize = newsize;
 
-	/* set d to (new - old) */
-	d = newsize - u.u_dsize;
+    /* set d to (new - old) */
+    d = newsize - u.u_dsize;
 //printf ("brk: new size %u bytes, incremented by %d\n", newsize, d);
-	if (d > 0)
-		bzero ((void*) (u.u_procp->p_daddr + u.u_dsize), d);
-	u.u_dsize = newsize;
-        u.u_rval = u.u_procp->p_daddr + u.u_dsize;
+    if (d > 0)
+        bzero ((void*) (u.u_procp->p_daddr + u.u_dsize), d);
+    u.u_dsize = newsize;
+    u.u_rval = u.u_procp->p_daddr + u.u_dsize;
 }

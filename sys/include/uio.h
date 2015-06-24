@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 1982, 1986, 1993, 1994
- *	The Regents of the University of California.  All rights reserved.
+ *  The Regents of the University of California.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -12,8 +12,8 @@
  *    documentation and/or other materials provided with the distribution.
  * 3. All advertising materials mentioning features or use of this software
  *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
+ *  This product includes software developed by the University of
+ *  California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -36,7 +36,7 @@
  */
 
 #ifndef _SYS_UIO_H_
-#define	_SYS_UIO_H_
+#define _SYS_UIO_H_
 
 #include "types.h"
 
@@ -45,18 +45,18 @@
  * iov_base should be a void *.
  */
 struct iovec {
-	char	*iov_base;	/* Base address. */
-	size_t	 iov_len;	/* Length. */
+    char    *iov_base;  /* Base address. */
+    size_t   iov_len;   /* Length. */
 };
 
-enum	uio_rw { UIO_READ, UIO_WRITE };
+enum    uio_rw { UIO_READ, UIO_WRITE };
 
 struct uio {
-	struct	iovec *uio_iov;
-	int	uio_iovcnt;
-	off_t	uio_offset;
-	u_int	uio_resid;
-	enum	uio_rw uio_rw;
+    struct  iovec *uio_iov;
+    int     uio_iovcnt;
+    off_t   uio_offset;
+    u_int   uio_resid;
+    enum    uio_rw uio_rw;
 };
 
 #ifdef KERNEL

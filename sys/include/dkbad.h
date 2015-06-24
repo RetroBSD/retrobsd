@@ -3,7 +3,7 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  *
- *	@(#)dkbad.h	1.1 (2.10BSD Berkeley) 12/1/86
+ *  @(#)dkbad.h 1.1 (2.10BSD Berkeley) 12/1/86
  */
 
 /*
@@ -39,19 +39,19 @@
  * there are exceptions to this rule.  Note, this value is also present
  * in the bad144 program.
  */
-#define MAXBAD	32			/* Maximum bad sectors supported */
+#define MAXBAD  32          /* Maximum bad sectors supported */
 
 struct dkbad {
-	long	bt_csn;			/* cartridge serial number */
-	u_short	bt_mbz;			/* unused; should be 0 */
-	u_short	bt_flag;		/* -1 => alignment cartridge */
-	struct bt_bad {
-		u_short	bt_cyl;		/* cylinder number of bad sector */
-		u_short	bt_trksec;	/* track and sector number */
-	} bt_bad[MAXBAD];
+    long        bt_csn;     /* cartridge serial number */
+    u_short     bt_mbz;     /* unused; should be 0 */
+    u_short     bt_flag;    /* -1 => alignment cartridge */
+    struct bt_bad {
+        u_short bt_cyl;     /* cylinder number of bad sector */
+        u_short bt_trksec;  /* track and sector number */
+    } bt_bad[MAXBAD];
 };
 
-#define	ECC	0
-#define	SSE	1
-#define	BSE	2
-#define	CONT	3
+#define ECC     0
+#define SSE     1
+#define BSE     2
+#define CONT    3

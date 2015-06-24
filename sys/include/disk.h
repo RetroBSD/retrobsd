@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 1992, 1993
- *	The Regents of the University of California.  All rights reserved.
+ *  The Regents of the University of California.  All rights reserved.
  *
  * This software was developed by the Computer Systems Engineering group
  * at Lawrence Berkeley Laboratory under DARPA contract BG 91-66 and
@@ -8,8 +8,8 @@
  *
  * All advertising materials mentioning features or use of this software
  * must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Lawrence Berkeley Laboratory.
+ *  This product includes software developed by the University of
+ *  California, Lawrence Berkeley Laboratory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -21,8 +21,8 @@
  *    documentation and/or other materials provided with the distribution.
  * 3. All advertising materials mentioning features or use of this software
  *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
+ *  This product includes software developed by the University of
+ *  California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -39,8 +39,8 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
-#ifndef	_SYS_DISK_H_
-#define	_SYS_DISK_H_
+#ifndef _SYS_DISK_H_
+#define _SYS_DISK_H_
 #include <sys/disklabel.h>
 
 /*
@@ -51,7 +51,7 @@
  *
  * Note:  the 2.11BSD version is very different.  The 4.4 version served
  *        as the inspiration. I needed something similar but for slightly
- *	  different purposes.
+ *    different purposes.
  */
 
 /*
@@ -76,38 +76,33 @@
  */
 
 struct dkdevice {
-	int	dk_bopenmask;		/* block devices open */
-	int	dk_copenmask;		/* character devices open */
-	int	dk_openmask;		/* composite (bopen|copen) */
-	int	dk_flags;		/* label state   see below */
-	size_t	dk_label;		/* sector containing label */
-	struct	partition dk_parts[MAXPARTITIONS];	/* inkernel portion */
+    int     dk_bopenmask;       /* block devices open */
+    int     dk_copenmask;       /* character devices open */
+    int     dk_openmask;        /* composite (bopen|copen) */
+    int     dk_flags;           /* label state - see below */
+    size_t  dk_label;           /* sector containing label */
+    struct  partition dk_parts[MAXPARTITIONS];  /* inkernel portion */
 };
 
-#define	DKF_OPENING	0x0001		/* drive is being opened */
-#define	DKF_CLOSING	0x0002		/* drive is being closed */
-#define	DKF_WANTED	0x0004		/* drive is being waited for */
-#define	DKF_ALIVE	0x0008		/* drive is alive */
-#define	DKF_ONLINE	0x0010		/* drive is online */
-#define	DKF_WLABEL	0x0020		/* label area is being written */
-#define	DKF_SEEK	0x0040		/* drive is seeking */
-#define	DKF_SWAIT	0x0080		/* waiting for seek to complete */
+#define DKF_OPENING 0x0001      /* drive is being opened */
+#define DKF_CLOSING 0x0002      /* drive is being closed */
+#define DKF_WANTED  0x0004      /* drive is being waited for */
+#define DKF_ALIVE   0x0008      /* drive is alive */
+#define DKF_ONLINE  0x0010      /* drive is online */
+#define DKF_WLABEL  0x0020      /* label area is being written */
+#define DKF_SEEK    0x0040      /* drive is seeking */
+#define DKF_SWAIT   0x0080      /* waiting for seek to complete */
 
 /* encoding of disk minor numbers, should be elsewhere... but better
  * here than in ufs_disksubr.c
  *
  * Note: the controller number in bits 6 and 7 of the minor device are NOT
- *	 removed.  It is the responsibility of the driver to extract or mask
- *	 these bits.
+ *   removed.  It is the responsibility of the driver to extract or mask
+ *   these bits.
 */
 
-#define dkunit(dev)		(minor(dev) >> 3)
-#define dkpart(dev)		(minor(dev) & 07)
-#define dkminor(unit, part)	(((unit) << 3) | (part))
+#define dkunit(dev)         (minor(dev) >> 3)
+#define dkpart(dev)         (minor(dev) & 07)
+#define dkminor(unit, part) (((unit) << 3) | (part))
 
-#ifdef KERNEL
-//char	*readdisklabel();
-//int	setdisklabel();
-//int	writedisklabel();
-#endif
 #endif /* _SYS_DISK_H_ */

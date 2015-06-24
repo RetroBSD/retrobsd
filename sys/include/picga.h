@@ -29,13 +29,13 @@
 #define SPI_FGCOLOR     0x86
 #define SPI_BGCOLOR     0x87
 
-#define FONT_SINCLAIR 0x00
-#define FONT_TOPAZ 0x01
+#define FONT_SINCLAIR   0x00
+#define FONT_TOPAZ      0x01
 
-#define UP 0
-#define DOWN 1
-#define LEFT 2
-#define RIGHT 3
+#define UP              0
+#define DOWN            1
+#define LEFT            2
+#define RIGHT           3
 
 struct coord2 {
     unsigned short x;
@@ -95,6 +95,6 @@ extern int picga_write(dev_t dev, struct uio *uio, int flag);
 extern int picga_ioctl(dev_t dev, register u_int cmd, caddr_t addr, int flag);
 #endif
 
-#define PICGA_CLS         _IO('g', 1)
+#define PICGA_CLS       _IO('g', 1)
 
 #endif

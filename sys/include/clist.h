@@ -6,12 +6,12 @@
  * specifies the terms and conditions for redistribution.
  */
 struct cblock {
-	struct cblock *c_next;
-	char	c_info [CBSIZE];
+    struct  cblock *c_next;
+    char    c_info [CBSIZE];
 };
 
 #ifdef KERNEL
 extern struct cblock cfree[];
-struct	cblock *cfreelist;
-int	cfreecount;
+struct  cblock *cfreelist;
+int cfreecount;
 #endif

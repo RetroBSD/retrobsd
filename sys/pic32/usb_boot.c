@@ -44,27 +44,27 @@
 /*
  * Commands of bootloader protocol.
  */
-#define	QUERY_DEVICE	    0x02    // Command that the host uses to learn
+#define QUERY_DEVICE        0x02    // Command that the host uses to learn
                                     // about the device (what regions can be
                                     // programmed, and what type of memory
                                     // is the region)
-#define	UNLOCK_CONFIG	    0x03    // Note, this command is used for both
+#define UNLOCK_CONFIG       0x03    // Note, this command is used for both
                                     // locking and unlocking the config bits
-#define ERASE_DEVICE	    0x04    // Host sends this command to start
+#define ERASE_DEVICE        0x04    // Host sends this command to start
                                     // an erase operation.  Firmware controls
                                     // which pages should be erased.
-#define PROGRAM_DEVICE	    0x05    // If host is going to send a full
+#define PROGRAM_DEVICE      0x05    // If host is going to send a full
                                     // REQUEST_SIZE to be programmed, it
                                     // uses this command.
-#define	PROGRAM_COMPLETE    0x06    // If host send less than a REQUEST_SIZE
+#define PROGRAM_COMPLETE    0x06    // If host send less than a REQUEST_SIZE
                                     // to be programmed, or if it wished
                                     // to program whatever was left in
                                     // the buffer, it uses this command.
-#define GET_DATA	    0x07    // The host sends this command in order
+#define GET_DATA            0x07    // The host sends this command in order
                                     // to read out memory from the device.
                                     // Used during verify (and read/export
                                     // hex operations)
-#define	RESET_DEVICE	    0x08    // Resets the microcontroller, so it can
+#define RESET_DEVICE        0x08    // Resets the microcontroller, so it can
                                     // update the config bits (if they were
                                     // programmed, and so as to leave
                                     // the bootloader (and potentially go back
@@ -73,7 +73,7 @@
 /*
  * HID packet structure.
  */
-#define	PACKET_SIZE	    64      // HID packet size
+#define PACKET_SIZE         64      // HID packet size
 #define REQUEST_SIZE        56      // Number of bytes of a standard request
 
 typedef union __attribute__ ((packed))
@@ -101,7 +101,7 @@ typedef union __attribute__ ((packed))
         unsigned char Type3;
         unsigned long Address3;
         unsigned long Length3;
-        unsigned char Type4;		// End of sections list indicator goes here, fill with 0xFF.
+        unsigned char Type4;            // End of sections list indicator goes here, fill with 0xFF.
         unsigned char ExtraPadBytes[33];
     } query;
 } packet_t;
@@ -279,10 +279,10 @@ static inline void cinit()
      */
     U1BRG = PIC32_BRG_BAUD (CPU_KHZ * 1000, 115200);
     U1STA = 0;
-    U1MODE = PIC32_UMODE_PDSEL_8NPAR |	/* 8-bit data, no parity */
-             PIC32_UMODE_ON;		/* UART Enable */
-    U1STASET = PIC32_USTA_URXEN |	/* Receiver Enable */
-               PIC32_USTA_UTXEN;	/* Transmit Enable */
+    U1MODE = PIC32_UMODE_PDSEL_8NPAR |  /* 8-bit data, no parity */
+             PIC32_UMODE_ON;            /* UART Enable */
+    U1STASET = PIC32_USTA_URXEN |       /* Receiver Enable */
+               PIC32_USTA_UTXEN;        /* Transmit Enable */
 }
 
 /*
@@ -605,16 +605,16 @@ int main()
         (! (RCON & PIC32_RCON_SWR) || reset_key != 0x12345678))
     {
         // Must clear out software key
-	reset_key = 0;
+        reset_key = 0;
 
         // If there is NO real program to execute, then fall through to the bootloader
-	if (*(int*) FLASH_JUMP != 0xFFFFFFFF)	{
+        if (*(int*) FLASH_JUMP != 0xFFFFFFFF) {
             void (*fptr)(void) = (void (*)(void)) FLASH_JUMP;
 
             fptr();
             for (;;)
                 continue;
-	}
+        }
     }
     // Must clear out software key.
     reset_key = 0;
@@ -629,7 +629,7 @@ int main()
     USB_HANDLE reply_handle = 0;
     int packet_received = 0;
     for (;;) {
-	// Check bus status and service USB interrupts.
+        // Check bus status and service USB interrupts.
         usb_device_tasks();
 
         // Blink the LEDs according to the USB device status

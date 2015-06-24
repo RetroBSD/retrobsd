@@ -1,4 +1,4 @@
-/*	$NetBSD: exec_conf.c,v 1.43 2000/06/09 22:38:57 oki Exp $	*/
+/*  $NetBSD: exec_conf.c,v 1.43 2000/06/09 22:38:57 oki Exp $   */
 
 /*
  * Copyright (c) 1993, 1994 Christopher G. Demetriou
@@ -46,13 +46,13 @@ int exec_elf_check(struct exec_params *epp);
 
 const struct execsw execsw[] = {
 #ifdef EXEC_AOUT
-	{ exec_aout_check, "a.out" },	/* a.out binaries */
+    { exec_aout_check,      "a.out" },      /* a.out binaries */
 #endif
 #ifdef EXEC_ELF
-	{ exec_elf_check, "elf" },	/* 32bit ELF bins */
+    { exec_elf_check,       "elf" },        /* 32bit ELF bins */
 #endif
 #ifdef EXEC_SCRIPT
-	{ exec_script_check, "script" },		/* shell scripts */
+    { exec_script_check,    "script" },     /* shell scripts */
 #endif
  };
 int nexecs = (sizeof(execsw) / sizeof(*execsw));

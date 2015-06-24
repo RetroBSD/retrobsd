@@ -51,98 +51,95 @@ struct pwm_state state[PWM_MAX_DEV];
 
 int pwm_set_mode(int unit, int mode)
 {
-    switch(mode)
-    {
-        case PWM_MODE_PWM:
-            _BS(T2CON,15);  // ON
-            _BC(T2CON,6);
-            _BC(T2CON,5);    // >- 1:1 prescale
-            _BC(T2CON,4);
-            _BC(T2CON,3);   // 16 bit timer
-            _BC(T2CON,1);   // Internal clock source
-            PR2 = 0xFFFF;
-            switch(unit)
-            {
-                case 0:
-                    _BS(OC1CON,15); // ON
-                    _BC(OC1CON,5);  // 16 bit
-                    _BC(OC1CON,3);  // TMR2
-                    _BS(OC1CON,2);  //
-                    _BS(OC1CON,1);  //  >- PWM Mode, no fault pin
-                    _BC(OC1CON,0);  //
-                    state[0].mode = PWM_MODE_PWM;
-                    break;
-                case 1:
-                    _BS(OC2CON,15); // ON
-                    _BC(OC2CON,5);  // 16 bit
-                    _BC(OC2CON,3);  // TMR2
-                    _BS(OC2CON,2);  //
-                    _BS(OC2CON,1);  //  >- PWM Mode, no fault pin
-                    _BC(OC2CON,0);  //
-                    state[1].mode = PWM_MODE_PWM;
-                    break;
-                case 2:
-                    _BS(OC3CON,15); // ON
-                    _BC(OC3CON,5);  // 16 bit
-                    _BC(OC3CON,3);  // TMR2
-                    _BS(OC3CON,2);  //
-                    _BS(OC3CON,1);  //  >- PWM Mode, no fault pin
-                    _BC(OC3CON,0);  //
-                    state[2].mode = PWM_MODE_PWM;
-                    break;
-                case 3:
-                    _BS(OC4CON,15); // ON
-                    _BC(OC4CON,5);  // 16 bit
-                    _BC(OC4CON,3);  // TMR2
-                    _BS(OC4CON,2);  //
-                    _BS(OC4CON,1);  //  >- PWM Mode, no fault pin
-                    _BC(OC4CON,0);  //
-                    state[3].mode = PWM_MODE_PWM;
-                    break;
-                case 4:
-                    _BS(OC5CON,15); // ON
-                    _BC(OC5CON,5);  // 16 bit
-                    _BC(OC5CON,3);  // TMR2
-                    _BS(OC5CON,2);  //
-                    _BS(OC5CON,1);  //  >- PWM Mode, no fault pin
-                    _BC(OC5CON,0);  //
-                    state[4].mode = PWM_MODE_PWM;
-                    break;
-                default:
-                    return EINVAL;
-            }
-	    DEBUG("pwm%d: Mode set to PWM\n",unit);
+    switch (mode) {
+    case PWM_MODE_PWM:
+        _BS(T2CON,15);      // ON
+        _BC(T2CON,6);
+        _BC(T2CON,5);       // >- 1:1 prescale
+        _BC(T2CON,4);
+        _BC(T2CON,3);       // 16 bit timer
+        _BC(T2CON,1);       // Internal clock source
+        PR2 = 0xFFFF;
+        switch (unit) {
+        case 0:
+            _BS(OC1CON,15); // ON
+            _BC(OC1CON,5);  // 16 bit
+            _BC(OC1CON,3);  // TMR2
+            _BS(OC1CON,2);  //
+            _BS(OC1CON,1);  //  >- PWM Mode, no fault pin
+            _BC(OC1CON,0);  //
+            state[0].mode = PWM_MODE_PWM;
+            break;
+        case 1:
+            _BS(OC2CON,15); // ON
+            _BC(OC2CON,5);  // 16 bit
+            _BC(OC2CON,3);  // TMR2
+            _BS(OC2CON,2);  //
+            _BS(OC2CON,1);  //  >- PWM Mode, no fault pin
+            _BC(OC2CON,0);  //
+            state[1].mode = PWM_MODE_PWM;
+            break;
+        case 2:
+            _BS(OC3CON,15); // ON
+            _BC(OC3CON,5);  // 16 bit
+            _BC(OC3CON,3);  // TMR2
+            _BS(OC3CON,2);  //
+            _BS(OC3CON,1);  //  >- PWM Mode, no fault pin
+            _BC(OC3CON,0);  //
+            state[2].mode = PWM_MODE_PWM;
+            break;
+        case 3:
+            _BS(OC4CON,15); // ON
+            _BC(OC4CON,5);  // 16 bit
+            _BC(OC4CON,3);  // TMR2
+            _BS(OC4CON,2);  //
+            _BS(OC4CON,1);  //  >- PWM Mode, no fault pin
+            _BC(OC4CON,0);  //
+            state[3].mode = PWM_MODE_PWM;
+            break;
+        case 4:
+            _BS(OC5CON,15); // ON
+            _BC(OC5CON,5);  // 16 bit
+            _BC(OC5CON,3);  // TMR2
+            _BS(OC5CON,2);  //
+            _BS(OC5CON,1);  //  >- PWM Mode, no fault pin
+            _BC(OC5CON,0);  //
+            state[4].mode = PWM_MODE_PWM;
             break;
         default:
             return EINVAL;
+        }
+        DEBUG("pwm%d: Mode set to PWM\n",unit);
+        break;
+    default:
+        return EINVAL;
     }
     return 0;
 }
 
 int pwm_duty(int unit, unsigned int duty)
 {
-    if(state[unit].mode!=PWM_MODE_PWM)
+    if (state[unit].mode != PWM_MODE_PWM)
         return EINVAL;
 
-    switch(unit)
-    {
-        case 0:
-            OC1RS = duty;
-            break;
-        case 1:
-            OC2RS = duty;
-            break;
-        case 2:
-            OC3RS = duty;
-            break;
-        case 3:
-            OC4RS = duty;
-            break;
-        case 4:
-            OC5RS = duty;
-            break;
-        default:
-            return EINVAL;
+    switch (unit) {
+    case 0:
+        OC1RS = duty;
+        break;
+    case 1:
+        OC2RS = duty;
+        break;
+    case 2:
+        OC3RS = duty;
+        break;
+    case 3:
+        OC4RS = duty;
+        break;
+    case 4:
+        OC5RS = duty;
+        break;
+    default:
+        return EINVAL;
     }
     DEBUG("pwm%d: Duty set to %d\n",unit,duty);
     return 0;
@@ -150,33 +147,33 @@ int pwm_duty(int unit, unsigned int duty)
 
 int
 pwm_open (dev, flag, mode)
-	dev_t dev;
+    dev_t dev;
 {
-	int unit = minor(dev);
+    int unit = minor(dev);
 
-	if (unit >= PWM_MAX_DEV)
-		return ENXIO;
-	if (u.u_uid != 0)
-		return EPERM;
-	DEBUG("pwm%d: Opened\n",unit);
-	return 0;
+    if (unit >= PWM_MAX_DEV)
+        return ENXIO;
+    if (u.u_uid != 0)
+        return EPERM;
+    DEBUG("pwm%d: Opened\n",unit);
+    return 0;
 }
 
 int
 pwm_close (dev, flag, mode)
-	dev_t dev;
+    dev_t dev;
 {
-	return 0;
+    return 0;
 }
 
 int
 pwm_read (dev, uio, flag)
-	dev_t dev;
-	struct uio *uio;
-	int flag;
+    dev_t dev;
+    struct uio *uio;
+    int flag;
 {
-        // TODO
-	return ENODEV;
+    // TODO
+    return ENODEV;
 }
 
 int pwm_write (dev_t dev, struct uio *uio, int flag)
@@ -186,26 +183,25 @@ int pwm_write (dev_t dev, struct uio *uio, int flag)
 
 int
 pwm_ioctl (dev, cmd, addr, flag)
-	dev_t dev;
-	register u_int cmd;
-	caddr_t addr;
+    dev_t dev;
+    register u_int cmd;
+    caddr_t addr;
 {
-        int unit;
-        int *val;
-        val = (int *)addr;
+    int unit;
+    int *val;
+    val = (int *)addr;
 
-        unit = minor(dev);
+    unit = minor(dev);
 
-        if(unit >= PWM_MAX_DEV)
-            return ENODEV;
+    if (unit >= PWM_MAX_DEV)
+        return ENODEV;
 
-	if (cmd == PWM_SET_MODE) {
-            return pwm_set_mode(unit, *val);
-        }
+    if (cmd == PWM_SET_MODE) {
+        return pwm_set_mode(unit, *val);
+    }
 
-	if (cmd == PWM_DUTY) {
-            return pwm_duty(unit, (unsigned int) *val);
-        }
-
-	return 0;
+    if (cmd == PWM_DUTY) {
+        return pwm_duty(unit, (unsigned int) *val);
+    }
+    return 0;
 }

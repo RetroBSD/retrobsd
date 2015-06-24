@@ -10,9 +10,9 @@
 #include "conf.h"
 
 struct uart_irq {
-	int	er;
-	int 	rx;
-	int	tx;
+    int     er;
+    int     rx;
+    int     tx;
 };
 
 extern const struct uart_irq uirq[NUART];
@@ -21,26 +21,26 @@ extern const struct uart_irq uirq[NUART];
  * PIC32 UART registers.
  */
 struct uartreg {
-        volatile unsigned mode;		/* Mode */
-        volatile unsigned modeclr;
-        volatile unsigned modeset;
-        volatile unsigned modeinv;
-        volatile unsigned sta;		/* Status and control */
-        volatile unsigned staclr;
-        volatile unsigned staset;
-        volatile unsigned stainv;
-        volatile unsigned txreg;	/* Transmit */
-        volatile unsigned unused1;
-        volatile unsigned unused2;
-        volatile unsigned unused3;
-        volatile unsigned rxreg;	/* Receive */
-        volatile unsigned unused4;
-        volatile unsigned unused5;
-        volatile unsigned unused6;
-        volatile unsigned brg;		/* Baud rate */
-        volatile unsigned brgclr;
-        volatile unsigned brgset;
-        volatile unsigned brginv;
+    volatile unsigned mode;     /* Mode */
+    volatile unsigned modeclr;
+    volatile unsigned modeset;
+    volatile unsigned modeinv;
+    volatile unsigned sta;      /* Status and control */
+    volatile unsigned staclr;
+    volatile unsigned staset;
+    volatile unsigned stainv;
+    volatile unsigned txreg;    /* Transmit */
+    volatile unsigned unused1;
+    volatile unsigned unused2;
+    volatile unsigned unused3;
+    volatile unsigned rxreg;    /* Receive */
+    volatile unsigned unused4;
+    volatile unsigned unused5;
+    volatile unsigned unused6;
+    volatile unsigned brg;      /* Baud rate */
+    volatile unsigned brgclr;
+    volatile unsigned brgset;
+    volatile unsigned brginv;
 };
 
 extern struct tty uartttys[NUART];

@@ -63,7 +63,7 @@ int skeldev_open(dev_t dev, int flag, int mode)
         return ENXIO;
 
     if (u.u_uid != 0)
-            return EPERM;
+        return EPERM;
 
     // TODO: initialize the port.
     PRINTDBG("--- %s() unit=%u, flag=%d, mode=%d\n", __func__, unit, flag, mode);
@@ -78,7 +78,7 @@ int skeldev_close(dev_t dev, int flag, int mode)
     int unit = minor(dev);
 
     if (u.u_uid != 0)
-            return EPERM;
+        return EPERM;
 
     // TODO: disable the port.
     PRINTDBG("--- %s() unit=%u, flag=%d, mode=%d\n", __func__, unit, flag, mode);

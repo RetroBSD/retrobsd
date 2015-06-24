@@ -3,14 +3,14 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-#ifndef	_DIR_
-#define	_DIR_
+#ifndef _DIR_
+#define _DIR_
 
 #ifndef MAXNAMLEN
-#define MAXNAMLEN	63
+#define MAXNAMLEN   63
 #endif
 
-#define DIRBLKSIZ	1024
+#define DIRBLKSIZ   1024
 
 /*
  * inode numbers are ino_t rather than u_long now.  before, when v7direct
@@ -19,11 +19,11 @@
  * like a good idea to change the "real direct structure".  SMS
 */
 
-struct	direct {
-	ino_t	d_ino;			/* inode number of entry */
-	u_short	d_reclen;		/* length of this record */
-	u_short	d_namlen;		/* length of string in d_name */
-	char	d_name[MAXNAMLEN+1];	/* name must be no longer than this */
+struct  direct {
+    ino_t   d_ino;                  /* inode number of entry */
+    u_short d_reclen;               /* length of this record */
+    u_short d_namlen;               /* length of string in d_name */
+    char    d_name[MAXNAMLEN+1];    /* name must be no longer than this */
 };
 
 /*
@@ -60,27 +60,27 @@ struct	direct {
  * Definitions for library routines operating on directories.
  */
 typedef struct _dirdesc {
-	int	dd_fd;
-	long	dd_loc;
-	long	dd_size;
-	char	dd_buf[DIRBLKSIZ];
-	struct direct	dd_cur;
+    int     dd_fd;
+    long    dd_loc;
+    long    dd_size;
+    char    dd_buf[DIRBLKSIZ];
+    struct  direct dd_cur;
 } DIR;
 
 #ifndef NULL
 #define NULL 0
 #endif
 
-#ifndef	KERNEL
+#ifndef KERNEL
 
-extern	DIR *opendir (const char *);
-extern	struct direct *readdir (DIR *);
-extern	long telldir (DIR *);
-extern	void seekdir (DIR *, long);
-extern	void closedir (DIR *);
+extern  DIR *opendir (const char *);
+extern  struct direct *readdir (DIR *);
+extern  long telldir (DIR *);
+extern  void seekdir (DIR *, long);
+extern  void closedir (DIR *);
 
-#define rewinddir(dirp)	seekdir ((dirp), (long)0)
-#define dirfd(dirp)	((dirp)->dd_fd)
+#define rewinddir(dirp) seekdir ((dirp), (long)0)
+#define dirfd(dirp) ((dirp)->dd_fd)
 
 #endif /* !KERNEL */
 
@@ -89,17 +89,17 @@ extern	void closedir (DIR *);
  * Should use struct direct's, but the name field
  * is MAXNAMLEN - 1, and this just won't do.
  */
-#define dotdot_ino	dtdt_ino
-#define dotdot_reclen	dtdt_rec
-#define dotdot_name	dtdt_name
+#define dotdot_ino  dtdt_ino
+#define dotdot_reclen   dtdt_rec
+#define dotdot_name dtdt_name
 struct dirtemplate {
-	ino_t	dot_ino;
-	u_short	dot_reclen;
-	u_short	dot_namlen;
-	char	dot_name[4];		/* must be multiple of 4 */
-	ino_t	dotdot_ino;
-	u_short	dotdot_reclen;
-	u_short	dotdot_namlen;
-	char	dotdot_name[4];		/* ditto */
+    ino_t   dot_ino;
+    u_short dot_reclen;
+    u_short dot_namlen;
+    char    dot_name[4];        /* must be multiple of 4 */
+    ino_t   dotdot_ino;
+    u_short dotdot_reclen;
+    u_short dotdot_namlen;
+    char    dotdot_name[4];     /* ditto */
 };
 #endif /* _DIR_ */

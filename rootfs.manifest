@@ -863,7 +863,6 @@ file /include/sys/syslog.h
 file /include/sys/systm.h
 file /include/sys/time.h
 file /include/sys/times.h
-file /include/sys/trace.h
 file /include/sys/ttychars.h
 file /include/sys/ttydev.h
 file /include/sys/tty.h

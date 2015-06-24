@@ -19,13 +19,13 @@
  * forced to use a long, you might as well start doing the real-time
  * timer as a timeout like 4.3BSD.
  */
-struct	callout {
-	int	c_time;				/* incremental time */
-	caddr_t	c_arg;				/* argument to routine */
-	void	(*c_func) (caddr_t);		/* routine */
-	struct	callout *c_next;
+struct  callout {
+    int     c_time;                 /* incremental time */
+    caddr_t c_arg;                  /* argument to routine */
+    void    (*c_func) (caddr_t);    /* routine */
+    struct  callout *c_next;
 };
 
 #ifdef KERNEL
-extern struct	callout *callfree, callout[], calltodo;
+extern struct   callout *callfree, callout[], calltodo;
 #endif

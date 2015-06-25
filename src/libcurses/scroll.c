@@ -10,9 +10,9 @@
  */
 int
 scroll(win)
-        register WINDOW *win;
+        WINDOW *win;
 {
-	register int	oy, ox;
+	int	oy, ox;
 
 # ifdef DEBUG
 	fprintf(outf, "SCROLL(%0.2o)\n", win);

@@ -12,7 +12,7 @@
  */
 char *
 wstandout(win)
-        reg WINDOW	*win;
+        WINDOW	*win;
 {
 	if (!SO && !UC)
 		return FALSE;
@@ -26,7 +26,7 @@ wstandout(win)
  */
 char *
 wstandend(win)
-        reg WINDOW	*win;
+        WINDOW	*win;
 {
 	if (!SO && !UC)
 		return FALSE;

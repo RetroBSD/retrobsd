@@ -290,8 +290,8 @@ out:
 void
 fgoto()
 {
-	reg char	*cgp;
-	reg int		l, c;
+	char	*cgp;
+	int	l, c;
 
 	if (destcol >= COLS) {
 		destline += destcol / COLS;

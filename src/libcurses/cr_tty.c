@@ -115,10 +115,10 @@ zap()
 
 int
 setterm(type)
-        reg char	*type;
+        char	*type;
 {
-	reg int		unknown;
-	static char	genbuf[1024];
+	int	unknown;
+	static char genbuf[1024];
 # ifdef TIOCGWINSZ
 	struct winsize win;
 # endif

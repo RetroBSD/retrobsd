@@ -11,11 +11,11 @@
  */
 int
 winsch(win, c)
-        reg WINDOW	*win;
-        char		c;
+        WINDOW	*win;
+        char	c;
 {
-	reg char	*temp1, *temp2;
-	reg char	*end;
+	char	*temp1, *temp2;
+	char	*end;
 
 	end = &win->_y[win->_cury][win->_curx];
 	temp1 = &win->_y[win->_cury][win->_maxx - 1];

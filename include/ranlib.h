@@ -12,8 +12,8 @@
  *    documentation and/or other materials provided with the distribution.
  * 3. All advertising materials mentioning features or use of this software
  *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
+ *  This product includes software developed by the University of
+ *  California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -32,15 +32,15 @@
  */
 
 #ifndef _RANLIB_H_
-#define	_RANLIB_H_
+#define _RANLIB_H_
 
-#define	RANLIBMAG	"__.SYMDEF"	/* archive file name */
-#define	RANLIBSKEW	3		/* creation time offset */
+#define RANLIBMAG   "__.SYMDEF" /* archive file name */
+#define RANLIBSKEW  3           /* creation time offset */
 
 struct ranlib {
-	int ran_len;                    /* 1 byte - name length in bytes */
-	unsigned ran_off;		/* 4 bytes - file offset */
-	char *ran_name;                 /* in memory symbol name */
+    int     ran_len;            /* 1 byte - name length in bytes */
+    unsigned ran_off;           /* 4 bytes - file offset */
+    char    *ran_name;          /* in memory symbol name */
 };
 
 #endif /* !_RANLIB_H_ */

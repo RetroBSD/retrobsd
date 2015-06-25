@@ -1,5 +1,5 @@
-#ifndef	_SOCKET_H_
-#define	_SOCKET_H_
+#ifndef _SOCKET_H_
+#define _SOCKET_H_
 
 #include "w5100.h"
 

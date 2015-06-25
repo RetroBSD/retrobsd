@@ -11,8 +11,8 @@
  */
 static void
 set_ch(win, y, x, ch)
-        reg WINDOW	*win;
-        int		y, x;
+        WINDOW	*win;
+        int	y, x;
 {
 # ifdef	FULLDEBUG
 	fprintf(outf, "SET_CH(%0.2o, %d, %d)\n", win, y, x);
@@ -38,11 +38,11 @@ set_ch(win, y, x, ch)
  * This routine adds the character to the current position
  */
 int waddch(win, c)
-        reg WINDOW	*win;
-        char		c;
+        WINDOW	*win;
+        char	c;
 {
-	reg int		x, y;
-	reg int		newx;
+	int	x, y;
+	int	newx;
 
 	x = win->_curx;
 	y = win->_cury;

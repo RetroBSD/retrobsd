@@ -10,9 +10,9 @@
  *
  */
 int touchwin(win)
-        register WINDOW	*win;
+        WINDOW	*win;
 {
-	register int	y, maxy;
+	int	y, maxy;
 
 # ifdef	DEBUG
 	fprintf(outf, "TOUCHWIN(%0.2o)\n", win);
@@ -27,8 +27,8 @@ int touchwin(win)
  * touch a given line
  */
 int touchline(win, y, sx, ex)
-        register WINDOW	*win;
-        register int	y, sx, ex;
+        WINDOW	*win;
+        int	y, sx, ex;
 {
 # ifdef DEBUG
 	fprintf(outf, "TOUCHLINE(%0.2o, %d, %d, %d)\n", win, y, sx, ex);

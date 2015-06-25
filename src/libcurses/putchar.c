@@ -7,7 +7,7 @@
 
 int
 _putchar(c)
-        reg int	c;
+        int	c;
 {
 	putchar(c);
 #ifdef DEBUG

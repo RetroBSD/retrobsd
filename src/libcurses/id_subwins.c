@@ -11,11 +11,11 @@
  */
 void
 _id_subwins(orig)
-        register WINDOW	*orig;
+        WINDOW	*orig;
 {
-	register WINDOW	*win;
-	register int	realy;
-	register int	y, oy;
+	WINDOW	*win;
+	int	realy;
+	int	y, oy;
 
 	realy = orig->_begy + orig->_cury;
 	for (win = orig->_nextp; win != orig; win = win->_nextp) {

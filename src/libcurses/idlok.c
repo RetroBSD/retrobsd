@@ -12,8 +12,8 @@
  */
 void
 idlok(win, bf)
-        register WINDOW	*win;
-        bool		bf;
+        WINDOW	*win;
+        bool	bf;
 {
 	if (bf)
 		win->_flags |= _IDLINE;

@@ -12,13 +12,12 @@
  */
 void
 box(win, vert, hor)
-        reg WINDOW	*win;
-        char		vert, hor;
+        WINDOW	*win;
+        char	vert, hor;
 {
-
-	reg int		i;
-	reg int		endy, endx;
-	reg char	*fp, *lp;
+	int	i;
+	int	endy, endx;
+	char	*fp, *lp;
 
 	endx = win->_maxx;
 	endy = win->_maxy - 1;

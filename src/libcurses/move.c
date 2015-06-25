@@ -9,8 +9,8 @@
  * This routine moves the cursor to the given point
  */
 int wmove(win, y, x)
-        reg WINDOW	*win;
-        reg int		y, x;
+        WINDOW	*win;
+        int	y, x;
 {
 #ifdef DEBUG
 	fprintf(outf, "MOVE to (%d, %d)\n", y, x);

@@ -3,16 +3,15 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-#define	reg	register
 
 /*
  * This routine fills in "def" with the long name of the terminal.
  */
 char *
 longname(bp, def)
-        reg char	*bp, *def;
+        char	*bp, *def;
 {
-	reg char	*cp;
+	char	*cp;
 
 	while (*bp && *bp != ':' && *bp != '|')
 		bp++;

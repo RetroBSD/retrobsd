@@ -15,13 +15,13 @@
  * WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  */
 
-#define	UT_NAMESIZE	15
-#define	UT_LINESIZE	8
-#define	UT_HOSTSIZE	16
+#define UT_NAMESIZE 15
+#define UT_LINESIZE 8
+#define UT_HOSTSIZE 16
 
 struct utmp {
-	char	ut_line[UT_LINESIZE];
-	char	ut_name[UT_NAMESIZE];
-	char	ut_host[UT_HOSTSIZE];
-	long	ut_time;
+    char    ut_line[UT_LINESIZE];
+    char    ut_name[UT_NAMESIZE];
+    char    ut_host[UT_HOSTSIZE];
+    long    ut_time;
 };

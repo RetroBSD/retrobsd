@@ -9,10 +9,10 @@
  * This routine reads in a character from the window.
  */
 int wgetch(win)
-        reg WINDOW	*win;
+        WINDOW	*win;
 {
-	reg bool	weset = FALSE;
-	reg char	inp;
+	bool	weset = FALSE;
+	char	inp;
 
 	if (!win->_scroll && (win->_flags&_FULLWIN)
 	    && win->_curx == win->_maxx - 1 && win->_cury == win->_maxy - 1)

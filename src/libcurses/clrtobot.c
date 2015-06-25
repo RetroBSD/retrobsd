@@ -10,11 +10,11 @@
  */
 void
 wclrtobot(win)
-        reg WINDOW	*win;
+        WINDOW	*win;
 {
-	reg int		y;
-	reg char	*sp, *end, *maxx;
-	reg int		startx, minx;
+	int	y;
+	char	*sp, *end, *maxx;
+	int	startx, minx;
 
 	startx = win->_curx;
 	for (y = win->_cury; y < win->_maxy; y++) {

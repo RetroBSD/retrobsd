@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 1980, 1993
- *	The Regents of the University of California.  All rights reserved.
+ *  The Regents of the University of California.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -12,8 +12,8 @@
  *    documentation and/or other materials provided with the distribution.
  * 3. All advertising materials mentioning features or use of this software
  *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
+ *  This product includes software developed by the University of
+ *  California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- *	@(#)fstab.h	8.1.1 (2.11BSD) 1996/1/15
+ *  @(#)fstab.h 8.1.1 (2.11BSD) 1996/1/15
  */
 
 #ifndef _FSTAB_H_
@@ -47,23 +47,20 @@
  * if type is "rq", then use concatenation of fs_file and "quotas" to locate
  * quota file.
  */
-#define	_PATH_FSTAB	"/etc/fstab"
-#define	FSTAB		"/etc/fstab"	/* deprecated */
-
-#define	FSTAB_RW	"rw"		/* read/write device */
-#define	FSTAB_RQ	"rq"		/* read/write with quotas */
-#define	FSTAB_RO	"ro"		/* read-only device */
-#define	FSTAB_SW	"sw"		/* swap device */
-#define	FSTAB_XX	"xx"		/* ignore totally */
+#define FSTAB_RW    "rw"    /* read/write device */
+#define FSTAB_RQ    "rq"    /* read/write with quotas */
+#define FSTAB_RO    "ro"    /* read-only device */
+#define FSTAB_SW    "sw"    /* swap device */
+#define FSTAB_XX    "xx"    /* ignore totally */
 
 struct fstab {
-	char	*fs_spec;		/* block special device name */
-	char	*fs_file;		/* file system path prefix */
-	char	*fs_vfstype;		/* File system type, ufs, nfs */
-	char	*fs_mntops;		/* Mount options ala -o */
-	char	*fs_type;		/* FSTAB_* from fs_mntops */
-	int	fs_freq;		/* dump frequency, in days */
-	int	fs_passno;		/* pass number on parallel dump */
+    char    *fs_spec;       /* block special device name */
+    char    *fs_file;       /* file system path prefix */
+    char    *fs_vfstype;    /* File system type, ufs, nfs */
+    char    *fs_mntops;     /* Mount options ala -o */
+    char    *fs_type;       /* FSTAB_* from fs_mntops */
+    int     fs_freq;        /* dump frequency, in days */
+    int     fs_passno;      /* pass number on parallel dump */
 };
 
 struct fstab *getfsent();

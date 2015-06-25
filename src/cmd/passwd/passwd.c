@@ -27,6 +27,7 @@
 #include <string.h>
 #include <strings.h>
 #include <unistd.h>
+#include <paths.h>
 
 uid_t uid;
 

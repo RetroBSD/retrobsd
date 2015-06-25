@@ -11,10 +11,10 @@
  */
 int
 delwin(win)
-        reg WINDOW	*win;
+        WINDOW	*win;
 {
-	reg int		i;
-	reg WINDOW	*wp, *np;
+	int	i;
+	WINDOW	*wp, *np;
 
 	if (win->_orig == NULL) {
 		/*

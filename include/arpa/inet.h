@@ -19,11 +19,11 @@
  * External definitions for
  * functions in inet(3N)
  */
-struct	in_addr;
+struct  in_addr;
 
 unsigned long inet_addr (char *);
-char	*inet_ntoa (struct in_addr);
-struct	in_addr inet_makeaddr (long, long);
+char    *inet_ntoa (struct in_addr);
+struct  in_addr inet_makeaddr (long, long);
 unsigned long inet_network (char *);
 unsigned long inet_netof (struct in_addr);
 unsigned long inet_lnaof (struct in_addr);

@@ -15,12 +15,11 @@
  */
 void
 overlay(win1, win2)
-        reg WINDOW	*win1, *win2;
+        WINDOW	*win1, *win2;
 {
-
-	reg char	*sp, *end;
-	reg int		x, y, endy, endx, starty, startx;
-	reg int 	y1,y2;
+	char	*sp, *end;
+	int	x, y, endy, endx, starty, startx;
+	int 	y1,y2;
 
 # ifdef DEBUG
 	fprintf(outf, "OVERLAY(%0.2o, %0.2o);\n", win1, win2);

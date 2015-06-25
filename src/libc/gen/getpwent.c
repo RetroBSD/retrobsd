@@ -23,6 +23,7 @@
 #include <pwd.h>
 #include <strings.h>
 #include <fcntl.h>
+#include <paths.h>
 
 static FILE *_pw_fp;
 static struct passwd _pw_entry;

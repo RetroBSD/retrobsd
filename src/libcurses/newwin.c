@@ -22,8 +22,8 @@ static WINDOW *
 makenew(num_lines, num_cols, begy, begx)
         int	num_lines, num_cols, begy, begx;
 {
-	reg WINDOW	*win;
-	reg int		by, bx, nl, nc;
+	WINDOW	*win;
+	int	by, bx, nl, nc;
 
 	by = begy;
 	bx = begx;
@@ -71,10 +71,10 @@ WINDOW *
 newwin(num_lines, num_cols, begy, begx)
         int	num_lines, num_cols, begy, begx;
 {
-	reg WINDOW	*win;
-	reg char	*sp;
-	reg int		i, by, bx, nl, nc;
-	reg int		j;
+	WINDOW	*win;
+	char	*sp;
+	int	i, by, bx, nl, nc;
+	int	j;
 
 	by = begy;
 	bx = begx;
@@ -125,11 +125,11 @@ newwin(num_lines, num_cols, begy, begx)
 
 WINDOW *
 subwin(orig, num_lines, num_cols, begy, begx)
-        reg WINDOW	*orig;
-        int		num_lines, num_cols, begy, begx;
+        WINDOW	*orig;
+        int	num_lines, num_cols, begy, begx;
 {
-	reg WINDOW	*win;
-	reg int		by, bx, nl, nc;
+	WINDOW	*win;
+	int	by, bx, nl, nc;
 
 	by = begy;
 	bx = begx;

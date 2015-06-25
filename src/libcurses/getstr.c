@@ -10,8 +10,8 @@
  */
 int
 wgetstr(win, str)
-        reg WINDOW	*win;
-        reg char	*str;
+        WINDOW	*win;
+        char	*str;
 {
 	while ((*str = wgetch(win)) != ERR && *str != '\n')
 		str++;

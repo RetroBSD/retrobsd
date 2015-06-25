@@ -15,22 +15,17 @@
  * WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  */
 
-#define	_PATH_PASSWD		"/etc/passwd"
-#define	_PATH_SHADOW            "/etc/shadow"
-#define	_PATH_MKPASSWD		"/sbin/mkpasswd"
-#define	_PATH_PTMP		"/etc/ptmp"
-
-#define	_PW_KEYBYNAME		'0'
-#define	_PW_KEYBYUID		'1'
+#define _PW_KEYBYNAME       '0'
+#define _PW_KEYBYUID        '1'
 
 struct passwd {
-	char	*pw_name;			/* user name */
-	char	*pw_passwd;			/* encrypted password */
-	int	pw_uid;				/* user uid */
-	int	pw_gid;				/* user gid */
-	char	*pw_gecos;			/* real name */
-	char	*pw_dir;			/* home directory */
-	char	*pw_shell;			/* default shell */
+    char    *pw_name;           /* user name */
+    char    *pw_passwd;         /* encrypted password */
+    int     pw_uid;             /* user uid */
+    int     pw_gid;             /* user gid */
+    char    *pw_gecos;          /* real name */
+    char    *pw_dir;            /* home directory */
+    char    *pw_shell;          /* default shell */
 };
 
 struct passwd *getpwent(), *getpwuid(), *getpwnam();

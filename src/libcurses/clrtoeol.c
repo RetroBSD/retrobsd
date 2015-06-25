@@ -10,12 +10,12 @@
  */
 void
 wclrtoeol(win)
-        reg WINDOW	*win;
+        WINDOW	*win;
 {
-	reg char	*sp, *end;
-	reg int		y, x;
-	reg char	*maxx;
-	reg int		minx;
+	char	*sp, *end;
+	int	y, x;
+	char	*maxx;
+	int	minx;
 
 	y = win->_cury;
 	x = win->_curx;

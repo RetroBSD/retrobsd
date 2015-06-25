@@ -4,8 +4,6 @@
 #include <sys/ioctl.h>
 #include <stdint.h>
 
-#define E_TERMCAP       "/etc/termcap"
-
 typedef unsigned char   cc_t;
 typedef unsigned int    speed_t;
 typedef unsigned int    tcflag_t;
@@ -17,7 +15,7 @@ struct termios
     tcflag_t c_oflag;           /* output mode flags */
     tcflag_t c_cflag;           /* control mode flags */
     tcflag_t c_lflag;           /* local mode flags */
-    cc_t c_line;                        /* line discipline */
+    cc_t c_line;                /* line discipline */
     cc_t c_cc[NCCS];            /* control characters */
     speed_t c_ispeed;           /* input speed */
     speed_t c_ospeed;           /* output speed */
@@ -144,6 +142,5 @@ extern int tcsetattr(int, int, struct termios *);
 #define TIOCSETA    _IOW(i, 92, struct termios)
 #define TIOCSETAW   _IOW(i, 92, struct termios)
 #define TIOCSETAF   _IOW(i, 92, struct termios)
-
 
 #endif

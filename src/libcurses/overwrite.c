@@ -15,9 +15,9 @@
  */
 void
 overwrite(win1, win2)
-        reg WINDOW	*win1, *win2;
+        WINDOW	*win1, *win2;
 {
-	reg int		x, y, endy, endx, starty, startx;
+	int	x, y, endy, endx, starty, startx;
 
 # ifdef DEBUG
 	fprintf(outf, "OVERWRITE(%0.2o, %0.2o);\n", win1, win2);

@@ -1,6 +1,6 @@
 /*-
  * Copyright (c) 1991, 1993, 1994
- *	The Regents of the University of California.  All rights reserved.
+ *      The Regents of the University of California.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -12,8 +12,8 @@
  *    documentation and/or other materials provided with the distribution.
  * 3. All advertising materials mentioning features or use of this software
  *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
+ *      This product includes software developed by the University of
+ *      California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -38,64 +38,64 @@
 */
 
 #ifndef _UNISTD_H_
-#define	_UNISTD_H_
+#define _UNISTD_H_
 
 #include <sys/types.h>
 
-#define	STDIN_FILENO	0	/* standard input file descriptor */
-#define	STDOUT_FILENO	1	/* standard output file descriptor */
-#define	STDERR_FILENO	2	/* standard error file descriptor */
+#define STDIN_FILENO    0       /* standard input file descriptor */
+#define STDOUT_FILENO   1       /* standard output file descriptor */
+#define STDERR_FILENO   2       /* standard error file descriptor */
 
 #ifndef NULL
-#define	NULL		0	/* null pointer constant */
+#define NULL            0       /* null pointer constant */
 #endif
 
 /* Values for the second argument to access.
    These may be OR'd together.  */
-#define	R_OK            4	/* Test for read permission.  */
-#define	W_OK            2	/* Test for write permission.  */
-#define	X_OK            1	/* Test for execute permission.  */
-#define	F_OK            0	/* Test for existence.  */
+#define R_OK            4       /* Test for read permission.  */
+#define W_OK            2       /* Test for write permission.  */
+#define X_OK            1       /* Test for execute permission.  */
+#define F_OK            0       /* Test for existence.  */
 
-void	_exit (int);
-int	access();
+void    _exit (int);
+int     access();
 unsigned int alarm();
-pid_t	fork();
-gid_t	getegid();
-uid_t	geteuid();
-gid_t	getgid();
-char	*getlogin();
-pid_t	getpgrp();
-pid_t	getpid();
-pid_t	getppid();
-uid_t	getuid();
-off_t	lseek();
-ssize_t	read();
-unsigned int	sleep();
-char	*ttyname();
-ssize_t	write (int fd, const void *buf, size_t count);
+pid_t   fork();
+gid_t   getegid();
+uid_t   geteuid();
+gid_t   getgid();
+char    *getlogin();
+pid_t   getpgrp();
+pid_t   getpid();
+pid_t   getppid();
+uid_t   getuid();
+off_t   lseek();
+ssize_t read();
+unsigned int    sleep();
+char    *ttyname();
+ssize_t write (int fd, const void *buf, size_t count);
 int     truncate (const char *path, off_t length);
 int     ftruncate (int fd, off_t length);
 
-void	*brk (const void *addr);
-int	_brk (const void *addr);
-char	*crypt();
-void	endusershell();
-long	gethostid();
-char	*getpass();
-char	*getusershell();
-char	*getwd();
-void	psignal();
-extern	char 	*sys_siglist[];
-char	*re_comp();
-void	*sbrk (int incr);
-int	sethostid();
-void	setusershell();
-void	sync();
-unsigned int	ualarm();
-void	usleep();
+void    *brk (const void *addr);
+int     _brk (const void *addr);
+char    *crypt();
+void    endusershell();
+long    gethostid();
+char    *getpass();
+char    *getusershell();
+char    *getwd();
+void    psignal();
+extern  char    *sys_siglist[];
+char    *re_comp();
+void    *sbrk (int incr);
+int     sethostid();
+void    setusershell();
+void    sync();
+unsigned int    ualarm();
+void    usleep();
 int     pause (void);
-pid_t	vfork();
+pid_t   vfork();
 
 int     pipe (int pipefd[2]);
 int     close (int fd);
@@ -126,21 +126,21 @@ int     stat (const char *path, struct stat *buf);
 int     fstat (int fd, struct stat *buf);
 int     lstat (const char *path, struct stat *buf);
 
-int	execl (const char *path, const char *arg0, ... /* NULL */);
-int	execle (const char *path, const char *arg0, ... /* NULL, char *envp[] */);
-int	execlp (const char *file, const char *arg0, ... /* NULL */);
+int     execl (const char *path, const char *arg0, ... /* NULL */);
+int     execle (const char *path, const char *arg0, ... /* NULL, char *envp[] */);
+int     execlp (const char *file, const char *arg0, ... /* NULL */);
 
-int	execv (const char *path, char *const argv[]);
-int	execve (const char *path, char *const arg0[], char *const envp[]);
-int	execvp (const char *file, char *const argv[]);
+int     execv (const char *path, char *const argv[]);
+int     execve (const char *path, char *const arg0[], char *const envp[]);
+int     execvp (const char *file, char *const argv[]);
 
-extern	char	**environ;		/* Environment, from crt0. */
-extern	const char *__progname;		/* Program name, from crt0. */
+extern  char    **environ;              /* Environment, from crt0. */
+extern  const char *__progname;         /* Program name, from crt0. */
 
-int	getopt (int argc, char * const argv[], const char *optstring);
+int     getopt (int argc, char * const argv[], const char *optstring);
 
-extern	char	*optarg;		/* getopt(3) external variables */
-extern	int	opterr, optind, optopt;
+extern  char    *optarg;                /* getopt(3) external variables */
+extern  int     opterr, optind, optopt;
 
 #ifndef _VA_LIST_
 # ifdef __GNUC__
@@ -151,14 +151,14 @@ extern	int	opterr, optind, optopt;
 # endif
 #endif
 
-void	err (int eval, const char *fmt, ...);
-void	errx (int eval, const char *fmt, ...);
-void	warn (const char *fmt, ...);
-void	warnx (const char *fmt, ...);
-void	verr (int eval, const char *fmt, va_list ap);
-void	verrx (int eval, const char *fmt, va_list ap);
-void	vwarn (const char *fmt, va_list ap);
-void	vwarnx (const char *fmt, va_list ap);
+void    err (int eval, const char *fmt, ...);
+void    errx (int eval, const char *fmt, ...);
+void    warn (const char *fmt, ...);
+void    warnx (const char *fmt, ...);
+void    verr (int eval, const char *fmt, va_list ap);
+void    verrx (int eval, const char *fmt, va_list ap);
+void    vwarn (const char *fmt, va_list ap);
+void    vwarnx (const char *fmt, va_list ap);
 
 #ifndef _VA_LIST_
 # undef va_list

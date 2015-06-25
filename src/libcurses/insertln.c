@@ -12,11 +12,11 @@
  */
 void
 winsertln(win)
-        reg WINDOW	*win;
+        WINDOW	*win;
 {
-	reg char	*temp = 0;
-	reg int		y;
-	reg char	*end;
+	char	*temp = 0;
+	int	y;
+	char	*end;
 
 #ifdef	DEBUG
 	fprintf(outf, "INSERTLN(%0.2o)\n", win);

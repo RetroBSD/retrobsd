@@ -10,11 +10,11 @@
  */
 int
 mvwin(win, by, bx)
-        reg WINDOW	*win;
-        reg int		by, bx;
+        WINDOW	*win;
+        int	by, bx;
 {
-	register WINDOW	*orig;
-	register int	dy, dx;
+	WINDOW	*orig;
+	int	dy, dx;
 
 	if (by + win->_maxy > LINES || bx + win->_maxx > COLS)
 		return ERR;

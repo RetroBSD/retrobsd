@@ -19,6 +19,7 @@
 #include <unistd.h>
 #include <fstab.h>
 #include <pwd.h>
+#include <paths.h>
 #include "fsck.h"
 
 extern  int returntosingle;
@@ -269,7 +270,7 @@ main(argc, argv)
      * for stdio.  There may be other problems like this.  Enjoy.
      */
     if (!getfsent())
-        errexit("Can't open checklist file: %s\n",FSTAB);
+        errexit("Can't open checklist file: %s\n", _PATH_FSTAB);
     setpassent(1);
 
     memsize = (char*) sbrk(0) - (char*) &_start;
@@ -296,7 +297,7 @@ main(argc, argv)
     do {
         anygtr = 0;
         if (setfsent() == 0)
-            errexit("Can't open %s\n", FSTAB);
+            errexit("Can't open %s\n", _PATH_FSTAB);
         while ((fsp = getfsent()) != 0) {
             if (strcmp(fsp->fs_vfstype, "ufs") ||
                 (strcmp(fsp->fs_type, FSTAB_RW) &&

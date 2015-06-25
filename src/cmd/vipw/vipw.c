@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <limits.h>
+#include <paths.h>
 
 char *passwd, *temp;
 

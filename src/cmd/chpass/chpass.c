@@ -28,6 +28,7 @@
 #include <strings.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <paths.h>
 #include "chpass.h"
 
 char e1[] = ": ";

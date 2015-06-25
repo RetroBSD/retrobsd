@@ -37,8 +37,6 @@
 #ifndef _SYS_SYSLOG_H_
 #define _SYS_SYSLOG_H_
 
-#define _PATH_LOG   "/dev/log"
-
 /*
  * priorities/facilities are encoded into a single 16-bit quantity, where the
  * bottom 3 bits are the priority (0-7) and the top 13 bits are the facility

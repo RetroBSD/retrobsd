@@ -10,8 +10,8 @@
  */
 int
 waddstr(win, str)
-        reg WINDOW	*win;
-        reg char	*str;
+        WINDOW	*win;
+        char	*str;
 {
 # ifdef DEBUG
 	fprintf(outf, "WADDSTR(\"%s\")\n", str);

@@ -10,11 +10,11 @@
  */
 void
 werase(win)
-        reg WINDOW	*win;
+        WINDOW	*win;
 {
-	reg int		y;
-	reg char	*sp, *end, *start, *maxx;
-	reg int		minx;
+	int	y;
+	char	*sp, *end, *start, *maxx;
+	int	minx;
 
 # ifdef DEBUG
 	fprintf(outf, "WERASE(%0.2o)\n", win);

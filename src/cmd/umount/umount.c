@@ -38,6 +38,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <paths.h>
 
 typedef enum { MNTON, MNTFROM } mntwhat;
 

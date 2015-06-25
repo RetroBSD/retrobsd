@@ -12,11 +12,11 @@
  */
 int
 wdeleteln(win)
-        reg WINDOW	*win;
+        WINDOW	*win;
 {
-	reg char	*temp;
-	reg int		y;
-	reg char	*end;
+	char	*temp;
+	int	y;
+	char	*end;
 
 # ifdef DEBUG
 	fprintf(outf, "DELETELN(%0.2o)\n", win);

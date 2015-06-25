@@ -73,8 +73,3 @@ struct  mtget   {
 #define MTIOCGET    _IOR('m', 2, struct mtget)  /* get tape status */
 #define MTIOCIEOT   _IO ('m', 3)                /* ignore EOT error */
 #define MTIOCEEOT   _IO ('m', 4)                /* enable EOT error */
-
-#ifndef KERNEL
-#define DEFTAPE "/dev/rmt8"
-#define MT_DEF  "/dev/nrmt8"
-#endif

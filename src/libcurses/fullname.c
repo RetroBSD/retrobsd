@@ -3,7 +3,6 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-#define	reg	register
 
 /*
  *	This routine fills in "def" with the full name of the terminal.
@@ -12,10 +11,9 @@
  */
 char *
 fullname(bp, def)
-        reg char	*bp, *def;
+        char	*bp, *def;
 {
-
-	reg char	*cp;
+	char	*cp;
 
 	*def = 0;			/* in case no name */
 

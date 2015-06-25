@@ -9,7 +9,7 @@
  * This routine clears the window.
  */
 int wclear(win)
-        reg WINDOW *win;
+        WINDOW *win;
 {
 	werase(win);
 	win->_clear = TRUE;

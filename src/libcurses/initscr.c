@@ -14,8 +14,8 @@
 WINDOW *
 initscr()
 {
-	reg char	*sp;
-	int 		nfd;
+	char	*sp;
+	int 	nfd;
 
 # ifdef DEBUG
 	fprintf(outf, "INITSCR()\n");

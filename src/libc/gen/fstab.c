@@ -37,6 +37,7 @@
 #include <string.h>
 #include <strings.h>
 #include <unistd.h>
+#include <paths.h>
 #include <sys/uio.h>
 
 static FILE *_fs_fp;

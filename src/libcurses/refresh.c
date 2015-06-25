@@ -40,12 +40,12 @@ domvcur(oy, ox, ny, nx)
  */
 STATIC int
 makech(win, wy)
-reg WINDOW	*win;
-short		wy;
+        WINDOW	*win;
+        short	wy;
 {
-	reg char	*nsp, *csp, *ce;
-	reg short	wx, lch, y;
-	reg int		nlsp = 0, clsp;	/* last space in lines		*/
+	char	*nsp, *csp, *ce;
+	short	wx, lch, y;
+	int	nlsp = 0, clsp;         /* last space in lines */
 
 	wx = win->_firstch[wy] - win->_ch_off;
 	if (wx >= win->_maxx)
@@ -198,10 +198,10 @@ short		wy;
 }
 
 int wrefresh(win)
-        reg WINDOW	*win;
+        WINDOW	*win;
 {
-	reg short	wy;
-	reg int		retval;
+	short	wy;
+	int	retval;
 
 	/*
 	 * make sure were in visual state

@@ -289,8 +289,8 @@ int infrom(hand, n, prompt)
  */
 int readchar()
 {
-    register int	cnt, y, x;
-    auto char		c;
+    register int cnt;
+    char c;
 
 over:
     cnt = 0;
@@ -495,7 +495,6 @@ void wait_for(ch)
  */
 void do_wait()
 {
-    register int line;
     static char prompt[] = { '-', '-', 'M', 'o', 'r', 'e', '-', '-', '\0' };
 
     if (Mpos + sizeof prompt < MSG_X)

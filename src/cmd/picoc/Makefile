@@ -2,43 +2,36 @@ TOPSRC          = $(shell cd ../../..; pwd)
 include $(TOPSRC)/target.mk
 
 #CC=gcc
-CFLAGS+= -g -DUNIX_HOST -DVER='"1.0"' -DFILENAME_MAX=64 -DL_tmpnam=30 -DCLOCKS_PER_SEC=80000000 -DPATH_MAX=200 -Os -Werror
-LIBS=-lm -lc
+CFLAGS          += -g -DUNIX_HOST -DVER='"1.0"' -DFILENAME_MAX=64 \
+                   -DL_tmpnam=30 -DCLOCKS_PER_SEC=80000000 -DPATH_MAX=200 \
+                   -DNO_FP -Os -Werror -mips16
+LIBS            = -lm -lc
 
-TARGET	= picoc
-SRCS	= picoc.c table.c lex.c parse.c expression.c heap.c type.c \
-	variable.c clibrary.c platform.c include.c debug.c \
-	platform/platform_unix.c platform/library_unix.c \
-	cstdlib/stdio.c cstdlib/math.c cstdlib/string.c cstdlib/stdlib.c \
-	cstdlib/time.c cstdlib/errno.c cstdlib/ctype.c cstdlib/stdbool.c \
-	cstdlib/unistd.c retrobsd.c
-OBJS	:= $(SRCS:%.c=%.o)
+TARGET          = picoc
+SRCS            = picoc.c table.c lex.c parse.c expression.c heap.c type.c \
+                  variable.c clibrary.c platform.c include.c debug.c \
+                  platform/platform_unix.c platform/library_unix.c \
+                  cstdlib/stdio.c cstdlib/math.c cstdlib/string.c cstdlib/stdlib.c \
+                  cstdlib/time.c cstdlib/errno.c cstdlib/ctype.c cstdlib/stdbool.c \
+                  cstdlib/unistd.c retrobsd.c
+OBJS            := $(SRCS:%.c=%.o)
 
-all: $(TARGET)
+all:            $(TARGET)
 
-$(TARGET): $(OBJS)
-	${CC} ${LDFLAGS} -o ${TARGET}.elf ${OBJS} ${LIBS}
-	${OBJDUMP} -S ${TARGET}.elf > ${TARGET}.dis
-	${SIZE} ${TARGET}.elf
-	${ELF2AOUT} ${TARGET}.elf $@
+$(TARGET):      $(OBJS)
+		${CC} ${LDFLAGS} -o ${TARGET}.elf ${OBJS} ${LIBS}
+		${OBJDUMP} -S ${TARGET}.elf > ${TARGET}.dis
+		${SIZE} ${TARGET}.elf
+		${ELF2AOUT} ${TARGET}.elf $@
 
-install: $(TARGET)
-	cp $(TARGET) $(TOPSRC)/bin
+install:        $(TARGET)
+		cp $(TARGET) $(TOPSRC)/bin
 
-test:	all
-	(cd tests; make test)
+test:           all
+		(cd tests; make test)
 
 clean:
-	rm -f $(TARGET) $(OBJS) *~ *.elf *.dis
-
-count:
-	@echo "Core:"
-	@cat picoc.h interpreter.h picoc.c table.c lex.c parse.c expression.c platform.c heap.c type.c variable.c include.c debug.c | grep -v '^[ 	]*/\*' | grep -v '^[ 	]*$$' | wc
-	@echo ""
-	@echo "Everything:"
-	@cat $(SRCS) *.h */*.h | wc
-
-.PHONY: clibrary.c
+		rm -f $(TARGET) *.o */*.o *~ *.elf *.dis
 
 picoc.o: picoc.c picoc.h
 table.o: table.c interpreter.h platform.h

@@ -130,7 +130,7 @@ BOOLEAN cut(mycrib, pos)
 BOOLEAN		mycrib;
 int		pos;
 {
-	register int		i, cardx;
+	register int		i;
 	BOOLEAN			win = FALSE;
 
 	if (mycrib) {
@@ -193,7 +193,7 @@ BOOLEAN		mycrib;
 	register int		i, j, k;
 	register int		l;
 	register int		cnum, pnum, sum;
-	register BOOLEAN	myturn, mego, ugo, last, played;
+	register BOOLEAN	myturn, mego, ugo, last, played = 0;
 
 	cnum = pnum = CINHAND;
 	for (i = 0; i < CINHAND; i++) {		/* make copies of hands */
@@ -366,7 +366,6 @@ BOOLEAN playhand(mycrib)
 BOOLEAN		mycrib;
 {
 	register int		deckpos;
-	extern char		Msgbuf[];
 
 	werase(Compwin);
 
@@ -486,7 +485,6 @@ int main(argc, argv)
 int	argc;
 char	*argv[];
 {
-	register  char		*p;
 	BOOLEAN			playing;
 	char			*s;		/* for reading arguments */
 	char			bust;		/* flag for arg reader */
@@ -567,4 +565,5 @@ char	*argv[];
 	}
 
 	bye(0);
+	return 0;
 }

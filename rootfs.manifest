@@ -757,7 +757,6 @@ file /include/arpa/inet.h
 file /include/assert.h
 file /include/ctype.h
 file /include/curses.h
-file /include/dbm.h
 file /include/fcntl.h
 file /include/float.h
 file /include/fstab.h
@@ -785,7 +784,6 @@ file /include/mtab.h
 file /include/ndbm.h
 file /include/nlist.h
 file /include/paths.h
-file /include/pcc.h
 file /include/psout.h
 file /include/pwd.h
 file /include/ranlib.h

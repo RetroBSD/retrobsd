@@ -17,7 +17,6 @@
 #include <stdlib.h>
 #include <sgtty.h>
 #include <string.h>
-//#include <strings.h>
 #include <sys/time.h>
 
 #define	kbytes(size)	(((size) + 1023) / 1024)
@@ -79,7 +78,7 @@ main(argc, argv)
 	twidth = 80;
 	if (isatty(1)) {
 		qflg = Cflg = 1;
-		(void) gtty(1, &sgbuf);
+		ioctl(1, TIOCGETP, &sgbuf);
 		if (ioctl(1, TIOCGWINSZ, &win) != -1)
 			twidth = (win.ws_col == 0 ? 80 : win.ws_col);
 		if ((sgbuf.sg_flags & XTABS) != XTABS)

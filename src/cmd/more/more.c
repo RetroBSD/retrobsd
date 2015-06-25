@@ -1455,7 +1455,8 @@ initterm ()
     struct winsize win;
 
 retry:
-    if (!(no_tty = gtty(fileno(stdout), &otty))) {
+    no_tty = ioctl(fileno(stdout), TIOCGETP, &otty);
+    if (no_tty == 0) {
 	if (ioctl(fileno(stdout), TIOCLGET, &lmode) < 0) {
 	    perror("TIOCLGET");
 	    exit(1);
@@ -1548,8 +1549,8 @@ retry:
 	if ((shell = getenv("SHELL")) == NULL)
 	    shell = _PATH_BSHELL;
     }
-    no_intty = gtty(fileno(stdin), &otty);
-    gtty(fileno(stderr), &otty);
+    no_intty = ioctl(fileno(stdin), TIOCGETP, &otty);
+    ioctl(fileno(stderr), TIOCGETP, &otty);
     savetty = otty;
     hardtabs = !(otty.sg_flags & XTABS);
     if (! no_tty) {

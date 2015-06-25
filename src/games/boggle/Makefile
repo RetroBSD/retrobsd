@@ -9,7 +9,7 @@ TOPSRC          = $(shell cd ../../..; pwd)
 include $(TOPSRC)/target.mk
 #include $(TOPSRC)/cross.mk
 
-CFLAGS  	+= -O
+CFLAGS  	+= -O -Wall -Werror
 OBJS    	= boggle.o
 MAN             = boggle.0
 MANSRC          = boggle.6

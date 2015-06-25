@@ -8,14 +8,14 @@ include $(TOPSRC)/target.mk
 
 CFLAGS		+= ${DEFS} -Os
 
-SRCS		= creat.c ftime.c gethostid.c gtty.c memccpy.c memchr.c memcmp.c \
+SRCS		= creat.c ftime.c gethostid.c memccpy.c memchr.c memcmp.c \
 		  memcpy.c memset.c nice.c pause.c rand.c sethostid.c \
 		  setregid.c setreuid.c setrgid.c setruid.c sigcompat.c \
-		  strchr.c strrchr.c stty.c times.c tmpnam.c utime.c
-OBJS		= creat.o ftime.o gethostid.o gtty.o memccpy.o memchr.o memcmp.o \
+		  strchr.c strrchr.c times.c tmpnam.c utime.c
+OBJS		= creat.o ftime.o gethostid.o memccpy.o memchr.o memcmp.o \
 		  memcpy.o memset.o nice.o pause.o rand.o sethostid.o \
 		  setregid.o setreuid.o setrgid.o setruid.o sigcompat.o \
-		  strchr.o strrchr.o stty.o times.o tmpnam.o utime.o
+		  strchr.o strrchr.o times.o tmpnam.o utime.o
 
 compat.a:	${OBJS}
 		@echo "buiding compat.a"

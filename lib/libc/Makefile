@@ -87,10 +87,10 @@ OBJS            += inet_addr.o inet_network.o inet_netof.o \
                    inet_ntoa.o inet_lnaof.o inet_maddr.o
 
 # libc/compat
-OBJS            += creat.o ftime.o gethostid.o gtty.o memccpy.o memchr.o \
+OBJS            += creat.o ftime.o gethostid.o memccpy.o memchr.o \
                    memcmp.o memcpy.o memset.o nice.o pause.o rand.o \
                    sethostid.o setregid.o setreuid.o setrgid.o setruid.o \
-                   sigcompat.o strchr.o strrchr.o stty.o times.o tmpnam.o \
+                   sigcompat.o strchr.o strrchr.o times.o tmpnam.o \
                    utime.o
 
 # libc/runtime

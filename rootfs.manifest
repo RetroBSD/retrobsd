@@ -799,7 +799,6 @@ file /include/smallc/stdio.h
 file /include/smallc/sys/gpio.h
 file /include/smallc/sys/spi.h
 file /include/smallc/wiznet.h
-file /include/stab.h
 file /include/stdarg.h
 file /include/stddef.h
 file /include/stdint.h

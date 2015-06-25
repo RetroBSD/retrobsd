@@ -15,11 +15,6 @@
 #define	NROOM	20
 #define	NTUNN	3
 #define	NPIT	3
-#ifdef pdp11
-#define	BIGINT 32768.0
-#else
-#define BIGINT 2147483648.0
-#endif
 
 struct room
 {
@@ -105,14 +100,13 @@ int	tchar;
 
 int rnum(n)
 {
-	static short first[2];
+	static time_t first;
 
-	if(first[1] == 0) {
-		time(first);
-		if(first[1]==0) first[1] = 1;
-		srand((first[1]*first[0])^first[1]);
+	if (first == 0) {
+		time(&first);
+		srand(first);
 	}
-	return((int)((rand()/BIGINT) * n));
+	return rand() % n;
 }
 
 int tunnel(i)

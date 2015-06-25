@@ -15,7 +15,7 @@
 
 char *
 ctime(t)
-time_t *t;
+        const time_t *t;
 {
 	return asctime(localtime(t));
 }
@@ -26,7 +26,7 @@ time_t *t;
 
 char *
 asctime(timeptr)
-register struct tm *	timeptr;
+    register const struct tm *timeptr;
 {
 	static char	wday_name[DAYS_PER_WEEK][3] = {
 		"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
@@ -272,7 +272,7 @@ tzset()
 
 struct tm *
 localtime(timep)
-time_t *	timep;
+        const time_t *timep;
 {
 	register struct ttinfo *	ttisp;
 	register struct tm *		tmp;
@@ -310,7 +310,7 @@ time_t *	timep;
 
 struct tm *
 gmtime(clock)
-time_t *	clock;
+        const time_t *clock;
 {
 	register struct tm *	tmp;
 

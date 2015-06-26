@@ -314,7 +314,7 @@ icode:
 etcinit:
                 .ascii  "/sbin/init\0"
 initflags:
-                .ascii  "-\0"                          # ASCII initflags
+                .ascii  "-\0"                           # ASCII initflags
 argv:
                 .word   etcinit + 6 - icode + UBASE     # address of "init\0"
                 .word   initflags - icode + UBASE       # init options

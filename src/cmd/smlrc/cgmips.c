@@ -38,7 +38,7 @@ either expressed or implied, of the FreeBSD Project.
 /*****************************************************************************/
 
 // Works around bugs in RetroBSD's as instruction reordering
-#define REORDER_WORKAROUND
+//#define REORDER_WORKAROUND
 
 STATIC
 void GenInit(void)

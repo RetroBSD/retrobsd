@@ -1244,7 +1244,7 @@ void emitword (w, r, clobber_reg)
         reorder_word = w;
         reorder_rel = *r;
         reorder_full = 1;
-        reorder_clobber = clobber_reg & 15;
+        reorder_clobber = clobber_reg & 31;
     } else {
         fputword (w, sfile[segm]);
         fputrel (r, rfile[segm]);
@@ -1260,11 +1260,12 @@ void emit_li (opcode, relinfo)
     register struct reloc *relinfo;
 {
     register unsigned value;
-    int cval, segment;
+    int cval, segment, reg;
 
     if (getlex (&cval) != ',')
         uerror ("comma expected");
     value = getexpr (&segment);
+    reg = opcode >> 16;
     if (segment != SABS)
         uerror ("absolute value required");
     if (value <= 0xffff) {
@@ -1279,10 +1280,10 @@ void emit_li (opcode, relinfo)
     } else {
         /* lui d, value[31:16]
          * ori d, d, value[15:0]) */
-        emitword (opcode | 0x3c000000 | (value >> 16), &relabs, value >> 16);
+        emitword (opcode | 0x3c000000 | (value >> 16), &relabs, reg);
         opcode |= 0x34000000 | (opcode & 0x1f0000) << 5 | (value & 0xffff);
     }
-    emitword (opcode, relinfo, value >> 16);
+    emitword (opcode, relinfo, reg);
 }
 
 /*

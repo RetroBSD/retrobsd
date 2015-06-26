@@ -21,6 +21,7 @@ DUINOMITE       = sys/pic32/duinomite/DUINOMITE
 DUINOMITEUART   = sys/pic32/duinomite-uart/DUINOMITE-UART
 DUINOMITEE      = sys/pic32/duinomite-e/DUINOMITE-E
 DUINOMITEEUART  = sys/pic32/duinomite-e-uart/DUINOMITE-E-UART
+PINGUINO        = sys/pic32/pinguino-micro/PINGUINO-MICRO
 MMBMX7          = sys/pic32/mmb-mx7/MMB-MX7
 WF32            = sys/pic32/wf32/WF32
 UBW32           = sys/pic32/ubw32/UBW32

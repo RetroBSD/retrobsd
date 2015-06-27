@@ -121,11 +121,21 @@ _imgptr:        .word   -1                              # Image header pointer
 
 
 #---------------------------------------
-# Exception vector: handle interrupts and exceptions
+# Exception vector: handle exceptions
 #
-                .org    0x200
+                .org    0x180
                 .type   _exception_vector_, @function
 _exception_vector_: .globl _exception_vector_
+
+                b       _interrupt_vector_
+                nop
+
+#---------------------------------------
+# Interrupt vector: handle interrupts
+#
+                .org    0x200
+                .type   _interrupt_vector_, @function
+_interrupt_vector_: .globl _interrupt_vector_
 
                 mfc0    $k0, $C0_STATUS
                 andi    $k1, $k0, ST_UM                 # Check user mode

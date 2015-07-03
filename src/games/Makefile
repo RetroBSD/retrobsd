@@ -12,7 +12,7 @@ CFLAGS          += -Werror -Wall -Os
 # Programs that live in subdirectories, and have makefiles of their own.
 #
 SUBDIR          = adventure atc backgammon battlestar boggle btlgammon \
-                  caesar cribbage fortune hangman mille monop quiz robots \
+                  caesar cribbage fortune hangman mille monop pom quiz robots \
                   rogue sail snake trek
 
 # C programs that live in the current directory and do not need

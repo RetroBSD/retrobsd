@@ -451,6 +451,7 @@ file /bin/false
 file /bin/fgrep
 file /bin/file
 file /bin/find
+file /bin/fold
 file /bin/forth
 file /bin/fstat
 mode 02755

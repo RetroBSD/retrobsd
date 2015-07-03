@@ -652,6 +652,7 @@ file /games/battlestar
 file /games/bcd
 file /games/boggle
 file /games/btlgammon
+file /games/caesar
 file /games/canfield
 file /games/cfscores
 file /games/cribbage
@@ -1530,6 +1531,7 @@ file /share/man/cat6/banner.0
 file /share/man/cat6/battlestar.0
 file /share/man/cat6/bcd.0
 file /share/man/cat6/boggle.0
+file /share/man/cat6/caesar.0
 file /share/man/cat6/cribbage.0
 file /share/man/cat6/fish.0
 file /share/man/cat6/fortune.0

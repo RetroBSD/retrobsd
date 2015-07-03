@@ -11,7 +11,7 @@
 
 int	errno;
 
-static double	log2	= 0.693147180559945309e0;
+static double	_log2	= 0.693147180559945309e0;
 static double	ln10	= 2.302585092994045684;
 static double	sqrto2	= 0.707106781186547524e0;
 static double	p0	= -.240139179559210510e2;
@@ -48,7 +48,7 @@ double arg;
 
 	temp = ((p3*zsq + p2)*zsq + p1)*zsq + p0;
 	temp = temp/(((1.0*zsq + q2)*zsq + q1)*zsq + q0);
-	temp = temp*z + exp*log2;
+	temp = temp*z + exp*_log2;
 	return(temp);
 }
 

@@ -28,11 +28,11 @@
 ## Build
 
 To compile everything from sources, you'll need some packages installed, namely:
-Berkeley YACC, GNU bison and flex, ELF library and FUSE library.
+Berkeley YACC, GNU bison, flex, groff, ELF library and FUSE library.
 Under Ubuntu, for example, you can do it by command:
 
 ```shell
-$ sudo apt-get install bison byacc flex libelf-dev libfuse-dev
+$ sudo apt-get install bison byacc flex groff-base libelf-dev libfuse-dev
 ```
 
 By default, the system is configured for the Max32 board.

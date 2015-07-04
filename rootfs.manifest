@@ -652,6 +652,7 @@ file /games/battlestar
 file /games/bcd
 file /games/boggle
 file /games/btlgammon
+file /games/caesar
 file /games/canfield
 file /games/cfscores
 file /games/cribbage
@@ -663,6 +664,8 @@ file /games/mille
 file /games/monop
 file /games/morse
 file /games/number
+file /games/pig
+file /games/pom
 file /games/ppt
 file /games/primes
 file /games/quiz
@@ -1530,6 +1533,7 @@ file /share/man/cat6/banner.0
 file /share/man/cat6/battlestar.0
 file /share/man/cat6/bcd.0
 file /share/man/cat6/boggle.0
+file /share/man/cat6/caesar.0
 file /share/man/cat6/cribbage.0
 file /share/man/cat6/fish.0
 file /share/man/cat6/fortune.0
@@ -1537,6 +1541,8 @@ file /share/man/cat6/hangman.0
 file /share/man/cat6/mille.0
 file /share/man/cat6/monop.0
 file /share/man/cat6/number.0
+file /share/man/cat6/pig.0
+file /share/man/cat6/pom.0
 file /share/man/cat6/quiz.0
 file /share/man/cat6/rain.0
 file /share/man/cat6/robots.0

@@ -482,6 +482,7 @@ file /bin/mail
 mode 04755
 file /bin/make
 file /bin/man
+file /bin/md5
 file /bin/med
 file /bin/mesg
 file /bin/mkdir
@@ -1181,6 +1182,7 @@ file /share/man/cat1/m4.0
 file /share/man/cat1/mail.0
 file /share/man/cat1/make.0
 file /share/man/cat1/man.0
+file /share/man/cat1/md5.0
 file /share/man/cat1/mesg.0
 file /share/man/cat1/mkdep.0
 file /share/man/cat1/mkdir.0

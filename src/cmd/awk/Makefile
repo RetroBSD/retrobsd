@@ -37,7 +37,7 @@ lint:
 			egrep -v '^(error|free|malloc)'
 
 proctab.c:	proc.c token.h awk.h
-		cc -Wall -Werror -o proc proc.c
+		cc -std=gnu89 -Wall -Werror -o proc proc.c
 		./proc > proctab.c
 
 clean:

@@ -417,6 +417,7 @@ file /bin/basename
 file /bin/basic
 file /bin/bc
 file /bin/cal
+file /bin/calendar
 file /bin/cat
 file /bin/cb
 file /bin/cc
@@ -925,8 +926,17 @@ file /libexec/smlrc
 default
 filemode 0444
 dir /share
+dir /share/calendar
 dir /share/dict
 dir /share/misc
+file /share/calendar/calendar.birthday
+file /share/calendar/calendar.christian
+file /share/calendar/calendar.computer
+file /share/calendar/calendar.history
+file /share/calendar/calendar.holiday
+file /share/calendar/calendar.judaic
+file /share/calendar/calendar.music
+file /share/calendar/calendar.usholiday
 file /share/emg.keys
 file /share/re.help
 file /share/dict/words

@@ -1288,6 +1288,7 @@ file /share/man/cat1/units.0
 file /share/man/cat1/uptime.0
 file /share/man/cat1/users.0
 file /share/man/cat1/uucp.0
+file /share/man/cat1/uuencode.0
 file /share/man/cat1/uulog.0
 file /share/man/cat1/uuname.0
 file /share/man/cat1/uuq.0

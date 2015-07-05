@@ -2,20 +2,10 @@ TOPSRC          = $(shell cd ..; pwd)
 SUBDIR		= startup libc libcurses libtermlib libwiznet
 PROG		= ar as aout ld nm ranlib size strip
 
-# Build a list of the host include directories.
-CPP             = $(shell gcc -print-prog-name=cc1)
-HOSTINC         = $(addprefix -I,$(shell echo | $(CPP) -v 2>&1 | grep '^ /.*include'))
-
-# Add system include path
-ifeq (,$(wildcard /usr/include/i386-linux-gnu))
-    HOSTINC     += -I/usr/include
-else
-    HOSTINC     += -I/usr/include/i386-linux-gnu
-endif
-
-CFLAGS		+= -nostdinc -fno-builtin -g -Werror -Wall -DCROSS -I. $(HOSTINC) \
-                   -I$(TOPSRC)/include -I$(TOPSRC)/src/cmd/ar \
-                   -I$(TOPSRC)/src/cmd/as
+CFLAGS          += -std=gnu89 -fno-builtin -g -Werror -Wall -DCROSS -I. \
+                   -idirafter $(TOPSRC)/include \
+                   -idirafter $(TOPSRC)/src/cmd/ar \
+                   -idirafter $(TOPSRC)/src/cmd/as
 LDFLAGS         += -g
 
 AR_OBJS         = ar.o append.o archive.o contents.o delete.o extract.o \

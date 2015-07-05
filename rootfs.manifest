@@ -1288,7 +1288,7 @@ file /share/man/cat1/units.0
 file /share/man/cat1/uptime.0
 file /share/man/cat1/users.0
 file /share/man/cat1/uucp.0
-file /share/man/cat1/uuencode.0
+file /share/man/cat1/uudecode.0
 file /share/man/cat1/uulog.0
 file /share/man/cat1/uuname.0
 file /share/man/cat1/uuq.0
@@ -1536,7 +1536,6 @@ file /share/man/cat5/ttys.0
 file /share/man/cat5/types.0
 file /share/man/cat5/tzfile.0
 file /share/man/cat5/USERFILE.0
-file /share/man/cat5/uuencode.0
 file /share/man/cat5/vfont.0
 file /share/man/cat5/vgrindefs.0
 file /share/man/cat6/adventure.0

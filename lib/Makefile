@@ -13,9 +13,10 @@ else
     HOSTINC     += -I/usr/include/i386-linux-gnu
 endif
 
-CFLAGS		+= -nostdinc -fno-builtin -g -Werror -Wall -DCROSS -I. $(HOSTINC) \
-                   -I$(TOPSRC)/include -I$(TOPSRC)/src/cmd/ar \
-                   -I$(TOPSRC)/src/cmd/as
+CFLAGS		+= -std=gnu89 -fno-builtin -g -Werror -Wall -DCROSS -I. \
+                   -idirafter $(TOPSRC)/include \
+		   -idirafter $(TOPSRC)/src/cmd/ar \
+                   -idirafter $(TOPSRC)/src/cmd/as
 LDFLAGS         += -g
 
 AR_OBJS         = ar.o append.o archive.o contents.o delete.o extract.o \

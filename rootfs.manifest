@@ -499,6 +499,7 @@ file /bin/od
 file /bin/pagesize
 file /bin/passwd
 mode 04755
+file /bin/pdc
 file /bin/picoc
 file /bin/portio
 file /bin/pr

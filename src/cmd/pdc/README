@@ -1,0 +1,74 @@
+PDC - the programmers desktop calculator
+========================================
+
+PDC is a desktop calculator similar to bc but with features designed 
+for use by programmers. In particular PDC supports most ANSI C 
+operators including bitwise operators and shifts. PDC also makes 
+dealing with mixed bases very easy since it supports contant pefixes 
+(eg 0xff, 0755).
+
+PDC is licenced under the GNU General Public Licence. The latest 
+version of PDC can be downloaded from http://www.redfelineninja.org.uk.
+Jason Hood has ported PDC to DOS/Win32 (in five different ways). These
+ports can be found at http://pdc.adoxa.cjb.net.
+
+
+Features
+--------
+
+ * mathematic operators +, -, *, /, %
+ * logic operators &&, ||, !
+ * bitwise operators &, |, ^, ~, <<, >>
+ * uses ANSI C operator precedence
+ * prefix numbers with 0b, 0, 0d and 0x to support binary, octal,
+   decimal and hex regardless of input base
+ * output numbers in any number base of 16 or less
+ * functions to assist with 'bit bashing'
+ * command line expression evaluation
+
+
+Building PDC
+------------
+
+PDC is supplied with a simple makefile. It should build with no
+modifications on most Unix-like operating systems. However, you may need
+to change the compilation flags (for example, to remove -Wall) if
+you are not using gcc.
+
+PDC is tested most often on Solaris and GNU/Linux. It's written in YACC and C.
+
+PDC can also be built for Windows. The supplied Makefile has been written with
+MinGW in mind, but other compilers may also work with some minor changes. To
+build for Win32 using MinGW, the variable COMPILER_PREFIX must be defined to
+the toolchain prefix - for example, "i586-mingw32msvc-". If building under
+Win32, the variable WIN32_HOME should be used to point to where the required
+include files and libraries may be found.
+
+By default PDC is built against the GNU readline library. If your system
+does not have the library installed, set WITHOUT_READLINE on the make
+command line (make WITHOUT_READLINE=1). You'll know if you don't have the
+library due to all the errors. :-)  A Win32 port of GNU readline can be
+found at http://mingwrep.sf.net .
+
+DJGPP users will not have GNU readline but who have CmdEdit installed
+can use that instead by setting HAVE_CMDEDIT.
+
+
+Build examples
+--------------
+
+GNU/Linux:
+    make
+
+Solaris (generally Solaris does not have readline installed):
+    make WITHOUT_READLINE=1
+
+MinGW/Win32 (assumes toolset headers in $HOME/win32/include and
+             readline.dll in $HOME/win32/bin ):
+    make WIN32_HOME=$HOME/win32 COMPILER_PREFIX=i586-mingw32msvc-
+
+Bugs and Feature Requests
+--------------------------
+
+Reproducable bugs and feature requests should be sent to 
+bugs-pdc@redfelineninja.org.uk.

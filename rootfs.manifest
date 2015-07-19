@@ -754,6 +754,7 @@ filemode 0664
 dir /include
 dir /include/arpa
 dir /include/machine
+dir /include/readline
 dir /include/smallc
 dir /include/smallc/sys
 dir /include/sys
@@ -794,6 +795,8 @@ file /include/paths.h
 file /include/psout.h
 file /include/pwd.h
 file /include/ranlib.h
+file /include/readline/history.h
+file /include/readline/readline.h
 file /include/regexp.h
 file /include/setjmp.h
 file /include/sgtty.h
@@ -906,6 +909,7 @@ target sys/syslog.h
 file /lib/crt0.o
 file /lib/libc.a
 file /lib/libcurses.a
+file /lib/libreadline.a
 file /lib/libtermlib.a
 file /lib/libwiznet.a
 file /lib/retroImage

@@ -1,0 +1,11 @@
+CFLAGS += -Wall -Werror -Os -g
+
+example: readline.o example.o
+	$(CC) $(LDFLAGS) -o $@ readline.o example.o
+
+clean:
+	rm -rf *.o example example.dSYM history.txt
+
+###
+example.o: example.c readline.h history.h
+readline.o: readline.c readline.h history.h

@@ -13,7 +13,7 @@ CFLAGS          += -Werror
 SUBDIR		= adb adc-demo aout ar as awk basic calendar cc chflags \
                   chpass cpp dc devupdate diff emg env fdisk find fold forth \
                   fstat glcdtest hostname id la lcc lcpp ld ls login make \
-                  man md5 med more nm passwd picoc portio printf pwm \
+                  man md5 med more nm passwd pdc picoc portio printf pwm \
                   ranlib re renice retroforth scm sed setty sh sl smallc \
                   smlrc smux stty sysctl test uname wiznet xargs \
                   zmodem gtest msec unixbench cron compress date2 tip \

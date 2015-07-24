@@ -6,7 +6,7 @@
 # For Windows, use the driver: http://www.schmalzhaus.com/UBW32/FW/UBW32inf.zip
 
 core pic32mx7
-linker bootloader-ubw32
+linker bootloader-maximite
 mapping generic
 
 device kernel invled=D1
@@ -17,5 +17,5 @@ device uartusb
 device sd0 port=2 cs=B13
 device gpio
 device adc
-
+device foreignbootloader
 #device bootloader button=E7 led=E3 user=0x1d005000

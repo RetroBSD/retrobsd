@@ -31,6 +31,7 @@ EXPLORER16      = sys/pic32/explorer16/EXPLORER16
 STARTERKIT      = sys/pic32/starter-kit/STARTER-KIT
 BAREMETAL       = sys/pic32/baremetal/BAREMETAL
 RETROONE        = sys/pic32/retroone/RETROONE
+PINGUINO-MICRO  = sys/pic32/pinguino-micro/PINGUINO-MICRO
 
 # Select target board
 TARGET          ?= $(MAX32)

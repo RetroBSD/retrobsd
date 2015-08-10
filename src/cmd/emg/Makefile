@@ -14,9 +14,9 @@ CFLAGS +=	-ffunction-sections -fdata-sections
 CFLAGS +=	-mips16
 
 # Set the screen size.
-# Will default to FORCE_COLS=80 and FORCE_ROWS=24
+# Will default to COLS=80 and ROWS=24
 # if not set here.
-#CFLAGS +=	-DFORCE_COLS=80 -DFORCE_ROWS=24
+#CFLAGS +=	-DCOLS=80 -DROWS=24
 
 # with CFLAGS+=	-ffunction-sections -fdata-sections
 LDFLAGS +=	-Wl,--gc-sections
@@ -27,7 +27,7 @@ MAN =		emg.0
 MANSRC =	emg.1
 
 OBJS =	basic.o buffer.o display.o file.o fileio.o line.o main.o \
-	random.o region.o search.o tcap.o ttyio.o window.o word.o
+	random.o region.o search.o tcap.o ttyio.o word.o
 
 all:	emg ${MAN}
 

@@ -15,7 +15,6 @@ extern int mlreplyt(char *prompt, char *buf, int nbuf, char eolchar);
 extern void update();
 extern int forwchar(int f, int n);
 extern int ldelete(int n, int kflag);
-extern int lnewline();
 extern int linsert(int n, int c);
 
 int forwsearch(int f, int n);

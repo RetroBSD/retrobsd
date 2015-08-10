@@ -254,24 +254,24 @@ int backline(int f, int n)
 }
 
 /*
- * PgDn. Scroll down (FORCE_ROWS - 1).
- * Just forwline(f, (FORCE_ROWS -1))
+ * PgDn. Scroll down (ROWS - 1).
+ * Just forwline(f, (ROWS -1))
  * Bound to C-V
  */
 int pagedown(int f, int n)
 {
-  forwline(f, (FORCE_ROWS - 1));
+  forwline(f, (ROWS - 1));
   return (TRUE);
 }
 
 /*
- * PgUp. Scroll up (FORCE_ROWS - 1).
- * Just backline(f, (FORCE_ROWS -1))
+ * PgUp. Scroll up (ROWS - 1).
+ * Just backline(f, (ROWS -1))
  * Bound to M-V
  */
 int pageup(int f, int n)
 {
-  backline(f, (FORCE_ROWS - 1));
+  backline(f, (ROWS - 1));
   return (TRUE);
 }
 

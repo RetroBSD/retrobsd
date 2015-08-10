@@ -23,7 +23,6 @@ extern LINE *lalloc();
 
 int fileread(int f, int n);
 int insfile(int f, int n);
-int filefind(int f, int n);
 int getfile(char fname[]);
 int readin(char fname[]);
 void makename(char bname[], char fname[]);
@@ -61,22 +60,6 @@ int insfile(int f, int n)
   if ((s = mlreply("Insert file: ", fname, NFILEN)) != TRUE)
     return (s);
   return (ifile(fname));
-}
-
-/*
- * Select a file for editing. Look around to see if you can find the fine in
- * another buffer; if you can find it just switch to the buffer. If you cannot
- * find the file, create a new buffer, read in the text, and switch to the new
- * buffer. Bound to C-X C-F.
- */
-int filefind(int f, int n)
-{
-  char fname[NFILEN];		/* file user wishes to find */
-  int s;			/* status return */
-
-  if ((s = mlreply("Find file: ", fname, NFILEN)) != TRUE)
-    return (s);
-  return (getfile(fname));
 }
 
 int getfile(char fname[])
@@ -285,10 +268,7 @@ int filesave(int f, int n)
   if ((curbp->b_flag & BFCHG) == 0) /* Return, no changes */
     return (TRUE);
   if (curbp->b_fname[0] == 0)
-    {				/* Must have a name */
-      mlwrite("No file name");
-      return (FALSE);
-    }
+      filename(f, n);		/* Must have a name */
   if ((s = writeout(curbp->b_fname)) == TRUE)
     {
       curbp->b_flag &= ~BFCHG;

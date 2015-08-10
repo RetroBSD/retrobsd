@@ -19,6 +19,7 @@ extern int getccol();
 
 void movecursor(int row, int col);
 void mlerase();
+int  refresh();
 void vtinit();
 void vttidy();
 void vtmove(int row, int col);
@@ -57,6 +58,25 @@ int lbound = 0;			/* leftmost column of line being displayed */
 
 VIDEO **vscreen;		/* Virtual screen */
 VIDEO **pscreen;		/* Physical screen */
+
+/*
+ * Refresh the screen. With no argument, it does the refresh and centers
+ * the cursor on the screen. With an argument it does a reposition instead.
+ * Bound to "C-L:
+ */
+int
+refresh(int f, int n)
+{
+  if (n >= 0)
+    n++;			/* adjust to screen row */
+  if (f == FALSE) {
+    sgarbf = TRUE;
+    n = 0;			/* Center dot */
+  }
+  curwp->w_force = n;
+  curwp->w_flag |= WFFORCE;
+  return (TRUE);
+}
 
 /*
  * Send a command to the terminal to move the hardware cursor to row "row" and
@@ -620,72 +640,41 @@ void updateline(int row, char vline[], char pline[], short *flags)
 void modeline(WINDOW *wp)
 {
   BUFFER *bp;
-  int lchar;			/* character to draw line in buffer with */
   int n;			/* cursor position count */
   int len;			/* line/column display check */
-  char sl[25];			/* line/column display (probably overkill) */
+  char sl[17];			/* line/column display (probably overkill) */
 
   n = wp->w_toprow + wp->w_ntrows; /* Location */
   vscreen[n]->v_flag |= VFCHG; /* Redraw next time */
   vtmove(n, 0);		       /* Seek to right line */
-  if (wp == curwp)	       /* mark the current buffer */
-    lchar = '=';
-  else
-    if (revexist)
-      lchar = ' ';
-    else
-      lchar = '-';
-
-  vtputc(lchar);
   bp = wp->w_bufp;
-
-  if ((bp->b_flag & BFCHG) != 0)	/* "*" if changed */
+  vtputc('-');
+  vtputc('-');
+  if ((bp->b_flag & BFCHG) != 0) {	/* "**" if changed */
     vtputc('*');
+    vtputc('*');
+  } else {
+    vtputc('-');
+    vtputc('-');
+  }
+  vtputc('-');
+  n = 5;
+  n += vtputs("emg: ");
+  if (bp->b_fname[0] == '\0')
+    n += vtputs("*scratch*");
   else
-    vtputc(lchar);
+    n += vtputs(&(bp->b_fname[0]));
+  while (n++ < 42)		/* Pad out with blanks.  */
+    vtputc(' ');
+  n += vtputs("(fundamental)");
 
-  n = 2;
-  /* This is the version string. Do not forget to
-   * increment when releasing a new version. */
-  n += vtputs(" emg 1.7 ");
-
-  vtputc(lchar);
-  vtputc(lchar);
-  vtputc(' ');
-  n += 3;
-
-  n += vtputs(&(bp->b_bname[0]));
-
-  vtputc(' ');
-  vtputc(lchar);
-  vtputc(lchar);
-  n += 3;
-
-  if (bp->b_fname[0] != 0)     /* File name */
-    {
-      vtputc(' ');
-      ++n;
-      n += vtputs("File: ");
-
-      n += vtputs(&(bp->b_fname[0]));
-
-      vtputc(' ');
-      vtputc(lchar);
-      vtputc(lchar);
-      n += 3;
-    }
-
-  len = snprintf(sl, sizeof(sl), " %d%% (%d,%d) ",
-		((100*(wp->w_dotline)) / bp->b_lines),
-		(wp->w_dotline + 1), getccol(FALSE));
+  len = snprintf(sl, sizeof(sl), "--L%d--C%d",
+		 (wp->w_dotline + 1), getccol(FALSE));
   if (len < sizeof(sl) && len != -1)
     n += vtputs(sl);
 
-  while (n < term.t_ncol)      /* Pad to full width */
-    {
-      vtputc(lchar);
-      ++n;
-    }
+  while (n++ <= term.t_ncol)      /* Pad to full width */
+      vtputc('-');
 }
 
 /* update all the mode lines */

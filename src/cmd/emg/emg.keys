@@ -1,4 +1,4 @@
-		      emg keybindings (July 7, 2014)
+		     emg keybindings (August 9, 2014)
 		    Based on Ersatz Emacs (2000/09/14)
 
 M-  means to use the <ESC> key prior to using another key
@@ -54,24 +54,9 @@ Generally, the procedure for copying or moving text is:
 3) Move the cursor to the desired location and yank it back (with ^Y).
 
 ------------------------------------------------------------------------------
-			   MULTIPLE BUFFERS
-
-A buffer contains a COPY of a document being edited, and must be saved for
-changes to be kept. Many buffers may be activated at once.
-
-^X B  Switch to another buffer.
-^X ^B Show buffer directory in a window (^X 1 to remove).
-^X K  Delete a non-displayed buffer.
-^X X  Switch to next buffer in buffer list.
-^X N  Change the filename associated with the buffer.
-M-^N  Change the name of the buffer.
-
-------------------------------------------------------------------------------
 			  READING FROM DISK
 
-^X^F  Find file; read into a new buffer created from filename.
-      (This is the usual way to edit a new file.)
-^X^R  Read file into current buffer, erasing its previous contents.
+^X^F  Read file into current buffer, erasing its previous contents.
       No new buffer will be created.
 ^X^I  Insert file into current buffer at cursor's location.
 
@@ -82,16 +67,6 @@ M-^N  Change the name of the buffer.
       the disk file. Any disk file of that name will be overwritten. (or ^X S)
 ^X^W  Write current buffer to disk. Type in a new filename at the prompt to
       write to; it will also become the current buffer's filename.
-
-------------------------------------------------------------------------------
-			   MULTIPLE WINDOWS
-
-Many windows may be visible at once on the screen. Windows may show different
-parts of the same buffer, or each may display a different one.
-
-^X 2  Split the current window in two	^X 1   Show only current window
-^X O  Move cursor to next window	^X ^   Enlarge current window
-M-^V  Scroll other window down		M-^Z   Scroll other window up
 
 ------------------------------------------------------------------------------
 			       EXITING
@@ -118,9 +93,6 @@ M-^V  Scroll other window down		M-^Z   Scroll other window up
     are from the bottom of the screen.
 ^U<number>^X F
     Set the right margin to column <number> for paragraph formatting.
-^U<number>^X^
-    Enlarge a split window by <number> rows. A negative number shrinks the
-    window.
 
 ------------------------------------------------------------------------------
 			     SPECIAL KEYS

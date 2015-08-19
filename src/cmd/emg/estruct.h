@@ -34,14 +34,14 @@
 /*
  * screen constants
  * override with
- * CFLAGS += -DFORCE_COLS=XXX -DFORCE_ROWS=XXX
+ * CFLAGS += -DCOLS=XXX -DROWS=XXX
  */
-#ifndef FORCE_COLS
-#define FORCE_COLS 80
+#ifndef COLS
+#define COLS 80
 #endif
 
-#ifndef FORCE_ROWS
-#define FORCE_ROWS 24
+#ifndef ROWS
+#define ROWS 24
 #endif
 
 /*

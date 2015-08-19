@@ -8,8 +8,9 @@
 
 #define maindef			/* make global definitions not external */
 
-#include <string.h>		/* strncpy(3) */
+#include <stdio.h>
 #include <stdlib.h>		/* malloc(3) */
+#include <string.h>		/* strncpy(3) */
 #include "estruct.h"		/* global structures and defines */
 #include "efunc.h"		/* function declarations and name table */
 #include "edef.h"		/* global definitions */
@@ -40,13 +41,13 @@ int ctlxe(int f, int n);
 int ctrlg(int f, int n);
 int extendedcmd(int f, int n);
 
-int main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
   BUFFER *bp;
   char bname[NBUFN];		/* buffer name of file to read */
   int c, f, n, mflag;
   int ffile;			/* first file flag */
-  int carg;			/* current arg to scan */
   int basec;			/* c stripped of meta character */
 
   /* initialize the editor and process the startup file */
@@ -58,19 +59,21 @@ int main(int argc, char *argv[])
   update();			/* let the user know we are here */
 
   /* scan through the command line and get the files to edit */
-  for (carg = 1; carg < argc; ++carg)
-    {
+  if (argc > 2) {
+    (void) fprintf(stderr, "Can only edit one file at a time\n");
+    exit(1);
+  } else if (argc == 2) {
       /* set up a buffer for this file */
-      makename(bname, argv[carg]);
+      makename(bname, argv[1]);
 
       /* if this is the first file, read it in */
       if (ffile)
 	{
 	  bp = curbp;
-	  makename(bname, argv[carg]);
+	  makename(bname, argv[1]);
 	  strncpy(bp->b_bname, bname, NBUFN);
-	  strncpy(bp->b_fname, argv[carg], NFILEN);
-	  if (readin(argv[carg]) == ABORT)
+	  strncpy(bp->b_fname, argv[1], NFILEN);
+	  if (readin(argv[1]) == ABORT)
 	    {
 	      strncpy(bp->b_bname, "main", 5);
 	      strncpy(bp->b_fname, "", 1);
@@ -83,7 +86,7 @@ int main(int argc, char *argv[])
 	{
 	  /* set this to inactive */
 	  bp = bfind(bname, TRUE, 0);
-	  strncpy(bp->b_fname, argv[carg], NFILEN);
+	  strncpy(bp->b_fname, argv[1], NFILEN);
 	  bp->b_active = FALSE;
 	}
     }
@@ -466,4 +469,17 @@ int extendedcmd(int f, int n)
       return (FALSE);
     }
   return cmd(f, n);
+}
+
+/*
+ * Display the version. All this does
+ * is copy the version string into the echo line.
+ * Taken from OpenBSD Mg.
+ * THIS IS WHERE YOU INCREMENT VERSION NUMBER BEFORE RELEASE!
+ */
+int
+showversion(int f, int n)
+{
+  mlwrite("emg 1.8");
+  return (TRUE);
 }

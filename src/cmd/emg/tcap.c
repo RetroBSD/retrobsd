@@ -47,16 +47,16 @@ TERM term = {
 
 void getwinsize()
 {
-  int cols = FORCE_COLS;
-  int rows = FORCE_ROWS;
+  int cols = COLS;
+  int rows = ROWS;
 
   /* Too small and we're out */
   if ((cols < 10) || (rows < 3))
       panic("Too few columns or rows");
 
-  if (FORCE_COLS > MAXCOL)
+  if (COLS > MAXCOL)
       cols = MAXCOL;
-  if (FORCE_ROWS > MAXROW)
+  if (ROWS > MAXROW)
       rows = MAXROW;
 
   term.t_ncol = cols;

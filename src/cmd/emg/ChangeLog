@@ -1,6 +1,14 @@
 ChangeLog
 =========
 
+August 10, 2015 : emg 1.8
+-------------------------
+Remove most buffer functions.
+Remove all window functions.
+Remove window.c, the one remaining function goes to display.c
+Rework the modeline to look like Mg.
+Add a version function, bound to "M-e".
+
 July 10, 2014 : emg 1.7
 -----------------------
 Searching now correctly updates line number display.

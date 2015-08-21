@@ -21,10 +21,6 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-The views and conclusions contained in the software and documentation are those
-of the authors and should not be interpreted as representing official policies,
-either expressed or implied, of the FreeBSD Project.
 */
 
 /*****************************************************************************/
@@ -519,6 +515,26 @@ void GenJumpIfNotZero(int label)
                          MipsOpNumLabel, label);
 }
 
+fpos_t GenPrologPos;
+
+STATIC
+void GenWriteFrameSize(void)
+{
+  unsigned size = -CurFxnMinLocalOfs;
+  int pfx = size ? ' ' : '#';
+  printf2("\t%csubu\t$29, $29, %10u\n", pfx, size); // 10 chars are enough for 32-bit unsigned ints
+}
+
+STATIC
+void GenUpdateFrameSize(void)
+{
+  fpos_t pos;
+  fgetpos(OutFile, &pos);
+  fsetpos(OutFile, &GenPrologPos);
+  GenWriteFrameSize();
+  fsetpos(OutFile, &pos);
+}
+
 STATIC
 void GenFxnProlog(void)
 {
@@ -549,6 +565,9 @@ void GenFxnProlog(void)
                              MipsOpRegA0 + i, 0,
                              MipsOpIndRegFp, 8 + 4 * i);
   }
+
+  fgetpos(OutFile, &GenPrologPos);
+  GenWriteFrameSize();
 }
 
 STATIC
@@ -563,14 +582,10 @@ void GenGrowStack(int size)
 }
 
 STATIC
-void GenFxnProlog2(void)
-{
-  GenGrowStack(-CurFxnMinLocalOfs);
-}
-
-STATIC
 void GenFxnEpilog(void)
 {
+  GenUpdateFrameSize();
+
   GenPrintInstr2Operands(MipsInstrMov, 0,
                          MipsOpRegSp, 0,
                          MipsOpRegFp, 0);
@@ -2225,3 +2240,4 @@ void GenFin(void)
   }
 #endif
 }
+

@@ -48,7 +48,7 @@ extern	int	ofd;
 #define ENTER   1
 
 /* buffer used internally */
-#define CPPBUF	512
+#define CPPBUF	640
 #ifndef CPPBUF
 #if defined(__pdp11__)
 #define CPPBUF  BUFSIZ
@@ -86,7 +86,7 @@ extern int bidx;
 #define C_SPEC	001
 #define C_EP	002
 #define C_ID	004
-#define C_I	(C_SPEC|C_ID)		
+#define C_I	(C_SPEC|C_ID)
 #define C_2	010		/* for yylex() tokenizing */
 #define	C_WSNL	020		/* ' ','\t','\r','\n' */
 #define	iswsnl(x) (spechr[x] & C_WSNL)
@@ -116,8 +116,8 @@ extern struct includ *ifiles;
 
 /* Symbol table entry  */
 struct symtab {
-	const usch *namep;    
-	const usch *value;    
+	const usch *namep;
+	const usch *value;
 	const usch *file;
 	int line;
 };

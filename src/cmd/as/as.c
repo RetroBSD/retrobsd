@@ -1721,6 +1721,14 @@ done:
                 ((type & FRT2) && rt == reorder_clobber))
                 reorder_flush();
         }
+        if (reorder_full && (type & (FOFF18 | FAOFF18)) &&
+            relinfo.flags == RABS && (opcode & 0x8000)) {
+            /* Branch instruction with negative offset is being displaced
+             * by one word.  Need to update the offset field. */
+            offset = opcode + 1;
+            opcode &= ~0xffff;
+            opcode |= (offset & 0xffff);
+        }
         fputword (opcode, sfile[segm]);
         fputrel (&relinfo, rfile[segm]);
         if (reorder_full) {

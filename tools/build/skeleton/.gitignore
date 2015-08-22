@@ -1,0 +1,7 @@
+pic32prog.exe
+sdcard.img
+unix.dis
+unix.hex
+linux32/pic32prog
+linux64/pic32prog
+macosx/pic32prog

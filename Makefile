@@ -104,7 +104,7 @@ cleanall:       clean
 		rm -f share/re.help share/emg.keys share/misc/more.help
 		rm -f etc/termcap etc/remote etc/phones
 		rm -f tools/configsys/.depend
-		rm -f var/log/aculog
+		rm -f var/log/aculog sdcard.img
 		rm -rf var/lock share/unixbench
 
 installfs:

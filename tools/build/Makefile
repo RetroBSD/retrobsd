@@ -12,7 +12,7 @@ PIC32PROG       = https://raw.githubusercontent.com/sergev/pic32prog/master
 
 DATE            := $(shell date +'%Y-%m-%d')
 
-all:            sdcard-$(DATE).zip
+all:            build sdcard-$(DATE).zip
 		for b in $(BOARD_LIST); do \
 		    $(MAKE) retrobsd-$$b-$(DATE).zip TARGET=$$b; \
                 done
@@ -37,13 +37,13 @@ retrobsd-$(TARGET)-$(DATE).zip: update-skeleton
 		zip -rq $@ retrobsd-$(TARGET)-$(DATE)
 
 build-$(DATE).log:
-		make -C ../.. cleanall
-		(echo === RetroBSD Build Revision $(shell git rev-list HEAD --count) ===; \
-                make -C ../../tools; \
-		make -C ../../lib; \
-		make -C ../../src install; \
-		make -C ../../sys/pic32 all; \
-		make -C ../.. fs) 2>&1 > build-$(DATE).log
+		make -C ../.. cleanall > /dev/null
+		echo === RetroBSD Revision $(shell git rev-list HEAD --count) === > build-$(DATE).log
+		make -C ../../tools >> build-$(DATE).log 2>&1
+		make -C ../../lib >> build-$(DATE).log 2>&1
+		make -C ../../src install >> build-$(DATE).log 2>&1
+		make -C ../.. fs >> build-$(DATE).log 2>&1
+		make -C ../../sys/pic32 all >> build-$(DATE).log 2>&1
 
 update-skeleton: skeleton/linux32/pic32prog skeleton/linux64/pic32prog \
                  skeleton/macosx/pic32prog skeleton/pic32prog.exe \

@@ -26,5 +26,6 @@
 *.img
 sdcard.rd
 .profile
+*~
 
 Makefile.user

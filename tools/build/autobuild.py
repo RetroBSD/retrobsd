@@ -81,7 +81,7 @@ os.system("mv "+BSD+"/tools/build/*.zip "+ARCHIVE+"/"+str(rev))
 #
 mysql = MySQLdb.connect (user = "autobuild",
                            db = "autobuild",
-                       passwd = "retr0bsd")
+                       passwd = "***")
 for r in range(rev-1, 0, -1):
     # Skip non-existing revisions
     dir = ARCHIVE + "/" + str(r)

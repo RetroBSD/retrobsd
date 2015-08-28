@@ -2,7 +2,7 @@
 #
 # Autobuild script for RetroBSD
 #
-import sys, string, os, subprocess, shutil, datetime, MySQLdb
+import sys, string, os, subprocess, shutil, time, datetime, MySQLdb
 
 BSD     = "/website/retrobsd/build/retrobsd-sources"
 ARCHIVE = "/website/retrobsd/build/master"
@@ -13,7 +13,7 @@ REPO    = "https://github.com/RetroBSD/retrobsd.git"
 #
 today = datetime.date.today()
 DATE = "%04d-%02d-%02d" % (today.year, today.month, today.day)
-print "--- Date:", DATE
+print "--- Started:", time.ctime()
 
 #
 # (1) If BSD directory exists: use 'git pull' to update
@@ -21,7 +21,7 @@ print "--- Date:", DATE
 #
 if os.path.exists(BSD):
     print "--- Update the existing source tree"
-    os.system("git -C "+BSD+" pull")
+    os.system("git -C "+BSD+" pull > /dev/null")
     fresh_sources = False
 else:
     print "--- Checkout a fresh snapshot of sources"
@@ -35,13 +35,16 @@ rev = subprocess.check_output(string.split("git -C "+BSD+" rev-list HEAD --count
 rev = int(rev)
 print "--- Latest revision:", rev
 
+rid = subprocess.check_output(string.split("git -C "+BSD+" rev-parse --short HEAD")).strip()
+print "--- Commit ID:", rid
+
 #
 # (3) If the REV already exists in the ARCHIVE: all done.
 #     Otherwise proceed to (4).
 #
 if os.path.exists(ARCHIVE + "/" + str(rev)):
-    print "--- Build for revision "+str(rev)+" already exists"
-    print "--- Finished"
+    print "--- Build for revision "+str(rev)+" already available"
+    print "--- Finished:", time.ctime()
     sys.exit (0)
 
 #
@@ -103,4 +106,5 @@ for r in range(rev-1, 0, -1):
     print "--- Delete unused revision", r
     shutil.rmtree(dir)
 
+print "--- Finished:", time.ctime()
 sys.exit (0)

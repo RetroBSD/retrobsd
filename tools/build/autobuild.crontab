@@ -1,0 +1,8 @@
+
+#
+# Crontab entries for the autobuild server
+#
+
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+5 * * * *       /website/retrobsd/build/retrobsd-autobuild.py

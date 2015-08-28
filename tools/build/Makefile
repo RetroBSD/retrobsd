@@ -39,7 +39,7 @@ retrobsd-$(TARGET)-$(DATE).zip: update-skeleton
 
 build-$(DATE).log:
 		make -C ../.. cleanall > /dev/null
-		echo === RetroBSD Revision $(shell git rev-list HEAD --count) === > build-$(DATE).log
+		echo === RetroBSD Revision $(shell git rev-list HEAD --count), Commit Id $(shell git rev-parse --short HEAD) === > build-$(DATE).log
 		make -C ../../tools >> build-$(DATE).log 2>&1
 		make -C ../../lib >> build-$(DATE).log 2>&1
 		make -C ../../src install >> build-$(DATE).log 2>&1

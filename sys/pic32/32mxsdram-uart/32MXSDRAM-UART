@@ -34,10 +34,3 @@ device sdramp
 # (sd@xxxx + fs@xxxx) <= ramdisk_size
 option PARTITION=sdramp0:sa@2048,fs@14000
 option nmount=3
-
-# set=pin means the pin will be set high during bootloading
-device bootloader button=C1 user=0x1d005000 led=C13 led2=C14
-option crystal=12
-option pllidiv=3
-option pllmul=20
-option upllidiv=3

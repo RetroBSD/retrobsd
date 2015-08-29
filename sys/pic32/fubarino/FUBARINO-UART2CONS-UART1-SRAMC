@@ -41,33 +41,3 @@ device adc
 device spi
 device pwm
 device gpio
-
-# Bootloader section:
-
-device bootloader led=21 button=23 crystal=8 jump=0x9d000000
-# clock = crystal / pllidiv * pllmul
-# usb == 48MHz = crystal / upllidiv * 12
-
-# Bootloader: for 40MHz clock:
-# option crystal=8
-# option pllidiv=3
-# option pllmul=15
-# option upllidiv=2
-
-# Bootloader: for 80MHz clock:
-# option crystal=8
-# option pllidiv=2
-# option pllmul=20
-# option upllidiv=2
-
-# Bootloader: for 96MHz clock:
-# option crystal=8
-# option pllidiv=2
-# option pllmul=24
-# option upllidiv=2
-
-# Bootloader: for 120MHz clock:
-option crystal=8
-option pllidiv=1
-option pllmul=15
-option upllidiv=2

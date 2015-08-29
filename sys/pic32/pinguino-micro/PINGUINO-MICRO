@@ -18,4 +18,3 @@ device sd0 port=2 cs=B13
 device gpio
 device adc
 device foreignbootloader
-#device bootloader button=E7 led=E3 user=0x1d005000

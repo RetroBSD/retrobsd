@@ -16,5 +16,3 @@ device sd0 port=2 cs=A9
 device sdramp
 
 option PARTITION=sdramp0:sa@2048,fs@14000
-
-device bootloader button=E7 user=0x1d005000 led=E3 invled2=E2 set=E0 set2=E1

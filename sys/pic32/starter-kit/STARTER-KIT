@@ -19,5 +19,3 @@ device sd0 port=1 cs=B1
 
 device gpio
 device adc
-
-device bootloader button=D6 jump=0x9d000000 led=D0 invled2=D1 invled3=D2

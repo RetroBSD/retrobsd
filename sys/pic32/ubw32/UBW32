@@ -19,5 +19,3 @@ device sd0 port=1 cs=A9
 device sd1 port=1 cs=A10
 
 device gpio
-
-device bootloader button=E7 user=0x1d005000 led=E3 invled2=E2 set=E0 set2=E1

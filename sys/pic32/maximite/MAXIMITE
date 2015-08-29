@@ -19,5 +19,3 @@ device rdisk led=E1
 device sd0 port=4 cs=E0
 
 device gpio
-
-device bootloader button=C13 user=0x1d003000 led=E1 clear=F0

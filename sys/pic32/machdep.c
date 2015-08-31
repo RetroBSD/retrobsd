@@ -178,7 +178,7 @@ startup()
 #ifdef KERNEL_EXECUTABLE_RAM
     /*
      * Set boundry for kernel executable ram on smallest
-     * 2k boundry required to allow the keram segement to fit.
+     * 2k boundry required to allow the keram segment to fit.
      * This means that there is possibly some u0area ramspace that
      * is executable, but as it is isolated from userspace this
      * should be ok, given the apparent goals of this project.
@@ -498,7 +498,7 @@ boot(dev, howto)
             (*dump)(dumpdev);
         }
         /* Restart from dev, howto */
-#ifdef USB_NUM_STRING_DESCRIPTORS
+#ifdef UARTUSB_ENABLED
         /* Disable USB module, and wait awhile for the USB cable
          * capacitance to discharge down to disconnected (SE0) state.
          */
@@ -539,15 +539,15 @@ boot(dev, howto)
 #ifdef HALTREBOOT
     printf("press any key to reboot...");
     cngetc();
-        /* Unlock access to reset register */
-        SYSKEY = 0;
-        SYSKEY = 0xaa996655;
-        SYSKEY = 0x556699aa;
 
-        /* Reset microcontroller */
-        RSWRSTSET = 1;
-        (void) RSWRST;
+    /* Unlock access to reset register */
+    SYSKEY = 0;
+    SYSKEY = 0xaa996655;
+    SYSKEY = 0x556699aa;
 
+    /* Reset microcontroller */
+    RSWRSTSET = 1;
+    (void) RSWRST;
 #endif
 
     for (;;) {

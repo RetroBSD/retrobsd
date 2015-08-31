@@ -400,7 +400,7 @@ void do_rules(f)
         fprintf(f, "%so: $S/%s%c\n", tail(np), np, och);
         special = ftp->f_special;
         if (special == 0) {
-            char *ftype;
+            char *ftype = "???";
             static char cmd[128];
 
             switch (ftp->f_type) {

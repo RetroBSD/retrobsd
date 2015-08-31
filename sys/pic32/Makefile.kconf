@@ -1,0 +1,121 @@
+#
+# Makefile for RetroBSD, pic32 target
+#
+# DEBUG is set to -g by kconfig if debugging is requested (kconfig -g).
+# PROF is set to -pg by kconfig if profiling is requested (kconfig -p).
+
+ifndef MIPS_GCC_ROOT
+    ifeq (/usr/local/mips-2014.05,$(wildcard /usr/local/mips-2014.05))
+        MIPS_GCC_ROOT = /usr/local/mips-2014.05
+    endif
+    ifeq (/usr/local/mips-gcc-4.8.1,$(wildcard /usr/local/mips-gcc-4.8.1))
+        MIPS_GCC_ROOT = /usr/local/mips-gcc-4.8.1
+    endif
+    ifeq (/usr/local/pic32-tools,$(wildcard /usr/local/pic32-tools))
+        MIPS_GCC_ROOT = /usr/local/pic32-tools
+    endif
+    ifdef UECIDE
+        MIPS_GCC_ROOT = ${UECIDE}/compilers/pic32-tools
+    endif
+endif
+
+ifeq (${MIPS_GCC_ROOT}/bin/mips-sde-elf-gcc,$(wildcard ${MIPS_GCC_ROOT}/bin/mips-sde-elf-gcc))
+    MIPS_GCC_PREFIX ?= ${MIPS_GCC_ROOT}/bin/mips-sde-elf-
+endif
+ifeq (${MIPS_GCC_ROOT}/bin/mips-elf-gcc,$(wildcard ${MIPS_GCC_ROOT}/bin/mips-elf-gcc))
+    MIPS_GCC_PREFIX ?= ${MIPS_GCC_ROOT}/bin/mips-elf-
+endif
+ifeq (${MIPS_GCC_ROOT}/bin/pic32-gcc,$(wildcard ${MIPS_GCC_ROOT}/bin/pic32-gcc))
+    MIPS_GCC_PREFIX ?= ${MIPS_GCC_ROOT}/bin/pic32-
+endif
+
+AS              = ${MIPS_GCC_PREFIX}as ${DEBUG} -mips32r2 -EL
+CC              = ${MIPS_GCC_PREFIX}gcc ${DEBUG} -mips32r2 -EL -nostdinc -fno-builtin -Werror -Wall
+CPP             = ${MIPS_GCC_PREFIX}cpp
+LD              = ${MIPS_GCC_PREFIX}gcc -mips32r2 -EL
+LDFLAGS         = -nostdlib -T $A/${LDSCRIPT} -Wl,-Map=unix.map
+SIZE            = ${MIPS_GCC_PREFIX}size
+OBJCOPY         = ${MIPS_GCC_PREFIX}objcopy
+OBJDUMP         = ${MIPS_GCC_PREFIX}objdump
+
+ifeq (${MIPS_GCC_ROOT}/bin/mips-elf-gcc,$(wildcard ${MIPS_GCC_ROOT}/bin/mips-elf-gcc))
+    LDFLAGS     += -Wl,--oformat=elf32-littlemips
+endif
+ifeq (${MIPS_GCC_ROOT}/bin/pic32-gcc,$(wildcard ${MIPS_GCC_ROOT}/bin/pic32-gcc))
+    LDFLAGS     += -Wl,--oformat=elf32-tradlittlemips
+endif
+
+# source tree is located via $S relative to the compilation directory
+S               = ../..
+A               = $S/pic32
+
+COPTS           = -I. -I$S/include ${IDENT} -DKERNEL
+CFLAGS          = -O ${COPTS}
+
+# compile rules: rules are named ${TYPE}_${SUFFIX}${CONFIG_DEP}
+# where TYPE is NORMAL, DRIVER, or PROFILE}; SUFFIX is the file suffix,
+# capitalized (e.g. C for a .c file), and CONFIG_DEP is _C if the file
+# is marked as config-dependent.
+
+NORMAL_C        = ${CC} -c ${CFLAGS} ${PROF} $<
+NORMAL_C_C      = ${CC} -c ${CFLAGS} ${PROF} ${PARAM} $<
+
+DRIVER_C        = ${CC} -c ${CFLAGS} ${PROF} $<
+DRIVER_C_C      = ${CC} -c ${CFLAGS} ${PROF} ${PARAM} $<
+
+PROFILE_C       = ${CC} -p -c ${COPTS} $<
+
+NORMAL_S        = ${CPP} ${COPTS} $< | ${AS} -o $@
+NORMAL_S_C      = ${CPP} ${COPTS} ${PARAM} $< | ${AS} -o $@
+
+%OBJS
+
+%CFILES
+
+# load lines for config "xxx" will be emitted as:
+# xxx: ${SYSTEM_DEP} swapxxx.o
+#	${SYSTEM_LD_HEAD}
+#	${SYSTEM_LD} swapxxx.o
+#	${SYSTEM_LD_TAIL}
+SYSTEM_OBJ      = startup.o ${OBJS} ioconf.o
+ifeq (devcfg.c,$(wildcard devcfg.c))
+    SYSTEM_OBJ  += devcfg.o
+endif
+SYSTEM_DEP      = Makefile machine sys ${SYSTEM_OBJ}
+SYSTEM_LD_HEAD  = sh $S/pic32/newvers.sh; ${CC} $(CFLAGS) -c vers.c; rm -f $@
+SYSTEM_LD       = -@echo ${LD} ${LDFLAGS} '$${SYSTEM_OBJ}' vers.o -o unix.elf; \
+                  ${LD} ${LDFLAGS} ${SYSTEM_OBJ} vers.o -o unix.elf
+SYSTEM_LD_TAIL  = ${SIZE} unix.elf; \
+                  $(OBJCOPY) -O ihex --change-addresses=0x80000000 $@ unix.hex; \
+                  $(OBJDUMP) -d -S unix.elf > unix.dis
+
+%LOAD
+
+clean:
+	rm -f *.elf *.o *.map *.dis
+
+clean-all: clean
+	rm -f *.h *.c machine sys Makefile
+
+#startup.o: $A/pic32/startup.S $A/include/machAsmDefs.h \
+#	$A/include/machConst.h $A/include/reg.h $A/include/assym.h
+#	${CPP} ${COPTS} ${PARAM} -DLOCORE $A/pic32/startup.s | \
+#	${AS} -o startup.o
+
+# the following are necessary because the files depend on the types of
+# cpu's included in the system configuration
+clock.o machdep.o conf.o: Makefile
+
+machine:
+	ln -s $A $@
+
+sys:
+	ln -s $S/include $@
+
+depend: machine
+	mkdep ${COPTS} ${CFILES} ioconf.c
+
+ioconf.o: ioconf.c
+	${CC} -c ${CFLAGS} ioconf.c
+
+%RULES

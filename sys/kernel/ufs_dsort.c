@@ -9,11 +9,10 @@
 /*
  * generalized seek sort for disk
  */
-
-#include "param.h"
-#include "systm.h"
-#include "buf.h"
-#include "dk.h"
+#include <sys/param.h>
+#include <sys/systm.h>
+#include <sys/buf.h>
+#include <sys/dk.h>
 
 void
 disksort (dp, bp)

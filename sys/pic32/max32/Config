@@ -9,43 +9,30 @@
 #
 machine         "pic32"
 
-cpu             "PIC32MX"
+cpu             "PIC32MX7"
 ident           CHIPKIT_MAX
 
 # Linker script
-ldscript        "pic32/bootloader-max32.ld"
+ldscript        "cfg/bootloader-max32.ld"
 
 # Need to set locally
 timezone        8 dst
 maxusers        2
 
 # Standard system options
+#options         "CONFIG=MAX32"              # TODO
 options         "CPU_KHZ=80000"             # Oscillator frequency of CPU core
 options         "BUS_KHZ=80000"             # Frequency of peripheral bus
 options         "HZ=100"                    # Rate of clock interrupt
-#???options     "BUS_DIV=1"                 # Bus clock divisor 1/2/4/8
-#???options     "CRYSTAL=8"                 # PLL input frequency in MHz
-#???options     "CPU_IDIV=2"                # PLL input divisor 1/2/3/4/5/6/10/12
-#???options     "CPU_ODIV=1"                # PLL output divisor 1/2/4/8/16/32/64/256
-#???options     "CPU_MUL=20"                # PLL multiplier 15/16/17/18/19/20/21/24
+options         "BUS_DIV=1"                 # Bus clock divisor 1/2/4/8
 options         "EXEC_AOUT"                 # Run a.out binaries
 options         "EXEC_ELF"                  # Run ELF binaries
 options         "EXEC_SCRIPT"               # Run shell scripts
 options         "UCB_METER"                 # Collect kernel statistics
 
-# LEDs
-#options        "LED_DISK_PORT=TRISF"       # for disk activity LED...
-#options        "LED_DISK_PIN=0"            # ...use pin RF0
-#options        "LED_DISK_INVERT"           # invert disk LED
-#options        "LED_SWAP_PORT=TRISF"       # for swap activity LED...
-#options        "LED_SWAP_PIN=1"            # ...use pin RF1
-#options        "LED_SWAP_INVERT"           # invert swap LED
-#options        "LED_TTY_PORT=TRISA"        # for tty LED...
-#options        "LED_TTY_PIN=2"             # ...use pin RA2
-#options        "LED_TTY_INVERT"            # invert tty LED
-#options        "LED_KERNEL_PORT=TRISA"     # for kernel actibity LED...
-#options        "LED_KERNEL_PIN=3"          # ...use pin RA3
-#options        "LED_KERNEL_INVERT"         # invert kernel LED
+# LED
+options         "LED_KERNEL_PORT=TRISA"     # for kernel actibity LED...
+options         "LED_KERNEL_PIN=3"          # ...use pin RA3
 
 # Root filesystem at /dev/sd0a, swap at /dev/sd0b
 config          unix    root on sd0a
@@ -57,7 +44,10 @@ device          uart1                       # Serial-to-USB converter
 device          uart2
 device          uart3
 device          uart4
-options         "UART_ENABLED"              # TODO: delete this option
+options         "UART1_ENABLED"             # TODO: delete this option
+options         "UART2_ENABLED"             # TODO: delete this option
+options         "UART3_ENABLED"             # TODO: delete this option
+options         "UART4_ENABLED"             # TODO: delete this option
 
 # Console options
 options         "CONSOLE_DEVICE=tty0"       # /dev/tty0
@@ -88,5 +78,5 @@ device          pwm0
 options         "PWM_ENABLED"               # TODO: delete this option
 
 # Skeleton driver
-device          skel0
-options         "SKEL_ENABLED"              # TODO: delete this option
+#device         skel0
+#options        "SKEL_ENABLED"              # TODO: delete this option

@@ -1,12 +1,12 @@
-#include "param.h"
-#include "systm.h"
-#include "buf.h"
-#include "errno.h"
-#include "dk.h"
-#include "debug.h"
-#include "ioctl.h"
-#include "rdisk.h"
-#include "conf.h"
+#include <sys/param.h>
+#include <sys/systm.h>
+#include <sys/buf.h>
+#include <sys/errno.h>
+#include <sys/dk.h>
+#include <sys/debug.h>
+#include <sys/ioctl.h>
+#include <sys/rdisk.h>
+#include <sys/conf.h>
 
 #define Q2(X) #X
 #define QUOTE(X) Q2((X))

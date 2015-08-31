@@ -3,14 +3,14 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-#include "param.h"
-#include "user.h"
-#include "proc.h"
-#include "buf.h"
-#include "conf.h"
-#include "systm.h"
-#include "vm.h"
-#include "uio.h"
+#include <sys/param.h>
+#include <sys/user.h>
+#include <sys/proc.h>
+#include <sys/buf.h>
+#include <sys/conf.h>
+#include <sys/systm.h>
+#include <sys/vm.h>
+#include <sys/uio.h>
 
 /*
  * swap I/O

@@ -15,7 +15,7 @@
 /*
  * See rd_sdramp_config.h for sdramp port/pin configuration
  */
-#include "rd_sdramp_config.h"
+#include <machine/rd_sdramp_config.h>
 
 /* Offsets (from TRISA) for the various port control registers */
 #define TRIS_OFFSET   0x0

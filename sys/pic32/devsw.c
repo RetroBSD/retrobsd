@@ -3,54 +3,54 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-#include "param.h"
-#include "conf.h"
-#include "buf.h"
-#include "time.h"
-#include "ioctl.h"
-#include "resource.h"
-#include "inode.h"
-#include "proc.h"
-#include "clist.h"
-#include "tty.h"
-#include "systm.h"
-#include "rdisk.h"
-#include "errno.h"
-#include "uart.h"
+#include <sys/param.h>
+#include <sys/conf.h>
+#include <sys/buf.h>
+#include <sys/time.h>
+#include <sys/ioctl.h>
+#include <sys/resource.h>
+#include <sys/inode.h>
+#include <sys/proc.h>
+#include <sys/clist.h>
+#include <sys/tty.h>
+#include <sys/systm.h>
+#include <sys/rdisk.h>
+#include <sys/errno.h>
+#include <sys/uart.h>
 
-#include "swap.h"
+#include <sys/swap.h>
 
 extern int strcmp(char *s1, char *s2);
 
 #ifdef UARTUSB_ENABLED
-#   include "usb_uart.h"
+#   include <sys/usb_uart.h>
 #endif
 #ifdef GPIO_ENABLED
-#   include "gpio.h"
+#   include <sys/gpio.h>
 #endif
 #ifdef ADC_ENABLED
-#   include "adc.h"
+#   include <sys/adc.h>
 #endif
 #ifdef SPI_ENABLED
-#   include "spi.h"
+#   include <sys/spi.h>
 #endif
 #ifdef GLCD_ENABLED
-#   include "glcd.h"
+#   include <sys/glcd.h>
 #endif
 #ifdef PWM_ENABLED
-#   include "pwm.h"
+#   include <sys/pwm.h>
 #endif
 #ifdef PICGA_ENABLED
-#   include "picga.h"
+#   include <sys/picga.h>
 #endif
 #ifdef PTY_ENABLED
-#   include "pty.h"
+#   include <sys/pty.h>
 #endif
 #ifdef HX8357_ENABLED
-#   include "hx8357.h"
+#   include <sys/hx8357.h>
 #endif
 #ifdef SKEL_ENABLED
-#   include "skel.h"
+#   include <sys/skel.h>
 #endif
 
 /*

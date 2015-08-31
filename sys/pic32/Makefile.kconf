@@ -33,7 +33,7 @@ AS              = ${MIPS_GCC_PREFIX}as ${DEBUG} -mips32r2 -EL
 CC              = ${MIPS_GCC_PREFIX}gcc ${DEBUG} -mips32r2 -EL -nostdinc -fno-builtin -Werror -Wall
 CPP             = ${MIPS_GCC_PREFIX}cpp
 LD              = ${MIPS_GCC_PREFIX}gcc -mips32r2 -EL
-LDFLAGS         = -nostdlib -T $A/${LDSCRIPT} -Wl,-Map=unix.map
+LDFLAGS         = -nostdlib -T $S/pic32/${LDSCRIPT} -Wl,-Map=unix.map
 SIZE            = ${MIPS_GCC_PREFIX}size
 OBJCOPY         = ${MIPS_GCC_PREFIX}objcopy
 OBJDUMP         = ${MIPS_GCC_PREFIX}objdump
@@ -47,9 +47,8 @@ endif
 
 # source tree is located via $S relative to the compilation directory
 S               = ../..
-A               = $S/pic32
 
-COPTS           = -I. -I$S/include ${IDENT} -DKERNEL
+COPTS           = -I. ${IDENT} -DKERNEL
 CFLAGS          = -O ${COPTS}
 
 # compile rules: rules are named ${TYPE}_${SUFFIX}${CONFIG_DEP}
@@ -65,8 +64,8 @@ DRIVER_C_C      = ${CC} -c ${CFLAGS} ${PROF} ${PARAM} $<
 
 PROFILE_C       = ${CC} -p -c ${COPTS} $<
 
-NORMAL_S        = ${CPP} ${COPTS} $< | ${AS} -o $@
-NORMAL_S_C      = ${CPP} ${COPTS} ${PARAM} $< | ${AS} -o $@
+NORMAL_S        = ${CC} -c ${COPTS} $<
+NORMAL_S_C      = ${CC} -c ${COPTS} ${PARAM} $<
 
 %OBJS
 
@@ -77,37 +76,43 @@ NORMAL_S_C      = ${CPP} ${COPTS} ${PARAM} $< | ${AS} -o $@
 #	${SYSTEM_LD_HEAD}
 #	${SYSTEM_LD} swapxxx.o
 #	${SYSTEM_LD_TAIL}
-SYSTEM_OBJ      = startup.o ${OBJS} ioconf.o
+SYSTEM_OBJ      = startup.o ${OBJS} #ioconf.o
 ifeq (devcfg.c,$(wildcard devcfg.c))
     SYSTEM_OBJ  += devcfg.o
 endif
-SYSTEM_DEP      = Makefile machine sys ${SYSTEM_OBJ}
-SYSTEM_LD_HEAD  = sh $S/pic32/newvers.sh; ${CC} $(CFLAGS) -c vers.c; rm -f $@
+SYSTEM_DEP      = Makefile ioconf.c swapunix.c machine sys ${SYSTEM_OBJ}
+SYSTEM_LD_HEAD  = sh $S/pic32/newvers.sh > vers.c; ${CC} $(CFLAGS) -c vers.c; rm -f $@
 SYSTEM_LD       = -@echo ${LD} ${LDFLAGS} '$${SYSTEM_OBJ}' vers.o -o unix.elf; \
                   ${LD} ${LDFLAGS} ${SYSTEM_OBJ} vers.o -o unix.elf
 SYSTEM_LD_TAIL  = ${SIZE} unix.elf; \
                   $(OBJCOPY) -O ihex --change-addresses=0x80000000 $@ unix.hex; \
+                  $(OBJCOPY) -O binary -R .boot -R .config $@ unix.bin; \
                   $(OBJDUMP) -d -S unix.elf > unix.dis
 
 %LOAD
 
 clean:
-	rm -f *.elf *.o *.map *.dis
+	rm -f *.elf *.o *.map *.dis *.bin
 
 clean-all: clean
-	rm -f *.h *.c machine sys Makefile
+	rm -f *.h *.c machine sys
 
-#startup.o: $A/pic32/startup.S $A/include/machAsmDefs.h \
-#	$A/include/machConst.h $A/include/reg.h $A/include/assym.h
-#	${CPP} ${COPTS} ${PARAM} -DLOCORE $A/pic32/startup.s | \
-#	${AS} -o startup.o
+reconfig ioconf.c swapunix.c: Config ../../../tools/kconfig/kconfig
+	../../../tools/kconfig/kconfig Config
+	$(MAKE) clean
+
+load:   unix.elf
+	pic32prog unix.hex
+
+startup.o: $S/pic32/startup.S
+	${NORMAL_S}
 
 # the following are necessary because the files depend on the types of
 # cpu's included in the system configuration
 clock.o machdep.o conf.o: Makefile
 
 machine:
-	ln -s $A $@
+	ln -s $S/pic32 $@
 
 sys:
 	ln -s $S/include $@

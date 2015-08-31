@@ -28,7 +28,7 @@
  * Sean Justice        15_Sept-2008      First release
  * Anton Alkhimenok    06_Jun-2009       Ported to PIC24
  */
-#include "ssd1926.h"
+#include <machine/ssd1926.h>
 
 /*
  * Helper Macros

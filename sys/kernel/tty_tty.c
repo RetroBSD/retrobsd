@@ -10,12 +10,12 @@
  * Indirect driver for controlling tty.
  *
  */
-#include "param.h"
-#include "user.h"
-#include "proc.h"
-#include "ioctl.h"
-#include "tty.h"
-#include "conf.h"
+#include <sys/param.h>
+#include <sys/user.h>
+#include <sys/proc.h>
+#include <sys/ioctl.h>
+#include <sys/tty.h>
+#include <sys/conf.h>
 
 const struct devspec sydevs[] = {
     { 0, "tty" },

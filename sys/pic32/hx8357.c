@@ -21,17 +21,16 @@
  * arising out of or in connection with the use or performance of
  * this software.
  */
-#include "param.h"
-#include "conf.h"
-#include "user.h"
-#include "ioctl.h"
-#include "systm.h"
-#include "uio.h"
-#include "adc.h"
-#include "debug.h"
-#include "hx8357.h"
-
-#include "fonts/default.h"
+#include <sys/param.h>
+#include <sys/conf.h>
+#include <sys/user.h>
+#include <sys/ioctl.h>
+#include <sys/systm.h>
+#include <sys/uio.h>
+#include <sys/adc.h>
+#include <sys/debug.h>
+#include <sys/hx8357.h>
+#include <sys/fonts/default.h>
 
 char frame[40][80];
 

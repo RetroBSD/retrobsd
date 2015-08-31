@@ -2,18 +2,17 @@
  * Simple proxy for swap partition.  Forwards requests for /dev/swap on to the
  * device specified by swapdev
  */
-
-#include "param.h"
-#include "systm.h"
-#include "buf.h"
-#include "errno.h"
-#include "dk.h"
-#include "uio.h"
-#include "conf.h"
-#include "fcntl.h"
-#include "map.h"
-#include "swap.h"
-#include "rdisk.h"
+#include <sys/param.h>
+#include <sys/systm.h>
+#include <sys/buf.h>
+#include <sys/errno.h>
+#include <sys/dk.h>
+#include <sys/uio.h>
+#include <sys/conf.h>
+#include <sys/fcntl.h>
+#include <sys/map.h>
+#include <sys/swap.h>
+#include <sys/rdisk.h>
 
 #ifndef NTMP
 #define NTMP 3

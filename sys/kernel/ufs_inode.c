@@ -3,16 +3,16 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-#include "param.h"
-#include "user.h"
-#include "proc.h"
-#include "inode.h"
-#include "fs.h"
-#include "mount.h"
-#include "kernel.h"
-#include "buf.h"
-#include "systm.h"
-#include "syslog.h"
+#include <sys/param.h>
+#include <sys/user.h>
+#include <sys/proc.h>
+#include <sys/inode.h>
+#include <sys/fs.h>
+#include <sys/mount.h>
+#include <sys/kernel.h>
+#include <sys/buf.h>
+#include <sys/systm.h>
+#include <sys/syslog.h>
 
 #define INOHSZ              16      /* must be power of two */
 #define INOHASH(dev,ino)    (((dev)+(ino))&(INOHSZ-1))

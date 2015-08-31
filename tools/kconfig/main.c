@@ -92,7 +92,6 @@ usage:  fputs("usage: kconfig [-gp] sysname\n", stderr);
     makefile();             /* build Makefile */
     headers();              /* make a lot of .h files */
     swapconf();             /* swap config files */
-    printf("Don't forget to run \"make depend\"\n");
     exit(0);
 }
 

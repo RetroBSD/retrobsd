@@ -3,19 +3,19 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-#include "param.h"
-#include "user.h"
-#include "ioctl.h"
-#include "tty.h"
-#include "proc.h"
-#include "file.h"
-#include "conf.h"
-#include "dk.h"
-#include "uio.h"
-#include "kernel.h"
-#include "systm.h"
-#include "inode.h"
-#include "syslog.h"
+#include <sys/param.h>
+#include <sys/user.h>
+#include <sys/ioctl.h>
+#include <sys/tty.h>
+#include <sys/proc.h>
+#include <sys/file.h>
+#include <sys/conf.h>
+#include <sys/dk.h>
+#include <sys/uio.h>
+#include <sys/kernel.h>
+#include <sys/systm.h>
+#include <sys/inode.h>
+#include <sys/syslog.h>
 
 static  int rts = TIOCM_RTS;
 

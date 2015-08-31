@@ -1,5 +1,3 @@
-/*  $NetBSD: exec_elf32.c,v 1.49.2.2 2000/11/03 20:00:38 tv Exp $   */
-
 /*-
  * Copyright (c) 1994 The NetBSD Foundation, Inc.
  * All rights reserved.
@@ -62,22 +60,20 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-
-#include "param.h"
-#include "systm.h"
-#include "kernel.h"
-#include "map.h"
-#include "user.h"
-#include "proc.h"
-#include "inode.h"
-#include "namei.h"
-#include "exec.h"
-#include "exec_elf.h"
-#include "fcntl.h"
-#include "signalvar.h"
-#include "mount.h"
-#include "stat.h"
+#include <sys/param.h>
+#include <sys/systm.h>
+#include <sys/kernel.h>
+#include <sys/map.h>
+#include <sys/user.h>
+#include <sys/proc.h>
+#include <sys/inode.h>
+#include <sys/namei.h>
+#include <sys/exec.h>
+#include <sys/exec_elf.h>
+#include <sys/fcntl.h>
+#include <sys/signalvar.h>
+#include <sys/mount.h>
+#include <sys/stat.h>
 
 extern char sigcode[], esigcode[];
 

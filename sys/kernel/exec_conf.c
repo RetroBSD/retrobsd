@@ -1,5 +1,3 @@
-/*  $NetBSD: exec_conf.c,v 1.43 2000/06/09 22:38:57 oki Exp $   */
-
 /*
  * Copyright (c) 1993, 1994 Christopher G. Demetriou
  * All rights reserved.
@@ -29,10 +27,9 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#include "param.h"
-#include "inode.h"
-#include "exec.h"
+#include <sys/param.h>
+#include <sys/inode.h>
+#include <sys/exec.h>
 
 #ifdef EXEC_SCRIPT
 int exec_script_check(struct exec_params *epp);

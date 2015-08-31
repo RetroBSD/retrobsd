@@ -3,20 +3,20 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-#include "param.h"
-#include "user.h"
-#include "proc.h"
-#include "file.h"
-#include "systm.h"
-#include "inode.h"
-#include "ioctl.h"
-#include "stat.h"
-#include "conf.h"
+#include <sys/param.h>
+#include <sys/user.h>
+#include <sys/proc.h>
+#include <sys/file.h>
+#include <sys/systm.h>
+#include <sys/inode.h>
+#include <sys/ioctl.h>
+#include <sys/stat.h>
+#include <sys/conf.h>
 #ifdef INET
-#include "socket.h"
-#include "socketvar.h"
+#include <sys/socket.h>
+#include <sys/socketvar.h>
 #endif
-#include <syslog.h>
+#include <sys/syslog.h>
 
 const struct devspec fddevs[] = {
     { 0, "stdin" },

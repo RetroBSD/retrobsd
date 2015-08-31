@@ -3,11 +3,11 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-#include "param.h"
-#include "clist.h"
-#include "ioctl.h"
-#include "tty.h"
-#include "systm.h"
+#include <sys/param.h>
+#include <sys/clist.h>
+#include <sys/ioctl.h>
+#include <sys/tty.h>
+#include <sys/systm.h>
 
 char    cwaiting;
 

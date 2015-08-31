@@ -93,6 +93,13 @@ do_swap(fl)
     fprintf(fp, "dev_t\tdumpdev = makedev(%d, %d);\t/* %s */\n",
         major(fl->f_dumpdev), minor(fl->f_dumpdev),
         devtoname(fl->f_dumpdev));
+#if 1
+    /* Only one swap device is supported. */
+    dev = swap->f_swapdev;
+    fprintf(fp, "dev_t\tswapdev = makedev(%d, %d);\t/* %s */\n",
+        major(swap->f_swapdev), minor(swap->f_swapdev),
+        devtoname(swap->f_swapdev));
+#else
     fprintf(fp, "\n");
     fprintf(fp, "struct\tswdevt swdevt[] = {\n");
     do {
@@ -104,6 +111,7 @@ do_swap(fl)
     } while (swap && swap->f_type == SWAPSPEC);
     fprintf(fp, "\t{ NODEV, 0, 0 }\n");
     fprintf(fp, "};\n");
+#endif
     fclose(fp);
     return (swap);
 }

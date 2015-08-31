@@ -3,23 +3,23 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-#include "param.h"
-#include "user.h"
-#include "proc.h"
-#include "signalvar.h"
-#include "inode.h"
-#include "buf.h"
-#include "fs.h"
-#include "file.h"
-#include "stat.h"
-#include "mount.h"
-#include "conf.h"
-#include "uio.h"
-#include "ioctl.h"
-#include "tty.h"
-#include "kernel.h"
-#include "systm.h"
-#include "syslog.h"
+#include <sys/param.h>
+#include <sys/user.h>
+#include <sys/proc.h>
+#include <sys/signalvar.h>
+#include <sys/inode.h>
+#include <sys/buf.h>
+#include <sys/fs.h>
+#include <sys/file.h>
+#include <sys/stat.h>
+#include <sys/mount.h>
+#include <sys/conf.h>
+#include <sys/uio.h>
+#include <sys/ioctl.h>
+#include <sys/tty.h>
+#include <sys/kernel.h>
+#include <sys/systm.h>
+#include <sys/syslog.h>
 
 daddr_t rablock;        /* block to be read ahead */
 

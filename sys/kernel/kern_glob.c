@@ -6,9 +6,9 @@
  * byte = rdglob(addr);
  * success = wrglob(addr,byte);
  */
-#include "param.h"
-#include "systm.h"
-#include "user.h"
+#include <sys/param.h>
+#include <sys/systm.h>
+#include <sys/user.h>
 
 #ifndef GLOBSZ
 #define GLOBSZ 256

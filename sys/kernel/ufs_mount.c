@@ -3,19 +3,19 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-#include "param.h"
-#include "systm.h"
-#include "user.h"
-#include "inode.h"
-#include "fs.h"
-#include "buf.h"
-#include "mount.h"
-#include "file.h"
-#include "namei.h"
-#include "conf.h"
-#include "stat.h"
-#include "ioctl.h"
-#include "proc.h"
+#include <sys/param.h>
+#include <sys/systm.h>
+#include <sys/user.h>
+#include <sys/inode.h>
+#include <sys/fs.h>
+#include <sys/buf.h>
+#include <sys/mount.h>
+#include <sys/file.h>
+#include <sys/namei.h>
+#include <sys/conf.h>
+#include <sys/stat.h>
+#include <sys/ioctl.h>
+#include <sys/proc.h>
 
 /*
  * Common code for mount and umount.

@@ -1,9 +1,9 @@
-#include "param.h"
-#include "systm.h"
-#include "buf.h"
-#include "errno.h"
-#include "dk.h"
-#include "debug.h"
+#include <sys/param.h>
+#include <sys/systm.h>
+#include <sys/buf.h>
+#include <sys/errno.h>
+#include <sys/dk.h>
+#include <sys/debug.h>
 
 extern unsigned char flash_data[]      asm("_binary_flash_img_start");
 extern unsigned char flash_data_size[] asm("_binary_flash_img_size");

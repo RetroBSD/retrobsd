@@ -71,7 +71,6 @@ pic32/signal.c                  standard
 pic32/skel.c                    optional skel
 pic32/spi.c                     optional spi
 pic32/spi_bus.c                 optional spi
-pic32/startup.S                 standard
 pic32/swap.c                    standard
 pic32/sysctl.c                  standard
 pic32/uart.c                    optional uart

@@ -3,16 +3,16 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-#include "param.h"
-#include "systm.h"
-#include "map.h"
-#include "user.h"
-#include "proc.h"
-#include "inode.h"
-#include "vm.h"
-#include "file.h"
-#include "wait.h"
-#include "kernel.h"
+#include <sys/param.h>
+#include <sys/systm.h>
+#include <sys/map.h>
+#include <sys/user.h>
+#include <sys/proc.h>
+#include <sys/inode.h>
+#include <sys/vm.h>
+#include <sys/file.h>
+#include <sys/wait.h>
+#include <sys/kernel.h>
 
 /*
  * Notify parent that vfork child is finished with parent's data.  Called

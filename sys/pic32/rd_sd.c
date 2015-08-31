@@ -29,15 +29,14 @@
  * arising out of or in connection with the use or performance of
  * this software.
  */
-#include "param.h"
-#include "systm.h"
-#include "buf.h"
-#include "errno.h"
-#include "dk.h"
-#include "rdisk.h"
-#include "spi_bus.h"
-
-#include "debug.h"
+#include <sys/param.h>
+#include <sys/systm.h>
+#include <sys/buf.h>
+#include <sys/errno.h>
+#include <sys/dk.h>
+#include <sys/rdisk.h>
+#include <sys/spi_bus.h>
+#include <sys/debug.h>
 
 /*
  * Two SD/MMC disks on SPI.

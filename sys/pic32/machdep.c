@@ -3,32 +3,32 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-#include "param.h"
-#include "dir.h"
-#include "inode.h"
-#include "user.h"
-#include "proc.h"
-#include "fs.h"
-#include "map.h"
-#include "buf.h"
-#include "file.h"
-#include "clist.h"
-#include "callout.h"
-#include "reboot.h"
-#include "msgbuf.h"
-#include "namei.h"
-#include "mount.h"
-#include "systm.h"
-#include "debug.h"
-#include "uart.h"
-#include "usb_uart.h"
+#include <sys/param.h>
+#include <sys/dir.h>
+#include <sys/inode.h>
+#include <sys/user.h>
+#include <sys/proc.h>
+#include <sys/fs.h>
+#include <sys/map.h>
+#include <sys/buf.h>
+#include <sys/file.h>
+#include <sys/clist.h>
+#include <sys/callout.h>
+#include <sys/reboot.h>
+#include <sys/msgbuf.h>
+#include <sys/namei.h>
+#include <sys/mount.h>
+#include <sys/systm.h>
+#include <sys/debug.h>
+#include <sys/uart.h>
+#include <sys/usb_uart.h>
 #ifdef UARTUSB_ENABLED
 #   include <machine/usb_device.h>
 #   include <machine/usb_function_cdc.h>
 #endif
 
 #ifdef HX8357_ENABLED
-#include "hx8357.h"
+#include <sys/hx8357.h>
 #endif
 
 #ifdef POWER_ENABLED
@@ -147,9 +147,15 @@ nodump(dev)
 
 int (*dump)(dev_t) = nodump;
 
-dev_t   rootdev, swapdev, pipedev;
-
+#ifdef CONFIG
+/*
+ * Build using old configuration utility (configsys).
+ */
+dev_t   rootdev = NODEV;
+dev_t   swapdev = NODEV;
 dev_t   dumpdev = NODEV;
+#endif
+dev_t   pipedev;
 daddr_t dumplo = (daddr_t) 1024;
 
 /*

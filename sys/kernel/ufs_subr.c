@@ -3,15 +3,15 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-#include "param.h"
-#include "user.h"
-#include "proc.h"
-#include "fs.h"
-#include "inode.h"
-#include "buf.h"
-#include "mount.h"
-#include "kernel.h"
-#include "systm.h"
+#include <sys/param.h>
+#include <sys/user.h>
+#include <sys/proc.h>
+#include <sys/fs.h>
+#include <sys/inode.h>
+#include <sys/buf.h>
+#include <sys/mount.h>
+#include <sys/kernel.h>
+#include <sys/systm.h>
 
 int updlock;        /* lock for sync */
 

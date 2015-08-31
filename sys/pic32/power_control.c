@@ -1,9 +1,9 @@
-#include "param.h"
-#include "conf.h"
-#include "user.h"
-#include "systm.h"
-#include "machparam.h"
-#include "reboot.h"
+#include <sys/param.h>
+#include <sys/conf.h>
+#include <sys/user.h>
+#include <sys/systm.h>
+#include <sys/machparam.h>
+#include <sys/reboot.h>
 
 volatile unsigned int psCounter;
 int countdown;

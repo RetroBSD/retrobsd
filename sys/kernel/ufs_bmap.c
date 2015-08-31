@@ -3,16 +3,16 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-#include "param.h"
-#include "systm.h"
-#include "conf.h"
-#include "dir.h"
-#include "inode.h"
-#include "user.h"
-#include "buf.h"
-#include "fs.h"
-#include "mount.h"
-#include "uio.h"
+#include <sys/param.h>
+#include <sys/systm.h>
+#include <sys/conf.h>
+#include <sys/dir.h>
+#include <sys/inode.h>
+#include <sys/user.h>
+#include <sys/buf.h>
+#include <sys/fs.h>
+#include <sys/mount.h>
+#include <sys/uio.h>
 
 /*
  * Bmap defines the structure of file system storage

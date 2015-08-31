@@ -6,22 +6,22 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-#include "pty.h"
+#include <sys/pty.h>
 
 #if NPTY > 0
-#include "param.h"
-#include "systm.h"
-#include "ioctl.h"
-#include "tty.h"
-#include "user.h"
-#include "conf.h"
-#include "file.h"
-#include "proc.h"
-#include "uio.h"
-#include "kernel.h"
-#include "inode.h"
-#include "types.h"
-#include "ttydev.h"
+#include <sys/param.h>
+#include <sys/systm.h>
+#include <sys/ioctl.h>
+#include <sys/tty.h>
+#include <sys/user.h>
+#include <sys/conf.h>
+#include <sys/file.h>
+#include <sys/proc.h>
+#include <sys/uio.h>
+#include <sys/kernel.h>
+#include <sys/inode.h>
+#include <sys/types.h>
+#include <sys/ttydev.h>
 
 const struct devspec ptsdevs[] = {
     { 0, "ttyp0" }, { 1, "ttyp1" }, { 2, "ttyp2" }, { 3, "ttyp3" },

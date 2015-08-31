@@ -3,16 +3,16 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-#include "param.h"
-#include "systm.h"
-#include "user.h"
-#include "inode.h"
-#include "namei.h"
-#include "fs.h"
-#include "file.h"
-#include "stat.h"
-#include "kernel.h"
-#include "proc.h"
+#include <sys/param.h>
+#include <sys/systm.h>
+#include <sys/user.h>
+#include <sys/inode.h>
+#include <sys/namei.h>
+#include <sys/fs.h>
+#include <sys/file.h>
+#include <sys/stat.h>
+#include <sys/kernel.h>
+#include <sys/proc.h>
 
 /*
  * Common routine for chroot and chdir.

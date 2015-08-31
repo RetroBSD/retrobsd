@@ -1,20 +1,20 @@
-#include "param.h"
-#include "systm.h"
-#include "map.h"
-#include "inode.h"
-#include "user.h"
-#include "proc.h"
-#include "buf.h"
-#include "namei.h"
-#include "fs.h"
-#include "mount.h"
-#include "file.h"
-#include "resource.h"
-#include "exec.h"
-#include "exec_aout.h"
-#include "dir.h"
-#include "uio.h"
-#include "debug.h"
+#include <sys/param.h>
+#include <sys/systm.h>
+#include <sys/map.h>
+#include <sys/inode.h>
+#include <sys/user.h>
+#include <sys/proc.h>
+#include <sys/buf.h>
+#include <sys/namei.h>
+#include <sys/fs.h>
+#include <sys/mount.h>
+#include <sys/file.h>
+#include <sys/resource.h>
+#include <sys/exec.h>
+#include <sys/exec_aout.h>
+#include <sys/dir.h>
+#include <sys/uio.h>
+#include <sys/debug.h>
 
 int exec_aout_check(struct exec_params *epp)
 {

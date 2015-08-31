@@ -3,15 +3,15 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-#include "param.h"
-#include "systm.h"
-#include "user.h"
-#include "proc.h"
-#include "inode.h"
-#include "file.h"
-#include "fs.h"
-#include "mount.h"
-#include "uio.h"
+#include <sys/param.h>
+#include <sys/systm.h>
+#include <sys/user.h>
+#include <sys/proc.h>
+#include <sys/inode.h>
+#include <sys/file.h>
+#include <sys/fs.h>
+#include <sys/mount.h>
+#include <sys/uio.h>
 
 int
 readp (fp, uio, flag)

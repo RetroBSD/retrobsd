@@ -3,8 +3,8 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-#include "param.h"
-#include "machine/pic32mx.h"
+#include <sys/param.h>
+#include <machine/pic32mx.h>
 
 /*
  * Setup core timer for `hz' timer interrupts per second.

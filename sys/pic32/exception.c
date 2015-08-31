@@ -3,15 +3,15 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-#include "param.h"
-#include "signalvar.h"
-#include "systm.h"
-#include "user.h"
-#include "proc.h"
-#include "vm.h"
-#include "uart.h"
-#include "usb_uart.h"
-#include "debug.h"
+#include <sys/param.h>
+#include <sys/signalvar.h>
+#include <sys/systm.h>
+#include <sys/user.h>
+#include <sys/proc.h>
+#include <sys/vm.h>
+#include <sys/uart.h>
+#include <sys/usb_uart.h>
+#include <sys/debug.h>
 
 //#define TRACE_EXCEPTIONS
 

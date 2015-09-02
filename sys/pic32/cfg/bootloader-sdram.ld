@@ -46,6 +46,8 @@ SECTIONS
     *(.glue_7t) *(.glue_7)
     __rodata_start = . ;
     *(.rodata .rodata.* .gnu.linkonce.r.* .rel.dyn)
+    __abiflags = . ;
+    *(.MIPS.abiflags)
     *(.dinit)
     /* Align here to ensure that the .text section ends on word boundary. */
     . = ALIGN (32 / 8);

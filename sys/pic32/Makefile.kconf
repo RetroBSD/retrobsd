@@ -3,49 +3,23 @@
 #
 # DEBUG is set to -g by kconfig if debugging is requested (kconfig -g).
 # PROF is set to -pg by kconfig if profiling is requested (kconfig -p).
-
-ifndef MIPS_GCC_ROOT
-    ifeq (/usr/local/mips-2014.05,$(wildcard /usr/local/mips-2014.05))
-        MIPS_GCC_ROOT = /usr/local/mips-2014.05
-    endif
-    ifeq (/usr/local/mips-gcc-4.8.1,$(wildcard /usr/local/mips-gcc-4.8.1))
-        MIPS_GCC_ROOT = /usr/local/mips-gcc-4.8.1
-    endif
-    ifeq (/usr/local/pic32-tools,$(wildcard /usr/local/pic32-tools))
-        MIPS_GCC_ROOT = /usr/local/pic32-tools
-    endif
-    ifdef UECIDE
-        MIPS_GCC_ROOT = ${UECIDE}/compilers/pic32-tools
-    endif
-endif
-
-ifeq (${MIPS_GCC_ROOT}/bin/mips-sde-elf-gcc,$(wildcard ${MIPS_GCC_ROOT}/bin/mips-sde-elf-gcc))
-    MIPS_GCC_PREFIX ?= ${MIPS_GCC_ROOT}/bin/mips-sde-elf-
-endif
-ifeq (${MIPS_GCC_ROOT}/bin/mips-elf-gcc,$(wildcard ${MIPS_GCC_ROOT}/bin/mips-elf-gcc))
-    MIPS_GCC_PREFIX ?= ${MIPS_GCC_ROOT}/bin/mips-elf-
-endif
-ifeq (${MIPS_GCC_ROOT}/bin/pic32-gcc,$(wildcard ${MIPS_GCC_ROOT}/bin/pic32-gcc))
-    MIPS_GCC_PREFIX ?= ${MIPS_GCC_ROOT}/bin/pic32-
-endif
+#
+include ../gcc-config.mk
 
 AS              = ${MIPS_GCC_PREFIX}as ${DEBUG} -mips32r2 -EL
 CC              = ${MIPS_GCC_PREFIX}gcc ${DEBUG} -mips32r2 -EL -nostdinc -fno-builtin -Werror -Wall
 CPP             = ${MIPS_GCC_PREFIX}cpp
 LD              = ${MIPS_GCC_PREFIX}gcc -mips32r2 -EL
-LDFLAGS         = -nostdlib -T $S/pic32/${LDSCRIPT} -Wl,-Map=unix.map
+LDFLAGS         = -nostdlib -T ../${LDSCRIPT} -Wl,-Map=unix.map
 SIZE            = ${MIPS_GCC_PREFIX}size
 OBJCOPY         = ${MIPS_GCC_PREFIX}objcopy
 OBJDUMP         = ${MIPS_GCC_PREFIX}objdump
 
-ifeq (${MIPS_GCC_ROOT}/bin/mips-elf-gcc,$(wildcard ${MIPS_GCC_ROOT}/bin/mips-elf-gcc))
-    LDFLAGS     += -Wl,--oformat=elf32-littlemips
-endif
-ifeq (${MIPS_GCC_ROOT}/bin/pic32-gcc,$(wildcard ${MIPS_GCC_ROOT}/bin/pic32-gcc))
-    LDFLAGS     += -Wl,--oformat=elf32-tradlittlemips
+ifneq (${MIPS_GCC_FORMAT},)
+    LDFLAGS     += -Wl,--oformat=${MIPS_GCC_FORMAT}
 endif
 
-# source tree is located via $S relative to the compilation directory
+# sources are located via $S relative to the compilation directory
 S               = ../..
 
 COPTS           = -I. ${IDENT} -DKERNEL
@@ -81,7 +55,7 @@ ifeq (devcfg.c,$(wildcard devcfg.c))
     SYSTEM_OBJ  += devcfg.o
 endif
 SYSTEM_DEP      = Makefile ioconf.c swapunix.c machine sys ${SYSTEM_OBJ}
-SYSTEM_LD_HEAD  = sh $S/pic32/newvers.sh > vers.c; ${CC} $(CFLAGS) -c vers.c; rm -f $@
+SYSTEM_LD_HEAD  = sh ../newvers.sh > vers.c; ${CC} $(CFLAGS) -c vers.c; rm -f $@
 SYSTEM_LD       = -@echo ${LD} ${LDFLAGS} '$${SYSTEM_OBJ}' vers.o -o unix.elf; \
                   ${LD} ${LDFLAGS} ${SYSTEM_OBJ} vers.o -o unix.elf
 SYSTEM_LD_TAIL  = ${SIZE} unix.elf; \
@@ -104,7 +78,7 @@ reconfig ioconf.c swapunix.c: Config ../../../tools/kconfig/kconfig
 load:   unix.elf
 	pic32prog unix.hex
 
-startup.o: $S/pic32/startup.S
+startup.o: ../startup.S
 	${NORMAL_S}
 
 # the following are necessary because the files depend on the types of
@@ -112,10 +86,10 @@ startup.o: $S/pic32/startup.S
 clock.o machdep.o conf.o: Makefile
 
 machine:
-	ln -s $S/pic32 $@
+	ln -s .. $@
 
 sys:
-	ln -s $S/include $@
+	ln -s ../../include $@
 
 depend: machine
 	mkdep ${COPTS} ${CFILES} ioconf.c

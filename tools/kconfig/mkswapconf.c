@@ -61,7 +61,6 @@ do_swap(fl)
     FILE *fp;
     char  swapname[80];
     register struct file_list *swap;
-    dev_t dev;
 
     if (eq(fl->f_fn, "generic")) {
         fl = fl->f_next;
@@ -95,7 +94,6 @@ do_swap(fl)
         devtoname(fl->f_dumpdev));
 #if 1
     /* Only one swap device is supported. */
-    dev = swap->f_swapdev;
     fprintf(fp, "dev_t\tswapdev = makedev(%d, %d);\t/* %s */\n",
         major(swap->f_swapdev), minor(swap->f_swapdev),
         devtoname(swap->f_swapdev));
@@ -103,7 +101,7 @@ do_swap(fl)
     fprintf(fp, "\n");
     fprintf(fp, "struct\tswdevt swdevt[] = {\n");
     do {
-        dev = swap->f_swapdev;
+        int dev = swap->f_swapdev;
         fprintf(fp, "\t{ makedev(%d, %d), %d, %d },\t/* %s */\n",
             major(dev), minor(dev), swap->f_swapflag,
             swap->f_swapsize, swap->f_fn);

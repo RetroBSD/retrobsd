@@ -228,7 +228,7 @@ selscan(ibits, obits, nfd, retval)
     fd_set *ibits, *obits;
     int nfd, *retval;
 {
-    register int i, j, flag;
+    register int i, j, flag = 0;
     fd_mask bits;
     struct file *fp;
     int which, n = 0;

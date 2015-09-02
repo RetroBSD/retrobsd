@@ -5,15 +5,18 @@ ASFLAGS		= -I. -I$(H) $(DEFS) $(DEPFLAGS)
 
 include $(BUILDPATH)/gcc-config.mk
 
-CC		= $(GCCPREFIX)gcc -EL -g -mips32r2
+CC		= $(MIPS_GCC_PREFIX)gcc -EL -g -mips32r2
 CC		+= -nostdinc -fno-builtin -Werror -Wall -fno-dwarf2-cfi-asm
-LDFLAGS         += -nostdlib
-SIZE		= $(GCCPREFIX)size
-OBJDUMP		= $(GCCPREFIX)objdump
-OBJCOPY		= $(GCCPREFIX)objcopy
-PROGTOOL        = $(AVRDUDE) -c stk500v2 -p pic32 -b 115200
+LDFLAGS         = -nostdlib
+SIZE		= $(MIPS_GCC_PREFIX)size
+OBJDUMP		= $(MIPS_GCC_PREFIX)objdump
+OBJCOPY		= $(MIPS_GCC_PREFIX)objcopy
 
 DEFS            += -DCONFIG=$(CONFIG)
+
+ifneq (${MIPS_GCC_FORMAT},)
+    LDFLAGS     += -Wl,--oformat=${MIPS_GCC_FORMAT}
+endif
 
 all:		.deps sys machine unix.elf
 		$(SIZE) unix.elf
@@ -43,9 +46,6 @@ unix.elf:       $(KERNOBJ) $(LDSCRIPT)
 
 load:           unix.hex
 		pic32prog $(BLREBOOT) unix.hex
-
-loadmax:        unix.hex
-		$(PROGTOOL) -U flash:w:unix.hex:i
 
 vers.o:		$(BUILDPATH)/newvers.sh $(H)/*.h $(M)/*.[ch] $(S)/*.c
 		sh $(BUILDPATH)/newvers.sh > vers.c

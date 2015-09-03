@@ -8,15 +8,12 @@
 #   make
 #
 architecture    "pic32"
-
-cpu             "PIC32MX7"
-board           "CHIPKIT_WF32"
-
-# Linker script
-ldscript        "cfg/bootloader-max32.ld"
+cpu             "PIC32MX7"                  # Processor variant
+board           "CHIPKIT_WF32"              # Board type
+hz              100                         # Rate of clock interrupt
+ldscript        "cfg/bootloader-max32.ld"   # Linker script
 
 # Standard system options
-hz              100                         # Rate of clock interrupt
 options         "CPU_KHZ=80000"             # Oscillator frequency of CPU core
 options         "BUS_KHZ=80000"             # Frequency of peripheral bus
 options         "BUS_DIV=1"                 # Bus clock divisor 1/2/4/8

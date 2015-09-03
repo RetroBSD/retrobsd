@@ -44,7 +44,8 @@ endif
 # sources are located via $S relative to the compilation directory
 S               = ../..
 
-DEFS            = -I. ${PARAM} -DKERNEL
+DEPFLAGS	= -MT $@ -MP -MD -MF .deps/$*.dep
+DEFS            = -I. ${PARAM} -DKERNEL $(DEPFLAGS)
 CFLAGS          = -O ${DEFS}
 
 # compile rules: rules are named COMPILE_${SUFFIX}
@@ -102,7 +103,7 @@ SYSTEM_OBJ      = startup.o ${OBJS} #ioconf.o
 ifeq (devcfg.c,$(wildcard devcfg.c))
     SYSTEM_OBJ  += devcfg.o
 endif
-SYSTEM_DEP      = Makefile ioconf.c swapunix.c machine sys ${SYSTEM_OBJ}
+SYSTEM_DEP      = Makefile ioconf.c swapunix.c machine sys .deps ${SYSTEM_OBJ}
 SYSTEM_LD_HEAD  = sh ../newvers.sh > vers.c; ${CC} $(CFLAGS) -c vers.c; rm -f $@
 SYSTEM_LD       = -@echo ${LD} ${LDFLAGS} '$${SYSTEM_OBJ}' vers.o -o unix.elf; \
                   ${LD} ${LDFLAGS} ${SYSTEM_OBJ} vers.o -o unix.elf
@@ -122,7 +123,7 @@ swapunix.o: swapunix.c
 all: unix.elf
 
 clean:
-	rm -f *.elf *.o *.map *.dis *.bin
+	rm -rf .deps *.elf *.o *.map *.dis *.bin
 
 clean-all: clean
 	rm -f *.h *.c machine sys
@@ -139,6 +140,9 @@ machine:
 
 sys:
 	ln -s ../../include $@
+
+.deps:
+	mkdir .deps
 
 startup.o: ../startup.S
 	${COMPILE_S}
@@ -341,3 +345,7 @@ sysctl.o: $S/pic32/sysctl.c
 uart.o: $S/pic32/uart.c
 	${COMPILE_C}
 
+
+ifeq (.deps, $(wildcard .deps))
+-include .deps/*.dep
+endif

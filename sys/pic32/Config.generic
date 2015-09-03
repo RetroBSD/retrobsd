@@ -7,6 +7,8 @@
 # It's intended to be used as a reference or as a starting point
 # when creating configuration for a new board.
 #
+# For details, see http://retrobsd.org/wiki/doku.php/doc/kconfig
+#
 machine         "pic32"
 
 cpu             "PIC32MX7"

@@ -102,7 +102,11 @@ extern void power_off();
 
 int     hz = HZ;
 int     usechz = (1000000L + HZ - 1) / HZ;
+#ifdef TIMEZONE
 struct  timezone tz = { TIMEZONE, DST };
+#else
+struct  timezone tz = { 8*60, 1 };
+#endif
 int     nproc = NPROC;
 
 struct  namecache namecache [NNAMECACHE];

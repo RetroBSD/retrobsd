@@ -48,13 +48,10 @@ int main(argc, argv)
 {
     int ch;
 
-    while ((ch = getopt(argc, argv, "gp")) != EOF)
+    while ((ch = getopt(argc, argv, "g")) != EOF)
         switch (ch) {
         case 'g':
             debugging++;
-            break;
-        case 'p':
-            profiling++;
             break;
         case '?':
         default:

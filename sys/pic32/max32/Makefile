@@ -1,11 +1,10 @@
 IDENT=-DCHIPKIT_MAX -DPIC32MX7 -DPWM_ENABLED -DADC_ENABLED -DGPIO_ENABLED -DSD0_CS_PIN=14 -DSD0_CS_PORT=TRISC -DSD0_PORT=2 -DSD0_MHZ=10 -DSPI_ENABLED -DCONSOLE_DEVICE=tty0 -DUART4_ENABLED -DUART3_ENABLED -DUART2_ENABLED -DUART1_ENABLED -DLED_KERNEL_PIN=3 -DLED_KERNEL_PORT=TRISA -DUCB_METER -DEXEC_SCRIPT -DEXEC_ELF -DEXEC_AOUT -DBUS_DIV=1 -DHZ=100 -DBUS_KHZ=80000 -DCPU_KHZ=80000
 LDSCRIPT="cfg/bootloader-max32.ld"
-PARAM=-DTIMEZONE=480 -DDST=1 -DMAXUSERS=2
+PARAM=-DTIMEZONE=480 -DDST=1 -DMAXUSERS=1
 #
 # Makefile for RetroBSD, pic32 target
 #
 # DEBUG is set to -g by kconfig if debugging is requested (kconfig -g).
-# PROF is set to -pg by kconfig if profiling is requested (kconfig -p).
 #
 include ../gcc-config.mk
 
@@ -26,25 +25,15 @@ endif
 S               = ../..
 
 COPTS           = -I. ${IDENT} -DKERNEL
-CFLAGS          = -O ${COPTS}
+CFLAGS          = -O ${COPTS} ${PARAM}
 
-# compile rules: rules are named ${TYPE}_${SUFFIX}${CONFIG_DEP}
-# where TYPE is NORMAL, DRIVER, or PROFILE}; SUFFIX is the file suffix,
-# capitalized (e.g. C for a .c file), and CONFIG_DEP is _C if the file
-# is marked as config-dependent.
+# compile rules: rules are named COMPILE_${SUFFIX}
+# SUFFIX is the file suffix, capitalized (e.g. C for a .c file).
 
-NORMAL_C        = ${CC} -c ${CFLAGS} ${PROF} $<
-NORMAL_C_C      = ${CC} -c ${CFLAGS} ${PROF} ${PARAM} $<
+COMPILE_C       = ${CC} -c ${CFLAGS} $<
+COMPILE_S       = ${CC} -c ${COPTS} $<
 
-DRIVER_C        = ${CC} -c ${CFLAGS} ${PROF} $<
-DRIVER_C_C      = ${CC} -c ${CFLAGS} ${PROF} ${PARAM} $<
-
-PROFILE_C       = ${CC} -p -c ${COPTS} $<
-
-NORMAL_S        = ${CC} -c ${COPTS} $<
-NORMAL_S_C      = ${CC} -c ${COPTS} ${PARAM} $<
-
-OBJS=exec_aout.o exec_conf.o exec_elf.o exec_script.o exec_subr.o \
+OBJS = exec_aout.o exec_conf.o exec_elf.o exec_script.o exec_subr.o \
 	init_main.o init_sysent.o kern_clock.o kern_descrip.o \
 	kern_exec.o kern_exit.o kern_fork.o kern_mman.o kern_proc.o \
 	kern_prot.o kern_prot2.o kern_resource.o kern_sig.o kern_sig2.o \
@@ -57,7 +46,7 @@ OBJS=exec_aout.o exec_conf.o exec_elf.o exec_script.o exec_subr.o \
 	clock.o cons.o devsw.o exception.o gpio.o machdep.o mem.o pwm.o \
 	rd_sd.o signal.o spi.o spi_bus.o swap.o sysctl.o uart.o 
 
-CFILES=$S/kernel/exec_aout.c $S/kernel/exec_conf.c $S/kernel/exec_elf.c \
+CFILES = $S/kernel/exec_aout.c $S/kernel/exec_conf.c $S/kernel/exec_elf.c \
 	$S/kernel/exec_script.c $S/kernel/exec_subr.c \
 	$S/kernel/init_main.c $S/kernel/init_sysent.c \
 	$S/kernel/kern_clock.c $S/kernel/kern_descrip.c \
@@ -108,7 +97,7 @@ unix.elf: ${SYSTEM_DEP} swapunix.o
 	${SYSTEM_LD_TAIL}
 
 swapunix.o: swapunix.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 all: unix.elf
 
@@ -126,7 +115,7 @@ load:   unix.elf
 	pic32prog unix.hex
 
 startup.o: ../startup.S
-	${NORMAL_S}
+	${COMPILE_S}
 
 # the following are necessary because the files depend on the types of
 # cpu's included in the system configuration
@@ -145,197 +134,197 @@ ioconf.o: ioconf.c
 	${CC} -c ${CFLAGS} ioconf.c
 
 exec_aout.o: $S/kernel/exec_aout.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 exec_conf.o: $S/kernel/exec_conf.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 exec_elf.o: $S/kernel/exec_elf.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 exec_script.o: $S/kernel/exec_script.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 exec_subr.o: $S/kernel/exec_subr.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 init_main.o: $S/kernel/init_main.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 init_sysent.o: $S/kernel/init_sysent.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 kern_clock.o: $S/kernel/kern_clock.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 kern_descrip.o: $S/kernel/kern_descrip.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 kern_exec.o: $S/kernel/kern_exec.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 kern_exit.o: $S/kernel/kern_exit.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 kern_fork.o: $S/kernel/kern_fork.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 kern_mman.o: $S/kernel/kern_mman.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 kern_proc.o: $S/kernel/kern_proc.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 kern_prot.o: $S/kernel/kern_prot.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 kern_prot2.o: $S/kernel/kern_prot2.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 kern_resource.o: $S/kernel/kern_resource.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 kern_sig.o: $S/kernel/kern_sig.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 kern_sig2.o: $S/kernel/kern_sig2.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 kern_subr.o: $S/kernel/kern_subr.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 kern_synch.o: $S/kernel/kern_synch.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 kern_sysctl.o: $S/kernel/kern_sysctl.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 kern_time.o: $S/kernel/kern_time.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 rdisk.o: $S/kernel/rdisk.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 subr_prf.o: $S/kernel/subr_prf.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 subr_rmap.o: $S/kernel/subr_rmap.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 sys_generic.o: $S/kernel/sys_generic.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 sys_inode.o: $S/kernel/sys_inode.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 sys_pipe.o: $S/kernel/sys_pipe.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 sys_process.o: $S/kernel/sys_process.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 syscalls.o: $S/kernel/syscalls.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 tty.o: $S/kernel/tty.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 tty_subr.o: $S/kernel/tty_subr.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 tty_tty.o: $S/kernel/tty_tty.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 ufs_alloc.o: $S/kernel/ufs_alloc.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 ufs_bio.o: $S/kernel/ufs_bio.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 ufs_bmap.o: $S/kernel/ufs_bmap.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 ufs_dsort.o: $S/kernel/ufs_dsort.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 ufs_fio.o: $S/kernel/ufs_fio.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 ufs_inode.o: $S/kernel/ufs_inode.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 ufs_mount.o: $S/kernel/ufs_mount.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 ufs_namei.o: $S/kernel/ufs_namei.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 ufs_subr.o: $S/kernel/ufs_subr.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 ufs_syscalls.o: $S/kernel/ufs_syscalls.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 ufs_syscalls2.o: $S/kernel/ufs_syscalls2.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 vfs_vnops.o: $S/kernel/vfs_vnops.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 vm_sched.o: $S/kernel/vm_sched.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 vm_swap.o: $S/kernel/vm_swap.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 vm_swp.o: $S/kernel/vm_swp.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 adc.o: $S/pic32/adc.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 clock.o: $S/pic32/clock.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 cons.o: $S/pic32/cons.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 devsw.o: $S/pic32/devsw.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 exception.o: $S/pic32/exception.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 gpio.o: $S/pic32/gpio.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 machdep.o: $S/pic32/machdep.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 mem.o: $S/pic32/mem.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 pwm.o: $S/pic32/pwm.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 rd_sd.o: $S/pic32/rd_sd.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 signal.o: $S/pic32/signal.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 spi.o: $S/pic32/spi.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 spi_bus.o: $S/pic32/spi_bus.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 swap.o: $S/pic32/swap.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 sysctl.o: $S/pic32/sysctl.c
-	${NORMAL_C}
+	${COMPILE_C}
 
 uart.o: $S/pic32/uart.c
-	${NORMAL_C}
+	${COMPILE_C}
 

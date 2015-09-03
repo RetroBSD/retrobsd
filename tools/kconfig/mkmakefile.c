@@ -147,7 +147,7 @@ void read_files()
     register struct opt *op;
     char *wd, *this, *needs, *special;
     char fname[32];
-    int nreqs, first = 1, configdep, isdup, std, filetype;
+    int nreqs, first = 1, isdup, std, filetype;
 
     ftab = 0;
     (void) strcpy(fname, "../files.kconf");
@@ -158,9 +158,7 @@ void read_files()
     }
 next:
     /*
-     * filename [ standard | optional ] [ config-dependent ]
-     *  [ dev* | profiling-routine ] [ device-driver]
-     *  [ compile-with "compile rule" ]
+     * filename [ standard | optional ] [ dev* ] [ compile-with "compile rule" ]
      */
     wd = get_word(fp);
     if (wd == (char *)EOF) {
@@ -193,7 +191,6 @@ next:
             fname, this, tp->f_fn);
     nreqs = 0;
     special = 0;
-    configdep = 0;
     needs = 0;
     std = 0;
     filetype = NORMAL;
@@ -207,10 +204,6 @@ nextparam:
     next_word(fp, wd);
     if (wd == 0)
         goto doneparam;
-    if (eq(wd, "config-dependent")) {
-        configdep++;
-        goto nextparam;
-    }
     if (eq(wd, "compile-with")) {
         next_quoted_word(fp, wd);
         if (wd == 0) {
@@ -222,14 +215,6 @@ nextparam:
         goto nextparam;
     }
     nreqs++;
-    if (eq(wd, "device-driver")) {
-        filetype = DRIVER;
-        goto nextparam;
-    }
-    if (eq(wd, "profiling-routine")) {
-        filetype = PROFILING;
-        goto nextparam;
-    }
     if (needs == 0 && nreqs == 1)
         needs = strdup(wd);
     if (isdup)
@@ -283,15 +268,11 @@ doneparam:
             fname, this);
         exit(1);
     }
-    if (filetype == PROFILING && profiling == 0)
-        goto next;
     if (tp == 0)
         tp = new_fent();
     tp->f_fn = this;
     tp->f_type = filetype;
     tp->f_flags = 0;
-    if (configdep)
-        tp->f_flags |= CONFIGDEP;
     tp->f_needs = needs;
     tp->f_special = special;
     if (pf && pf->f_type == INVISIBLE)
@@ -307,7 +288,7 @@ void do_objs(fp)
     register char *cp, och, *sp;
     char swapname[32];
 
-    fprintf(fp, "OBJS=");
+    fprintf(fp, "OBJS = ");
     lpos = 6;
     for (tp = ftab; tp != 0; tp = tp->f_next) {
         if (tp->f_type == INVISIBLE)
@@ -344,7 +325,7 @@ void do_cfiles(fp)
     register int lpos, len;
     char swapname[32];
 
-    fputs("CFILES=", fp);
+    fputs("CFILES = ", fp);
     lpos = 8;
     for (tp = ftab; tp; tp = tp->f_next)
         if (tp->f_type != INVISIBLE) {
@@ -400,31 +381,8 @@ void do_rules(f)
         fprintf(f, "%so: $S/%s%c\n", tail(np), np, och);
         special = ftp->f_special;
         if (special == 0) {
-            char *ftype = "???";
             static char cmd[128];
-
-            switch (ftp->f_type) {
-
-            case NORMAL:
-                ftype = "NORMAL";
-                break;
-
-            case DRIVER:
-                ftype = "DRIVER";
-                break;
-
-            case PROFILING:
-                if (!profiling)
-                    continue;
-                ftype = "PROFILE";
-                break;
-
-            default:
-                printf("config: don't know rules for %s\n", np);
-                break;
-            }
-            (void)sprintf(cmd, "${%s_%c%s}", ftype, toupper(och),
-                      ftp->f_flags & CONFIGDEP? "_C" : "");
+            sprintf(cmd, "${COMPILE_%c}", toupper(och));
             special = cmd;
         }
         *cp = och;
@@ -476,8 +434,6 @@ void makefile()
         exit(1);
     }
     fprintf(ofp, "IDENT=-D%s", raise(ident));
-    if (profiling)
-        fprintf(ofp, " -DGPROF");
     if (cputype == 0) {
         printf("cpu type must be specified\n");
         exit(1);
@@ -518,8 +474,6 @@ void makefile()
         fprintf(ofp, "%s=%s\n", op->op_name, op->op_value);
     if (debugging)
         fprintf(ofp, "DEBUG=-g\n");
-    if (profiling)
-        fprintf(ofp, "PROF=-pg\n");
     while (fgets(line, BUFSIZ, ifp) != 0) {
         if (*line != '%') {
             fprintf(ofp, "%s", line);
@@ -564,7 +518,7 @@ void do_swapspec(f, name)
     else
         fprintf(f, "swapgeneric.o: $A/%s/swapgeneric.c\n",
             machinename);
-    fprintf(f, "\t${NORMAL_C}\n\n");
+    fprintf(f, "\t${COMPILE_C}\n\n");
 }
 
 struct file_list *

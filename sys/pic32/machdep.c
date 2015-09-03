@@ -100,10 +100,10 @@ extern void power_off();
 #define LED_MISC4_OFF()     LAT_CLR(LED_MISC4_PORT) = 1 << LED_MISC4_PIN
 #endif
 
-int hz = HZ;
-int usechz = (1000000L + HZ - 1) / HZ;
-struct  timezone tz = { 8*60, 1 };
-int nproc = NPROC;
+int     hz = HZ;
+int     usechz = (1000000L + HZ - 1) / HZ;
+struct  timezone tz = { TIMEZONE, DST };
+int     nproc = NPROC;
 
 struct  namecache namecache [NNAMECACHE];
 char    bufdata [NBUF * MAXBSIZE];
@@ -113,8 +113,8 @@ struct  mount mount [NMOUNT];
 struct  buf buf [NBUF], bfreelist [BQUEUES];
 struct  bufhd bufhash [BUFHSZ];
 struct  cblock cfree [NCLIST];
-struct proc proc [NPROC];
-struct file file [NFILE];
+struct  proc proc [NPROC];
+struct  file file [NFILE];
 
 /*
  * Remove the ifdef/endif to run the kernel in unsecure mode even when in

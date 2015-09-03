@@ -2,7 +2,6 @@
 # Makefile for RetroBSD, pic32 target
 #
 # DEBUG is set to -g by kconfig if debugging is requested (kconfig -g).
-# PROF is set to -pg by kconfig if profiling is requested (kconfig -p).
 #
 include ../gcc-config.mk
 
@@ -23,23 +22,13 @@ endif
 S               = ../..
 
 COPTS           = -I. ${IDENT} -DKERNEL
-CFLAGS          = -O ${COPTS}
+CFLAGS          = -O ${COPTS} ${PARAM}
 
-# compile rules: rules are named ${TYPE}_${SUFFIX}${CONFIG_DEP}
-# where TYPE is NORMAL, DRIVER, or PROFILE}; SUFFIX is the file suffix,
-# capitalized (e.g. C for a .c file), and CONFIG_DEP is _C if the file
-# is marked as config-dependent.
+# compile rules: rules are named COMPILE_${SUFFIX}
+# SUFFIX is the file suffix, capitalized (e.g. C for a .c file).
 
-NORMAL_C        = ${CC} -c ${CFLAGS} ${PROF} $<
-NORMAL_C_C      = ${CC} -c ${CFLAGS} ${PROF} ${PARAM} $<
-
-DRIVER_C        = ${CC} -c ${CFLAGS} ${PROF} $<
-DRIVER_C_C      = ${CC} -c ${CFLAGS} ${PROF} ${PARAM} $<
-
-PROFILE_C       = ${CC} -p -c ${COPTS} $<
-
-NORMAL_S        = ${CC} -c ${COPTS} $<
-NORMAL_S_C      = ${CC} -c ${COPTS} ${PARAM} $<
+COMPILE_C       = ${CC} -c ${CFLAGS} $<
+COMPILE_S       = ${CC} -c ${COPTS} $<
 
 %OBJS
 
@@ -79,7 +68,7 @@ load:   unix.elf
 	pic32prog unix.hex
 
 startup.o: ../startup.S
-	${NORMAL_S}
+	${COMPILE_S}
 
 # the following are necessary because the files depend on the types of
 # cpu's included in the system configuration

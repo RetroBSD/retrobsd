@@ -17,7 +17,7 @@ ldscript        "cfg/bootloader-max32.ld"
 
 # Need to set locally
 timezone        8 dst
-maxusers        2
+maxusers        1
 
 # Standard system options
 #options         "CONFIG=MAX32"              # TODO

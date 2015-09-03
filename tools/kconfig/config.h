@@ -82,17 +82,10 @@ struct file_list {
 /*
  * Types.
  */
-#define DRIVER      1
-#define NORMAL      2
-#define INVISIBLE   3
-#define PROFILING   4
-#define SYSTEMSPEC  5
-#define SWAPSPEC    6
-
-/*
- * Attributes (flags).
- */
-#define CONFIGDEP   1
+#define NORMAL      1
+#define INVISIBLE   2
+#define SYSTEMSPEC  3
+#define SWAPSPEC    4
 
 struct  idlst {
     char    *id;
@@ -171,7 +164,6 @@ struct  file_list *ftab, *conf_list, **confp, *comp_list, **compp;
 int     zone, hadtz;
 int     dst;
 int     hz;
-int     profiling;
 int     debugging;
 
 int     maxusers;

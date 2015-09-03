@@ -40,7 +40,9 @@
 #ifndef NBUF
 #define NBUF            10                      /* number of i/o buffers */
 #endif
+#ifndef MAXUSERS
 #define MAXUSERS        1                       /* number of user logins */
+#endif
 #ifndef NPROC
 #define NPROC           10                      /* number of processes */
 #endif

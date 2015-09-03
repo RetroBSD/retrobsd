@@ -6,7 +6,7 @@
 .Nd build kernel configuration files
 .Sh SYNOPSIS
 .Nm kconfig
-.Op Fl p
+.Op Fl g
 .Ar system_name
 .Sh DESCRIPTION
 .Pp
@@ -26,15 +26,12 @@ section below)
 Available option and operand:
 .Pp
 .Bl -tag -width SYSTEM_NAME
-.It Fl p
+.It Fl g
 If the
 .Fl p
 option is supplied,
 .Nm kconfig
-will configure a kernel for profiling; for example,
-.Xr kgmon 8
-and
-.Xr gprof 1 .
+will configure a kernel for debugging.
 .It Ar SYSTEM_NAME
 specifies the name of the kernel configuration file
 containing device specifications, configuration options

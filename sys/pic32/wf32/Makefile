@@ -1,6 +1,26 @@
-IDENT=-DCHIPKIT_WF -DPIC32MX7 -DPWM_ENABLED -DADC_ENABLED -DGPIO_ENABLED -DSD0_CS_PIN=4 -DSD0_CS_PORT=TRISD -DSD0_PORT=2 -DSD0_MHZ=10 -DSPI_ENABLED -DCONSOLE_DEVICE=tty0 -DUART1_ENABLED -DLED_TTY_PIN=1 -DLED_TTY_PORT=TRISA -DLED_DISK_PIN=0 -DLED_DISK_PORT=TRISF -DLED_KERNEL_PIN=0 -DLED_KERNEL_PORT=TRISA -DUCB_METER -DEXEC_SCRIPT -DEXEC_ELF -DEXEC_AOUT -DBUS_DIV=1 -DHZ=100 -DBUS_KHZ=80000 -DCPU_KHZ=80000
-LDSCRIPT="cfg/bootloader-max32.ld"
-PARAM=-DTIMEZONE=480 -DDST=1 -DMAXUSERS=1
+PARAM = -DCHIPKIT_WF32
+PARAM += -DPIC32MX7
+PARAM += -DPWM_ENABLED
+PARAM += -DADC_ENABLED
+PARAM += -DGPIO_ENABLED
+PARAM += -DSD0_CS_PIN=4
+PARAM += -DSD0_CS_PORT=TRISD
+PARAM += -DSD0_PORT=2
+PARAM += -DSD0_MHZ=10
+PARAM += -DSPI_ENABLED
+PARAM += -DCONSOLE_DEVICE=tty0
+PARAM += -DUART1_ENABLED
+PARAM += -DLED_TTY_PIN=1
+PARAM += -DLED_TTY_PORT=TRISA
+PARAM += -DLED_DISK_PIN=0
+PARAM += -DLED_DISK_PORT=TRISF
+PARAM += -DLED_KERNEL_PIN=0
+PARAM += -DLED_KERNEL_PORT=TRISA
+PARAM += -DBUS_DIV=1
+PARAM += -DBUS_KHZ=80000
+PARAM += -DCPU_KHZ=80000
+PARAM += -DHZ=100
+LDSCRIPT = "cfg/bootloader-max32.ld"
 #
 # Makefile for RetroBSD, pic32 target
 #
@@ -24,14 +44,14 @@ endif
 # sources are located via $S relative to the compilation directory
 S               = ../..
 
-COPTS           = -I. ${IDENT} -DKERNEL
-CFLAGS          = -O ${COPTS} ${PARAM}
+DEFS            = -I. ${PARAM} -DKERNEL
+CFLAGS          = -O ${DEFS}
 
 # compile rules: rules are named COMPILE_${SUFFIX}
 # SUFFIX is the file suffix, capitalized (e.g. C for a .c file).
 
 COMPILE_C       = ${CC} -c ${CFLAGS} $<
-COMPILE_S       = ${CC} -c ${COPTS} $<
+COMPILE_S       = ${CC} -c ${DEFS} $<
 
 OBJS = exec_aout.o exec_conf.o exec_elf.o exec_script.o exec_subr.o \
 	init_main.o init_sysent.o kern_clock.o kern_descrip.o \
@@ -114,24 +134,17 @@ reconfig ioconf.c swapunix.c: Config ../../../tools/kconfig/kconfig
 load:   unix.elf
 	pic32prog unix.hex
 
-startup.o: ../startup.S
-	${COMPILE_S}
-
-# the following are necessary because the files depend on the types of
-# cpu's included in the system configuration
-clock.o machdep.o conf.o: Makefile
-
 machine:
 	ln -s .. $@
 
 sys:
 	ln -s ../../include $@
 
-depend: machine
-	mkdep ${COPTS} ${CFILES} ioconf.c
+startup.o: ../startup.S
+	${COMPILE_S}
 
 ioconf.o: ioconf.c
-	${CC} -c ${CFLAGS} ioconf.c
+	${COMPILE_C}
 
 exec_aout.o: $S/kernel/exec_aout.c
 	${COMPILE_C}

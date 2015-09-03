@@ -65,7 +65,7 @@ wnum(num)
     return (errbuf);
 }
 
-#if MACHINE_PIC32
+#if ARCH_PIC32
 void pic32_ioconf()
 {
     register struct device *dp, *mp;

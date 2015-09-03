@@ -7,7 +7,9 @@
 
 %token  AND
 %token  ANY
+%token  ARCHITECTURE
 %token  AT
+%token  BOARD
 %token  COMMA
 %token  CONFIG
 %token  CONTROLLER
@@ -21,9 +23,7 @@
 %token  EQUALS
 %token  FLAGS
 %token  HZ
-%token  IDENT
 %token  LDSCRIPT
-%token  MACHINE
 %token  MAJOR
 %token  MASTER
 %token  MAXUSERS
@@ -139,13 +139,13 @@ Spec:
     ;
 
 Config_spec:
-    MACHINE Save_id
+    ARCHITECTURE Save_id
         = {
             if (strcmp($2, "pic32") == 0) {
-                machine = MACHINE_PIC32;
-                machinename = "pic32";
+                arch = ARCH_PIC32;
+                archname = "pic32";
             } else
-                yyerror("Unknown machine type");
+                yyerror("Unknown architecture");
         }
         |
     CPU Save_id
@@ -162,8 +162,8 @@ Config_spec:
         |
     MAKEOPTIONS Mkopt_list
         |
-    IDENT ID
-        = { ident = strdup($2); }
+    BOARD ID
+        = { board = strdup($2); }
         |
     LDSCRIPT ID
         = { ldscript = strdup($2); }
@@ -758,9 +758,9 @@ void check_nexus(dev, num)
     register struct device *dev;
     int num;
 {
-    switch (machine) {
+    switch (arch) {
 
-    case MACHINE_PIC32:
+    case ARCH_PIC32:
         break;
     }
 }

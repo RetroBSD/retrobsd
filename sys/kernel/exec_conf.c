@@ -31,26 +31,14 @@
 #include <sys/inode.h>
 #include <sys/exec.h>
 
-#ifdef EXEC_SCRIPT
 int exec_script_check(struct exec_params *epp);
-#endif
-#ifdef EXEC_AOUT
 int exec_aout_check(struct exec_params *epp);
-#endif
-#ifdef EXEC_ELF
 int exec_elf_check(struct exec_params *epp);
-#endif
 
 const struct execsw execsw[] = {
-#ifdef EXEC_AOUT
     { exec_aout_check,      "a.out" },      /* a.out binaries */
-#endif
-#ifdef EXEC_ELF
     { exec_elf_check,       "elf" },        /* 32bit ELF bins */
-#endif
-#ifdef EXEC_SCRIPT
     { exec_script_check,    "script" },     /* shell scripts */
-#endif
  };
 int nexecs = (sizeof(execsw) / sizeof(*execsw));
 int exec_maxhdrsz;

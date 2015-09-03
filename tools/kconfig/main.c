@@ -76,14 +76,14 @@ usage:  fputs("usage: kconfig [-gp] sysname\n", stderr);
     if (yyparse())
         exit(3);
 
-    switch (machine) {
+    switch (arch) {
 
-    case MACHINE_PIC32:
+    case ARCH_PIC32:
         pic32_ioconf();
         break;
 
     default:
-        printf("Specify machine type, e.g. ``machine pic32''\n");
+        printf("Specify architecture, e.g. ``architecture pic32''\n");
         exit(1);
     }
     makefile();             /* build Makefile */

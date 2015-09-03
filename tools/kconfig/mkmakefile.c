@@ -34,7 +34,7 @@
 /*
  * Build the makefile for the system, from
  * the information in the files files and the
- * additional files for the machine being compiled to.
+ * additional files for the architecture being compiled to.
  */
 #include <ctype.h>
 #include "y.tab.h"
@@ -108,15 +108,6 @@ new_fent()
     return (fp);
 }
 
-static  struct users {
-    int u_default;
-    int u_min;
-    int u_max;
-} users[] = {
-    { 2, 1, 16 },           /* MACHINE_PIC32 */
-};
-#define NUSERS  (sizeof (users) / sizeof (users[0]))
-
 int opteq(cp, dp)
     char *cp, *dp;
 {
@@ -164,7 +155,7 @@ next:
     if (wd == (char *)EOF) {
         (void) fclose(fp);
         if (first == 1) {
-            (void) sprintf(fname, "files.%s", raise(ident));
+            (void) sprintf(fname, "files.%s", raise(board));
             first++;
             fp = fopen(fname, "r");
             if (fp != 0)
@@ -348,7 +339,7 @@ void do_cfiles(fp)
             }
             if (eq(fl->f_fn, "generic"))
                 fprintf(fp, "$A/%s/%s ",
-                    machinename, swapname);
+                    archname, swapname);
             else
                 fprintf(fp, "%s ", swapname);
             lpos += len + 1;
@@ -418,12 +409,11 @@ void makefile()
     FILE *ifp, *ofp;
     char line[BUFSIZ];
     struct opt *op;
-    struct users *up;
     struct cputype *cp;
 
     read_files();
     strcpy(line, "../Makefile.kconf");
-    //(void) strcat(line, machinename);
+    //strcat(line, archname);
     ifp = fopen(line, "r");
     if (ifp == 0) {
         perror(line);
@@ -434,7 +424,7 @@ void makefile()
         perror("Makefile");
         exit(1);
     }
-    fprintf(ofp, "PARAM = -D%s\n", raise(ident));
+    fprintf(ofp, "PARAM = -D%s\n", raise(board));
     if (cputype == 0) {
         printf("cpu type must be specified\n");
         exit(1);
@@ -448,25 +438,14 @@ void makefile()
         else
             fprintf(ofp, "PARAM += -D%s\n", op->op_name);
     }
-
-    if (hadtz == 0)
-        printf("timezone not specified; gmt assumed\n");
-    if ((unsigned)machine > NUSERS) {
-        printf("maxusers config info isn't present, using pic32\n");
-        up = &users[MACHINE_PIC32-1];
-    } else
-        up = &users[machine-1];
-    if (maxusers == 0) {
-        printf("maxusers not specified; %d assumed\n", up->u_default);
-        maxusers = up->u_default;
-    } else if (maxusers < up->u_min) {
-        printf("minimum of %d maxusers assumed\n", up->u_min);
-        maxusers = up->u_min;
-    } else if (maxusers > up->u_max)
-        printf("warning: maxusers > %d (%d)\n", up->u_max, maxusers);
-    fprintf(ofp, "PARAM += -DTIMEZONE=%d\n", zone);
-    fprintf(ofp, "PARAM += -DDST=%d\n", dst);
-    fprintf(ofp, "PARAM += -DMAXUSERS=%d\n", maxusers);
+    if (hadtz) {
+        fprintf(ofp, "PARAM += -DTIMEZONE=%d\n", zone);
+        fprintf(ofp, "PARAM += -DDST=%d\n", dst);
+    }
+    if (maxusers > 0)
+        fprintf(ofp, "PARAM += -DMAXUSERS=%d\n", maxusers);
+    if (hz > 0)
+        fprintf(ofp, "PARAM += -DHZ=%d\n", hz);
 
     if (ldscript)
         fprintf(ofp, "LDSCRIPT = \"%s\"\n", ldscript);
@@ -519,8 +498,7 @@ void do_swapspec(f, name)
     if (!eq(name, "generic"))
         fprintf(f, "swap%s.o: swap%s.c\n", name, name);
     else
-        fprintf(f, "swapgeneric.o: $A/%s/swapgeneric.c\n",
-            machinename);
+        fprintf(f, "swapgeneric.o: $A/%s/swapgeneric.c\n", archname);
     fprintf(f, "\t${COMPILE_C}\n\n");
 }
 

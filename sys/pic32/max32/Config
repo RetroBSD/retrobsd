@@ -10,27 +10,19 @@
 #
 # For details, see http://retrobsd.org/wiki/doku.php/doc/kconfig
 #
-machine         "pic32"
+architecture    "pic32"
 
 cpu             "PIC32MX7"
-ident           CHIPKIT_MAX
+board           "CHIPKIT_MAX32"
 
 # Linker script
 ldscript        "cfg/bootloader-max32.ld"
 
-# Need to set locally
-timezone        8 dst
-maxusers        1
-
 # Standard system options
+hz              100                         # Rate of clock interrupt
 options         "CPU_KHZ=80000"             # Oscillator frequency of CPU core
 options         "BUS_KHZ=80000"             # Frequency of peripheral bus
-options         "HZ=100"                    # Rate of clock interrupt
 options         "BUS_DIV=1"                 # Bus clock divisor 1/2/4/8
-options         "EXEC_AOUT"                 # Run a.out binaries
-options         "EXEC_ELF"                  # Run ELF binaries
-options         "EXEC_SCRIPT"               # Run shell scripts
-options         "UCB_METER"                 # Collect kernel statistics
 
 # LED
 options         "LED_KERNEL_PORT=TRISA"     # for kernel activity LED...

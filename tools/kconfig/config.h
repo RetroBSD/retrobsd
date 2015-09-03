@@ -122,15 +122,14 @@ struct config {
 };
 
 /*
- * Config has a global notion of which machine type is
- * being used.
+ * Config has a global notion of which architecture is being used.
  */
-int machine;
-char    *machinename;
-#define MACHINE_PIC32       1
+int     arch;
+char    *archname;
+#define ARCH_PIC32      1
 
 /*
- * For each machine, a set of CPU's may be specified as supported.
+ * For each architecture, a set of CPU's may be specified as supported.
  * These and the options (below) are put in the C flags in the makefile.
  */
 struct cputype {
@@ -149,7 +148,7 @@ struct opt {
     struct  opt *op_next;
 } *opt, *mkopt;
 
-char    *ident;
+char    *board;
 char    *ldscript;
 
 int do_trace;
@@ -163,6 +162,7 @@ struct  file_list *ftab, *conf_list, **confp, *comp_list, **compp;
 
 int     zone, hadtz;
 int     dst;
+int     hz;
 int     debugging;
 
 int     maxusers;

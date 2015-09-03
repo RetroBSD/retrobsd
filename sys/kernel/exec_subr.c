@@ -260,13 +260,11 @@ void exec_save_args(struct exec_params *epp)
     if ((argp = epp->userargp) != NULL)
         while (argp[argc])
             argc++;
-#ifdef EXEC_SCRIPT
     if (epp->sh.interpreted) {
         argc++;
         if (epp->sh.interparg[0])
             argc++;
     }
-#endif
     if (argc != 0) {
         if ((epp->argp = (char **)exec_alloc(argc * sizeof(char *), NBPW, epp)) == NULL)
             return;
@@ -283,7 +281,7 @@ void exec_save_args(struct exec_params *epp)
                 ap = *argp++;
             else
                 ap = NULL;
-#ifdef EXEC_SCRIPT
+
             if (epp->sh.interpreted) {
                 if (epp->argc == 0)
                     ap = epp->sh.interpname;
@@ -295,7 +293,6 @@ void exec_save_args(struct exec_params *epp)
                     --argp;
                 }
             }
-#endif
             if (ap == 0)
                 break;
             l = strlen(ap)+1;

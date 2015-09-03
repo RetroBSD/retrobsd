@@ -118,6 +118,13 @@ extern void _keram_start(), _keram_end();
 #define USIZE           3072
 #define SSIZE           2048            /* initial stack size (bytes) */
 
+/*
+ * Collect kernel statistics by default.
+ */
+#if !defined(UCB_METER) && !defined(NO_UCB_METER)
+#define UCB_METER
+#endif
+
 #ifdef KERNEL
 #include "machine/io.h"
 

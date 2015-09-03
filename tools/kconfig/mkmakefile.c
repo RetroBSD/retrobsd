@@ -419,6 +419,7 @@ void makefile()
     char line[BUFSIZ];
     struct opt *op;
     struct users *up;
+    struct cputype *cp;
 
     read_files();
     strcpy(line, "../Makefile.kconf");
@@ -433,23 +434,21 @@ void makefile()
         perror("Makefile");
         exit(1);
     }
-    fprintf(ofp, "IDENT=-D%s", raise(ident));
+    fprintf(ofp, "PARAM = -D%s\n", raise(ident));
     if (cputype == 0) {
         printf("cpu type must be specified\n");
         exit(1);
     }
-    { struct cputype *cp;
-      for (cp = cputype; cp; cp = cp->cpu_next)
-        fprintf(ofp, " -D%s", cp->cpu_name);
+    for (cp = cputype; cp; cp = cp->cpu_next) {
+        fprintf(ofp, "PARAM += -D%s\n", cp->cpu_name);
     }
-    for (op = opt; op; op = op->op_next)
+    for (op = opt; op; op = op->op_next) {
         if (op->op_value)
-            fprintf(ofp, " -D%s=\"%s\"", op->op_name, op->op_value);
+            fprintf(ofp, "PARAM += -D%s=\"%s\"\n", op->op_name, op->op_value);
         else
-            fprintf(ofp, " -D%s", op->op_name);
-    fprintf(ofp, "\n");
-    if (ldscript)
-        fprintf(ofp, "LDSCRIPT=\"%s\"\n", ldscript);
+            fprintf(ofp, "PARAM += -D%s\n", op->op_name);
+    }
+
     if (hadtz == 0)
         printf("timezone not specified; gmt assumed\n");
     if ((unsigned)machine > NUSERS) {
@@ -465,15 +464,19 @@ void makefile()
         maxusers = up->u_min;
     } else if (maxusers > up->u_max)
         printf("warning: maxusers > %d (%d)\n", up->u_max, maxusers);
-    fprintf(ofp, "PARAM=-DTIMEZONE=%d -DDST=%d -DMAXUSERS=%d",
-        zone, dst, maxusers);
-    if (hz > 0)
-        fprintf(ofp, " -DHZ=%d", hz);
-    fprintf(ofp, "\n");
+    fprintf(ofp, "PARAM += -DTIMEZONE=%d\n", zone);
+    fprintf(ofp, "PARAM += -DDST=%d\n", dst);
+    fprintf(ofp, "PARAM += -DMAXUSERS=%d\n", maxusers);
+
+    if (ldscript)
+        fprintf(ofp, "LDSCRIPT = \"%s\"\n", ldscript);
+
     for (op = mkopt; op; op = op->op_next)
-        fprintf(ofp, "%s=%s\n", op->op_name, op->op_value);
+        fprintf(ofp, "%s = %s\n", op->op_name, op->op_value);
+
     if (debugging)
-        fprintf(ofp, "DEBUG=-g\n");
+        fprintf(ofp, "DEBUG = -g\n");
+
     while (fgets(line, BUFSIZ, ifp) != 0) {
         if (*line != '%') {
             fprintf(ofp, "%s", line);

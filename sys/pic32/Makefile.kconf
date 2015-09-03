@@ -21,14 +21,14 @@ endif
 # sources are located via $S relative to the compilation directory
 S               = ../..
 
-COPTS           = -I. ${IDENT} -DKERNEL
-CFLAGS          = -O ${COPTS} ${PARAM}
+DEFS            = -I. ${PARAM} -DKERNEL
+CFLAGS          = -O ${DEFS}
 
 # compile rules: rules are named COMPILE_${SUFFIX}
 # SUFFIX is the file suffix, capitalized (e.g. C for a .c file).
 
 COMPILE_C       = ${CC} -c ${CFLAGS} $<
-COMPILE_S       = ${CC} -c ${COPTS} $<
+COMPILE_S       = ${CC} -c ${DEFS} $<
 
 %OBJS
 
@@ -67,23 +67,16 @@ reconfig ioconf.c swapunix.c: Config ../../../tools/kconfig/kconfig
 load:   unix.elf
 	pic32prog unix.hex
 
-startup.o: ../startup.S
-	${COMPILE_S}
-
-# the following are necessary because the files depend on the types of
-# cpu's included in the system configuration
-clock.o machdep.o conf.o: Makefile
-
 machine:
 	ln -s .. $@
 
 sys:
 	ln -s ../../include $@
 
-depend: machine
-	mkdep ${COPTS} ${CFILES} ioconf.c
+startup.o: ../startup.S
+	${COMPILE_S}
 
 ioconf.o: ioconf.c
-	${CC} -c ${CFLAGS} ioconf.c
+	${COMPILE_C}
 
 %RULES

@@ -7,7 +7,7 @@ PIC32_DEVCFG (
     DEVCFG0_DEBUG_DISABLED,     /* ICE debugger enabled */
 
     DEVCFG1_FNOSC_FRCDIVPLL |   /* Internal FRC oscillator with PLL */
-    DEVCFG1_POSCMOD_DISABLE |        /* No crystal */
+    DEVCFG1_POSCMOD_DISABLE |   /* No crystal */
     DEVCFG1_OSCIOFNC |          /* CLKO output active */
     DEVCFG1_FPBDIV_1 |          /* Peripheral bus clock = SYSCLK/1 */
     DEVCFG1_FCKM_DISABLE |      /* Fail-safe clock monitor disable */

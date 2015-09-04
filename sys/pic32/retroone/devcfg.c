@@ -23,3 +23,10 @@ PIC32_DEVCFG (
     DEVCFG3_USERID(0xffff) |    /* User-defined ID */
     DEVCFG3_FSRSSEL_7 |         /* Assign irq priority 7 to shadow set */
     DEVCFG3_FETHIO);            /* Default Ethernet i/o pins */
+
+#include "sys/param.h"
+#include "sys/conf.h"
+
+dev_t   rootdev = makedev(0, 1);        /* sd0a */
+dev_t   dumpdev = makedev(0, 2);        /* sd0b */
+dev_t   swapdev = makedev(0, 2);        /* sd0b */

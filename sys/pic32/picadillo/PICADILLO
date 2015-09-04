@@ -2,8 +2,8 @@
 # Picadillo 35T board
 # ===================
 #
-# Console on UART1
-# SD/MMC card driver on SPI2
+# Console on UART1.
+# SD/MMC card driver on SPI2.
 
 core pic32mx7
 mapping picadillo

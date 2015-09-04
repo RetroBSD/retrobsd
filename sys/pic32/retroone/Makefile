@@ -9,7 +9,7 @@ vpath %.c $(M):$(S)
 vpath %.S $(M):$(S)
 
 # Kernel options.
-DEFS		+= -I. -I$(H) -DKERNEL -DUCB_METER -DPIC32MX7
+DEFS		+= -I. -I$(H) -DKERNEL -DPIC32MX7
 DEFS		+= -DGLOBAL_DEBUG
 
 # CPU frequency 80 MHz.
@@ -38,13 +38,16 @@ ASFLAGS		= $(DEFS) $(DEPFLAGS)
 
 include ../gcc-config.mk
 
-CC		= $(GCCPREFIX)gcc -EL -g -mips32r2
+CC		= $(MIPS_GCC_PREFIX)gcc -EL -g -mips32r2
 CC		+= -nostdinc -fno-builtin -Werror -Wall -fno-dwarf2-cfi-asm
-LDFLAGS         += -nostdlib -T ../cfg/bare.ld -Wl,-Map=unix.map
-SIZE		= $(GCCPREFIX)size
-OBJDUMP		= $(GCCPREFIX)objdump
-OBJCOPY		= $(GCCPREFIX)objcopy
-MPIDE           = /Applications/Mpide.app/Contents/Resources/Java/
+LDFLAGS         = -nostdlib -T ../cfg/bare.ld -Wl,-Map=unix.map
+SIZE		= $(MIPS_GCC_PREFIX)size
+OBJDUMP		= $(MIPS_GCC_PREFIX)objdump
+OBJCOPY		= $(MIPS_GCC_PREFIX)objcopy
+
+ifneq (${MIPS_GCC_FORMAT},)
+    LDFLAGS     += -Wl,--oformat=${MIPS_GCC_FORMAT}
+endif
 
 # Machine-dependent files:
 # startup.o MUST be loaded first.
@@ -60,6 +63,7 @@ KERNOBJ		+= init_main.o init_sysent.o kern_clock.o \
 		   subr_log.o subr_prf.o subr_rmap.o \
 		   sys_generic.o sys_inode.o syscalls.o \
 		   sys_pipe.o sys_process.o tty.o exec_conf.o exec_subr.o \
+		   exec_aout.o exec_elf.o exec_script.o \
 		   tty_subr.o tty_tty.o ufs_alloc.o ufs_bio.o \
 		   ufs_bmap.o ufs_dsort.o ufs_fio.o \
 		   ufs_inode.o ufs_mount.o ufs_namei.o ufs_subr.o \
@@ -76,20 +80,20 @@ KERNOBJ		+= vers.o devcfg.o
 -include Makefile.local
 
 # GPIO driver
-KERNOBJ += gpio.o
-DEFS    += -DGPIO_ENABLED
+KERNOBJ         += gpio.o
+DEFS            += -DGPIO_ENABLED
 
 # ADC driver
-KERNOBJ += adc.o
-DEFS    += -DADC_ENABLED
+KERNOBJ         += adc.o
+DEFS            += -DADC_ENABLED
 
 # GLCD driver
-KERNOBJ += glcd.o
-DEFS	+= -DGLCD_ENABLED
+KERNOBJ         += glcd.o
+DEFS            += -DGLCD_ENABLED
 
 # PWM driver
-KERNOBJ += pwm.o
-DEFS 	+= -DPWM_ENABLED
+KERNOBJ         += pwm.o
+DEFS            += -DPWM_ENABLED
 
 all:		.deps sys machine unix.elf
 		$(SIZE) unix.elf

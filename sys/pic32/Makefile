@@ -1,11 +1,9 @@
 
 # Programs that live in subdirectories, and have makefiles of their own.
 #
-SUBDIR		= baremetal duinomite duinomite-emega \
-                  explorer16 max32 maximite \
-                  meb starter-kit sdxl ubw32 ubw32-uart \
-                  ubw32-uart-sdram baremetal fubarino mmb-mx7 maximite-color \
-                  32mxsdram-uart picadillo wf32 pinguino-micro
+SUBDIR		= baremetal duinomite duinomite-emega explorer16 \
+                  fubarino max32 maximite maximite-color meb mmb-mx7 \
+                  picadillo pinguino-micro sdxl starter-kit ubw32 wf32
 
 default:
 

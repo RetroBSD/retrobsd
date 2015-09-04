@@ -1,6 +1,10 @@
 #
 # Picadillo 35T board
 # ===================
+#
+# Console on TFT display.
+# SD/MMC card driver on SPI2.
+# SPI RAM on SPI4.
 
 core pic32mx7
 mapping picadillo

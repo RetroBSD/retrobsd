@@ -126,10 +126,10 @@ swapunix.o: swapunix.c
 all: unix.elf
 
 clean:
-	rm -rf .deps *.elf *.o *.map *.dis *.bin
+	rm -rf .deps *.elf *.o *.map *.dis *.bin machine sys
 
 clean-all: clean
-	rm -f *.h *.c machine sys
+	rm -f *.h ioconf.c swapunix.c vers.c
 
 reconfig ioconf.c swapunix.c: Config ../../../tools/kconfig/kconfig
 	../../../tools/kconfig/kconfig Config

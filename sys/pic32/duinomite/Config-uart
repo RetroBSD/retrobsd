@@ -6,7 +6,7 @@
 #
 # To build the kernel, use:
 #   cd sys/pic32/duinomite
-#   kconfig Config
+#   kconfig Config-uart
 #   make clean
 #   make
 #

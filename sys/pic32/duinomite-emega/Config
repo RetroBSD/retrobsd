@@ -6,7 +6,7 @@
 # For details, see https://github.com/RetroBSD/retrobsd/wiki/Board-Olimex-Duinomite
 #
 # To build the kernel, use:
-#   cd sys/pic32/duinomite-e
+#   cd sys/pic32/duinomite-emega
 #   kconfig Config
 #   make clean
 #   make

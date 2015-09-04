@@ -6,7 +6,7 @@
 #
 # To build the kernel, use:
 #   cd sys/pic32/picadillo
-#   kconfig Config
+#   kconfig Config-rambo
 #   make clean
 #   make
 #

@@ -1,0 +1,77 @@
+#
+# UBW32 board with two SD card slots
+# ==================================
+# For details, see https://github.com/RetroBSD/retrobsd/wiki/Board-Sparkfun-UBW32
+# Console on UART2.
+#
+# To build the kernel, use:
+#   cd sys/pic32/ubw32
+#   kconfig Config-uart
+#   make clean
+#   make
+#
+# Format of this file is described on page:
+# http://retrobsd.org/wiki/doku.php/doc/kconfig
+#
+architecture    "pic32"
+cpu             "PIC32MX7"                  # Processor variant
+board           "UBW32"                     # Board type
+hz              100                         # Rate of clock interrupt
+ldscript        "cfg/bootloader-ubw32.ld"   # Linker script
+
+# Standard system options
+options         "CPU_KHZ=80000"             # Oscillator frequency of CPU core
+options         "BUS_KHZ=80000"             # Frequency of peripheral bus
+options         "BUS_DIV=1"                 # Bus clock divisor 1/2/4/8
+
+# LED
+options         "LED_KERNEL_PORT=TRISE"     # for kernel activity LED...
+options         "LED_KERNEL_PIN=2"          # ...use pin RE2
+options         "LED_KERNEL_INVERT"
+options         "LED_DISK_PORT=TRISE"       # for disk activity LED...
+options         "LED_DISK_PIN=1"            # ...use pin RE1
+options         "LED_DISK_INVERT"
+options         "LED_SWAP_PORT=TRISE"       # for swap activity LED...
+options         "LED_SWAP_PIN=0"            # ...use pin RE0
+options         "LED_SWAP_INVERT"
+options         "LED_TTY_PORT=TRISE"        # for console activity LED...
+options         "LED_TTY_PIN=3"             # ...use pin RE3
+options         "LED_TTY_INVERT"
+
+# Root filesystem at /dev/sd0a, swap at /dev/sd0b
+config          unix    root on sd0a
+                        swap on sd0b
+                        dumps on sd0b
+
+# Console options
+options         "CONSOLE_DEVICE=tty1"       # Console on UART2
+
+# Serial UART ports
+device          uart2                       # USB-to-serial adapter
+options         "UART2_ENABLED"             # TODO: delete this option
+
+# SPI ports
+controller      spi1                        # SD card
+options         "SPI_ENABLED"               # TODO: delete this option
+
+# microSD card
+disk            sd0     at spi1 flags 0x19  # select pin RA9
+disk            sd1     at spi1 flags 0x1a  # select pin RA10
+options         "SD0_PORT=1"                # sd0 at spi1           TODO: delete
+options         "SD0_CS_PORT=TRISA"         # for sd0 chip select...TODO: use flags
+options         "SD0_CS_PIN=9"              # ...use pin RA9        TODO: use flags
+options         "SD1_PORT=1"                # sd1 at spi1           TODO: delete
+options         "SD1_CS_PORT=TRISA"         # for sd1 chip select...TODO: use flags
+options         "SD1_CS_PIN=10"             # ...use pin RA9        TODO: use flags
+
+# General purpose I/O ports
+device          gpio0
+options         "GPIO_ENABLED"              # TODO: delete this option
+
+# ADC driver
+device          adc0
+options         "ADC_ENABLED"               # TODO: delete this option
+
+# PWM driver
+device          pwm0
+options         "PWM_ENABLED"               # TODO: delete this option

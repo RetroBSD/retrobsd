@@ -1,0 +1,70 @@
+#
+# Olimex Duinomite-eMega board
+# ============================
+# Console on UART5.
+# For Windows, use the driver: http://www.schmalzhaus.com/UBW32/FW/UBW32inf.zip
+# For details, see https://github.com/RetroBSD/retrobsd/wiki/Board-Olimex-Duinomite
+#
+# To build the kernel, use:
+#   cd sys/pic32/duinomite-e
+#   kconfig Config
+#   make clean
+#   make
+#
+# Format of this file is described on page:
+# http://retrobsd.org/wiki/doku.php/doc/kconfig
+#
+architecture    "pic32"
+cpu             "PIC32MX7"                  # Processor variant
+board           "DUINOMITE"                 # Board type
+hz              100                         # Rate of clock interrupt
+ldscript        "cfg/bootloader-maximite.ld" # Linker script
+
+# Standard system options
+options         "CPU_KHZ=80000"             # Oscillator frequency of CPU core
+options         "BUS_KHZ=40000"             # Frequency of peripheral bus
+options         "BUS_DIV=1"                 # Bus clock divisor 1/2/4/8
+
+# LED
+options         "LED_KERNEL_PORT=TRISB"     # for kernel activity LED...
+options         "LED_KERNEL_PIN=15"         # ...use pin RB15
+options         "LED_DISK_PORT=TRISC"       # for disk activity LED...
+options         "LED_DISK_PIN=1"            # ...use pin RC1
+
+# Root filesystem at /dev/sd0a, swap at /dev/sd0b
+config          unix    root on sd0a
+                        swap on sd0b
+                        dumps on sd0b
+
+# Console options
+options         "CONSOLE_DEVICE=tty4"       # Console on UART5
+
+# Serial UART ports
+device          uart5                       # RS-232 port
+options         "UART5_ENABLED"             # TODO: delete this option
+options         "UART5_ENA_PORT=TRISB"      # for RS-232 enable...  TODO: use flags
+options         "UART5_ENA_PIN=13"          # ...use pin RB13       TODO: use flags
+
+# SPI ports
+controller      spi3                        # SD card
+options         "SPI_ENABLED"               # TODO: delete this option
+
+# microSD card
+disk            sd0     at spi3 flags 0x7c  # select pin RG12
+options         "SD0_PORT=3"                # at spi3               TODO: delete
+options         "SD0_CS_PORT=TRISG"         # for chip select...    TODO: use flags
+options         "SD0_CS_PIN=12"             # ...use pin RG12       TODO: use flags
+options         "SD0_ENA_PORT=TRISG"        # for SD enable...      TODO: use flags
+options         "SD0_ENA_PIN=13"            # ...use pin RG13       TODO: use flags
+
+# General purpose I/O ports
+device          gpio0
+options         "GPIO_ENABLED"              # TODO: delete this option
+
+# ADC driver
+device          adc0
+options         "ADC_ENABLED"               # TODO: delete this option
+
+# PWM driver
+device          pwm0
+options         "PWM_ENABLED"               # TODO: delete this option

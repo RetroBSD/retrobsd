@@ -1,5 +1,6 @@
 #
 # chipKIT Max32 board with SD card shield
+# =======================================
 # For details, see https://github.com/RetroBSD/retrobsd/wiki/Board-chipKIT-Max32
 #
 # To build the kernel, use:
@@ -8,7 +9,8 @@
 #   make clean
 #   make
 #
-# For details, see http://retrobsd.org/wiki/doku.php/doc/kconfig
+# Format of this file is described on page:
+# http://retrobsd.org/wiki/doku.php/doc/kconfig
 #
 architecture    "pic32"
 cpu             "PIC32MX7"                  # Processor variant

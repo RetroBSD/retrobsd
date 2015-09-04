@@ -10,7 +10,7 @@
 #include <sys/buf.h>
 #include <sys/errno.h>
 #include <sys/dk.h>
-#include <sys/sdram.h>
+#include <machine/sdram.h>
 #include <sys/rd_sdramp.h>
 #include <sys/rdisk.h>
 

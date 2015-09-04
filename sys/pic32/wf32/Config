@@ -7,6 +7,9 @@
 #   make clean
 #   make
 #
+# Format of this file is described on page:
+# http://retrobsd.org/wiki/doku.php/doc/kconfig
+#
 architecture    "pic32"
 cpu             "PIC32MX7"                  # Processor variant
 board           "CHIPKIT_WF32"              # Board type

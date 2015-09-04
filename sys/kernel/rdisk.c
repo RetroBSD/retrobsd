@@ -32,19 +32,19 @@ extern int sdopen(int unit, int flags, int mode);
 extern int sdsize(int unit);
 
 #ifdef SRAMC_ENABLED
-#include <rd_sramc.h>
+#include <sys/rd_sramc.h>
 #endif
 #ifdef SDRAMP_ENABLED
-#include <rd_sdramp.h>
+#include <sys/rd_sdramp.h>
 #endif
 #ifdef FLASH_ENABLED
-#include <rd_flash.h>
+#include <sys/rd_flash.h>
 #endif
 #ifdef MRAMS_ENABLED
-#include <rd_mrams.h>
+#include <sys/rd_mrams.h>
 #endif
 #ifdef SPIRAMS_ENABLED
-#include <rd_spirams.h>
+#include <sys/rd_spirams.h>
 #endif
 
 int no_deinit(int u) { return 0; }

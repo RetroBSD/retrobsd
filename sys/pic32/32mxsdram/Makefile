@@ -52,7 +52,7 @@ DEFS += -DUCB_METER
 
 LDSCRIPT = ../../../tools/configsys/../../sys/pic32/cfg/bootloader-sdram.ld
 
-CONFIG = 32MXSDRAM-UART
+CONFIG = 32MXSDRAM
 CONFIGPATH = ../../../tools/configsys
 
 include ../../../tools/configsys/../../sys/pic32/kernel-post.mk

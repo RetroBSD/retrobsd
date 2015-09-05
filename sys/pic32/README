@@ -1,6 +1,6 @@
 Build directories:
 
-    32mxsdram-uart/     - 32MXSDRAM custom board with external SDRAM
+    32mxsdram/          - 32MXSDRAM custom board with external SDRAM
                           used as a volatile disk storage (swap).
 
     baremetal/          - PIC32MX processor on a custom board.

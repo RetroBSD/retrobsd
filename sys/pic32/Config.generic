@@ -12,7 +12,6 @@
 architecture    "pic32"
 cpu             "PIC32MX7"                  # Processor variant
 board           "CHIPKIT_MAX32"             # Board type
-hz              100                         # Rate of clock interrupt
 
 # Linker script
 ldscript        "cfg/bootloader-max32.ld"
@@ -22,6 +21,7 @@ timezone        8 dst
 maxusers        2
 
 # Standard system options
+options         "HZ=100"                    # Rate of clock interrupt
 options         "CPU_KHZ=80000"             # Oscillator frequency of CPU core
 options         "BUS_KHZ=80000"             # Frequency of peripheral bus
 options         "BUS_DIV=1"                 # Bus clock divisor 1/2/4/8

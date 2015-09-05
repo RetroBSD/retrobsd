@@ -14,7 +14,6 @@ PARAM += -DUART1_ENABLED
 PARAM += -DBUS_DIV=1
 PARAM += -DBUS_KHZ=80000
 PARAM += -DCPU_KHZ=80000
-PARAM += -DHZ=100
 LDSCRIPT = "cfg/bootloader-max32.ld"
 #
 # Makefile for RetroBSD, pic32 target

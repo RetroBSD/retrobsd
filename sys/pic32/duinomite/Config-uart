@@ -16,7 +16,6 @@
 architecture    "pic32"
 cpu             "PIC32MX7"                  # Processor variant
 board           "DUINOMITE"                 # Board type
-hz              100                         # Rate of clock interrupt
 ldscript        "cfg/bootloader-maximite.ld" # Linker script
 
 # Standard system options

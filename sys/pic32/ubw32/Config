@@ -17,7 +17,6 @@
 architecture    "pic32"
 cpu             "PIC32MX7"                  # Processor variant
 board           "UBW32"                     # Board type
-hz              100                         # Rate of clock interrupt
 ldscript        "cfg/bootloader-ubw32.ld"   # Linker script
 
 # Standard system options

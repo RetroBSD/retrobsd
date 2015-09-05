@@ -162,7 +162,6 @@ struct  file_list *ftab, *conf_list, **confp, *comp_list, **compp;
 
 int     zone, hadtz;
 int     dst;
-int     hz;
 int     debugging;
 
 int     maxusers;

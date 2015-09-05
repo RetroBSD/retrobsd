@@ -444,8 +444,6 @@ void makefile()
     }
     if (maxusers > 0)
         fprintf(ofp, "PARAM += -DMAXUSERS=%d\n", maxusers);
-    if (hz > 0)
-        fprintf(ofp, "PARAM += -DHZ=%d\n", hz);
 
     if (ldscript)
         fprintf(ofp, "LDSCRIPT = \"%s\"\n", ldscript);

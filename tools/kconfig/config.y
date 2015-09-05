@@ -170,9 +170,6 @@ Config_spec:
         |
     System_spec
         |
-    HZ NUMBER
-        = { hz = $2; }
-        |
     TIMEZONE NUMBER
         = { zone = 60 * $2; check_tz(); }
         |

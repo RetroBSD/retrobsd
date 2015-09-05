@@ -63,7 +63,6 @@ static struct kt key_words[] = {
     { "dst",            DST },
     { "dumps",          DUMPS },
     { "flags",          FLAGS },
-    { "hz",             HZ },
     { "board",          BOARD },
     { "ldscript",       LDSCRIPT },
     { "architecture",   ARCHITECTURE },

@@ -1,0 +1,84 @@
+#
+# 32MXSDRAM board PCB v1.0 with UART console
+# ===========================================
+# Console on UART3.
+#
+# To build the kernel, use:
+#   cd sys/pic32/32mxsdram
+#   kconfig Config
+#   make clean
+#   make
+#
+# Format of this file is described on page:
+# http://retrobsd.org/wiki/doku.php/doc/kconfig
+#
+architecture    "pic32"
+cpu             "PIC32MX7"                  # Processor variant
+board           "CUSTOM_32MXSDRAM"          # Board type
+ldscript        "cfg/bootloader-sdram.ld"   # Linker script
+
+# Standard system options
+options         "HZ=1000"                   # Rate of timer interrupt
+options         "CPU_KHZ=80000"             # Oscillator frequency of CPU core
+options         "BUS_KHZ=80000"             # Frequency of peripheral bus
+options         "BUS_DIV=1"                 # Bus clock divisor 1/2/4/8
+options         "NPROC=20"
+
+# LED
+options         "LED_KERNEL_PORT=TRISA"     # for kernel activity LED...
+options         "LED_KERNEL_PIN=15"         # ...use pin RA15
+options         "LED_DISK_PORT=TRISC"       # for disk activity LED...
+options         "LED_DISK_PIN=13"           # ...use pin RC13
+options         "LED_SWAP_PORT=TRISC"       # for swap activity LED...
+options         "LED_SWAP_PIN=14"           # ...use pin RC14
+options         "LED_TTY_PORT=TRISA"        # for sserial activity LED...
+options         "LED_TTY_PIN=14"            # ...use pin RA14
+
+# Root filesystem at /dev/sd0a, swap at /dev/sd0b
+config          unix    root on sd0a
+                        swap on sd0b
+
+# Serial UART ports
+device          uart3
+options         "UART3_ENABLED"             # TODO: delete this option
+
+# Console options
+options         "CONSOLE_DEVICE=tty2"       # /dev/tty2
+
+# SPI ports
+controller      spi4                        # SD card
+options         "SPI_ENABLED"               # TODO: delete this option
+
+# sdcard's definition for the SPI port, sdcard's chipselect and high-side power switch
+# because of a mod on the board we use power=B13, otherwise it shall be D12
+disk            sd0     at spi4 flags 0x63  # select pin RF3
+options         "SD0_MHZ=10"                # speed 10 MHz
+options         "SD0_PORT=4"                # at spi4               TODO: delete
+options         "SD0_CS_PORT=TRISF"         # for chip select...    TODO: use flags
+options         "SD0_CS_PIN=3"              # ...use pin RF3        TODO: use flags
+options         "SD0_ENA_PORT=TRISB"        # for microSD enable... TODO: use flags
+options         "SD0_ENA_PIN=13"            # ...use pin RB13       TODO: use flags
+
+# General purpose I/O ports
+device          gpio0
+options         "GPIO_ENABLED"              # TODO: delete this option
+
+# ADC driver
+device          adc0
+options         "ADC_ENABLED"               # TODO: delete this option
+
+# PWM driver
+device          pwm0
+options         "PWM_ENABLED"               # TODO: delete this option
+
+# Use SDRAM driver for the external ramdisk
+disk            sdramp0                     # SDRAM on external memory bus
+options         "SDRAMP_ENABLED"            # TODO: delete this option
+options         "KERNEL_EXECUTABLE_RAM"     # allow kernel code in RAM area
+
+# This defines the swap size and a fs partition size on the external ramdisk.
+# When the sa@XXXX is larger than the SWAP_KBYTES, the system will use
+# the swap located on the external ramdisk automatically.
+# (sd@xxxx + fs@xxxx) <= ramdisk_size
+options         "PARTITION='sdramp0:sa@2048,fs@14000'"
+options         "NMOUNT=3"

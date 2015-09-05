@@ -14,6 +14,7 @@ MEMORY
   u0area               (rw!x): ORIGIN = 0x800062C0, LENGTH = 3K
   uarea                (rw!x): ORIGIN = 0x80006EC0, LENGTH = 3K
   keram                (rwx) : ORIGIN = 0x80007AC0, LENGTH = 0x540
+  devcfg               (r)   : ORIGIN = 0x9fc02ff0, LENGTH = 16
 
   /* Required by Microchip C32 linker */
   kseg0_program_mem    (rx)  : ORIGIN = 0x9D000000, LENGTH = 0x80000
@@ -67,6 +68,15 @@ SECTIONS
     *(.eh_frame)
     _edata = .;
   } > ram
+
+  /* Device configuration.  */
+  .config         :
+  {
+    *(.config3)
+    *(.config2)
+    *(.config1)
+    *(.config0)
+  } > devcfg
 
   .bss ADDR (.data) + SIZEOF (.data) (NOLOAD) :
   {

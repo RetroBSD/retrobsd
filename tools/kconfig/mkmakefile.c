@@ -397,7 +397,7 @@ void do_load(f)
     fputs("all:", f);
     for (fl = conf_list; fl; fl = fl->f_next)
         if (fl->f_type == SYSTEMSPEC)
-            fprintf(f, " %s.elf", fl->f_needs);
+            fprintf(f, " %s", fl->f_needs);
     putc('\n', f);
 }
 
@@ -508,6 +508,7 @@ do_systemspec(f, fl, first)
     register struct file_list *fl;
     int first;
 {
+    fprintf(f, "%s: %s.elf\n\n", fl->f_needs, fl->f_needs);
 
     fprintf(f, "%s.elf: ${SYSTEM_DEP} swap%s.o", fl->f_needs, fl->f_fn);
     // Don't use newvers target.

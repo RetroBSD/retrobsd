@@ -42,7 +42,7 @@ AS              = ${MIPS_GCC_PREFIX}as ${DEBUG} -mips32r2 -EL
 CC              = ${MIPS_GCC_PREFIX}gcc ${DEBUG} -mips32r2 -EL -nostdinc -fno-builtin -Werror -Wall
 CPP             = ${MIPS_GCC_PREFIX}cpp
 LD              = ${MIPS_GCC_PREFIX}gcc -mips32r2 -EL
-LDFLAGS         = -nostdlib -T ../${LDSCRIPT} -Wl,-Map=unix.map
+LDFLAGS         = -nostdlib -T ../${LDSCRIPT} -Wl,-Map=$(basename $@).map
 SIZE            = ${MIPS_GCC_PREFIX}size
 OBJCOPY         = ${MIPS_GCC_PREFIX}objcopy
 OBJDUMP         = ${MIPS_GCC_PREFIX}objdump
@@ -115,14 +115,16 @@ SYSTEM_OBJ      = startup.o ${OBJS} #ioconf.o
 ifeq (devcfg.c,$(wildcard devcfg.c))
     SYSTEM_OBJ  += devcfg.o
 endif
-SYSTEM_DEP      = Makefile ioconf.c swapunix.c machine sys .deps ${SYSTEM_OBJ}
+SYSTEM_DEP      = Makefile ioconf.c machine sys .deps ${SYSTEM_OBJ}
 SYSTEM_LD_HEAD  = sh ../newvers.sh > vers.c; ${CC} $(CFLAGS) -c vers.c; rm -f $@
-SYSTEM_LD       = -@echo ${LD} ${LDFLAGS} '$${SYSTEM_OBJ}' vers.o -o unix.elf; \
-                  ${LD} ${LDFLAGS} ${SYSTEM_OBJ} vers.o -o unix.elf
-SYSTEM_LD_TAIL  = ${SIZE} unix.elf; \
-                  $(OBJCOPY) -O ihex --change-addresses=0x80000000 $@ unix.hex; \
-                  $(OBJCOPY) -O binary -R .boot -R .config $@ unix.bin; \
-                  $(OBJDUMP) -d -S unix.elf > unix.dis
+SYSTEM_LD       = -@echo ${LD} ${LDFLAGS} '$${SYSTEM_OBJ}' vers.o -o $@; \
+                  ${LD} ${LDFLAGS} ${SYSTEM_OBJ} vers.o -o $@
+SYSTEM_LD_TAIL  = ${SIZE} $@; \
+                  $(OBJCOPY) -O ihex --change-addresses=0x80000000 $@ $(basename $@).hex; \
+                  $(OBJCOPY) -O binary -R .boot -R .config $@ $(basename $@).bin; \
+                  $(OBJDUMP) -d -S $@ > $(basename $@).dis
+
+unix: unix.elf
 
 unix.elf: ${SYSTEM_DEP} swapunix.o
 	${SYSTEM_LD_HEAD}
@@ -132,17 +134,18 @@ unix.elf: ${SYSTEM_DEP} swapunix.o
 swapunix.o: swapunix.c
 	${COMPILE_C}
 
-all: unix.elf
+all: unix
 
 clean:
 	rm -rf .deps *.elf *.o *.map *.dis *.bin machine sys
 
 clean-all: clean
-	rm -f *.h ioconf.c swapunix.c vers.c
+	rm -f *.h *.hex ioconf.c swap*.c vers.c
 
-reconfig ioconf.c swapunix.c: Config ../../../tools/kconfig/kconfig
+reconfig ioconf.c: Config ../../../tools/kconfig/kconfig
 	../../../tools/kconfig/kconfig Config
 	$(MAKE) clean
+	rm -f *.hex
 
 load:   unix.elf
 	pic32prog unix.hex

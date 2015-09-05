@@ -41,7 +41,6 @@ options         "LED_TTY_INVERT"
 # Root filesystem at /dev/sd0a, swap at /dev/sd0b
 config          unix    root on sd0a
                         swap on sd0b
-                        dumps on sd0b
 
 # Console options
 options         "CONSOLE_DEVICE=tty1"       # Console on UART2

@@ -27,7 +27,6 @@ options         "BUS_DIV=1"                 # Bus clock divisor 1/2/4/8
 # Root filesystem at /dev/sd0a, swap at /dev/sd0b
 config          unix    root on sd0a
                         swap on sd0b
-                        dumps on sd0b
 
 # Serial UART ports
 device          uart1                       # Serial-to-USB converter

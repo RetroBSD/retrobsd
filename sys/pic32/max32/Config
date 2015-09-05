@@ -14,7 +14,7 @@
 #
 architecture    "pic32"
 cpu             "PIC32MX7"                  # Processor variant
-board           "CHIPKIT_MAX32"             # Board type
+board           "MAX32"                     # Board type
 ldscript        "cfg/bootloader-max32.ld"   # Linker script
 
 # Standard system options

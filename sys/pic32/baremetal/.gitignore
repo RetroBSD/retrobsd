@@ -3,8 +3,10 @@
 .oldversion
 machine
 sys
-boot.bin
 unix.bin
 unix.map
 usbboot.map
 vers.c
+*.h
+ioconf.c
+swapunix.c

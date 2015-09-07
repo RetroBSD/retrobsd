@@ -122,6 +122,8 @@ SYSTEM_LD_TAIL  = ${SIZE} $@; \
                   $(OBJCOPY) -O binary -R .boot -R .config $@ $(basename $@).bin; \
                   $(OBJDUMP) -d -S $@ > $(basename $@).dis
 
+unix: unix.elf
+
 unix.elf: ${SYSTEM_DEP} swapunix.o
 	${SYSTEM_LD_HEAD}
 	${SYSTEM_LD} swapunix.o
@@ -130,7 +132,7 @@ unix.elf: ${SYSTEM_DEP} swapunix.o
 swapunix.o: swapunix.c
 	${COMPILE_C}
 
-all: unix.elf
+all: unix
 
 clean:
 	rm -rf .deps *.elf *.o *.map *.dis *.bin machine sys

@@ -1,10 +1,12 @@
 #
-# Colour Maximite Computer
-# ========================
+# Majenko SDXL board
+# ==================
+# Ardiuno-compatible bootloader.
 # Console on USB.
+# LED at pin E7 (label 23).
 #
 # To build the kernel, use:
-#   cd sys/pic32/maximite
+#   cd sys/pic32/sdxl
 #   kconfig Config
 #   make clean
 #   make
@@ -14,8 +16,8 @@
 #
 architecture    "pic32"
 cpu             "PIC32MX7"                  # Processor variant
-board           "MAXIMITE_COLOR"            # Board type
-ldscript        "cfg/bootloader-maxcolor.ld" # Linker script
+board           "SDXL"                      # Board type
+ldscript        "cfg/bootloader-max32.ld"   # Linker script
 
 # Standard system options
 options         "CPU_KHZ=80000"             # Oscillator frequency of CPU core
@@ -24,10 +26,7 @@ options         "BUS_DIV=1"                 # Bus clock divisor 1/2/4/8
 
 # LED
 options         "LED_KERNEL_PORT=TRISE"     # for kernel activity LED...
-options         "LED_KERNEL_PIN=0"          # ...use pin RE0...
-options         "LED_KERNEL_INVERT"         # ...inverted
-options         "LED_DISK_PORT=TRISE"       # for disk activity LED...
-options         "LED_DISK_PIN=1"            # ...use pin RE1
+options         "LED_KERNEL_PIN=7"          # ...use pin RE7
 
 # Root filesystem at /dev/sd0a, swap at /dev/sd0b
 config          unix    root on sd0a
@@ -43,14 +42,14 @@ options         "USB_MAX_EP_NUMBER=3"
 options         "USB_NUM_STRING_DESCRIPTORS=3"
 
 # SPI ports
-controller      spi4                        # SD card
+controller      spi2                        # SD card
 options         "SPI_ENABLED"               # TODO: delete this option
 
 # microSD card
-disk            sd0     at spi4 flags 0x11  # select pin RA1
-options         "SD0_PORT=4"                # at spi3               TODO: delete
-options         "SD0_CS_PORT=TRISA"         # for chip select...    TODO: use flags
-options         "SD0_CS_PIN=1"              # ...use pin RA1        TODO: use flags
+disk            sd0     at spi2 flags 0x79  # select pin RG9
+options         "SD0_PORT=2"                # sd0 at spi2           TODO: delete
+options         "SD0_CS_PORT=TRISG"         # for chip select...    TODO: use flags
+options         "SD0_CS_PIN=9"              # ...use pin RA9        TODO: use flags
 
 # General purpose I/O ports
 device          gpio0
@@ -63,3 +62,7 @@ options         "ADC_ENABLED"               # TODO: delete this option
 # PWM driver
 device          pwm0
 options         "PWM_ENABLED"               # TODO: delete this option
+
+# GLCD driver
+device          glcd0
+options         "GLCD_ENABLED"              # TODO: delete this option

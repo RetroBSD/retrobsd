@@ -4,7 +4,9 @@
 machine
 sys
 unix.bin
-boot.bin
 unix.map
 usbboot.map
 vers.c
+*.h
+ioconf.c
+swapunix.c

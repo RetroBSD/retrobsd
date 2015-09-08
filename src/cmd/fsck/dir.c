@@ -508,7 +508,8 @@ linkup(orphan, pdir)
     }
     declncnt(orphan);
     *pathp++ = '/';
-    bcopy(idesc.id_name, pathp, len + 1);
+    len = strlen(tempname);
+    bcopy(tempname, pathp, len + 1);
     pathp += len;
     if (lostdir) {
         dp = ginode(orphan);

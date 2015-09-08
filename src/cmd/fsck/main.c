@@ -24,6 +24,8 @@
 
 extern  int returntosingle;
 
+static char memdata[16 * sizeof(BUFAREA)];
+
 char *
 unrawname(cp)
     char *cp;
@@ -221,12 +223,12 @@ main(argc, argv)
 {
     struct fstab *fsp;
     int pid, passno, anygtr, sumstatus;
-    char *name, inbuf[128], outbuf[128];
+    char *name, inbuf[64], outbuf[64], errbuf[64];
     extern void _start();
 
-    setbuffer(stdin, inbuf, sizeof (inbuf));
-    setbuffer(stdout, outbuf, sizeof (outbuf));
-    setlinebuf(stdout);
+    setvbuf(stdin, inbuf, _IOFBF, sizeof (inbuf));
+    setvbuf(stdout, outbuf, _IOLBF, sizeof (outbuf));
+    setvbuf(stderr, errbuf, _IOLBF, sizeof (errbuf));
     sync();
 
     while (--argc > 0 && **++argv == '-') {
@@ -273,13 +275,8 @@ main(argc, argv)
         errexit("Can't open checklist file: %s\n", _PATH_FSTAB);
     setpassent(1);
 
-    memsize = (char*) sbrk(0) - (char*) &_start;
-    memsize = MAXDATA - memsize - sizeof(int);
-    while (memsize >= 2 * sizeof(BUFAREA) &&
-        (membase = (char *)sbrk(memsize)) == (char *)-1)
-        memsize -= MEMUNIT;
-    if (memsize < 2 * sizeof(BUFAREA))
-        errexit("Can't get memory\n");
+    membase = memdata;
+    memsize = sizeof(memdata);
 
     if (signal(SIGINT, SIG_IGN) != SIG_IGN)
         (void)signal(SIGINT, catch);

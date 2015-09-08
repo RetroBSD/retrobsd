@@ -138,8 +138,6 @@ daddr_t *muldup;                /* multiple dups part of table */
 ino_t   zlnlist[MAXLNCNT];      /* zero link count table */
 ino_t   *zlnp;
 
-#define MAXDATA     (84 * 1024)
-#define MEMUNIT     64
 #define NINOBLK     4           /* number of blocks of inodes to read at once */
 
 char    inobuf[NINOBLK*INOPB*sizeof (struct dinode)];   /* allocate now */

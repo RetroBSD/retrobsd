@@ -1,0 +1,76 @@
+#
+# Board: MMB for PIC32MX7, by MikroElektronika
+# ==================================
+# Console on USB.
+#
+# To build the kernel, use:
+#   cd sys/pic32/mmb-mx7
+#   kconfig Config
+#   make clean
+#   make
+#
+# Format of this file is described on page:
+# http://retrobsd.org/wiki/doku.php/doc/kconfig
+#
+architecture    "pic32"
+cpu             "PIC32MX7"                  # Processor variant
+board           "MMB_MX7"                   # Board type
+ldscript        "cfg/bootloader.ld"         # Linker script
+
+# Standard system options
+options         "CPU_KHZ=80000"             # Oscillator frequency of CPU core
+options         "BUS_KHZ=80000"             # Frequency of peripheral bus
+options         "BUS_DIV=1"                 # Bus clock divisor 1/2/4/8
+
+# LED
+options         "LED_KERNEL_PORT=TRISA"     # for kernel activity LED...
+options         "LED_KERNEL_PIN=0"          # ...use pin RA0...
+options         "LED_KERNEL_INVERT"         # ...inverted
+options         "LED_SWAP_PORT=TRISD"       # for swap activity LED...
+options         "LED_SWAP_PIN=9"            # ...use pin RD9...
+options         "LED_SWAP_INVERT"           # ...inverted
+options         "LED_TTY_PORT=TRISA"        # for console activity LED...
+options         "LED_TTY_PIN=1"             # ...use pin RA1...
+options         "LED_TTY_INVERT"            # ...inverted
+
+# Root filesystem at /dev/sd0a, swap at /dev/sd0b
+config          unix    root on sd0a
+                        swap on sd0b
+
+# Console options
+options         "CONSOLE_DEVICE=ttyUSB0"    # Console on USB
+
+# Virtual UART on USB
+pseudo-device   uartusb
+options         "UARTUSB_ENABLED"           # TODO: delete this option
+options         "USB_MAX_EP_NUMBER=3"
+options         "USB_NUM_STRING_DESCRIPTORS=3"
+
+# Serial UART ports
+device          uart1                       # RS-232 port
+options         "UART1_ENABLED"             # TODO: delete this option
+
+# SPI ports
+controller      spi1                        # SD card
+options         "SPI_ENABLED"               # TODO: delete this option
+
+# microSD card
+disk            sd0     at spi1 flags 0x19  # select pin RA9
+options         "SD0_PORT=1"                # sd0 at spi1           TODO: delete
+options         "SD0_MHZ=8"                 # speed 8 MHz
+options         "SD0_CS_PORT=TRISA"         # for sd0 chip select...TODO: use flags
+options         "SD0_CS_PIN=9"              # ...use pin RA9        TODO: use flags
+
+# General purpose I/O ports
+device          gpio0
+options         "GPIO_ENABLED"              # TODO: delete this option
+options         "GPIO_CLEAR_PORT=TRISD"     # clear on startup...
+options         "GPIO_CLEAR_PIN=2"          # ...pin RD2
+
+# ADC driver
+device          adc0
+options         "ADC_ENABLED"               # TODO: delete this option
+
+# PWM driver
+device          pwm0
+options         "PWM_ENABLED"               # TODO: delete this option

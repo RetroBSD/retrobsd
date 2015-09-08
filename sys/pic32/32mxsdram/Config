@@ -40,14 +40,12 @@ config          unix    root on sd0a
 
 # Serial UART ports
 device          uart3
-options         "UART3_ENABLED"             # TODO: delete this option
 
 # Console options
 options         "CONSOLE_DEVICE=tty2"       # /dev/tty2
 
 # SPI ports
 controller      spi4                        # SD card
-options         "SPI_ENABLED"               # TODO: delete this option
 
 # sdcard's definition for the SPI port, sdcard's chipselect and high-side power switch
 # because of a mod on the board we use power=B13, otherwise it shall be D12
@@ -61,19 +59,15 @@ options         "SD0_ENA_PIN=13"            # ...use pin RB13       TODO: use fl
 
 # General purpose I/O ports
 device          gpio0
-options         "GPIO_ENABLED"              # TODO: delete this option
 
 # ADC driver
 device          adc0
-options         "ADC_ENABLED"               # TODO: delete this option
 
 # PWM driver
 device          pwm0
-options         "PWM_ENABLED"               # TODO: delete this option
 
 # Use SDRAM driver for the external ramdisk
 disk            sdramp0                     # SDRAM on external memory bus
-options         "SDRAMP_ENABLED"            # TODO: delete this option
 options         "KERNEL_EXECUTABLE_RAM"     # allow kernel code in RAM area
 
 # This defines the swap size and a fs partition size on the external ramdisk.

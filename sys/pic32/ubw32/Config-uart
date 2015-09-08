@@ -46,11 +46,9 @@ options         "CONSOLE_DEVICE=tty1"       # Console on UART2
 
 # Serial UART ports
 device          uart2                       # USB-to-serial adapter
-options         "UART2_ENABLED"             # TODO: delete this option
 
 # SPI ports
 controller      spi1                        # SD card
-options         "SPI_ENABLED"               # TODO: delete this option
 
 # microSD card
 disk            sd0     at spi1 flags 0x19  # select pin RA9
@@ -64,12 +62,9 @@ options         "SD1_CS_PIN=10"             # ...use pin RA9        TODO: use fl
 
 # General purpose I/O ports
 device          gpio0
-options         "GPIO_ENABLED"              # TODO: delete this option
 
 # ADC driver
 device          adc0
-options         "ADC_ENABLED"               # TODO: delete this option
 
 # PWM driver
 device          pwm0
-options         "PWM_ENABLED"               # TODO: delete this option

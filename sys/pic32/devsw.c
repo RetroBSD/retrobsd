@@ -17,6 +17,7 @@
 #include <sys/rdisk.h>
 #include <sys/errno.h>
 #include <sys/uart.h>
+#include <sys/spi.h>
 
 #include <sys/swap.h>
 
@@ -30,9 +31,6 @@ extern int strcmp(char *s1, char *s2);
 #endif
 #ifdef ADC_ENABLED
 #   include <sys/adc.h>
-#endif
-#ifdef SPI_ENABLED
-#   include <sys/spi.h>
 #endif
 #ifdef GLCD_ENABLED
 #   include <sys/glcd.h>
@@ -215,7 +213,8 @@ const struct cdevsw cdevsw[] = {
 #endif
 },
 {   /* 12 - spi */
-#ifdef SPI_ENABLED
+#if defined(SPI1_ENABLED) || defined(SPI2_ENABLED) || \
+    defined(SPI3_ENABLED) || defined(SPI4_ENABLED)
     spidev_open,    spidev_close,   spidev_read,    spidev_write,
     spidev_ioctl,   nulldev,        0,              seltrue,
     nostrategy,     0,              0,              spidevs

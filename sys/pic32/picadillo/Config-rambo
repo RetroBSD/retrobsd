@@ -29,7 +29,6 @@ config          unix    root on sd0a
 
 # Serial UART ports
 device          uart1                       # Serial-to-USB converter
-options         "UART1_ENABLED"             # TODO: delete this option
 
 # Console options
 options         "CONSOLE_DEVICE=tft0"       # LCD screen
@@ -37,7 +36,6 @@ options         "CONSOLE_DEVICE=tft0"       # LCD screen
 # SPI ports
 controller      spi2                        # SD card
 controller      spi4                        # RAM disk: spirams
-options         "SPI_ENABLED"               # TODO: delete this option
 
 # microSD card
 disk            sd0     at spi2 flags 0x79  # select pin RG9
@@ -48,24 +46,19 @@ options         "SD0_CS_PIN=9"              # ...use pin RG9        TODO: use fl
 
 # General purpose I/O ports
 device          gpio0
-options         "GPIO_ENABLED"              # TODO: delete this option
 
 # ADC driver
 device          adc0
-options         "ADC_ENABLED"               # TODO: delete this option
 
 # PWM driver
 device          pwm0
-options         "PWM_ENABLED"               # TODO: delete this option
 
 # HX8357 TFT display driver
 device          hxtft0
-options         "HX8357_ENABLED"            # TODO: delete this option
 
 # spirams - SPI block device
 disk            spirams0  at spi4
 options         "PARTITION='spirams0:sa@2040'"  # Partition schema
-options         "SPIRAMS_ENABLED"           # TODO: delete this option
 options         "SPIRAMS_PORT=SPI4CON"      # TODO: delete this option
 options         "SPIRAMS_CHIPSIZE=128"      # chip size in kbytes
 options         "SPIRAMS_CHIPS=16"          # number of chips

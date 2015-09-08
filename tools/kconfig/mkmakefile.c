@@ -410,6 +410,7 @@ void makefile()
     char line[BUFSIZ];
     struct opt *op;
     struct cputype *cp;
+    struct device *dp;
 
     read_files();
     strcpy(line, "../Makefile.kconf");
@@ -431,6 +432,12 @@ void makefile()
     }
     for (cp = cputype; cp; cp = cp->cpu_next) {
         fprintf(ofp, "PARAM += -D%s\n", cp->cpu_name);
+    }
+    for (dp = dtab; dp != 0; dp = dp->d_next) {
+        if (dp->d_unit <= 0)
+            fprintf(ofp, "PARAM += -D%s_ENABLED\n", raise(dp->d_name));
+        else
+            fprintf(ofp, "PARAM += -D%s%d_ENABLED\n", raise(dp->d_name), dp->d_unit);
     }
     for (op = opt; op; op = op->op_next) {
         if (op->op_value)
@@ -523,16 +530,20 @@ do_systemspec(f, fl, first)
     return (fl);
 }
 
+/*
+ * Convert a name to uppercase.
+ * Return a pointer to a static buffer.
+ */
 char *
 raise(str)
     register char *str;
 {
-    register char *cp = str;
+    static char buf[100];
+    register char *cp = buf;
 
     while (*str) {
-        if (islower(*str))
-            *str = toupper(*str);
-        str++;
+        *cp++ = islower(*str) ? toupper(*str++) : *str++;
     }
-    return (cp);
+    *cp = 0;
+    return buf;
 }

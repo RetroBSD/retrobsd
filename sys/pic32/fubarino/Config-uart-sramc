@@ -42,12 +42,9 @@ options         "CONSOLE_DEVICE=tty1"       # Console on UART2
 # Serial UART ports
 device          uart1                       # Additional serial port
 device          uart2                       # Console
-options         "UART1_ENABLED"             # TODO: delete this option
-options         "UART2_ENABLED"             # TODO: delete this option
 
 # SPI ports
 controller      spi2                        # SD card
-options         "SPI_ENABLED"               # TODO: delete this option
 
 # microSD card
 disk            sd0     at spi2 flags 0x79  # select pin RG9
@@ -58,17 +55,13 @@ options         "SD0_MHZ=20"                # increase data speed
 
 # General purpose I/O ports
 device          gpio0
-options         "GPIO_ENABLED"              # TODO: delete this option
 
 # ADC driver
 device          adc0
-options         "ADC_ENABLED"               # TODO: delete this option
 
 # PWM driver
 device          pwm0
-options         "PWM_ENABLED"               # TODO: delete this option
 
 # sramc - SRAM block device
 disk            sramc0                      # SRAM via 4-wire CPLD interface
-options         "SRAMC_ENABLED"             # TODO: delete this option
 options         "PARTITION='sramc0:sa@2048,fs@6140'"    # Partition schema

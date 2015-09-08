@@ -38,14 +38,12 @@ config          unix    root on sd0a
 
 # Serial UART ports
 device          uart2
-options         "UART2_ENABLED"             # TODO: delete this option
 
 # Console options
 options         "CONSOLE_DEVICE=tty1"       # /dev/tty1
 
 # SPI ports
 controller      spi1                        # SD card
-options         "SPI_ENABLED"               # TODO: delete this option
 
 # SD card
 disk            sd0     at spi1 flags 0x21  # select pin RB1
@@ -56,12 +54,9 @@ options         "SD0_CS_PIN=1"              # ...use pin RB1        TODO: use fl
 
 # General purpose I/O ports
 device          gpio0
-options         "GPIO_ENABLED"              # TODO: delete this option
 
 # ADC driver
 device          adc0
-options         "ADC_ENABLED"               # TODO: delete this option
 
 # PWM driver
 device          pwm0
-options         "PWM_ENABLED"               # TODO: delete this option

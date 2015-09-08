@@ -87,7 +87,6 @@ usage:  fputs("usage: kconfig [-gp] sysname\n", stderr);
         exit(1);
     }
     makefile();             /* build Makefile */
-    headers();              /* make a lot of .h files */
     swapconf();             /* swap config files */
     exit(0);
 }

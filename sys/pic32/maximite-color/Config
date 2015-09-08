@@ -15,7 +15,7 @@
 architecture    "pic32"
 cpu             "PIC32MX7"                  # Processor variant
 board           "MAXIMITE_COLOR"            # Board type
-ldscript        "cfg/bootloader-maxcolor.ld" # Linker script
+ldscript        "maximite-color/bootloader.ld" # Linker script
 
 # Standard system options
 options         "CPU_KHZ=80000"             # Oscillator frequency of CPU core

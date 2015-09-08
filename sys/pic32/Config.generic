@@ -14,7 +14,7 @@ cpu             "PIC32MX7"                  # Processor variant
 board           "CHIPKIT_MAX32"             # Board type
 
 # Linker script
-ldscript        "cfg/bootloader-max32.ld"
+ldscript        "max32/bootloader.ld"
 
 # Need to set locally
 timezone        8 dst

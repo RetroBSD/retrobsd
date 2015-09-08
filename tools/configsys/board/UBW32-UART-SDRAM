@@ -1,0 +1,18 @@
+#
+# UBW32 board
+# ===========
+#
+# Console on UART2
+
+core pic32mx7
+linker bootloader-sdram
+mapping generic
+
+device kernel invled=B10
+device console invled=B11 device=tty1
+device uart2
+device rdisk invled=B9 invswap=B8
+device sd0 port=2 cs=A9
+device sdramp
+
+option PARTITION=sdramp0:sa@2048,fs@14000

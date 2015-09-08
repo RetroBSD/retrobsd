@@ -19,7 +19,7 @@ PARAM += -DLED_KERNEL_PORT=TRISF
 PARAM += -DBUS_DIV=1
 PARAM += -DBUS_KHZ=80000
 PARAM += -DCPU_KHZ=80000
-LDSCRIPT = "cfg/bootloader-maximite.ld"
+LDSCRIPT = "maximite/bootloader.ld"
 #
 # Makefile for RetroBSD, pic32 target
 #

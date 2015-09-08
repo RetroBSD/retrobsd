@@ -17,7 +17,7 @@
 architecture    "pic32"
 cpu             "PIC32MX7"                  # Processor variant
 board           "UBW32"                     # Board type
-ldscript        "cfg/bootloader-ubw32.ld"   # Linker script
+ldscript        "ubw32/bootloader.ld"       # Linker script
 
 # Standard system options
 options         "CPU_KHZ=80000"             # Oscillator frequency of CPU core

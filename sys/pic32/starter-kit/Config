@@ -16,7 +16,7 @@
 architecture    "pic32"
 cpu             "PIC32MX7"                  # Processor variant
 board           "STARTERKIT"                # Board type
-ldscript        "cfg/bare.ld"               # Linker script
+ldscript        "baremetal/script.ld"       # Linker script
 
 # Standard system options
 options         "CPU_KHZ=80000"             # Oscillator frequency of CPU core

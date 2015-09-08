@@ -15,7 +15,7 @@
 architecture    "pic32"
 cpu             "PIC32MX7"                  # Processor variant
 board           "CUSTOM_32MXSDRAM"          # Board type
-ldscript        "cfg/bootloader-sdram.ld"   # Linker script
+ldscript        "32mxsdram/bootloader.ld"   # Linker script
 
 # Standard system options
 options         "HZ=1000"                   # Rate of timer interrupt

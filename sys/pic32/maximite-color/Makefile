@@ -1,4 +1,4 @@
-PARAM = -DMAXIMITE
+PARAM = -DMAXIMITE_COLOR
 PARAM += -DPIC32MX7
 PARAM += -DPWM_ENABLED
 PARAM += -DADC_ENABLED
@@ -19,7 +19,7 @@ PARAM += -DLED_KERNEL_PORT=TRISE
 PARAM += -DBUS_DIV=1
 PARAM += -DBUS_KHZ=80000
 PARAM += -DCPU_KHZ=80000
-LDSCRIPT = "cfg/bootloader-maxcolor.ld"
+LDSCRIPT = "maximite-color/bootloader.ld"
 #
 # Makefile for RetroBSD, pic32 target
 #

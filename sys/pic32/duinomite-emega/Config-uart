@@ -17,7 +17,7 @@
 architecture    "pic32"
 cpu             "PIC32MX7"                  # Processor variant
 board           "DUINOMITE"                 # Board type
-ldscript        "cfg/bootloader-maximite.ld" # Linker script
+ldscript        "maximite/bootloader.ld"    # Linker script
 
 # Standard system options
 options         "CPU_KHZ=80000"             # Oscillator frequency of CPU core

@@ -27,7 +27,7 @@ PARAM += -DLED_KERNEL_PORT=TRISA
 PARAM += -DBUS_DIV=1
 PARAM += -DBUS_KHZ=80000
 PARAM += -DCPU_KHZ=80000
-LDSCRIPT = "cfg/bootloader.ld"
+LDSCRIPT = "mmb-mx7/bootloader.ld"
 #
 # Makefile for RetroBSD, pic32 target
 #

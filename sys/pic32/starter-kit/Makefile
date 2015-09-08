@@ -18,7 +18,7 @@ PARAM += -DLED_DISK_PORT=TRISD
 PARAM += -DBUS_DIV=1
 PARAM += -DBUS_KHZ=80000
 PARAM += -DCPU_KHZ=80000
-LDSCRIPT = "cfg/bare.ld"
+LDSCRIPT = "baremetal/script.ld"
 #
 # Makefile for RetroBSD, pic32 target
 #

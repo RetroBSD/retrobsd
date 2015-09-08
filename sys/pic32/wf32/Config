@@ -13,7 +13,7 @@
 architecture    "pic32"
 cpu             "PIC32MX7"                  # Processor variant
 board           "WF32"                      # Board type
-ldscript        "cfg/bootloader-max32.ld"   # Linker script
+ldscript        "max32/bootloader.ld"       # Linker script
 
 # Standard system options
 options         "CPU_KHZ=80000"             # Oscillator frequency of CPU core

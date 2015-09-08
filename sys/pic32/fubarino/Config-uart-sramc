@@ -17,7 +17,7 @@
 architecture    "pic32"
 cpu             "PIC32MX7"                  # Processor variant
 board           "FUBARINO"                  # Board type
-ldscript        "cfg/bootloader-max32.ld"   # Linker script
+ldscript        "max32/bootloader.ld"       # Linker script
 
 # Standard system options
 options         "HZ=1000"                   # Rate of clock interrupt

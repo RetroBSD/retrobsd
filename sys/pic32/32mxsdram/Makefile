@@ -29,7 +29,7 @@ PARAM += -DBUS_DIV=1
 PARAM += -DBUS_KHZ=80000
 PARAM += -DCPU_KHZ=80000
 PARAM += -DHZ=1000
-LDSCRIPT = "cfg/bootloader-sdram.ld"
+LDSCRIPT = "32mxsdram/bootloader.ld"
 #
 # Makefile for RetroBSD, pic32 target
 #

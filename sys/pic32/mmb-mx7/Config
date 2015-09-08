@@ -15,7 +15,7 @@
 architecture    "pic32"
 cpu             "PIC32MX7"                  # Processor variant
 board           "MMB_MX7"                   # Board type
-ldscript        "cfg/bootloader.ld"         # Linker script
+ldscript        "mmb-mx7/bootloader.ld"     # Linker script
 
 # Standard system options
 options         "CPU_KHZ=80000"             # Oscillator frequency of CPU core

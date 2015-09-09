@@ -15,14 +15,18 @@
 
 ## Supported hardware
 
- * chipKIT Max32 board.
- * Sparkfun UBW32 board.
+ * Fubarino SD board.
+ * Olimex Duinomite, Duinomite-Mini, Duinomite-Mega and Duinomite-eMega boards.
+ * Olimex Pinguino-Micro board with PIC32MX795F512H microcontroller.
  * Maximite and Colour Maximite computers.
+ * Majenko SDXL board.
+ * 4D Systems Picadillo-35T board.
+ * MikroElektronika MultiMedia Board for PIC32MX7.
+ * chipKIT Max32 board with SD card shield.
+ * chipKIT WF32 board with 2.4" LCD TFT display shield.
+ * Sparkfun UBW32 board with SD card slot.
  * Microchip Explorer 16 board, with PIC32 CAN-USB plug-in module and SD & MMC pictail.
  * Microchip PIC32 USB or Ethernet Starter Kit, with I/O Expansion board and SD & MMC pictail.
- * Olimex Duinomite, Duinomite-Mini and Duinomite-Mega boards.
- * Olimex Pinguino-Micro board with PIC32MX795F512H microcontroller.
- * eflightworks DIP board.
 
 
 ## Build
@@ -35,34 +39,11 @@ Under Ubuntu, for example, you can do it by command:
 $ sudo apt-get install bison byacc flex groff-base libelf-dev libfuse-dev
 ```
 
-By default, the system is configured for the Max32 board.
-To select another target board, edit a top-level user-specific Makefile called "Makefile.user"
-and set a TARGET value:
-
+You can change a desired filesystem size and swap area size, as required.
+Default is:
 ```Makefile
-TARGET = $(MAX32)          # for the chipKIT Max32 board with SD card shield (default)
-TARGET = $(FUBARINO)       # Fubarino SD board
-TARGET = $(FUBARINOBIG)    # Fubarino SD board with 8MB SRAM RAMDISK
-TARGET = $(MAXIMITE)       # for the Maximite board
-TARGET = $(MAXCOLOR)       # for the Colour Maximite board
-TARGET = $(DUINOMITE)      # for the Duinomite board with USB console
-TARGET = $(DUINOMITEUART)  # for the Duinomite board with UART console
-TARGET = $(DUINOMITEE)     # for the Duinomite E board with USB console
-TARGET = $(DUINOMITEEUART) # for the Duinomite E board with UART console
-TARGET = $(MMBMX7)         # MMB MX7 board
-TARGET = $(UBW32)          # for the UBW32 board with USB console
-TARGET = $(UBW32UART)      # for the UBW32 board with UART console
-TARGET = $(UBW32UARTSDRAM) # for the UBW32 boars with UART console and 8MB SRAM ramdisk
-TARGET = $(EXPLORER16)     # for the Explorer 16 board
-TARGET = $(STARTERKIT)     # for the PIC32 USB or Ethernet Starter Kit
-TARGET = $(BAREMETAL)      # Bare PIC32 chip on a breakout board
-```
-
-You can also change a desired filesystem size and swap area size,
-as required.  Default is:
-```Makefile
-FS_KBYTES   = 16384
-SWAP_KBYTES = 2048
+FS_MBYTES   = 100
+SWAP_MBYTES = 2
 ```
 To compile the kernel and build a filesystem image, run:
 

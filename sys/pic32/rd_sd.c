@@ -568,7 +568,7 @@ void sd_preinit (int unit)
     spi_brg(fd, SD0_MHZ * 1000);
     spi_set(fd, PIC32_SPICON_CKE);
 
-    printf ("sd%d: port %s, select pin %c%d\n", unit,
+    printf ("sd%d: port %s, select pin R%c%d\n", unit,
         spi_name(fd), spi_csname(fd), spi_cspin(fd));
 }
 

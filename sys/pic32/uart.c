@@ -5,13 +5,13 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-#include "param.h"
-#include "conf.h"
-#include "user.h"
-#include "ioctl.h"
-#include "tty.h"
-#include "systm.h"
-#include "uart.h"
+#include <sys/param.h>
+#include <sys/conf.h>
+#include <sys/user.h>
+#include <sys/ioctl.h>
+#include <sys/tty.h>
+#include <sys/systm.h>
+#include <sys/uart.h>
 
 #define CONCAT(x,y) x ## y
 #define BBAUD(x) CONCAT(B,x)

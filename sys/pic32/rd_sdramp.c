@@ -5,20 +5,19 @@
  *
  * This code could use a bit of optimization.
  */
-
-#include "param.h"
-#include "systm.h"
-#include "buf.h"
-#include "errno.h"
-#include "dk.h"
-#include "sdram.h"
-#include "rd_sdramp.h"
-#include "rdisk.h"
+#include <sys/param.h>
+#include <sys/systm.h>
+#include <sys/buf.h>
+#include <sys/errno.h>
+#include <sys/dk.h>
+#include <machine/sdram.h>
+#include <sys/rd_sdramp.h>
+#include <sys/rdisk.h>
 
 /*
  * See rd_sdramp_config.h for sdramp port/pin configuration
  */
-#include "rd_sdramp_config.h"
+#include <machine/rd_sdramp_config.h>
 
 int sw_dkn = -1;                /* Statistics slot number */
 

@@ -40,7 +40,9 @@
 #ifndef NBUF
 #define NBUF            10                      /* number of i/o buffers */
 #endif
+#ifndef MAXUSERS
 #define MAXUSERS        1                       /* number of user logins */
+#endif
 #ifndef NPROC
 #define NPROC           10                      /* number of processes */
 #endif
@@ -115,6 +117,13 @@ extern void _keram_start(), _keram_end();
  */
 #define USIZE           3072
 #define SSIZE           2048            /* initial stack size (bytes) */
+
+/*
+ * Collect kernel statistics by default.
+ */
+#if !defined(UCB_METER) && !defined(NO_UCB_METER)
+#define UCB_METER
+#endif
 
 #ifdef KERNEL
 #include "machine/io.h"

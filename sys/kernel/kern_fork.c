@@ -3,16 +3,16 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-#include "param.h"
-#include "systm.h"
-#include "map.h"
-#include "user.h"
-#include "proc.h"
-#include "inode.h"
-#include "file.h"
-#include "vm.h"
-#include "kernel.h"
-#include "syslog.h"
+#include <sys/param.h>
+#include <sys/systm.h>
+#include <sys/map.h>
+#include <sys/user.h>
+#include <sys/proc.h>
+#include <sys/inode.h>
+#include <sys/file.h>
+#include <sys/vm.h>
+#include <sys/kernel.h>
+#include <sys/syslog.h>
 
 int     mpid;           /* generic for unique process id's */
 

@@ -49,7 +49,7 @@
 #include <sys/map.h>
 #include <sys/sysctl.h>
 #include <machine/cpu.h>
-#include <conf.h>
+#include <sys/conf.h>
 
 sysctlfn kern_sysctl;
 sysctlfn hw_sysctl;

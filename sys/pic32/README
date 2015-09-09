@@ -1,22 +1,39 @@
 Build directories:
 
-max32       - chipKIT Max32 board.
+    32mxsdram/          - 32MXSDRAM custom board with external SDRAM
+                          used as a volatile disk storage (swap).
 
-ubw32       - Sparkfun UBW32 board, USB console.
+    baremetal/          - PIC32MX processor on a custom board.
 
-ubw32-uart  - Sparkfun UBW32 board, UART console.
+    duinomite/          - Olimex Duinomite or Duinomite-Mega board.
 
-maximite    - Maximite computer.
+    duinomite-emega/    - Olimex Duinomite-eMega board.
 
-explorer16  - Microchip Explorer 16 board, with
-              PIC32 CAN-USB plug-in module and SD & MMC pictail.
+    explorer16/         - Microchip Explorer 16 board,
+                          with PIC32MX plug-in module
+                          and SD & MMC pictail.
 
-starter-kit - Microchip PIC32 USB or Ethernet Starter Kit,
-              with I/O Expansion board and SD & MMC pictail.
+    fubarino/           - Fubarino SD board.
 
-dip         - eflightworks.net PIC32-on-DIP board.
-              (work in progress)
+    max32/              - chipKIT Max32 board.
 
-meb         - Microchip Multimedia Expansion board with
-              Microchip PIC32 USB or Ethernet Starter Kit.
-              (work in progress)
+    maximite/           - Maximite computer.
+
+    maximite-color/     - The Colour Maximite computer.
+
+    mmb-mx7/            - MikroElektronika MultiMedia Board for PIC32MX7.
+
+    picadillo/          - 4D Systems Picadillo-35T board.
+
+    pinguino-micro/     - Olimex Pinguino-Micro board equipped
+                          with pic32mx795 processor.
+
+    sdxl/               - Majenko SDXL board.
+
+    starter-kit/        - Microchip PIC32MX USB or Ethernet Starter Kit,
+                          with I/O Expansion board and SD & MMC pictail.
+
+    ubw32/              - Sparkfun UBW32 board.
+
+    wf32/               - ChipKIT WF32 board with
+                          2.4" LCD TFT display shield.

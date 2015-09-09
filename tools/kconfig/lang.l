@@ -58,28 +58,26 @@ static struct kt key_words[] = {
     { "cpu",            CPU },
     { "csr",            CSR },
     { "device",         DEVICE },
-    { "disk",           DISK },
     { "drive",          DRIVE },
     { "dst",            DST },
     { "dumps",          DUMPS },
     { "flags",          FLAGS },
-    { "hz",             HZ },
-    { "ident",          IDENT },
+    { "board",          BOARD },
     { "ldscript",       LDSCRIPT },
-    { "machine",        MACHINE },
+    { "architecture",   ARCHITECTURE },
     { "major",          MAJOR },
     { "makeoptions",    MAKEOPTIONS },
-    { "master",         MASTER },
     { "maxusers",       MAXUSERS },
     { "minor",          MINOR },
     { "on",             ON },
     { "options",        OPTIONS },
+    { "pin",            PINS },
+    { "pins",           PINS },
     { "priority",       PRIORITY },
-    { "pseudo-device",  PSEUDO_DEVICE },
     { "root",           ROOT },
     { "sequential",     SEQUENTIAL },
+    { "service",        SERVICE },
     { "size",           SIZE },
-    { "slave",          SLAVE },
     { "swap",           SWAP },
     { "tape",           DEVICE },
     { "timezone",       TIMEZONE },
@@ -105,7 +103,14 @@ kw_lookup(word)
 }
 %}
 WORD            [A-Za-z_][-A-Za-z_]*
+PIN             R[A-Z][0-9][0-9]*
 %%
+{PIN}           {
+                    /* Pin name from RA0 to RZ255. */
+                    yylval.val = atoi(yytext + 2) & 0xff;
+                    yylval.val |= (yytext[1] - 'A' + 1) << 8;
+                    return PIN;
+                }
 {WORD}          {
                     int i;
 
@@ -139,7 +144,6 @@ WORD            [A-Za-z_][-A-Za-z_]*
                     return NUMBER;
                 }
 [0-9]"."[0-9]*  {
-                    double atof();
                     yylval.val = (int) (60 * atof(yytext) + 0.5);
                     return FPNUMBER;
                 }

@@ -1,0 +1,67 @@
+#
+# Fubarino SD board SRAMC swap disk
+# =================================
+# Console on UART2.
+# Overclocked to 120MHz.
+# Clock rate increased to 1000Hz.
+#
+# To build the kernel, use:
+#   cd sys/pic32/fubarino-uart-sramc
+#   kconfig Config
+#   make clean
+#   make
+#
+# Format of this file is described on page:
+# http://retrobsd.org/wiki/doku.php/doc/kconfig
+#
+architecture    "pic32"
+cpu             "PIC32MX7"                  # Processor variant
+board           "FUBARINO"                  # Board type
+ldscript        "max32/bootloader.ld"       # Linker script
+
+# Standard system options
+options         "HZ=1000"                   # Rate of clock interrupt
+options         "CPU_KHZ=120000"            # Oscillator frequency of CPU core
+options         "BUS_KHZ=120000"            # Frequency of peripheral bus
+options         "BUS_DIV=1"                 # Bus clock divisor 1/2/4/8
+options         "NBUF=8"
+options         "NMOUNT=3"
+options         "NPROC=25"
+
+# LED
+options         "LED_KERNEL_PORT=TRISE"     # for kernel activity LED...
+options         "LED_KERNEL_PIN=5"          # ...use pin RE5
+
+# Root filesystem at /dev/sd0a, swap at /dev/sd0b
+config          unix    root on sd0a
+                        swap on sd0b
+
+# Console options
+options         "CONSOLE_DEVICE=tty1"       # Console on UART2
+
+# Serial UART ports
+device          uart1                       # Additional serial port
+device          uart2                       # Console
+
+# SPI ports
+controller      spi2                        # SD card
+
+# microSD card
+device          sd0     at spi2 pin RG9     # select pin
+options         "SD0_PORT=2"                # sd0 at spi2           TODO: delete
+options         "SD0_CS_PORT=TRISG"         # for chip select...    TODO: delete
+options         "SD0_CS_PIN=9"              # ...use pin RA9        TODO: delete
+options         "SD0_MHZ=20"                # increase data speed
+
+# General purpose I/O ports
+device          gpio
+
+# ADC driver
+device          adc
+
+# PWM driver
+device          pwm
+
+# sramc - SRAM block device
+device          sramc0                      # SRAM via 4-wire CPLD interface
+options         "PARTITION='sramc0:sa@2048,fs@6140'"    # Partition schema

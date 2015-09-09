@@ -8,19 +8,11 @@
 #define _SYS_EXEC_H_
 #ifdef KERNEL
 
-#ifdef EXEC_SCRIPT
 #define SHSIZE      64
 #define SHPATHLEN   64
-#endif
-#ifdef EXEC_ELF
 #define STRLEN      32
-#endif
-#ifdef EXEC_AOUT
 #include "exec_aout.h"
-#endif
-#ifdef EXEC_ELF
 #include "exec_elf.h"
-#endif
 
 #define NO_ADDR     ((caddr_t)(~0U)) /* Indicates addr. not yet filled in */
 
@@ -34,29 +26,20 @@ struct exec_params {
     char **userargp;
     char **userenvp;
     union {
-#ifdef EXEC_SCRIPT
         char sh[SHSIZE];
-#endif
-#ifdef EXEC_AOUT
         struct exec aout;
-#endif
-#ifdef EXEC_ELF
         struct elf_ehdr elf;
-#endif
     } hdr;                      /* head of file to exec */
     int hdr_len;                /* number of bytes valid in image_header */
     char **argp, **envp;
     u_short argc, envc;         /* count of argument and environment strings */
     u_short argbc, envbc;       /* total number of chars in argc and envc string pool */
     union {
-#ifdef EXEC_SCRIPT
         struct {
             char interpname[20];        /* real name of the script interpreter */
             char interparg[SHPATHLEN];  /* interpreter arg */
             char interpreted;           /* flag - this executable is interpreted */
         } sh;
-#endif
-#ifdef EXEC_ELF
         struct {
             struct buf *stbp;   /* String table buffer pointer */
             int stbpos;         /* String table pos in buffer */
@@ -64,11 +47,8 @@ struct exec_params {
             int stoffset;       /* String table file pos */
             char str[STRLEN];
         } elf;
-#endif
-#ifdef EXEC_AOUT
         struct {
         } aout;
-#endif
     };
 
     gid_t gid;

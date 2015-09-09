@@ -37,19 +37,19 @@
  * build the ioconf.c file
  */
 static void
-pseudo_ioconf(fp)
+service_ioconf(fp)
     register FILE *fp;
 {
     register struct device *dp;
 
     for (dp = dtab; dp != NULL; dp = dp->d_next)
-        if (dp->d_type == PSEUDO_DEVICE)
+        if (dp->d_type == SERVICE)
             fprintf(fp, "extern void %sattach __P((int));\n",
                 dp->d_name);
 
-    fprintf(fp, "\nstruct conf_pdev conf_pdinit[] = {\n");
+    fprintf(fp, "\nstruct conf_pdev conf_sinit[] = {\n");
     for (dp = dtab; dp != NULL; dp = dp->d_next)
-        if (dp->d_type == PSEUDO_DEVICE)
+        if (dp->d_type == SERVICE)
             fprintf(fp, "    { %sattach, %d },\n", dp->d_name,
                 dp->d_slave > 0 ? dp->d_slave : 1);
 
@@ -65,11 +65,12 @@ wnum(num)
     return (errbuf);
 }
 
-#if MACHINE_PIC32
+#if ARCH_PIC32
 void pic32_ioconf()
 {
     register struct device *dp, *mp;
     FILE *fp;
+    int i;
 
     fp = fopen("ioconf.c", "w");
     if (fp == 0) {
@@ -83,17 +84,17 @@ void pic32_ioconf()
 
     /* print controller initialization structures */
     for (dp = dtab; dp != 0; dp = dp->d_next) {
-        if (dp->d_type == PSEUDO_DEVICE)
+        if (dp->d_type == SERVICE)
             continue;
         fprintf(fp, "extern struct driver %sdriver;\n", dp->d_name);
     }
     fprintf(fp, "\nstruct conf_ctlr conf_cinit[] = {\n");
     fprintf(fp, "   /* driver,\t\tunit,\taddr,\t\tpri,\tflags */\n");
     for (dp = dtab; dp != 0; dp = dp->d_next) {
-        if (dp->d_type != CONTROLLER && dp->d_type != MASTER)
+        if (dp->d_type != CONTROLLER)
             continue;
-        if (dp->d_drive != UNKNOWN || dp->d_slave != UNKNOWN) {
-            printf("can't specify drive/slave for %s%s\n",
+        if (dp->d_drive != UNKNOWN) {
+            printf("can't specify drive for %s%s\n",
                 dp->d_name, wnum(dp->d_unit));
             continue;
         }
@@ -109,10 +110,9 @@ void pic32_ioconf()
     /* print devices connected to other controllers */
     fprintf(fp, "\nstruct conf_device conf_dinit[] = {\n");
     fprintf(fp,
-       "   /* driver,\t\tctlr driver,\tunit,\tctlr,\tdrive,\tslave,\tdk,\tflags */\n");
+       "   /* driver,\t\tctlr driver,\tunit,\tctlr,\tdrive,\tflags,\tpins */\n");
     for (dp = dtab; dp != 0; dp = dp->d_next) {
-        if (dp->d_type == CONTROLLER || dp->d_type == MASTER ||
-            dp->d_type == PSEUDO_DEVICE)
+        if (dp->d_type == CONTROLLER || dp->d_type == SERVICE)
             continue;
 
         mp = dp->d_conn;
@@ -121,14 +121,29 @@ void pic32_ioconf()
             fprintf(fp, "&%sdriver,\t%d,\t%d,\t",
                 mp->d_name, dp->d_unit, mp->d_unit);
         } else {
-            fprintf(fp, "0,\t\t%d,\t0,\t",
-                dp->d_unit);
+            fprintf(fp, "0,\t\t%d,\t0,\t", dp->d_unit);
         }
-        fprintf(fp, "%d,\t%d,\t%d,\t0x%x },\n",
-            dp->d_drive, dp->d_slave, dp->d_dk, dp->d_flags);
+        fprintf(fp, "%d,\t0x%x,\t", dp->d_drive, dp->d_flags);
+        if (dp->d_npins > 0) {
+            fprintf(fp, "{");
+            for (i=dp->d_npins-1; i>=0; i--) {
+                int bit = dp->d_pins[i] & 0xff;
+                int port = dp->d_pins[i] >> 8;
+                if (bit > 15 || port < 1 || port > 7) {
+                    printf("R%c%u: invalid pin name\n", 'A'+port-1, bit);
+                    exit(1);
+                }
+                fprintf(fp, "0x%x%x", port, bit);
+                if (i > 0)
+                    fprintf(fp, ",");
+            }
+            fprintf(fp, "}");
+        } else
+            fprintf(fp, "{0}");
+        fprintf(fp, " },\n");
     }
     fprintf(fp, "    { 0 }\n};\n");
-    pseudo_ioconf(fp);
+    service_ioconf(fp);
     fclose(fp);
 }
 #endif

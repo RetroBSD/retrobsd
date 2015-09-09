@@ -21,16 +21,15 @@
  * arising out of or in connection with the use or performance of
  * this software.
  */
-
-#include "param.h"
-#include "conf.h"
-#include "user.h"
-#include "ioctl.h"
-#include "systm.h"
-#include "uio.h"
-#include "picga.h"
-#include "spi_bus.h"
-#include "debug.h"
+#include <sys/param.h>
+#include <sys/conf.h>
+#include <sys/user.h>
+#include <sys/ioctl.h>
+#include <sys/systm.h>
+#include <sys/uio.h>
+#include <sys/picga.h>
+#include <sys/spi_bus.h>
+#include <sys/debug.h>
 
 const struct devspec picgadevs[] = {
     { 0, "picga" },
@@ -45,7 +44,7 @@ void blockdelay(unsigned int v)
 {
     for( ; v>0 ; v--)
         asm volatile ("nop");
-} 
+}
 
 void picga_command(unsigned char cmd, unsigned char len, void *data)
 {

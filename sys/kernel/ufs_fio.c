@@ -3,14 +3,14 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-#include "param.h"
-#include "user.h"
-#include "fs.h"
-#include "inode.h"
-#include "mount.h"
-#include "namei.h"
-#include "systm.h"
-#include "stat.h"
+#include <sys/param.h>
+#include <sys/user.h>
+#include <sys/fs.h>
+#include <sys/inode.h>
+#include <sys/mount.h>
+#include <sys/namei.h>
+#include <sys/systm.h>
+#include <sys/stat.h>
 
 /*
  * Check mode permission on inode pointer.

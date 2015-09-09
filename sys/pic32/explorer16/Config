@@ -1,0 +1,62 @@
+#
+# Microchip Explorer16 board with SD card expansion module
+# ========================================================
+# Console on UART2.
+#
+# To build the kernel, use:
+#   cd sys/pic32/explorer16
+#   kconfig Config
+#   make clean
+#   make
+#
+# Format of this file is described on page:
+# http://retrobsd.org/wiki/doku.php/doc/kconfig
+#
+architecture    "pic32"
+cpu             "PIC32MX7"                  # Processor variant
+board           "EXPLORER16"                # Board type
+ldscript        "baremetal/script.ld"       # Linker script
+
+# Standard system options
+options         "CPU_KHZ=80000"             # Oscillator frequency of CPU core
+options         "BUS_KHZ=80000"             # Frequency of peripheral bus
+options         "BUS_DIV=1"                 # Bus clock divisor 1/2/4/8
+
+# LED
+options         "LED_DISK_PORT=TRISA"       # for disk activity LED...
+options         "LED_DISK_PIN=0"            # ...use pin RA0
+options         "LED_KERNEL_PORT=TRISA"     # for kernel activity LED...
+options         "LED_KERNEL_PIN=1"          # ...use pin RA1
+options         "LED_TTY_PORT=TRISA"        # for serial activity LED...
+options         "LED_TTY_PIN=2"             # ...use pin RA2
+options         "LED_SWAP_PORT=TRISA"       # for swap activity LED...
+options         "LED_SWAP_PIN=3"            # ...use pin RA3
+
+# Root filesystem at /dev/sd0a, swap at /dev/sd0b
+config          unix    root on sd0a
+                        swap on sd0b
+
+# Serial UART ports
+device          uart2
+
+# Console options
+options         "CONSOLE_DEVICE=tty1"       # /dev/tty1
+
+# SPI ports
+controller      spi1                        # SD card
+
+# SD card
+device          sd0     at spi1 pin RB1     # select pin
+options         "SD0_MHZ=10"                # speed 10 MHz
+options         "SD0_PORT=1"                # at spi1               TODO: delete
+options         "SD0_CS_PORT=TRISB"         # for chip select...    TODO: delete
+options         "SD0_CS_PIN=1"              # ...use pin RB1        TODO: delete
+
+# General purpose I/O ports
+device          gpio
+
+# ADC driver
+device          adc
+
+# PWM driver
+device          pwm

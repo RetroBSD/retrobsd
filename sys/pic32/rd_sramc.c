@@ -16,14 +16,13 @@
  * Signals PMRD, PMWR are active LOW and idle HIGH
  * Signal PMA0 is LOW when accessing RAM Data, and HIGH when accessing RAM Addresses
  */
-#include "param.h"
-#include "systm.h"
-#include "buf.h"
-#include "errno.h"
-#include "dk.h"
-#include "rdisk.h"
-
-#include "debug.h"
+#include <sys/param.h>
+#include <sys/systm.h>
+#include <sys/buf.h>
+#include <sys/errno.h>
+#include <sys/dk.h>
+#include <sys/rdisk.h>
+#include <sys/debug.h>
 
 int sw_dkn = -1;                /* Statistics slot number */
 

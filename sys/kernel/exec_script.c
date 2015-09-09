@@ -1,10 +1,10 @@
-#include "param.h"
-#include "inode.h"
-#include "dir.h"
-#include "namei.h"
-#include "exec.h"
-#include "user.h"
-#include "systm.h"
+#include <sys/param.h>
+#include <sys/inode.h>
+#include <sys/dir.h>
+#include <sys/namei.h>
+#include <sys/exec.h>
+#include <sys/user.h>
+#include <sys/systm.h>
 
 int
 exec_script_check(struct exec_params *epp)

@@ -1,19 +1,19 @@
-#include "param.h"
-#include "systm.h"
-#include "map.h"
-#include "inode.h"
-#include "user.h"
-#include "proc.h"
-#include "buf.h"
-#include "namei.h"
-#include "fs.h"
-#include "mount.h"
-#include "file.h"
-#include "resource.h"
-#include "exec.h"
-#include "dir.h"
-#include "uio.h"
-#include "debug.h"
+#include <sys/param.h>
+#include <sys/systm.h>
+#include <sys/map.h>
+#include <sys/inode.h>
+#include <sys/user.h>
+#include <sys/proc.h>
+#include <sys/buf.h>
+#include <sys/namei.h>
+#include <sys/fs.h>
+#include <sys/mount.h>
+#include <sys/file.h>
+#include <sys/resource.h>
+#include <sys/exec.h>
+#include <sys/dir.h>
+#include <sys/uio.h>
+#include <sys/debug.h>
 
 /*
  * How memory is set up.
@@ -260,13 +260,11 @@ void exec_save_args(struct exec_params *epp)
     if ((argp = epp->userargp) != NULL)
         while (argp[argc])
             argc++;
-#ifdef EXEC_SCRIPT
     if (epp->sh.interpreted) {
         argc++;
         if (epp->sh.interparg[0])
             argc++;
     }
-#endif
     if (argc != 0) {
         if ((epp->argp = (char **)exec_alloc(argc * sizeof(char *), NBPW, epp)) == NULL)
             return;
@@ -283,7 +281,7 @@ void exec_save_args(struct exec_params *epp)
                 ap = *argp++;
             else
                 ap = NULL;
-#ifdef EXEC_SCRIPT
+
             if (epp->sh.interpreted) {
                 if (epp->argc == 0)
                     ap = epp->sh.interpname;
@@ -295,7 +293,6 @@ void exec_save_args(struct exec_params *epp)
                     --argp;
                 }
             }
-#endif
             if (ap == 0)
                 break;
             l = strlen(ap)+1;

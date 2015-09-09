@@ -1,0 +1,96 @@
+#
+# 4D Systems Picadillo-35T board with SPI RAM disk
+# ================================================
+# Console on TFT display.
+# For details, see http://www.4dsystems.com.au/product/Picadillo_35T/
+#
+# To build the kernel, use:
+#   cd sys/pic32/picadillo
+#   kconfig Config-rambo
+#   make clean
+#   make
+#
+# Format of this file is described on page:
+# http://retrobsd.org/wiki/doku.php/doc/kconfig
+#
+architecture    "pic32"
+cpu             "PIC32MX7"                  # Processor variant
+board           "PICADILLO_35T"             # Board type
+ldscript        "max32/bootloader.ld"       # Linker script
+
+# Standard system options
+options         "CPU_KHZ=80000"             # Oscillator frequency of CPU core
+options         "BUS_KHZ=80000"             # Frequency of peripheral bus
+options         "BUS_DIV=1"                 # Bus clock divisor 1/2/4/8
+
+# Root filesystem at /dev/sd0a, swap at /dev/sd0b
+config          unix    root on sd0a
+                        swap on sd0b
+
+# Serial UART ports
+device          uart1                       # Serial-to-USB converter
+
+# Console options
+options         "CONSOLE_DEVICE=tft0"       # LCD screen
+
+# SPI ports
+controller      spi2                        # SD card
+controller      spi4                        # RAM disk: spirams
+
+# microSD card
+device          sd0     at spi2 pin RG9     # select pin
+options         "SD0_MHZ=10"                # speed 10 MHz
+options         "SD0_PORT=2"                # at spi2               TODO: delete
+options         "SD0_CS_PORT=TRISG"         # for chip select...    TODO: delete
+options         "SD0_CS_PIN=9"              # ...use pin RG9        TODO: delete
+
+# General purpose I/O ports
+device          gpio
+
+# ADC driver
+device          adc
+
+# PWM driver
+device          pwm
+
+# HX8357 TFT display driver
+device          hxtft
+
+# spirams - SPI block device
+device          spirams0  at spi4
+options         "PARTITION='spirams0:sa@2040'"  # Partition schema
+options         "SPIRAMS_PORT=SPI4CON"      # TODO: delete this option
+options         "SPIRAMS_CHIPSIZE=128"      # chip size in kbytes
+options         "SPIRAMS_CHIPS=16"          # number of chips
+options         "SPIRAMS_CS0_PORT=TRISA"    # for CS0...
+options         "SPIRAMS_CS0_PIN=0"         # ...use pin RA0
+options         "SPIRAMS_CS1_PORT=TRISA"    # for CS1...
+options         "SPIRAMS_CS1_PIN=1"         # ...use pin RA1
+options         "SPIRAMS_CS2_PORT=TRISA"    # for CS2...
+options         "SPIRAMS_CS2_PIN=4"         # ...use pin RA4
+options         "SPIRAMS_CS3_PORT=TRISA"    # for CS3...
+options         "SPIRAMS_CS3_PIN=5"         # ...use pin RA5
+options         "SPIRAMS_CS4_PORT=TRISA"    # for CS4...
+options         "SPIRAMS_CS4_PIN=2"         # ...use pin RA2
+options         "SPIRAMS_CS5_PORT=TRISD"    # for CS5...
+options         "SPIRAMS_CS5_PIN=1"         # ...use pin RD1
+options         "SPIRAMS_CS6_PORT=TRISD"    # for CS6...
+options         "SPIRAMS_CS6_PIN=2"         # ...use pin RD2
+options         "SPIRAMS_CS7_PORT=TRISB"    # for CS7...
+options         "SPIRAMS_CS7_PIN=14"        # ...use pin RB14
+options         "SPIRAMS_CS8_PORT=TRISD"    # for CS8...
+options         "SPIRAMS_CS8_PIN=14"        # ...use pin RFD14
+options         "SPIRAMS_CS9_PORT=TRISD"    # for CS9...
+options         "SPIRAMS_CS9_PIN=8"         # ...use pin RD8
+options         "SPIRAMS_CS10_PORT=TRISA"   # for CS10...
+options         "SPIRAMS_CS10_PIN=6"        # ...use pin RA6
+options         "SPIRAMS_CS11_PORT=TRISA"   # for CS11...
+options         "SPIRAMS_CS11_PIN=7"        # ...use pin RA7
+options         "SPIRAMS_CS12_PORT=TRISG"   # for CS12...
+options         "SPIRAMS_CS12_PIN=14"       # ...use pin RG14
+options         "SPIRAMS_CS13_PORT=TRISG"   # for CS13...
+options         "SPIRAMS_CS13_PIN=12"       # ...use pin RG12
+options         "SPIRAMS_CS14_PORT=TRISG"   # for CS14...
+options         "SPIRAMS_CS14_PIN=13"       # ...use pin RG13
+options         "SPIRAMS_CS15_PORT=TRISF"   # for CS15...
+options         "SPIRAMS_CS15_PIN=5"        # ...use pin RF5

@@ -3,15 +3,15 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-#include "param.h"
-#include "buf.h"
-#include "user.h"
-#include "conf.h"
-#include "fs.h"
-#include "dk.h"
-#include "systm.h"
-#include "map.h"
-#include "proc.h"
+#include <sys/param.h>
+#include <sys/buf.h>
+#include <sys/user.h>
+#include <sys/conf.h>
+#include <sys/fs.h>
+#include <sys/dk.h>
+#include <sys/systm.h>
+#include <sys/map.h>
+#include <sys/proc.h>
 
 /*
  * Read in (if necessary) the block and return a buffer pointer.

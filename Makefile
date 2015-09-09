@@ -8,34 +8,6 @@
 # The `make' will compile everything, including a kernel, utilities
 # and a root filesystem image.
 
-#
-# Supported boards
-#
-MAX32           = sys/pic32/max32/MAX32
-FUBARINO        = sys/pic32/fubarino/FUBARINO
-FUBARINOBIG     = sys/pic32/fubarino/FUBARINO-UART2CONS-UART1-SRAMC
-SDXL            = sys/pic32/sdxl/SDXL
-MAXIMITE        = sys/pic32/maximite/MAXIMITE
-MAXCOLOR        = sys/pic32/maximite-color/MAXCOLOR
-DUINOMITE       = sys/pic32/duinomite/DUINOMITE
-DUINOMITEUART   = sys/pic32/duinomite-uart/DUINOMITE-UART
-DUINOMITEE      = sys/pic32/duinomite-e/DUINOMITE-E
-DUINOMITEEUART  = sys/pic32/duinomite-e-uart/DUINOMITE-E-UART
-PINGUINO        = sys/pic32/pinguino-micro/PINGUINO-MICRO
-MMBMX7          = sys/pic32/mmb-mx7/MMB-MX7
-WF32            = sys/pic32/wf32/WF32
-UBW32           = sys/pic32/ubw32/UBW32
-UBW32UART       = sys/pic32/ubw32-uart/UBW32-UART
-UBW32UARTSDRAM  = sys/pic32/ubw32-uart-sdram/UBW32-UART-SDRAM
-EXPLORER16      = sys/pic32/explorer16/EXPLORER16
-STARTERKIT      = sys/pic32/starter-kit/STARTER-KIT
-BAREMETAL       = sys/pic32/baremetal/BAREMETAL
-RETROONE        = sys/pic32/retroone/RETROONE
-PINGUINO-MICRO  = sys/pic32/pinguino-micro/PINGUINO-MICRO
-
-# Select target board
-TARGET          ?= $(MAX32)
-
 # Filesystem and swap sizes.
 FS_MBYTES       = 100
 U_MBYTES        = 100
@@ -57,8 +29,6 @@ FSUTIL		= tools/fsutil/fsutil
 
 -include Makefile.user
 
-TARGETDIR    = $(shell dirname $(TARGET))
-TARGETNAME   = $(shell basename $(TARGET))
 TOPSRC       = $(shell pwd)
 CONFIG       = $(TOPSRC)/tools/configsys/config
 
@@ -69,11 +39,8 @@ all:            .profile
 		$(MAKE) kernel
 		$(MAKE) fs
 
-kernel: 	$(TARGETDIR)/Makefile
-		$(MAKE) -C $(TARGETDIR)
-
-$(TARGETDIR)/Makefile: $(CONFIG) $(TARGETDIR)/$(TARGETNAME)
-		cd $(TARGETDIR) && ../../../tools/configsys/config $(TARGETNAME)
+kernel:         $(CONFIG)
+		$(MAKE) -C sys/pic32 all
 
 fs:             sdcard.img
 

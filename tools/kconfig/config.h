@@ -82,17 +82,10 @@ struct file_list {
 /*
  * Types.
  */
-#define DRIVER      1
-#define NORMAL      2
-#define INVISIBLE   3
-#define PROFILING   4
-#define SYSTEMSPEC  5
-#define SWAPSPEC    6
-
-/*
- * Attributes (flags).
- */
-#define CONFIGDEP   1
+#define NORMAL      1
+#define INVISIBLE   2
+#define SYSTEMSPEC  3
+#define SWAPSPEC    4
 
 struct  idlst {
     char    *id;
@@ -100,27 +93,28 @@ struct  idlst {
 };
 
 struct device {
-    int     d_type;         /* CONTROLLER, DEVICE, bus adaptor */
-    struct  device *d_conn; /* what it is connected to */
-    char    *d_name;        /* name of device (e.g. rk11) */
-    struct  idlst *d_vec;   /* interrupt vectors */
-    int     d_pri;          /* interrupt priority */
-    int     d_addr;         /* address of csr */
-    int     d_unit;         /* unit number */
-    int     d_drive;        /* drive number */
-    int     d_slave;        /* slave number */
-#define QUES    -1          /* -1 means '?' */
-#define UNKNOWN -2          /* -2 means not set yet */
-    int     d_dk;           /* if init 1 set to number for iostat */
-    int     d_flags;        /* flags for device init */
-    char    *d_port;        /* io port base manifest constant */
-    int     d_portn;        /* io port base (if number not manifest) */
-    char    *d_mask;        /* interrupt mask */
-    int     d_maddr;        /* io memory base */
-    int     d_msize;        /* io memory size */
-    int     d_drq;          /* DMA request  */
-    int     d_irq;          /* interrupt request  */
-    struct  device *d_next; /* Next one in list */
+    int     d_type;             /* CONTROLLER, DEVICE, bus adaptor */
+    struct  device *d_conn;     /* what it is connected to */
+    char    *d_name;            /* name of device (e.g. rk11) */
+    struct  idlst *d_vec;       /* interrupt vectors */
+    int     d_pri;              /* interrupt priority */
+    int     d_addr;             /* address of csr */
+    int     d_unit;             /* unit number */
+    int     d_drive;            /* drive number */
+    int     d_slave;            /* slave number */
+#define QUES    -1              /* -1 means '?' */
+#define UNKNOWN -2              /* -2 means not set yet */
+    int     d_flags;            /* flags for device init */
+    char    *d_port;            /* io port base manifest constant */
+    char    *d_mask;            /* interrupt mask */
+    int     d_maddr;            /* io memory base */
+    int     d_msize;            /* io memory size */
+    int     d_drq;              /* DMA request  */
+    int     d_irq;              /* interrupt request  */
+    struct  device *d_next;     /* Next one in list */
+#define MAXPINS 32              /* max number of pins */
+    short   d_pins[MAXPINS];    /* pins assigned */
+    int     d_npins;            /* pin count */
 };
 
 struct config {
@@ -129,15 +123,14 @@ struct config {
 };
 
 /*
- * Config has a global notion of which machine type is
- * being used.
+ * Config has a global notion of which architecture is being used.
  */
-int machine;
-char    *machinename;
-#define MACHINE_PIC32       1
+int     arch;
+char    *archname;
+#define ARCH_PIC32      1
 
 /*
- * For each machine, a set of CPU's may be specified as supported.
+ * For each architecture, a set of CPU's may be specified as supported.
  * These and the options (below) are put in the C flags in the makefile.
  */
 struct cputype {
@@ -156,7 +149,7 @@ struct opt {
     struct  opt *op_next;
 } *opt, *mkopt;
 
-char    *ident;
+char    *board;
 char    *ldscript;
 
 int do_trace;
@@ -170,8 +163,6 @@ struct  file_list *ftab, *conf_list, **confp, *comp_list, **compp;
 
 int     zone, hadtz;
 int     dst;
-int     hz;
-int     profiling;
 int     debugging;
 
 int     maxusers;

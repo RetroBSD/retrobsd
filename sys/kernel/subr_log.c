@@ -19,18 +19,18 @@
 #define NLOG    1
 int nlog = 1;
 
-#include "param.h"
-#include "user.h"
-#include "proc.h"
-#include "ioctl.h"
-#include "msgbuf.h"
-#include "file.h"
-#include "inode.h"
-#include "errno.h"
-#include "uio.h"
-#include "map.h"
-#include "systm.h"
-#include "conf.h"
+#include <sys/param.h>
+#include <sys/user.h>
+#include <sys/proc.h>
+#include <sys/ioctl.h>
+#include <sys/msgbuf.h>
+#include <sys/file.h>
+#include <sys/inode.h>
+#include <sys/errno.h>
+#include <sys/uio.h>
+#include <sys/map.h>
+#include <sys/systm.h>
+#include <sys/conf.h>
 
 const struct devspec logdevs[] = {
     { 0, "klog" },

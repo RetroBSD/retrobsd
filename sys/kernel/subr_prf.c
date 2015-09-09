@@ -3,16 +3,16 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-#include "param.h"
-#include "user.h"
-#include "buf.h"
-#include "msgbuf.h"
-#include "conf.h"
-#include "ioctl.h"
-#include "tty.h"
-#include "reboot.h"
-#include "systm.h"
-#include "syslog.h"
+#include <sys/param.h>
+#include <sys/user.h>
+#include <sys/buf.h>
+#include <sys/msgbuf.h>
+#include <sys/conf.h>
+#include <sys/ioctl.h>
+#include <sys/tty.h>
+#include <sys/reboot.h>
+#include <sys/systm.h>
+#include <sys/syslog.h>
 
 #define TOCONS  0x1
 #define TOTTY   0x2

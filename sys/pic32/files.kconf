@@ -1,0 +1,79 @@
+kernel/exec_aout.c              standard
+kernel/exec_conf.c              standard
+kernel/exec_elf.c               standard
+kernel/exec_script.c            standard
+kernel/exec_subr.c              standard
+kernel/init_main.c              standard
+kernel/init_sysent.c            standard
+kernel/kern_clock.c             standard
+kernel/kern_descrip.c           standard
+kernel/kern_exec.c              standard
+kernel/kern_exit.c              standard
+kernel/kern_fork.c              standard
+kernel/kern_mman.c              standard
+kernel/kern_proc.c              standard
+kernel/kern_prot.c              standard
+kernel/kern_prot2.c             standard
+kernel/kern_resource.c          standard
+kernel/kern_sig.c               standard
+kernel/kern_sig2.c              standard
+kernel/kern_subr.c              standard
+kernel/kern_synch.c             standard
+kernel/kern_sysctl.c            standard
+kernel/kern_time.c              standard
+kernel/rdisk.c                  standard
+kernel/subr_log.c               optional log
+kernel/subr_prf.c               standard
+kernel/subr_rmap.c              standard
+kernel/sys_generic.c            standard
+kernel/sys_inode.c              standard
+kernel/sys_pipe.c               standard
+kernel/sys_process.c            standard
+kernel/syscalls.c               standard
+kernel/tty.c                    standard
+kernel/tty_subr.c               standard
+kernel/tty_tty.c                standard
+kernel/ufs_alloc.c              standard
+kernel/ufs_bio.c                standard
+kernel/ufs_bmap.c               standard
+kernel/ufs_dsort.c              standard
+kernel/ufs_fio.c                standard
+kernel/ufs_inode.c              standard
+kernel/ufs_mount.c              standard
+kernel/ufs_namei.c              standard
+kernel/ufs_subr.c               standard
+kernel/ufs_syscalls.c           standard
+kernel/ufs_syscalls2.c          standard
+kernel/vfs_vnops.c              standard
+kernel/vm_sched.c               standard
+kernel/vm_swap.c                standard
+kernel/vm_swp.c                 standard
+pic32/adc.c                     optional adc
+pic32/clock.c                   standard
+pic32/cons.c                    standard
+pic32/devsw.c                   standard
+pic32/exception.c               standard
+pic32/glcd.c                    optional glcd
+pic32/gpio.c                    optional gpio
+pic32/hx8357.c                  optional hxtft
+pic32/machdep.c                 standard
+pic32/mem.c                     standard
+pic32/picga.c                   optional picga
+pic32/power_control.c           optional power
+pic32/pwm.c                     optional pwm
+pic32/rd_mrams.c                optional mrams
+pic32/rd_sd.c                   optional sd
+pic32/rd_sdramp.c               optional sdramp
+pic32/rd_spirams.c              optional spirams
+pic32/rd_sramc.c                optional sramc
+pic32/sdram.S                   optional sdramp
+pic32/signal.c                  standard
+pic32/skel.c                    optional skel
+pic32/spi.c                     optional spi
+pic32/spi_bus.c                 optional spi
+pic32/swap.c                    standard
+pic32/sysctl.c                  standard
+pic32/uart.c                    optional uart
+pic32/usb_device.c              optional uartusb
+pic32/usb_function_cdc.c        optional uartusb
+pic32/usb_uart.c                optional uartusb

@@ -34,7 +34,7 @@
 /*
  * Build the makefile for the system, from
  * the information in the files files and the
- * additional files for the machine being compiled to.
+ * additional files for the architecture being compiled to.
  */
 #include <ctype.h>
 #include "y.tab.h"
@@ -108,15 +108,6 @@ new_fent()
     return (fp);
 }
 
-static  struct users {
-    int u_default;
-    int u_min;
-    int u_max;
-} users[] = {
-    { 2, 1, 16 },           /* MACHINE_PIC32 */
-};
-#define NUSERS  (sizeof (users) / sizeof (users[0]))
-
 int opteq(cp, dp)
     char *cp, *dp;
 {
@@ -147,7 +138,7 @@ void read_files()
     register struct opt *op;
     char *wd, *this, *needs, *special;
     char fname[32];
-    int nreqs, first = 1, configdep, isdup, std, filetype;
+    int nreqs, first = 1, isdup, std, filetype;
 
     ftab = 0;
     (void) strcpy(fname, "../files.kconf");
@@ -158,15 +149,13 @@ void read_files()
     }
 next:
     /*
-     * filename [ standard | optional ] [ config-dependent ]
-     *  [ dev* | profiling-routine ] [ device-driver]
-     *  [ compile-with "compile rule" ]
+     * filename [ standard | optional ] [ dev* ] [ compile-with "compile rule" ]
      */
     wd = get_word(fp);
     if (wd == (char *)EOF) {
         (void) fclose(fp);
         if (first == 1) {
-            (void) sprintf(fname, "files.%s", raise(ident));
+            (void) sprintf(fname, "files.%s", raise(board));
             first++;
             fp = fopen(fname, "r");
             if (fp != 0)
@@ -193,7 +182,6 @@ next:
             fname, this, tp->f_fn);
     nreqs = 0;
     special = 0;
-    configdep = 0;
     needs = 0;
     std = 0;
     filetype = NORMAL;
@@ -207,10 +195,6 @@ nextparam:
     next_word(fp, wd);
     if (wd == 0)
         goto doneparam;
-    if (eq(wd, "config-dependent")) {
-        configdep++;
-        goto nextparam;
-    }
     if (eq(wd, "compile-with")) {
         next_quoted_word(fp, wd);
         if (wd == 0) {
@@ -222,21 +206,13 @@ nextparam:
         goto nextparam;
     }
     nreqs++;
-    if (eq(wd, "device-driver")) {
-        filetype = DRIVER;
-        goto nextparam;
-    }
-    if (eq(wd, "profiling-routine")) {
-        filetype = PROFILING;
-        goto nextparam;
-    }
     if (needs == 0 && nreqs == 1)
         needs = strdup(wd);
     if (isdup)
         goto invis;
     for (dp = dtab; dp != 0; save_dp = dp, dp = dp->d_next)
         if (eq(dp->d_name, wd)) {
-            if (std && dp->d_type == PSEUDO_DEVICE &&
+            if (std && dp->d_type == SERVICE &&
                 dp->d_slave <= 0)
                 dp->d_slave = 1;
             goto nextparam;
@@ -245,7 +221,7 @@ nextparam:
         dp = (struct device *) malloc(sizeof *dp);
         init_dev(dp);
         dp->d_name = strdup(wd);
-        dp->d_type = PSEUDO_DEVICE;
+        dp->d_type = SERVICE;
         dp->d_slave = 1;
         if (save_dp)
             save_dp->d_next = dp;
@@ -283,15 +259,11 @@ doneparam:
             fname, this);
         exit(1);
     }
-    if (filetype == PROFILING && profiling == 0)
-        goto next;
     if (tp == 0)
         tp = new_fent();
     tp->f_fn = this;
     tp->f_type = filetype;
     tp->f_flags = 0;
-    if (configdep)
-        tp->f_flags |= CONFIGDEP;
     tp->f_needs = needs;
     tp->f_special = special;
     if (pf && pf->f_type == INVISIBLE)
@@ -307,7 +279,7 @@ void do_objs(fp)
     register char *cp, och, *sp;
     char swapname[32];
 
-    fprintf(fp, "OBJS=");
+    fprintf(fp, "OBJS = ");
     lpos = 6;
     for (tp = ftab; tp != 0; tp = tp->f_next) {
         if (tp->f_type == INVISIBLE)
@@ -344,7 +316,7 @@ void do_cfiles(fp)
     register int lpos, len;
     char swapname[32];
 
-    fputs("CFILES=", fp);
+    fputs("CFILES = ", fp);
     lpos = 8;
     for (tp = ftab; tp; tp = tp->f_next)
         if (tp->f_type != INVISIBLE) {
@@ -367,7 +339,7 @@ void do_cfiles(fp)
             }
             if (eq(fl->f_fn, "generic"))
                 fprintf(fp, "$A/%s/%s ",
-                    machinename, swapname);
+                    archname, swapname);
             else
                 fprintf(fp, "%s ", swapname);
             lpos += len + 1;
@@ -400,31 +372,8 @@ void do_rules(f)
         fprintf(f, "%so: $S/%s%c\n", tail(np), np, och);
         special = ftp->f_special;
         if (special == 0) {
-            char *ftype;
             static char cmd[128];
-
-            switch (ftp->f_type) {
-
-            case NORMAL:
-                ftype = "NORMAL";
-                break;
-
-            case DRIVER:
-                ftype = "DRIVER";
-                break;
-
-            case PROFILING:
-                if (!profiling)
-                    continue;
-                ftype = "PROFILE";
-                break;
-
-            default:
-                printf("config: don't know rules for %s\n", np);
-                break;
-            }
-            (void)sprintf(cmd, "${%s_%c%s}", ftype, toupper(och),
-                      ftp->f_flags & CONFIGDEP? "_C" : "");
+            sprintf(cmd, "${COMPILE_%c}", toupper(och));
             special = cmd;
         }
         *cp = och;
@@ -448,7 +397,7 @@ void do_load(f)
     fputs("all:", f);
     for (fl = conf_list; fl; fl = fl->f_next)
         if (fl->f_type == SYSTEMSPEC)
-            fprintf(f, " %s.elf", fl->f_needs);
+            fprintf(f, " %s", fl->f_needs);
     putc('\n', f);
 }
 
@@ -460,11 +409,12 @@ void makefile()
     FILE *ifp, *ofp;
     char line[BUFSIZ];
     struct opt *op;
-    struct users *up;
+    struct cputype *cp;
+    struct device *dp;
 
     read_files();
     strcpy(line, "../Makefile.kconf");
-    //(void) strcat(line, machinename);
+    //strcat(line, archname);
     ifp = fopen(line, "r");
     if (ifp == 0) {
         perror(line);
@@ -475,51 +425,42 @@ void makefile()
         perror("Makefile");
         exit(1);
     }
-    fprintf(ofp, "IDENT=-D%s", raise(ident));
-    if (profiling)
-        fprintf(ofp, " -DGPROF");
+    fprintf(ofp, "PARAM = -D%s\n", raise(board));
     if (cputype == 0) {
         printf("cpu type must be specified\n");
         exit(1);
     }
-    { struct cputype *cp;
-      for (cp = cputype; cp; cp = cp->cpu_next)
-        fprintf(ofp, " -D%s", cp->cpu_name);
+    for (cp = cputype; cp; cp = cp->cpu_next) {
+        fprintf(ofp, "PARAM += -D%s\n", cp->cpu_name);
     }
-    for (op = opt; op; op = op->op_next)
-        if (op->op_value)
-            fprintf(ofp, " -D%s=\"%s\"", op->op_name, op->op_value);
+    for (dp = dtab; dp != 0; dp = dp->d_next) {
+        if (dp->d_unit <= 0)
+            fprintf(ofp, "PARAM += -D%s_ENABLED\n", raise(dp->d_name));
         else
-            fprintf(ofp, " -D%s", op->op_name);
-    fprintf(ofp, "\n");
+            fprintf(ofp, "PARAM += -D%s%d_ENABLED\n", raise(dp->d_name), dp->d_unit);
+    }
+    for (op = opt; op; op = op->op_next) {
+        if (op->op_value)
+            fprintf(ofp, "PARAM += -D%s=\"%s\"\n", op->op_name, op->op_value);
+        else
+            fprintf(ofp, "PARAM += -D%s\n", op->op_name);
+    }
+    if (hadtz) {
+        fprintf(ofp, "PARAM += -DTIMEZONE=%d\n", zone);
+        fprintf(ofp, "PARAM += -DDST=%d\n", dst);
+    }
+    if (maxusers > 0)
+        fprintf(ofp, "PARAM += -DMAXUSERS=%d\n", maxusers);
+
     if (ldscript)
-        fprintf(ofp, "LDSCRIPT=\"%s\"\n", ldscript);
-    if (hadtz == 0)
-        printf("timezone not specified; gmt assumed\n");
-    if ((unsigned)machine > NUSERS) {
-        printf("maxusers config info isn't present, using pic32\n");
-        up = &users[MACHINE_PIC32-1];
-    } else
-        up = &users[machine-1];
-    if (maxusers == 0) {
-        printf("maxusers not specified; %d assumed\n", up->u_default);
-        maxusers = up->u_default;
-    } else if (maxusers < up->u_min) {
-        printf("minimum of %d maxusers assumed\n", up->u_min);
-        maxusers = up->u_min;
-    } else if (maxusers > up->u_max)
-        printf("warning: maxusers > %d (%d)\n", up->u_max, maxusers);
-    fprintf(ofp, "PARAM=-DTIMEZONE=%d -DDST=%d -DMAXUSERS=%d",
-        zone, dst, maxusers);
-    if (hz > 0)
-        fprintf(ofp, " -DHZ=%d", hz);
-    fprintf(ofp, "\n");
+        fprintf(ofp, "LDSCRIPT = \"%s\"\n", ldscript);
+
     for (op = mkopt; op; op = op->op_next)
-        fprintf(ofp, "%s=%s\n", op->op_name, op->op_value);
+        fprintf(ofp, "%s = %s\n", op->op_name, op->op_value);
+
     if (debugging)
-        fprintf(ofp, "DEBUG=-g\n");
-    if (profiling)
-        fprintf(ofp, "PROF=-pg\n");
+        fprintf(ofp, "DEBUG = -g\n");
+
     while (fgets(line, BUFSIZ, ifp) != 0) {
         if (*line != '%') {
             fprintf(ofp, "%s", line);
@@ -562,9 +503,8 @@ void do_swapspec(f, name)
     if (!eq(name, "generic"))
         fprintf(f, "swap%s.o: swap%s.c\n", name, name);
     else
-        fprintf(f, "swapgeneric.o: $A/%s/swapgeneric.c\n",
-            machinename);
-    fprintf(f, "\t${NORMAL_C}\n\n");
+        fprintf(f, "swapgeneric.o: $A/%s/swapgeneric.c\n", archname);
+    fprintf(f, "\t${COMPILE_C}\n\n");
 }
 
 struct file_list *
@@ -573,6 +513,7 @@ do_systemspec(f, fl, first)
     register struct file_list *fl;
     int first;
 {
+    fprintf(f, "%s: %s.elf\n\n", fl->f_needs, fl->f_needs);
 
     fprintf(f, "%s.elf: ${SYSTEM_DEP} swap%s.o", fl->f_needs, fl->f_fn);
     // Don't use newvers target.
@@ -589,16 +530,20 @@ do_systemspec(f, fl, first)
     return (fl);
 }
 
+/*
+ * Convert a name to uppercase.
+ * Return a pointer to a static buffer.
+ */
 char *
 raise(str)
     register char *str;
 {
-    register char *cp = str;
+    static char buf[100];
+    register char *cp = buf;
 
     while (*str) {
-        if (islower(*str))
-            *str = toupper(*str);
-        str++;
+        *cp++ = islower(*str) ? toupper(*str++) : *str++;
     }
-    return (cp);
+    *cp = 0;
+    return buf;
 }

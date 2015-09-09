@@ -21,13 +21,13 @@
  * arising out of or in connection with the use or performance of
  * this software.
  */
-#include "param.h"
-#include "conf.h"
-#include "user.h"
-#include "ioctl.h"
-#include "gpio.h"
-#include "systm.h"
-#include "uio.h"
+#include <sys/param.h>
+#include <sys/conf.h>
+#include <sys/user.h>
+#include <sys/ioctl.h>
+#include <sys/gpio.h>
+#include <sys/systm.h>
+#include <sys/uio.h>
 
 const struct devspec gpiodevs[] = {
     { 0, "porta" }, { 1, "portb" }, { 2, "portc" }, { 3, "portd" },

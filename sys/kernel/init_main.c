@@ -3,25 +3,25 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-#include "param.h"
-#include "user.h"
-#include "fs.h"
-#include "mount.h"
-#include "map.h"
-#include "proc.h"
-#include "ioctl.h"
-#include "inode.h"
-#include "conf.h"
-#include "buf.h"
-#include "fcntl.h"
-#include "vm.h"
-#include "clist.h"
-#include "reboot.h"
-#include "systm.h"
-#include "kernel.h"
-#include "namei.h"
-#include "stat.h"
-#include "rdisk.h"
+#include <sys/param.h>
+#include <sys/user.h>
+#include <sys/fs.h>
+#include <sys/mount.h>
+#include <sys/map.h>
+#include <sys/proc.h>
+#include <sys/ioctl.h>
+#include <sys/inode.h>
+#include <sys/conf.h>
+#include <sys/buf.h>
+#include <sys/fcntl.h>
+#include <sys/vm.h>
+#include <sys/clist.h>
+#include <sys/reboot.h>
+#include <sys/systm.h>
+#include <sys/kernel.h>
+#include <sys/namei.h>
+#include <sys/stat.h>
+#include <sys/rdisk.h>
 
 u_int   swapstart, nswap;   /* start and size of swap space */
 size_t  physmem;            /* total amount of physical memory */
@@ -150,8 +150,11 @@ main()
     s = spl0();
     rdisk_init();
 
-    pipedev = rootdev = get_boot_device();
-    swapdev = get_swap_device();
+    if (rootdev == NODEV)
+        rootdev = get_boot_device();
+    if (swapdev == NODEV)
+        swapdev = get_swap_device();
+    pipedev = rootdev;
 
     /* Mount a root filesystem. */
     for (;;) {

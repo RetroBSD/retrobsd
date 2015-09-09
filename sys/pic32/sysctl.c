@@ -3,24 +3,24 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-#include "param.h"
-#include "user.h"
-#include "ioctl.h"
-#include "proc.h"
-#include "kernel.h"
-#include "file.h"
-#include "inode.h"
-#include "sysctl.h"
-#include "cpu.h"
-#include "tty.h"
-#include "systm.h"
-#include "dk.h"
-#include "vmsystm.h"
-#include "ptrace.h"
-#include "namei.h"
-#include "vmmeter.h"
-#include "map.h"
-#include "conf.h"
+#include <sys/param.h>
+#include <sys/user.h>
+#include <sys/ioctl.h>
+#include <sys/proc.h>
+#include <sys/kernel.h>
+#include <sys/file.h>
+#include <sys/inode.h>
+#include <sys/sysctl.h>
+#include <machine/cpu.h>
+#include <sys/tty.h>
+#include <sys/systm.h>
+#include <sys/dk.h>
+#include <sys/vmsystm.h>
+#include <sys/ptrace.h>
+#include <sys/namei.h>
+#include <sys/vmmeter.h>
+#include <sys/map.h>
+#include <sys/conf.h>
 
 /*
  * Errno messages.

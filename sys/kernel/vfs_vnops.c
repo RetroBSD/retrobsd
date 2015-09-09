@@ -41,8 +41,7 @@
 #include <sys/namei.h>
 #include <sys/inode.h>
 #include <sys/stat.h>
-
-#include "systm.h"
+#include <sys/systm.h>
 
 /*
  * 2.11BSD does not have "vnodes", having instead only old fashioned "inodes".

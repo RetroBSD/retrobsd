@@ -1,0 +1,62 @@
+#
+# chipKIT Max32 board with SD card shield
+# =======================================
+# For details, see https://github.com/RetroBSD/retrobsd/wiki/Board-chipKIT-Max32
+#
+# To build the kernel, use:
+#   cd sys/pic32/max32
+#   kconfig Config
+#   make clean
+#   make
+#
+# Format of this file is described on page:
+# http://retrobsd.org/wiki/doku.php/doc/kconfig
+#
+architecture    "pic32"
+cpu             "PIC32MX7"                  # Processor variant
+board           "MAX32"                     # Board type
+ldscript        "max32/bootloader.ld"       # Linker script
+
+# Standard system options
+options         "CPU_KHZ=80000"             # Oscillator frequency of CPU core
+options         "BUS_KHZ=80000"             # Frequency of peripheral bus
+options         "BUS_DIV=1"                 # Bus clock divisor 1/2/4/8
+
+# LED
+options         "LED_KERNEL_PORT=TRISA"     # for kernel activity LED...
+options         "LED_KERNEL_PIN=3"          # ...use pin RA3
+
+# Root filesystem at /dev/sd0a, swap at /dev/sd0b
+config          unix    root on sd0a
+                        swap on sd0b
+
+# Serial UART ports
+device          uart1                       # Serial-to-USB converter
+device          uart2
+device          uart3
+device          uart4
+
+# Console options
+options         "CONSOLE_DEVICE=tty0"       # /dev/tty0
+
+# SPI ports
+controller      spi2                        # SD card
+
+# microSD card
+device          sd0     at spi2 pin RC14    # select pin
+options         "SD0_MHZ=10"                # speed 10 MHz
+options         "SD0_PORT=2"                # at spi2               TODO: delete
+options         "SD0_CS_PORT=TRISC"         # for chip select...    TODO: use flags
+options         "SD0_CS_PIN=14"             # ...use pin RC14       TODO: use flags
+
+# General purpose I/O ports
+device          gpio
+
+# ADC driver
+device          adc
+
+# PWM driver
+device          pwm
+
+# Skeleton driver
+#device         skel

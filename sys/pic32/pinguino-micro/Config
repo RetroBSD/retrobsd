@@ -1,0 +1,58 @@
+#
+# Olimex Pinguino-Micro board with PIC32MX795 processor
+# =====================================================
+# Console on USB.
+#
+# To build the kernel, use:
+#   cd sys/pic32/pinguino-micro
+#   kconfig Config
+#   make clean
+#   make
+#
+# Format of this file is described on page:
+# http://retrobsd.org/wiki/doku.php/doc/kconfig
+#
+architecture    "pic32"
+cpu             "PIC32MX7"                  # Processor variant
+board           "PINGUINO_MICRO"            # Board type
+ldscript        "maximite/bootloader.ld"    # Linker script
+
+# Standard system options
+options         "CPU_KHZ=80000"             # Oscillator frequency of CPU core
+options         "BUS_KHZ=80000"             # Frequency of peripheral bus
+options         "BUS_DIV=1"                 # Bus clock divisor 1/2/4/8
+
+# LED
+options         "LED_KERNEL_PORT=TRISD"     # for kernel activity LED...
+options         "LED_KERNEL_PIN=1"          # ...use pin RD1
+options         "LED_KERNEL_INVERT"         # ...inverted
+
+# Root filesystem at /dev/sd0a, swap at /dev/sd0b
+config          unix    root on sd0a
+                        swap on sd0b
+
+# Console options
+options         "CONSOLE_DEVICE=ttyUSB0"    # Console on USB
+
+# Virtual UART on USB
+device          uartusb
+options         "USB_MAX_EP_NUMBER=3"
+options         "USB_NUM_STRING_DESCRIPTORS=3"
+
+# SPI ports
+controller      spi2                        # SD card
+
+# microSD card
+device          sd0     at spi2 pin RB13    # select pin
+options         "SD0_PORT=2"                # at spi2               TODO: delete
+options         "SD0_CS_PORT=TRISB"         # for chip select...    TODO: delete
+options         "SD0_CS_PIN=13"             # ...use pin RB13       TODO: delete
+
+# General purpose I/O ports
+device          gpio
+
+# ADC driver
+device          adc
+
+# PWM driver
+device          pwm

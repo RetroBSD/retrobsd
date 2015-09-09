@@ -2,17 +2,17 @@
  * ufs_syscalls was getting too large.  Various UFS related system calls were
  * relocated to this file.
  */
-#include "param.h"
-#include "sys/file.h"
-#include "user.h"
-#include "inode.h"
-#include "buf.h"
-#include "fs.h"
-#include "namei.h"
-#include "mount.h"
-#include "kernel.h"
-#include "systm.h"
-#include "proc.h"
+#include <sys/param.h>
+#include <sys/file.h>
+#include <sys/user.h>
+#include <sys/inode.h>
+#include <sys/buf.h>
+#include <sys/fs.h>
+#include <sys/namei.h>
+#include <sys/mount.h>
+#include <sys/kernel.h>
+#include <sys/systm.h>
+#include <sys/proc.h>
 
 static int
 statfs1 (mp, sbp)

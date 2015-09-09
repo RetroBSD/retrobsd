@@ -3,16 +3,16 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-#include "param.h"
-#include "fs.h"
-#include "dir.h"
-#include "inode.h"
-#include "buf.h"
-#include "user.h"
-#include "kernel.h"
-#include "mount.h"
-#include "proc.h"
-#include "systm.h"
+#include <sys/param.h>
+#include <sys/fs.h>
+#include <sys/dir.h>
+#include <sys/inode.h>
+#include <sys/buf.h>
+#include <sys/user.h>
+#include <sys/kernel.h>
+#include <sys/mount.h>
+#include <sys/proc.h>
+#include <sys/systm.h>
 
 typedef struct fblk *FBLKP;
 

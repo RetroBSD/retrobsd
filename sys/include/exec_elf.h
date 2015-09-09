@@ -476,13 +476,11 @@ struct elf_args {
 #include "opt_execfmt.h"
 #endif
 
-#ifdef EXEC_ELF
 int exec_elf_makecmds __P((struct proc *, struct exec_package *));
 int elf_read_from __P((struct proc *, struct vnode *, u_long,
         caddr_t, int));
 void    *elf_copyargs __P((struct exec_package *, struct ps_strings *,
         void *, void *));
-#endif
 
 /* common */
 int exec_elf_setup_stack __P((struct proc *, struct exec_package *));

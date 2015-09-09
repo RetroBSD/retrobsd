@@ -3,13 +3,13 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-#include "param.h"
-#include "user.h"
-#include "proc.h"
-#include "callout.h"
-#include "dk.h"
-#include "kernel.h"
-#include "systm.h"
+#include <sys/param.h>
+#include <sys/user.h>
+#include <sys/proc.h>
+#include <sys/callout.h>
+#include <sys/dk.h>
+#include <sys/kernel.h>
+#include <sys/systm.h>
 
 int     noproc;         /* no one is running just now */
 

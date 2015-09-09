@@ -5,9 +5,9 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-#include "param.h"
-#include "systm.h"
-#include "glob.h"
+#include <sys/param.h>
+#include <sys/systm.h>
+#include <sys/glob.h>
 
 #ifdef INET
 #   define ifnet(narg, name)    narg, name

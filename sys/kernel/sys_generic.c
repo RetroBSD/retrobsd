@@ -3,17 +3,17 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-#include "param.h"
-#include "user.h"
-#include "proc.h"
-#include "signalvar.h"
-#include "inode.h"
-#include "file.h"
-#include "ioctl.h"
-#include "conf.h"
-#include "uio.h"
-#include "kernel.h"
-#include "systm.h"
+#include <sys/param.h>
+#include <sys/user.h>
+#include <sys/proc.h>
+#include <sys/signalvar.h>
+#include <sys/inode.h>
+#include <sys/file.h>
+#include <sys/ioctl.h>
+#include <sys/conf.h>
+#include <sys/uio.h>
+#include <sys/kernel.h>
+#include <sys/systm.h>
 
 int selwait;
 
@@ -228,7 +228,7 @@ selscan(ibits, obits, nfd, retval)
     fd_set *ibits, *obits;
     int nfd, *retval;
 {
-    register int i, j, flag;
+    register int i, j, flag = 0;
     fd_mask bits;
     struct file *fp;
     int which, n = 0;

@@ -3,32 +3,32 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-#include "param.h"
-#include "dir.h"
-#include "inode.h"
-#include "user.h"
-#include "proc.h"
-#include "fs.h"
-#include "map.h"
-#include "buf.h"
-#include "file.h"
-#include "clist.h"
-#include "callout.h"
-#include "reboot.h"
-#include "msgbuf.h"
-#include "namei.h"
-#include "mount.h"
-#include "systm.h"
-#include "debug.h"
-#include "uart.h"
-#include "usb_uart.h"
+#include <sys/param.h>
+#include <sys/dir.h>
+#include <sys/inode.h>
+#include <sys/user.h>
+#include <sys/proc.h>
+#include <sys/fs.h>
+#include <sys/map.h>
+#include <sys/buf.h>
+#include <sys/file.h>
+#include <sys/clist.h>
+#include <sys/callout.h>
+#include <sys/reboot.h>
+#include <sys/msgbuf.h>
+#include <sys/namei.h>
+#include <sys/mount.h>
+#include <sys/systm.h>
+#include <sys/debug.h>
+#include <sys/uart.h>
+#include <sys/usb_uart.h>
 #ifdef UARTUSB_ENABLED
 #   include <machine/usb_device.h>
 #   include <machine/usb_function_cdc.h>
 #endif
 
 #ifdef HX8357_ENABLED
-#include "hx8357.h"
+#include <sys/hx8357.h>
 #endif
 
 #ifdef POWER_ENABLED
@@ -100,10 +100,14 @@ extern void power_off();
 #define LED_MISC4_OFF()     LAT_CLR(LED_MISC4_PORT) = 1 << LED_MISC4_PIN
 #endif
 
-int hz = HZ;
-int usechz = (1000000L + HZ - 1) / HZ;
+int     hz = HZ;
+int     usechz = (1000000L + HZ - 1) / HZ;
+#ifdef TIMEZONE
+struct  timezone tz = { TIMEZONE, DST };
+#else
 struct  timezone tz = { 8*60, 1 };
-int nproc = NPROC;
+#endif
+int     nproc = NPROC;
 
 struct  namecache namecache [NNAMECACHE];
 char    bufdata [NBUF * MAXBSIZE];
@@ -113,8 +117,8 @@ struct  mount mount [NMOUNT];
 struct  buf buf [NBUF], bfreelist [BQUEUES];
 struct  bufhd bufhash [BUFHSZ];
 struct  cblock cfree [NCLIST];
-struct proc proc [NPROC];
-struct file file [NFILE];
+struct  proc proc [NPROC];
+struct  file file [NFILE];
 
 /*
  * Remove the ifdef/endif to run the kernel in unsecure mode even when in
@@ -147,9 +151,15 @@ nodump(dev)
 
 int (*dump)(dev_t) = nodump;
 
-dev_t   rootdev, swapdev, pipedev;
-
+#ifdef CONFIG
+/*
+ * Build using old configuration utility (configsys).
+ */
+dev_t   rootdev = NODEV;
+dev_t   swapdev = NODEV;
 dev_t   dumpdev = NODEV;
+#endif
+dev_t   pipedev;
 daddr_t dumplo = (daddr_t) 1024;
 
 /*
@@ -178,7 +188,7 @@ startup()
 #ifdef KERNEL_EXECUTABLE_RAM
     /*
      * Set boundry for kernel executable ram on smallest
-     * 2k boundry required to allow the keram segement to fit.
+     * 2k boundry required to allow the keram segment to fit.
      * This means that there is possibly some u0area ramspace that
      * is executable, but as it is isolated from userspace this
      * should be ok, given the apparent goals of this project.
@@ -498,7 +508,7 @@ boot(dev, howto)
             (*dump)(dumpdev);
         }
         /* Restart from dev, howto */
-#ifdef USB_NUM_STRING_DESCRIPTORS
+#ifdef UARTUSB_ENABLED
         /* Disable USB module, and wait awhile for the USB cable
          * capacitance to discharge down to disconnected (SE0) state.
          */
@@ -539,15 +549,15 @@ boot(dev, howto)
 #ifdef HALTREBOOT
     printf("press any key to reboot...");
     cngetc();
-        /* Unlock access to reset register */
-        SYSKEY = 0;
-        SYSKEY = 0xaa996655;
-        SYSKEY = 0x556699aa;
 
-        /* Reset microcontroller */
-        RSWRSTSET = 1;
-        (void) RSWRST;
+    /* Unlock access to reset register */
+    SYSKEY = 0;
+    SYSKEY = 0xaa996655;
+    SYSKEY = 0x556699aa;
 
+    /* Reset microcontroller */
+    RSWRSTSET = 1;
+    (void) RSWRST;
 #endif
 
     for (;;) {

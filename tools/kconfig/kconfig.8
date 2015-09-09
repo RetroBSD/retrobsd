@@ -6,7 +6,7 @@
 .Nd build kernel configuration files
 .Sh SYNOPSIS
 .Nm kconfig
-.Op Fl p
+.Op Fl g
 .Ar system_name
 .Sh DESCRIPTION
 .Pp
@@ -18,7 +18,7 @@ A second file tells
 .Nm kconfig
 what files are needed to generate a kernel and
 can be augmented by configuration specific set of files
-that give alternate files for a specific machine.
+that give alternate files for a specific architecture.
 (see the
 .Sx FILES
 section below)
@@ -26,15 +26,12 @@ section below)
 Available option and operand:
 .Pp
 .Bl -tag -width SYSTEM_NAME
-.It Fl p
+.It Fl g
 If the
 .Fl p
 option is supplied,
 .Nm kconfig
-will configure a kernel for profiling; for example,
-.Xr kgmon 8
-and
-.Xr gprof 1 .
+will configure a kernel for debugging.
 .It Ar SYSTEM_NAME
 specifies the name of the kernel configuration file
 containing device specifications, configuration options
@@ -42,7 +39,7 @@ and other system parameters for one kernel configuration.
 .El
 .Pp
 .Nm Kconfig
-should be run from the machine and board specific
+should be run from the architecture and board specific
 subdirectory of the system source (like
 .Pa sys/pic32/max32 ) .
 .Nm Kconfig

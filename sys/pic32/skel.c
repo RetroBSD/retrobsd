@@ -21,13 +21,13 @@
  * arising out of or in connection with the use or performance of
  * this software.
  */
-#include "param.h"
-#include "conf.h"
-#include "user.h"
-#include "ioctl.h"
-#include "systm.h"
-#include "uio.h"
-#include "skel.h"
+#include <sys/param.h>
+#include <sys/conf.h>
+#include <sys/user.h>
+#include <sys/ioctl.h>
+#include <sys/systm.h>
+#include <sys/uio.h>
+#include <sys/skel.h>
 
 /*
  * List of device names and minor numbers.

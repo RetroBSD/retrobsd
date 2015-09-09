@@ -3,20 +3,20 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-#include "param.h"
-#include "systm.h"
-#include "map.h"
-#include "inode.h"
-#include "user.h"
-#include "proc.h"
-#include "buf.h"
-#include "namei.h"
-#include "fs.h"
-#include "mount.h"
-#include "file.h"
-#include "signalvar.h"
-#include "exec.h"
-#include "debug.h"
+#include <sys/param.h>
+#include <sys/systm.h>
+#include <sys/map.h>
+#include <sys/inode.h>
+#include <sys/user.h>
+#include <sys/proc.h>
+#include <sys/buf.h>
+#include <sys/namei.h>
+#include <sys/fs.h>
+#include <sys/mount.h>
+#include <sys/file.h>
+#include <sys/signalvar.h>
+#include <sys/exec.h>
+#include <sys/debug.h>
 
 /*
  * exec system call, with and without environments.
@@ -66,9 +66,7 @@ int exec_check(struct exec_params *epp)
      * Read the first 'SHSIZE' bytes from the file to execute
      */
     DEBUG("Read header %d bytes from %d\n", sizeof(epp->hdr), 0);
-#ifdef EXEC_SCRIPT
     epp->hdr.sh[0] = '\0';      /* for zero length files */
-#endif
     error = rdwri (UIO_READ, epp->ip,
                (caddr_t) &epp->hdr, sizeof(epp->hdr),
                (off_t)0, IO_UNIT, &r);
@@ -153,4 +151,3 @@ done:
     if (ip)
         iput(ip);
 }
-

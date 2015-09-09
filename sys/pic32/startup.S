@@ -22,7 +22,7 @@
 # arising out of or in connection with the use or performance of
 # this software.
 #
-#include "machine/io.h"
+#include <machine/io.h>
 
 #define UBASE   0x7f008000      /* User space base address */
 

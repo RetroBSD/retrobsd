@@ -51,7 +51,7 @@
 /*
  * Signals
  */
-#include <signal.h>
+#include <sys/signal.h>
 
 #define NBPW        sizeof(int) /* number of bytes in an integer */
 
@@ -111,7 +111,7 @@
 #define MAXHOSTNAMELEN  64
 
 #if defined(KERNEL) && defined(INET)
-#   include "machine/net_mac.h"
+#   include <machine/net_mac.h>
 #endif
 
 /*

@@ -1,10 +1,10 @@
-#include "param.h"
-#include "conf.h"
-#include "user.h"
-#include "ioctl.h"
-#include "systm.h"
-#include "uio.h"
-#include "spi_bus.h"
+#include <sys/param.h>
+#include <sys/conf.h>
+#include <sys/user.h>
+#include <sys/ioctl.h>
+#include <sys/systm.h>
+#include <sys/uio.h>
+#include <sys/spi_bus.h>
 
 #define NSPI    4       /* Ports SPI1...SPI4 */
 

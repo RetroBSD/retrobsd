@@ -247,6 +247,25 @@ void extract_inode (fs_inode_t *inode, char *path)
     close (fd);
 }
 
+void extract_symlink (fs_inode_t *inode, char *path)
+{
+    char data [BSDFS_BSIZE];
+
+    if (inode->size >= BSDFS_BSIZE) {
+        fprintf (stderr, "%s: too long symlink\n", path);
+        return;
+    }
+    if (! fs_inode_read (inode, 0, (unsigned char*)data, inode->size)) {
+        fprintf (stderr, "%s: error reading symlink\n", path);
+        return;
+    }
+    data[inode->size] = 0;
+    if (symlink(data, path) < 0) {
+        perror (path);
+        return;
+    }
+}
+
 void extractor (fs_inode_t *dir, fs_inode_t *inode,
     char *dirname, char *filename, void *arg)
 {
@@ -257,7 +276,8 @@ void extractor (fs_inode_t *dir, fs_inode_t *inode,
         print_inode (inode, dirname, filename, out);
 
     if ((inode->mode & INODE_MODE_FMT) != INODE_MODE_FDIR &&
-        (inode->mode & INODE_MODE_FMT) != INODE_MODE_FREG)
+        (inode->mode & INODE_MODE_FMT) != INODE_MODE_FREG &&
+        (inode->mode & INODE_MODE_FMT) != INODE_MODE_FLNK)
         return;
 
     path = alloca (strlen (dirname) + strlen (filename) + 2);
@@ -267,13 +287,19 @@ void extractor (fs_inode_t *dir, fs_inode_t *inode,
     for (relpath=path; *relpath == '/'; relpath++)
         continue;
 
-    if ((inode->mode & INODE_MODE_FMT) == INODE_MODE_FDIR) {
+    switch (inode->mode & INODE_MODE_FMT) {
+    case INODE_MODE_FDIR:
         if (mkdir (relpath, 0775) < 0 && errno != EEXIST)
             perror (relpath);
         /* Scan subdirectory. */
         fs_directory_scan (inode, path, extractor, arg);
-    } else {
+        break;
+    case INODE_MODE_FREG:
         extract_inode (inode, relpath);
+        break;
+    case INODE_MODE_FLNK:
+        extract_symlink (inode, relpath);
+        break;
     }
 }
 

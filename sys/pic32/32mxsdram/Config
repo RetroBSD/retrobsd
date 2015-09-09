@@ -49,25 +49,26 @@ controller      spi4                        # SD card
 
 # sdcard's definition for the SPI port, sdcard's chipselect and high-side power switch
 # because of a mod on the board we use power=B13, otherwise it shall be D12
-disk            sd0     at spi4 flags 0x63  # select pin RF3
+device          sd0     at spi4
+                        pins RF3, RB13      # select pin, enable pin
 options         "SD0_MHZ=10"                # speed 10 MHz
 options         "SD0_PORT=4"                # at spi4               TODO: delete
-options         "SD0_CS_PORT=TRISF"         # for chip select...    TODO: use flags
-options         "SD0_CS_PIN=3"              # ...use pin RF3        TODO: use flags
-options         "SD0_ENA_PORT=TRISB"        # for microSD enable... TODO: use flags
-options         "SD0_ENA_PIN=13"            # ...use pin RB13       TODO: use flags
+options         "SD0_CS_PORT=TRISF"         # for chip select...    TODO: delete
+options         "SD0_CS_PIN=3"              # ...use pin RF3        TODO: delete
+options         "SD0_ENA_PORT=TRISB"        # for microSD enable... TODO: delete
+options         "SD0_ENA_PIN=13"            # ...use pin RB13       TODO: delete
 
 # General purpose I/O ports
-device          gpio0
+device          gpio
 
 # ADC driver
-device          adc0
+device          adc
 
 # PWM driver
-device          pwm0
+device          pwm
 
 # Use SDRAM driver for the external ramdisk
-disk            sdramp0                     # SDRAM on external memory bus
+device          sdramp0                     # SDRAM on external memory bus
 options         "KERNEL_EXECUTABLE_RAM"     # allow kernel code in RAM area
 
 # This defines the swap size and a fs partition size on the external ramdisk.

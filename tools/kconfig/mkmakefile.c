@@ -212,7 +212,7 @@ nextparam:
         goto invis;
     for (dp = dtab; dp != 0; save_dp = dp, dp = dp->d_next)
         if (eq(dp->d_name, wd)) {
-            if (std && dp->d_type == PSEUDO_DEVICE &&
+            if (std && dp->d_type == SERVICE &&
                 dp->d_slave <= 0)
                 dp->d_slave = 1;
             goto nextparam;
@@ -221,7 +221,7 @@ nextparam:
         dp = (struct device *) malloc(sizeof *dp);
         init_dev(dp);
         dp->d_name = strdup(wd);
-        dp->d_type = PSEUDO_DEVICE;
+        dp->d_type = SERVICE;
         dp->d_slave = 1;
         if (save_dp)
             save_dp->d_next = dp;

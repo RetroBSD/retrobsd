@@ -16,7 +16,6 @@
 %token  CPU
 %token  CSR
 %token  DEVICE
-%token  DISK
 %token  DRIVE
 %token  DST
 %token  DUMPS
@@ -25,20 +24,19 @@
 %token  HZ
 %token  LDSCRIPT
 %token  MAJOR
-%token  MASTER
 %token  MAXUSERS
 %token  MINOR
 %token  MINUS
 %token  ON
 %token  OPTIONS
 %token  MAKEOPTIONS
+%token  PINS
 %token  PRIORITY
-%token  PSEUDO_DEVICE
+%token  SERVICE
 %token  ROOT
 %token  SEMICOLON
 %token  SEQUENTIAL
 %token  SIZE
-%token  SLAVE
 %token  SWAP
 %token  TIMEZONE
 %token  TRACE
@@ -47,6 +45,7 @@
 %token  <str>   ID
 %token  <val>   NUMBER
 %token  <val>   FPNUMBER
+%token  <val>   PIN
 
 %type   <str>   Save_id
 %type   <str>   Opt_value
@@ -435,25 +434,19 @@ Device_spec:
     DEVICE Dev_name Dev_info Int_spec
         = { cur.d_type = DEVICE; }
         |
-    MASTER Dev_name Dev_info Int_spec
-        = { cur.d_type = MASTER; }
-        |
-    DISK Dev_name Dev_info Int_spec
-        = { cur.d_dk = 1; cur.d_type = DEVICE; }
-        |
     CONTROLLER Dev_name Dev_info Int_spec
         = { cur.d_type = CONTROLLER; }
         |
-    PSEUDO_DEVICE Init_dev Dev
+    SERVICE Init_dev Dev
         = {
             cur.d_name = $3;
-            cur.d_type = PSEUDO_DEVICE;
+            cur.d_type = SERVICE;
         }
         |
-    PSEUDO_DEVICE Init_dev Dev NUMBER
+    SERVICE Init_dev Dev NUMBER
         = {
             cur.d_name = $3;
-            cur.d_type = PSEUDO_DEVICE;
+            cur.d_type = SERVICE;
             cur.d_slave = $4;
         }
     ;
@@ -463,6 +456,11 @@ Dev_name:
         = {
             cur.d_name = $2;
             cur.d_unit = $3;
+        }
+        |
+    Init_dev Dev
+        = {
+            cur.d_name = $2;
         }
     ;
 
@@ -497,17 +495,10 @@ Info:
     DRIVE NUMBER
         = { cur.d_drive = $2; }
         |
-    SLAVE NUMBER
-        = {
-        if (cur.d_conn != 0 &&
-            cur.d_conn->d_type == MASTER)
-            cur.d_slave = $2;
-        else
-            yyerror("can't specify slave--not to master");
-        }
-        |
     FLAGS NUMBER
         = { cur.d_flags = $2; }
+        |
+    PINS Pin_list
     ;
 
 Int_spec:
@@ -532,6 +523,14 @@ Id_list:
             struct idlst *a = (struct idlst *)malloc(sizeof(struct idlst));
             a->id = $1; a->id_next = $2; $$ = a;
         }
+    ;
+
+Pin_list:
+    PIN
+        = { cur.d_pins[cur.d_npins++] = $1; }
+        |
+    PIN COMMA Pin_list
+        = { cur.d_pins[cur.d_npins++] = $1; }
     ;
 %%
 
@@ -654,7 +653,7 @@ connect(dev, num)
     for (dp = dtab; dp != 0; dp = dp->d_next) {
         if ((num != dp->d_unit) || !eq(dev, dp->d_name))
             continue;
-        if (dp->d_type != CONTROLLER && dp->d_type != MASTER) {
+        if (dp->d_type != CONTROLLER) {
             (void) sprintf(errbuf,
                 "%s connected to non-controller", dev);
             yyerror(errbuf);
@@ -736,15 +735,15 @@ void init_dev(dp)
     dp->d_type = DEVICE;
     dp->d_conn = 0;
     dp->d_vec = 0;
-    dp->d_addr = dp->d_flags = dp->d_dk = 0;
+    dp->d_addr = dp->d_flags;
     dp->d_pri = -1;
     dp->d_slave = dp->d_drive = dp->d_unit = UNKNOWN;
     dp->d_port = (char *)0;
-    dp->d_portn = 0;
     dp->d_irq = -1;
     dp->d_drq = -1;
     dp->d_maddr = 0;
     dp->d_msize = 0;
+    dp->d_npins = 0;
     dp->d_mask = "null";
 }
 

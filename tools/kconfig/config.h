@@ -93,27 +93,28 @@ struct  idlst {
 };
 
 struct device {
-    int     d_type;         /* CONTROLLER, DEVICE, bus adaptor */
-    struct  device *d_conn; /* what it is connected to */
-    char    *d_name;        /* name of device (e.g. rk11) */
-    struct  idlst *d_vec;   /* interrupt vectors */
-    int     d_pri;          /* interrupt priority */
-    int     d_addr;         /* address of csr */
-    int     d_unit;         /* unit number */
-    int     d_drive;        /* drive number */
-    int     d_slave;        /* slave number */
-#define QUES    -1          /* -1 means '?' */
-#define UNKNOWN -2          /* -2 means not set yet */
-    int     d_dk;           /* if init 1 set to number for iostat */
-    int     d_flags;        /* flags for device init */
-    char    *d_port;        /* io port base manifest constant */
-    int     d_portn;        /* io port base (if number not manifest) */
-    char    *d_mask;        /* interrupt mask */
-    int     d_maddr;        /* io memory base */
-    int     d_msize;        /* io memory size */
-    int     d_drq;          /* DMA request  */
-    int     d_irq;          /* interrupt request  */
-    struct  device *d_next; /* Next one in list */
+    int     d_type;             /* CONTROLLER, DEVICE, bus adaptor */
+    struct  device *d_conn;     /* what it is connected to */
+    char    *d_name;            /* name of device (e.g. rk11) */
+    struct  idlst *d_vec;       /* interrupt vectors */
+    int     d_pri;              /* interrupt priority */
+    int     d_addr;             /* address of csr */
+    int     d_unit;             /* unit number */
+    int     d_drive;            /* drive number */
+    int     d_slave;            /* slave number */
+#define QUES    -1              /* -1 means '?' */
+#define UNKNOWN -2              /* -2 means not set yet */
+    int     d_flags;            /* flags for device init */
+    char    *d_port;            /* io port base manifest constant */
+    char    *d_mask;            /* interrupt mask */
+    int     d_maddr;            /* io memory base */
+    int     d_msize;            /* io memory size */
+    int     d_drq;              /* DMA request  */
+    int     d_irq;              /* interrupt request  */
+    struct  device *d_next;     /* Next one in list */
+#define MAXPINS 32              /* max number of pins */
+    short   d_pins[MAXPINS];    /* pins assigned */
+    int     d_npins;            /* pin count */
 };
 
 struct config {

@@ -86,13 +86,14 @@ options         "CONSOLE_DEVICE=tty0"       # /dev/tty0
 controller      spi2                        # SD card
 
 # microSD card
-disk            sd0     at spi2 flags 0x3e  # select pin RC14
+device          sd0     at spi2
+                        pins RC14, RA5      # select pin, enable pin
 options         "SD0_MHZ=10"                # speed 10 MHz
 options         "SD0_PORT=2"                # at spi2               TODO: delete
-options         "SD0_CS_PORT=TRISC"         # for chip select...    TODO: use flags
-options         "SD0_CS_PIN=14"             # ...use pin RC14       TODO: use flags
-options         "SD0_ENA_PORT=TRISA"        # to enable SD card...
-options         "SD0_ENA_PIN=5"             # ...use pin RA5
+options         "SD0_CS_PORT=TRISC"         # for chip select...    TODO: delete
+options         "SD0_CS_PIN=14"             # ...use pin RC14       TODO: delete
+options         "SD0_ENA_PORT=TRISA"        # to enable SD card...  TODO: delete
+options         "SD0_ENA_PIN=5"             # ...use pin RA5        TODO: delete
 
 # General purpose I/O ports
 device          gpio0
@@ -100,10 +101,10 @@ options         "GPIO_CLEAR_PORT=TRISA"     # clear on startup...
 options         "GPIO_CLEAR_PIN=5"          # ...pin RA5
 
 # ADC driver
-device          adc0
+device          adc
 
 # PWM driver
-device          pwm0
+device          pwm
 
 # GLCD driver
 device          glcd
@@ -112,16 +113,16 @@ device          glcd
 device          hxtft
 
 # Skeleton driver
-device          skel0
+device          skel
 
 # Pseudo terminals
-pseudo-device   pty    4
+service         pty     4
 
 # System log
-pseudo-device   log
+service         log
 
 # Power control
-pseudo-device   power
+device          power
 options         "POWER_LED_PORT=TRISA"      # for power LED...
 options         "POWER_LED_PIN=3"           # ...use pin RA3
 options         "POWER_SWITCH_PORT=TRISA"   # for power switch...
@@ -134,11 +135,11 @@ options         "POWER_CONTROL_PIN=5"       # ...use pin RA5
 #
 
 # sdramp - SDRAM block device
-disk            sdramp0                     # SDRAM on external memory bus
+device          sdramp0                     # SDRAM on external memory bus
 options         "KERNEL_EXECUTABLE_RAM"     # allow kernel code in RAM area
 
 # sramc - SRAM block device
-disk            sramc0                      # SRAM via 4-wire CPLD interface
+device          sramc0                      # SRAM via 4-wire CPLD interface
 options         "SRAMC_DATA_PORT=TRISE"     # for DATA signal...
 options         "SRAMC_DATA_PIN=0"          # ...use pin RE0
 options         "SRAMC_LDA_PORT=TRISC"      # for LDA signal...
@@ -150,14 +151,14 @@ options         "SRAMC_WR_PIN=0"            # ...use pin RF0
 
 # picga - SPI block device
 controller      spi1                        # RAM disk: picga
-disk            picga0  at spi1
+device          picga0  at spi1
 options         "PICGA_BUS=SPI1CON"         # TODO: delete this option
 options         "PICGA_CS_PORT=TRISA"       # for CS...
 options         "PICGA_CS_PIN=4"            # ...use pin RA4
 
 # mrams - SPI block device
 controller      spi1                        # RAM disk: mrams
-disk            mrams0  at spi1
+device          mrams0  at spi1
 options         "MRAMS_PORT=SPI1CON"        # TODO: delete this option
 options         "MRAMS_CHIPS=6"             # number of chips
 options         "MRAMS_CHIPSIZE=512"        # chip size in kbytes
@@ -189,7 +190,7 @@ options         "MRAMS_LED5_PIN=5"          # ...use pin RF5
 
 # spirams - SPI block device
 controller      spi1                        # RAM disk: spirams
-disk            spirams0  at spi1
+device          spirams0  at spi1
 options         "SPIRAMS_PORT=SPI1CON"      # TODO: delete this option
 options         "SPIRAMS_CHIPSIZE=128"      # chip size in kbytes
 options         "SPIRAMS_CHIPS=16"          # number of chips

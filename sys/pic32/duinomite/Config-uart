@@ -37,26 +37,27 @@ config          unix    root on sd0a
 options         "CONSOLE_DEVICE=tty4"       # Console on UART5
 
 # Serial UART ports
-device          uart5                       # RS-232 port
-options         "UART5_ENA_PORT=TRISB"      # for RS-232 enable...  TODO: use flags
-options         "UART5_ENA_PIN=13"          # ...use pin RB13       TODO: use flags
+device          uart5   pin RB13            # RS-232 port, enable pin
+options         "UART5_ENA_PORT=TRISB"      # for RS-232 enable...  TODO: delete
+options         "UART5_ENA_PIN=13"          # ...use pin RB13       TODO: delete
 
 # SPI ports
 controller      spi3                        # SD card
 
 # microSD card
-disk            sd0     at spi3 flags 0x45  # select pin RD5
+device          sd0     at spi3
+                        pins RD5, RB13      # select pin, enable pin
 options         "SD0_PORT=3"                # at spi3               TODO: delete
-options         "SD0_CS_PORT=TRISD"         # for chip select...    TODO: use flags
-options         "SD0_CS_PIN=5"              # ...use pin RD5        TODO: use flags
-options         "SD0_ENA_PORT=TRISB"        # for SD enable...      TODO: use flags
-options         "SD0_ENA_PIN=13"            # ...use pin RB13       TODO: use flags
+options         "SD0_CS_PORT=TRISD"         # for chip select...    TODO: delete
+options         "SD0_CS_PIN=5"              # ...use pin RD5        TODO: delete
+options         "SD0_ENA_PORT=TRISB"        # for SD enable...      TODO: delete
+options         "SD0_ENA_PIN=13"            # ...use pin RB13       TODO: delete
 
 # General purpose I/O ports
-device          gpio0
+device          gpio
 
 # ADC driver
-device          adc0
+device          adc
 
 # PWM driver
-device          pwm0
+device          pwm

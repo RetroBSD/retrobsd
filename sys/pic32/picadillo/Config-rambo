@@ -38,26 +38,26 @@ controller      spi2                        # SD card
 controller      spi4                        # RAM disk: spirams
 
 # microSD card
-disk            sd0     at spi2 flags 0x79  # select pin RG9
+device          sd0     at spi2 pin RG9     # select pin
 options         "SD0_MHZ=10"                # speed 10 MHz
 options         "SD0_PORT=2"                # at spi2               TODO: delete
-options         "SD0_CS_PORT=TRISG"         # for chip select...    TODO: use flags
-options         "SD0_CS_PIN=9"              # ...use pin RG9        TODO: use flags
+options         "SD0_CS_PORT=TRISG"         # for chip select...    TODO: delete
+options         "SD0_CS_PIN=9"              # ...use pin RG9        TODO: delete
 
 # General purpose I/O ports
-device          gpio0
+device          gpio
 
 # ADC driver
-device          adc0
+device          adc
 
 # PWM driver
-device          pwm0
+device          pwm
 
 # HX8357 TFT display driver
-device          hxtft0
+device          hxtft
 
 # spirams - SPI block device
-disk            spirams0  at spi4
+device          spirams0  at spi4
 options         "PARTITION='spirams0:sa@2040'"  # Partition schema
 options         "SPIRAMS_PORT=SPI4CON"      # TODO: delete this option
 options         "SPIRAMS_CHIPSIZE=128"      # chip size in kbytes

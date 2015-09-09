@@ -42,17 +42,17 @@ options         "CONSOLE_DEVICE=tty0"       # /dev/tty0
 controller      spi2                        # SD card
 
 # microSD card
-disk            sd0     at spi2 flags 0x44  # select pin RD4
+device          sd0     at spi2 pin RD4     # select pin RD4
 options         "SD0_MHZ=10"                # speed 10 MHz
 options         "SD0_PORT=2"                # at spi2               TODO: delete
-options         "SD0_CS_PORT=TRISD"         # for chip select...    TODO: use flags
-options         "SD0_CS_PIN=4"              # ...use pin RD4        TODO: use flags
+options         "SD0_CS_PORT=TRISD"         # for chip select...    TODO: delete
+options         "SD0_CS_PIN=4"              # ...use pin RD4        TODO: delete
 
 # General purpose I/O ports
-device          gpio0
+device          gpio
 
 # ADC driver
-device          adc0
+device          adc
 
 # PWM driver
-device          pwm0
+device          pwm

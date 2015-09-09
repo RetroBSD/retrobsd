@@ -41,7 +41,7 @@ config          unix    root on sd0a
 options         "CONSOLE_DEVICE=ttyUSB0"    # Console on USB
 
 # Virtual UART on USB
-pseudo-device   uartusb
+device          uartusb
 options         "USB_MAX_EP_NUMBER=3"
 options         "USB_NUM_STRING_DESCRIPTORS=3"
 
@@ -52,19 +52,19 @@ device          uart1                       # RS-232 port
 controller      spi1                        # SD card
 
 # microSD card
-disk            sd0     at spi1 flags 0x19  # select pin RA9
+device          sd0     at spi1 pin RA9     # select pin
 options         "SD0_PORT=1"                # sd0 at spi1           TODO: delete
+options         "SD0_CS_PORT=TRISA"         # for sd0 chip select...TODO: delete
+options         "SD0_CS_PIN=9"              # ...use pin RA9        TODO: delete
 options         "SD0_MHZ=8"                 # speed 8 MHz
-options         "SD0_CS_PORT=TRISA"         # for sd0 chip select...TODO: use flags
-options         "SD0_CS_PIN=9"              # ...use pin RA9        TODO: use flags
 
 # General purpose I/O ports
-device          gpio0
+device          gpio
 options         "GPIO_CLEAR_PORT=TRISD"     # clear on startup...
 options         "GPIO_CLEAR_PIN=2"          # ...pin RD2
 
 # ADC driver
-device          adc0
+device          adc
 
 # PWM driver
-device          pwm0
+device          pwm

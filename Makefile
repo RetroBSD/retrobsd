@@ -32,7 +32,7 @@ FSUTIL		= tools/fsutil/fsutil
 TOPSRC       = $(shell pwd)
 CONFIG       = $(TOPSRC)/tools/configsys/config
 
-all:            .profile
+all:
 		$(MAKE) -C tools
 		$(MAKE) -C lib
 		$(MAKE) -C src install
@@ -89,6 +89,3 @@ installflash:
 # TODO: make it relative to Target
 installboot:
 		sudo pic32prog sys/pic32/fubarino/bootloader.hex
-
-.profile:       etc/root/dot.profile
-		cp etc/root/dot.profile .profile

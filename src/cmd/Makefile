@@ -17,7 +17,7 @@ SUBDIR		= adb adc-demo aout ar as awk basic calendar cc chflags \
                   ranlib re renice retroforth scm sed setty sh sl smallc \
                   smlrc smux stty sysctl test uname wiznet xargs \
                   zmodem gtest msec unixbench cron compress date2 tip \
-                  talloc uucp uudecode uuencode
+                  talloc uucp
 
 # /sbin
 SUBDIR         += chown chroot disktool fsck getty init \

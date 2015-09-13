@@ -375,9 +375,10 @@ major 17
 minor 4
 
 #
-# Files: /
+# Files: /root
 #
-file /.profile
+dir /root
+file /root/.profile
 
 #
 # Files: /etc

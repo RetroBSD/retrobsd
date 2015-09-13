@@ -11,7 +11,6 @@ DESTDIR         = /foobar
 OWN             = root
 GRP             = wheel
 
-SUBDIR          = root
 FILES           = crontab fstab gettytab group motd passwd \
                   rc rc.local shells syslog.conf ttys
 
@@ -19,8 +18,6 @@ all install depend lint tags:
 
 clean:
 		rm -f *~
-		-for i in ${SUBDIR}; do \
-			(cd $$i; make DESTDIR=${DESTDIR} $@); done
 
 distribution:
 		-@mkdir -p ${DESTDIR}/dev
@@ -75,5 +72,3 @@ distribution:
 		    ${DESTDIR}/usr/adm/savacct
 		install -c -o uucp -g daemon -m 600 /dev/null \
 		    ${DESTDIR}/usr/adm/aculog
-		-for i in ${SUBDIR}; do \
-			(cd $$i; make DESTDIR=${DESTDIR} distribution); done

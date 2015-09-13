@@ -33,16 +33,6 @@
  * SUCH DAMAGE.
  */
 
-#ifndef lint
-static char copyright[] =
-"@(#) Copyright (c) 1989, 1993\n\
-	The Regents of the University of California.  All rights reserved.\n";
-#endif /* not lint */
-
-#ifndef lint
-static char sccsid[] = "@(#)pom.c	8.1 (Berkeley) 5/31/93";
-#endif /* not lint */
-
 /*
  * Phase of the Moon.  Calculates the current phase of the moon.
  * Based on routines from `Practical Astronomy with Your Calculator',
@@ -55,6 +45,7 @@ static char sccsid[] = "@(#)pom.c	8.1 (Berkeley) 5/31/93";
 
 #include <sys/time.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <tzfile.h>
 #include <math.h>
 

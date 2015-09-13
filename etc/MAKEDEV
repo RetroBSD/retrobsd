@@ -4,46 +4,14 @@
 # All rights reserved.  The Berkeley software License Agreement
 # specifies the terms and conditions for redistribution.
 #
-#	@(#)MAKEDEV	4.27.6 (2.11BSD) 1999/2/19
-#
 # Device "make" file.  Valid arguments:
-#	std	standard devices
-#	local	configuration specific devices
-#	fd	file descriptor driver
-# Tapes:
-#	ht*	unibus tu77 & te16
-#	tm*	unibus tm11 & te10 emulations (e.g. Emulex tc-11)
-#	ts*	unibus ts11
-#	tu*	tmscp (tk50/tu81)
+#       std     standard devices
+#       local   configuration specific devices
+#       fd      file descriptor driver
 # Disks:
-#	br*	unibus Eaton br1538 or br1711
-#	hk*	unibus rk06 and rk07
-#	ra*	unibus uda50 w/ ra??
-#	rk*	unibus rk05
-#	rl*	unibus rl01/rl02
-#	rx*	unibus rx02
-#	si*	unibus cdc 9766 w/ si 9500
-#	xp*	unibus rm02/03/05, rp04/05/06, diva, eagle, cdc9766, fuji 160.
-# Terminal multiplexors:
-#	dl*	dl-11 units other than the console
-#	dz*	unibus dz11 and dz32
-#	dh*	unibus dh11 and emulations (e.g. Able dmax, Emulex cs-11)
-#	dmf*	unibus dmf32
-#	dhu*    unibus dhu11
-#	dmz*    unibus dmz32
-#	dhv*    qbus dhv11
+#       sd*     flash cards SecureDigital
 # Pseudo terminals:
-#	pty*	set of 16 master and slave pseudo terminals
-# Printers:
-#	lp*	unibus lp11 parallel interface
-#	va*	unibus varian parallel interface
-#	vp*	unibus versatec parallel interface
-# Call units:
-# Special purpose devices:
-#	dr*		unibus dr11
-#	ram*		memory disk
-#	dn*		dn11 dialer
-#	ingreslock	Ingres lock driver.
+#       pty*    set of 16 master and slave pseudo terminals
 
 PATH=/etc:/sbin:/usr/sbin:/bin:/usr/bin
 umask 77

@@ -38,19 +38,9 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
-
-#ifndef lint
-static char copyright[] =
-"@(#) Copyright (c) 1989, 1993\n\
-	The Regents of the University of California.  All rights reserved.\n";
-#endif /* not lint */
-
-#ifndef lint
-static char sccsid[] = "@(#)caesar.c	8.1 (Berkeley) 5/31/93";
-#endif /* not lint */
-
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <ctype.h>
 #include <unistd.h>
 
@@ -77,7 +67,6 @@ main(argc, argv)
 	register int ch, dot, i, nread, winnerdot;
 	register char *inbuf;
 	int obs[26], try, winner;
-	char *malloc(), *strerror();
 
 	if (argc > 1)
 		printit(argv[1]);

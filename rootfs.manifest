@@ -781,7 +781,6 @@ file /include/machine/machparam.h
 file /include/machine/pic32mx.h
 file /include/machine/rd_sdramp_config.h
 file /include/machine/sdram.h
-file /include/machine/ssd1926.h
 file /include/machine/usb_ch9.h
 file /include/machine/usb_device.h
 file /include/machine/usb_function_cdc.h

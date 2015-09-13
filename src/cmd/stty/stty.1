@@ -201,7 +201,8 @@ This character is an additional character causing wakeup.
 .TP 10
 .B dec
 set all modes suitable for Digital Equipment Corp. operating systems
-users; (erase, kill, and interrupt characters to ^?, ^U, and ^C, and ``crt''.)
+users; (erase, kill, and interrupt characters to ^?, ^U, and ^C,
+decctlq and ``crt''.)
 .ns
 .TP 10
 .B 0
@@ -269,6 +270,18 @@ Print two backspaces following the EOT character (control D).
 .B \-ctlecho
 Control characters echo as themselves; in cooked mode EOT (control-D)
 is not echoed.
+.TP 10
+.B decctlq
+After output is suspended (normally by ^S), only a start character
+(normally ^Q) will restart it.  This is compatible with DEC's vendor
+supplied systems.
+.br
+.ns
+.TP 10
+.B \-decctlq
+After output is suspended, any character typed will restart it;
+the start character will restart output without providing any input.
+(This is the default.)
 .TP 10
 .B tostop
 Background jobs stop if they attempt terminal output.

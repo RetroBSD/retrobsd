@@ -106,6 +106,8 @@ struct MODES lmodes[] = {
 	"-ctlecho",	0, LCTLECH,
 	"pendin",	LPENDIN, 0,
 	"-pendin",	0, LPENDIN,
+        "decctlq",      LDECCTQ, 0,
+        "-decctlq",     0, LDECCTQ,
 	"noflsh",	LNOFLSH, 0,
 	"-noflsh",	0, LNOFLSH,
 	0
@@ -430,6 +432,7 @@ prmodes(all)
 			nothing = 0;
 		}
 		lpit(LPENDIN, "-pendin ");
+                lpit(LDECCTQ, "-decctlq ");
 		lpit(LNOFLSH, "-noflsh ");
 		if (any || nothing)
 			fputc('\n', stderr);

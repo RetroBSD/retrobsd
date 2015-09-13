@@ -161,7 +161,6 @@ struct ttysize {
 #define     PASS8       0x08000000
 #define     CTLECH      0x10000000          /* echo control chars as ^X */
 #define     PENDIN      0x20000000          /* tp->t_rawq needs reread */
-#define     DECCTQ      0x40000000          /* only ^Q starts after ^S */
 #define     NOFLSH      0x80000000          /* no output flush on signal */
 /* locals, from 127 down */
 #define TIOCLBIS        _IOW('t', 127, int) /* bis local mode bits */
@@ -181,7 +180,6 @@ struct ttysize {
 #define     LPASS8      ((int)(PASS8>>16))
 #define     LCTLECH     ((int)(CTLECH>>16))
 #define     LPENDIN     ((int)(PENDIN>>16))
-#define     LDECCTQ     ((int)(DECCTQ>>16))
 #define     LNOFLSH     ((int)(NOFLSH>>16))
 #define TIOCSBRK        _IO ('t', 123)      /* set break bit */
 #define TIOCCBRK        _IO ('t', 122)      /* clear break bit */

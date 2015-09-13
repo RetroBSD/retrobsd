@@ -1225,13 +1225,6 @@ erasenb:
         }
     }
 endcase:
-    /*
-     * If DEC-style start/stop is enabled don't restart
-     * output until seeing the start character.
-     */
-    if (t_flags & DECCTQ && tp->t_state & TS_TTSTOP &&
-        tp->t_startc != tp->t_stopc)
-        return;
 restartoutput:
     tp->t_state &= ~TS_TTSTOP;
     tp->t_flags &= ~FLUSHO;

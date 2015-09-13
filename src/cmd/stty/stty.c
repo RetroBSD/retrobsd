@@ -106,8 +106,6 @@ struct MODES lmodes[] = {
 	"-ctlecho",	0, LCTLECH,
 	"pendin",	LPENDIN, 0,
 	"-pendin",	0, LPENDIN,
-	"decctlq",	LDECCTQ, 0,
-	"-decctlq",	0, LDECCTQ,
 	"noflsh",	LNOFLSH, 0,
 	"-noflsh",	0, LNOFLSH,
 	0
@@ -223,33 +221,9 @@ args:
 
 	while (argc-- > 0) {
 		arg = *argv++;
-		if (eq("new")){
-			ldisc = NTTYDISC;
-			if (ioctl(1, TIOCSETD, &ldisc)<0)
-				perror("ioctl");
-			continue;
-		}
-		if (eq("newcrt")){
-			ldisc = NTTYDISC;
-			lmode &= ~LPRTERA;
-			lmode |= LCRTBS|LCTLECH;
-			if (mode.sg_ospeed >= B1200)
-				lmode |= LCRTERA|LCRTKIL;
-			if (ioctl(1, TIOCSETD, &ldisc)<0)
-				perror("ioctl");
-			continue;
-		}
 		if (eq("crt")){
-			lmode &= ~LPRTERA;
-			lmode |= LCRTBS|LCTLECH;
-			if (mode.sg_ospeed >= B1200)
-				lmode |= LCRTERA|LCRTKIL;
-			continue;
-		}
-		if (eq("old")){
-			ldisc = 0;
-			if (ioctl(1, TIOCSETD, &ldisc)<0)
-				perror("ioctl");
+crt:			lmode &= ~LPRTERA;
+			lmode |= LCRTBS | LCTLECH | LCRTERA | LCRTKIL;
 			continue;
 		}
 		if (eq("sane")){
@@ -261,14 +235,7 @@ args:
 			mode.sg_erase = 0177;
 			mode.sg_kill = CTRL('u');
 			tc.t_intrc = CTRL('c');
-			ldisc = NTTYDISC;
-			lmode &= ~LPRTERA;
-			lmode |= LCRTBS|LCTLECH|LDECCTQ;
-			if (mode.sg_ospeed >= B1200)
-				lmode |= LCRTERA|LCRTKIL;
-			if (ioctl(1, TIOCSETD, &ldisc)<0)
-				perror("ioctl");
-			continue;
+			goto crt;
 		}
 		for (sp = special; sp->name; sp++)
 			if (eq(sp->name)) {
@@ -387,11 +354,7 @@ prmodes(all)
 		fprintf(stderr, "net discipline, ");
 	else
 #endif
-	if (ldisc==NTTYDISC)
-		fprintf(stderr, "new tty, ");
-	else if (ldisc == 0)
-		fprintf(stderr, "old tty, ");
-	else
+	if (ldisc!=NTTYDISC)
 		fprintf(stderr, "discipline %d, ");
 
 	if(mode.sg_ispeed != mode.sg_ospeed) {
@@ -435,8 +398,7 @@ prmodes(all)
 	}
 	if (ldisc == NTTYDISC) {
 		int newcrt = (lmode & (LCTLECH|LCRTBS)) == (LCTLECH|LCRTBS) &&
-		    (lmode & (LCRTERA|LCRTKIL)) ==
-		      ((mode.sg_ospeed > B300) ? LCRTERA|LCRTKIL : 0);
+		    (lmode & (LCRTERA|LCRTKIL)) == (LCRTERA|LCRTKIL);
 		int nothing = 1;
 		if (newcrt) {
 			if (all)
@@ -468,7 +430,6 @@ prmodes(all)
 			nothing = 0;
 		}
 		lpit(LPENDIN, "-pendin ");
-		lpit(LDECCTQ, "-decctlq ");
 		lpit(LNOFLSH, "-noflsh ");
 		if (any || nothing)
 			fputc('\n', stderr);

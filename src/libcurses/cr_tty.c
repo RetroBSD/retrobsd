@@ -59,6 +59,8 @@ gettmode()
 	fprintf(outf, "GETTMODE: NONL = %s\n", NONL ? "TRUE" : "FALSE");
 	fprintf(outf, "GETTMODE: ospeed = %d\n", ospeed);
 # endif
+	/* Use nonl mode by default. */
+	nonl();
 }
 
 /*

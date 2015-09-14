@@ -1,12 +1,8 @@
-===========================================
- SL: キータイプ矯正ソフト
-	Copyright 1993,1998 Toyoda Masashi
-		(toyoda@is.titech.ac.jp)
-===========================================
+SL(1): Cure your bad habit of mistyping
+=======================================
 
-むかしにも投稿された冗談ソフトの sl の豪華版です。
-アイデアは借り物ですが、プログラム自体は私のオリジナルです。
-a,l,F オプションが有効です。機能は実行して確かめてください。
-make すればできあがります。
+SL (Steam Locomotive) runs across your terminal when you type "sl" as
+you meant to type "ls". It's just a joke command, and not useful at
+all.
 
-
+Copyright 1993,1998,2014 Toyoda Masashi (mtoyoda@acm.org)

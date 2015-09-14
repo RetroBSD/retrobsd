@@ -52,6 +52,7 @@ gettmode()
 	_res_flg = _tty.sg_flags;
 	GT = ((_tty.sg_flags & XTABS) == 0);
 	NONL = ((_tty.sg_flags & CRMOD) == 0);
+	_pfast = NONL;
 	_tty.sg_flags &= ~XTABS;
 	ioctl(_tty_ch, TIOCSETP, &_tty);
 # ifdef DEBUG
@@ -59,8 +60,6 @@ gettmode()
 	fprintf(outf, "GETTMODE: NONL = %s\n", NONL ? "TRUE" : "FALSE");
 	fprintf(outf, "GETTMODE: ospeed = %d\n", ospeed);
 # endif
-	/* Use nonl mode by default. */
-	nonl();
 }
 
 /*

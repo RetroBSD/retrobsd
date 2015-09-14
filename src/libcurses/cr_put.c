@@ -160,7 +160,7 @@ plod(cnt)
 	 * If we will later need a \n which will turn into a \r\n by
 	 * the system or the terminal, then don't bother to try to \r.
 	 */
-	if ((NONL || !_pfast) && outline < destline)
+	if (!_pfast && outline < destline)
 		goto dontcr;
 	/*
 	 * If the terminal will do a \r\n and there isn't room for it,
@@ -195,12 +195,13 @@ dontcr:
 		outline++;
 		if (NL)
 			tputs(NL, 0, plodput);
-		else
-			plodput('\n');
+		else {
+                        plodput('\n');
+                        if (!_pfast)
+                                outcol = 0;
+                }
 		if (plodcnt < 0)
 			goto out;
-		if (NONL || _pfast == 0)
-			outcol = 0;
 	}
 	if (BT)
 		k = strlen(BT);
@@ -271,7 +272,7 @@ dontcr:
 			}
 		else
 nondes:
-		     if (ND)
+                if (ND)
 			tputs(ND, 0, plodput);
 		else
 			plodput(' ');

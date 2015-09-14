@@ -90,6 +90,7 @@ int main(int argc, char *argv[])
     initscr();
     signal(SIGINT, SIG_IGN);
     noecho();
+    nonl();
     leaveok(stdscr, TRUE);
     scrollok(stdscr, FALSE);
 

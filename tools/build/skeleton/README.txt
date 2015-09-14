@@ -19,7 +19,7 @@ Files in this package:
     README.txt        - This file
 
 The installation of RetroBSD to your board consists of
-three steps:
+three (or four) steps:
 
 (1) Transfer the Unix kernel to the board
 (2) Put the filesystem image on to a SD card
@@ -84,8 +84,11 @@ You should see:
 Put the filesystem image on to a SD card
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Use any USB-to-SD card reader to attach the SD card to your PC.
-On Windows, use Win32DiskImager utility. On Linux or Mac OS X,
-run:
+
+a) On Windows, use "Win32DiskImager" utility, version 0.9.5 works
+fine under Win7(64b).
+
+b) On Linux or Mac OS X, run:
 
     sudo dd bs=32k if=sdcard.img of=/dev/XYZ
 
@@ -101,8 +104,8 @@ Connect to the console port and start RetroBSD
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Connect USB cable to the board and to your computer. The RetroBSD
 console will appear as a virtual COM port on your computer. Use
-any terminal emulation program (like putty on Windows or
-minicom on Linux) to connect to this virtual COM port at baud
+any terminal emulation program (like putty or TeraTerm on Windows,
+or minicom on Linux) to connect to this virtual COM port at baud
 rate 115200. Press <Enter> to start RetroBSD. On Login prompt,
 enter "root". Password is empty:
 

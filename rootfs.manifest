@@ -1056,6 +1056,16 @@ file /share/examples/cube/fubarino.c
 file /share/examples/cube/duinomite.c
 
 #
+# Files: /share/examples/curses
+#
+dir /share/examples/curses
+file /share/examples/curses/Makefile
+file /share/examples/curses/flip.c
+file /share/examples/curses/jump.c
+file /share/examples/curses/timer.c
+file /share/examples/curses/typetext.c
+
+#
 # Files: /share/examples/dhrystone
 #
 dir /share/examples/dhrystone

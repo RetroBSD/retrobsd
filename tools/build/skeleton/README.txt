@@ -21,13 +21,38 @@ Files in this package:
 The installation of RetroBSD to your board consists of
 three (or four) steps:
 
+(0) Optional: Restore a bootloader on your board
 (1) Transfer the Unix kernel to the board
 (2) Put the filesystem image on to a SD card
 (3) Connect to the console port and start RetroBSD
 
 
-Transfer the Unix kernel on to the board
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+(0) Optional: Restore a bootloader on your board
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Most PIC32 boards come with some kind of bootloader preinstalled.
+RetroBSD relies on a presence of the bootloader on these boards.
+In case you have lost or damaged your bootloader,
+you may use pic32prog and pickit2 programmer to restore it.
+For the latest bootloader ask at the RetroBSD forum.
+
+Do NOT use pic32prog and pickit2 programmer (or any other one)
+to flash unix.hex from Autobuild versions into the chip - it
+will NOT work.
+
+In order to get a unix.hex version for these boards able to function
+without a bootloader you have to build the whole system by yourself
+and configure the unix.hex appropriately. Use configuration
+sys/pic32/baremetal/Config as an example.
+Mind the clock settings are currently done in the bootloader.
+
+
+(1) Transfer the Unix kernel on to the board
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+For working with USB based bootloaders under Windows you may
+require an USB driver. For example, for Win7(64b) you may use
+"Stk500v2.inf" file from http://chipkit.net/forum/viewtopic.php?t=2289
+You need to install the USB driver by pointing the installer to the
+Stk500v2.inf file.
 
 Connect the board via microUSB cable to your computer. To enter
 a bootloader mode, press the PRG key first, hold it, then press
@@ -81,8 +106,8 @@ You should see:
     Rate: 9307 bytes per second
 
 
-Put the filesystem image on to a SD card
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+(2) Put the filesystem image on to a SD card
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Use any USB-to-SD card reader to attach the SD card to your PC.
 
 a) On Windows, use "Win32DiskImager" utility, version 0.9.5 works
@@ -100,8 +125,8 @@ it into SD slot on your board. The RetroBSD system is ready
 to run.
 
 
-Connect to the console port and start RetroBSD
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+(3) Connect to the console port and start RetroBSD
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Connect USB cable to the board and to your computer. The RetroBSD
 console will appear as a virtual COM port on your computer. Use
 any terminal emulation program (like putty or TeraTerm on Windows,

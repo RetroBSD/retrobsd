@@ -8,7 +8,7 @@
 #define W_LINES 7
 #define W_COLS  11
 
-void die(sig)
+void die(int sig)
 {
     signal(sig, SIG_IGN);
     werase(curscr);

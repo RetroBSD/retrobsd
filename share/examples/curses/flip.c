@@ -10,7 +10,7 @@
 #define center(WIND,LN,TEXT)    \
 	mvwaddstr((WIND), (LN), (W_COLS - strlen(TEXT))/2, (TEXT))
 
-void die(sig)
+void die(int sig)
 {
     signal(sig, SIG_IGN);
     clear();

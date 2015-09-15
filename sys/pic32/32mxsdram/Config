@@ -22,7 +22,7 @@ options         "HZ=1000"                   # Rate of timer interrupt
 options         "CPU_KHZ=80000"             # Oscillator frequency of CPU core
 options         "BUS_KHZ=80000"             # Frequency of peripheral bus
 options         "BUS_DIV=1"                 # Bus clock divisor 1/2/4/8
-options         "NPROC=20"
+#options         "NPROC=20"
 
 # LED
 options         "LED_KERNEL_PORT=TRISA"     # for kernel activity LED...

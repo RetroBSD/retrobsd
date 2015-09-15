@@ -30,6 +30,7 @@
 #include <sys/uio.h>
 #include <sys/pwm.h>
 #include <sys/debug.h>
+#include <sys/kconfig.h>
 
 /*
  * Devices:
@@ -205,3 +206,21 @@ pwm_ioctl (dev, cmd, addr, flag)
     }
     return 0;
 }
+
+/*
+ * Test to see if device is present.
+ * Return true if found and initialized ok.
+ */
+static int
+pwmprobe(config)
+    struct conf_device *config;
+{
+    int flags = config->dev_flags;
+
+    printf("pwm: flags %#x\n", flags);
+    return 1;
+}
+
+struct driver pwmdriver = {
+    "pwm", pwmprobe,
+};

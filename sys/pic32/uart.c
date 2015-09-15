@@ -11,6 +11,7 @@
 #include <sys/ioctl.h>
 #include <sys/tty.h>
 #include <sys/systm.h>
+#include <sys/kconfig.h>
 #include <sys/uart.h>
 
 #define CONCAT(x,y) x ## y
@@ -745,3 +746,69 @@ char uartgetc(dev_t dev)
     splx(s);
     return (unsigned char) c;
 }
+
+/*
+ * Test to see if device is present.
+ * Return true if found and initialized ok.
+ */
+static int
+uartprobe(config)
+    struct conf_device *config;
+{
+    int unit = config->dev_unit - 1;
+    extern dev_t console_device;
+    int is_console = (major(console_device) == uart_major &&
+                      minor(console_device) == unit);
+    int rx, tx;
+    static const int rx_tab[NUART] = {
+        GPIO_PIN('D',2),    /* U1RX: 64pin - RD2, 100pin - RF2 */
+        GPIO_PIN('F',4),    /* U2RX */
+        GPIO_PIN('G',7),    /* U3RX */
+        GPIO_PIN('D',9),    /* U4RX: 64pin - RD9, 100pin - RD14 */
+        GPIO_PIN('B',8),    /* U5RX: 64pin - RB8, 100pin - RF12 */
+        GPIO_PIN('G',9),    /* U6RX */
+    };
+    static const int tx_tab[NUART] = {
+        GPIO_PIN('D',3),    /* U1TX: 64pin - RD3, 100pin - RF8 */
+        GPIO_PIN('F',5),    /* U2TX */
+        GPIO_PIN('G',8),    /* U3TX */
+        GPIO_PIN('D',1),    /* U4TX: 64pin - RD1, 100pin - RD15 */
+        GPIO_PIN('B',14),   /* U5TX: 64pin - RB14, 100pin - RF13 */
+        GPIO_PIN('G',6),    /* U6TX */
+    };
+
+    if (unit < 0 || unit >= NUART)
+        return 0;
+    rx = rx_tab[unit];
+    tx = tx_tab[unit];
+    if (cpu_pins > 64) {
+        /* Ports UART1, UART4 and UART5 have different pin assignments
+         * for 100-pin packages. */
+        switch (unit + 1) {
+        case 1:
+            rx = GPIO_PIN('F',2);
+            tx = GPIO_PIN('F',8);
+            break;
+        case 4:
+            rx = GPIO_PIN('D',14);
+            tx = GPIO_PIN('D',15);
+            break;
+        case 5:
+            rx = GPIO_PIN('F',12);
+            tx = GPIO_PIN('F',13);
+            break;
+        }
+    }
+    printf("uart%d: pins rx=R%c%d/tx=R%c%d, interrupts %u/%u/%u", unit+1,
+        gpio_portname(rx), gpio_pinno(rx),
+        gpio_portname(tx), gpio_pinno(tx),
+        uirq[unit].er, uirq[unit].rx, uirq[unit].tx);
+    if (is_console)
+        printf(", console");
+    printf("\n");
+    return 1;
+}
+
+struct driver uartdriver = {
+    "uart", uartprobe,
+};

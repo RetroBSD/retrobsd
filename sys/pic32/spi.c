@@ -27,6 +27,7 @@
 #include <sys/ioctl.h>
 #include <sys/systm.h>
 #include <sys/uio.h>
+#include <sys/kconfig.h>
 #include <sys/spi.h>
 #include <sys/spi_bus.h>
 
@@ -261,3 +262,60 @@ int spidev_ioctl (dev_t dev, u_int cmd, caddr_t addr, int flag)
     }
     return 0;
 }
+
+/*
+ * Test to see if device is present.
+ * Return true if found and initialized ok.
+ * SPI ports are always present, if configured.
+ */
+static int
+spiprobe(config)
+    struct conf_ctlr *config;
+{
+    int channel = config->ctlr_unit - 1;
+    int sdi, sdo, sck;
+    static const int sdi_tab[NSPI] = {
+        GPIO_PIN('C',4),    /* SDI1 */
+        GPIO_PIN('G',7),    /* SDI2 */
+        GPIO_PIN('D',2),    /* SDI3: 64pin - RD2, 100pin - RF2 */
+        GPIO_PIN('F',4),    /* SDI4 */
+    };
+    static const int sdo_tab[NSPI] = {
+        GPIO_PIN('D',0),    /* SDO1 */
+        GPIO_PIN('G',8),    /* SDO2 */
+        GPIO_PIN('D',3),    /* SDO3: 64pin - RD3, 100pin - RF8 */
+        GPIO_PIN('F',5),    /* SDO4 */
+    };
+    static const int sck_tab[NSPI] = {
+        GPIO_PIN('D',10),   /* SCK1 */
+        GPIO_PIN('G',6),    /* SCK2 */
+        GPIO_PIN('D',1),    /* SCK3: 64pin - RD1, 100pin - RD15 */
+        GPIO_PIN('D',10),   /* SCK4 */
+    };
+
+    if (channel < 0 || channel >= NSPI)
+        return 0;
+    sdi = sdi_tab[channel];
+    sdo = sdo_tab[channel];
+    sck = sck_tab[channel];
+    if (channel+1 == 3 && cpu_pins > 64) {
+        /* Port SPI3 has different pin assignment for 100-pin packages. */
+        sdi = GPIO_PIN('F',2);
+        sdo = GPIO_PIN('F',8);
+        sck = GPIO_PIN('D',15);
+    }
+    printf ("spi%u: pins sdi=R%c%d/sdo=R%c%d/sck=R%c%d\n", channel+1,
+        gpio_portname(sdi), gpio_pinno(sdi),
+        gpio_portname(sdo), gpio_pinno(sdo),
+        gpio_portname(sck), gpio_pinno(sck));
+
+    //TODO
+    //struct spiio *io = &spitab[channel];
+    //io->reg = spi_base[channel];
+    //spi_setup(io, 0, 0);
+    return 1;
+}
+
+struct driver spidriver = {
+    "spi", spiprobe,
+};

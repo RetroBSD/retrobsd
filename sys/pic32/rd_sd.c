@@ -37,6 +37,7 @@
 #include <sys/rdisk.h>
 #include <sys/spi_bus.h>
 #include <sys/debug.h>
+#include <sys/kconfig.h>
 
 /*
  * Two SD/MMC disks on SPI.
@@ -568,8 +569,8 @@ void sd_preinit (int unit)
     spi_brg(fd, SD0_MHZ * 1000);
     spi_set(fd, PIC32_SPICON_CKE);
 
-    printf ("sd%d: port %s, select pin R%c%d\n", unit,
-        spi_name(fd), spi_csname(fd), spi_cspin(fd));
+    //printf ("sd%d: port %s, select pin R%c%d\n", unit,
+    //    spi_name(fd), spi_csname(fd), spi_cspin(fd));
 }
 
 int sdinit (int unit, int flag)
@@ -644,3 +645,26 @@ int sdopen(int unit, int flags, int mode)
     DEBUG("sd%d: open\n",unit);
     return 0;
 }
+
+/*
+ * Test to see if device is present.
+ * Return true if found and initialized ok.
+ */
+static int
+sdprobe(config)
+    struct conf_device *config;
+{
+    int unit = config->dev_unit;
+    int cs;
+
+    if (unit < 0 || unit >= NSD)
+        return 0;
+    cs = config->dev_pins[0];
+    printf("sd%u: port SPI%d, pin cs=R%c%d\n", unit,
+        config->dev_ctlr, gpio_portname(cs), gpio_pinno(cs));
+    return 1;
+}
+
+struct driver sddriver = {
+    "sd", sdprobe,
+};

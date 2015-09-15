@@ -29,6 +29,7 @@
 #include <sys/uio.h>
 #include <sys/adc.h>
 #include <sys/debug.h>
+#include <sys/kconfig.h>
 #include <sys/hx8357.h>
 #include <sys/fonts/default.h>
 
@@ -787,3 +788,21 @@ int hx8357_select (dev_t dev, int rw)
     }
     return ENODEV;
 }
+
+/*
+ * Test to see if device is present.
+ * Return true if found and initialized ok.
+ */
+static int
+hxtftprobe(config)
+    struct conf_device *config;
+{
+    int flags = config->dev_flags;
+
+    printf("hxtft0: flags %#x\n", flags);
+    return 1;
+}
+
+struct driver hxtftdriver = {
+    "hxtft", hxtftprobe,
+};

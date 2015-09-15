@@ -438,6 +438,9 @@ void makefile()
             fprintf(ofp, "PARAM += -D%s_ENABLED\n", raise(dp->d_name));
         else
             fprintf(ofp, "PARAM += -D%s%d_ENABLED\n", raise(dp->d_name), dp->d_unit);
+
+        if (dp->d_type == SERVICE && dp->d_slave > 0)
+            fprintf(ofp, "PARAM += -D%s_NUNITS=%d\n", raise(dp->d_name), dp->d_slave);
     }
     for (op = opt; op; op = op->op_next) {
         if (op->op_value)

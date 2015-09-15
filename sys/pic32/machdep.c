@@ -20,6 +20,7 @@
 #include <sys/mount.h>
 #include <sys/systm.h>
 #include <sys/debug.h>
+#include <sys/kconfig.h>
 #include <sys/uart.h>
 #include <sys/usb_uart.h>
 #ifdef UARTUSB_ENABLED
@@ -140,6 +141,9 @@ struct map  swapmap[1] = {
 };
 
 int waittime = -1;
+
+/* CPU package type: 64 pins or 100 pins. */
+int cpu_pins;
 
 static int
 nodump(dev)
@@ -392,7 +396,7 @@ startup()
     physmem = BMXDRMSZ;
 }
 
-void cpuidentify()
+static void cpuidentify()
 {
     unsigned devid = DEVID, osccon = OSCCON;
     static const char pllmult[]  = { 15, 16, 17, 18, 19, 20, 21, 24 };
@@ -402,11 +406,26 @@ void cpuidentify()
 
     printf("cpu: ");
     switch (devid & 0x0fffffff) {
-    case 0x04307053: printf("795F512L"); break;
-    case 0x0430E053: printf("795F512H"); break;
-    case 0x04341053: printf("695F512L"); break;
-    case 0x04325053: printf("695F512H"); break;
-    default:         printf("DevID %08x", devid);
+    case 0x04307053:
+        cpu_pins = 100;
+        printf("795F512L");
+        break;
+    case 0x0430E053:
+        cpu_pins = 64;
+        printf("795F512H");
+        break;
+    case 0x04341053:
+        cpu_pins = 100;
+        printf("695F512L");
+        break;
+    case 0x04325053:
+        cpu_pins = 64;
+        printf("695F512H");
+        break;
+    default:
+        /* Assume 100-pin package. */
+        cpu_pins = 100;
+        printf("DevID %08x", devid);
     }
     printf(" %u MHz, bus %u MHz\n", CPU_KHZ/1000, BUS_KHZ/1000);
 
@@ -440,6 +459,59 @@ void cpuidentify()
     case 7:
         printf("internal Fast RC, divided\n");
         break;
+    }
+}
+
+/*
+ * Check whether the controller has been successfully initialized.
+ */
+static int
+is_controller_alive(driver, unit)
+    struct driver *driver;
+    int unit;
+{
+    struct conf_ctlr *ctlr;
+
+    /* No controller - that's OK. */
+    if (driver == 0)
+        return 1;
+
+    for (ctlr = conf_ctlr_init; ctlr->ctlr_driver; ctlr++) {
+        if (ctlr->ctlr_driver == driver &&
+            ctlr->ctlr_unit == unit &&
+            ctlr->ctlr_alive)
+        {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/*
+ * Configure all controllers and devices as specified
+ * in the kernel configuration file.
+ */
+void kconfig()
+{
+    struct conf_ctlr *ctlr;
+    struct conf_device *dev;
+
+    cpuidentify();
+
+    /* Probe and initialize controllers first. */
+    for (ctlr = conf_ctlr_init; ctlr->ctlr_driver; ctlr++) {
+        if ((*ctlr->ctlr_driver->d_init)(ctlr)) {
+            ctlr->ctlr_alive = 1;
+        }
+    }
+
+    /* Probe and initialize devices. */
+    for (dev = conf_device_init; dev->dev_driver; dev++) {
+        if (is_controller_alive(dev->dev_cdriver, dev->dev_ctlr)) {
+            if ((*dev->dev_driver->d_init)(dev)) {
+                dev->dev_alive = 1;
+            }
+        }
     }
 }
 
@@ -941,4 +1013,59 @@ int copyin (caddr_t from, caddr_t to, u_int nbytes)
         return EFAULT;
     bcopy(from, to, nbytes);
     return 0;
+}
+
+/*
+ * Routines for access to general purpose I/O pins.
+ */
+static const char pin_name[16] = "?ABCDEFG????????";
+
+void gpio_set_input(int pin)
+{
+    struct gpioreg *port = (struct gpioreg*) &TRISA;
+
+    port += (pin >> 4 & 15) - 1;
+    port->trisset = (1 << (pin & 15));
+}
+
+void gpio_set_output(int pin)
+{
+    struct gpioreg *port = (struct gpioreg*) &TRISA;
+
+    port += (pin >> 4 & 15) - 1;
+    port->trisclr = (1 << (pin & 15));
+}
+
+void gpio_set(int pin)
+{
+    struct gpioreg *port = (struct gpioreg*) &TRISA;
+
+    port += (pin >> 4 & 15) - 1;
+    port->latset = (1 << (pin & 15));
+}
+
+void gpio_clr(int pin)
+{
+    struct gpioreg *port = (struct gpioreg*) &TRISA;
+
+    port += (pin >> 4 & 15) - 1;
+    port->latclr = (1 << (pin & 15));
+}
+
+int gpio_get(int pin)
+{
+    struct gpioreg *port = (struct gpioreg*) &TRISA;
+
+    port += (pin >> 4 & 15) - 1;
+    return ((port->port & (1 << (pin & 15))) ? 1 : 0);
+}
+
+char gpio_portname(int pin)
+{
+    return pin_name[(pin >> 4) & 15];
+}
+
+int gpio_pinno(int pin)
+{
+    return pin & 15;
 }

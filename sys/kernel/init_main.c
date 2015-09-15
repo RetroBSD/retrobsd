@@ -21,6 +21,7 @@
 #include <sys/kernel.h>
 #include <sys/namei.h>
 #include <sys/stat.h>
+#include <sys/kconfig.h>
 #include <sys/rdisk.h>
 
 u_int   swapstart, nswap;   /* start and size of swap space */
@@ -109,7 +110,7 @@ main()
 
     startup();
     printf ("\n%s", version);
-    cpuidentify();
+    kconfig();
     cnidentify();
 
     /*
@@ -147,6 +148,12 @@ main()
     binit();
     nchinit();
     clkstart();
+
+    /* Attach services. */
+    struct conf_service *svc;
+    for (svc = conf_service_init; svc->svc_attach != NULL; svc++)
+        (*svc->svc_attach)();
+
     s = spl0();
     rdisk_init();
 

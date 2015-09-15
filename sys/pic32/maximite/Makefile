@@ -101,7 +101,7 @@ CFILES = $S/kernel/exec_aout.c $S/kernel/exec_conf.c $S/kernel/exec_elf.c \
 #	${SYSTEM_LD_HEAD}
 #	${SYSTEM_LD} swapxxx.o
 #	${SYSTEM_LD_TAIL}
-SYSTEM_OBJ      = startup.o ${OBJS} #ioconf.o
+SYSTEM_OBJ      = startup.o ${OBJS} ioconf.o
 ifeq (devcfg.c,$(wildcard devcfg.c))
     SYSTEM_OBJ  += devcfg.o
 endif

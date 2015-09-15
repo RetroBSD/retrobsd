@@ -29,6 +29,7 @@
 #include <sys/uio.h>
 #include <sys/glcd.h>
 #include <sys/debug.h>
+#include <sys/kconfig.h>
 
 const struct devspec glcddevs[] = {
     { 0, "glcd0" },
@@ -665,3 +666,21 @@ int glcd_ioctl (dev_t dev, register u_int cmd, caddr_t addr, int flag)
     }
     return 0;
 }
+
+/*
+ * Test to see if device is present.
+ * Return true if found and initialized ok.
+ */
+static int
+glcdprobe(config)
+    struct conf_device *config;
+{
+    int flags = config->dev_flags;
+
+    printf("glcd0: flags %#x\n", flags);
+    return 1;
+}
+
+struct driver glcddriver = {
+    "glcd", glcdprobe,
+};

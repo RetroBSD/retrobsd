@@ -27,6 +27,7 @@
 #include <sys/user.h>
 #include <sys/ioctl.h>
 #include <sys/tty.h>
+#include <sys/kconfig.h>
 #include <machine/pic32mx.h>
 #include <machine/usb_device.h>
 #include <machine/usb_function_cdc.h>
@@ -279,6 +280,28 @@ void usbintr (int chan)
     // Transmit data to user.
     cdc_tx_service();
 }
+
+/*
+ * Test to see if device is present.
+ * Return true if found and initialized ok.
+ */
+static int
+usbprobe(config)
+    struct conf_device *config;
+{
+    extern dev_t console_device;
+    int is_console = major(console_device) == usb_major;
+
+    printf("uartusb: port USB, interrupt %u", PIC32_VECT_USB);
+    if (is_console)
+        printf(", console");
+    printf("\n");
+    return 1;
+}
+
+struct driver uartusbdriver = {
+    "uartusb", usbprobe,
+};
 
 /*
  * USB Callback Functions

@@ -105,7 +105,7 @@ int loginit (void);
 void log (int level, char *fmt, ...);
 int logwrt (char *buf, int len, int log);
 void logwakeup (int unit);
-void cpuidentify (void);
+void kconfig (void);
 void cninit (void);
 void cnidentify (void);
 void cnputc (char c);

@@ -13,6 +13,7 @@
 #include <machine/sdram.h>
 #include <sys/rd_sdramp.h>
 #include <sys/rdisk.h>
+#include <sys/kconfig.h>
 
 /*
  * See rd_sdramp_config.h for sdramp port/pin configuration
@@ -63,31 +64,7 @@ static char swaptemp[CHUNK_SIZE];
     m->partitions[n].lbastart = s; \
     m->partitions[n].lbalength = l;
 
-//void build_ramdisk_mbr(struct mbr* m);
-
 // FIXME - FOLLOWING shared with gpio.c - needs to be made common
-
-/*
- * PIC32 port i/o registers.
- */
-struct gpioreg {
-    volatile unsigned tris;     /* Mask of inputs */
-    volatile unsigned trisclr;
-    volatile unsigned trisset;
-    volatile unsigned trisinv;
-    volatile unsigned port;     /* Read inputs, write outputs */
-    volatile unsigned portclr;
-    volatile unsigned portset;
-    volatile unsigned portinv;
-    volatile unsigned lat;      /* Read/write outputs */
-    volatile unsigned latclr;
-    volatile unsigned latset;
-    volatile unsigned latinv;
-    volatile unsigned odc;      /* Open drain configuration */
-    volatile unsigned odcclr;
-    volatile unsigned odcset;
-    volatile unsigned odcinv;
-};
 
 struct ocreg {
     volatile unsigned con;      /* ? */
@@ -397,16 +374,18 @@ int sdramp_size(int unit)
     return (1<<SDR_ADDRESS_LINES) / 2 * 4 * SDR_DATA_BYTES;
 }
 
-#if 0
-// FIXME - this does not supply any more than
-// is currently used by the rdisk functions. It does
-// not build a completely or valid mbr.
-
-void build_ramdisk_mbr(struct mbr *m)
+/*
+ * Test to see if device is present.
+ * Return true if found and initialized ok.
+ */
+static int
+sdrampprobe(config)
+    struct conf_device *config;
 {
-    bzero(m, 512);
-#ifdef RAMDISK_MBR_PARTS
-    RAMDISK_MBR_PARTS;
-#endif
+    //TODO
+    return 1;
 }
-#endif
+
+struct driver sdrampdriver = {
+    "sdramp", sdrampprobe,
+};

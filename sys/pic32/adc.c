@@ -29,6 +29,7 @@
 #include <sys/uio.h>
 #include <sys/adc.h>
 #include <sys/debug.h>
+#include <sys/kconfig.h>
 
 const struct devspec adcdevs[] = {
     { 0, "adc0" }, { 1, "adc1" }, { 2, "adc2" }, { 3, "adc3" },
@@ -146,3 +147,21 @@ int adc_ioctl(dev_t dev, register u_int cmd, caddr_t addr, int flag)
 
     return 0;
 }
+
+/*
+ * Test to see if device is present.
+ * Return true if found and initialized ok.
+ */
+static int
+adcprobe(config)
+    struct conf_device *config;
+{
+    int flags = config->dev_flags;
+
+    printf("adc: flags %#x\n", flags);
+    return 1;
+}
+
+struct driver adcdriver = {
+    "adc", adcprobe,
+};

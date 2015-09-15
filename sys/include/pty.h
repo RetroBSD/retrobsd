@@ -18,17 +18,12 @@
 extern const struct devspec ptsdevs[];
 extern const struct devspec ptcdevs[];
 
-
-#ifndef NPTY
-#define NPTY 4
+#ifndef PTY_NUNITS
+#define PTY_NUNITS 4            /* 4 units by default */
 #endif
 
-#if NPTY == 1
-#undef NPTY
-#define NPTY    16      /* crude XXX */
-#endif
-
-extern struct  tty pt_tty[NPTY];
+extern struct tty pt_tty[];
+extern int npty;
 
 extern int ptsopen(dev_t dev, int flag, int mode);
 extern int ptsclose(dev_t dev, int flag, int mode);

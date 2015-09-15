@@ -117,6 +117,7 @@
 #else
 #define PIC32_R(a)              *(volatile unsigned*)(0xBF800000 + (a))
 #endif
+
 /*--------------------------------------
  * UART registers.
  */
@@ -406,6 +407,30 @@
 #define ODCGCLR         PIC32_R (0x861B4)
 #define ODCGSET         PIC32_R (0x861B8)
 #define ODCGINV         PIC32_R (0x861BC)
+
+#ifndef __ASSEMBLER__
+/*
+ * PIC32 port i/o registers.
+ */
+struct gpioreg {
+    volatile unsigned tris;     /* Mask of inputs */
+    volatile unsigned trisclr;
+    volatile unsigned trisset;
+    volatile unsigned trisinv;
+    volatile unsigned port;     /* Read inputs, write outputs */
+    volatile unsigned portclr;
+    volatile unsigned portset;
+    volatile unsigned portinv;
+    volatile unsigned lat;      /* Read/write outputs */
+    volatile unsigned latclr;
+    volatile unsigned latset;
+    volatile unsigned latinv;
+    volatile unsigned odc;      /* Open drain configuration */
+    volatile unsigned odcclr;
+    volatile unsigned odcset;
+    volatile unsigned odcinv;
+};
+#endif
 
 #define CNCON           PIC32_R (0x861C0) /* Interrupt-on-change control */
 #define CNCONCLR        PIC32_R (0x861C4)

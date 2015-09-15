@@ -8,7 +8,7 @@
  */
 #include <sys/pty.h>
 
-#if NPTY > 0
+#ifdef PTY_ENABLED
 #include <sys/param.h>
 #include <sys/systm.h>
 #include <sys/ioctl.h>
@@ -41,16 +41,16 @@ extern  int TTYHOG;     /* see tty.c */
  * pts == /dev/tty[pqrs]?
  * ptc == /dev/pty[pqrs]?
  */
-struct  tty pt_tty[NPTY];
+struct  tty pt_tty[PTY_NUNITS];
 
 struct  pt_ioctl {
     int     pt_flags;
     struct  proc *pt_selr, *pt_selw;
     u_char  pt_send;
     u_char  pt_ucntl;
-} pt_ioctl[NPTY];
+} pt_ioctl[PTY_NUNITS];
 
-int npty = NPTY;                /* for pstat -t */
+int npty = PTY_NUNITS;          /* for pstat -t */
 
 #define PF_RCOLL    0x01
 #define PF_WCOLL    0x02
@@ -69,7 +69,7 @@ int ptsopen(dev_t dev, int flag, int mode)
 #ifdef lint
     npty = npty;
 #endif
-    if (minor(dev) >= NPTY)
+    if (minor(dev) >= PTY_NUNITS)
         return (ENXIO);
     tp = &pt_tty[minor(dev)];
     if ((tp->t_state & TS_ISOPEN) == 0) {
@@ -197,7 +197,7 @@ int ptcopen(dev_t dev, int flag, int mode)
     register struct tty *tp;
     struct pt_ioctl *pti;
 
-    if (minor(dev) >= NPTY)
+    if (minor(dev) >= PTY_NUNITS)
         return (ENXIO);
     tp = &pt_tty[minor(dev)];
     if (tp->t_oproc)
@@ -518,5 +518,10 @@ int ptyioctl(dev_t dev, u_int cmd, caddr_t data, int flag)
         }
     }
     return (error);
+}
+
+void ptyattach()
+{
+    printf("pty: %d units\n", PTY_NUNITS);
 }
 #endif

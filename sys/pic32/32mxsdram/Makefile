@@ -25,7 +25,6 @@ PARAM += -DLED_DISK_PIN=13
 PARAM += -DLED_DISK_PORT=TRISC
 PARAM += -DLED_KERNEL_PIN=15
 PARAM += -DLED_KERNEL_PORT=TRISA
-PARAM += -DNPROC=20
 PARAM += -DBUS_DIV=1
 PARAM += -DBUS_KHZ=80000
 PARAM += -DCPU_KHZ=80000
@@ -110,7 +109,7 @@ CFILES = $S/kernel/exec_aout.c $S/kernel/exec_conf.c $S/kernel/exec_elf.c \
 #	${SYSTEM_LD_HEAD}
 #	${SYSTEM_LD} swapxxx.o
 #	${SYSTEM_LD_TAIL}
-SYSTEM_OBJ      = startup.o ${OBJS} #ioconf.o
+SYSTEM_OBJ      = startup.o ${OBJS} ioconf.o
 ifeq (devcfg.c,$(wildcard devcfg.c))
     SYSTEM_OBJ  += devcfg.o
 endif

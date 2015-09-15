@@ -21,6 +21,9 @@
 #include <sys/vmmeter.h>
 #include <sys/map.h>
 #include <sys/conf.h>
+#ifdef PTY_ENABLED
+#   include <sys/pty.h>
+#endif
 
 /*
  * Errno messages.
@@ -165,7 +168,7 @@ static const struct {
     { "_tk_nout",       (int) &tk_nout      },  /* iostat */
     { "_total",         (int) &total        },  /* vmstat */
     { "_u",             (int) &u            },  /* ps */
-#if NPTY > 0
+#ifdef PTY_ENABLED
     { "_npty",          (int) &npty         },  /* pstat */
     { "_pt_tty",        (int) &pt_tty       },  /* pstat */
 #endif

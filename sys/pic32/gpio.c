@@ -28,6 +28,7 @@
 #include <sys/gpio.h>
 #include <sys/systm.h>
 #include <sys/uio.h>
+#include <sys/kconfig.h>
 
 const struct devspec gpiodevs[] = {
     { 0, "porta" }, { 1, "portb" }, { 2, "portc" }, { 3, "portd" },
@@ -114,28 +115,6 @@ u_int gpio_confmask [NGPIO];
  */
 #define PRINTDBG(...) /*empty*/
 //#define PRINTDBG printf
-
-/*
- * PIC32 port i/o registers.
- */
-struct gpioreg {
-    volatile unsigned tris;     /* Mask of inputs */
-    volatile unsigned trisclr;
-    volatile unsigned trisset;
-    volatile unsigned trisinv;
-    volatile unsigned port;     /* Read inputs, write outputs */
-    volatile unsigned portclr;
-    volatile unsigned portset;
-    volatile unsigned portinv;
-    volatile unsigned lat;      /* Read/write outputs */
-    volatile unsigned latclr;
-    volatile unsigned latset;
-    volatile unsigned latinv;
-    volatile unsigned odc;      /* Open drain configuration */
-    volatile unsigned odcclr;
-    volatile unsigned odcset;
-    volatile unsigned odcinv;
-};
 
 /*
  * If a port address matches a port number,
@@ -626,3 +605,30 @@ gpioioctl (dev, cmd, addr, flag)
     }
     return 0;
 }
+
+/*
+ * Test to see if device is present.
+ * Return true if found and initialized ok.
+ */
+static int
+gpioprobe(config)
+    struct conf_device *config;
+{
+    int unit = config->dev_unit;
+    int flags = config->dev_flags;
+    char buf[20];
+
+    if (unit < 0 || unit >= NGPIO)
+        return 0;
+
+    gpio_confmask[unit] = flags;
+
+    gpio_print(unit | MINOR_CONF, buf);
+    printf("gpio%u: port%c, pins %s", unit,
+        unit + (unit<8 ? 'A' : 'B'), buf);
+    return 1;
+}
+
+struct driver gpiodriver = {
+    "gpio", gpioprobe,
+};

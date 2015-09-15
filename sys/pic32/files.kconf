@@ -31,6 +31,7 @@ kernel/sys_pipe.c               standard
 kernel/sys_process.c            standard
 kernel/syscalls.c               standard
 kernel/tty.c                    standard
+kernel/tty_pty.c                optional pty
 kernel/tty_subr.c               standard
 kernel/tty_tty.c                standard
 kernel/ufs_alloc.c              standard

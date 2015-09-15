@@ -203,6 +203,26 @@ extern int sd_timo_wait_wdone;
 extern int sd_timo_wait_wstop;
 extern int sd_timo_wait_widle;
 
+/*
+ * GPIO pins.
+ */
+void gpio_set_input(int pin);
+void gpio_set_output(int pin);
+void gpio_set(int pin);
+void gpio_clr(int pin);
+int gpio_get(int pin);
+
+char gpio_portname(int pin);
+int gpio_pinno(int pin);
+
+/* Convert port name/signal into a pin number. */
+#define GPIO_PIN(x,n) (((x)-'A'+1) << 4 | (n))
+
+/*
+ * CPU package type: 64 pins or 100 pins.
+ */
+extern int cpu_pins;
+
 #endif /* KERNEL */
 
 #endif /* ENDIAN */

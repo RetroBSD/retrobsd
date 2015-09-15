@@ -40,7 +40,7 @@ COMPILE_S       = ${CC} -c ${DEFS} $<
 #	${SYSTEM_LD_HEAD}
 #	${SYSTEM_LD} swapxxx.o
 #	${SYSTEM_LD_TAIL}
-SYSTEM_OBJ      = startup.o ${OBJS} #ioconf.o
+SYSTEM_OBJ      = startup.o ${OBJS} ioconf.o
 ifeq (devcfg.c,$(wildcard devcfg.c))
     SYSTEM_OBJ  += devcfg.o
 endif

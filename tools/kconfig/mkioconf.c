@@ -42,18 +42,18 @@ service_ioconf(fp)
 {
     register struct device *dp;
 
-    for (dp = dtab; dp != NULL; dp = dp->d_next)
+    for (dp = dtab; dp != NULL; dp = dp->d_next) {
         if (dp->d_type == SERVICE)
-            fprintf(fp, "extern void %sattach __P((int));\n",
+            fprintf(fp, "void %sattach(int);\n",
                 dp->d_name);
+    }
 
-    fprintf(fp, "\nstruct conf_pdev conf_sinit[] = {\n");
-    for (dp = dtab; dp != NULL; dp = dp->d_next)
+    fprintf(fp, "\nstruct conf_service conf_service_init[] = {\n");
+    for (dp = dtab; dp != NULL; dp = dp->d_next) {
         if (dp->d_type == SERVICE)
-            fprintf(fp, "    { %sattach, %d },\n", dp->d_name,
-                dp->d_slave > 0 ? dp->d_slave : 1);
-
-    fprintf(fp, "    { 0, 0 }\n};\n");
+            fprintf(fp, "    { %sattach },\n", dp->d_name);
+    }
+    fprintf(fp, "    { 0 }\n};\n");
 }
 
 static char *
@@ -78,8 +78,7 @@ void pic32_ioconf()
         exit(1);
     }
     fprintf(fp, "#include \"sys/types.h\"\n");
-    fprintf(fp, "#include \"sys/time.h\"\n");
-    fprintf(fp, "#include \"mips/dev/device.h\"\n\n");
+    fprintf(fp, "#include \"sys/kconfig.h\"\n\n");
     fprintf(fp, "#define C (char *)\n\n");
 
     /* print controller initialization structures */
@@ -88,7 +87,7 @@ void pic32_ioconf()
             continue;
         fprintf(fp, "extern struct driver %sdriver;\n", dp->d_name);
     }
-    fprintf(fp, "\nstruct conf_ctlr conf_cinit[] = {\n");
+    fprintf(fp, "\nstruct conf_ctlr conf_ctlr_init[] = {\n");
     fprintf(fp, "   /* driver,\t\tunit,\taddr,\t\tpri,\tflags */\n");
     for (dp = dtab; dp != 0; dp = dp->d_next) {
         if (dp->d_type != CONTROLLER)
@@ -108,7 +107,7 @@ void pic32_ioconf()
     fprintf(fp, "    { 0 }\n};\n");
 
     /* print devices connected to other controllers */
-    fprintf(fp, "\nstruct conf_device conf_dinit[] = {\n");
+    fprintf(fp, "\nstruct conf_device conf_device_init[] = {\n");
     fprintf(fp,
        "   /* driver,\t\tctlr driver,\tunit,\tctlr,\tdrive,\tflags,\tpins */\n");
     for (dp = dtab; dp != 0; dp = dp->d_next) {

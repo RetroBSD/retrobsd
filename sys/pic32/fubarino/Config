@@ -1,6 +1,6 @@
 #
 # Fubarino SD board
-# ==================================
+# =================
 # Console on USB.
 # For details, see https://github.com/RetroBSD/retrobsd/wiki/Board-Fubarino-SD
 #
@@ -49,7 +49,15 @@ options         "SD0_CS_PORT=TRISG"         # for chip select...    TODO: delete
 options         "SD0_CS_PIN=9"              # ...use pin RA9        TODO: delete
 
 # General purpose I/O ports
-device          gpio
+# Flags define a mask of available pins
+# The following pins excluded:
+#   RG6, RG7, RG8, RG9 - spi2, SD card
+device          gpio1   flags 0xffff    # port B
+device          gpio2   flags 0xf000    # port C
+device          gpio3   flags 0x0fff    # port D
+device          gpio4   flags 0x00ff    # port E
+device          gpio5   flags 0x003b    # port F
+device          gpio6   flags 0x000c    # port G
 
 # ADC driver
 device          adc

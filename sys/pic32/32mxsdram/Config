@@ -58,9 +58,6 @@ options         "SD0_CS_PIN=3"              # ...use pin RF3        TODO: delete
 options         "SD0_ENA_PORT=TRISB"        # for microSD enable... TODO: delete
 options         "SD0_ENA_PIN=13"            # ...use pin RB13       TODO: delete
 
-# General purpose I/O ports
-device          gpio
-
 # ADC driver
 device          adc
 

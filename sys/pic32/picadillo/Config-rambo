@@ -44,9 +44,6 @@ options         "SD0_PORT=2"                # at spi2               TODO: delete
 options         "SD0_CS_PORT=TRISG"         # for chip select...    TODO: delete
 options         "SD0_CS_PIN=9"              # ...use pin RG9        TODO: delete
 
-# General purpose I/O ports
-device          gpio
-
 # ADC driver
 device          adc
 

@@ -55,7 +55,16 @@ options         "SD0_ENA_PORT=TRISG"        # for SD enable...      TODO: delete
 options         "SD0_ENA_PIN=13"            # ...use pin RG13       TODO: delete
 
 # General purpose I/O ports
-device          gpio
+# Flags define a mask of available pins
+# The following pins excluded:
+#   RD1, RD2, RD3, RG12, RG13 - spi3, SD card
+device          gpio0   flags 0xc6ff    # port A
+device          gpio1   flags 0xffff    # port B
+device          gpio2   flags 0xf01e    # port C
+device          gpio3   flags 0xfff1    # port D
+device          gpio4   flags 0x03ff    # port E
+device          gpio5   flags 0x313f    # port F
+device          gpio6   flags 0xc3cf    # port G
 
 # ADC driver
 device          adc

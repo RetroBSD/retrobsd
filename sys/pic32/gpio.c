@@ -624,8 +624,7 @@ gpioprobe(config)
     gpio_confmask[unit] = flags;
 
     gpio_print(unit | MINOR_CONF, buf);
-    printf("gpio%u: port%c, pins %s", unit,
-        unit + (unit<8 ? 'A' : 'B'), buf);
+    printf("gpio%u: port%c, pins %s", unit, unit + 'A', buf);
     return 1;
 }
 

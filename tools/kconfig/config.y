@@ -744,6 +744,7 @@ void init_dev(dp)
     dp->d_maddr = 0;
     dp->d_msize = 0;
     dp->d_npins = 0;
+    dp->d_flags = 0;
     dp->d_mask = "null";
 }
 

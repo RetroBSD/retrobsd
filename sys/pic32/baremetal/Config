@@ -49,12 +49,3 @@ options         "SD0_MHZ=16"                # speed 16 MHz
 options         "SD0_PORT=2"                # at spi2               TODO: delete
 options         "SD0_CS_PORT=TRISD"         # for chip select...    TODO: delete
 options         "SD0_CS_PIN=1"              # ...use pin RD1        TODO: delete
-
-# General purpose I/O ports
-device          gpio
-
-# ADC driver
-device          adc
-
-# PWM driver
-device          pwm

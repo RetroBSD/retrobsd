@@ -45,8 +45,8 @@ void cninit()
 
 void cnidentify()
 {
-    printf ("console: %s (%d,%d)\n", cdevname(console_device),
-        major(console_device), minor(console_device));
+    //printf ("console: %s (%d,%d)\n", cdevname(console_device),
+    //    major(console_device), minor(console_device));
 }
 
 int cnopen(dev_t dev, int flag, int mode)

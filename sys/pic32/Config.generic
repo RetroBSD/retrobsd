@@ -96,7 +96,24 @@ options         "SD0_ENA_PORT=TRISA"        # to enable SD card...  TODO: delete
 options         "SD0_ENA_PIN=5"             # ...use pin RA5        TODO: delete
 
 # General purpose I/O ports
-device          gpio0
+# Flags define a mask of available pins
+# For 64-pin devices:
+device          gpio1   flags 0xffff    # port B
+device          gpio2   flags 0xf000    # port C
+device          gpio3   flags 0x0fff    # port D
+device          gpio4   flags 0x00ff    # port E
+device          gpio5   flags 0x003b    # port F
+device          gpio6   flags 0x03cc    # port G
+
+# For 100-pin devices:
+device          gpio0   flags 0xc6ff    # port A
+device          gpio1   flags 0xffff    # port B
+device          gpio2   flags 0xf01e    # port C
+device          gpio3   flags 0xffff    # port D
+device          gpio4   flags 0x03ff    # port E
+device          gpio5   flags 0x313f    # port F
+device          gpio6   flags 0xf3cf    # port G
+
 options         "GPIO_CLEAR_PORT=TRISA"     # clear on startup...
 options         "GPIO_CLEAR_PIN=5"          # ...pin RA5
 

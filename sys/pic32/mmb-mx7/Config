@@ -59,7 +59,17 @@ options         "SD0_CS_PIN=9"              # ...use pin RA9        TODO: delete
 options         "SD0_MHZ=8"                 # speed 8 MHz
 
 # General purpose I/O ports
-device          gpio
+# Flags define a mask of available pins
+# The following pins excluded:
+#   RF2, RF8            - uart1
+#   RC4, RD0, RD10, RA9 - spi1, SD card
+device          gpio0   flags 0xc4ff        # port A
+device          gpio1   flags 0xffff        # port B
+device          gpio2   flags 0xf00e        # port C
+device          gpio3   flags 0xfbfe        # port D
+device          gpio4   flags 0x03ff        # port E
+device          gpio5   flags 0x303b        # port F
+device          gpio6   flags 0xf3cf        # port G
 options         "GPIO_CLEAR_PORT=TRISD"     # clear on startup...
 options         "GPIO_CLEAR_PIN=2"          # ...pin RD2
 

@@ -49,7 +49,17 @@ options         "SD0_CS_PORT=TRISD"         # for chip select...    TODO: delete
 options         "SD0_CS_PIN=4"              # ...use pin RD4        TODO: delete
 
 # General purpose I/O ports
-device          gpio
+# Flags define a mask of available pins
+# The following pins excluded:
+#   RF2, RF8            - uart1
+#   RG6, RG7, RG8, RD4  - spi2, SD card
+device          gpio0   flags 0xc6ff    # port A
+device          gpio1   flags 0xffff    # port B
+device          gpio2   flags 0xf01e    # port C
+device          gpio3   flags 0xffef    # port D
+device          gpio4   flags 0x03ff    # port E
+device          gpio5   flags 0x303b    # port F
+device          gpio6   flags 0xf20f    # port G
 
 # ADC driver
 device          adc

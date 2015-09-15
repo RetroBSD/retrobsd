@@ -61,7 +61,17 @@ options         "SD1_CS_PORT=TRISA"         # for sd1 chip select...TODO: delete
 options         "SD1_CS_PIN=10"             # ...use pin RA9        TODO: delete
 
 # General purpose I/O ports
-device          gpio
+# Flags define a mask of available pins
+# The following pins excluded:
+#   RF4, RF5                  - uart2
+#   RC4, RD0, RD10, RA9, RA10 - spi1, SD card
+device          gpio0   flags 0xc0ff        # port A
+device          gpio1   flags 0xffff        # port B
+device          gpio2   flags 0xf00e        # port C
+device          gpio3   flags 0xfbfe        # port D
+device          gpio4   flags 0x03ff        # port E
+device          gpio5   flags 0x310f        # port F
+device          gpio6   flags 0xf3cf        # port G
 
 # ADC driver
 device          adc

@@ -3,9 +3,6 @@ PARAM += -DPIC32MX7
 PARAM += -DUART1_ENABLED
 PARAM += -DSPI2_ENABLED
 PARAM += -DSD_ENABLED
-PARAM += -DGPIO_ENABLED
-PARAM += -DADC_ENABLED
-PARAM += -DPWM_ENABLED
 PARAM += -DSD0_CS_PIN=1
 PARAM += -DSD0_CS_PORT=TRISD
 PARAM += -DSD0_PORT=2
@@ -63,9 +60,9 @@ OBJS = exec_aout.o exec_conf.o exec_elf.o exec_script.o exec_subr.o \
 	sys_process.o syscalls.o tty.o tty_subr.o tty_tty.o ufs_alloc.o \
 	ufs_bio.o ufs_bmap.o ufs_dsort.o ufs_fio.o ufs_inode.o \
 	ufs_mount.o ufs_namei.o ufs_subr.o ufs_syscalls.o \
-	ufs_syscalls2.o vfs_vnops.o vm_sched.o vm_swap.o vm_swp.o adc.o \
-	clock.o cons.o devsw.o exception.o gpio.o machdep.o mem.o pwm.o \
-	rd_sd.o signal.o spi.o spi_bus.o swap.o sysctl.o uart.o 
+	ufs_syscalls2.o vfs_vnops.o vm_sched.o vm_swap.o vm_swp.o \
+	clock.o cons.o devsw.o exception.o machdep.o mem.o rd_sd.o \
+	signal.o spi.o spi_bus.o swap.o sysctl.o uart.o 
 
 CFILES = $S/kernel/exec_aout.c $S/kernel/exec_conf.c $S/kernel/exec_elf.c \
 	$S/kernel/exec_script.c $S/kernel/exec_subr.c \
@@ -87,10 +84,9 @@ CFILES = $S/kernel/exec_aout.c $S/kernel/exec_conf.c $S/kernel/exec_elf.c \
 	$S/kernel/ufs_namei.c $S/kernel/ufs_subr.c \
 	$S/kernel/ufs_syscalls.c $S/kernel/ufs_syscalls2.c \
 	$S/kernel/vfs_vnops.c $S/kernel/vm_sched.c $S/kernel/vm_swap.c \
-	$S/kernel/vm_swp.c $S/pic32/adc.c $S/pic32/clock.c \
-	$S/pic32/cons.c $S/pic32/devsw.c $S/pic32/exception.c \
-	$S/pic32/gpio.c $S/pic32/machdep.c $S/pic32/mem.c $S/pic32/pwm.c \
-	$S/pic32/rd_sd.c $S/pic32/signal.c $S/pic32/spi.c \
+	$S/kernel/vm_swp.c $S/pic32/clock.c $S/pic32/cons.c \
+	$S/pic32/devsw.c $S/pic32/exception.c $S/pic32/machdep.c \
+	$S/pic32/mem.c $S/pic32/rd_sd.c $S/pic32/signal.c $S/pic32/spi.c \
 	$S/pic32/spi_bus.c $S/pic32/swap.c $S/pic32/sysctl.c \
 	$S/pic32/uart.c swapunix.c 
 
@@ -300,9 +296,6 @@ vm_swap.o: $S/kernel/vm_swap.c
 vm_swp.o: $S/kernel/vm_swp.c
 	${COMPILE_C}
 
-adc.o: $S/pic32/adc.c
-	${COMPILE_C}
-
 clock.o: $S/pic32/clock.c
 	${COMPILE_C}
 
@@ -315,16 +308,10 @@ devsw.o: $S/pic32/devsw.c
 exception.o: $S/pic32/exception.c
 	${COMPILE_C}
 
-gpio.o: $S/pic32/gpio.c
-	${COMPILE_C}
-
 machdep.o: $S/pic32/machdep.c
 	${COMPILE_C}
 
 mem.o: $S/pic32/mem.c
-	${COMPILE_C}
-
-pwm.o: $S/pic32/pwm.c
 	${COMPILE_C}
 
 rd_sd.o: $S/pic32/rd_sd.c

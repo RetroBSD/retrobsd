@@ -2425,6 +2425,9 @@ void makeheader (rtsize, rdsize)
 {
     struct exec hdr;
 
+    /* Align BSS size. */
+    count[SBSS] = (count[SBSS] + WORDSZ-1) & ~(WORDSZ-1);
+
     hdr.a_midmag = RMAGIC;
     hdr.a_text = count [STEXT];
     hdr.a_data = count [SDATA] + count [SSTRNG];

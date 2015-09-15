@@ -866,8 +866,7 @@ void readhdr (loc)
 		error (2, "bad length of text");
 	if (filhdr.a_data % W)
 		error (2, "bad length of data");
-	if (filhdr.a_bss % W)
-		error (2, "bad length of bss");
+        /* BSS segment is allowed to be unaligned. */
 }
 
 /*

@@ -2400,6 +2400,8 @@ void middle ()
             break;
         case N_COMM:
             /* Allocate a local common block */
+            /* Align BSS count. */
+            count[SBSS] = (count[SBSS] + WORDSZ-1) & ~(WORDSZ-1);
             nbytes = stab[i].n_value;
             stab[i].n_value = count[SBSS];
             stab[i].n_type = N_BSS;

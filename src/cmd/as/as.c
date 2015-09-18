@@ -2671,6 +2671,15 @@ unsigned makereloc (s)
         relrel (&relinfo);
         nbytes += fputrel (&relinfo, stdout);
     }
+    return nbytes;
+}
+
+/*
+ * Align the relocation section to an integral number of words.
+ */
+unsigned alignreloc (nbytes)
+    register unsigned nbytes;
+{
     while (nbytes % WORDSZ) {
         putchar (0);
         nbytes++;
@@ -2809,9 +2818,11 @@ int main (argc, argv)
     pass1 ();                           /* First pass */
     middle ();                          /* Prepare symbol table */
     pass2 ();                           /* Second pass */
-    rtsize = makereloc (STEXT);         /* Emit relocation info */
-    rdsize = makereloc (SDATA);
-    rdsize += makereloc (SSTRNG);
+    rtsize = makereloc (STEXT);         /* Emit relocation info: text */
+    rtsize = alignreloc (rtsize);
+    rdsize = makereloc (SDATA);         /* data */
+    rdsize += makereloc (SSTRNG);       /* rodata */
+    rdsize = alignreloc (rdsize);
     makesymtab ();                      /* Emit symbol table */
     makeheader (rtsize, rdsize);        /* Write a.out header */
     return 0;

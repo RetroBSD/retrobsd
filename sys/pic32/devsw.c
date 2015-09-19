@@ -18,6 +18,7 @@
 #include <sys/errno.h>
 #include <sys/uart.h>
 #include <sys/spi.h>
+#include <sys/gpio.h>
 
 #include <sys/swap.h>
 
@@ -25,9 +26,6 @@ extern int strcmp(char *s1, char *s2);
 
 #ifdef UARTUSB_ENABLED
 #   include <sys/usb_uart.h>
-#endif
-#ifdef GPIO_ENABLED
-#   include <sys/gpio.h>
 #endif
 #ifdef ADC_ENABLED
 #   include <sys/adc.h>
@@ -55,12 +53,19 @@ extern int strcmp(char *s1, char *s2);
  * Null routine; placed in insignificant entries
  * in the bdevsw and cdevsw tables.
  */
-int nulldev ()
+static int nulldev ()
 {
     return (0);
 }
 
-int norw (dev, uio, flag)
+static int noopen (dev, flag, mode)
+    dev_t dev;
+    int flag, mode;
+{
+    return ENXIO;
+}
+
+static int norw (dev, uio, flag)
     dev_t dev;
     struct uio *uio;
     int flag;
@@ -68,7 +73,7 @@ int norw (dev, uio, flag)
     return (0);
 }
 
-int noioctl (dev, cmd, data, flag)
+static int noioctl (dev, cmd, data, flag)
     dev_t dev;
     u_int cmd;
     caddr_t data;
@@ -80,7 +85,7 @@ int noioctl (dev, cmd, data, flag)
 /*
  * root attach routine
  */
-void noroot (csr)
+static void noroot (csr)
     caddr_t csr;
 {
     /* Empty. */
@@ -117,6 +122,11 @@ const struct bdevsw bdevsw[] = {
 };
 
 const int nblkdev = sizeof(bdevsw) / sizeof(bdevsw[0]) - 1;
+
+#define NOCDEV \
+    noopen,         noopen,         norw,           norw, \
+    noioctl,        nulldev,        0,              seltrue, \
+    nostrategy,     0,              0,              0
 
 const struct cdevsw cdevsw[] = {
 
@@ -158,7 +168,7 @@ const struct cdevsw cdevsw[] = {
     logioctl,       nulldev,        0,              logselect,
     nostrategy,     0,              0,              logdevs
 #else
-    0
+    NOCDEV
 #endif
 },
 {   /* 6 - tty uart */
@@ -169,7 +179,7 @@ const struct cdevsw cdevsw[] = {
     uartioctl,      nulldev,        uartttys,       uartselect,
     nostrategy,     uartgetc,       uartputc,       uartdevs
 #else
-    0
+    NOCDEV
 #endif
 },
 {   /* 7 - tty usb */
@@ -178,7 +188,7 @@ const struct cdevsw cdevsw[] = {
     usbioctl,       nulldev,        usbttys,        usbselect,
     nostrategy,     usbgetc,        usbputc,        usbdevs
 #else
-    0
+    NOCDEV
 #endif
 },
 {   /* 8, 9 - pty */
@@ -191,16 +201,19 @@ const struct cdevsw cdevsw[] = {
     ptyioctl,       nulldev,        pt_tty,         ptcselect,
     nostrategy,     0,              0,              ptcdevs
 #else
-    0 }, { 0
+    NOCDEV }, { NOCDEV
 #endif
 },
 {   /* 10 - gpio */
-#ifdef GPIO_ENABLED
+#if defined(GPIO_ENABLED) || defined(GPIO1_ENABLED) || \
+    defined(GPIO2_ENABLED) || defined(GPIO3_ENABLED) || \
+    defined(GPIO4_ENABLED) || defined(GPIO5_ENABLED) || \
+    defined(GPIO6_ENABLED)
     gpioopen,       gpioclose,      gpioread,       gpiowrite,
     gpioioctl,      nulldev,        0,              seltrue,
     nostrategy,     0,              0,              gpiodevs
 #else
-    0
+    NOCDEV
 #endif
 },
 {   /* 11 - adc */
@@ -209,7 +222,7 @@ const struct cdevsw cdevsw[] = {
     adc_ioctl,      nulldev,        0,              seltrue,
     nostrategy,     0,              0,              adcdevs
 #else
-    0
+    NOCDEV
 #endif
 },
 {   /* 12 - spi */
@@ -219,7 +232,7 @@ const struct cdevsw cdevsw[] = {
     spidev_ioctl,   nulldev,        0,              seltrue,
     nostrategy,     0,              0,              spidevs
 #else
-    0
+    NOCDEV
 #endif
 },
 {   /* 13 - glcd */
@@ -228,7 +241,7 @@ const struct cdevsw cdevsw[] = {
     glcd_ioctl,     nulldev,        0,              seltrue,
     nostrategy,     0,              0,              glcddevs
 #else
-    0
+    NOCDEV
 #endif
 },
 {   /* 14 - pwm */
@@ -237,7 +250,7 @@ const struct cdevsw cdevsw[] = {
     pwm_ioctl,      nulldev,        0,              seltrue,
     nostrategy,     0,              0,              pwmdevs
 #else
-    0
+    NOCDEV
 #endif
 },
 {   /* 15 - picga */            // Ignore this for now - it's WIP.
@@ -246,7 +259,7 @@ const struct cdevsw cdevsw[] = {
     picga_ioctl,    nulldev,        0,              seltrue,
     nostrategy,     0,              0,              picgadevs
 #else
-    0
+    NOCDEV
 #endif
 },
 {   /* 16 - tft */
@@ -255,7 +268,7 @@ const struct cdevsw cdevsw[] = {
     hx8357_ioctl,   nulldev,        hx8357_ttys,    hx8357_select,
     nostrategy,     hx8357_getc,    hx8357_putc,    hx8357devs
 #else
-    0
+    NOCDEV
 #endif
 },
 {   /* 17 - skel */
@@ -264,7 +277,7 @@ const struct cdevsw cdevsw[] = {
     skeldev_ioctl,  nulldev,        0,              seltrue,
     nostrategy,     0,              0,              skeldevs
 #else
-    0
+    NOCDEV
 #endif
 },
 

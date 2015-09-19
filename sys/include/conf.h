@@ -58,11 +58,6 @@ struct cdevsw
 extern const struct bdevsw bdevsw[];
 extern const struct cdevsw cdevsw[];
 
-extern int nulldev();
-extern int norw(dev_t dev, struct uio *uio, int flag);
-extern int noioctl(dev_t dev, u_int cmd, caddr_t data, int flag);
-extern void noroot(caddr_t csr);
-
 int rawrw (dev_t dev, struct uio *uio, int flag);
 #endif
 

@@ -44,9 +44,6 @@ controller      spi1                        # SD card
 
 # SD card
 device          sd0     at spi1 pin RB1     # select pin RB1
-options         "SD0_PORT=1"                # at spi1               TODO: delete
-options         "SD0_CS_PORT=TRISB"         # for chip select...    TODO: delete
-options         "SD0_CS_PIN=1"              # ...use pin RB1        TODO: delete
 
 # General purpose I/O ports
 # Flags define a mask of available pins

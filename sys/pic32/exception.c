@@ -350,34 +350,32 @@ exception(frame)
             break;
 #ifdef UART1_ENABLED
         case PIC32_VECT_U1:     /* UART1 */
-            uartintr(makedev(UART_MAJOR,0));
+            uartintr(makedev(UART_MAJOR, 0));
             break;
 #endif
 #ifdef UART2_ENABLED
         case PIC32_VECT_U2:     /* UART2 */
-            uartintr(makedev(UART_MAJOR,1));
+            uartintr(makedev(UART_MAJOR, 1));
             break;
 #endif
 #ifdef UART3_ENABLED
         case PIC32_VECT_U3:     /* UART3 */
-            uartintr(makedev(UART_MAJOR,2));
+            uartintr(makedev(UART_MAJOR, 2));
             break;
 #endif
 #ifdef UART4_ENABLED
         case PIC32_VECT_U4:     /* UART4 */
-            uartintr(makedev(UART_MAJOR,3));
+            uartintr(makedev(UART_MAJOR, 3));
             break;
 #endif
 #ifdef UART5_ENABLED
         case PIC32_VECT_U5:     /* UART5 */
-            uartintr(makedev(UART_MAJOR,4));
+            uartintr(makedev(UART_MAJOR, 4));
             break;
 #endif
 #ifdef UART6_ENABLED
         case PIC32_VECT_U6:     /* UART6 */
-            if (SD0_PORT != 2) {
-                uartintr(makedev(UART_MAJOR,5));
-            }
+            uartintr(makedev(UART_MAJOR, 5));
             break;
 #endif
 #ifdef UARTUSB_ENABLED

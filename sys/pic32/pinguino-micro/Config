@@ -42,9 +42,6 @@ controller      spi2                        # SD card
 
 # microSD card
 device          sd0     at spi2 pin RB13    # select pin
-options         "SD0_PORT=2"                # at spi2               TODO: delete
-options         "SD0_CS_PORT=TRISB"         # for chip select...    TODO: delete
-options         "SD0_CS_PIN=13"             # ...use pin RB13       TODO: delete
 
 # General purpose I/O ports
 # Flags define a mask of available pins

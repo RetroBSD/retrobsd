@@ -254,7 +254,6 @@ int card_init(int unit)
         sd_type[unit] = 2;
     }
 
-
     /* Send repeatedly SEND_OP until Idle terminates. */
     for (i=0; ; i++)
     {
@@ -296,13 +295,9 @@ int card_init(int unit)
             sd_type[unit] = 3;
         }
     }
+
     /* Fast speed. */
-    if(unit == 0)
-        spi_brg(sd_fd[unit],SD0_MHZ * 1000);
-#ifdef SD1_PORT
-    if(unit == 1)
-        spi_brg(sd_fd[unit],SD1_MHZ * 1000);
-#endif
+    spi_brg(sd_fd[unit],SD0_MHZ * 1000);
     return 1;
 }
 
@@ -532,45 +527,6 @@ again:
 
 void sd_preinit (int unit)
 {
-    if (unit >= NSD)
-        return;
-
-    int fd = -1;
-    if(unit==0)
-        fd = spi_open(SD0_PORT,(unsigned int *)&SD0_CS_PORT,SD0_CS_PIN);
-
-#ifdef SD1_PORT
-    if(unit==1)
-        fd = spi_open(SD1_PORT,(unsigned int *)&SD1_CS_PORT,SD1_CS_PIN);
-#endif
-
-    if(fd==-1)
-    {
-        printf("sd%d: Cannot open port\n",unit);
-        return;
-    }
-
-    sd_fd[unit] = fd;
-
-#ifdef SD0_ENA_PORT
-    /* Enable SD0 phy - pin is assumed to be active low */
-    TRIS_CLR(SD0_ENA_PORT) = 1 << SD0_ENA_PIN;
-    LAT_CLR(SD0_ENA_PORT) = 1 << SD0_ENA_PIN;
-    udelay (1000);
-#endif
-
-#ifdef SD1_ENA_PORT
-    /* Enable SD1 phy - pin is assumed to be active low */
-    TRIS_CLR(SD1_ENA_PORT) = 1 << SD1_ENA_PIN;
-    LAT_CLR(SD1_ENA_PORT) = 1 << SD1_ENA_PIN;
-    udelay (1000);
-#endif
-
-    spi_brg(fd, SD0_MHZ * 1000);
-    spi_set(fd, PIC32_SPICON_CKE);
-
-    //printf ("sd%d: port %s, select pin R%c%d\n", unit,
-    //    spi_name(fd), spi_csname(fd), spi_cspin(fd));
 }
 
 int sdinit (int unit, int flag)
@@ -655,13 +611,44 @@ sdprobe(config)
     struct conf_device *config;
 {
     int unit = config->dev_unit;
-    int cs;
+    int cs = config->dev_pins[0];
 
     if (unit < 0 || unit >= NSD)
         return 0;
-    cs = config->dev_pins[0];
     printf("sd%u: port SPI%d, pin cs=R%c%d\n", unit,
         config->dev_ctlr, gpio_portname(cs), gpio_pinno(cs));
+
+    int port = (cs >> 4) - 1;
+    int pin = cs & 15;
+    struct gpioreg *base = port + (struct gpioreg*) &TRISA;
+
+    int fd = spi_open(config->dev_ctlr, (unsigned int*) base, pin);
+    if (fd < 0) {
+        printf("sd%d: Cannot open SPI port\n", unit);
+        return 0;
+    }
+    sd_fd[unit] = fd;
+
+#ifdef SD0_ENA_PORT
+    if (unit == 0) {
+        /* Enable SD0 phy - pin is assumed to be active low */
+        TRIS_CLR(SD0_ENA_PORT) = 1 << SD0_ENA_PIN;
+        LAT_CLR(SD0_ENA_PORT) = 1 << SD0_ENA_PIN;
+        udelay (1000);
+    }
+#endif
+
+#ifdef SD1_ENA_PORT
+    if (unit == 1) {
+        /* Enable SD1 phy - pin is assumed to be active low */
+        TRIS_CLR(SD1_ENA_PORT) = 1 << SD1_ENA_PIN;
+        LAT_CLR(SD1_ENA_PORT) = 1 << SD1_ENA_PIN;
+        udelay (1000);
+    }
+#endif
+
+    spi_brg(fd, SD0_MHZ * 1000);
+    spi_set(fd, PIC32_SPICON_CKE);
     return 1;
 }
 

@@ -49,9 +49,6 @@ controller      spi4                        # SD card
 device          sd0     at spi4
                         pins RF3, RB13      # select pin, enable pin
 options         "SD0_MHZ=10"                # speed 10 MHz
-options         "SD0_PORT=4"                # at spi4               TODO: delete
-options         "SD0_CS_PORT=TRISF"         # for chip select...    TODO: delete
-options         "SD0_CS_PIN=3"              # ...use pin RF3        TODO: delete
 signal          "SD0_ENA"       pin RB13    # SD enable signal
 
 # ADC driver

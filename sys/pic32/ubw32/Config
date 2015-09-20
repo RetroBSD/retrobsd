@@ -48,12 +48,6 @@ controller      spi1                        # SD card
 # microSD card
 device          sd0     at spi1 pin RA9     # select pin
 device          sd1     at spi1 pin RA10    # select pin
-options         "SD0_PORT=1"                # sd0 at spi1           TODO: delete
-options         "SD0_CS_PORT=TRISA"         # for sd0 chip select...TODO: delete
-options         "SD0_CS_PIN=9"              # ...use pin RA9        TODO: delete
-options         "SD1_PORT=1"                # sd1 at spi1           TODO: delete
-options         "SD1_CS_PORT=TRISA"         # for sd1 chip select...TODO: delete
-options         "SD1_CS_PIN=10"             # ...use pin RA9        TODO: delete
 
 # General purpose I/O ports
 # Flags define a mask of available pins

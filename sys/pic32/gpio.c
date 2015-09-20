@@ -93,17 +93,6 @@ const struct devspec gpiodevs[] = {
     (a<<15 | b<<14 | c<<13 | d<<12 | e<<11 | f<<10 | g<<9 | h<<8 | \
      i<<7  | j<<6  | k<<5  | l<<4  | m<<3  | n<<2  | o<<1 | p)
 
-static const u_int gpio_pins_mx7 [NGPIO] =
-{                                               /* Missing pins: */
-    MASK (1,1,0,0,0,1,1,0,1,1,1,1,1,1,1,1), /* A8, A11-A13 */
-    MASK (1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1),
-    MASK (1,1,1,1,0,0,0,0,0,0,0,1,1,1,1,0), /* C0, C5-C11 */
-    MASK (1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1),
-    MASK (0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1), /* E10-E15 */
-    MASK (0,0,1,1,0,0,0,1,0,0,1,1,1,1,1,1), /* F6-F7, F9-F11, F14-F15 */
-    MASK (1,1,1,1,0,0,1,1,1,1,0,0,0,0,1,1), /* G2-G5, G10-G11 */
-};
-
 /*
  * Mask of configured pins, default empty.
  */
@@ -115,104 +104,6 @@ u_int gpio_confmask [NGPIO];
  */
 #define PRINTDBG(...) /*empty*/
 //#define PRINTDBG printf
-
-/*
- * If a port address matches a port number,
- * clear a given bit in pin mask.
- */
-static u_int
-filter_out (mask, portnum, portaddr, pin)
-    register u_int mask;
-    u_int portnum;
-    volatile unsigned *portaddr;
-{
-    register struct gpioreg *reg = portnum + (struct gpioreg*) &TRISA;
-
-    if ((unsigned) reg == (unsigned) portaddr)
-        mask &= ~(1 << pin);
-    return mask;
-}
-
-/*
- * Some pins are not available in hardware or used by other drivers.
- * Remove them from the mask.
- */
-static u_int
-gpio_filter (mask, portnum)
-    u_int mask;
-    u_int portnum;
-{
-    mask &= gpio_pins_mx7 [portnum];
-
-#ifdef LED_SWAP_PORT
-    mask = filter_out (mask, portnum, &LED_SWAP_PORT, LED_SWAP_PIN);
-#endif
-#ifdef LED_DISK_PORT
-    mask = filter_out (mask, portnum, &LED_DISK_PORT, LED_DISK_PIN);
-#endif
-#ifdef LED_KERNEL_PORT
-    mask = filter_out (mask, portnum, &LED_KERNEL_PORT, LED_KERNEL_PIN);
-#endif
-#ifdef LED_TTY_PORT
-    mask = filter_out (mask, portnum, &LED_TTY_PORT, LED_TTY_PIN);
-#endif
-#ifdef SD0_CS_PORT
-    mask = filter_out (mask, portnum, &SD0_CS_PORT, SD0_CS_PIN);
-#endif
-#ifdef SD1_CS_PORT
-    mask = filter_out (mask, portnum, &SD1_CS_PORT, SD1_CS_PIN);
-#endif
-#ifdef SD0_ENA_PORT
-    mask = filter_out (mask, portnum, &SD0_ENA_PORT, SD0_ENA_PIN);
-#endif
-#ifdef SD1_ENA_PORT
-    mask = filter_out (mask, portnum, &SD1_ENA_PORT, SD1_ENA_PIN);
-#endif
-#ifdef UART1_ENA_PORT
-    mask = filter_out (mask, portnum, &UART1_ENA_PORT, UART1_ENA_PIN);
-#endif
-#ifdef UART2_ENA_PORT
-    mask = filter_out (mask, portnum, &UART2_ENA_PORT, UART2_ENA_PIN);
-#endif
-#ifdef UART3_ENA_PORT
-    mask = filter_out (mask, portnum, &UART3_ENA_PORT, UART3_ENA_PIN);
-#endif
-#ifdef UART4_ENA_PORT
-    mask = filter_out (mask, portnum, &UART4_ENA_PORT, UART4_ENA_PIN);
-#endif
-#ifdef UART5_ENA_PORT
-    mask = filter_out (mask, portnum, &UART5_ENA_PORT, UART5_ENA_PIN);
-#endif
-#ifdef UART6_ENA_PORT
-    mask = filter_out (mask, portnum, &UART6_ENA_PORT, UART6_ENA_PIN);
-#endif
-#ifdef SW_DATA_PORT
-    mask = filter_out (mask, portnum, &SW_DATA_PORT, SW_DATA_PIN);
-#endif
-#ifdef SW_LDA_PORT
-    mask = filter_out (mask, portnum, &SW_LDA_PORT, SW_LDA_PIN);
-#endif
-#ifdef SW_RD_PORT
-    mask = filter_out (mask, portnum, &SW_RD_PORT, SW_RD_PIN);
-#endif
-#ifdef SW_WR_PORT
-    mask = filter_out (mask, portnum, &SW_WR_PORT, SW_WR_PIN);
-#endif
-
-#ifdef POWER_ENABLED
-#ifdef POWER_SWITCH_PORT
-    mask = filter_out (mask, portnum, &POWER_SWITCH_PORT, POWER_SWITCH_PIN);
-#endif
-#ifdef POWER_LED_PORT
-    mask = filter_out (mask, portnum, &POWER_LED_PORT, POWER_LED_PIN);
-#endif
-#ifdef POWER_CONTROL_PORT
-    mask = filter_out (mask, portnum, &POWER_CONTROL_PORT, POWER_CONTROL_PIN);
-#endif
-#endif
-
-    return mask;
-}
 
 static void
 gpio_print (dev, buf)
@@ -539,7 +430,7 @@ gpioioctl (dev, cmd, addr, flag)
     reg = unit + (struct gpioreg*) &TRISA;
     mask = (u_int) addr & 0xffff;
     if (cmd & GPIO_COMMAND & (GPIO_CONFIN | GPIO_CONFOUT | GPIO_CONFOD))
-        mask = gpio_filter (mask, unit);
+        mask = mask;
     else
         mask &= gpio_confmask[unit];
 

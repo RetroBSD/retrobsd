@@ -42,9 +42,6 @@ controller      spi2                        # SD card
 # microSD card
 device          sd0     at spi2 pin RD4     # select pin RD4
 options         "SD0_MHZ=10"                # speed 10 MHz
-options         "SD0_PORT=2"                # at spi2               TODO: delete
-options         "SD0_CS_PORT=TRISD"         # for chip select...    TODO: delete
-options         "SD0_CS_PIN=4"              # ...use pin RD4        TODO: delete
 
 # General purpose I/O ports
 # Flags define a mask of available pins

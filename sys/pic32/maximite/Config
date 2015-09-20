@@ -44,9 +44,6 @@ controller      spi4                        # SD card
 
 # microSD card
 device          sd0     at spi4 pin RE0     # select pin
-options         "SD0_PORT=4"                # at spi3               TODO: delete
-options         "SD0_CS_PORT=TRISE"         # for chip select...    TODO: delete
-options         "SD0_CS_PIN=0"              # ...use pin RE0        TODO: delete
 
 # General purpose I/O ports
 # Flags define a mask of available pins

@@ -46,9 +46,6 @@ controller      spi3                        # SD card
 # microSD card
 device          sd0     at spi3
                         pins RG12, RG13     # select pin, enable pin
-options         "SD0_PORT=3"                # at spi3               TODO: delete
-options         "SD0_CS_PORT=TRISG"         # for chip select...    TODO: delete
-options         "SD0_CS_PIN=12"             # ...use pin RG12       TODO: delete
 signal          "SD0_ENA"       pin RG13    # SD card enable signal TODO: delete
 
 # General purpose I/O ports

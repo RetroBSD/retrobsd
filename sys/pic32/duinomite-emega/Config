@@ -44,9 +44,8 @@ options         "USB_NUM_STRING_DESCRIPTORS=3"
 controller      spi3                        # SD card
 
 # microSD card
-device          sd0     at spi3
-                        pins RG12, RG13     # select pin, enable pin
-signal          "SD0_ENA"       pin RG13    # SD card enable signal TODO: delete
+device          sd0     at spi3 pin RG12    # select pin
+signal          "SD0_ENA"       pin RG13    # SD card enable
 
 # General purpose I/O ports
 # Flags define a mask of available pins

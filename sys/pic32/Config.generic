@@ -73,13 +73,9 @@ options         "CONS_MINOR=0"              # uart1 is /dev/tty0
 controller      spi2                        # SD card
 
 # microSD card
-device          sd0     at spi2
-                        pins RC14, RA5      # select pin, enable pin
+device          sd0     at spi2 pin RC14    # select pin
 options         "SD0_MHZ=10"                # speed 10 MHz
-options         "SD0_PORT=2"                # at spi2               TODO: delete
-options         "SD0_CS_PORT=TRISC"         # for chip select...    TODO: delete
-options         "SD0_CS_PIN=14"             # ...use pin RC14       TODO: delete
-signal          "SD0_ENA"       pin RA5     # SD card enable signal TODO: delete
+signal          "SD0_ENA"       pin RA5     # SD card enable signal
 
 # General purpose I/O ports
 # Flags define a mask of available pins

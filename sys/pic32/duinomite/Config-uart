@@ -36,16 +36,15 @@ options         "CONS_MAJOR=UART_MAJOR"     # UART device
 options         "CONS_MINOR=4"              # /dev/tty4
 
 # Serial UART ports
-device          uart5   pin RB13            # RS-232 port, enable pin
-signal          "UART5_ENA"     pin RB13    # RS-232 enable signal TODO: delete
+device          uart5                       # RS-232 port
+signal          "UART5_ENA"     pin RB13    # RS-232 enable signal
 
 # SPI ports
 controller      spi3                        # SD card
 
 # microSD card
-device          sd0     at spi3
-                        pins RD5, RB13      # select pin, enable pin
-signal          "SD0_ENA"       pin RB13    # SD card enable signal TODO: delete
+device          sd0     at spi3 pin RD5     # select pin
+signal          "SD0_ENA"       pin RB13    # SD card enable
 
 # General purpose I/O ports
 # Flags define a mask of available pins

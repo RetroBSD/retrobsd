@@ -409,6 +409,7 @@ void makefile()
     FILE *ifp, *ofp;
     char line[BUFSIZ];
     struct opt *op;
+    struct signal *sig;
     struct cputype *cp;
     struct device *dp;
 
@@ -441,6 +442,20 @@ void makefile()
 
         if (dp->d_type == SERVICE && dp->d_slave > 0)
             fprintf(ofp, "PARAM += -D%s_NUNITS=%d\n", raise(dp->d_name), dp->d_slave);
+    }
+    for (sig = siglist; sig; sig = sig->sig_next) {
+        int bit = sig->sig_pin & 0xff;
+        int port = sig->sig_pin >> 8;
+        if (bit > 15 || port < 1 || port > 7) {
+            printf("%s: invalid pin name R%c%u\n",
+                sig->sig_name, 'A'+port-1, bit);
+            exit(1);
+        }
+        fprintf(ofp, "PARAM += -D%s_PORT=TRIS%c -D%s_PIN=%d",
+            sig->sig_name, 'A'+port-1, sig->sig_name, bit);
+        if (sig->sig_invert)
+            fprintf(ofp, " -D%s_INVERT", sig->sig_name);
+        fprintf(ofp, "\n");
     }
     for (op = opt; op; op = op->op_next) {
         if (op->op_value)

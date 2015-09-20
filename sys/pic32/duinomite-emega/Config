@@ -24,11 +24,9 @@ options         "CPU_KHZ=80000"             # Oscillator frequency of CPU core
 options         "BUS_KHZ=40000"             # Frequency of peripheral bus
 options         "BUS_DIV=1"                 # Bus clock divisor 1/2/4/8
 
-# LED
-options         "LED_KERNEL_PORT=TRISB"     # for kernel activity LED...
-options         "LED_KERNEL_PIN=15"         # ...use pin RB15
-options         "LED_DISK_PORT=TRISC"       # for disk activity LED...
-options         "LED_DISK_PIN=1"            # ...use pin RC1
+# LEDs
+signal          "LED_KERNEL"    pin RB15    # kernel activity indicator
+signal          "LED_DISK"      pin RC1     # disk activity indicator
 
 # Root filesystem at /dev/sd0a, swap at /dev/sd0b
 config          unix    root on sd0a
@@ -51,8 +49,7 @@ device          sd0     at spi3
 options         "SD0_PORT=3"                # at spi3               TODO: delete
 options         "SD0_CS_PORT=TRISG"         # for chip select...    TODO: delete
 options         "SD0_CS_PIN=12"             # ...use pin RG12       TODO: delete
-options         "SD0_ENA_PORT=TRISG"        # for SD enable...      TODO: delete
-options         "SD0_ENA_PIN=13"            # ...use pin RG13       TODO: delete
+signal          "SD0_ENA"       pin RG13    # SD card enable signal TODO: delete
 
 # General purpose I/O ports
 # Flags define a mask of available pins

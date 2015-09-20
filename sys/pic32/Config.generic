@@ -40,18 +40,10 @@ options         "KERNEL_HIGHLIGHT"          # Highlight kernel messages
 options         "PARTITION='%1'"            # Partition schema for RAM device
 
 # LEDs
-options         "LED_DISK_PORT=TRISF"       # for disk activity LED...
-options         "LED_DISK_PIN=0"            # ...use pin RF0
-options         "LED_DISK_INVERT"           # invert disk LED
-options         "LED_SWAP_PORT=TRISF"       # for swap activity LED...
-options         "LED_SWAP_PIN=1"            # ...use pin RF1
-options         "LED_SWAP_INVERT"           # invert swap LED
-options         "LED_TTY_PORT=TRISA"        # for tty LED...
-options         "LED_TTY_PIN=2"             # ...use pin RA2
-options         "LED_TTY_INVERT"            # invert tty LED
-options         "LED_KERNEL_PORT=TRISA"     # for kernel actibity LED...
-options         "LED_KERNEL_PIN=3"          # ...use pin RA3
-options         "LED_KERNEL_INVERT"         # invert kernel LED
+signal          "LED_DISK"   pin RF0 invert # disk activity indicator
+signal          "LED_SWAP"   pin RA1 invert # swap activity indicator
+signal          "LED_TTY"    pin RA2 invert # tty activity indicator
+signal          "LED_KERNEL" pin RA3 invert # kernel activity indicator
 
 # Root filesystem at /dev/sd0a, swap at /dev/sd0b
 config          unix    root on sd0a
@@ -67,8 +59,7 @@ options         "UART1_BAUD=115200"         # default speed
 options         "UART2_BAUD=115200"         # default speed
 options         "UART3_BAUD=115200"         # default speed
 options         "UART4_BAUD=115200"         # default speed
-options         "UART4_ENA_PORT=TRISB"      # to enable power for uart4...
-options         "UART4_ENA_PIN=13"          # ...use pin RB13
+signal          "UART4_ENA"     pin RB13    # power enable signal
 
 # USB UART ports
 device          uartusb                     # USB device mode, CDC function
@@ -92,8 +83,7 @@ options         "SD0_MHZ=10"                # speed 10 MHz
 options         "SD0_PORT=2"                # at spi2               TODO: delete
 options         "SD0_CS_PORT=TRISC"         # for chip select...    TODO: delete
 options         "SD0_CS_PIN=14"             # ...use pin RC14       TODO: delete
-options         "SD0_ENA_PORT=TRISA"        # to enable SD card...  TODO: delete
-options         "SD0_ENA_PIN=5"             # ...use pin RA5        TODO: delete
+signal          "SD0_ENA"       pin RA5     # SD card enable signal TODO: delete
 
 # General purpose I/O ports
 # Flags define a mask of available pins
@@ -114,8 +104,7 @@ device          gpio4   flags 0x03ff    # port E
 device          gpio5   flags 0x313f    # port F
 device          gpio6   flags 0xf3cf    # port G
 
-options         "GPIO_CLEAR_PORT=TRISA"     # clear on startup...
-options         "GPIO_CLEAR_PIN=5"          # ...pin RA5
+signal          "GPIO_CLEAR"    pin RA5     # clear on startup
 
 # ADC driver
 device          adc
@@ -140,12 +129,9 @@ service         log
 
 # Power control
 device          power
-options         "POWER_LED_PORT=TRISA"      # for power LED...
-options         "POWER_LED_PIN=3"           # ...use pin RA3
-options         "POWER_SWITCH_PORT=TRISA"   # for power switch...
-options         "POWER_SWITCH_PIN=4"        # ...use pin RA4
-options         "POWER_CONTROL_PORT=TRISA"  # for power switch...
-options         "POWER_CONTROL_PIN=5"       # ...use pin RA5
+signal          "POWER_LED"     pin RA3
+signal          "POWER_SWITCH"  pin RA4
+signal          "POWER_CONTROL" pin RA5
 
 #--------------------------------------------
 # Custom RAM disk devices
@@ -157,21 +143,16 @@ options         "KERNEL_EXECUTABLE_RAM"     # allow kernel code in RAM area
 
 # sramc - SRAM block device
 device          sramc0                      # SRAM via 4-wire CPLD interface
-options         "SRAMC_DATA_PORT=TRISE"     # for DATA signal...
-options         "SRAMC_DATA_PIN=0"          # ...use pin RE0
-options         "SRAMC_LDA_PORT=TRISC"      # for LDA signal...
-options         "SRAMC_LDA_PIN=13"          # ...use pin RC13
-options         "SRAMC_RD_PORT=TRISF"       # for RD signal...
-options         "SRAMC_RD_PIN=1"            # ...use pin RF1
-options         "SRAMC_WR_PORT=TRISF"       # for WR signal...
-options         "SRAMC_WR_PIN=0"            # ...use pin RF0
+signal          "SRAMC_DATA"    pin RE0
+signal          "SRAMC_LDA"     pin RC13
+signal          "SRAMC_RD"      pin RF1
+signal          "SRAMC_WR"      pin RF0
 
 # picga - SPI block device
 controller      spi1                        # RAM disk: picga
 device          picga0  at spi1
 options         "PICGA_BUS=SPI1CON"         # TODO: delete this option
-options         "PICGA_CS_PORT=TRISA"       # for CS...
-options         "PICGA_CS_PIN=4"            # ...use pin RA4
+signal          "PICGA_CS" pin RA4
 
 # mrams - SPI block device
 controller      spi1                        # RAM disk: mrams
@@ -180,30 +161,18 @@ options         "MRAMS_PORT=SPI1CON"        # TODO: delete this option
 options         "MRAMS_CHIPS=6"             # number of chips
 options         "MRAMS_CHIPSIZE=512"        # chip size in kbytes
 options         "MRAMS_MHZ=10"              # speed 10 MHz
-options         "MRAMS_CS0_PORT=TRISA"      # for CS0...
-options         "MRAMS_CS0_PIN=4"           # ...use pin RA4
-options         "MRAMS_CS1_PORT=TRISA"      # for CS1...
-options         "MRAMS_CS1_PIN=2"           # ...use pin RA2
-options         "MRAMS_CS2_PORT=TRISB"      # for CS2...
-options         "MRAMS_CS2_PIN=14"          # ...use pin RB14
-options         "MRAMS_CS3_PORT=TRISB"      # for CS3...
-options         "MRAMS_CS3_PIN=12"          # ...use pin RB12
-options         "MRAMS_CS4_PORT=TRISB"      # for CS4...
-options         "MRAMS_CS4_PIN=10"          # ...use pin RB10
-options         "MRAMS_CS5_PORT=TRISB"      # for CS5...
-options         "MRAMS_CS5_PIN=11"          # ...use pin RB11
-options         "MRAMS_LED0_PORT=TRISF"     # for LED0...
-options         "MRAMS_LED0_PIN=0"          # ...use pin RF0
-options         "MRAMS_LED1_PORT=TRISF"     # for LED1...
-options         "MRAMS_LED1_PIN=1"          # ...use pin RF1
-options         "MRAMS_LED2_PORT=TRISF"     # for LED2...
-options         "MRAMS_LED2_PIN=2"          # ...use pin RF2
-options         "MRAMS_LED3_PORT=TRISF"     # for LED3...
-options         "MRAMS_LED3_PIN=3"          # ...use pin RF3
-options         "MRAMS_LED4_PORT=TRISF"     # for LED4...
-options         "MRAMS_LED4_PIN=4"          # ...use pin RF4
-options         "MRAMS_LED5_PORT=TRISF"     # for LED5...
-options         "MRAMS_LED5_PIN=5"          # ...use pin RF5
+signal          "MRAMS_CS0"     pin RA4
+signal          "MRAMS_CS1"     pin RA2
+signal          "MRAMS_CS2"     pin RB14
+signal          "MRAMS_CS3"     pin RB12
+signal          "MRAMS_CS4"     pin RB10
+signal          "MRAMS_CS5"     pin RB11
+signal          "MRAMS_LED0"    pin RF0
+signal          "MRAMS_LED1"    pin RF1
+signal          "MRAMS_LED2"    pin RF2
+signal          "MRAMS_LED3"    pin RF3
+signal          "MRAMS_LED4"    pin RF4
+signal          "MRAMS_LED5"    pin RF5
 
 # spirams - SPI block device
 controller      spi1                        # RAM disk: spirams
@@ -212,67 +181,35 @@ options         "SPIRAMS_PORT=SPI1CON"      # TODO: delete this option
 options         "SPIRAMS_CHIPSIZE=128"      # chip size in kbytes
 options         "SPIRAMS_CHIPS=16"          # number of chips
 options         "SPIRAMS_MHZ=10"            # speed 10 MHz
-options         "SPIRAMS_CS0_PORT=TRISF"    # for CS0...
-options         "SPIRAMS_CS0_PIN=0"         # ...use pin RF0
-options         "SPIRAMS_CS1_PORT=TRISF"    # for CS1...
-options         "SPIRAMS_CS1_PIN=1"         # ...use pin RF1
-options         "SPIRAMS_CS2_PORT=TRISF"    # for CS2...
-options         "SPIRAMS_CS2_PIN=2"         # ...use pin RF2
-options         "SPIRAMS_CS3_PORT=TRISF"    # for CS3...
-options         "SPIRAMS_CS3_PIN=3"         # ...use pin RF3
-options         "SPIRAMS_CS4_PORT=TRISF"    # for CS4...
-options         "SPIRAMS_CS4_PIN=4"         # ...use pin RF4
-options         "SPIRAMS_CS5_PORT=TRISF"    # for CS5...
-options         "SPIRAMS_CS5_PIN=5"         # ...use pin RF5
-options         "SPIRAMS_CS6_PORT=TRISF"    # for CS6...
-options         "SPIRAMS_CS6_PIN=6"         # ...use pin RF6
-options         "SPIRAMS_CS7_PORT=TRISF"    # for CS7...
-options         "SPIRAMS_CS7_PIN=7"         # ...use pin RF7
-options         "SPIRAMS_CS8_PORT=TRISF"    # for CS8...
-options         "SPIRAMS_CS8_PIN=8"         # ...use pin RF8
-options         "SPIRAMS_CS9_PORT=TRISF"    # for CS9...
-options         "SPIRAMS_CS9_PIN=9"         # ...use pin RF9
-options         "SPIRAMS_CS10_PORT=TRISF"   # for CS10...
-options         "SPIRAMS_CS10_PIN=10"       # ...use pin RF10
-options         "SPIRAMS_CS11_PORT=TRISF"   # for CS11...
-options         "SPIRAMS_CS11_PIN=11"       # ...use pin RF11
-options         "SPIRAMS_CS12_PORT=TRISF"   # for CS12...
-options         "SPIRAMS_CS12_PIN=12"       # ...use pin RF12
-options         "SPIRAMS_CS13_PORT=TRISF"   # for CS13...
-options         "SPIRAMS_CS13_PIN=13"       # ...use pin RF13
-options         "SPIRAMS_CS14_PORT=TRISF"   # for CS14...
-options         "SPIRAMS_CS14_PIN=14"       # ...use pin RF14
-options         "SPIRAMS_CS15_PORT=TRISF"   # for CS15...
-options         "SPIRAMS_CS15_PIN=15"       # ...use pin RF15
-options         "SPIRAMS_LED0_PORT=TRISG"   # for LED0...
-options         "SPIRAMS_LED0_PIN=0"        # ...use pin RG0
-options         "SPIRAMS_LED1_PORT=TRISG"   # for LED1...
-options         "SPIRAMS_LED1_PIN=1"        # ...use pin RG1
-options         "SPIRAMS_LED2_PORT=TRISG"   # for LED2...
-options         "SPIRAMS_LED2_PIN=2"        # ...use pin RG2
-options         "SPIRAMS_LED3_PORT=TRISG"   # for LED3...
-options         "SPIRAMS_LED3_PIN=3"        # ...use pin RG3
-options         "SPIRAMS_LED4_PORT=TRISG"   # for LED4...
-options         "SPIRAMS_LED4_PIN=4"        # ...use pin RG4
-options         "SPIRAMS_LED5_PORT=TRISG"   # for LED5...
-options         "SPIRAMS_LED5_PIN=5"        # ...use pin RG5
-options         "SPIRAMS_LED6_PORT=TRISG"   # for LED6...
-options         "SPIRAMS_LED6_PIN=6"        # ...use pin RG6
-options         "SPIRAMS_LED7_PORT=TRISG"   # for LED7...
-options         "SPIRAMS_LED7_PIN=7"        # ...use pin RG7
-options         "SPIRAMS_LED8_PORT=TRISG"   # for LED8...
-options         "SPIRAMS_LED8_PIN=8"        # ...use pin RG8
-options         "SPIRAMS_LED9_PORT=TRISG"   # for LED9...
-options         "SPIRAMS_LED9_PIN=9"        # ...use pin RG9
-options         "SPIRAMS_LED10_PORT=TRISG"  # for LED10...
-options         "SPIRAMS_LED10_PIN=10"      # ...use pin RG10
-options         "SPIRAMS_LED11_PORT=TRISG"  # for LED11...
-options         "SPIRAMS_LED11_PIN=11"      # ...use pin RG11
-options         "SPIRAMS_LED12_PORT=TRISG"  # for LED12...
-options         "SPIRAMS_LED12_PIN=12"      # ...use pin RG12
-options         "SPIRAMS_LED13_PORT=TRISG"  # for LED13...
-options         "SPIRAMS_LED13_PIN=13"      # ...use pin RG13
-options         "SPIRAMS_LED14_PORT=TRISG"  # for LED14...
-options         "SPIRAMS_LED14_PIN=14"      # ...use pin RG14
-options         "SPIRAMS_LED15_PORT=TRISG"  # for LED15...
-options         "SPIRAMS_LED15_PIN=15"      # ...use pin RG15
+signal          "SPIRAMS_CS0"   pin RF0
+signal          "SPIRAMS_CS1"   pin RF1
+signal          "SPIRAMS_CS2"   pin RF2
+signal          "SPIRAMS_CS3"   pin RF3
+signal          "SPIRAMS_CS4"   pin RF4
+signal          "SPIRAMS_CS5"   pin RF5
+signal          "SPIRAMS_CS6"   pin RF6
+signal          "SPIRAMS_CS7"   pin RF7
+signal          "SPIRAMS_CS8"   pin RF8
+signal          "SPIRAMS_CS9"   pin RF9
+signal          "SPIRAMS_CS10"  pin RF10
+signal          "SPIRAMS_CS11"  pin RF11
+signal          "SPIRAMS_CS12"  pin RF12
+signal          "SPIRAMS_CS13"  pin RF13
+signal          "SPIRAMS_CS14"  pin RF14
+signal          "SPIRAMS_CS15"  pin RF15
+signal          "SPIRAMS_LED0"  pin RG0
+signal          "SPIRAMS_LED1"  pin RG1
+signal          "SPIRAMS_LED2"  pin RG2
+signal          "SPIRAMS_LED3"  pin RG3
+signal          "SPIRAMS_LED4"  pin RG4
+signal          "SPIRAMS_LED5"  pin RG5
+signal          "SPIRAMS_LED6"  pin RG6
+signal          "SPIRAMS_LED7"  pin RG7
+signal          "SPIRAMS_LED8"  pin RG8
+signal          "SPIRAMS_LED9"  pin RG9
+signal          "SPIRAMS_LED10" pin RG10
+signal          "SPIRAMS_LED11" pin RG11
+signal          "SPIRAMS_LED12" pin RG12
+signal          "SPIRAMS_LED13" pin RG13
+signal          "SPIRAMS_LED14" pin RG14
+signal          "SPIRAMS_LED15" pin RG15

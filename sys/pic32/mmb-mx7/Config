@@ -22,16 +22,10 @@ options         "CPU_KHZ=80000"             # Oscillator frequency of CPU core
 options         "BUS_KHZ=80000"             # Frequency of peripheral bus
 options         "BUS_DIV=1"                 # Bus clock divisor 1/2/4/8
 
-# LED
-options         "LED_KERNEL_PORT=TRISA"     # for kernel activity LED...
-options         "LED_KERNEL_PIN=0"          # ...use pin RA0...
-options         "LED_KERNEL_INVERT"         # ...inverted
-options         "LED_SWAP_PORT=TRISD"       # for swap activity LED...
-options         "LED_SWAP_PIN=9"            # ...use pin RD9...
-options         "LED_SWAP_INVERT"           # ...inverted
-options         "LED_TTY_PORT=TRISA"        # for console activity LED...
-options         "LED_TTY_PIN=1"             # ...use pin RA1...
-options         "LED_TTY_INVERT"            # ...inverted
+# LEDs
+signal          "LED_KERNEL" pin RA0 invert # kernel activity indicator
+signal          "LED_SWAP"   pin RD9 invert # swap activity indicator
+signal          "LED_TTY"    pin RA1 invert # tty activity indicator
 
 # Root filesystem at /dev/sd0a, swap at /dev/sd0b
 config          unix    root on sd0a
@@ -70,8 +64,7 @@ device          gpio3   flags 0xfbfe        # port D
 device          gpio4   flags 0x03ff        # port E
 device          gpio5   flags 0x303b        # port F
 device          gpio6   flags 0xf3cf        # port G
-options         "GPIO_CLEAR_PORT=TRISD"     # clear on startup...
-options         "GPIO_CLEAR_PIN=2"          # ...pin RD2
+signal          "GPIO_CLEAR"    pin RD2     # clear on startup
 
 # ADC driver
 device          adc

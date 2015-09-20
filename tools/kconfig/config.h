@@ -149,6 +149,16 @@ struct opt {
     struct  opt *op_next;
 } *opt, *mkopt;
 
+/*
+ * Mapping of signal names to pins.
+ */
+struct signal {
+    char    *sig_name;
+    int     sig_pin;
+    int     sig_invert;
+    struct  signal *sig_next;
+} *siglist;
+
 char    *board;
 char    *ldscript;
 

@@ -22,6 +22,7 @@
 %token  EQUALS
 %token  FLAGS
 %token  HZ
+%token  INVERT
 %token  LDSCRIPT
 %token  MAJOR
 %token  MAXUSERS
@@ -33,6 +34,7 @@
 %token  PINS
 %token  PRIORITY
 %token  SERVICE
+%token  SIGNAL
 %token  ROOT
 %token  SEMICOLON
 %token  SEQUENTIAL
@@ -53,6 +55,7 @@
 %type   <lst>   Id_list
 %type   <val>   optional_size
 %type   <val>   optional_sflag
+%type   <val>   optional_invert
 %type   <str>   device_name
 %type   <val>   major_minor
 %type   <val>   root_device_spec
@@ -166,6 +169,16 @@ Config_spec:
         |
     LDSCRIPT ID
         = { ldscript = strdup($2); }
+        |
+    SIGNAL ID PINS PIN optional_invert
+        = {
+            struct signal *s = (struct signal*) malloc(sizeof(struct signal));
+            s->sig_name = strdup($2);
+            s->sig_next = siglist;
+            s->sig_pin = $4;
+            s->sig_invert = $5;
+            siglist = s;
+        }
         |
     System_spec
         |
@@ -332,6 +345,14 @@ optional_size:
 optional_sflag:
     SEQUENTIAL
         = { $$ = 2; }
+        |
+    /* empty */
+        = { $$ = 0; }
+    ;
+
+optional_invert:
+    INVERT
+        = { $$ = 1; }
         |
     /* empty */
         = { $$ = 0; }
@@ -808,7 +829,7 @@ void checksystemspec(fl)
         if (minor(dev) & 07) {
             sprintf(buf,
                 "Warning, swap defaulted to 'b' partition with root on '%c' partition",
-                (minor(dev) & 07) + 'a');
+                (minor(dev) & 07) + 'a' - 1);
             yyerror(buf);
         }
         swap->f_swapdev =

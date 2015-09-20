@@ -23,12 +23,9 @@ options         "CPU_KHZ=80000"             # Oscillator frequency of CPU core
 options         "BUS_KHZ=80000"             # Frequency of peripheral bus
 options         "BUS_DIV=1"                 # Bus clock divisor 1/2/4/8
 
-# LED
-options         "LED_KERNEL_PORT=TRISF"     # for kernel activity LED...
-options         "LED_KERNEL_PIN=0"          # ...use pin RF0...
-options         "LED_KERNEL_INVERT"         # ...inverted
-options         "LED_DISK_PORT=TRISE"       # for disk activity LED...
-options         "LED_DISK_PIN=1"            # ...use pin RE1
+# LEDs
+signal          "LED_KERNEL" pin RF0 invert # kernel activity indicator
+signal          "LED_DISK"   pin RE1        # disk activity indicator
 
 # Root filesystem at /dev/sd0a, swap at /dev/sd0b
 config          unix    root on sd0a

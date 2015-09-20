@@ -29,8 +29,7 @@ options         "NMOUNT=3"
 options         "NPROC=25"
 
 # LED
-options         "LED_KERNEL_PORT=TRISE"     # for kernel activity LED...
-options         "LED_KERNEL_PIN=5"          # ...use pin RE5
+signal          "LED_KERNEL"    pin RE5     # kernel activity indicator
 
 # Root filesystem at /dev/sd0a, swap at /dev/sd0b
 config          unix    root on sd0a

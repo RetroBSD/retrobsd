@@ -24,15 +24,11 @@ options         "BUS_KHZ=80000"             # Frequency of peripheral bus
 options         "BUS_DIV=1"                 # Bus clock divisor 1/2/4/8
 #options         "NPROC=20"
 
-# LED
-options         "LED_KERNEL_PORT=TRISA"     # for kernel activity LED...
-options         "LED_KERNEL_PIN=15"         # ...use pin RA15
-options         "LED_DISK_PORT=TRISC"       # for disk activity LED...
-options         "LED_DISK_PIN=13"           # ...use pin RC13
-options         "LED_SWAP_PORT=TRISC"       # for swap activity LED...
-options         "LED_SWAP_PIN=14"           # ...use pin RC14
-options         "LED_TTY_PORT=TRISA"        # for serial activity LED...
-options         "LED_TTY_PIN=14"            # ...use pin RA14
+# LEDs
+signal          "LED_KERNEL"    pin RA15    # kernel activity indicator
+signal          "LED_DISK"      pin RC13    # disk activity indicator
+signal          "LED_SWAP"      pin RC14    # swap activity indicator
+signal          "LED_TTY"       pin RA14    # tty activity indicator
 
 # Root filesystem at /dev/sd0a, swap at /dev/sd0b
 config          unix    root on sd0a
@@ -55,8 +51,7 @@ options         "SD0_MHZ=10"                # speed 10 MHz
 options         "SD0_PORT=4"                # at spi4               TODO: delete
 options         "SD0_CS_PORT=TRISF"         # for chip select...    TODO: delete
 options         "SD0_CS_PIN=3"              # ...use pin RF3        TODO: delete
-options         "SD0_ENA_PORT=TRISB"        # for microSD enable... TODO: delete
-options         "SD0_ENA_PIN=13"            # ...use pin RB13       TODO: delete
+signal          "SD0_ENA"       pin RB13    # SD enable signal
 
 # ADC driver
 device          adc

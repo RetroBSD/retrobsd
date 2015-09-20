@@ -52,7 +52,9 @@ struct kt {
 
 static struct kt key_words[] = {
     { "and",            AND },
+    { "architecture",   ARCHITECTURE },
     { "at",             AT },
+    { "board",          BOARD },
     { "config",         CONFIG },
     { "controller",     CONTROLLER },
     { "cpu",            CPU },
@@ -62,9 +64,8 @@ static struct kt key_words[] = {
     { "dst",            DST },
     { "dumps",          DUMPS },
     { "flags",          FLAGS },
-    { "board",          BOARD },
+    { "invert",         INVERT },
     { "ldscript",       LDSCRIPT },
-    { "architecture",   ARCHITECTURE },
     { "major",          MAJOR },
     { "makeoptions",    MAKEOPTIONS },
     { "maxusers",       MAXUSERS },
@@ -77,6 +78,7 @@ static struct kt key_words[] = {
     { "root",           ROOT },
     { "sequential",     SEQUENTIAL },
     { "service",        SERVICE },
+    { "signal",         SIGNAL },
     { "size",           SIZE },
     { "swap",           SWAP },
     { "tape",           DEVICE },

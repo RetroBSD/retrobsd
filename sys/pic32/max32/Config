@@ -23,8 +23,7 @@ options         "BUS_KHZ=80000"             # Frequency of peripheral bus
 options         "BUS_DIV=1"                 # Bus clock divisor 1/2/4/8
 
 # LED
-options         "LED_KERNEL_PORT=TRISA"     # for kernel activity LED...
-options         "LED_KERNEL_PIN=3"          # ...use pin RA3
+signal          "LED_KERNEL"    pin RA3     # kernel activity indicator
 
 # Root filesystem at /dev/sd0a, swap at /dev/sd0b
 config          unix    root on sd0a

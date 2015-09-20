@@ -34,7 +34,8 @@ config          unix    root on sd0a
                         swap on sd0b
 
 # Console options
-options         "CONSOLE_DEVICE=tty1"       # Console on UART2
+options         "CONS_MAJOR=UART_MAJOR"     # UART device
+options         "CONS_MINOR=1"              # /dev/tty1
 
 # Serial UART ports
 device          uart2                       # USB-to-serial adapter

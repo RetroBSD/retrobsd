@@ -55,10 +55,7 @@ device          uart1                       # Serial-to-USB converter
 device          uart2
 device          uart3
 device          uart4
-options         "UART1_BAUD=115200"         # default speed
-options         "UART2_BAUD=115200"         # default speed
-options         "UART3_BAUD=115200"         # default speed
-options         "UART4_BAUD=115200"         # default speed
+options         "UART_BAUD=115200"          # default speed
 signal          "UART4_ENA"     pin RB13    # power enable signal
 
 # USB UART ports
@@ -69,9 +66,8 @@ options         "USB_MAX_EP_NUMBER=3"       # parameters of USB device...
 options         "USB_NUM_STRING_DESCRIPTORS=3" # ...specific for CDC function
 
 # Console options
-options         "CONSOLE_DEVICE=tty0"       # /dev/tty0
-#TODO: options  "CONS_MAJOR=17"             # use UART device as console
-#TODO: options  "CONS_MINOR=0"              # use uart1 unit as console
+options         "CONS_MAJOR=UART_MAJOR"     # use UART device as console
+options         "CONS_MINOR=0"              # uart1 is /dev/tty0
 
 # SPI ports
 controller      spi2                        # SD card

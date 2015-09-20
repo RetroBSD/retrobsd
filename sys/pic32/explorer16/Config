@@ -36,7 +36,8 @@ config          unix    root on sd0a
 device          uart2
 
 # Console options
-options         "CONSOLE_DEVICE=tty1"       # /dev/tty1
+options         "CONS_MAJOR=UART_MAJOR"     # UART device
+options         "CONS_MINOR=1"              # /dev/tty1
 
 # SPI ports
 controller      spi1                        # SD card

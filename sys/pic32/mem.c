@@ -19,7 +19,7 @@ const struct devspec mmdevs[] = {
 
 void kmemdev()
 {
-    u.u_rval = get_cdev_by_name("kmem");
+    u.u_rval = makedev(MEM_MAJOR, 1);
 }
 
 /*

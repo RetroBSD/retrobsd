@@ -139,6 +139,9 @@ const struct cdevsw cdevsw[] = {
     nostrategy,     0,              0,              cndevs
 },
 {   /* 1 - mem, kmem, null, zero */
+#if MEM_MAJOR != 1
+#   error Wrong MEM_MAJOR value!
+#endif
     nulldev,        nulldev,        mmrw,           mmrw,
     noioctl,        nulldev,        0,              seltrue,
     nostrategy,     0,              0,              mmdevs
@@ -172,6 +175,9 @@ const struct cdevsw cdevsw[] = {
 #endif
 },
 {   /* 6 - tty uart */
+#if UART_MAJOR != 6
+#   error Wrong UART_MAJOR value!
+#endif
 #if defined(UART1_ENABLED) || defined(UART2_ENABLED) || \
     defined(UART3_ENABLED) || defined(UART4_ENABLED) || \
     defined(UART5_ENABLED) || defined(UART6_ENABLED)
@@ -183,6 +189,9 @@ const struct cdevsw cdevsw[] = {
 #endif
 },
 {   /* 7 - tty usb */
+#if UARTUSB_MAJOR != 7
+#   error Wrong UARTUSB_MAJOR value!
+#endif
 #ifdef UARTUSB_ENABLED
     usbopen,        usbclose,       usbread,        usbwrite,
     usbioctl,       nulldev,        usbttys,        usbselect,
@@ -263,6 +272,9 @@ const struct cdevsw cdevsw[] = {
 #endif
 },
 {   /* 16 - tft */
+#if HXTFT_MAJOR != 16
+#   error Wrong HXTFT_MAJOR value!
+#endif
 #ifdef HXTFT_ENABLED
     hx8357_open,    hx8357_close,   hx8357_read,    hx8357_write,
     hx8357_ioctl,   nulldev,        hx8357_ttys,    hx8357_select,
@@ -337,29 +349,6 @@ int
 chrtoblk(dev_t dev)
 {
     return (NODEV);
-}
-
-/*
- * Search through the devspec entries in the cdevsw
- * table looking for a device name match.
- */
-dev_t get_cdev_by_name(char *name)
-{
-    int maj, i;
-    const struct devspec *devs;
-
-    for (maj = 0; maj < nchrdev; maj++) {
-        devs = cdevsw[maj].devs;
-        if (! devs)
-            continue;
-
-        for (i = 0; devs[i].devname != 0; i++) {
-            if (strcmp(devs[i].devname, name) == 0) {
-                return makedev(maj, devs[i].unit);
-            }
-        }
-    }
-    return -1;
 }
 
 char *cdevname(dev_t dev)

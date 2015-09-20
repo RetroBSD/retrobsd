@@ -35,8 +35,9 @@ device          uart1                       # Serial-to-USB converter
 device          uart2
 device          uart4
 
-# Console options
-options         "CONSOLE_DEVICE=tty0"       # /dev/tty0
+# Use UART1 as console
+options         "CONS_MAJOR=UART_MAJOR"     # UART device
+options         "CONS_MINOR=0"              # /dev/tty0
 
 # SPI ports
 controller      spi2                        # SD card

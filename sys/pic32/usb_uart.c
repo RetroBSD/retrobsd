@@ -289,8 +289,7 @@ static int
 usbprobe(config)
     struct conf_device *config;
 {
-    extern dev_t console_device;
-    int is_console = major(console_device) == usb_major;
+    int is_console = (CONS_MAJOR == usb_major);
 
     printf("uartusb: port USB, interrupt %u", PIC32_VECT_USB);
     if (is_console)

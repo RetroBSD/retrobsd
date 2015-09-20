@@ -32,7 +32,8 @@ config          unix    root on sd0a
                         swap on sd0b
 
 # Console options
-options         "CONSOLE_DEVICE=tty4"       # Console on UART5
+options         "CONS_MAJOR=UART_MAJOR"     # UART device
+options         "CONS_MINOR=4"              # /dev/tty4
 
 # Serial UART ports
 device          uart5   pin RB13            # RS-232 port, enable pin

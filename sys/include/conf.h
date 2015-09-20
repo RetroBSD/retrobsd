@@ -35,6 +35,8 @@ struct bdevsw
     const struct devspec *devs;
 };
 
+#define MEM_MAJOR       1
+
 /*
  * Character device switch.
  */
@@ -54,7 +56,15 @@ struct cdevsw
     const struct devspec *devs;
 };
 
+#define UART_MAJOR      6
+#define UARTUSB_MAJOR   7
+#define HXTFT_MAJOR     16
+
 #ifdef KERNEL
+#ifndef CONS_MINOR
+#define CONS_MINOR      0
+#endif
+
 extern const struct bdevsw bdevsw[];
 extern const struct cdevsw cdevsw[];
 

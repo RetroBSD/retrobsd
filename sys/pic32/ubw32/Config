@@ -35,7 +35,7 @@ config          unix    root on sd0a
                         swap on sd0b
 
 # Console options
-options         "CONSOLE_DEVICE=ttyUSB0"    # Console on USB
+options         "CONS_MAJOR=UARTUSB_MAJOR"  # UARTUSB device
 
 # Virtual UART on USB
 device          uartusb

@@ -15,13 +15,6 @@
 #include <sys/uart.h>
 #include <sys/usb_uart.h>
 
-#define CONCAT(x,y) x ## y
-#define BBAUD(x) CONCAT(B,x)
-
-#ifndef CONSOLE_BAUD
-#define CONSOLE_BAUD 115200
-#endif
-
 const struct devspec cndevs[] = {
     { 0, "console" },
     { 0, 0 }
@@ -29,54 +22,47 @@ const struct devspec cndevs[] = {
 
 dev_t console_device = -1;
 
-#define NKL     1                       /* Only one console device */
-
-#define Q2(X) #X
-#define QUOTE(X) Q2(X)
-
 struct tty cnttys [1];
-
-void cnstart (struct tty *tp);
 
 void cninit()
 {
-    console_device = get_cdev_by_name(QUOTE(CONSOLE_DEVICE));
+    console_device = makedev(CONS_MAJOR, CONS_MINOR);
 }
 
 void cnidentify()
 {
     //printf ("console: %s (%d,%d)\n", cdevname(console_device),
-    //    major(console_device), minor(console_device));
+    //    CONS_MAJOR, CONS_MINOR);
 }
 
 int cnopen(dev_t dev, int flag, int mode)
 {
-    return cdevsw[major(console_device)].d_open(console_device, flag, mode);
+    return cdevsw[CONS_MAJOR].d_open(console_device, flag, mode);
 }
 
 int cnclose (dev_t dev, int flag, int mode)
 {
-    return cdevsw[major(console_device)].d_close(console_device, flag, mode);
+    return cdevsw[CONS_MAJOR].d_close(console_device, flag, mode);
 }
 
 int cnread(dev_t dev,register struct uio *uio, int flag)
 {
-    return cdevsw[major(console_device)].d_read(console_device, uio, flag);
+    return cdevsw[CONS_MAJOR].d_read(console_device, uio, flag);
 }
 
 int cnwrite(dev_t dev,register struct uio *uio, int flag)
 {
-    return cdevsw[major(console_device)].d_write(console_device, uio, flag);
+    return cdevsw[CONS_MAJOR].d_write(console_device, uio, flag);
 }
 
 int cnselect(dev_t dev, int rw)
 {
-    return cdevsw[major(console_device)].d_select(console_device, rw);
+    return cdevsw[CONS_MAJOR].d_select(console_device, rw);
 }
 
 int cnioctl(dev_t dev, register u_int cmd, caddr_t addr, int flag)
 {
-    return cdevsw[major(console_device)].d_ioctl(console_device, cmd, addr, flag);
+    return cdevsw[CONS_MAJOR].d_ioctl(console_device, cmd, addr, flag);
 }
 
 /*
@@ -84,12 +70,12 @@ int cnioctl(dev_t dev, register u_int cmd, caddr_t addr, int flag)
  */
 void cnputc(char c)
 {
-    if (cdevsw[major(console_device)].r_write) {
-        cdevsw[major(console_device)].r_write(console_device, c);
+    if (cdevsw[CONS_MAJOR].r_write) {
+        cdevsw[CONS_MAJOR].r_write(console_device, c);
     } else {
-        putc(c, &cdevsw[major(console_device)].d_ttys[minor(console_device)].t_outq);
-        ttstart(&cdevsw[major(console_device)].d_ttys[minor(console_device)]);
-        ttyflush(&cdevsw[major(console_device)].d_ttys[minor(console_device)],0);
+        putc(c, &cdevsw[CONS_MAJOR].d_ttys[CONS_MINOR].t_outq);
+        ttstart(&cdevsw[CONS_MAJOR].d_ttys[CONS_MINOR]);
+        ttyflush(&cdevsw[CONS_MAJOR].d_ttys[CONS_MINOR],0);
     }
     if(c=='\n')
         cnputc('\r');
@@ -98,12 +84,11 @@ void cnputc(char c)
 /*
  * Receive a symbol from console terminal.
  */
-int
-cngetc ()
+int cngetc ()
 {
-    if (cdevsw[major(console_device)].r_read) {
-        return cdevsw[major(console_device)].r_read(console_device);
+    if (cdevsw[CONS_MAJOR].r_read) {
+        return cdevsw[CONS_MAJOR].r_read(console_device);
     } else {
-        return getc(&cdevsw[major(console_device)].d_ttys[minor(console_device)].t_rawq);
+        return getc(&cdevsw[CONS_MAJOR].d_ttys[CONS_MINOR].t_rawq);
     }
 }

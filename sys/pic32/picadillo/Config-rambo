@@ -31,7 +31,7 @@ config          unix    root on sd0a
 device          uart1                       # Serial-to-USB converter
 
 # Console options
-options         "CONSOLE_DEVICE=tft0"       # LCD screen
+options         "CONS_MAJOR=HXTFT_MAJOR"    # HXTFT device
 
 # SPI ports
 controller      spi2                        # SD card

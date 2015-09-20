@@ -376,18 +376,15 @@ startup()
     OSCCON = osccon;
 
     /*
-     * Setup UART registers.
-     * Compute the divisor for 115.2 kbaud.
+     * Early setup for console devices.
      */
-#if defined(UART1_ENABLED) || defined(UART2_ENABLED) || \
-    defined UART3_ENABLED || defined(UART4_ENABLED) || \
-    defined(UART5_ENABLED) || defined(UART6_ENABLED)
-    uartinit();
+#if CONS_MAJOR == UART_MAJOR
+    uartinit(CONS_MINOR);
 #endif
-#ifdef UARTUSB_ENABLED
+#if CONS_MAJOR == UARTUSB_MAJOR
     usbinit();
 #endif
-#ifdef HX8357_ENABLED
+#if CONS_MAJOR == HXTFT_MAJOR
     hx8357_init();
 #endif
     cninit();

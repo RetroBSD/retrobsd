@@ -20,7 +20,7 @@
 #define MRAMS_MHZ       13
 #endif
 
-int fd[MRAMS_CHIPS];
+struct spiio mrams_io[MRAMS_CHIPS];
 
 int mrams_size(int unit)
 {
@@ -33,6 +33,7 @@ int mrams_size(int unit)
 unsigned int mr_read_block(unsigned int chip, unsigned int address, unsigned int length, char *data)
 {
     register unsigned int cs = 0;
+    struct spiio *io = &mrams_io[chip];
 
     switch (chip) {
     case 0:
@@ -61,23 +62,22 @@ unsigned int mr_read_block(unsigned int chip, unsigned int address, unsigned int
         break;
     }
 
-    spi_select(fd[chip]);
-    spi_transfer(fd[chip], MRAM_READ);
-    spi_transfer(fd[chip], address>>16);
-    spi_transfer(fd[chip], address>>8);
-    spi_transfer(fd[chip], address);
+    spi_select(io);
+    spi_transfer(io, MRAM_READ);
+    spi_transfer(io, address>>16);
+    spi_transfer(io, address>>8);
+    spi_transfer(io, address);
 
     // If the length is a multiple of 32 bits, then do a 32 bit transfer
 #if 0
     if ((length & 3) == 0)
-        spi_bulk_read_32(fd[chip],length,data);
+        spi_bulk_read_32(io, length, data);
     else if ((length & 1) == 0)
-        spi_bulk_read_16(fd[chip],length,data);
+        spi_bulk_read_16(io, length, data);
     else
 #endif
-    spi_bulk_read(fd[chip],length,(unsigned char *)data);
-
-    spi_deselect(fd[chip]);
+    spi_bulk_read(io, length, (unsigned char *)data);
+    spi_deselect(io);
 
     switch (chip) {
     case 0:
@@ -135,6 +135,7 @@ int mrams_read(int unit, unsigned int offset, char *data, unsigned int bcount)
 
 unsigned int mr_write_block(unsigned int chip, unsigned int address, unsigned int length, char *data)
 {
+    struct spiio *io = &mrams_io[chip];
     register unsigned int cs = 0;
     char blank __attribute__((unused));
 
@@ -165,22 +166,21 @@ unsigned int mr_write_block(unsigned int chip, unsigned int address, unsigned in
         break;
     }
 
-    spi_select(fd[chip]);
-    spi_transfer(fd[chip], MRAM_WRITE);
-    spi_transfer(fd[chip], address>>16);
-    spi_transfer(fd[chip], address>>8);
-    spi_transfer(fd[chip], address);
+    spi_select(io);
+    spi_transfer(io, MRAM_WRITE);
+    spi_transfer(io, address>>16);
+    spi_transfer(io, address>>8);
+    spi_transfer(io, address);
 
 #if 0
     if ((length & 3) == 0)
-        spi_bulk_write_32(fd[chip],length,data);
+        spi_bulk_write_32(io, length, data);
     else if ((length & 1) == 0)
-        spi_bulk_write_16(fd[chip],length,data);
+        spi_bulk_write_16(io, length, data);
     else
 #endif
-    spi_bulk_write(fd[chip],length,(unsigned char *)data);
-
-    spi_deselect(fd[chip]);
+    spi_bulk_write(io, length, (unsigned char *)data);
+    spi_deselect(io);
 
     switch (chip) {
     case 0:
@@ -207,7 +207,7 @@ unsigned int mr_write_block(unsigned int chip, unsigned int address, unsigned in
     return cs;
 }
 
-int mrams_write (int unit, unsigned int offset, char *data, unsigned bcount)
+int mrams_write(int unit, unsigned int offset, char *data, unsigned bcount)
 {
     register unsigned int chip;
     register unsigned int address;
@@ -236,8 +236,9 @@ int mrams_write (int unit, unsigned int offset, char *data, unsigned bcount)
     return 1;
 }
 
-void mrams_preinit (int unit)
+void mrams_preinit(int unit)
 {
+    struct spiio *io = &mrams_io[0];
     struct buf *bp;
 
     if (unit >= 1)
@@ -245,50 +246,49 @@ void mrams_preinit (int unit)
 
     /* Initialize hardware. */
 
-    fd[0] = spi_open(MRAMS_PORT,(unsigned int *)&MRAMS_CS0_PORT,MRAMS_CS0_PIN);
-    if (fd[0] == -1)
+    if (spi_setup(io, MRAMS_PORT, (unsigned int *)&MRAMS_CS0_PORT, MRAMS_CS0_PIN) != 0)
         return;
 
-    spi_brg(fd[0],MRAMS_MHZ * 1000);
-    spi_set(fd[0],PIC32_SPICON_CKE);
-    spi_select(fd[0]);
-    spi_transfer(fd[0],MRAM_WREN);
-    spi_deselect(fd[0]);
+    spi_brg(io, MRAMS_MHZ * 1000);
+    spi_set(io, PIC32_SPICON_CKE);
+    spi_select(io);
+    spi_transfer(io, MRAM_WREN);
+    spi_deselect(io);
 
 #ifdef MRAMS_CS1_PORT
-    fd[1] = spi_open(MRAMS_PORT,(unsigned int *)&MRAMS_CS1_PORT,MRAMS_CS1_PIN);
+    spi_setup(io+1, MRAMS_PORT, (unsigned int *)&MRAMS_CS1_PORT, MRAMS_CS1_PIN);
 
-    spi_brg(fd[1],MRAMS_MHZ * 1000);
-    spi_set(fd[1],PIC32_SPICON_CKE);
-    spi_select(fd[1]);
-    spi_transfer(fd[1],MRAM_WREN);
-    spi_deselect(fd[1]);
+    spi_brg(io+1, MRAMS_MHZ * 1000);
+    spi_set(io+1, PIC32_SPICON_CKE);
+    spi_select(io+1);
+    spi_transfer(io+1, MRAM_WREN);
+    spi_deselect(io+1);
 #endif
 #ifdef MRAMS_CS2_PORT
-    fd[2] = spi_open(MRAMS_PORT,(unsigned int *)&MRAMS_CS2_PORT,MRAMS_CS2_PIN);
+    spi_setup(io+2, MRAMS_PORT, (unsigned int *)&MRAMS_CS2_PORT, MRAMS_CS2_PIN);
 
-    spi_brg(fd[2],MRAMS_MHZ * 1000);
-    spi_set(fd[2],PIC32_SPICON_CKE);
-    spi_select(fd[2]);
-    spi_transfer(fd[2],MRAM_WREN);
-    spi_deselect(fd[2]);
+    spi_brg(io+2, MRAMS_MHZ * 1000);
+    spi_set(io+2, PIC32_SPICON_CKE);
+    spi_select(io+2);
+    spi_transfer(io+2, MRAM_WREN);
+    spi_deselect(io+2);
 #endif
 #ifdef MRAMS_CS3_PORT
-    fd[3] = spi_open(MRAMS_PORT,(unsigned int *)&MRAMS_CS3_PORT,MRAMS_CS3_PIN);
+    spi_setup(io+3, MRAMS_PORT, (unsigned int *)&MRAMS_CS3_PORT, MRAMS_CS3_PIN);
 
-    spi_brg(fd[3],MRAMS_MHZ * 1000);
-    spi_set(fd[3],PIC32_SPICON_CKE);
-    spi_select(fd[3]);
-    spi_transfer(fd[3],MRAM_WREN);
-    spi_deselect(fd[3]);
+    spi_brg(io+3, MRAMS_MHZ * 1000);
+    spi_set(io+3, PIC32_SPICON_CKE);
+    spi_select(io+3);
+    spi_transfer(io+3, MRAM_WREN);
+    spi_deselect(io+3);
 #endif
 
     printf("mrams0: port %s, size %dKB, speed %d Mbit/sec\n",
-        spi_name(MRAMS_PORT),MRAMS_CHIPS * MRAMS_CHIPSIZE,
-        spi_get_brg(fd[0]) / 1000);
+        spi_name(MRAMS_PORT), MRAMS_CHIPS * MRAMS_CHIPSIZE,
+        spi_get_brg(io) / 1000);
     bp = prepartition_device("mrams0");
     if (bp) {
-        mrams_write (0, 0, bp->b_addr, 512);
+        mrams_write(0, 0, bp->b_addr, 512);
         brelse(bp);
     }
 }

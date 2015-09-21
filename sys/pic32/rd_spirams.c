@@ -20,7 +20,7 @@
 #define SPIRAMS_MHZ     10
 #endif
 
-int fd[SPIRAMS_CHIPS];
+struct spiio spirams_io[SPIRAMS_CHIPS];
 
 int spirams_size(int unit)
 {
@@ -32,6 +32,7 @@ int spirams_size(int unit)
 
 unsigned int spir_read_block(unsigned int chip, unsigned int address, unsigned int length, char *data)
 {
+    struct spiio *io = &spirams_io[chip];
     register unsigned int cs = 0;
 
     switch (chip) {
@@ -133,23 +134,22 @@ unsigned int spir_read_block(unsigned int chip, unsigned int address, unsigned i
         break;
     }
 
-    spi_select(fd[chip]);
-    spi_transfer(fd[chip], SPIRAM_READ);
-    spi_transfer(fd[chip], address>>16);
-    spi_transfer(fd[chip], address>>8);
-    spi_transfer(fd[chip], address);
+    spi_select(io);
+    spi_transfer(io, SPIRAM_READ);
+    spi_transfer(io, address >> 16);
+    spi_transfer(io, address >> 8);
+    spi_transfer(io, address);
 
     // If the length is a multiple of 32 bits, then do a 32 bit transfer
 #if 0
     if ((length & 3) == 0)
-        spi_bulk_read_32(fd[chip], length, data);
+        spi_bulk_read_32(io, length, data);
     else if ((length & 1) == 0)
-        spi_bulk_read_16(fd[chip], length, data);
+        spi_bulk_read_16(io, length, data);
     else
 #endif
-    spi_bulk_read(fd[chip], length, (unsigned char *)data);
-
-    spi_deselect(fd[chip]);
+    spi_bulk_read(io, length, (unsigned char *)data);
+    spi_deselect(io);
 
     switch (chip) {
     case 0:
@@ -207,6 +207,7 @@ int spirams_read(int unit, unsigned int offset, char *data, unsigned int bcount)
 
 unsigned int spir_write_block(unsigned int chip, unsigned int address, unsigned int length, char *data)
 {
+    struct spiio *io = &spirams_io[chip];
     register unsigned int cs = 0;
     char blank __attribute__((unused));
 
@@ -237,22 +238,21 @@ unsigned int spir_write_block(unsigned int chip, unsigned int address, unsigned 
         break;
     }
 
-    spi_select(fd[chip]);
-    spi_transfer(fd[chip], SPIRAM_WRITE);
-    spi_transfer(fd[chip], address>>16);
-    spi_transfer(fd[chip], address>>8);
-    spi_transfer(fd[chip], address);
+    spi_select(io);
+    spi_transfer(io, SPIRAM_WRITE);
+    spi_transfer(io, address >> 16);
+    spi_transfer(io, address >> 8);
+    spi_transfer(io, address);
 
 #if 0
     if ((length & 3) == 0)
-        spi_bulk_write_32(fd[chip],length,data);
+        spi_bulk_write_32(io, length, data);
     else if ((length & 1) == 0)
-        spi_bulk_write_16(fd[chip],length,data);
+        spi_bulk_write_16(io, length, data);
     else
 #endif
-    spi_bulk_write(fd[chip], length, (unsigned char *)data);
-
-    spi_deselect(fd[chip]);
+    spi_bulk_write(io, length, (unsigned char *)data);
+    spi_deselect(io);
 
     switch (chip) {
     case 0:
@@ -310,6 +310,7 @@ int spirams_write (int unit, unsigned int offset, char *data, unsigned bcount)
 
 void spirams_preinit (int unit)
 {
+    struct spiio *io = &spirams_io[0];
     struct buf *bp;
 
     if (unit >= 1)
@@ -317,107 +318,106 @@ void spirams_preinit (int unit)
 
     /* Initialize hardware. */
 
-    fd[0] = spi_open(SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS0_PORT,SPIRAMS_CS0_PIN);
-    if (fd[0] == -1)
+    if (spi_setup(io, SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS0_PORT,SPIRAMS_CS0_PIN) != 0)
         return;
 
-    spi_brg(fd[0],SPIRAMS_MHZ * 1000);
-    spi_set(fd[0],PIC32_SPICON_CKE);
+    spi_brg(io, SPIRAMS_MHZ * 1000);
+    spi_set(io, PIC32_SPICON_CKE);
 
 #ifdef SPIRAMS_CS1_PORT
-    fd[1] = spi_open(SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS1_PORT,SPIRAMS_CS1_PIN);
+    spi_setup(io+1, SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS1_PORT,SPIRAMS_CS1_PIN);
 
-    spi_brg(fd[1],SPIRAMS_MHZ * 1000);
-    spi_set(fd[1],PIC32_SPICON_CKE);
+    spi_brg(io+1, SPIRAMS_MHZ * 1000);
+    spi_set(io+1, PIC32_SPICON_CKE);
 #endif
 #ifdef SPIRAMS_CS2_PORT
-    fd[2] = spi_open(SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS2_PORT,SPIRAMS_CS2_PIN);
+    spi_setup(io+2, SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS2_PORT,SPIRAMS_CS2_PIN);
 
-    spi_brg(fd[2],SPIRAMS_MHZ * 1000);
-    spi_set(fd[2],PIC32_SPICON_CKE);
+    spi_brg(io+2, SPIRAMS_MHZ * 1000);
+    spi_set(io+2, PIC32_SPICON_CKE);
 #endif
 #ifdef SPIRAMS_CS3_PORT
-    fd[3] = spi_open(SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS3_PORT,SPIRAMS_CS3_PIN);
+    spi_setup(io+3, SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS3_PORT,SPIRAMS_CS3_PIN);
 
-    spi_brg(fd[3],SPIRAMS_MHZ * 1000);
-    spi_set(fd[3],PIC32_SPICON_CKE);
+    spi_brg(io+3, SPIRAMS_MHZ * 1000);
+    spi_set(io+3, PIC32_SPICON_CKE);
 #endif
 #ifdef SPIRAMS_CS4_PORT
-    fd[4] = spi_open(SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS4_PORT,SPIRAMS_CS4_PIN);
+    spi_setup(io+4, SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS4_PORT,SPIRAMS_CS4_PIN);
 
-    spi_brg(fd[4],SPIRAMS_MHZ * 1000);
-    spi_set(fd[4],PIC32_SPICON_CKE);
+    spi_brg(io+4, SPIRAMS_MHZ * 1000);
+    spi_set(io+4, PIC32_SPICON_CKE);
 #endif
 #ifdef SPIRAMS_CS5_PORT
-    fd[5] = spi_open(SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS5_PORT,SPIRAMS_CS5_PIN);
+    spi_setup(io+5, SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS5_PORT,SPIRAMS_CS5_PIN);
 
-    spi_brg(fd[5],SPIRAMS_MHZ * 1000);
-    spi_set(fd[5],PIC32_SPICON_CKE);
+    spi_brg(io+5, SPIRAMS_MHZ * 1000);
+    spi_set(io+5, PIC32_SPICON_CKE);
 #endif
 #ifdef SPIRAMS_CS6_PORT
-    fd[6] = spi_open(SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS6_PORT,SPIRAMS_CS6_PIN);
+    spi_setup(io+6, SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS6_PORT,SPIRAMS_CS6_PIN);
 
-    spi_brg(fd[6],SPIRAMS_MHZ * 1000);
-    spi_set(fd[6],PIC32_SPICON_CKE);
+    spi_brg(io+6, SPIRAMS_MHZ * 1000);
+    spi_set(io+6, PIC32_SPICON_CKE);
 #endif
 #ifdef SPIRAMS_CS7_PORT
-    fd[7] = spi_open(SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS7_PORT,SPIRAMS_CS7_PIN);
+    spi_setup(io+7, SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS7_PORT,SPIRAMS_CS7_PIN);
 
-    spi_brg(fd[7],SPIRAMS_MHZ * 1000);
-    spi_set(fd[7],PIC32_SPICON_CKE);
+    spi_brg(io+7, SPIRAMS_MHZ * 1000);
+    spi_set(io+7, PIC32_SPICON_CKE);
 #endif
 #ifdef SPIRAMS_CS8_PORT
-    fd[8] = spi_open(SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS8_PORT,SPIRAMS_CS8_PIN);
+    spi_setup(io+8, SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS8_PORT,SPIRAMS_CS8_PIN);
 
-    spi_brg(fd[8],SPIRAMS_MHZ * 1000);
-    spi_set(fd[8],PIC32_SPICON_CKE);
+    spi_brg(io+8, SPIRAMS_MHZ * 1000);
+    spi_set(io+8, PIC32_SPICON_CKE);
 #endif
 #ifdef SPIRAMS_CS9_PORT
-    fd[9] = spi_open(SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS9_PORT,SPIRAMS_CS9_PIN);
+    spi_setup(io+9, SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS9_PORT,SPIRAMS_CS9_PIN);
 
-    spi_brg(fd[9],SPIRAMS_MHZ * 1000);
-    spi_set(fd[9],PIC32_SPICON_CKE);
+    spi_brg(io+9, SPIRAMS_MHZ * 1000);
+    spi_set(io+9, PIC32_SPICON_CKE);
 #endif
 #ifdef SPIRAMS_CS10_PORT
-    fd[10] = spi_open(SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS10_PORT,SPIRAMS_CS10_PIN);
+    spi_setup(io+10, SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS10_PORT,SPIRAMS_CS10_PIN);
 
-    spi_brg(fd[10],SPIRAMS_MHZ * 1000);
-    spi_set(fd[10],PIC32_SPICON_CKE);
+    spi_brg(io+10, SPIRAMS_MHZ * 1000);
+    spi_set(io+10, PIC32_SPICON_CKE);
 #endif
 #ifdef SPIRAMS_CS11_PORT
-    fd[11] = spi_open(SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS11_PORT,SPIRAMS_CS11_PIN);
+    spi_setup(io+11, SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS11_PORT,SPIRAMS_CS11_PIN);
 
-    spi_brg(fd[11],SPIRAMS_MHZ * 1000);
-    spi_set(fd[11],PIC32_SPICON_CKE);
+    spi_brg(io+11, SPIRAMS_MHZ * 1000);
+    spi_set(io+11, PIC32_SPICON_CKE);
 #endif
 #ifdef SPIRAMS_CS12_PORT
-    fd[12] = spi_open(SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS12_PORT,SPIRAMS_CS12_PIN);
+    spi_setup(io+12, SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS12_PORT,SPIRAMS_CS12_PIN);
 
-    spi_brg(fd[12],SPIRAMS_MHZ * 1000);
-    spi_set(fd[12],PIC32_SPICON_CKE);
+    spi_brg(io+12, SPIRAMS_MHZ * 1000);
+    spi_set(io+12, PIC32_SPICON_CKE);
 #endif
 #ifdef SPIRAMS_CS13_PORT
-    fd[13] = spi_open(SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS13_PORT,SPIRAMS_CS13_PIN);
+    spi_setup(io+13, SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS13_PORT,SPIRAMS_CS13_PIN);
 
-    spi_brg(fd[13],SPIRAMS_MHZ * 1000);
-    spi_set(fd[13],PIC32_SPICON_CKE);
+    spi_brg(io+13, SPIRAMS_MHZ * 1000);
+    spi_set(io+13, PIC32_SPICON_CKE);
 #endif
 #ifdef SPIRAMS_CS14_PORT
-    fd[14] = spi_open(SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS14_PORT,SPIRAMS_CS14_PIN);
+    spi_setup(io+14, SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS14_PORT,SPIRAMS_CS14_PIN);
 
-    spi_brg(fd[14],SPIRAMS_MHZ * 1000);
-    spi_set(fd[14],PIC32_SPICON_CKE);
+    spi_brg(io+14, SPIRAMS_MHZ * 1000);
+    spi_set(io+14, PIC32_SPICON_CKE);
 #endif
 #ifdef SPIRAMS_CS15_PORT
-    fd[15] = spi_open(SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS15_PORT,SPIRAMS_CS15_PIN);
+    spi_setup(io+15, SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS15_PORT,SPIRAMS_CS15_PIN);
 
-    spi_brg(fd[15],SPIRAMS_MHZ * 1000);
-    spi_set(fd[15],PIC32_SPICON_CKE);
+    spi_brg(io+15, SPIRAMS_MHZ * 1000);
+    spi_set(io+15, PIC32_SPICON_CKE);
 #endif
 
     printf("spirams0: port %d %s, size %dKB, speed %d Mbit/sec\n",
-        SPIRAMS_PORT, spi_name(fd[0]),SPIRAMS_CHIPS * SPIRAMS_CHIPSIZE,
-        spi_get_brg(fd[0]) / 1000);
+        SPIRAMS_PORT, spi_name(io), SPIRAMS_CHIPS * SPIRAMS_CHIPSIZE,
+        spi_get_brg(io) / 1000);
     bp = prepartition_device("spirams0");
     if (bp) {
         spirams_write (0, 0, bp->b_addr, 512);

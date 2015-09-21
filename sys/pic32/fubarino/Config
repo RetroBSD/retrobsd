@@ -38,8 +38,12 @@ device          uartusb
 options         "USB_MAX_EP_NUMBER=3"
 options         "USB_NUM_STRING_DESCRIPTORS=3"
 
+# UART ports
+device          uart2                       # Pins RF4, RF5
+
 # SPI ports
 controller      spi2                        # SD card
+controller      spi3                        # Pins RD1, RD2, RD3
 
 # microSD card
 device          sd0     at spi2 pin RG9     # select pin
@@ -48,11 +52,13 @@ device          sd0     at spi2 pin RG9     # select pin
 # Flags define a mask of available pins
 # The following pins excluded:
 #   RG6, RG7, RG8, RG9 - spi2, SD card
+#   RD1, RD2, RD3      - spi3
+#   RF4, RF5           - uart2
 device          gpio1   flags 0xffff    # port B
 device          gpio2   flags 0xf000    # port C
-device          gpio3   flags 0x0fff    # port D
+device          gpio3   flags 0x0ff1    # port D
 device          gpio4   flags 0x00ff    # port E
-device          gpio5   flags 0x003b    # port F
+device          gpio5   flags 0x000b    # port F
 device          gpio6   flags 0x000c    # port G
 
 # ADC driver
@@ -60,6 +66,3 @@ device          adc
 
 # PWM driver
 device          pwm
-
-# GLCD driver
-device          glcd

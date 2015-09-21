@@ -1,12 +1,11 @@
 #
-# Majenko SDXL board
-# ==================
-# Ardiuno-compatible bootloader.
+# Fubarino SD board
+# =================
 # Console on USB.
-# LED at pin E7 (label 23).
+# For details, see https://github.com/RetroBSD/retrobsd/wiki/Board-Fubarino-SD
 #
 # To build the kernel, use:
-#   cd sys/pic32/sdxl
+#   cd sys/pic32/fubarino
 #   kconfig Config
 #   make clean
 #   make
@@ -16,7 +15,7 @@
 #
 architecture    "pic32"
 cpu             "PIC32MX7"                  # Processor variant
-board           "SDXL"                      # Board type
+board           "FUBARINO"                  # Board type
 ldscript        "max32/bootloader.ld"       # Linker script
 
 # Standard system options
@@ -25,7 +24,7 @@ options         "BUS_KHZ=80000"             # Frequency of peripheral bus
 options         "BUS_DIV=1"                 # Bus clock divisor 1/2/4/8
 
 # LED
-signal          "LED_KERNEL"    pin RE7     # kernel activity indicator
+signal          "LED_KERNEL"    pin RE5     # kernel activity indicator
 
 # Root filesystem at /dev/sd0a, swap at /dev/sd0b
 config          unix    root on sd0a
@@ -39,12 +38,8 @@ device          uartusb
 options         "USB_MAX_EP_NUMBER=3"
 options         "USB_NUM_STRING_DESCRIPTORS=3"
 
-# UART ports
-device          uart2                       # Pins RF4, RF5
-
 # SPI ports
 controller      spi2                        # SD card
-controller      spi3                        # Pins RD1, RD2, RD3
 
 # microSD card
 device          sd0     at spi2 pin RG9     # select pin
@@ -53,13 +48,11 @@ device          sd0     at spi2 pin RG9     # select pin
 # Flags define a mask of available pins
 # The following pins excluded:
 #   RG6, RG7, RG8, RG9 - spi2, SD card
-#   RD1, RD2, RD3      - spi3
-#   RF4, RF5           - uart2
 device          gpio1   flags 0xffff    # port B
 device          gpio2   flags 0xf000    # port C
-device          gpio3   flags 0x0ff1    # port D
+device          gpio3   flags 0x0fff    # port D
 device          gpio4   flags 0x00ff    # port E
-device          gpio5   flags 0x000b    # port F
+device          gpio5   flags 0x003b    # port F
 device          gpio6   flags 0x000c    # port G
 
 # ADC driver
@@ -67,3 +60,6 @@ device          adc
 
 # PWM driver
 device          pwm
+
+# GLCD driver
+device          glcd

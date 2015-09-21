@@ -1,7 +1,9 @@
 PARAM = -DSDXL
 PARAM += -DPIC32MX7
 PARAM += -DUARTUSB_ENABLED
+PARAM += -DUART2_ENABLED
 PARAM += -DSPI2_ENABLED
+PARAM += -DSPI3_ENABLED
 PARAM += -DSD_ENABLED
 PARAM += -DGPIO1_ENABLED
 PARAM += -DGPIO2_ENABLED
@@ -11,8 +13,6 @@ PARAM += -DGPIO5_ENABLED
 PARAM += -DGPIO6_ENABLED
 PARAM += -DADC_ENABLED
 PARAM += -DPWM_ENABLED
-PARAM += -DGLCD_ENABLED
-PARAM += -DLED_KERNEL_PORT=TRISE -DLED_KERNEL_PIN=7
 PARAM += -DUSB_NUM_STRING_DESCRIPTORS=3
 PARAM += -DUSB_MAX_EP_NUMBER=3
 PARAM += -DCONS_MAJOR=UARTUSB_MAJOR
@@ -63,8 +63,8 @@ OBJS = exec_aout.o exec_conf.o exec_elf.o exec_script.o exec_subr.o \
 	ufs_bio.o ufs_bmap.o ufs_dsort.o ufs_fio.o ufs_inode.o \
 	ufs_mount.o ufs_namei.o ufs_subr.o ufs_syscalls.o \
 	ufs_syscalls2.o vfs_vnops.o vm_sched.o vm_swap.o vm_swp.o adc.o \
-	clock.o cons.o devsw.o exception.o glcd.o gpio.o machdep.o mem.o \
-	pwm.o rd_sd.o signal.o spi.o spi_bus.o swap.o sysctl.o \
+	clock.o cons.o devsw.o exception.o gpio.o machdep.o mem.o pwm.o \
+	rd_sd.o signal.o spi.o spi_bus.o swap.o sysctl.o uart.o \
 	usb_device.o usb_function_cdc.o usb_uart.o 
 
 CFILES = $S/kernel/exec_aout.c $S/kernel/exec_conf.c $S/kernel/exec_elf.c \
@@ -89,10 +89,10 @@ CFILES = $S/kernel/exec_aout.c $S/kernel/exec_conf.c $S/kernel/exec_elf.c \
 	$S/kernel/vfs_vnops.c $S/kernel/vm_sched.c $S/kernel/vm_swap.c \
 	$S/kernel/vm_swp.c $S/pic32/adc.c $S/pic32/clock.c \
 	$S/pic32/cons.c $S/pic32/devsw.c $S/pic32/exception.c \
-	$S/pic32/glcd.c $S/pic32/gpio.c $S/pic32/machdep.c \
-	$S/pic32/mem.c $S/pic32/pwm.c $S/pic32/rd_sd.c $S/pic32/signal.c \
-	$S/pic32/spi.c $S/pic32/spi_bus.c $S/pic32/swap.c \
-	$S/pic32/sysctl.c $S/pic32/usb_device.c \
+	$S/pic32/gpio.c $S/pic32/machdep.c $S/pic32/mem.c $S/pic32/pwm.c \
+	$S/pic32/rd_sd.c $S/pic32/signal.c $S/pic32/spi.c \
+	$S/pic32/spi_bus.c $S/pic32/swap.c $S/pic32/sysctl.c \
+	$S/pic32/uart.c $S/pic32/usb_device.c \
 	$S/pic32/usb_function_cdc.c $S/pic32/usb_uart.c swapunix.c 
 
 # load lines for config "xxx" will be emitted as:
@@ -316,9 +316,6 @@ devsw.o: $S/pic32/devsw.c
 exception.o: $S/pic32/exception.c
 	${COMPILE_C}
 
-glcd.o: $S/pic32/glcd.c
-	${COMPILE_C}
-
 gpio.o: $S/pic32/gpio.c
 	${COMPILE_C}
 
@@ -347,6 +344,9 @@ swap.o: $S/pic32/swap.c
 	${COMPILE_C}
 
 sysctl.o: $S/pic32/sysctl.c
+	${COMPILE_C}
+
+uart.o: $S/pic32/uart.c
 	${COMPILE_C}
 
 usb_device.o: $S/pic32/usb_device.c

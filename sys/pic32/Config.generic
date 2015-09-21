@@ -142,24 +142,26 @@ signal          "SRAMC_WR"      pin RF0
 
 # picga - SPI block device
 controller      spi1                        # RAM disk: picga
-device          picga0  at spi1
+device          picga0  at spi1 pin RA4     # chip select signal
 options         "PICGA_BUS=SPI1CON"         # TODO: delete this option
-signal          "PICGA_CS" pin RA4
+signal          "PICGA_CS" pin RA4          # TODO: delete
 
 # mrams - SPI block device
 controller      spi1                        # RAM disk: mrams
 device          mrams0  at spi1
-options         "MRAMS_PORT=SPI1CON"        # TODO: delete this option
+                pins RA4,  RA2, RB14, RB12, # chip select signals
+                     RB10, RB11
 options         "MRAMS_CHIPS=6"             # number of chips
 options         "MRAMS_CHIPSIZE=512"        # chip size in kbytes
 options         "MRAMS_MHZ=10"              # speed 10 MHz
-signal          "MRAMS_CS0"     pin RA4
-signal          "MRAMS_CS1"     pin RA2
-signal          "MRAMS_CS2"     pin RB14
-signal          "MRAMS_CS3"     pin RB12
-signal          "MRAMS_CS4"     pin RB10
-signal          "MRAMS_CS5"     pin RB11
-signal          "MRAMS_LED0"    pin RF0
+options         "MRAMS_PORT=SPI1CON"        # TODO: delete this option
+signal          "MRAMS_CS0"     pin RA4     # TODO: delete
+signal          "MRAMS_CS1"     pin RA2     # TODO: delete
+signal          "MRAMS_CS2"     pin RB14    # TODO: delete
+signal          "MRAMS_CS3"     pin RB12    # TODO: delete
+signal          "MRAMS_CS4"     pin RB10    # TODO: delete
+signal          "MRAMS_CS5"     pin RB11    # TODO: delete
+signal          "MRAMS_LED0"    pin RF0     # optional LED indicators
 signal          "MRAMS_LED1"    pin RF1
 signal          "MRAMS_LED2"    pin RF2
 signal          "MRAMS_LED3"    pin RF3
@@ -168,28 +170,32 @@ signal          "MRAMS_LED5"    pin RF5
 
 # spirams - SPI block device
 controller      spi1                        # RAM disk: spirams
-device          spirams0  at spi1
-options         "SPIRAMS_PORT=SPI1CON"      # TODO: delete this option
+device          spirams0  at spi1           # chip select signals:
+                pins RF0,  RF1,  RF2,  RF3, # chip select signals
+                     RF4,  RF5,  RF6,  RF7,
+                     RF8,  RF9,  RF10, RF11,
+                     RF12, RF13, RF14, RF15
 options         "SPIRAMS_CHIPSIZE=128"      # chip size in kbytes
 options         "SPIRAMS_CHIPS=16"          # number of chips
 options         "SPIRAMS_MHZ=10"            # speed 10 MHz
-signal          "SPIRAMS_CS0"   pin RF0
-signal          "SPIRAMS_CS1"   pin RF1
-signal          "SPIRAMS_CS2"   pin RF2
-signal          "SPIRAMS_CS3"   pin RF3
-signal          "SPIRAMS_CS4"   pin RF4
-signal          "SPIRAMS_CS5"   pin RF5
-signal          "SPIRAMS_CS6"   pin RF6
-signal          "SPIRAMS_CS7"   pin RF7
-signal          "SPIRAMS_CS8"   pin RF8
-signal          "SPIRAMS_CS9"   pin RF9
-signal          "SPIRAMS_CS10"  pin RF10
-signal          "SPIRAMS_CS11"  pin RF11
-signal          "SPIRAMS_CS12"  pin RF12
-signal          "SPIRAMS_CS13"  pin RF13
-signal          "SPIRAMS_CS14"  pin RF14
-signal          "SPIRAMS_CS15"  pin RF15
-signal          "SPIRAMS_LED0"  pin RG0
+options         "SPIRAMS_PORT=SPI1CON"      # TODO: delete this option
+signal          "SPIRAMS_CS0"   pin RF0     # TODO: delete
+signal          "SPIRAMS_CS1"   pin RF1     # TODO: delete
+signal          "SPIRAMS_CS2"   pin RF2     # TODO: delete
+signal          "SPIRAMS_CS3"   pin RF3     # TODO: delete
+signal          "SPIRAMS_CS4"   pin RF4     # TODO: delete
+signal          "SPIRAMS_CS5"   pin RF5     # TODO: delete
+signal          "SPIRAMS_CS6"   pin RF6     # TODO: delete
+signal          "SPIRAMS_CS7"   pin RF7     # TODO: delete
+signal          "SPIRAMS_CS8"   pin RF8     # TODO: delete
+signal          "SPIRAMS_CS9"   pin RF9     # TODO: delete
+signal          "SPIRAMS_CS10"  pin RF10    # TODO: delete
+signal          "SPIRAMS_CS11"  pin RF11    # TODO: delete
+signal          "SPIRAMS_CS12"  pin RF12    # TODO: delete
+signal          "SPIRAMS_CS13"  pin RF13    # TODO: delete
+signal          "SPIRAMS_CS14"  pin RF14    # TODO: delete
+signal          "SPIRAMS_CS15"  pin RF15    # TODO: delete
+signal          "SPIRAMS_LED0"  pin RG0     # optional LED indicators
 signal          "SPIRAMS_LED1"  pin RG1
 signal          "SPIRAMS_LED2"  pin RG2
 signal          "SPIRAMS_LED3"  pin RG3

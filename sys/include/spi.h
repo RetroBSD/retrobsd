@@ -12,6 +12,9 @@
 
 #include <sys/ioctl.h>
 
+/*
+ * User-level interface to the SPI port.
+ */
 #define SPICTL_SETMODE      _IO ('p', 0)        /* set SPI mode */
 #define SPICTL_SETRATE      _IO ('p', 1)        /* set clock rate, kHz */
 #define SPICTL_SETSELPIN    _IO ('p', 2)        /* set select pin */
@@ -35,13 +38,54 @@
 #ifdef KERNEL
 #include "conf.h"
 
-extern const struct devspec spidevs[];
+/*
+ * Kernel-level interface to the SPI port.
+ */
+struct spiio {
+    struct spireg   *bus;
+    unsigned int    *cs_tris;
+    unsigned int    cs_pin;
+    unsigned int    baud;
+    unsigned int    mode;
+};
 
+extern int spi_setup(struct spiio *io, int channel, unsigned int *tris, unsigned int pin);
+extern void spi_set_cspin(struct spiio *io, unsigned int *tris, unsigned int pin);
+extern void spi_select(struct spiio *io);
+extern void spi_deselect(struct spiio *io);
+extern void spi_set(struct spiio *io, unsigned int set);
+extern void spi_clr(struct spiio *io, unsigned int set);
+extern unsigned int spi_status(struct spiio *io);
+extern unsigned char spi_transfer(struct spiio *io, unsigned char data);
+extern void spi_bulk_write_32_be(struct spiio *io, unsigned int len, char *data);
+extern void spi_bulk_write_32(struct spiio *io, unsigned int len, char *data);
+extern void spi_bulk_write_16(struct spiio *io, unsigned int len, char *data);
+extern void spi_bulk_write(struct spiio *io, unsigned int len, unsigned char *data);
+extern void spi_bulk_read_32_be(struct spiio *io, unsigned int len, char *data);
+extern void spi_bulk_read_32(struct spiio *io, unsigned int len, char *data);
+extern void spi_bulk_read_16(struct spiio *io, unsigned int len, char *data);
+extern void spi_bulk_read(struct spiio *io, unsigned int len, unsigned char *data);
+extern void spi_bulk_rw_32_be(struct spiio *io, unsigned int len, char *data);
+extern void spi_bulk_rw_32(struct spiio *io, unsigned int len, char *data);
+extern void spi_bulk_rw_16(struct spiio *io, unsigned int len, char *data);
+extern void spi_bulk_rw(struct spiio *io, unsigned int len, unsigned char *data);
+extern void spi_brg(struct spiio *io, unsigned int baud);
+extern char *spi_name(struct spiio *io);
+extern char spi_csname(struct spiio *io);
+extern int spi_cspin(struct spiio *io);
+extern unsigned int spi_get_brg(struct spiio *io);
+
+/*
+ * Routines of the SPI device driver.
+ */
 int spidev_open (dev_t dev, int flag, int mode);
 int spidev_close (dev_t dev, int flag, int mode);
 int spidev_read (dev_t dev, struct uio *uio, int flag);
 int spidev_write (dev_t dev, struct uio *uio, int flag);
 int spidev_ioctl (dev_t dev, u_int cmd, caddr_t addr, int flag);
+
+extern const struct devspec spidevs[];
+
 #endif
 
 #endif

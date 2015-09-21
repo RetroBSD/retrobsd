@@ -28,7 +28,7 @@
 #include <sys/systm.h>
 #include <sys/uio.h>
 #include <sys/picga.h>
-#include <sys/spi_bus.h>
+#include <sys/spi.h>
 #include <sys/debug.h>
 
 const struct devspec picgadevs[] = {
@@ -105,10 +105,9 @@ int picga_close(dev_t dev, int flag, int mode)
     int channel;
 
     channel = minor(dev);
-    if(channel>0)
+    if (channel>0)
         return ENODEV;
 
-    spi_close(fd);
     return 0;
 }
 

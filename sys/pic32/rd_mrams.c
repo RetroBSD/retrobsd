@@ -4,7 +4,7 @@
 #include <sys/errno.h>
 #include <sys/dk.h>
 #include <sys/rdisk.h>
-#include <sys/spi_bus.h>
+#include <sys/spi.h>
 #include <sys/debug.h>
 
 #define MRAM_WREN       0x06

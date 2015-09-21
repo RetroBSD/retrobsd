@@ -828,6 +828,27 @@ struct gpioreg {
 #define SPI2BRGSET      PIC32_R (0x5A38)
 #define SPI2BRGINV      PIC32_R (0x5A3C)
 
+#ifndef __ASSEMBLER__
+struct spireg {
+    volatile unsigned con;      /* Control */
+    volatile unsigned conclr;
+    volatile unsigned conset;
+    volatile unsigned coninv;
+    volatile unsigned stat;     /* Status */
+    volatile unsigned statclr;
+    volatile unsigned statset;
+    volatile unsigned statinv;
+    volatile unsigned buf;      /* Transmit and receive buffer */
+    volatile unsigned unused1;
+    volatile unsigned unused2;
+    volatile unsigned unused3;
+    volatile unsigned brg;      /* Baud rate generator */
+    volatile unsigned brgclr;
+    volatile unsigned brgset;
+    volatile unsigned brginv;
+};
+#endif
+
 /*
  * SPI Control register.
  */

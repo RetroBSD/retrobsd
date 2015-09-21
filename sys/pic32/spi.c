@@ -29,7 +29,6 @@
 #include <sys/uio.h>
 #include <sys/kconfig.h>
 #include <sys/spi.h>
-#include <sys/spi_bus.h>
 
 const struct devspec spidevs[] = {
     { 0, "spi1" },
@@ -49,7 +48,7 @@ const struct devspec spidevs[] = {
 #   define PRINTDBG(...) /*empty*/
 #endif
 
-int spi_fd[NSPI];
+struct spiio spi_io[NSPI];      /* Data for SPI driver */
 
 /*
  * Open /dev/spi# device.
@@ -57,9 +56,10 @@ int spi_fd[NSPI];
  * - rate 250 kHz;
  * - no sleect pin.
  */
-int spidev_open (dev_t dev, int flag, int mode)
+int spidev_open(dev_t dev, int flag, int mode)
 {
-    int channel = minor (dev);
+    int channel = minor(dev);
+    struct spiio *io = &spi_io[channel];
 
     if (channel >= NSPI)
         return ENXIO;
@@ -67,15 +67,14 @@ int spidev_open (dev_t dev, int flag, int mode)
     if (u.u_uid != 0)
             return EPERM;
 
-    spi_fd[channel] = spi_open(channel+1,NULL,NULL);
-    if(spi_fd[channel]==-1)
+    if (! io->bus)
         return ENODEV;
     return 0;
 }
 
-int spidev_close (dev_t dev, int flag, int mode)
+int spidev_close(dev_t dev, int flag, int mode)
 {
-    int channel = minor (dev);
+    int channel = minor(dev);
 
     if (channel >= NSPI)
         return ENXIO;
@@ -83,16 +82,15 @@ int spidev_close (dev_t dev, int flag, int mode)
     if (u.u_uid != 0)
             return EPERM;
 
-    spi_close(spi_fd[channel]);
     return 0;
 }
 
-int spidev_read (dev_t dev, struct uio *uio, int flag)
+int spidev_read(dev_t dev, struct uio *uio, int flag)
 {
     return 0;
 }
 
-int spidev_write (dev_t dev, struct uio *uio, int flag)
+int spidev_write(dev_t dev, struct uio *uio, int flag)
 {
     return 0;
 }
@@ -115,9 +113,10 @@ int spidev_write (dev_t dev, struct uio *uio, int flag)
  * - SPICTL_IO32WB(n)   - n*32 bit WB transaction
  * - SPICTL_IO32B(n)   - n*32 bit B transaction
  */
-int spidev_ioctl (dev_t dev, u_int cmd, caddr_t addr, int flag)
+int spidev_ioctl(dev_t dev, u_int cmd, caddr_t addr, int flag)
 {
-    int channel = minor (dev);
+    int channel = minor(dev);
+    struct spiio *io = &spi_io[channel];
     unsigned char *cval = (unsigned char *)addr;
     int nelem;
     static unsigned volatile *const tris[8] = {
@@ -125,7 +124,7 @@ int spidev_ioctl (dev_t dev, u_int cmd, caddr_t addr, int flag)
     };
     int portnum;
 
-    //PRINTDBG ("spi%d: ioctl (cmd=%08x, addr=%08x)\n", channel+1, cmd, addr);
+    //PRINTDBG("spi%d: ioctl(cmd=%08x, addr=%08x)\n", channel+1, cmd, addr);
     if (channel >= NSPI)
         return ENXIO;
 
@@ -141,124 +140,140 @@ int spidev_ioctl (dev_t dev, u_int cmd, caddr_t addr, int flag)
          *   2     1       0
          *   3     1       1
          */
-        if((unsigned int) addr & 0x01)
-            spi_set(spi_fd[channel], PIC32_SPICON_CKE);
-        if((unsigned int) addr & 0x02)
-            spi_set(spi_fd[channel], PIC32_SPICON_CKP);
+        if ((unsigned) addr & 1)
+            spi_set(io, PIC32_SPICON_CKE);
+        if ((unsigned) addr & 2)
+            spi_set(io, PIC32_SPICON_CKP);
         return 0;
 
     case SPICTL_SETRATE:        /* set clock rate, kHz */
-        spi_brg(spi_fd[channel], (unsigned int) addr);
+        spi_brg(io, (unsigned int) addr);
         return 0;
 
     case SPICTL_SETSELPIN:      /* set select pin */
         portnum = ((unsigned int) addr >> 8) & 7;
         if (! portnum)
             return 0;
-        spi_set_cspin(spi_fd[channel],
-            (unsigned int *)tris[portnum],
-            (unsigned int) addr & 15);
+        spi_set_cspin(io, (unsigned*) tris[portnum], (unsigned) addr & 15);
         return 0;
 
     case SPICTL_IO8(0):         /* transfer n*8 bits */
-        spi_select(spi_fd[channel]);
+        spi_select(io);
         nelem = (cmd >> 16) & IOCPARM_MASK;
-        if (baduaddr (addr) || baduaddr (addr + nelem - 1))
+        if (baduaddr(addr) || baduaddr(addr + nelem - 1))
             return EFAULT;
-        spi_bulk_rw(spi_fd[channel], nelem, cval);
-        spi_deselect(spi_fd[channel]);
+        spi_bulk_rw(io, nelem, cval);
+        spi_deselect(io);
         break;
 
     case SPICTL_IO16(0):        /* transfer n*16 bits */
+        spi_select(io);
         nelem = (cmd >> 16) & IOCPARM_MASK;
         if (((unsigned) addr & 1) ||
-            baduaddr (addr) || baduaddr (addr + nelem*2 - 1))
+            baduaddr(addr) || baduaddr(addr + nelem*2 - 1))
             return EFAULT;
-        spi_bulk_rw_16(spi_fd[channel], nelem<<1, (char *)addr);
+        spi_bulk_rw_16(io, nelem<<1, (char *)addr);
+        spi_deselect(io);
         break;
 
     case SPICTL_IO32(0):        /* transfer n*32 bits */
+        spi_select(io);
         nelem = (cmd >> 16) & IOCPARM_MASK;
         if (((unsigned) addr & 3) ||
-            baduaddr (addr) || baduaddr (addr + nelem*4 - 1))
+            baduaddr(addr) || baduaddr(addr + nelem*4 - 1))
             return EFAULT;
-        spi_bulk_rw_32(spi_fd[channel], nelem<<2, (char *)addr);
+        spi_bulk_rw_32(io, nelem<<2, (char *)addr);
+        spi_deselect(io);
         break;
+
 // IM: added R and W and BE modes
     case SPICTL_IO8R(0):         /* transfer n*8 bits */
-        spi_select(spi_fd[channel]);
+        spi_select(io);
         nelem = (cmd >> 16) & IOCPARM_MASK;
-        if (baduaddr (addr) || baduaddr (addr + nelem - 1))
+        if (baduaddr(addr) || baduaddr(addr + nelem - 1))
             return EFAULT;
-        spi_bulk_read(spi_fd[channel], nelem, cval);
-        spi_deselect(spi_fd[channel]);
+        spi_bulk_read(io, nelem, cval);
+        spi_deselect(io);
         break;
 
     case SPICTL_IO16R(0):        /* transfer n*16 bits */
+        spi_select(io);
         nelem = (cmd >> 16) & IOCPARM_MASK;
         if (((unsigned) addr & 1) ||
-            baduaddr (addr) || baduaddr (addr + nelem*2 - 1))
+            baduaddr(addr) || baduaddr(addr + nelem*2 - 1))
             return EFAULT;
-        spi_bulk_read_16(spi_fd[channel], nelem<<1, (char *)addr);
+        spi_bulk_read_16(io, nelem<<1, (char *)addr);
+        spi_deselect(io);
         break;
 
     case SPICTL_IO32R(0):        /* transfer n*32 bits */
+        spi_select(io);
         nelem = (cmd >> 16) & IOCPARM_MASK;
         if (((unsigned) addr & 3) ||
-            baduaddr (addr) || baduaddr (addr + nelem*4 - 1))
+            baduaddr(addr) || baduaddr(addr + nelem*4 - 1))
             return EFAULT;
-        spi_bulk_read_32(spi_fd[channel], nelem<<2, (char *)addr);
+        spi_bulk_read_32(io, nelem<<2, (char *)addr);
+        spi_deselect(io);
         break;
 
     case SPICTL_IO8W(0):         /* transfer n*8 bits */
-        spi_select(spi_fd[channel]);
+        spi_select(io);
         nelem = (cmd >> 16) & IOCPARM_MASK;
-        if (baduaddr (addr) || baduaddr (addr + nelem - 1))
+        if (baduaddr(addr) || baduaddr(addr + nelem - 1))
             return EFAULT;
-        spi_bulk_write(spi_fd[channel], nelem, cval);
-        spi_deselect(spi_fd[channel]);
+        spi_bulk_write(io, nelem, cval);
+        spi_deselect(io);
         break;
 
     case SPICTL_IO16W(0):        /* transfer n*16 bits */
+        spi_select(io);
         nelem = (cmd >> 16) & IOCPARM_MASK;
         if (((unsigned) addr & 1) ||
-            baduaddr (addr) || baduaddr (addr + nelem*2 - 1))
+            baduaddr(addr) || baduaddr(addr + nelem*2 - 1))
             return EFAULT;
-        spi_bulk_write_16(spi_fd[channel], nelem<<1, (char *)addr);
+        spi_bulk_write_16(io, nelem<<1, (char *)addr);
+        spi_deselect(io);
         break;
 
     case SPICTL_IO32W(0):        /* transfer n*32 bits */
+        spi_select(io);
         nelem = (cmd >> 16) & IOCPARM_MASK;
         if (((unsigned) addr & 3) ||
-            baduaddr (addr) || baduaddr (addr + nelem*4 - 1))
+            baduaddr(addr) || baduaddr(addr + nelem*4 - 1))
             return EFAULT;
-        spi_bulk_write_32(spi_fd[channel], nelem<<2, (char *)addr);
+        spi_bulk_write_32(io, nelem<<2, (char *)addr);
+        spi_deselect(io);
         break;
 
     case SPICTL_IO32RB(0):        /* transfer n*32 bits */
+        spi_select(io);
         nelem = (cmd >> 16) & IOCPARM_MASK;
         if (((unsigned) addr & 3) ||
-            baduaddr (addr) || baduaddr (addr + nelem*4 - 1))
+            baduaddr(addr) || baduaddr(addr + nelem*4 - 1))
             return EFAULT;
-        spi_bulk_read_32_be(spi_fd[channel], nelem<<2, (char *)addr);
+        spi_bulk_read_32_be(io, nelem<<2, (char *)addr);
+        spi_deselect(io);
         break;
 
     case SPICTL_IO32WB(0):        /* transfer n*32 bits */
+        spi_select(io);
         nelem = (cmd >> 16) & IOCPARM_MASK;
         if (((unsigned) addr & 3) ||
-            baduaddr (addr) || baduaddr (addr + nelem*4 - 1))
+            baduaddr(addr) || baduaddr(addr + nelem*4 - 1))
             return EFAULT;
-        spi_bulk_write_32_be(spi_fd[channel], nelem<<2, (char *)addr);
+        spi_bulk_write_32_be(io, nelem<<2, (char *)addr);
+        spi_deselect(io);
         break;
 
     case SPICTL_IO32B(0):        /* transfer n*32 bits */
+        spi_select(io);
         nelem = (cmd >> 16) & IOCPARM_MASK;
         if (((unsigned) addr & 3) ||
-            baduaddr (addr) || baduaddr (addr + nelem*4 - 1))
+            baduaddr(addr) || baduaddr(addr + nelem*4 - 1))
             return EFAULT;
-        spi_bulk_write_32_be(spi_fd[channel], nelem<<2, (char *)addr);
+        spi_bulk_write_32_be(io, nelem<<2, (char *)addr);
+        spi_deselect(io);
         break;
-//
     }
     return 0;
 }
@@ -273,6 +288,7 @@ spiprobe(config)
     struct conf_ctlr *config;
 {
     int channel = config->ctlr_unit - 1;
+    struct spiio *io = &spi_io[channel];
     int sdi, sdo, sck;
     static const int sdi_tab[NSPI] = {
         GPIO_PIN('C',4),    /* SDI1 */
@@ -304,15 +320,15 @@ spiprobe(config)
         sdo = GPIO_PIN('F',8);
         sck = GPIO_PIN('D',15);
     }
-    printf ("spi%u: pins sdi=R%c%d/sdo=R%c%d/sck=R%c%d\n", channel+1,
+    printf("spi%u: pins sdi=R%c%d/sdo=R%c%d/sck=R%c%d\n", channel+1,
         gpio_portname(sdi), gpio_pinno(sdi),
         gpio_portname(sdo), gpio_pinno(sdo),
         gpio_portname(sck), gpio_pinno(sck));
 
-    //TODO
-    //struct spiio *io = &spitab[channel];
-    //io->reg = spi_base[channel];
-    //spi_setup(io, 0, 0);
+    if (spi_setup(io, channel+1, 0, 0) != 0) {
+        printf("spi%u: setup failed\n", channel+1);
+        return 0;
+    }
     return 1;
 }
 

@@ -750,6 +750,7 @@ int hx8357_ioctl(dev_t dev, register u_int cmd, caddr_t addr, int flag)
     int unit = minor(dev);
 
     if (unit == 0) {
+#if 0
         struct tty *tp = &hx8357_ttys[unit];
         int error;
 
@@ -757,6 +758,27 @@ int hx8357_ioctl(dev_t dev, register u_int cmd, caddr_t addr, int flag)
         if (error < 0)
             error = ENOTTY;
         return (error);
+#else
+        switch (cmd) {
+            case 0xC0C0: {
+                unsigned short* wndcoo = (unsigned short*)addr;
+                setAddrWindow(wndcoo[0], wndcoo[1], wndcoo[2], wndcoo[3]);
+                break;
+            }
+            case 0xDADA: {
+                unsigned short* data = (unsigned short*)addr;
+                unsigned short cnt = *data++;
+                while (PMMODE & PIC32_PMMODE_BUSY);
+                PMADDR = 0x0001;
+                while (cnt--) {
+                  while (PMMODE & PIC32_PMMODE_BUSY);
+                  PMDIN = *data++;
+                }
+                break;
+            }
+        }
+        return 0;
+#endif
     }
     if (unit == 1) {
         return EIO;

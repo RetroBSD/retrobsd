@@ -153,7 +153,7 @@ next:
      */
     wd = get_word(fp);
     if (wd == (char *)EOF) {
-        (void) fclose(fp);
+eof:    (void) fclose(fp);
         if (first == 1) {
             (void) sprintf(fname, "files.%s", raise(board));
             first++;
@@ -165,6 +165,16 @@ next:
     }
     if (wd == 0)
         goto next;
+    if (*wd == '#') {
+        /* Skip comment. */
+        for (;;) {
+            wd = get_word(fp);
+            if (wd == 0)
+                goto next;
+            if (wd == (char *)EOF)
+                goto eof;
+        }
+    }
     this = strdup(wd);
     next_word(fp, wd);
     if (wd == 0) {

@@ -861,7 +861,6 @@ file /include/sys/resource.h
 file /include/sys/select.h
 file /include/sys/signal.h
 file /include/sys/signalvar.h
-file /include/sys/spi_bus.h
 file /include/sys/spi.h
 file /include/sys/stat.h
 file /include/sys/swap.h

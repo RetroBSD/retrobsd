@@ -14,7 +14,7 @@
 #include <sys/exec_aout.h>
 #include <sys/dir.h>
 #include <sys/uio.h>
-#include <sys/debug.h>
+#include <machine/debug.h>
 
 int exec_aout_check(struct exec_params *epp)
 {

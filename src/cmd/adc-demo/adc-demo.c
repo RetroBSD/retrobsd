@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <fcntl.h>
-#include <sys/adc.h>
+#include <machine/adc.h>
 #include <unistd.h>
 
 int fd[16];

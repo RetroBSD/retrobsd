@@ -29,19 +29,6 @@
 #include <sys/uio.h>
 #include <sys/skel.h>
 
-/*
- * List of device names and minor numbers.
- * Assume we have five ports.
- */
-const struct devspec skeldevs[] = {
-    { 0, "skel1" },
-    { 1, "skel2" },
-    { 2, "skel3" },
-    { 3, "skel4" },
-    { 4, "skel5" },
-    { 0, 0 }
-};
-
 #define NSKEL   5       /* Ports 1...5 */
 
 /*

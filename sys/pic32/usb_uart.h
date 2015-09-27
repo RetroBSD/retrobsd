@@ -24,11 +24,6 @@
 #ifndef _USB_UART_H
 #define _USB_UART_H
 
-#include "conf.h"
-
-extern const struct devspec usbdevs[];
-extern unsigned int usb_major;
-
 #define USB_MAJOR 13
 
 extern struct tty usbttys[1];

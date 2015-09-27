@@ -15,10 +15,6 @@
 #define ADCMAX 15
 
 #ifdef KERNEL
-#include "conf.h"
-
-extern const struct devspec adcdevs[];
-
 int adc_open (dev_t dev, int flag, int mode);
 int adc_close (dev_t dev, int flag, int mode);
 int adc_read (dev_t dev, struct uio *uio, int flag);

@@ -31,11 +31,6 @@
 #include <sys/spi.h>
 #include <sys/debug.h>
 
-const struct devspec picgadevs[] = {
-    { 0, "picga" },
-    { 0, 0 }
-};
-
 extern int uwritec(struct uio *);
 
 struct spiio picga_io;

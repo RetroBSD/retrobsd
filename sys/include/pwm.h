@@ -18,8 +18,6 @@ struct pwm_state {
 #ifdef KERNEL
 #include "conf.h"
 
-extern const struct devspec pwmdevs[];
-
 extern int pwm_open (dev_t dev, int flag, int mode);
 extern int pwm_close (dev_t dev, int flag, int mode);
 extern int pwm_read (dev_t dev, struct uio *uio, int flag);

@@ -1,5 +1,6 @@
 /*
  * Driver for external SRAM-CPLD based Swap and Filesystem devices
+ * TODO: Modify this driver to be able to function without rdisk layer.
  *
  * This version is for 8MB RAMDISK v.1.1 and compatible
  * Pito 7.4.2014 - PIC32MX PMP bus version
@@ -21,8 +22,8 @@
 #include <sys/buf.h>
 #include <sys/errno.h>
 #include <sys/dk.h>
-#include <sys/rdisk.h>
 #include <sys/debug.h>
+#include <machine/sramc.h>
 
 int sw_dkn = -1;                /* Statistics slot number */
 

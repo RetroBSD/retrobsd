@@ -19,17 +19,17 @@
 #include <sys/namei.h>
 #include <sys/mount.h>
 #include <sys/systm.h>
-#include <sys/debug.h>
 #include <sys/kconfig.h>
-#include <sys/uart.h>
-#include <sys/usb_uart.h>
+#include <sys/tty.h>
+#include <machine/uart.h>
+#include <machine/usb_uart.h>
 #ifdef UARTUSB_ENABLED
 #   include <machine/usb_device.h>
 #   include <machine/usb_function_cdc.h>
 #endif
 
 #ifdef HX8357_ENABLED
-#include <sys/hx8357.h>
+#include <machine/hx8357.h>
 #endif
 
 #ifdef POWER_ENABLED

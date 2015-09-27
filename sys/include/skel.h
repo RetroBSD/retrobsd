@@ -33,8 +33,6 @@
 #ifdef KERNEL
 #include "conf.h"
 
-extern const struct devspec skeldevs[];
-
 int skeldev_open (dev_t dev, int flag, int mode);
 int skeldev_close (dev_t dev, int flag, int mode);
 int skeldev_read (dev_t dev, struct uio *uio, int flag);

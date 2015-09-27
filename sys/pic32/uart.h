@@ -1,12 +1,9 @@
 #ifndef _UART_H
 #define _UART_H
 
-#include "tty.h"
-
 #define NUART 6
 
 #ifdef KERNEL
-#include "conf.h"
 
 void uartinit(int unit);
 int uartopen(dev_t dev, int flag, int mode);
@@ -21,7 +18,6 @@ void uartputc(dev_t dev, char c);
 char uartgetc(dev_t dev);
 
 extern struct tty uartttys[NUART];
-extern const struct devspec uartdevs[];
 
 #endif
 

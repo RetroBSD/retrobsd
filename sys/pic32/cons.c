@@ -11,14 +11,8 @@
 #include <sys/ioctl.h>
 #include <sys/tty.h>
 #include <sys/systm.h>
-
-#include <sys/uart.h>
-#include <sys/usb_uart.h>
-
-const struct devspec cndevs[] = {
-    { 0, "console" },
-    { 0, 0 }
-};
+#include <machine/uart.h>
+#include <machine/usb_uart.h>
 
 dev_t console_device = -1;
 

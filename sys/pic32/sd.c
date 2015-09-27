@@ -36,7 +36,6 @@
 #include <sys/dk.h>
 #include <sys/disk.h>
 #include <sys/spi.h>
-#include <sys/debug.h>
 #include <sys/kconfig.h>
 #include <machine/sd.h>
 
@@ -134,12 +133,6 @@ int sd_timo_wait_widle;
 #define DATA_START_BLOCK        0xFE    /* start data for single block */
 #define STOP_TRAN_TOKEN         0xFD    /* stop token for write multiple */
 #define WRITE_MULTIPLE_TOKEN    0xFC    /* start data for write multiple */
-
-const struct devspec sddevs[] = {
-    { 0, "sd0" },
-    { 1, "sd0a" }, { 2, "sd0b" }, { 3, "sd0c" }, { 4, "sd0d" },
-    { 0, 0 }
-};
 
 /*
  * Release the card's /CS signal.
@@ -900,7 +893,7 @@ sd_probe(config)
     spi_set(io, PIC32_SPICON_CKE);
 
 #ifdef UCB_METER
-    dk_alloc(&sddrives[unit].dkindex, 1, sddevs[unit].devname);
+    dk_alloc(&sddrives[unit].dkindex, 1, (unit == 0) ? "sd0" : "sd1");
 #endif
     return 1;
 }

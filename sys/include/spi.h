@@ -84,8 +84,6 @@ int spidev_read (dev_t dev, struct uio *uio, int flag);
 int spidev_write (dev_t dev, struct uio *uio, int flag);
 int spidev_ioctl (dev_t dev, u_int cmd, caddr_t addr, int flag);
 
-extern const struct devspec spidevs[];
-
 #endif
 
 #endif

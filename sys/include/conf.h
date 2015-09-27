@@ -9,11 +9,6 @@ struct uio;
 struct buf;
 struct tty;
 
-struct devspec {
-    int     unit;
-    char    *devname;
-};
-
 /*
  * Declaration of block device
  * switch. Each entry (row) is
@@ -30,7 +25,6 @@ struct bdevsw
     void    (*d_strategy) (struct buf*);
     daddr_t (*d_psize) (dev_t);                     /* query partition size */
     int     (*d_ioctl) (dev_t, u_int, caddr_t, int);
-    const struct devspec *devs;
     int     d_flags;                                /* tape flag */
 };
 
@@ -52,7 +46,6 @@ struct cdevsw
     void    (*d_strategy) (struct buf*);
     char    (*r_read) (dev_t);
     void    (*r_write) (dev_t, char);
-    const struct devspec *devs;
 };
 
 #define UART_MAJOR      6

@@ -32,13 +32,6 @@
 #include <machine/usb_device.h>
 #include <machine/usb_function_cdc.h>
 
-unsigned int usb_major = 0;
-
-const struct devspec usbdevs[] = {
-    { 0, "ttyUSB0" },
-    { 0, 0 }
-};
-
 #define CONCAT(x,y) x ## y
 #define BBAUD(x) CONCAT(B,x)
 
@@ -58,18 +51,13 @@ struct tty usbttys [1];
 
 void usbstart (struct tty *tp);
 int usbopen (dev_t dev, int flag, int mode);
+
 /*
  * Initialize USB module SFRs and firmware variables to known state.
  * Enable interrupts.
  */
 void usbinit()
 {
-    int i;
-    for (i=0; i<nchrdev; i++) {
-        if (cdevsw[i].d_open == usbopen) {
-            usb_major = i;
-        }
-    }
     usb_device_init();
     IECSET(1) = 1 << (PIC32_IRQ_USB - 32);
 
@@ -289,7 +277,7 @@ static int
 usbprobe(config)
     struct conf_device *config;
 {
-    int is_console = (CONS_MAJOR == usb_major);
+    int is_console = (CONS_MAJOR == UARTUSB_MAJOR);
 
     printf("uartusb: port USB, interrupt %u", PIC32_VECT_USB);
     if (is_console)

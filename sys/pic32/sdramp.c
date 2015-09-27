@@ -1,5 +1,6 @@
 /*
  * Driver for external SDRAM-based swap device.
+ * TODO: Modify this driver to be able to function without rdisk layer.
  *
  * See sdram.S for information on interface to sdram
  *
@@ -11,14 +12,13 @@
 #include <sys/errno.h>
 #include <sys/dk.h>
 #include <machine/sdram.h>
-#include <sys/rd_sdramp.h>
-#include <sys/rdisk.h>
+#include <machine/sdramp.h>
 #include <sys/kconfig.h>
 
 /*
  * See rd_sdramp_config.h for sdramp port/pin configuration
  */
-#include <machine/rd_sdramp_config.h>
+#include <machine/sdramp_config.h>
 
 int sw_dkn = -1;                /* Statistics slot number */
 

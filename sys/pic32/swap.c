@@ -18,9 +18,6 @@
 #define NTMP 3
 #endif
 
-const struct devspec swapbdevs[] = { { 0, "swap0" }, { 1, "swap1" }, { 2, "swap2" },  { 64, "swap" }, { 0, 0 } };
-const struct devspec swapcdevs[] = { { 0, "temp0" }, { 1, "temp1" }, { 2, "temp2" },  { 0, 0 } };
-
 extern struct buf *getnewbuf();
 
 static unsigned int tdsize[NTMP];   // Number of blocks allocated

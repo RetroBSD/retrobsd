@@ -27,17 +27,9 @@
 #include <sys/ioctl.h>
 #include <sys/systm.h>
 #include <sys/uio.h>
-#include <sys/adc.h>
-#include <sys/debug.h>
+#include <machine/adc.h>
+#include <machine/debug.h>
 #include <sys/kconfig.h>
-
-const struct devspec adcdevs[] = {
-    { 0, "adc0" }, { 1, "adc1" }, { 2, "adc2" }, { 3, "adc3" },
-    { 4, "adc4" }, { 5, "adc5" }, { 6, "adc6" }, { 7, "adc7" },
-    { 8, "adc8" }, { 9, "adc9" }, { 10, "adc10" }, { 11, "adc11" },
-    { 12, "adc12" }, { 13, "adc13" }, { 14, "adc14" }, { 15, "adc15" },
-    { 0, 0 }
-};
 
 extern int uwritec(struct uio *);
 

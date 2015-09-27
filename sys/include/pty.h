@@ -15,9 +15,6 @@
 #include "tty.h"
 #include "conf.h"
 
-extern const struct devspec ptsdevs[];
-extern const struct devspec ptcdevs[];
-
 #ifndef PTY_NUNITS
 #define PTY_NUNITS 4            /* 4 units by default */
 #endif

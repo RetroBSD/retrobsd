@@ -9,14 +9,6 @@
 #include <sys/systm.h>
 #include <sys/uio.h>
 
-const struct devspec mmdevs[] = {
-    { 0, "mem" },
-    { 1, "kmem" },
-    { 2, "null" },
-    { 3, "zero" },
-    { 0, 0 }
-};
-
 void kmemdev()
 {
     u.u_rval = makedev(MEM_MAJOR, 1);

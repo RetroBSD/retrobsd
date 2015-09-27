@@ -15,7 +15,7 @@
 #include <sys/tty.h>
 #include <sys/systm.h>
 #include <sys/errno.h>
-#include <sys/uart.h>
+#include <machine/uart.h>
 #include <sys/spi.h>
 #include <sys/gpio.h>
 
@@ -26,11 +26,23 @@ extern int strcmp(char *s1, char *s2);
 #ifdef SD_ENABLED
 #   include <machine/sd.h>
 #endif
+#ifdef SRAMC_ENABLED
+#   include <machine/sramc.h>
+#endif
+#ifdef SDRAMP_ENABLED
+#   include <machine/sdramp.h>
+#endif
+#ifdef MRAMS_ENABLED
+#   include <machine/mrams.h>
+#endif
+#ifdef SPIRAMS_ENABLED
+#   include <machine/spirams.h>
+#endif
 #ifdef UARTUSB_ENABLED
-#   include <sys/usb_uart.h>
+#   include <machine/usb_uart.h>
 #endif
 #ifdef ADC_ENABLED
-#   include <sys/adc.h>
+#   include <machine/adc.h>
 #endif
 #ifdef GLCD_ENABLED
 #   include <sys/glcd.h>
@@ -45,7 +57,7 @@ extern int strcmp(char *s1, char *s2);
 #   include <sys/pty.h>
 #endif
 #ifdef HXTFT_ENABLED
-#   include <sys/hx8357.h>
+#   include <machine/hx8357.h>
 #endif
 #ifdef SKEL_ENABLED
 #   include <sys/skel.h>
@@ -95,7 +107,7 @@ daddr_t nosize(dev)
 
 #define NOBDEV \
     noopen,         noopen,         nostrategy, \
-    nosize,         noioctl,        0
+    nosize,         noioctl,
 
 /*
  * The RetroDisks require the same master number as the disk entry in the
@@ -106,23 +118,46 @@ const struct bdevsw bdevsw[] = {
 {   /* 0 - sd */
 #ifdef SD_ENABLED
     sdopen,         sdclose,        sdstrategy,
-    sdsize,         sdioctl,        sddevs
+    sdsize,         sdioctl,
 #else
     NOBDEV
 #endif
 },
-{   /* 1 - rd1 */
+{   /* 1 - sramc */
+#ifdef SRAMC_ENABLED
+    sramc_open,     sramc_close,    sramc_strategy,
+    sramc_size,     sramc_ioctl,
+#else
     NOBDEV
+#endif
 },
-{   /* 2 - rd2 */
+{   /* 2 - sdramp */
+#ifdef SDRAMP_ENABLED
+    sdramp_open,    sdramp_close,   sdramp_strategy,
+    sdramp_size,    sdramp_ioctl,
+#else
     NOBDEV
+#endif
 },
-{   /* 3 - rd3 */
+{   /* 3 - mrams */
+#ifdef MRAMS_ENABLED
+    mrams_open,     mrams_close,    mrams_strategy,
+    mrams_size,     mrams_ioctl,
+#else
     NOBDEV
+#endif
 },
 {   /* 4 - swap */
     swopen,         swclose,        swstrategy,
-    swsize,         swcioctl,       swapbdevs
+    swsize,         swcioctl,
+},
+{   /* 5 - spirams */
+#ifdef SPIRAMS_ENABLED
+    spirams_open,   spirams_close,  spirams_strategy,
+    spirams_size,   spirams_ioctl,
+#else
+    NOBDEV
+#endif
 },
 
 { 0 },
@@ -133,7 +168,7 @@ const int nblkdev = sizeof(bdevsw) / sizeof(bdevsw[0]) - 1;
 #define NOCDEV \
     noopen,         noopen,         norw,           norw, \
     noioctl,        nulldev,        0,              seltrue, \
-    nostrategy,     0,              0,              0
+    nostrategy,     0,              0,
 
 const struct cdevsw cdevsw[] = {
 
@@ -143,7 +178,7 @@ const struct cdevsw cdevsw[] = {
 {   /* 0 - console */
     cnopen,         cnclose,        cnread,         cnwrite,
     cnioctl,        nulldev,        cnttys,         cnselect,
-    nostrategy,     0,              0,              cndevs
+    nostrategy,     0,              0,
 },
 {   /* 1 - mem, kmem, null, zero */
 #if MEM_MAJOR != 1
@@ -151,22 +186,22 @@ const struct cdevsw cdevsw[] = {
 #endif
     nulldev,        nulldev,        mmrw,           mmrw,
     noioctl,        nulldev,        0,              seltrue,
-    nostrategy,     0,              0,              mmdevs
+    nostrategy,     0,              0,
 },
 {   /* 2 - tty */
     syopen,         nulldev,        syread,         sywrite,
     syioctl,        nulldev,        0,              syselect,
-    nostrategy,     0,              0,              sydevs
+    nostrategy,     0,              0,
 },
 {   /* 3 - fd */
     fdopen,         nulldev,        norw,           norw,
     noioctl,        nulldev,        0,              seltrue,
-    nostrategy,     0,              0,              fddevs
+    nostrategy,     0,              0,
 },
 {   /* 4 - temp (temporary allocation in swap space) */
     swcopen,        swcclose,       swcread,        swcwrite,
     swcioctl,       nulldev,        0,              seltrue,
-    nostrategy,     0,              0,              swapcdevs
+    nostrategy,     0,              0,
 },
 
 /*
@@ -176,7 +211,7 @@ const struct cdevsw cdevsw[] = {
 #ifdef LOG_ENABLED
     logopen,        logclose,       logread,        norw,
     logioctl,       nulldev,        0,              logselect,
-    nostrategy,     0,              0,              logdevs
+    nostrategy,     0,              0,
 #else
     NOCDEV
 #endif
@@ -190,7 +225,7 @@ const struct cdevsw cdevsw[] = {
     defined(UART5_ENABLED) || defined(UART6_ENABLED)
     uartopen,       uartclose,      uartread,       uartwrite,
     uartioctl,      nulldev,        uartttys,       uartselect,
-    nostrategy,     uartgetc,       uartputc,       uartdevs
+    nostrategy,     uartgetc,       uartputc,
 #else
     NOCDEV
 #endif
@@ -202,7 +237,7 @@ const struct cdevsw cdevsw[] = {
 #ifdef UARTUSB_ENABLED
     usbopen,        usbclose,       usbread,        usbwrite,
     usbioctl,       nulldev,        usbttys,        usbselect,
-    nostrategy,     usbgetc,        usbputc,        usbdevs
+    nostrategy,     usbgetc,        usbputc,
 #else
     NOCDEV
 #endif
@@ -211,11 +246,11 @@ const struct cdevsw cdevsw[] = {
 #ifdef PTY_ENABLED
     ptsopen,        ptsclose,       ptsread,        ptswrite,
     ptyioctl,       nulldev,        pt_tty,         ptcselect,
-    nostrategy,     0,              0,              ptsdevs
+    nostrategy,     0,              0,
 }, {
     ptcopen,        ptcclose,       ptcread,        ptcwrite,
     ptyioctl,       nulldev,        pt_tty,         ptcselect,
-    nostrategy,     0,              0,              ptcdevs
+    nostrategy,     0,              0,
 #else
     NOCDEV }, { NOCDEV
 #endif
@@ -227,7 +262,7 @@ const struct cdevsw cdevsw[] = {
     defined(GPIO6_ENABLED)
     gpioopen,       gpioclose,      gpioread,       gpiowrite,
     gpioioctl,      nulldev,        0,              seltrue,
-    nostrategy,     0,              0,              gpiodevs
+    nostrategy,     0,              0,
 #else
     NOCDEV
 #endif
@@ -236,7 +271,7 @@ const struct cdevsw cdevsw[] = {
 #ifdef ADC_ENABLED
     adc_open,       adc_close,      adc_read,       adc_write,
     adc_ioctl,      nulldev,        0,              seltrue,
-    nostrategy,     0,              0,              adcdevs
+    nostrategy,     0,              0,
 #else
     NOCDEV
 #endif
@@ -246,7 +281,7 @@ const struct cdevsw cdevsw[] = {
     defined(SPI3_ENABLED) || defined(SPI4_ENABLED)
     spidev_open,    spidev_close,   spidev_read,    spidev_write,
     spidev_ioctl,   nulldev,        0,              seltrue,
-    nostrategy,     0,              0,              spidevs
+    nostrategy,     0,              0,
 #else
     NOCDEV
 #endif
@@ -255,7 +290,7 @@ const struct cdevsw cdevsw[] = {
 #ifdef GLCD_ENABLED
     glcd_open,      glcd_close,     glcd_read,      glcd_write,
     glcd_ioctl,     nulldev,        0,              seltrue,
-    nostrategy,     0,              0,              glcddevs
+    nostrategy,     0,              0,
 #else
     NOCDEV
 #endif
@@ -264,7 +299,7 @@ const struct cdevsw cdevsw[] = {
 #ifdef PWM_ENABLED
     pwm_open,       pwm_close,      pwm_read,       pwm_write,
     pwm_ioctl,      nulldev,        0,              seltrue,
-    nostrategy,     0,              0,              pwmdevs
+    nostrategy,     0,              0,
 #else
     NOCDEV
 #endif
@@ -273,7 +308,7 @@ const struct cdevsw cdevsw[] = {
 #ifdef PICGA_ENABLED
     picga_open,     picga_close,    picga_read,     picga_write,
     picga_ioctl,    nulldev,        0,              seltrue,
-    nostrategy,     0,              0,              picgadevs
+    nostrategy,     0,              0,
 #else
     NOCDEV
 #endif
@@ -285,7 +320,7 @@ const struct cdevsw cdevsw[] = {
 #ifdef HXTFT_ENABLED
     hx8357_open,    hx8357_close,   hx8357_read,    hx8357_write,
     hx8357_ioctl,   nulldev,        hx8357_ttys,    hx8357_select,
-    nostrategy,     hx8357_getc,    hx8357_putc,    hx8357devs
+    nostrategy,     hx8357_getc,    hx8357_putc,
 #else
     NOCDEV
 #endif
@@ -294,7 +329,7 @@ const struct cdevsw cdevsw[] = {
 #ifdef SKEL_ENABLED
     skeldev_open,   skeldev_close,  skeldev_read,   skeldev_write,
     skeldev_ioctl,  nulldev,        0,              seltrue,
-    nostrategy,     0,              0,              skeldevs
+    nostrategy,     0,              0,
 #else
     NOCDEV
 #endif
@@ -357,22 +392,3 @@ chrtoblk(dev_t dev)
 {
     return NODEV;
 }
-
-#if 0
-char *cdevname(dev_t dev)
-{
-    int maj = major(dev);
-    const struct devspec *devs = cdevsw[maj].devs;
-    int i;
-
-    if (! devs)
-        return 0;
-
-    for (i=0; devs[i].devname != 0; i++) {
-        if (devs[i].unit == minor(dev)) {
-            return devs[i].devname;
-        }
-    }
-    return 0;
-}
-#endif

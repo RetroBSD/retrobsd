@@ -9,9 +9,9 @@
 #include <sys/user.h>
 #include <sys/proc.h>
 #include <sys/vm.h>
-#include <sys/uart.h>
-#include <sys/usb_uart.h>
-#include <sys/debug.h>
+#include <sys/tty.h>
+#include <machine/uart.h>
+#include <machine/usb_uart.h>
 
 //#define TRACE_EXCEPTIONS
 

@@ -21,9 +21,6 @@ extern int swcioctl (dev_t dev, register u_int cmd, caddr_t addr, int flag);
 extern int swcopen(dev_t dev, int mode, int flag);
 extern int swcclose(dev_t dev, int mode, int flag);
 
-extern const struct devspec swapbdevs[];
-extern const struct devspec swapcdevs[];
-
 #endif
 
 #endif

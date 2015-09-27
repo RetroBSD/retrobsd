@@ -9,7 +9,7 @@
 #include <sys/vm.h>
 #include <sys/kernel.h>
 #include <sys/systm.h>
-#include <sys/debug.h>
+#include <machine/debug.h>
 
 #define MINFINITY   -32767      /* minus infinity */
 

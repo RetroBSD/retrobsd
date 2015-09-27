@@ -85,8 +85,6 @@ struct charval {
 #ifdef KERNEL
 #include "conf.h"
 
-extern const struct devspec picgadevs[];
-
 extern void picga_command(unsigned char cmd, unsigned char len, void *data);
 extern int picga_open(dev_t dev, int flag, int mode);
 extern int picga_close(dev_t dev, int flag, int mode);

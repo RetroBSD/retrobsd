@@ -2,6 +2,9 @@
  * Pulse Width Modulation driver for PIC32.
  * Using Output Compare peripherals.
  *
+ * Devices:
+ *      /dev/pwmX
+ *
  * Copyright (C) 2012 Majenko Technologies <matt@majenko.co.uk>
  *
  * Permission to use, copy, modify, and distribute this software
@@ -29,21 +32,8 @@
 #include <sys/systm.h>
 #include <sys/uio.h>
 #include <sys/pwm.h>
-#include <sys/debug.h>
+#include <machine/debug.h>
 #include <sys/kconfig.h>
-
-/*
- * Devices:
- *      /dev/pwmX
- */
-const struct devspec pwmdevs[] = {
-    { 0, "pwm1" },
-    { 1, "pwm2" },
-    { 2, "pwm3" },
-    { 3, "pwm4" },
-    { 4, "pwm5" },
-    { 0, 0 }
-};
 
 #define _BC(R,B) (R &= ~(1<<B))
 #define _BS(R,B) (R |= (1<<B))

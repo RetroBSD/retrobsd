@@ -16,7 +16,7 @@
 #include <sys/file.h>
 #include <sys/signalvar.h>
 #include <sys/exec.h>
-#include <sys/debug.h>
+#include <machine/debug.h>
 
 /*
  * exec system call, with and without environments.

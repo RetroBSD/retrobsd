@@ -30,17 +30,6 @@
 #include <sys/uio.h>
 #include <sys/kconfig.h>
 
-const struct devspec gpiodevs[] = {
-    { 0, "porta" }, { 1, "portb" }, { 2, "portc" }, { 3, "portd" },
-    { 4, "porte" }, { 5, "portf" }, { 6, "portg" },
-
-    { 64, "confa" }, { 65, "confb" }, { 66, "confc" }, { 67, "confd" },
-    { 68, "confe" }, { 69, "conff" }, { 70, "confg" },
-
-    { 0, 0 }
-};
-
-
 /*
  * Devices:
  *      /dev/porta ... /dev/portg

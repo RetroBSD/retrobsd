@@ -1,11 +1,15 @@
+/*
+ * TODO: Modify this driver to be able to function without rdisk layer.
+ */
 #include <sys/param.h>
 #include <sys/systm.h>
 #include <sys/buf.h>
 #include <sys/errno.h>
 #include <sys/dk.h>
-#include <sys/rdisk.h>
+#include <sys/disk.h>
 #include <sys/spi.h>
 #include <sys/debug.h>
+#include <machine/mrams.h>
 
 #define MRAM_WREN       0x06
 #define MRAM_WRDI       0x04

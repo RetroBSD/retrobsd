@@ -1,11 +1,14 @@
+/*
+ * TODO: Modify this driver to be able to function without rdisk layer.
+ */
 #include <sys/param.h>
 #include <sys/systm.h>
 #include <sys/buf.h>
 #include <sys/errno.h>
 #include <sys/dk.h>
-#include <sys/rdisk.h>
 #include <sys/spi.h>
 #include <sys/debug.h>
+#include <machine/spirams.h>
 
 #define SPIRAM_WREN     0x06
 #define SPIRAM_WRDI     0x04

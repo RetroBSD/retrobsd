@@ -244,12 +244,6 @@ int cnwrite (dev_t dev, struct uio *uio, int flag);
 int cnioctl (dev_t dev, u_int cmd, caddr_t addr, int flag);
 int cnselect (dev_t dev, int rw);
 
-extern const struct devspec cndevs[];
-extern const struct devspec mmdevs[];
-extern const struct devspec sydevs[];
-extern const struct devspec logdevs[];
-extern const struct devspec fddevs[];
-
 #ifdef TS_ISOPEN
 extern struct tty cnttys[];
 #endif

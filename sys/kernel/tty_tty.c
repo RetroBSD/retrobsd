@@ -17,11 +17,6 @@
 #include <sys/tty.h>
 #include <sys/conf.h>
 
-const struct devspec sydevs[] = {
-    { 0, "tty" },
-    { 0, 0 }
-};
-
 /*ARGSUSED*/
 int
 syopen (dev, flag)

@@ -137,8 +137,6 @@ struct glcd_command {
 #ifdef KERNEL
 #include "conf.h"
 
-extern const struct devspec glcddevs[];
-
 extern int glcd_open (dev_t dev, int flag, int mode);
 extern int glcd_close (dev_t dev, int flag, int mode);
 extern int glcd_read (dev_t dev, struct uio *uio, int flag);

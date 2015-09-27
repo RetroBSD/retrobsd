@@ -27,10 +27,9 @@
 #include <sys/ioctl.h>
 #include <sys/systm.h>
 #include <sys/uio.h>
-#include <sys/adc.h>
-#include <sys/debug.h>
+#include <sys/tty.h>
 #include <sys/kconfig.h>
-#include <sys/hx8357.h>
+#include <machine/hx8357.h>
 #include <sys/fonts/default.h>
 
 char frame[40][80];
@@ -93,12 +92,6 @@ static unsigned short textbgcolor = 0x0000;
 const unsigned char *font = Default;
 const unsigned char _font_width = 6;
 const unsigned char _font_height = 8;
-
-const struct devspec hx8357devs[] = {
-    { 0, "tft0" },
-    { 1, "tftin0" },
-    { 0, 0 }
-};
 
 void inline static writeCommand(unsigned short c)
 {

@@ -13,7 +13,7 @@
 #include <sys/exec.h>
 #include <sys/dir.h>
 #include <sys/uio.h>
-#include <sys/debug.h>
+#include <machine/debug.h>
 
 /*
  * How memory is set up.

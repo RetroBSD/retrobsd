@@ -1,2 +1,2 @@
-/dev/rd0a	/	ufs	rw,async	1	1
-#/dev/rd0c	/u	ufs	rw,async	1	2
+/dev/sd0a	/	ufs	rw,async	1	1
+#/dev/sd0c	/u	ufs	rw,async	1	2

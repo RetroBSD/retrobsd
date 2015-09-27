@@ -103,7 +103,7 @@ daddr_t nosize(dev)
  * devices must be numbered from master 0 upwards.
  */
 const struct bdevsw bdevsw[] = {
-{   /* 0 - rd0 */
+{   /* 0 - sd */
 #ifdef SD_ENABLED
     sdopen,         sdclose,        sdstrategy,
     sdsize,         sdioctl,        sddevs

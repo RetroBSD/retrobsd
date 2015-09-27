@@ -74,7 +74,7 @@ controller      spi2                        # SD card
 
 # microSD card
 device          sd0     at spi2 pin RC14    # select pin
-options         "SD0_MHZ=10"                # speed 10 MHz
+options         "SD_MHZ=10"                 # speed 10 MHz
 signal          "SD0_ENA"       pin RA5     # SD card enable signal
 
 # General purpose I/O ports

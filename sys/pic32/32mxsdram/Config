@@ -48,8 +48,8 @@ controller      spi4                        # SD card
 # because of a mod on the board we use power=B13, otherwise it shall be D12
 device          sd0     at spi4
                         pins RF3, RB13      # select pin, enable pin
-options         "SD0_MHZ=10"                # speed 10 MHz
-signal          "SD0_ENA"       pin RB13    # SD enable signal
+options         "SD_MHZ=10"                 # speed 10 MHz
+signal          "SD_ENA"        pin RB13    # SD enable signal
 
 # ADC driver
 device          adc

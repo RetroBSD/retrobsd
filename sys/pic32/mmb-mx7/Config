@@ -47,7 +47,7 @@ controller      spi1                        # SD card
 
 # microSD card
 device          sd0     at spi1 pin RA9     # select pin
-options         "SD0_MHZ=8"                 # speed 8 MHz
+options         "SD_MHZ=8"                  # speed 8 MHz
 
 # General purpose I/O ports
 # Flags define a mask of available pins

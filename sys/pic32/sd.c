@@ -1,15 +1,24 @@
 /*
- * SecureDigital flash drive on SPI port.
+ * SD or SDHC card connected to SPI port.
  *
- * These cards are known to work:
- * 1) NCP SD 256Mb       - type 1, 249856 kbytes,  244 Mbytes
- * 2) Patriot SD 2Gb     - type 2, 1902592 kbytes, 1858 Mbytes
- * 3) Wintec microSD 2Gb - type 2, 1969152 kbytes, 1923 Mbytes
- * 4) Transcend SDHC 4Gb - type 3, 3905536 kbytes, 3814 Mbytes
- * 5) Verbatim SD 2Gb    - type 2, 1927168 kbytes, 1882 Mbytes
- * 6) SanDisk SDHC 4Gb   - type 3, 3931136 kbytes, 3833 Mbytes
+ * Up to two cards can be connected to the same SPI port.
+ * PC-compatible partition table is supported.
+ * The following device numbers are used:
  *
- * Copyright (C) 2010 Serge Vakulenko, <serge@vak.ru>
+ * Major Minor Device  Partition
+ * ----------------------------------------------
+ *   0     0     sd0   Main SD card, whole volume
+ *   0     1     sd0a  1-st partition, usually root FS
+ *   0     2     sd0b  2-nd partition, usually swap
+ *   0     3     sd0c  3-rd partition
+ *   0     4     sd0d  4-th partition
+ *   0     8     sd1   Second SD card, whole volume
+ *   0     9     sd1a  1-st partition
+ *   0     10    sd1b  2-nd partition
+ *   0     11    sd1c  3-rd partition
+ *   0     12    sd1d  4-th partition
+ *
+ * Copyright (C) 2010-2015 Serge Vakulenko, <serge@vak.ru>
  *
  * Permission to use, copy, modify, and distribute this software
  * and its documentation for any purpose and without fee is hereby
@@ -49,11 +58,8 @@
 #define NSD             2
 #define SECTSIZE        512
 #define SPI_ENHANCED            /* use SPI fifo */
-#ifndef SD0_MHZ
-#define SD0_MHZ         13      /* speed 13.33 MHz */
-#endif
-#ifndef SD1_MHZ
-#define SD1_MHZ         13      /* speed 13.33 MHz */
+#ifndef SD_MHZ
+#define SD_MHZ          13      /* speed 13.33 MHz */
 #endif
 
 #define TIMO_WAIT_WDONE 400000
@@ -330,7 +336,7 @@ static int card_init(int unit)
     }
 
     /* Fast speed. */
-    spi_brg(io, SD0_MHZ * 1000);
+    spi_brg(io, SD_MHZ * 1000);
     return 1;
 }
 
@@ -709,7 +715,6 @@ int sdopen(dev_t dev, int flags, int mode)
         }
     }
     du->openpart |= mask;
-//printf("--- %s: OK\n", __func__);
     return 0;
 }
 
@@ -752,17 +757,15 @@ void sdstrategy(struct buf *bp)
     int unit = sdunit(bp->b_dev);
     struct disk *du = &sddrives[unit];
     int offset = bp->b_blkno;
+    struct diskpart *p = &du->part[sdpart(bp->b_dev)];
+    long nblk = btod(bp->b_bcount);
     int s;
 
     /*
      * Determine the size of the transfer, and make sure it is
      * within the boundaries of the partition.
      */
-    struct diskpart *p = &du->part[sdpart(bp->b_dev)];
-    long nblk = btod(bp->b_bcount);
-
     offset += p->dp_offset >> 1;
-//printf("--- %s: sdpart=%u, offset=%u, psize=%u, nblk=%u\n", __func__, sdpart(bp->b_dev), offset, p->dp_size, nblk);
     if (offset == 0 &&
         ! (bp->b_flags & B_READ) && ! du->label_writable)
     {
@@ -770,7 +773,6 @@ void sdstrategy(struct buf *bp)
         bp->b_error = EROFS;
 bad:        bp->b_flags |= B_ERROR;
         biodone(bp);
-//printf("--- %s: error\n", __func__);
         return;
     }
     if (bp->b_blkno + nblk > p->dp_size) {
@@ -778,7 +780,6 @@ bad:        bp->b_flags |= B_ERROR;
         if (bp->b_blkno == p->dp_size) {
             bp->b_resid = bp->b_bcount;
             biodone(bp);
-//printf("--- %s: done EOF\n", __func__);
             return;
         }
         /* or truncate if part of it fits */
@@ -822,7 +823,6 @@ bad:        bp->b_flags |= B_ERROR;
         dk_busy &= ~(1 << du->dkindex);
 #endif
     splx(s);
-//printf("--- %s: OK\n", __func__);
 }
 
 int sdioctl(dev_t dev, u_int cmd, caddr_t addr, int flag)
@@ -849,7 +849,6 @@ int sdioctl(dev_t dev, u_int cmd, caddr_t addr, int flag)
     case DIOCGETPART:
         /* Get partition table entry. */
         dp = &sddrives[unit].part[part];
-//printf("--- %s: DIOCGETPART unit = %d, part = %d, type = %u, size = %u\n", __func__, unit, part, dp->dp_type, dp->dp_size);
         *(struct diskpart*) addr = *dp;
         break;
 
@@ -889,7 +888,7 @@ sd_probe(config)
     /* Disable power to the SD card. */
     sd_release(unit);
 
-    spi_brg(io, SD0_MHZ * 1000);
+    spi_brg(io, SD_MHZ * 1000);
     spi_set(io, PIC32_SPICON_CKE);
 
 #ifdef UCB_METER
@@ -901,10 +900,3 @@ sd_probe(config)
 struct driver sddriver = {
     "sd", sd_probe,
 };
-
-#if 0
-//TODO:
-
-sdclose,
-
-#endif

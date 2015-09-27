@@ -41,7 +41,7 @@ controller      spi2                        # SD card
 
 # microSD card
 device          sd0     at spi2 pin RD4     # select pin RD4
-options         "SD0_MHZ=10"                # speed 10 MHz
+options         "SD_MHZ=10"                 # speed 10 MHz
 
 # General purpose I/O ports
 # Flags define a mask of available pins

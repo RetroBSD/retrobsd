@@ -6,7 +6,7 @@ PARAM += -DSD_ENABLED
 PARAM += -DADC_ENABLED
 PARAM += -DPWM_ENABLED
 PARAM += -DSDRAMP_ENABLED
-PARAM += -DSD0_ENA_PORT=TRISB -DSD0_ENA_PIN=13
+PARAM += -DSD_ENA_PORT=TRISB -DSD_ENA_PIN=13
 PARAM += -DLED_TTY_PORT=TRISA -DLED_TTY_PIN=14
 PARAM += -DLED_SWAP_PORT=TRISC -DLED_SWAP_PIN=14
 PARAM += -DLED_DISK_PORT=TRISC -DLED_DISK_PIN=13
@@ -14,7 +14,7 @@ PARAM += -DLED_KERNEL_PORT=TRISA -DLED_KERNEL_PIN=15
 PARAM += -DNMOUNT=3
 PARAM += -DPARTITION='sdramp0:sa@2048,fs@14000'
 PARAM += -DKERNEL_EXECUTABLE_RAM
-PARAM += -DSD0_MHZ=10
+PARAM += -DSD_MHZ=10
 PARAM += -DCONS_MINOR=2
 PARAM += -DCONS_MAJOR=UART_MAJOR
 PARAM += -DBUS_DIV=1
@@ -66,7 +66,7 @@ OBJS = exec_aout.o exec_conf.o exec_elf.o exec_script.o exec_subr.o \
 	ufs_namei.o ufs_subr.o ufs_syscalls.o ufs_syscalls2.o \
 	vfs_vnops.o vm_sched.o vm_swap.o vm_swp.o clock.o cons.o devsw.o \
 	exception.o machdep.o mem.o signal.o swap.o sysctl.o adc.o pwm.o \
-	sd.o rd_sdramp.o sdram.o spi.o spi_bus.o uart.o 
+	sd.o sdramp.o sdram.o spi.o spi_bus.o uart.o 
 
 CFILES = $S/kernel/exec_aout.c $S/kernel/exec_conf.c $S/kernel/exec_elf.c \
 	$S/kernel/exec_script.c $S/kernel/exec_subr.c \
@@ -92,7 +92,7 @@ CFILES = $S/kernel/exec_aout.c $S/kernel/exec_conf.c $S/kernel/exec_elf.c \
 	$S/pic32/devsw.c $S/pic32/exception.c $S/pic32/machdep.c \
 	$S/pic32/mem.c $S/pic32/signal.c $S/pic32/swap.c \
 	$S/pic32/sysctl.c $S/pic32/adc.c $S/pic32/pwm.c $S/pic32/sd.c \
-	$S/pic32/rd_sdramp.c $S/pic32/spi.c $S/pic32/spi_bus.c \
+	$S/pic32/sdramp.c $S/pic32/spi.c $S/pic32/spi_bus.c \
 	$S/pic32/uart.c swapunix.c 
 
 # load lines for config "xxx" will be emitted as:
@@ -334,7 +334,7 @@ pwm.o: $S/pic32/pwm.c
 sd.o: $S/pic32/sd.c
 	${COMPILE_C}
 
-rd_sdramp.o: $S/pic32/rd_sdramp.c
+sdramp.o: $S/pic32/sdramp.c
 	${COMPILE_C}
 
 sdram.o: $S/pic32/sdram.S

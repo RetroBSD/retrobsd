@@ -34,10 +34,11 @@
 #include <sys/buf.h>
 #include <sys/errno.h>
 #include <sys/dk.h>
-#include <sys/rdisk.h>
+#include <sys/disk.h>
 #include <sys/spi.h>
 #include <sys/debug.h>
 #include <sys/kconfig.h>
+#include <machine/sd.h>
 
 /*
  * Two SD/MMC disks on SPI.
@@ -50,10 +51,10 @@
 #define SECTSIZE        512
 #define SPI_ENHANCED            /* use SPI fifo */
 #ifndef SD0_MHZ
-#define SD0_MHZ          13      /* speed 13.33 MHz */
+#define SD0_MHZ         13      /* speed 13.33 MHz */
 #endif
 #ifndef SD1_MHZ
-#define SD1_MHZ          13      /* speed 13.33 MHz */
+#define SD1_MHZ         13      /* speed 13.33 MHz */
 #endif
 
 #define TIMO_WAIT_WDONE 400000
@@ -66,9 +67,38 @@
 #define TIMO_SEND_CSD   6000
 #define TIMO_WAIT_WSTOP 5000
 
-int sd_type[NSD];               /* Card type */
-struct spiio sd_io[NSD];        /* Data for SPI driver */
-int sd_dkn = -1;                /* Statistics slot number */
+#define sdunit(dev)     ((minor(dev) & 8) >> 3)
+#define sdpart(dev)     ((minor(dev) & 7))
+#define RAWPART         0               /* 'x' partition */
+
+#define NPARTITIONS     4
+#define MBR_MAGIC       0xaa55
+
+/*
+ * Driver's data per disk drive.
+ */
+struct disk {
+    /*
+     * Partition table.
+     */
+    struct diskpart part[NPARTITIONS+1];
+
+    /*
+     * Card type.
+     */
+    int     card_type;
+#define TYPE_UNKNOWN    0
+#define TYPE_SD_LEGACY  1
+#define TYPE_SD_II      2
+#define TYPE_SDHC       3
+
+    struct spiio spiio;         /* interface to SPI port */
+    int     label_writable;     /* is sector 0 writable? */
+    int     dkindex;            /* disk index for statistics */
+    u_int   openpart;           /* all partitions open on this drive */
+};
+
+struct disk sddrives[NSD];      /* Table of units */
 
 int sd_timo_cmd;                /* Max timeouts, for sysctl */
 int sd_timo_send_op;
@@ -105,8 +135,17 @@ int sd_timo_wait_widle;
 #define STOP_TRAN_TOKEN         0xFD    /* stop token for write multiple */
 #define WRITE_MULTIPLE_TOKEN    0xFC    /* start data for write multiple */
 
-// Add extra clocks after a deselect
-void sd_deselect(struct spiio *io)
+const struct devspec sddevs[] = {
+    { 0, "sd0" },
+    { 1, "sd0a" }, { 2, "sd0b" }, { 3, "sd0c" }, { 4, "sd0d" },
+    { 0, 0 }
+};
+
+/*
+ * Release the card's /CS signal.
+ * Add extra clocks after a deselect.
+ */
+static void card_release(struct spiio *io)
 {
     spi_deselect(io);
     spi_transfer(io, 0xFF);
@@ -115,11 +154,10 @@ void sd_deselect(struct spiio *io)
 /*
  * Wait while busy, up to 300 msec.
  */
-
-static void spi_wait_ready (int unit, int limit, int *maxcount)
+static void card_wait_ready(int unit, int limit, int *maxcount)
 {
     int i;
-    struct spiio *io = &sd_io[unit];
+    struct spiio *io = &sddrives[unit].spiio;
 
     spi_transfer(io, 0xFF);
     for (i=0; i<limit; i++)
@@ -131,7 +169,7 @@ static void spi_wait_ready (int unit, int limit, int *maxcount)
             return;
         }
     }
-    printf ("sd%d: wait_ready(%d) failed\n",unit, limit);
+    printf("sd%d: wait_ready(%d) failed\n", unit, limit);
 }
 
 /*
@@ -154,11 +192,11 @@ static void spi_wait_ready (int unit, int limit, int *maxcount)
 static int card_cmd(unsigned int unit, unsigned int cmd, unsigned int addr)
 {
     int i, reply;
-    struct spiio *io = &sd_io[unit];
+    struct spiio *io = &sddrives[unit].spiio;
 
     /* Wait for not busy, up to 300 msec. */
     if (cmd != CMD_GO_IDLE)
-        spi_wait_ready(unit, TIMO_WAIT_CMD, &sd_timo_wait_cmd);
+        card_wait_ready(unit, TIMO_WAIT_CMD, &sd_timo_wait_cmd);
 
     /* Send a comand packet (6 bytes). */
     spi_transfer(io, cmd | 0x40);
@@ -189,8 +227,8 @@ static int card_cmd(unsigned int unit, unsigned int cmd, unsigned int addr)
     }
     if (cmd != CMD_GO_IDLE)
     {
-        printf ("sd%d: card_cmd timeout, cmd=%02x, addr=%08x, reply=%02x\n",
-            unit,cmd, addr, reply);
+        printf("sd%d: card_cmd timeout, cmd=%02x, addr=%08x, reply=%02x\n",
+            unit, cmd, addr, reply);
     }
     return reply;
 }
@@ -199,21 +237,21 @@ static int card_cmd(unsigned int unit, unsigned int cmd, unsigned int addr)
  * Initialize a card.
  * Return nonzero if successful.
  */
-int card_init(int unit)
+static int card_init(int unit)
 {
     int i, reply;
     unsigned char response[4];
     int timeout = 4;
-    struct spiio *io = &sd_io[unit];
+    struct spiio *io = &sddrives[unit].spiio;
+    struct disk *du = &sddrives[unit];
 
     /* Slow speed: 250 kHz */
     spi_brg(io, 250);
 
-    sd_type[unit] = 0;
-
+    du->card_type = TYPE_UNKNOWN;
     do {
         /* Unselect the card. */
-        sd_deselect(io);
+        card_release(io);
 
         /* Send 80 clock cycles for start up. */
         for (i=0; i<10; i++)
@@ -224,9 +262,9 @@ int card_init(int unit)
         timeout--;
         reply = card_cmd(unit, CMD_GO_IDLE, 0);
 
-    } while ((reply != 0x01) && (timeout != 0));
+    } while (reply != 1 && timeout != 0);
 
-    sd_deselect(io);
+    card_release(io);
     if (reply != 1)
     {
         /* It must return Idle. */
@@ -239,37 +277,37 @@ int card_init(int unit)
     if (reply & 4)
     {
         /* Illegal command: card type 1. */
-        sd_deselect(io);
-        sd_type[unit] = 1;
+        card_release(io);
+        du->card_type = TYPE_SD_LEGACY;
     } else {
         response[0] = spi_transfer(io, 0xFF);
         response[1] = spi_transfer(io, 0xFF);
         response[2] = spi_transfer(io, 0xFF);
         response[3] = spi_transfer(io, 0xFF);
-        sd_deselect(io);
+        card_release(io);
         if (response[3] != 0xAA)
         {
-            printf ("sd%d: cannot detect card type, response=%02x-%02x-%02x-%02x\n",
+            printf("sd%d: cannot detect card type, response=%02x-%02x-%02x-%02x\n",
                 unit, response[0], response[1], response[2], response[3]);
             return 0;
         }
-        sd_type[unit] = 2;
+        du->card_type = TYPE_SD_II;
     }
 
     /* Send repeatedly SEND_OP until Idle terminates. */
     for (i=0; ; i++)
     {
         spi_select(io);
-        card_cmd(unit,CMD_APP, 0);
-        reply = card_cmd(unit,CMD_SEND_OP_SDC,
-                        (sd_type[unit] == 2) ? 0x40000000 : 0);
+        card_cmd(unit, CMD_APP, 0);
+        reply = card_cmd(unit, CMD_SEND_OP_SDC,
+                         (du->card_type == TYPE_SD_II) ? 0x40000000 : 0);
         spi_select(io);
         if (reply == 0)
             break;
         if (i >= TIMO_SEND_OP)
         {
             /* Init timed out. */
-            printf ("card_init: SEND_OP timed out, reply = %d\n", reply);
+            printf("card_init: SEND_OP timed out, reply = %d\n", reply);
             return 0;
         }
     }
@@ -277,24 +315,24 @@ int card_init(int unit)
         sd_timo_send_op = i;
 
     /* If SD2 read OCR register to check for SDHC card. */
-    if (sd_type[unit] == 2)
+    if (du->card_type == TYPE_SD_II)
     {
         spi_select(io);
         reply = card_cmd(unit, CMD_READ_OCR, 0);
         if (reply != 0)
         {
-            sd_deselect(io);
-            printf ("sd%d: READ_OCR failed, reply=%02x\n", unit, reply);
+            card_release(io);
+            printf("sd%d: READ_OCR failed, reply=%02x\n", unit, reply);
             return 0;
         }
         response[0] = spi_transfer(io, 0xFF);
         response[1] = spi_transfer(io, 0xFF);
         response[2] = spi_transfer(io, 0xFF);
         response[3] = spi_transfer(io, 0xFF);
-        sd_deselect(io);
+        card_release(io);
         if ((response[0] & 0xC0) == 0xC0)
         {
-            sd_type[unit] = 3;
+            du->card_type = TYPE_SDHC;
         }
     }
 
@@ -304,36 +342,34 @@ int card_init(int unit)
 }
 
 /*
- * Get number of sectors on the disk.
+ * Get disk size in kbytes.
  * Return nonzero if successful.
  */
-int sdsize(int unit)
+static int card_size(int unit)
 {
     unsigned char csd [16];
     unsigned csize, n;
     int reply, i;
     int nsectors;
-    struct spiio *io = &sd_io[unit];
+    struct spiio *io = &sddrives[unit].spiio;
 
     spi_select(io);
-    reply = card_cmd(unit,CMD_SEND_CSD, 0);
-    if (reply != 0)
-    {
+    reply = card_cmd(unit, CMD_SEND_CSD, 0);
+    if (reply != 0) {
         /* Command rejected. */
-        sd_deselect(io);
+        card_release(io);
         return 0;
     }
+
     /* Wait for a response. */
-    for (i=0; ; i++)
-    {
+    for (i=0; ; i++) {
         reply = spi_transfer(io, 0xFF);
         if (reply == DATA_START_BLOCK)
             break;
-        if (i >= TIMO_SEND_CSD)
-        {
+        if (i >= TIMO_SEND_CSD) {
             /* Command timed out. */
-            sd_deselect(io);
-            printf ("sd%d: card_size: SEND_CSD timed out, reply = %d\n",
+            card_release(io);
+            printf("sd%d: card_size: SEND_CSD timed out, reply = %d\n",
                 unit, reply);
             return 0;
         }
@@ -342,8 +378,7 @@ int sdsize(int unit)
         sd_timo_send_csd = i;
 
     /* Read data. */
-    for (i=0; i<sizeof(csd); i++)
-    {
+    for (i=0; i<sizeof(csd); i++) {
         csd [i] = spi_transfer(io, 0xFF);
     }
     /* Ignore CRC. */
@@ -351,47 +386,47 @@ int sdsize(int unit)
     spi_transfer(io, 0xFF);
 
     /* Disable the card. */
-    sd_deselect(io);
+    card_release(io);
 
     /* CSD register has different structure
      * depending upon protocol version. */
-    switch (csd[0] >> 6)
-    {
-        case 1:                 /* SDC ver 2.00 */
-            csize = csd[9] + (csd[8] << 8) + 1;
-            nsectors = csize << 10;
-            break;
-        case 0:                 /* SDC ver 1.XX or MMC. */
-            n = (csd[5] & 15) + ((csd[10] & 128) >> 7) + ((csd[9] & 3) << 1) + 2;
-            csize = (csd[8] >> 6) + (csd[7] << 2) + ((csd[6] & 3) << 10) + 1;
-            nsectors = csize << (n - 9);
-            break;
-        default:                /* Unknown version. */
-            return 0;
+    switch (csd[0] >> 6) {
+    case 1:                     /* SDC ver 2.00 */
+        csize = csd[9] + (csd[8] << 8) + 1;
+        nsectors = csize << 10;
+        break;
+    case 0:                     /* SDC ver 1.XX or MMC. */
+        n = (csd[5] & 15) + ((csd[10] & 128) >> 7) + ((csd[9] & 3) << 1) + 2;
+        csize = (csd[8] >> 6) + (csd[7] << 2) + ((csd[6] & 3) << 10) + 1;
+        nsectors = csize << (n - 9);
+        break;
+    default:                    /* Unknown version. */
+        return 0;
     }
-    return nsectors>>1;
+    return nsectors >> 1;
 }
 
 /*
  * Read a block of data.
  * Return nonzero if successful.
  */
-int card_read(int unit, unsigned int offset, char *data, unsigned int bcount)
+static int card_read(int unit, unsigned int offset, char *data, unsigned int bcount)
 {
     int reply, i;
-    struct spiio *io = &sd_io[unit];
+    struct spiio *io = &sddrives[unit].spiio;
+    struct disk *du = &sddrives[unit];
 
     /* Send read-multiple command. */
     spi_select(io);
-    if (sd_type[unit] != 3)
+    if (du->card_type != TYPE_SDHC)
         offset <<= 9;
     reply = card_cmd(unit, CMD_READ_MULTIPLE, offset<<1);
     if (reply != 0)
     {
         /* Command rejected. */
-        printf ("sd%d: card_read: bad READ_MULTIPLE reply = %d, offset = %08x\n",
+        printf("sd%d: card_read: bad READ_MULTIPLE reply = %d, offset = %08x\n",
             unit, reply, offset<<1);
-        sd_deselect(io);
+        card_release(io);
         return 0;
     }
 
@@ -407,9 +442,9 @@ again:
         if (i >= TIMO_READ)
         {
             /* Command timed out. */
-            printf ("sd%d: card_read: READ_MULTIPLE timed out, reply = %d\n",
+            printf("sd%d: card_read: READ_MULTIPLE timed out, reply = %d\n",
                 unit, reply);
-            sd_deselect(io);
+            card_release(io);
             return 0;
         }
     }
@@ -419,7 +454,7 @@ again:
     /* Read data. */
     if (bcount >= SECTSIZE)
     {
-        spi_bulk_read_32_be(io, SECTSIZE,data);
+        spi_bulk_read_32_be(io, SECTSIZE, data);
         data += SECTSIZE;
     } else {
         spi_bulk_read(io, bcount, (unsigned char *)data);
@@ -440,7 +475,7 @@ again:
 
     /* Stop a read-multiple sequence. */
     card_cmd(unit, CMD_STOP, 0);
-    sd_deselect(io);
+    card_release(io);
     return 1;
 }
 
@@ -448,11 +483,11 @@ again:
  * Write a block of data.
  * Return nonzero if successful.
  */
-int
-card_write (int unit, unsigned offset, char *data, unsigned bcount)
+static int card_write(int unit, unsigned offset, char *data, unsigned bcount)
 {
     unsigned reply, i;
-    struct spiio *io = &sd_io[unit];
+    struct spiio *io = &sddrives[unit].spiio;
+    struct disk *du = &sddrives[unit];
 
     /* Send pre-erase count. */
     spi_select(io);
@@ -461,27 +496,28 @@ card_write (int unit, unsigned offset, char *data, unsigned bcount)
     if (reply != 0)
     {
         /* Command rejected. */
-        sd_deselect(io);
+        card_release(io);
         printf("sd%d: card_write: bad SET_WBECNT reply = %02x, count = %u\n",
             unit, reply, (bcount + SECTSIZE - 1) / SECTSIZE);
         return 0;
     }
 
     /* Send write-multiple command. */
-    if (sd_type[unit] != 3) offset <<= 9;
+    if (du->card_type != TYPE_SDHC)
+        offset <<= 9;
     reply = card_cmd(unit, CMD_WRITE_MULTIPLE, offset<<1);
     if (reply != 0)
     {
         /* Command rejected. */
-        sd_deselect(io);
+        card_release(io);
         printf("sd%d: card_write: bad WRITE_MULTIPLE reply = %02x\n", unit, reply);
         return 0;
     }
-    sd_deselect(io);
+    card_release(io);
 again:
     /* Select, wait while busy. */
     spi_select(io);
-    spi_wait_ready(unit, TIMO_WAIT_WDATA, &sd_timo_wait_wdata);
+    card_wait_ready(unit, TIMO_WAIT_WDATA, &sd_timo_wait_wdata);
 
     /* Send data. */
     spi_transfer(io, WRITE_MULTIPLE_TOKEN);
@@ -504,16 +540,16 @@ again:
     if ((reply & 0x1f) != 0x05)
     {
         /* Data rejected. */
-        sd_deselect(io);
-        printf("sd%d: card_write: data rejected, reply = %02x\n", unit,reply);
+        card_release(io);
+        printf("sd%d: card_write: data rejected, reply = %02x\n", unit, reply);
         return 0;
     }
 
     /* Wait for write completion. */
     int x = spl0();
-    spi_wait_ready(unit, TIMO_WAIT_WDONE, &sd_timo_wait_wdone);
+    card_wait_ready(unit, TIMO_WAIT_WDONE, &sd_timo_wait_wdone);
     splx(x);
-    sd_deselect(io);
+    card_release(io);
 
     if (bcount > SECTSIZE)
     {
@@ -524,31 +560,28 @@ again:
 
     /* Stop a write-multiple sequence. */
     spi_select(io);
-    spi_wait_ready(unit, TIMO_WAIT_WSTOP, &sd_timo_wait_wstop);
+    card_wait_ready(unit, TIMO_WAIT_WSTOP, &sd_timo_wait_wstop);
     spi_transfer(io, STOP_TRAN_TOKEN);
-    spi_wait_ready(unit, TIMO_WAIT_WIDLE, &sd_timo_wait_widle);
-    sd_deselect(io);
+    card_wait_ready(unit, TIMO_WAIT_WIDLE, &sd_timo_wait_widle);
+    card_release(io);
     return 1;
-}
-
-void sd_preinit (int unit)
-{
 }
 
 /*
  * Detect a card.
  */
-int sdinit (int unit, int flag)
+static int sd_setup(int unit)
 {
-    struct spiio *io = &sd_io[unit];
-    unsigned nsectors;
+    struct spiio *io = &sddrives[unit].spiio;
+    struct disk *du = &sddrives[unit];
+    u_short buf[256];
 
 #ifdef SD0_ENA_PORT
     /* On Duinomite Mega board, pin B13 set low
      * enables a +3.3V power to SD card. */
     if (unit == 0) {
         LAT_CLR(SD0_ENA_PORT) = 1 << SD0_ENA_PIN;
-        udelay (1000);
+        udelay(1000);
     }
 #endif
 
@@ -557,40 +590,70 @@ int sdinit (int unit, int flag)
      * enables a +3.3V power to SD card. */
     if (unit == 1) {
         LAT_CLR(SD1_ENA_PORT) = 1 << SD1_ENA_PIN;
-        udelay (1000);
+        udelay(1000);
     }
 #endif
 
-    if (!card_init(unit))
-    {
-        printf ("sd%d: no SD/MMC card detected\n", unit);
-        return ENODEV;
+    if (! card_init(unit)) {
+        printf("sd%d: no SD/MMC card detected\n", unit);
+        return 0;
     }
-    if ((nsectors=sdsize(unit))==0)
-    {
-        printf ("sd%d: cannot get card size\n", unit);
-        return ENODEV;
+    /* Get the size of raw partition. */
+    bzero(du->part, sizeof(du->part));
+    du->part[RAWPART].dp_offset = 0;
+    du->part[RAWPART].dp_size = card_size(unit);
+    if (du->part[RAWPART].dp_size == 0) {
+        printf("sd%d: cannot get card size\n", unit);
+        return 0;
     }
-    if (! (flag & S_SILENT))
-    {
-        printf ("sd%d: type %s, size %u kbytes, speed %u Mbit/sec\n", unit,
-            sd_type[unit]==3 ? "SDHC" :
-            sd_type[unit]==2 ? "II" : "I",
-            nsectors,
-            spi_get_brg(io) / 1000);
+    printf("sd%d: type %s, size %u kbytes, speed %u Mbit/sec\n", unit,
+        (du->card_type == TYPE_SDHC) ? "SDHC" :
+        (du->card_type == TYPE_SD_II) ? "II" : "I",
+        du->part[RAWPART].dp_size / 2,
+        spi_get_brg(io) / 1000);
+
+    /* Read partition table. */
+    int s = splbio();
+    if (! card_read(unit, 0, (char*)buf, sizeof(buf))) {
+        splx(s);
+        printf("sd%d: cannot read partition table\n", unit);
+        return 0;
     }
-    DEBUG("sd%d: init done\n",unit);
-    return 0;
+    splx(s);
+    if (buf[255] == MBR_MAGIC) {
+        bcopy(&buf[223], &du->part[1], 64);
+#if 1
+        int i;
+        for (i=1; i<=NPARTITIONS; i++) {
+            if (du->part[i].dp_type != 0)
+                printf("sd%d%c: partition type %02x, sector %u, size %u kbytes\n",
+                    unit, i+'a'-1, du->part[i].dp_type,
+                    du->part[i].dp_offset,
+                    du->part[i].dp_size / 2);
+        }
+#endif
+    }
+    return 1;
 }
 
-int sddeinit(int unit)
+/*
+ * Disable power to the SD card.
+ */
+static void sd_release(int unit)
 {
+    struct disk *du = &sddrives[unit];
+
+    /* Forget the partition table. */
+    du->part[RAWPART].dp_size = 0;
+
 #ifdef SD0_ENA_PORT
     /* On Duinomite Mega board, pin B13 set low
      * enables a +3.3V power to SD card. */
     if (unit == 0) {
+        /* Enable SD0 phy - pin is assumed to be active low */
+        TRIS_CLR(SD0_ENA_PORT) = 1 << SD0_ENA_PIN;
         LAT_SET(SD0_ENA_PORT) = 1 << SD0_ENA_PIN;
-        udelay (1000);
+        udelay(1000);
     }
 #endif
 
@@ -598,17 +661,210 @@ int sddeinit(int unit)
     /* On Duinomite Mega board, pin B13 set low
      * enables a +3.3V power to SD card. */
     if (unit == 1) {
+        /* Enable SD1 phy - pin is assumed to be active low */
+        TRIS_CLR(SD1_ENA_PORT) = 1 << SD1_ENA_PIN;
         LAT_SET(SD1_ENA_PORT) = 1 << SD1_ENA_PIN;
-        udelay (1000);
+        udelay(1000);
     }
 #endif
+}
+
+int sdopen(dev_t dev, int flags, int mode)
+{
+    int unit = sdunit(dev);
+    int part = sdpart(dev);
+    struct disk *du = &sddrives[unit];
+    unsigned mask, i;
+
+    if (unit >= NSD || part > NPARTITIONS)
+        return ENXIO;
+
+    /*
+     * Setup the SD card interface.
+     */
+    if (du->part[RAWPART].dp_size == 0) {
+        if (! sd_setup(unit)) {
+            return ENODEV;
+        }
+    }
+    mask = 1 << part;
+
+    /*
+     * Warn if a partion is opened
+     * that overlaps another partition which is open
+     * unless one is the "raw" partition (whole disk).
+     */
+    if (part != RAWPART && (du->openpart & mask) == 0) {
+        unsigned start = du->part[part].dp_offset;
+        unsigned end = start + du->part[part].dp_size;
+
+        /* Check for overlapped partitions. */
+        for (i=0; i<=NPARTITIONS; i++) {
+            struct diskpart *pp = &du->part[i];
+
+            if (i == part || i == RAWPART)
+                continue;
+
+            if (pp->dp_offset + pp->dp_size <= start ||
+                pp->dp_offset >= end)
+                continue;
+
+            if (du->openpart & (1 << i))
+                printf("sd%d%c: overlaps open partition (sd%d%c)\n",
+                    unit, part + 'a' - 1,
+                    unit, pp - du->part + 'a' - 1);
+        }
+    }
+    du->openpart |= mask;
+//printf("--- %s: OK\n", __func__);
     return 0;
 }
 
-int sdopen(int unit, int flags, int mode)
+int sdclose(dev_t dev, int mode, int flag)
 {
-    DEBUG("sd%d: open\n",unit);
+    int unit = sdunit(dev);
+    int part = sdpart(dev);
+    struct disk *du = &sddrives[unit];
+
+    if (unit >= NSD || part > NPARTITIONS)
+        return ENODEV;
+
+    du->openpart &= ~(1 << part);
+    if (du->openpart == 0) {
+        /* All partitions closed.
+         * Release the SD card. */
+        sd_release(unit);
+    }
     return 0;
+}
+
+/*
+ * Get disk size in kbytes.
+ * Return nonzero if successful.
+ */
+daddr_t sdsize(dev_t dev)
+{
+    int unit = sdunit(dev);
+    int part = sdpart(dev);
+    struct disk *du = &sddrives[unit];
+
+    if (unit >= NSD || part > NPARTITIONS || du->openpart == 0)
+        return 0;
+
+    return du->part[part].dp_size;
+}
+
+void sdstrategy(struct buf *bp)
+{
+    int unit = sdunit(bp->b_dev);
+    struct disk *du = &sddrives[unit];
+    int offset = bp->b_blkno;
+    int s;
+
+    /*
+     * Determine the size of the transfer, and make sure it is
+     * within the boundaries of the partition.
+     */
+    struct diskpart *p = &du->part[sdpart(bp->b_dev)];
+    long nblk = btod(bp->b_bcount);
+
+    offset += p->dp_offset >> 1;
+//printf("--- %s: sdpart=%u, offset=%u, psize=%u, nblk=%u\n", __func__, sdpart(bp->b_dev), offset, p->dp_size, nblk);
+    if (offset == 0 &&
+        ! (bp->b_flags & B_READ) && ! du->label_writable)
+    {
+        /* Write to partition table not allowed. */
+        bp->b_error = EROFS;
+bad:        bp->b_flags |= B_ERROR;
+        biodone(bp);
+//printf("--- %s: error\n", __func__);
+        return;
+    }
+    if (bp->b_blkno + nblk > p->dp_size) {
+        /* if exactly at end of disk, return an EOF */
+        if (bp->b_blkno == p->dp_size) {
+            bp->b_resid = bp->b_bcount;
+            biodone(bp);
+//printf("--- %s: done EOF\n", __func__);
+            return;
+        }
+        /* or truncate if part of it fits */
+        nblk = p->dp_size - bp->b_blkno;
+        if (nblk <= 0) {
+            bp->b_error = EINVAL;
+            goto bad;
+        }
+        bp->b_bcount = nblk << DEV_BSHIFT;
+    }
+
+    if (bp->b_dev == swapdev) {
+        led_control(LED_SWAP, 1);
+    } else {
+        led_control(LED_DISK, 1);
+    }
+
+    s = splbio();
+#ifdef UCB_METER
+    if (du->dkindex >= 0) {
+        dk_busy |= 1 << du->dkindex;
+        dk_xfer[du->dkindex]++;
+        dk_bytes[du->dkindex] += bp->b_bcount;
+    }
+#endif
+
+    if (bp->b_flags & B_READ) {
+        card_read(unit, offset, bp->b_addr, bp->b_bcount);
+    } else {
+        card_write(unit, offset, bp->b_addr, bp->b_bcount);
+    }
+
+    biodone(bp);
+    if (bp->b_dev == swapdev) {
+        led_control(LED_SWAP, 0);
+    } else {
+        led_control(LED_DISK, 0);
+    }
+#ifdef UCB_METER
+    if (du->dkindex >= 0)
+        dk_busy &= ~(1 << du->dkindex);
+#endif
+    splx(s);
+//printf("--- %s: OK\n", __func__);
+}
+
+int sdioctl(dev_t dev, u_int cmd, caddr_t addr, int flag)
+{
+    int unit = sdunit(dev);
+    int part = sdpart(dev);
+    struct diskpart *dp;
+    int i, error = 0;
+
+    switch (cmd) {
+
+    case DIOCGETMEDIASIZE:
+        /* Get disk size in kbytes. */
+        dp = &sddrives[unit].part[part];
+        *(int*) addr = dp->dp_size;
+        break;
+
+    case DIOCREINIT:
+        for (i=0; i<=NPARTITIONS; i++)
+            bflush(makedev(major(dev), i));
+        sd_setup(unit);
+        break;
+
+    case DIOCGETPART:
+        /* Get partition table entry. */
+        dp = &sddrives[unit].part[part];
+//printf("--- %s: DIOCGETPART unit = %d, part = %d, type = %u, size = %u\n", __func__, unit, part, dp->dp_type, dp->dp_size);
+        *(struct diskpart*) addr = *dp;
+        break;
+
+    default:
+        error = EINVAL;
+        break;
+    }
+    return error;
 }
 
 /*
@@ -616,12 +872,12 @@ int sdopen(int unit, int flags, int mode)
  * Return true if found and initialized ok.
  */
 static int
-sdprobe(config)
+sd_probe(config)
     struct conf_device *config;
 {
     int unit = config->dev_unit;
     int cs = config->dev_pins[0];
-    struct spiio *io = &sd_io[unit];
+    struct spiio *io = &sddrives[unit].spiio;
 
     if (unit < 0 || unit >= NSD)
         return 0;
@@ -637,29 +893,25 @@ sdprobe(config)
         return 0;
     }
 
-#ifdef SD0_ENA_PORT
-    if (unit == 0) {
-        /* Enable SD0 phy - pin is assumed to be active low */
-        TRIS_CLR(SD0_ENA_PORT) = 1 << SD0_ENA_PIN;
-        LAT_CLR(SD0_ENA_PORT) = 1 << SD0_ENA_PIN;
-        udelay (1000);
-    }
-#endif
-
-#ifdef SD1_ENA_PORT
-    if (unit == 1) {
-        /* Enable SD1 phy - pin is assumed to be active low */
-        TRIS_CLR(SD1_ENA_PORT) = 1 << SD1_ENA_PIN;
-        LAT_CLR(SD1_ENA_PORT) = 1 << SD1_ENA_PIN;
-        udelay (1000);
-    }
-#endif
+    /* Disable power to the SD card. */
+    sd_release(unit);
 
     spi_brg(io, SD0_MHZ * 1000);
     spi_set(io, PIC32_SPICON_CKE);
+
+#ifdef UCB_METER
+    dk_alloc(&sddrives[unit].dkindex, 1, sddevs[unit].devname);
+#endif
     return 1;
 }
 
 struct driver sddriver = {
-    "sd", sdprobe,
+    "sd", sd_probe,
 };
+
+#if 0
+//TODO:
+
+sdclose,
+
+#endif

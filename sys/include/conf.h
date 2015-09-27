@@ -28,11 +28,10 @@ struct bdevsw
     int     (*d_open) (dev_t, int, int);
     int     (*d_close) (dev_t, int, int);
     void    (*d_strategy) (struct buf*);
-    void    (*d_root) (caddr_t);                    /* root attach routine */
     daddr_t (*d_psize) (dev_t);                     /* query partition size */
     int     (*d_ioctl) (dev_t, u_int, caddr_t, int);
-    int     d_flags;                                /* tape flag */
     const struct devspec *devs;
+    int     d_flags;                                /* tape flag */
 };
 
 #define MEM_MAJOR       1

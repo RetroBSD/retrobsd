@@ -25,7 +25,7 @@
 #include <fcntl.h>
 #include <time.h>
 #include <sys/inode.h>
-#include <sys/rdisk.h>
+#include <sys/disk.h>
 #include <sys/ioctl.h>
 
 #define UMASK	0755
@@ -88,10 +88,9 @@ int get_disk_size(char *fn)
 	printf("Getting disk size for %s\n",fn);
 
         // Is it a /dev entry?
-        if(strncmp(fn,"/dev/",5)==0)
-        {
+        if (strncmp(fn,"/dev/",5) == 0) {
                 fd = open(fn,O_RDONLY);
-                ioctl(fd,RDGETMEDIASIZE,&size);
+                ioctl(fd, DIOCGETMEDIASIZE, &size);
                 close(fd);
         } else {
                 lstat(fn,&sb);

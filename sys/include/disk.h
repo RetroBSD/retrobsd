@@ -1,108 +1,56 @@
 /*
- * Copyright (c) 1992, 1993
- *  The Regents of the University of California.  All rights reserved.
+ * Ioctl definitions for skeleton driver.
  *
- * This software was developed by the Computer Systems Engineering group
- * at Lawrence Berkeley Laboratory under DARPA contract BG 91-66 and
- * contributed to Berkeley.
+ * Copyright (C) 2015 Serge Vakulenko
  *
- * All advertising materials mentioning features or use of this software
- * must display the following acknowledgement:
- *  This product includes software developed by the University of
- *  California, Lawrence Berkeley Laboratory.
+ * Permission to use, copy, modify, and distribute this software
+ * and its documentation for any purpose and without fee is hereby
+ * granted, provided that the above copyright notice appear in all
+ * copies and that both that the copyright notice and this
+ * permission notice and warranty disclaimer appear in supporting
+ * documentation, and that the name of the author not be used in
+ * advertising or publicity pertaining to distribution of the
+ * software without specific, written prior permission.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *  This product includes software developed by the University of
- *  California, Berkeley and its contributors.
- * 4. Neither the name of the University nor the names of its contributors
- *    may be used to endorse or promote products derived from this software
- *    without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
- * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
- * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- * SUCH DAMAGE.
+ * The author disclaim all warranties with regard to this
+ * software, including all implied warranties of merchantability
+ * and fitness.  In no event shall the author be liable for any
+ * special, indirect or consequential damages or any damages
+ * whatsoever resulting from loss of use, data or profits, whether
+ * in an action of contract, negligence or other tortious action,
+ * arising out of or in connection with the use or performance of
+ * this software.
  */
 #ifndef _SYS_DISK_H_
 #define _SYS_DISK_H_
-#include <sys/disklabel.h>
 
 /*
- * Disk device structures.
- *
- * Note that this is only a preliminary outline.  The final disk structures
- * may be somewhat different.
- *
- * Note:  the 2.11BSD version is very different.  The 4.4 version served
- *        as the inspiration. I needed something similar but for slightly
- *    different purposes.
+ * IBM PC compatible partition table.
  */
+#define MAXPARTITIONS   4
 
-/*
- * Disk device structures.  Rather than replicate driver specific variations
- * of the following in each driver it was made common here.
- *
- * Some of the flags are specific to various drivers. For example ALIVE and
- * ONLINE apply to MSCP devices more than to SMD devices while the SEEK flag
- * applies to the SMD (xp) driver but not to the MSCP driver.  The rest
- * of the flags as well as the open partition bitmaps are usable by any disk
- * driver.  One 'dkdevice' structure is needed for each disk drive supported
- * by a driver.
- *
- * The entire disklabel is not resident in the kernel address space.  Only
- * the partition table is directly accessible by the kernel.  The MSCP driver
- * does not care (or know) about the geometry of the disk.  Not holding
- * the entire label in the kernel saved quite a bit of D space.  Other drivers
- * which need geometry information from the label will have to map in the
- * label and copy out the geometry data they require.  This is unlikely to
- * cause much overhead since labels are read and written infrequently - when
- * mounting a drive, assigning a label, running newfs, etc.
- */
-
-struct dkdevice {
-    int     dk_bopenmask;       /* block devices open */
-    int     dk_copenmask;       /* character devices open */
-    int     dk_openmask;        /* composite (bopen|copen) */
-    int     dk_flags;           /* label state - see below */
-    size_t  dk_label;           /* sector containing label */
-    struct  partition dk_parts[MAXPARTITIONS];  /* inkernel portion */
+struct diskpart {                   /* the partition table */
+    u_char      dp_status;          /* active (bootable) flag */
+#define DP_ACTIVE 0x80
+    u_char      dp_start_chs[3];    /* ignored */
+    u_char      dp_type;            /* type of partition */
+    u_char      dp_end_chs[3];      /* ignored */
+    u_int       dp_offset;          /* starting sector */
+    u_int       dp_size;            /* number of sectors in partition */
 };
 
-#define DKF_OPENING 0x0001      /* drive is being opened */
-#define DKF_CLOSING 0x0002      /* drive is being closed */
-#define DKF_WANTED  0x0004      /* drive is being waited for */
-#define DKF_ALIVE   0x0008      /* drive is alive */
-#define DKF_ONLINE  0x0010      /* drive is online */
-#define DKF_WLABEL  0x0020      /* label area is being written */
-#define DKF_SEEK    0x0040      /* drive is seeking */
-#define DKF_SWAIT   0x0080      /* waiting for seek to complete */
+/*
+ * Partition types.
+ */
+#define PTYPE_UNUSED    0           /* unused */
+#define PTYPE_BSDFFS    0xb7        /* 4.2BSD fast file system */
+#define PTYPE_SWAP      0xb8        /* swap */
 
-/* encoding of disk minor numbers, should be elsewhere... but better
- * here than in ufs_disksubr.c
- *
- * Note: the controller number in bits 6 and 7 of the minor device are NOT
- *   removed.  It is the responsibility of the driver to extract or mask
- *   these bits.
-*/
-
-#define dkunit(dev)         (minor(dev) >> 3)
-#define dkpart(dev)         (minor(dev) & 07)
-#define dkminor(unit, part) (((unit) << 3) | (part))
+/*
+ * Disk-specific ioctls.
+ */
+#define DIOCGETMEDIASIZE _IOR('d', 1, int)              /* get size in kbytes */
+#define DIOCREINIT       _IO ('d', 2)                   /* re-initialize device */
+#define DIOCGETPART      _IOR('d', 3, struct diskpart)  /* get partition */
 
 #endif /* _SYS_DISK_H_ */

@@ -8,7 +8,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <fcntl.h>
-#include <sys/rdisk.h>
+#include <sys/disk.h>
 #include <ioctl.h>
 #include <sys/stat.h>
 #include <string.h>
@@ -24,7 +24,7 @@ int strtonum(char *s)
 		return 0;
 	if(s[0]==0)
 		return 0;
-	
+
 	if(s[0]=='0' && s[1]=='x')
 	{
 		return strtol(s+2,NULL,16);
@@ -73,7 +73,7 @@ int write_mbr(int fd)
 	sync(fd);
 	printf("Calling ioctl to reread the partition table\n");
 	sleep(1);
-	ioctl(fd,RDREINIT);
+	ioctl(fd, DIOCREINIT);
 	close(fd);
 	return 0;
 }
@@ -294,9 +294,9 @@ int main(int argc, char *argv[])
 	{
 		printf("Partition table not valid.\n");
 		wipe = 1;
-	}	
+	}
 
-	ioctl(fd,RDGETMEDIASIZE,&blocks);
+	ioctl(fd, DIOCGETMEDIASIZE, &blocks);
 
 	printf("%s: %d blocks of 1KB\n",device,blocks);
 

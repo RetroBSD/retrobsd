@@ -852,7 +852,6 @@ file /include/sys/proc.h
 file /include/sys/ptrace.h
 file /include/sys/pty.h
 file /include/sys/rd_flash.h
-file /include/sys/rdisk.h
 file /include/sys/rd_mrams.h
 file /include/sys/rd_sdramp.h
 file /include/sys/rd_sramc.h

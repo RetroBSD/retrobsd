@@ -12,7 +12,7 @@
 #include <sys/fcntl.h>
 #include <sys/map.h>
 #include <sys/swap.h>
-#include <sys/rdisk.h>
+#include <sys/disk.h>
 
 #ifndef NTMP
 #define NTMP 3
@@ -210,7 +210,7 @@ int swcioctl (dev_t dev, register u_int cmd, caddr_t addr, int flag)
         }
         break;
 
-    case RDGETMEDIASIZE:
+    case DIOCGETMEDIASIZE:
         *uival = swsize(dev);
         break;
     }

@@ -14,7 +14,6 @@
 #include <sys/clist.h>
 #include <sys/tty.h>
 #include <sys/systm.h>
-#include <sys/rdisk.h>
 #include <sys/errno.h>
 #include <sys/uart.h>
 #include <sys/spi.h>
@@ -24,6 +23,9 @@
 
 extern int strcmp(char *s1, char *s2);
 
+#ifdef SD_ENABLED
+#   include <machine/sd.h>
+#endif
 #ifdef UARTUSB_ENABLED
 #   include <sys/usb_uart.h>
 #endif
@@ -53,27 +55,27 @@ extern int strcmp(char *s1, char *s2);
  * Null routine; placed in insignificant entries
  * in the bdevsw and cdevsw tables.
  */
-static int nulldev ()
+int nulldev()
 {
-    return (0);
+    return 0;
 }
 
-static int noopen (dev, flag, mode)
+int noopen(dev, flag, mode)
     dev_t dev;
     int flag, mode;
 {
     return ENXIO;
 }
 
-static int norw (dev, uio, flag)
+int norw(dev, uio, flag)
     dev_t dev;
     struct uio *uio;
     int flag;
 {
-    return (0);
+    return 0;
 }
 
-static int noioctl (dev, cmd, data, flag)
+int noioctl(dev, cmd, data, flag)
     dev_t dev;
     u_int cmd;
     caddr_t data;
@@ -85,11 +87,15 @@ static int noioctl (dev, cmd, data, flag)
 /*
  * root attach routine
  */
-static void noroot (csr)
-    caddr_t csr;
+daddr_t nosize(dev)
+    dev_t dev;
 {
-    /* Empty. */
+    return 0;
 }
+
+#define NOBDEV \
+    noopen,         noopen,         nostrategy, \
+    nosize,         noioctl,        0
 
 /*
  * The RetroDisks require the same master number as the disk entry in the
@@ -98,24 +104,25 @@ static void noroot (csr)
  */
 const struct bdevsw bdevsw[] = {
 {   /* 0 - rd0 */
-    rdopen,         rdclose,        rdstrategy,
-    noroot,         rdsize,         rdioctl,        0, rd0devs
+#ifdef SD_ENABLED
+    sdopen,         sdclose,        sdstrategy,
+    sdsize,         sdioctl,        sddevs
+#else
+    NOBDEV
+#endif
 },
 {   /* 1 - rd1 */
-    rdopen,         rdclose,        rdstrategy,
-    noroot,         rdsize,         rdioctl,        0, rd1devs
+    NOBDEV
 },
 {   /* 2 - rd2 */
-    rdopen,         rdclose,        rdstrategy,
-    noroot,         rdsize,         rdioctl,        0, rd2devs
+    NOBDEV
 },
 {   /* 3 - rd3 */
-    rdopen,         rdclose,        rdstrategy,
-    noroot,         rdsize,         rdioctl,        0, rd3devs
+    NOBDEV
 },
 {   /* 4 - swap */
     swopen,         swclose,        swstrategy,
-    noroot,         swsize,         swcioctl,       0, swapbdevs
+    swsize,         swcioctl,       swapbdevs
 },
 
 { 0 },
@@ -311,8 +318,8 @@ iskmemdev(dev)
     register dev_t dev;
 {
     if (major(dev) == 1 && (minor(dev) == 0 || minor(dev) == 1))
-        return (1);
-    return (0);
+        return 1;
+    return 0;
 }
 
 /*
@@ -334,9 +341,9 @@ isdisk(dev, type)
     case 2:                 /* rd2 */
     case 3:                 /* rd3 */
     case 4:                 /* sw */
-        return (1);
+        return 1;
     default:
-        return (0);
+        return 0;
     }
     /* NOTREACHED */
 }
@@ -348,9 +355,10 @@ isdisk(dev, type)
 int
 chrtoblk(dev_t dev)
 {
-    return (NODEV);
+    return NODEV;
 }
 
+#if 0
 char *cdevname(dev_t dev)
 {
     int maj = major(dev);
@@ -367,3 +375,4 @@ char *cdevname(dev_t dev)
     }
     return 0;
 }
+#endif

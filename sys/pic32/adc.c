@@ -40,13 +40,13 @@ int adc_open(dev_t dev, int flag, int mode)
     int channel;
 
     channel = minor(dev);
-    if(channel>ADCMAX)
+    if (channel > ADCMAX)
         return ENODEV;
 
     DEBUG1("adc%2: opened\n",channel);
 
     AD1PCFG &= ~(1<<channel);
-    if(adcactive==0)
+    if (adcactive == 0)
     {
         // Enable and configure the ADC here
         AD1CSSL = 0xFFFF;
@@ -65,12 +65,12 @@ int adc_close(dev_t dev, int flag, int mode)
     int channel;
 
     channel = minor(dev);
-    if(channel>ADCMAX)
+    if (channel > ADCMAX)
         return ENODEV;
 
     AD1PCFG |= (1<<channel);
     adcactive &= ~(1<<channel);
-    if(adcactive==0)
+    if (adcactive == 0)
     {
         // Switch off the ADC here.
         AD1CSSL = 0x0000;
@@ -91,25 +91,25 @@ int adc_read(dev_t dev, struct uio *uio, int flag)
     int tv;
 
     channel = minor(dev);
-    if(channel>ADCMAX)
+    if (channel > ADCMAX)
         return ENODEV;
 
     lr = *(&ADC1BUF0+(channel<<2));
 
     c=0;
-    if(lr >= 1000)
+    if (lr >= 1000)
     {
         tv = lr/1000;
         temp[c++] = '0' + tv;
         lr = lr - (tv*1000);
     }
-    if((lr >= 100) || (c>0))
+    if (lr >= 100 || c > 0)
     {
         tv = lr/100;
         temp[c++] = '0' + tv;
         lr = lr - (tv*100);
     }
-    if((lr >= 10) || (c>0))
+    if (lr >= 10 || c>0)
     {
         tv = lr/10;
         temp[c++] = '0' + tv;
@@ -131,12 +131,10 @@ int adc_write(dev_t dev, struct uio *uio, int flag)
 
 int adc_ioctl(dev_t dev, register u_int cmd, caddr_t addr, int flag)
 {
-    switch(cmd)
-    {
-        default:
-            return EINVAL;
+    switch (cmd) {
+    default:
+        return EINVAL;
     }
-
     return 0;
 }
 
@@ -148,9 +146,7 @@ static int
 adcprobe(config)
     struct conf_device *config;
 {
-    int flags = config->dev_flags;
-
-    printf("adc: flags %#x\n", flags);
+    printf("adc: %u channels\n", ADCMAX);
     return 1;
 }
 

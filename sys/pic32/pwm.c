@@ -205,9 +205,7 @@ static int
 pwmprobe(config)
     struct conf_device *config;
 {
-    int flags = config->dev_flags;
-
-    printf("pwm: flags %#x\n", flags);
+    printf("pwm: %u channels\n", PWM_MAX_DEV);
     return 1;
 }
 

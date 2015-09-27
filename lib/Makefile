@@ -1,5 +1,5 @@
 TOPSRC          = $(shell cd ..; pwd)
-SUBDIR		= startup libc libcurses libtermlib libwiznet libreadline
+SUBDIR		= startup libc libm libcurses libtermlib libwiznet libreadline
 PROG		= ar as aout ld nm ranlib size strip
 
 CFLAGS          += -std=gnu89 -fno-builtin -g -Werror -Wall -DCROSS -I. \

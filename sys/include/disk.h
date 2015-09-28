@@ -36,7 +36,7 @@ struct diskpart {                   /* the partition table */
     u_char      dp_type;            /* type of partition */
     u_char      dp_end_chs[3];      /* ignored */
     u_int       dp_offset;          /* starting sector */
-    u_int       dp_size;            /* number of sectors in partition */
+    u_int       dp_nsectors;        /* number of sectors in partition */
 };
 
 /*

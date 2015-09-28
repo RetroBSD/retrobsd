@@ -341,7 +341,7 @@ static int card_init(int unit)
 }
 
 /*
- * Get disk size in kbytes.
+ * Get disk size in 512-byte sectors.
  * Return nonzero if successful.
  */
 static int card_size(int unit)
@@ -402,7 +402,7 @@ static int card_size(int unit)
     default:                    /* Unknown version. */
         return 0;
     }
-    return nsectors >> 1;
+    return nsectors;
 }
 
 /*
@@ -600,15 +600,15 @@ static int sd_setup(int unit)
     /* Get the size of raw partition. */
     bzero(du->part, sizeof(du->part));
     du->part[RAWPART].dp_offset = 0;
-    du->part[RAWPART].dp_size = card_size(unit);
-    if (du->part[RAWPART].dp_size == 0) {
+    du->part[RAWPART].dp_nsectors = card_size(unit);
+    if (du->part[RAWPART].dp_nsectors == 0) {
         printf("sd%d: cannot get card size\n", unit);
         return 0;
     }
     printf("sd%d: type %s, size %u kbytes, speed %u Mbit/sec\n", unit,
         (du->card_type == TYPE_SDHC) ? "SDHC" :
         (du->card_type == TYPE_SD_II) ? "II" : "I",
-        du->part[RAWPART].dp_size / 2,
+        du->part[RAWPART].dp_nsectors / 2,
         spi_get_brg(io) / 1000);
 
     /* Read partition table. */
@@ -628,7 +628,7 @@ static int sd_setup(int unit)
                 printf("sd%d%c: partition type %02x, sector %u, size %u kbytes\n",
                     unit, i+'a'-1, du->part[i].dp_type,
                     du->part[i].dp_offset,
-                    du->part[i].dp_size / 2);
+                    du->part[i].dp_nsectors / 2);
         }
 #endif
     }
@@ -643,7 +643,7 @@ static void sd_release(int unit)
     struct disk *du = &sddrives[unit];
 
     /* Forget the partition table. */
-    du->part[RAWPART].dp_size = 0;
+    du->part[RAWPART].dp_nsectors = 0;
 
 #ifdef SD0_ENA_PORT
     /* On Duinomite Mega board, pin B13 set low
@@ -681,7 +681,7 @@ int sdopen(dev_t dev, int flags, int mode)
     /*
      * Setup the SD card interface.
      */
-    if (du->part[RAWPART].dp_size == 0) {
+    if (du->part[RAWPART].dp_nsectors == 0) {
         if (! sd_setup(unit)) {
             return ENODEV;
         }
@@ -695,7 +695,7 @@ int sdopen(dev_t dev, int flags, int mode)
      */
     if (part != RAWPART && (du->openpart & mask) == 0) {
         unsigned start = du->part[part].dp_offset;
-        unsigned end = start + du->part[part].dp_size;
+        unsigned end = start + du->part[part].dp_nsectors;
 
         /* Check for overlapped partitions. */
         for (i=0; i<=NPARTITIONS; i++) {
@@ -704,7 +704,7 @@ int sdopen(dev_t dev, int flags, int mode)
             if (i == part || i == RAWPART)
                 continue;
 
-            if (pp->dp_offset + pp->dp_size <= start ||
+            if (pp->dp_offset + pp->dp_nsectors <= start ||
                 pp->dp_offset >= end)
                 continue;
 
@@ -749,15 +749,16 @@ daddr_t sdsize(dev_t dev)
     if (unit >= NSD || part > NPARTITIONS || du->openpart == 0)
         return 0;
 
-    return du->part[part].dp_size;
+    return du->part[part].dp_nsectors >> 1;
 }
 
 void sdstrategy(struct buf *bp)
 {
     int unit = sdunit(bp->b_dev);
     struct disk *du = &sddrives[unit];
-    int offset = bp->b_blkno;
     struct diskpart *p = &du->part[sdpart(bp->b_dev)];
+    int part_size = p->dp_nsectors >> 1;
+    int offset = bp->b_blkno;
     long nblk = btod(bp->b_bcount);
     int s;
 
@@ -775,15 +776,15 @@ bad:        bp->b_flags |= B_ERROR;
         biodone(bp);
         return;
     }
-    if (bp->b_blkno + nblk > p->dp_size) {
-        /* if exactly at end of disk, return an EOF */
-        if (bp->b_blkno == p->dp_size) {
+    if (bp->b_blkno + nblk > part_size) {
+        /* if exactly at end of partition, return an EOF */
+        if (bp->b_blkno == part_size) {
             bp->b_resid = bp->b_bcount;
             biodone(bp);
             return;
         }
         /* or truncate if part of it fits */
-        nblk = p->dp_size - bp->b_blkno;
+        nblk = part_size - bp->b_blkno;
         if (nblk <= 0) {
             bp->b_error = EINVAL;
             goto bad;
@@ -837,7 +838,7 @@ int sdioctl(dev_t dev, u_int cmd, caddr_t addr, int flag)
     case DIOCGETMEDIASIZE:
         /* Get disk size in kbytes. */
         dp = &sddrives[unit].part[part];
-        *(int*) addr = dp->dp_size;
+        *(int*) addr = dp->dp_nsectors >> 1;
         break;
 
     case DIOCREINIT:

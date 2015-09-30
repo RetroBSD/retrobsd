@@ -460,7 +460,7 @@ void sdramp_strategy(struct buf *bp)
     splx(s);
 }
 
-int sdramp_ioctl (dev_t dev, u_int cmd, caddr_t addr, int flag)
+int sdramp_ioctl(dev_t dev, u_int cmd, caddr_t addr, int flag)
 {
     int error = 0;
 

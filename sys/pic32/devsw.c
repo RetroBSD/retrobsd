@@ -26,16 +26,16 @@ extern int strcmp(char *s1, char *s2);
 #ifdef SD_ENABLED
 #   include <machine/sd.h>
 #endif
-#ifdef SRAMC_ENABLED
+#ifdef RC_ENABLED
 #   include <machine/sramc.h>
 #endif
-#ifdef SDRAMP_ENABLED
+#ifdef DR_ENABLED
 #   include <machine/sdramp.h>
 #endif
-#ifdef MRAMS_ENABLED
+#ifdef MR_ENABLED
 #   include <machine/mrams.h>
 #endif
-#ifdef SPIRAMS_ENABLED
+#ifdef SR_ENABLED
 #   include <machine/spirams.h>
 #endif
 #ifdef UARTUSB_ENABLED
@@ -124,7 +124,7 @@ const struct bdevsw bdevsw[] = {
 #endif
 },
 {   /* 1 - sramc */
-#ifdef SRAMC_ENABLED
+#ifdef RC_ENABLED
     sramc_open,     sramc_close,    sramc_strategy,
     sramc_size,     sramc_ioctl,
 #else
@@ -132,7 +132,7 @@ const struct bdevsw bdevsw[] = {
 #endif
 },
 {   /* 2 - sdramp */
-#ifdef SDRAMP_ENABLED
+#ifdef DR_ENABLED
     sdramp_open,    sdramp_close,   sdramp_strategy,
     sdramp_size,    sdramp_ioctl,
 #else
@@ -140,7 +140,7 @@ const struct bdevsw bdevsw[] = {
 #endif
 },
 {   /* 3 - mrams */
-#ifdef MRAMS_ENABLED
+#ifdef MR_ENABLED
     mrams_open,     mrams_close,    mrams_strategy,
     mrams_size,     mrams_ioctl,
 #else
@@ -152,7 +152,7 @@ const struct bdevsw bdevsw[] = {
     swsize,         swcioctl,
 },
 {   /* 5 - spirams */
-#ifdef SPIRAMS_ENABLED
+#ifdef SR_ENABLED
     spirams_open,   spirams_close,  spirams_strategy,
     spirams_size,   spirams_ioctl,
 #else

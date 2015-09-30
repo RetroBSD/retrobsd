@@ -143,11 +143,15 @@ options         "SDR_SWAP_KBYTES=2048"      # size of partition B
 options         "KERNEL_EXECUTABLE_RAM"     # allow kernel code in RAM area
 
 # sramc - SRAM block device
+# The volume is divided into two partitions: A and B.
+# Size of partition B is specified as option SRAMC_SWAP_KBYTES.
+# The rest is partition A.
 device          rc0                         # SRAM via 4-wire CPLD interface
 signal          "SRAMC_DATA"    pin RE0
 signal          "SRAMC_LDA"     pin RC13
 signal          "SRAMC_RD"      pin RF1
 signal          "SRAMC_WR"      pin RF0
+options         "SRAMC_SWAP_KBYTES=2048"    # size of partition B
 
 # mrams - SPI block device
 controller      spi1                        # RAM disk: mrams

@@ -35,6 +35,8 @@ dir /u
 #   0     11  sd1c  Partition 3
 #   0     12  sd1d  Partition 4
 #   1     0   rc0   Volatile disk - SRAM connected via CPLD (sramc)
+#   1     1   rc0a  Partition 1: filesystem
+#   1     2   rc0b  Partition 2: swap space
 #   2     0   dr0   Volatile disk - SDRAM on external memory bus (sdramp)
 #   2     1   dr0a  Partition 1: filesystem
 #   2     2   dr0b  Partition 2: swap space
@@ -78,6 +80,12 @@ minor 12
 bdev /dev/rc0
 major 1             # Volatile disk - SRAM connected via CPLD (sramc)
 minor 0
+bdev /dev/rc0a
+major 1
+minor 1
+bdev /dev/rc0b
+major 1
+minor 2
 bdev /dev/dr0
 major 2             # Volatile disk - SDRAM on external memory bus (sdramp)
 minor 0

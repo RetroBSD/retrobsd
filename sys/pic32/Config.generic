@@ -175,23 +175,6 @@ device          sr0  at spi1
 options         "SPIRAMS_CHIPSIZE=128"      # chip size in kbytes
 options         "SPIRAMS_CHIPS=16"          # number of chips
 options         "SPIRAMS_MHZ=10"            # speed 10 MHz
-options         "SPIRAMS_PORT=SPI1CON"      # TODO: delete this option
-signal          "SPIRAMS_CS0"   pin RF0     # TODO: delete
-signal          "SPIRAMS_CS1"   pin RF1     # TODO: delete
-signal          "SPIRAMS_CS2"   pin RF2     # TODO: delete
-signal          "SPIRAMS_CS3"   pin RF3     # TODO: delete
-signal          "SPIRAMS_CS4"   pin RF4     # TODO: delete
-signal          "SPIRAMS_CS5"   pin RF5     # TODO: delete
-signal          "SPIRAMS_CS6"   pin RF6     # TODO: delete
-signal          "SPIRAMS_CS7"   pin RF7     # TODO: delete
-signal          "SPIRAMS_CS8"   pin RF8     # TODO: delete
-signal          "SPIRAMS_CS9"   pin RF9     # TODO: delete
-signal          "SPIRAMS_CS10"  pin RF10    # TODO: delete
-signal          "SPIRAMS_CS11"  pin RF11    # TODO: delete
-signal          "SPIRAMS_CS12"  pin RF12    # TODO: delete
-signal          "SPIRAMS_CS13"  pin RF13    # TODO: delete
-signal          "SPIRAMS_CS14"  pin RF14    # TODO: delete
-signal          "SPIRAMS_CS15"  pin RF15    # TODO: delete
 signal          "SPIRAMS_LED0"  pin RG0     # optional LED indicators
 signal          "SPIRAMS_LED1"  pin RG1
 signal          "SPIRAMS_LED2"  pin RG2

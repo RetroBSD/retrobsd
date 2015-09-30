@@ -1,13 +1,15 @@
 /*
- * TODO: Modify this driver to be able to function without rdisk layer.
+ * Disk driver for serial RAM chips connected via SPI port.
  */
 #include <sys/param.h>
 #include <sys/systm.h>
 #include <sys/buf.h>
 #include <sys/errno.h>
 #include <sys/dk.h>
+#include <sys/disk.h>
 #include <sys/spi.h>
-#include <sys/debug.h>
+#include <sys/kconfig.h>
+#include <machine/debug.h>
 #include <machine/spirams.h>
 
 #define SPIRAM_WREN     0x06
@@ -25,10 +27,12 @@
 
 struct spiio spirams_io[SPIRAMS_CHIPS];
 
-int spirams_size(int unit)
-{
-    return SPIRAMS_CHIPS * SPIRAMS_CHIPSIZE;
-}
+int spirams_dkindex;                    /* disk index for statistics */
+
+/*
+ * Size of RAM disk.
+ */
+#define SPIRAMS_TOTAL_KBYTES    (SPIRAMS_CHIPS * SPIRAMS_CHIPSIZE)
 
 #define MRBSIZE         1024
 #define MRBLOG2         10
@@ -179,7 +183,7 @@ unsigned int spir_read_block(unsigned int chip, unsigned int address, unsigned i
     return cs;
 }
 
-int spirams_read(int unit, unsigned int offset, char *data, unsigned int bcount)
+int spirams_read(unsigned int offset, char *data, unsigned int bcount)
 {
     register unsigned int chip;
     register unsigned int toread;
@@ -282,7 +286,7 @@ unsigned int spir_write_block(unsigned int chip, unsigned int address, unsigned 
     return cs;
 }
 
-int spirams_write (int unit, unsigned int offset, char *data, unsigned bcount)
+int spirams_write (unsigned int offset, char *data, unsigned bcount)
 {
     register unsigned int chip;
     register unsigned int address;
@@ -311,119 +315,250 @@ int spirams_write (int unit, unsigned int offset, char *data, unsigned bcount)
     return 1;
 }
 
-void spirams_preinit (int unit)
+static unsigned *gpio_base(int cs)
+{
+    int port = (cs >> 4) - 1;
+    struct gpioreg *base = port + (struct gpioreg*) &TRISA;
+
+    return (unsigned int*) base;
+}
+
+/*
+ * Initialize hardware.
+ */
+static int spirams_init(int spi_port, char cs[])
 {
     struct spiio *io = &spirams_io[0];
-    struct buf *bp;
 
-    if (unit >= 1)
-        return;
-
-    /* Initialize hardware. */
-
-    if (spi_setup(io, SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS0_PORT,SPIRAMS_CS0_PIN) != 0)
-        return;
-
+    if (spi_setup(io, spi_port, gpio_base(cs[0]), cs[0] & 15) != 0) {
+        printf("sr0: cannot open SPI%u port\n", spi_port);
+        return 0;
+    }
     spi_brg(io, SPIRAMS_MHZ * 1000);
     spi_set(io, PIC32_SPICON_CKE);
 
-#ifdef SPIRAMS_CS1_PORT
-    spi_setup(io+1, SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS1_PORT,SPIRAMS_CS1_PIN);
+#if SPIRAMS_CHIPS >= 1
+    spi_setup(io+1, spi_port, gpio_base(cs[1]), cs[1] & 15);
 
     spi_brg(io+1, SPIRAMS_MHZ * 1000);
     spi_set(io+1, PIC32_SPICON_CKE);
 #endif
-#ifdef SPIRAMS_CS2_PORT
-    spi_setup(io+2, SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS2_PORT,SPIRAMS_CS2_PIN);
+#if SPIRAMS_CHIPS >= 2
+    spi_setup(io+2, spi_port, gpio_base(cs[2]), cs[2] & 15);
 
     spi_brg(io+2, SPIRAMS_MHZ * 1000);
     spi_set(io+2, PIC32_SPICON_CKE);
 #endif
-#ifdef SPIRAMS_CS3_PORT
-    spi_setup(io+3, SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS3_PORT,SPIRAMS_CS3_PIN);
+#if SPIRAMS_CHIPS >= 3
+    spi_setup(io+3, spi_port, gpio_base(cs[3]), cs[3] & 15);
 
     spi_brg(io+3, SPIRAMS_MHZ * 1000);
     spi_set(io+3, PIC32_SPICON_CKE);
 #endif
-#ifdef SPIRAMS_CS4_PORT
-    spi_setup(io+4, SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS4_PORT,SPIRAMS_CS4_PIN);
+#if SPIRAMS_CHIPS >= 4
+    spi_setup(io+4, spi_port, gpio_base(cs[4]), cs[4] & 15);
 
     spi_brg(io+4, SPIRAMS_MHZ * 1000);
     spi_set(io+4, PIC32_SPICON_CKE);
 #endif
-#ifdef SPIRAMS_CS5_PORT
-    spi_setup(io+5, SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS5_PORT,SPIRAMS_CS5_PIN);
+#if SPIRAMS_CHIPS >= 5
+    spi_setup(io+5, spi_port, gpio_base(cs[5]), cs[5] & 15);
 
     spi_brg(io+5, SPIRAMS_MHZ * 1000);
     spi_set(io+5, PIC32_SPICON_CKE);
 #endif
-#ifdef SPIRAMS_CS6_PORT
-    spi_setup(io+6, SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS6_PORT,SPIRAMS_CS6_PIN);
+#if SPIRAMS_CHIPS >= 6
+    spi_setup(io+6, spi_port, gpio_base(cs[6]), cs[6] & 15);
 
     spi_brg(io+6, SPIRAMS_MHZ * 1000);
     spi_set(io+6, PIC32_SPICON_CKE);
 #endif
-#ifdef SPIRAMS_CS7_PORT
-    spi_setup(io+7, SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS7_PORT,SPIRAMS_CS7_PIN);
+#if SPIRAMS_CHIPS >= 7
+    spi_setup(io+7, spi_port, gpio_base(cs[7]), cs[7] & 15);
 
     spi_brg(io+7, SPIRAMS_MHZ * 1000);
     spi_set(io+7, PIC32_SPICON_CKE);
 #endif
-#ifdef SPIRAMS_CS8_PORT
-    spi_setup(io+8, SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS8_PORT,SPIRAMS_CS8_PIN);
+#if SPIRAMS_CHIPS >= 8
+    spi_setup(io+8, spi_port, gpio_base(cs[8]), cs[8] & 15);
 
     spi_brg(io+8, SPIRAMS_MHZ * 1000);
     spi_set(io+8, PIC32_SPICON_CKE);
 #endif
-#ifdef SPIRAMS_CS9_PORT
-    spi_setup(io+9, SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS9_PORT,SPIRAMS_CS9_PIN);
+#if SPIRAMS_CHIPS >= 9
+    spi_setup(io+9, spi_port, gpio_base(cs[9]), cs[9] & 15);
 
     spi_brg(io+9, SPIRAMS_MHZ * 1000);
     spi_set(io+9, PIC32_SPICON_CKE);
 #endif
-#ifdef SPIRAMS_CS10_PORT
-    spi_setup(io+10, SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS10_PORT,SPIRAMS_CS10_PIN);
+#if SPIRAMS_CHIPS >= 10
+    spi_setup(io+10, spi_port, gpio_base(cs[10]), cs[10] & 15);
 
     spi_brg(io+10, SPIRAMS_MHZ * 1000);
     spi_set(io+10, PIC32_SPICON_CKE);
 #endif
-#ifdef SPIRAMS_CS11_PORT
-    spi_setup(io+11, SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS11_PORT,SPIRAMS_CS11_PIN);
+#if SPIRAMS_CHIPS >= 11
+    spi_setup(io+11, spi_port, gpio_base(cs[11]), cs[11] & 15);
 
     spi_brg(io+11, SPIRAMS_MHZ * 1000);
     spi_set(io+11, PIC32_SPICON_CKE);
 #endif
-#ifdef SPIRAMS_CS12_PORT
-    spi_setup(io+12, SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS12_PORT,SPIRAMS_CS12_PIN);
+#if SPIRAMS_CHIPS >= 12
+    spi_setup(io+12, spi_port, gpio_base(cs[12]), cs[12] & 15);
 
     spi_brg(io+12, SPIRAMS_MHZ * 1000);
     spi_set(io+12, PIC32_SPICON_CKE);
 #endif
-#ifdef SPIRAMS_CS13_PORT
-    spi_setup(io+13, SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS13_PORT,SPIRAMS_CS13_PIN);
+#if SPIRAMS_CHIPS >= 13
+    spi_setup(io+13, spi_port, gpio_base(cs[13]), cs[13] & 15);
 
     spi_brg(io+13, SPIRAMS_MHZ * 1000);
     spi_set(io+13, PIC32_SPICON_CKE);
 #endif
-#ifdef SPIRAMS_CS14_PORT
-    spi_setup(io+14, SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS14_PORT,SPIRAMS_CS14_PIN);
+#if SPIRAMS_CHIPS >= 14
+    spi_setup(io+14, spi_port, gpio_base(cs[14]), cs[14] & 15);
 
     spi_brg(io+14, SPIRAMS_MHZ * 1000);
     spi_set(io+14, PIC32_SPICON_CKE);
 #endif
-#ifdef SPIRAMS_CS15_PORT
-    spi_setup(io+15, SPIRAMS_PORT,(unsigned int *)&SPIRAMS_CS15_PORT,SPIRAMS_CS15_PIN);
+#if SPIRAMS_CHIPS >= 15
+    spi_setup(io+15, spi_port, gpio_base(cs[15]), cs[15] & 15);
 
     spi_brg(io+15, SPIRAMS_MHZ * 1000);
     spi_set(io+15, PIC32_SPICON_CKE);
 #endif
 
-    printf("spirams0: port %d %s, size %dKB, speed %d Mbit/sec\n",
-        SPIRAMS_PORT, spi_name(io), SPIRAMS_CHIPS * SPIRAMS_CHIPSIZE,
-        spi_get_brg(io) / 1000);
-    bp = prepartition_device("spirams0");
-    if (bp) {
-        spirams_write (0, 0, bp->b_addr, 512);
-        brelse(bp);
-    }
+    printf("spirams0: size %dKB, speed %d Mbit/sec\n",
+        SPIRAMS_CHIPS * SPIRAMS_CHIPSIZE, spi_get_brg(io) / 1000);
+    return 1;
 }
+
+/*
+ * Open the disk.
+ */
+int spirams_open(dev_t dev, int flag, int mode)
+{
+    return 0;
+}
+
+int spirams_close(dev_t dev, int flag, int mode)
+{
+    return 0;
+}
+
+/*
+ * Return the size of the device in kbytes.
+ */
+daddr_t spirams_size(dev_t dev)
+{
+    return SPIRAMS_TOTAL_KBYTES;
+}
+
+void spirams_strategy(struct buf *bp)
+{
+    int offset = bp->b_blkno;
+    long nblk = btod(bp->b_bcount);
+    int s;
+
+    /*
+     * Determine the size of the transfer, and make sure it is
+     * within the boundaries of the partition.
+     */
+    if (bp->b_blkno + nblk > SPIRAMS_TOTAL_KBYTES) {
+        /* if exactly at end of partition, return an EOF */
+        if (bp->b_blkno == SPIRAMS_TOTAL_KBYTES) {
+            bp->b_resid = bp->b_bcount;
+            biodone(bp);
+            return;
+        }
+        /* or truncate if part of it fits */
+        nblk = SPIRAMS_TOTAL_KBYTES - bp->b_blkno;
+        if (nblk <= 0) {
+            bp->b_error = EINVAL;
+            bp->b_flags |= B_ERROR;
+            biodone(bp);
+            return;
+        }
+        bp->b_bcount = nblk << DEV_BSHIFT;
+    }
+
+    led_control(LED_SWAP, 1);
+
+    s = splbio();
+#ifdef UCB_METER
+    if (spirams_dkindex >= 0) {
+        dk_busy |= 1 << spirams_dkindex;
+        dk_xfer[spirams_dkindex]++;
+        dk_bytes[spirams_dkindex] += bp->b_bcount;
+    }
+#endif
+
+    if (bp->b_flags & B_READ) {
+        spirams_read(offset, bp->b_addr, bp->b_bcount);
+    } else {
+        spirams_write(offset, bp->b_addr, bp->b_bcount);
+    }
+
+    biodone(bp);
+    led_control(LED_SWAP, 0);
+#ifdef UCB_METER
+    if (spirams_dkindex >= 0)
+        dk_busy &= ~(1 << spirams_dkindex);
+#endif
+    splx(s);
+}
+
+int spirams_ioctl(dev_t dev, u_int cmd, caddr_t addr, int flag)
+{
+    int error = 0;
+
+    switch (cmd) {
+
+    case DIOCGETMEDIASIZE:
+        /* Get disk size in kbytes. */
+        *(int*) addr = SPIRAMS_TOTAL_KBYTES;
+        break;
+
+    default:
+        error = EINVAL;
+        break;
+    }
+    return error;
+}
+
+/*
+ * Test to see if device is present.
+ * Return true if found and initialized ok.
+ */
+static int
+spirams_probe(config)
+    struct conf_device *config;
+{
+    int i;
+
+    /* Only one device unit is supported. */
+    if (config->dev_unit != 0)
+        return 0;
+
+    printf("sr0: port SPI%d, pins ", config->dev_ctlr);
+    for (i=0; i<SPIRAMS_CHIPS; i++) {
+        int cs = config->dev_pins[i];
+        if (i > 0)
+            printf("/");
+        if (i == 7)
+            printf("\n                     ");
+        printf("R%c%d", gpio_portname(cs), gpio_pinno(cs));
+    }
+    printf("\n");
+    if (spirams_init(config->dev_ctlr, config->dev_pins) != 0)
+        return 0;
+
+#ifdef UCB_METER
+    dk_alloc(&spirams_dkindex, 1, "sr0");
+#endif
+    return 1;
+}
+
+struct driver srdriver = {
+    "sr", spirams_probe,
+};

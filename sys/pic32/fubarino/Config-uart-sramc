@@ -1,13 +1,13 @@
 #
-# Fubarino SD board SRAMC swap disk
-# =================================
+# Fubarino SD board with SRAMC swap disk
+# ======================================
 # Console on UART2.
 # Overclocked to 120MHz.
 # Clock rate increased to 1000Hz.
 #
 # To build the kernel, use:
-#   cd sys/pic32/fubarino-uart-sramc
-#   kconfig Config
+#   cd sys/pic32/fubarino
+#   kconfig Config-uart-sramc
 #   make clean
 #   make
 #

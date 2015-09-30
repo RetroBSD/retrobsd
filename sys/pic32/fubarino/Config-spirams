@@ -1,12 +1,12 @@
 #
-# Fubarino SD board with MRAM swap disk
-# =====================================
+# Fubarino SD board with RAM disk on SPI port
+# ===========================================
 # Console on USB.
 # For details, see https://github.com/RetroBSD/retrobsd/wiki/Board-Fubarino-SD
 #
 # To build the kernel, use:
 #   cd sys/pic32/fubarino
-#   kconfig Config-mrams
+#   kconfig Config-spirams
 #   make clean
 #   make
 #
@@ -28,7 +28,7 @@ signal          "LED_KERNEL"    pin RE5     # kernel activity indicator
 
 # Root filesystem at /dev/sd0a, swap at /dev/sd0b
 config          unix    root on sd0a
-                        swap on mr0         # Swap on MRAM disk
+                        swap on sr0         # Swap on SPI RAM disk
 
 # Console options
 options         "CONS_MAJOR=UARTUSB_MAJOR"  # UARTUSB device
@@ -67,8 +67,11 @@ device          adc
 # PWM driver
 device          pwm
 
-# mrams - SPI block device
-device          mr0  at spi3
-                pins RD4, RD5, RD6, RD7     # chip select signals
-options         "MRAMS_CHIPS=4"             # number of chips
-options         "MRAMS_CHIPSIZE=512"        # chip size in kbytes
+# spirams - SPI block device
+device          sr0  at spi3
+                pins RD4,  RD5,  RD6,  RD7, # chip select signals
+                     RD8,  RD9,  RD10, RD11,
+                     RE0,  RE1,  RE2,  RE3,
+                     RE4,  RE5,  RE6,  RE7
+options         "SPIRAMS_CHIPS=16"          # number of chips
+options         "SPIRAMS_CHIPSIZE=128"      # chip size in kbytes

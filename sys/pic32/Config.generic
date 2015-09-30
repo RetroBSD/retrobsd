@@ -167,7 +167,7 @@ signal          "MRAMS_LED3"    pin RF3
 
 # spirams - SPI block device
 controller      spi1                        # RAM disk: spirams
-device          sr0  at spi1                # chip select signals:
+device          sr0  at spi1
                 pins RF0,  RF1,  RF2,  RF3, # chip select signals
                      RF4,  RF5,  RF6,  RF7,
                      RF8,  RF9,  RF10, RF11,

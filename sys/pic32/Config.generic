@@ -156,24 +156,14 @@ options         "SRAMC_SWAP_KBYTES=2048"    # size of partition B
 # mrams - SPI block device
 controller      spi1                        # RAM disk: mrams
 device          mr0  at spi1
-                pins RA4,  RA2, RB14, RB12, # chip select signals
-                     RB10, RB11
-options         "MRAMS_CHIPS=6"             # number of chips
+                pins RA4, RA2, RB14, RB12   # chip select signals
+options         "MRAMS_CHIPS=4"             # number of chips
 options         "MRAMS_CHIPSIZE=512"        # chip size in kbytes
 options         "MRAMS_MHZ=10"              # speed 10 MHz
-options         "MRAMS_PORT=SPI1CON"        # TODO: delete this option
-signal          "MRAMS_CS0"     pin RA4     # TODO: delete
-signal          "MRAMS_CS1"     pin RA2     # TODO: delete
-signal          "MRAMS_CS2"     pin RB14    # TODO: delete
-signal          "MRAMS_CS3"     pin RB12    # TODO: delete
-signal          "MRAMS_CS4"     pin RB10    # TODO: delete
-signal          "MRAMS_CS5"     pin RB11    # TODO: delete
 signal          "MRAMS_LED0"    pin RF0     # optional LED indicators
 signal          "MRAMS_LED1"    pin RF1
 signal          "MRAMS_LED2"    pin RF2
 signal          "MRAMS_LED3"    pin RF3
-signal          "MRAMS_LED4"    pin RF4
-signal          "MRAMS_LED5"    pin RF5
 
 # spirams - SPI block device
 controller      spi1                        # RAM disk: spirams

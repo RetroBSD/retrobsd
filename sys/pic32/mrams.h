@@ -1,9 +1,12 @@
 #ifndef _MRAMS_H
 #define _MRAMS_H
 
-extern int mrams_size(int unit);
-extern int mrams_read(int unit, unsigned int offset, char *data, unsigned int bcount);
-extern int mrams_write (int unit, unsigned offset, char *data, unsigned bcount);
-extern void mrams_preinit (int unit);
+#ifdef KERNEL
+extern int mrams_open(dev_t dev, int flag, int mode);
+extern int mrams_close(dev_t dev, int flag, int mode);
+extern daddr_t mrams_size(dev_t dev);
+extern void mrams_strategy(struct buf *bp);
+extern int mrams_ioctl (dev_t dev, u_int cmd, caddr_t addr, int flag);
+#endif
 
 #endif

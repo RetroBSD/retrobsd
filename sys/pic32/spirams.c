@@ -315,14 +315,6 @@ int spirams_write (unsigned int offset, char *data, unsigned bcount)
     return 1;
 }
 
-static unsigned *gpio_base(int cs)
-{
-    int port = (cs >> 4) - 1;
-    struct gpioreg *base = port + (struct gpioreg*) &TRISA;
-
-    return (unsigned int*) base;
-}
-
 /*
  * Initialize hardware.
  */
@@ -330,7 +322,7 @@ static int spirams_init(int spi_port, char cs[])
 {
     struct spiio *io = &spirams_io[0];
 
-    if (spi_setup(io, spi_port, gpio_base(cs[0]), cs[0] & 15) != 0) {
+    if (spi_setup(io, spi_port, cs[0]) != 0) {
         printf("sr0: cannot open SPI%u port\n", spi_port);
         return 0;
     }
@@ -338,91 +330,91 @@ static int spirams_init(int spi_port, char cs[])
     spi_set(io, PIC32_SPICON_CKE);
 
 #if SPIRAMS_CHIPS >= 1
-    spi_setup(io+1, spi_port, gpio_base(cs[1]), cs[1] & 15);
+    spi_setup(io+1, spi_port, cs[1]);
 
     spi_brg(io+1, SPIRAMS_MHZ * 1000);
     spi_set(io+1, PIC32_SPICON_CKE);
 #endif
 #if SPIRAMS_CHIPS >= 2
-    spi_setup(io+2, spi_port, gpio_base(cs[2]), cs[2] & 15);
+    spi_setup(io+2, spi_port, cs[2]);
 
     spi_brg(io+2, SPIRAMS_MHZ * 1000);
     spi_set(io+2, PIC32_SPICON_CKE);
 #endif
 #if SPIRAMS_CHIPS >= 3
-    spi_setup(io+3, spi_port, gpio_base(cs[3]), cs[3] & 15);
+    spi_setup(io+3, spi_port, cs[3]);
 
     spi_brg(io+3, SPIRAMS_MHZ * 1000);
     spi_set(io+3, PIC32_SPICON_CKE);
 #endif
 #if SPIRAMS_CHIPS >= 4
-    spi_setup(io+4, spi_port, gpio_base(cs[4]), cs[4] & 15);
+    spi_setup(io+4, spi_port, cs[4]);
 
     spi_brg(io+4, SPIRAMS_MHZ * 1000);
     spi_set(io+4, PIC32_SPICON_CKE);
 #endif
 #if SPIRAMS_CHIPS >= 5
-    spi_setup(io+5, spi_port, gpio_base(cs[5]), cs[5] & 15);
+    spi_setup(io+5, spi_port, cs[5]);
 
     spi_brg(io+5, SPIRAMS_MHZ * 1000);
     spi_set(io+5, PIC32_SPICON_CKE);
 #endif
 #if SPIRAMS_CHIPS >= 6
-    spi_setup(io+6, spi_port, gpio_base(cs[6]), cs[6] & 15);
+    spi_setup(io+6, spi_port, cs[6]);
 
     spi_brg(io+6, SPIRAMS_MHZ * 1000);
     spi_set(io+6, PIC32_SPICON_CKE);
 #endif
 #if SPIRAMS_CHIPS >= 7
-    spi_setup(io+7, spi_port, gpio_base(cs[7]), cs[7] & 15);
+    spi_setup(io+7, spi_port, cs[7]);
 
     spi_brg(io+7, SPIRAMS_MHZ * 1000);
     spi_set(io+7, PIC32_SPICON_CKE);
 #endif
 #if SPIRAMS_CHIPS >= 8
-    spi_setup(io+8, spi_port, gpio_base(cs[8]), cs[8] & 15);
+    spi_setup(io+8, spi_port, cs[8]);
 
     spi_brg(io+8, SPIRAMS_MHZ * 1000);
     spi_set(io+8, PIC32_SPICON_CKE);
 #endif
 #if SPIRAMS_CHIPS >= 9
-    spi_setup(io+9, spi_port, gpio_base(cs[9]), cs[9] & 15);
+    spi_setup(io+9, spi_port, cs[9]);
 
     spi_brg(io+9, SPIRAMS_MHZ * 1000);
     spi_set(io+9, PIC32_SPICON_CKE);
 #endif
 #if SPIRAMS_CHIPS >= 10
-    spi_setup(io+10, spi_port, gpio_base(cs[10]), cs[10] & 15);
+    spi_setup(io+10, spi_port, cs[10]);
 
     spi_brg(io+10, SPIRAMS_MHZ * 1000);
     spi_set(io+10, PIC32_SPICON_CKE);
 #endif
 #if SPIRAMS_CHIPS >= 11
-    spi_setup(io+11, spi_port, gpio_base(cs[11]), cs[11] & 15);
+    spi_setup(io+11, spi_port, cs[11]);
 
     spi_brg(io+11, SPIRAMS_MHZ * 1000);
     spi_set(io+11, PIC32_SPICON_CKE);
 #endif
 #if SPIRAMS_CHIPS >= 12
-    spi_setup(io+12, spi_port, gpio_base(cs[12]), cs[12] & 15);
+    spi_setup(io+12, spi_port, cs[12]);
 
     spi_brg(io+12, SPIRAMS_MHZ * 1000);
     spi_set(io+12, PIC32_SPICON_CKE);
 #endif
 #if SPIRAMS_CHIPS >= 13
-    spi_setup(io+13, spi_port, gpio_base(cs[13]), cs[13] & 15);
+    spi_setup(io+13, spi_port, cs[13]);
 
     spi_brg(io+13, SPIRAMS_MHZ * 1000);
     spi_set(io+13, PIC32_SPICON_CKE);
 #endif
 #if SPIRAMS_CHIPS >= 14
-    spi_setup(io+14, spi_port, gpio_base(cs[14]), cs[14] & 15);
+    spi_setup(io+14, spi_port, cs[14]);
 
     spi_brg(io+14, SPIRAMS_MHZ * 1000);
     spi_set(io+14, PIC32_SPICON_CKE);
 #endif
 #if SPIRAMS_CHIPS >= 15
-    spi_setup(io+15, spi_port, gpio_base(cs[15]), cs[15] & 15);
+    spi_setup(io+15, spi_port, cs[15]);
 
     spi_brg(io+15, SPIRAMS_MHZ * 1000);
     spi_set(io+15, PIC32_SPICON_CKE);

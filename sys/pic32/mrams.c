@@ -243,14 +243,6 @@ int mrams_write(unsigned int offset, char *data, unsigned bcount)
     return 1;
 }
 
-static unsigned *gpio_base(int cs)
-{
-    int port = (cs >> 4) - 1;
-    struct gpioreg *base = port + (struct gpioreg*) &TRISA;
-
-    return (unsigned int*) base;
-}
-
 /*
  * Initialize hardware.
  */
@@ -258,7 +250,7 @@ static int mrams_init(int spi_port, int cs0, int cs1, int cs2, int cs3)
 {
     struct spiio *io = &mrams_io[0];
 
-    if (spi_setup(io, spi_port, gpio_base(cs0), cs0 & 15) != 0) {
+    if (spi_setup(io, spi_port, cs0) != 0) {
         printf("mr0: cannot open SPI%u port\n", spi_port);
         return 0;
     }
@@ -269,7 +261,7 @@ static int mrams_init(int spi_port, int cs0, int cs1, int cs2, int cs3)
     spi_deselect(io);
 
 #if MRAMS_CHIPS >= 1
-    spi_setup(io+1, spi_port, gpio_base(cs1), cs1 & 15);
+    spi_setup(io+1, spi_port, cs1);
 
     spi_brg(io+1, MRAMS_MHZ * 1000);
     spi_set(io+1, PIC32_SPICON_CKE);
@@ -278,7 +270,7 @@ static int mrams_init(int spi_port, int cs0, int cs1, int cs2, int cs3)
     spi_deselect(io+1);
 #endif
 #if MRAMS_CHIPS >= 2
-    spi_setup(io+2, spi_port, gpio_base(cs2), cs2 & 15);
+    spi_setup(io+2, spi_port, cs2);
 
     spi_brg(io+2, MRAMS_MHZ * 1000);
     spi_set(io+2, PIC32_SPICON_CKE);
@@ -287,7 +279,7 @@ static int mrams_init(int spi_port, int cs0, int cs1, int cs2, int cs3)
     spi_deselect(io+2);
 #endif
 #if MRAMS_CHIPS >= 3
-    spi_setup(io+3, spi_port, gpio_base(cs3), cs3 & 15);
+    spi_setup(io+3, spi_port, cs3);
 
     spi_brg(io+3, MRAMS_MHZ * 1000);
     spi_set(io+3, PIC32_SPICON_CKE);

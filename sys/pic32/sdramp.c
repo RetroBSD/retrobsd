@@ -1,6 +1,5 @@
 /*
  * Driver for external SDRAM-based swap device.
- * TODO: Modify this driver to be able to function without rdisk layer.
  *
  * See sdram.S for information on interface to sdram
  *
@@ -11,6 +10,8 @@
 #include <sys/buf.h>
 #include <sys/errno.h>
 #include <sys/dk.h>
+#include <sys/ioctl.h>
+#include <sys/disk.h>
 #include <machine/sdram.h>
 #include <machine/sdramp.h>
 #include <sys/kconfig.h>
@@ -20,7 +21,7 @@
  */
 #include <machine/sdramp_config.h>
 
-int sw_dkn = -1;                /* Statistics slot number */
+int sdramp_dkindex = -1;                /* Statistics slot number */
 
 /*
  * physical specs of SDRAM chip
@@ -53,6 +54,11 @@ int sw_dkn = -1;                /* Statistics slot number */
 #define RAM_BURST_GROUP_COUNT   4
 
 #define BLOCKS_PER_ROW          (RAM_COLS / CHUNK_SIZE)
+
+/*
+ * Size of the whole disk in kbytes.
+ */
+#define SDR_TOTAL_KBYTES    ((1<<SDR_ADDRESS_LINES) / 2 * 4 * SDR_DATA_BYTES)
 
 static char swaptemp[CHUNK_SIZE];
 
@@ -113,6 +119,7 @@ static void sdram_upperlowerbyte(unsigned bit)
     dqm_port->latclr = (1<<SDR_DQM_LDQM_BIT);
 #endif
 }
+
 static void sdram_init_c()
 {
     struct gpioreg * bank_port = (struct gpioreg *)&SDR_BANK_PORT;
@@ -301,8 +308,8 @@ write_chunk_to_sdram(uint64_t* src, unsigned int blockNumber)
 /*
  * Read a block of data.
  */
-int
-sdramp_read(int unit, unsigned blockno, char* data, unsigned nbytes)
+static int
+sdramp_read(unsigned blockno, char* data, unsigned nbytes)
 {
     blockno = blockno * (DEV_BSIZE/CHUNK_SIZE);
 
@@ -324,8 +331,8 @@ sdramp_read(int unit, unsigned blockno, char* data, unsigned nbytes)
 /*
  * Write a block of data.
  */
-int
-sdramp_write (int unit, unsigned blockno, char *data, unsigned nbytes)
+static int
+sdramp_write (unsigned blockno, char *data, unsigned nbytes)
 {
     blockno = blockno * (DEV_BSIZE/CHUNK_SIZE);
 
@@ -348,30 +355,127 @@ sdramp_write (int unit, unsigned blockno, char *data, unsigned nbytes)
     return 1;
 }
 
-void sdramp_preinit (int unit)
-{
-    printf("sdramp_preinit\n");
-
-    int x = mips_intr_disable();
-    struct buf *bp;
-    sdram_init_c();
-    mips_intr_restore(x);
-
-    bp = prepartition_device("sdramp0"/*,sdramp_size(0)*/);
-    if (bp) {
-        sdramp_write (0, 0, bp->b_addr, 512);
-        brelse(bp);
-    }
-}
-
-int sdramp_open(int unit, int flag, int mode)
+int sdramp_open(dev_t dev, int flag, int mode)
 {
     return 0;
 }
 
-int sdramp_size(int unit)
+int sdramp_close(dev_t dev, int flag, int mode)
 {
-    return (1<<SDR_ADDRESS_LINES) / 2 * 4 * SDR_DATA_BYTES;
+    return 0;
+}
+
+/*
+ * Return a size of partition in kbytes.
+ * The memory is divided into two partitions: A and B.
+ * Size of partition B is specified in the kernel config file
+ * as option SDR_SWAP_KBYTES.
+ */
+daddr_t sdramp_size(dev_t dev)
+{
+    switch (minor(dev)) {
+    case 0:
+        /* Whole disk. */
+        return SDR_TOTAL_KBYTES;
+    case 1:
+        /* Partition A: filesystem. */
+        return SDR_TOTAL_KBYTES - SDR_SWAP_KBYTES;
+    case 2:
+    default:
+        /* Partition B: swap space. */
+        return SDR_SWAP_KBYTES;
+    }
+}
+
+void sdramp_strategy(struct buf *bp)
+{
+    int offset = bp->b_blkno;
+    long nblk = btod(bp->b_bcount);
+    int part_offset, part_size, s;
+
+    /* Compute partition size and offset. */
+    part_size = sdramp_size(bp->b_dev);
+    if (minor(bp->b_dev) < 2) {
+        /* Partition A or a whole disk. */
+        part_offset = 0;
+    } else {
+        /* Partition B: swap space. */
+        part_offset = SDR_TOTAL_KBYTES - part_size;
+    }
+
+    /*
+     * Determine the size of the transfer, and make sure it is
+     * within the boundaries of the partition.
+     */
+    offset += part_offset;
+    if (bp->b_blkno + nblk > part_size) {
+        /* if exactly at end of partition, return an EOF */
+        if (bp->b_blkno == part_size) {
+            bp->b_resid = bp->b_bcount;
+            biodone(bp);
+            return;
+        }
+        /* or truncate if part of it fits */
+        nblk = part_size - bp->b_blkno;
+        if (nblk <= 0) {
+            bp->b_error = EINVAL;
+            bp->b_flags |= B_ERROR;
+            biodone(bp);
+            return;
+        }
+        bp->b_bcount = nblk << DEV_BSHIFT;
+    }
+
+    if (bp->b_dev == swapdev) {
+        led_control(LED_SWAP, 1);
+    } else {
+        led_control(LED_DISK, 1);
+    }
+
+    s = splbio();
+#ifdef UCB_METER
+    if (sdramp_dkindex >= 0) {
+        dk_busy |= 1 << sdramp_dkindex;
+        dk_xfer[sdramp_dkindex]++;
+        dk_bytes[sdramp_dkindex] += bp->b_bcount;
+    }
+#endif
+
+    if (bp->b_flags & B_READ) {
+        sdramp_read(offset, bp->b_addr, bp->b_bcount);
+    } else {
+        sdramp_write(offset, bp->b_addr, bp->b_bcount);
+    }
+
+    biodone(bp);
+    if (bp->b_dev == swapdev) {
+        led_control(LED_SWAP, 0);
+    } else {
+        led_control(LED_DISK, 0);
+    }
+#ifdef UCB_METER
+    if (sdramp_dkindex >= 0)
+        dk_busy &= ~(1 << sdramp_dkindex);
+#endif
+    splx(s);
+}
+
+int sdramp_ioctl (dev_t dev, u_int cmd, caddr_t addr, int flag)
+{
+    int error = 0;
+
+    switch (cmd) {
+
+    case DIOCGETMEDIASIZE:
+        /* Get disk size in kbytes. */
+        *(int*) addr = sdramp_size(dev);
+        break;
+
+    default:
+        error = EINVAL;
+        break;
+    }
+    return error;
 }
 
 /*
@@ -382,7 +486,20 @@ static int
 sdrampprobe(config)
     struct conf_device *config;
 {
-    //TODO
+    /* Only one device unit is supported. */
+    if (config->dev_unit != 0)
+        return 0;
+
+    printf("dr0: total %u kbytes, swap space %u kbytes\n",
+        SDR_TOTAL_KBYTES, SDR_SWAP_KBYTES);
+
+    int x = mips_intr_disable();
+    sdram_init_c();
+    mips_intr_restore(x);
+
+#ifdef UCB_METER
+    dk_alloc(&sdramp_dkindex, 1, "dr0");
+#endif
     return 1;
 }
 

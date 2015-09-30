@@ -772,7 +772,7 @@ void sdstrategy(struct buf *bp)
     {
         /* Write to partition table not allowed. */
         bp->b_error = EROFS;
-bad:        bp->b_flags |= B_ERROR;
+bad:    bp->b_flags |= B_ERROR;
         biodone(bp);
         return;
     }

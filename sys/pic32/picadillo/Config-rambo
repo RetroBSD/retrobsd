@@ -25,7 +25,7 @@ options         "BUS_DIV=1"                 # Bus clock divisor 1/2/4/8
 
 # Root filesystem at /dev/sd0a, swap at /dev/sd0b
 config          unix    root on sd0a
-                        swap on sd0b
+                        swap on sr0         # Swap on SPI RAM
 
 # Serial UART ports
 device          uart1                       # Serial-to-USB converter
@@ -51,8 +51,7 @@ device          pwm
 device          hxtft
 
 # spirams - SPI block device
-device          spirams0  at spi4
-options         "PARTITION='spirams0:sa@2040'"  # Partition schema
+device          sr0 at spi4
 options         "SPIRAMS_PORT=SPI4CON"      # TODO: delete this option
 options         "SPIRAMS_CHIPSIZE=128"      # chip size in kbytes
 options         "SPIRAMS_CHIPS=16"          # number of chips

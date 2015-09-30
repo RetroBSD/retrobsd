@@ -24,7 +24,6 @@ kernel/kern_subr.c              standard
 kernel/kern_synch.c             standard
 kernel/kern_sysctl.c            standard
 kernel/kern_time.c              standard
-#kernel/rdisk.c                  standard
 kernel/subr_log.c               optional log
 kernel/subr_prf.c               standard
 kernel/subr_rmap.c              standard
@@ -76,12 +75,12 @@ pic32/hx8357.c                  optional hxtft
 pic32/picga.c                   optional picga
 pic32/power_control.c           optional power
 pic32/pwm.c                     optional pwm
-pic32/mrams.c                   optional mrams
+pic32/mrams.c                   optional mr
 pic32/sd.c                      optional sd
-pic32/sdramp.c                  optional sdramp
-pic32/spirams.c                 optional spirams
-pic32/sramc.c                   optional sramc
-pic32/sdram.S                   optional sdramp
+pic32/sdramp.c                  optional dr
+pic32/sdram.S                   optional dr
+pic32/spirams.c                 optional sr
+pic32/sramc.c                   optional rc
 pic32/skel.c                    optional skel
 pic32/spi.c                     optional spi
 pic32/spi_bus.c                 optional spi

@@ -1,1 +1,8 @@
+#
+# List of block devices and majors
+#
 sd      0
+rc      1       # sramc   - SRAM connected via CPLD
+dr      2       # sdramp  - SDRAM at external memory bus
+mr      3       # mrams   - MRAM at SPI port
+sr      5       # spirams - serial RAM at SPI port

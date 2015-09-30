@@ -37,7 +37,6 @@ options         "NMOUNT=2"                  # Number of mounted filesystems, def
 options         "SMAPSIZ=NPROC"             # Size of swap map, default NPROC
 options         "HALTREBOOT"                # Reboot the processor on halt()
 options         "KERNEL_HIGHLIGHT"          # Highlight kernel messages
-options         "PARTITION='%1'"            # Partition schema for RAM device
 
 # LEDs
 signal          "LED_DISK"   pin RF0 invert # disk activity indicator
@@ -125,30 +124,34 @@ signal          "POWER_LED"     pin RA3
 signal          "POWER_SWITCH"  pin RA4
 signal          "POWER_CONTROL" pin RA5
 
-#--------------------------------------------
-# Custom RAM disk devices
-#
-
-# sdramp - SDRAM block device
-device          sdramp0                     # SDRAM on external memory bus
-options         "KERNEL_EXECUTABLE_RAM"     # allow kernel code in RAM area
-
-# sramc - SRAM block device
-device          sramc0                      # SRAM via 4-wire CPLD interface
-signal          "SRAMC_DATA"    pin RE0
-signal          "SRAMC_LDA"     pin RC13
-signal          "SRAMC_RD"      pin RF1
-signal          "SRAMC_WR"      pin RF0
-
-# picga - SPI block device
+# picga
 controller      spi1                        # RAM disk: picga
 device          picga0  at spi1 pin RA4     # chip select signal
 options         "PICGA_BUS=SPI1CON"         # TODO: delete this option
 signal          "PICGA_CS" pin RA4          # TODO: delete
 
+#--------------------------------------------
+# Custom RAM disk devices
+#
+
+# sdramp - SDRAM block device
+# The volume is divided into two partitions: A and B.
+# Size of partition B is specified as option SDR_SWAP_KBYTES.
+# The rest is partition A.
+device          dr0                         # SDRAM on external memory bus
+options         "SDR_SWAP_KBYTES=2048"      # size of partition B
+options         "KERNEL_EXECUTABLE_RAM"     # allow kernel code in RAM area
+
+# sramc - SRAM block device
+device          rc0                         # SRAM via 4-wire CPLD interface
+signal          "SRAMC_DATA"    pin RE0
+signal          "SRAMC_LDA"     pin RC13
+signal          "SRAMC_RD"      pin RF1
+signal          "SRAMC_WR"      pin RF0
+
 # mrams - SPI block device
 controller      spi1                        # RAM disk: mrams
-device          mrams0  at spi1
+device          mr0  at spi1
                 pins RA4,  RA2, RB14, RB12, # chip select signals
                      RB10, RB11
 options         "MRAMS_CHIPS=6"             # number of chips
@@ -170,7 +173,7 @@ signal          "MRAMS_LED5"    pin RF5
 
 # spirams - SPI block device
 controller      spi1                        # RAM disk: spirams
-device          spirams0  at spi1           # chip select signals:
+device          sr0  at spi1                # chip select signals:
                 pins RF0,  RF1,  RF2,  RF3, # chip select signals
                      RF4,  RF5,  RF6,  RF7,
                      RF8,  RF9,  RF10, RF11,

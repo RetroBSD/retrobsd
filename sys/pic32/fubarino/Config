@@ -26,6 +26,10 @@ options         "BUS_DIV=1"                 # Bus clock divisor 1/2/4/8
 # LED
 signal          "LED_KERNEL"    pin RE5     # kernel activity indicator
 
+# Button
+# Hold this button pressed at startup to enter single-user mode.
+signal          "BUTTON1"   pin RE7 invert  # PRG button, active low
+
 # Root filesystem at /dev/sd0a, swap at /dev/sd0b
 config          unix    root on sd0a
                         swap on sd0b

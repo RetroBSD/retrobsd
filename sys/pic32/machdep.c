@@ -167,6 +167,26 @@ dev_t   pipedev;
 daddr_t dumplo = (daddr_t) 1024;
 
 /*
+ * Check whether button 1 is pressed.
+ */
+static inline int
+button1_pressed()
+{
+#ifdef BUTTON1_PORT
+    int val;
+
+    TRIS_SET(BUTTON1_PORT) = 1 << BUTTON1_PIN;
+    val = PORT_VAL(BUTTON1_PORT);
+#ifdef BUTTON1_INVERT
+    val = ~val;
+#endif
+    return (val >> BUTTON1_PIN) & 1;
+#else
+    return 0;
+#endif
+}
+
+/*
  * Machine dependent startup code
  */
 void
@@ -391,6 +411,14 @@ startup()
 
     /* Get total RAM size. */
     physmem = BMXDRMSZ;
+
+    /*
+     * When button 1 is pressed - boot to single user mode.
+     */
+    boothowto = 0;
+    if (button1_pressed()) {
+        boothowto |= RB_SINGLE;
+    }
 }
 
 static void cpuidentify()

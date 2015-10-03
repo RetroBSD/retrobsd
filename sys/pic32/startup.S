@@ -310,9 +310,11 @@ single_step_done:
 # Icode is copied out to process 1 to exec /sbin/init.
 # If the exec fails, process 1 exits.
 #
-                .globl  icode, icodeend
+                .globl  icode, icodeend, initflags
                 .type   icode, @function
                 .type   icodeend, @function
+                .type   etcinit, @object
+                .type   argv, @object
 icode:
                 la      $a0, UBASE
                 move    $a1, $a0
@@ -323,8 +325,9 @@ icode:
                 syscall 1                               # SYS_exit
 etcinit:
                 .ascii  "/sbin/init\0"
+                .align  2
 initflags:
-                .ascii  "-\0"                           # ASCII initflags
+                .ascii  "-\0\0\0\0\0\0\0\0\0\0"         # space for options
 argv:
                 .word   etcinit + 6 - icode + UBASE     # address of "init\0"
                 .word   initflags - icode + UBASE       # init options

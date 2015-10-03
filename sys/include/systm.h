@@ -70,6 +70,7 @@ extern dev_t    pipedev;            /* pipe device */
 
 extern  const char icode[];         /* user init code */
 extern  const char icodeend[];      /* its end */
+extern  const char initflags[];     /* init flags string */
 
 struct inode;
 daddr_t bmap (struct inode *ip, daddr_t bn, int rwflg, int flags);

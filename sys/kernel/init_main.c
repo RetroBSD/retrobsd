@@ -196,6 +196,7 @@ main()
          * No return from sched. */
         sched();
     }
+
     /* Child process with pid 1: init. */
     s = splhigh();
     p = u.u_procp;
@@ -204,6 +205,15 @@ main()
     p->p_ssize = 1024;              /* one kbyte of stack */
     p->p_saddr = USER_DATA_END - 1024;
     bcopy ((caddr_t) icode, (caddr_t) USER_DATA_START, icodeend - icode);
+
+    /* Start in single user more, if asked. */
+    if (boothowto & RB_SINGLE) {
+        char *iflags = (char*) USER_DATA_START + (initflags - icode);
+
+        /* Call /sbin/init with option '-s'. */
+        iflags[1] = 's';
+    }
+
     /*
      * return goes to location 0 of user init code
      * just copied out.

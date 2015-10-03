@@ -3,7 +3,8 @@
 #
 SUBDIR		= baremetal duinomite duinomite-emega explorer16 \
                   fubarino max32 maximite maximite-color mmb-mx7 \
-                  picadillo pinguino-micro sdxl starter-kit ubw32 wf32
+                  picadillo pinguino-micro sdxl snadpic starter-kit \
+                  ubw32 wf32
 
 default:
 

@@ -1,0 +1,77 @@
+#
+# Fubarino SD board with RAM disk on SPI port
+# ===========================================
+# Console on USB.
+# For details, see https://github.com/RetroBSD/retrobsd/wiki/Board-Fubarino-SD
+#
+# To build the kernel, use:
+#   cd sys/pic32/fubarino
+#   kconfig Config-spirams
+#   make clean
+#   make
+#
+# Format of this file is described on page:
+# http://retrobsd.org/wiki/doku.php/doc/kconfig
+#
+architecture    "pic32"
+cpu             "PIC32MX7"                  # Processor variant
+board           "FUBARINO"                  # Board type
+ldscript        "max32/bootloader.ld"       # Linker script
+
+# Standard system options
+options         "CPU_KHZ=80000"             # Oscillator frequency of CPU core
+options         "BUS_KHZ=80000"             # Frequency of peripheral bus
+options         "BUS_DIV=1"                 # Bus clock divisor 1/2/4/8
+
+# LED
+signal          "LED_KERNEL"    pin RE5     # kernel activity indicator
+
+# Root filesystem at /dev/sd0a, swap at /dev/sd0b
+config          unix    root on sd0a
+                        swap on sr0         # Swap on SPI RAM disk
+
+# Console options
+options         "CONS_MAJOR=UARTUSB_MAJOR"  # UARTUSB device
+
+# Virtual UART on USB
+device          uartusb
+options         "USB_MAX_EP_NUMBER=3"
+options         "USB_NUM_STRING_DESCRIPTORS=3"
+
+# UART ports
+device          uart2                       # Pins RF4, RF5
+
+# SPI ports
+controller      spi2                        # SD card
+controller      spi3                        # Pins RD1, RD2, RD3
+
+# microSD card
+device          sd0     at spi2 pin RG9     # select pin
+
+# General purpose I/O ports
+# Flags define a mask of available pins
+# The following pins excluded:
+#   RG6, RG7, RG8, RG9 - spi2, SD card
+#   RD1, RD2, RD3      - spi3
+#   RF4, RF5           - uart2
+device          gpio1   flags 0xffff    # port B
+device          gpio2   flags 0xf000    # port C
+device          gpio3   flags 0x0ff1    # port D
+device          gpio4   flags 0x00ff    # port E
+device          gpio5   flags 0x000b    # port F
+device          gpio6   flags 0x000c    # port G
+
+# ADC driver
+device          adc
+
+# PWM driver
+device          pwm
+
+# spirams - SPI block device
+device          sr0  at spi3
+                pins RD4,  RD5,  RD6,  RD7, # chip select signals
+                     RD8,  RD9,  RD10, RD11,
+                     RE0,  RE1,  RE2,  RE3,
+                     RE4,  RE5,  RE6,  RE7
+options         "SPIRAMS_CHIPS=16"          # number of chips
+options         "SPIRAMS_CHIPSIZE=128"      # chip size in kbytes

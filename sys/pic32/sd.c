@@ -772,7 +772,7 @@ void sdstrategy(struct buf *bp)
     {
         /* Write to partition table not allowed. */
         bp->b_error = EROFS;
-bad:        bp->b_flags |= B_ERROR;
+bad:    bp->b_flags |= B_ERROR;
         biodone(bp);
         return;
     }
@@ -877,11 +877,7 @@ sd_probe(config)
     printf("sd%u: port SPI%d, pin cs=R%c%d\n", unit,
         config->dev_ctlr, gpio_portname(cs), gpio_pinno(cs));
 
-    int port = (cs >> 4) - 1;
-    int pin = cs & 15;
-    struct gpioreg *base = port + (struct gpioreg*) &TRISA;
-
-    if (spi_setup(io, config->dev_ctlr, (unsigned int*) base, pin) != 0) {
+    if (spi_setup(io, config->dev_ctlr, cs) != 0) {
         printf("sd%u: cannot open SPI%u port\n", unit, config->dev_ctlr);
         return 0;
     }

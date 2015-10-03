@@ -1,13 +1,13 @@
 #
-# Fubarino SD board SRAMC swap disk
-# =================================
+# Fubarino SD board with SRAMC swap disk
+# ======================================
 # Console on UART2.
 # Overclocked to 120MHz.
 # Clock rate increased to 1000Hz.
 #
 # To build the kernel, use:
-#   cd sys/pic32/fubarino-uart-sramc
-#   kconfig Config
+#   cd sys/pic32/fubarino
+#   kconfig Config-uart-sramc
 #   make clean
 #   make
 #
@@ -33,7 +33,7 @@ signal          "LED_KERNEL"    pin RE5     # kernel activity indicator
 
 # Root filesystem at /dev/sd0a, swap at /dev/sd0b
 config          unix    root on sd0a
-                        swap on sd0b
+                        swap on rc0b        # Swap on SRAM disk
 
 # Console options
 options         "CONS_MAJOR=UART_MAJOR"     # UART device
@@ -70,5 +70,8 @@ device          adc
 device          pwm
 
 # sramc - SRAM block device
-device          sramc0                      # SRAM via 4-wire CPLD interface
-options         "PARTITION='sramc0:sa@2048,fs@6140'"    # Partition schema
+# The volume is divided into two partitions: A and B.
+# Size of partition B is specified as option SRAMC_SWAP_KBYTES.
+# The rest is partition A.
+device          rc0                         # SRAM via 4-wire CPLD interface
+options         "SRAMC_SWAP_KBYTES=2048"    # size of partition B

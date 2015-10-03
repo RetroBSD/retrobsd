@@ -1,27 +1,26 @@
-PARAM = -DCUSTOM_32MXSDRAM
+PARAM = -DSNADPIC
 PARAM += -DPIC32MX7
-PARAM += -DUART3_ENABLED
-PARAM += -DSPI4_ENABLED
+PARAM += -DUARTUSB_ENABLED
+PARAM += -DUART2_ENABLED
+PARAM += -DSPI2_ENABLED
+PARAM += -DSPI3_ENABLED
 PARAM += -DSD_ENABLED
+PARAM += -DGPIO_ENABLED
+PARAM += -DGPIO1_ENABLED
+PARAM += -DGPIO2_ENABLED
+PARAM += -DGPIO3_ENABLED
+PARAM += -DGPIO4_ENABLED
+PARAM += -DGPIO5_ENABLED
+PARAM += -DGPIO6_ENABLED
 PARAM += -DADC_ENABLED
 PARAM += -DPWM_ENABLED
-PARAM += -DDR_ENABLED
-PARAM += -DSD_ENA_PORT=TRISB -DSD_ENA_PIN=13
-PARAM += -DLED_TTY_PORT=TRISA -DLED_TTY_PIN=14
-PARAM += -DLED_SWAP_PORT=TRISC -DLED_SWAP_PIN=14
-PARAM += -DLED_DISK_PORT=TRISC -DLED_DISK_PIN=13
-PARAM += -DLED_KERNEL_PORT=TRISA -DLED_KERNEL_PIN=15
-PARAM += -DNMOUNT=3
-PARAM += -DKERNEL_EXECUTABLE_RAM
-PARAM += -DSDR_SWAP_KBYTES=2048
-PARAM += -DSD_MHZ=10
-PARAM += -DCONS_MINOR=2
-PARAM += -DCONS_MAJOR=UART_MAJOR
+PARAM += -DUSB_NUM_STRING_DESCRIPTORS=3
+PARAM += -DUSB_MAX_EP_NUMBER=3
+PARAM += -DCONS_MAJOR=UARTUSB_MAJOR
 PARAM += -DBUS_DIV=1
 PARAM += -DBUS_KHZ=80000
 PARAM += -DCPU_KHZ=80000
-PARAM += -DHZ=1000
-LDSCRIPT = "32mxsdram/bootloader.ld"
+LDSCRIPT = "maximite/bootloader.ld"
 #
 # Makefile for RetroBSD, pic32 target
 #
@@ -65,8 +64,9 @@ OBJS = exec_aout.o exec_conf.o exec_elf.o exec_script.o exec_subr.o \
 	ufs_bmap.o ufs_dsort.o ufs_fio.o ufs_inode.o ufs_mount.o \
 	ufs_namei.o ufs_subr.o ufs_syscalls.o ufs_syscalls2.o \
 	vfs_vnops.o vm_sched.o vm_swap.o vm_swp.o clock.o cons.o devsw.o \
-	exception.o machdep.o mem.o signal.o swap.o sysctl.o adc.o pwm.o \
-	sd.o sdramp.o sdram.o spi.o spi_bus.o uart.o 
+	exception.o machdep.o mem.o signal.o swap.o sysctl.o adc.o \
+	gpio.o pwm.o sd.o spi.o spi_bus.o uart.o usb_device.o \
+	usb_function_cdc.o usb_uart.o 
 
 CFILES = $S/kernel/exec_aout.c $S/kernel/exec_conf.c $S/kernel/exec_elf.c \
 	$S/kernel/exec_script.c $S/kernel/exec_subr.c \
@@ -91,9 +91,10 @@ CFILES = $S/kernel/exec_aout.c $S/kernel/exec_conf.c $S/kernel/exec_elf.c \
 	$S/kernel/vm_swp.c $S/pic32/clock.c $S/pic32/cons.c \
 	$S/pic32/devsw.c $S/pic32/exception.c $S/pic32/machdep.c \
 	$S/pic32/mem.c $S/pic32/signal.c $S/pic32/swap.c \
-	$S/pic32/sysctl.c $S/pic32/adc.c $S/pic32/pwm.c $S/pic32/sd.c \
-	$S/pic32/sdramp.c $S/pic32/spi.c $S/pic32/spi_bus.c \
-	$S/pic32/uart.c swapunix.c 
+	$S/pic32/sysctl.c $S/pic32/adc.c $S/pic32/gpio.c $S/pic32/pwm.c \
+	$S/pic32/sd.c $S/pic32/spi.c $S/pic32/spi_bus.c $S/pic32/uart.c \
+	$S/pic32/usb_device.c $S/pic32/usb_function_cdc.c \
+	$S/pic32/usb_uart.c swapunix.c 
 
 # load lines for config "xxx" will be emitted as:
 # xxx: ${SYSTEM_DEP} swapxxx.o
@@ -328,17 +329,14 @@ sysctl.o: $S/pic32/sysctl.c
 adc.o: $S/pic32/adc.c
 	${COMPILE_C}
 
+gpio.o: $S/pic32/gpio.c
+	${COMPILE_C}
+
 pwm.o: $S/pic32/pwm.c
 	${COMPILE_C}
 
 sd.o: $S/pic32/sd.c
 	${COMPILE_C}
-
-sdramp.o: $S/pic32/sdramp.c
-	${COMPILE_C}
-
-sdram.o: $S/pic32/sdram.S
-	${COMPILE_S}
 
 spi.o: $S/pic32/spi.c
 	${COMPILE_C}
@@ -347,6 +345,15 @@ spi_bus.o: $S/pic32/spi_bus.c
 	${COMPILE_C}
 
 uart.o: $S/pic32/uart.c
+	${COMPILE_C}
+
+usb_device.o: $S/pic32/usb_device.c
+	${COMPILE_C}
+
+usb_function_cdc.o: $S/pic32/usb_function_cdc.c
+	${COMPILE_C}
+
+usb_uart.o: $S/pic32/usb_uart.c
 	${COMPILE_C}
 
 

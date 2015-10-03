@@ -30,6 +30,8 @@ Build directories:
 
     sdxl/               - Majenko SDXL board.
 
+    snadpic/            - SnadPIC MX795 board.
+
     starter-kit/        - Microchip PIC32MX USB or Ethernet Starter Kit,
                           with I/O Expansion board and SD & MMC pictail.
 

@@ -22,8 +22,33 @@ dir /u
 #
 # Block devices.
 #
+# Major Minor Name  Device
+# -------------------------
+#   0     0   sd0   Main SD card
+#   0     1   sd0a  Partition 1: root file system
+#   0     2   sd0b  Partition 2: swap space
+#   0     3   sd0c  Partition 3
+#   0     4   sd0d  Partition 4
+#   0     8   sd1   Second SD card
+#   0     9   sd1a  Partition 1
+#   0     10  sd1b  Partition 2
+#   0     11  sd1c  Partition 3
+#   0     12  sd1d  Partition 4
+#   1     0   rc0   Volatile disk - SRAM connected via CPLD (sramc)
+#   1     1   rc0a  Partition 1: filesystem
+#   1     2   rc0b  Partition 2: swap space
+#   2     0   dr0   Volatile disk - SDRAM on external memory bus (sdramp)
+#   2     1   dr0a  Partition 1: filesystem
+#   2     2   dr0b  Partition 2: swap space
+#   3     0   mr0   Volatile disk - MRAM on SPI port (mrams)
+#   4     64  swap  Virtual swap device, mapped to real swap partition
+#   4     0   swap0 Virtual i/o area, allocated from swap space
+#   4     1   swap1 Virtual i/o area, allocated from swap space
+#   4     2   swap2 Virtual i/o area, allocated from swap space
+#   5     0   sr0   Volatile disk - serial RAM on SPI port (spirams)
+#
 bdev /dev/sd0
-major 0
+major 0             # Main SD card
 minor 0
 bdev /dev/sd0a
 major 0
@@ -38,7 +63,7 @@ bdev /dev/sd0d
 major 0
 minor 4
 bdev /dev/sd1
-major 0
+major 0             # Second SD card
 minor 8
 bdev /dev/sd1a
 major 0
@@ -52,8 +77,29 @@ minor 11
 bdev /dev/sd1d
 major 0
 minor 12
+bdev /dev/rc0
+major 1             # Volatile disk - SRAM connected via CPLD (sramc)
+minor 0
+bdev /dev/rc0a
+major 1
+minor 1
+bdev /dev/rc0b
+major 1
+minor 2
+bdev /dev/dr0
+major 2             # Volatile disk - SDRAM on external memory bus (sdramp)
+minor 0
+bdev /dev/dr0a
+major 2
+minor 1
+bdev /dev/dr0b
+major 2
+minor 2
+bdev /dev/mr0
+major 3             # Volatile disk - MRAM on SPI port (mrams)
+minor 0
 bdev /dev/swap
-major 4
+major 4             # Virtual swap device, mapped to real swap partition
 minor 64
 bdev /dev/swap0
 major 4
@@ -64,6 +110,9 @@ minor 1
 bdev /dev/swap2
 major 4
 minor 2
+bdev /dev/sr0
+major 5             # Volatile disk - serial RAM on SPI port (spirams)
+minor 0
 
 #
 # Character devices.

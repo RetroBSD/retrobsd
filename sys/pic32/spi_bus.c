@@ -28,10 +28,20 @@ static struct spireg *const spi_base[NSPI] = {
 // Returns an integer for the number of the device (ala fd).
 // Returns -1 if no devices are available.
 //
-int spi_setup(struct spiio *io, int channel, unsigned int *tris, unsigned int pin)
+int spi_setup(struct spiio *io, int channel, int cs)
 {
+    unsigned *tris = 0;
+    int pin = 0;
+
     if (channel <= 0 || channel > NSPI)
         return ENXIO;
+
+    if (cs != 0) {
+        /* Compute the port address and pin index of the chip select signal. */
+        int port = (cs >> 4) - 1;
+        tris = (unsigned*) (port + (struct gpioreg*) &TRISA);
+        pin = cs & 15;
+    }
 
     // Set up the device
     io->bus = spi_base[channel-1];

@@ -2,13 +2,11 @@
 #define _SDRAMP_H
 
 #ifdef KERNEL
-
-extern int sdramp_write(int unit, unsigned blockno, char* data, unsigned nbytes);
-extern int sdramp_read (int unit, unsigned blockno, char *data, unsigned nbytes);
-extern void sdramp_preinit(int unit);
-extern int sdramp_size(int unit);
-extern int sdramp_open(int unit, int a, int b);
-
+extern int sdramp_open(dev_t dev, int flag, int mode);
+extern int sdramp_close(dev_t dev, int flag, int mode);
+extern daddr_t sdramp_size(dev_t dev);
+extern void sdramp_strategy(struct buf *bp);
+extern int sdramp_ioctl (dev_t dev, u_int cmd, caddr_t addr, int flag);
 #endif
 
 #endif

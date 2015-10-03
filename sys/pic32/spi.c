@@ -317,7 +317,7 @@ spiprobe(config)
         gpio_portname(sdo), gpio_pinno(sdo),
         gpio_portname(sck), gpio_pinno(sck));
 
-    if (spi_setup(io, channel+1, 0, 0) != 0) {
+    if (spi_setup(io, channel+1, 0) != 0) {
         printf("spi%u: setup failed\n", channel+1);
         return 0;
     }

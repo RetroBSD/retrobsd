@@ -32,7 +32,7 @@ signal          "LED_TTY"       pin RA14    # tty activity indicator
 
 # Root filesystem at /dev/sd0a, swap at /dev/sd0b
 config          unix    root on sd0a
-                        swap on sd0b
+                        swap on dr0b        # swap on SDRAM
 
 # Serial UART ports
 device          uart3
@@ -57,13 +57,11 @@ device          adc
 # PWM driver
 device          pwm
 
-# Use SDRAM driver for the external ramdisk
-device          sdramp0                     # SDRAM on external memory bus
+# Use SDRAM driver for the external ramdisk.
+# The volume is divided into two partitions: A and B.
+# Size of partition B is specified as option SDR_SWAP_KBYTES.
+# The rest is partition A.
+device          dr0                         # SDRAM on external memory bus
+options         "SDR_SWAP_KBYTES=2048"      # size of partition B
 options         "KERNEL_EXECUTABLE_RAM"     # allow kernel code in RAM area
-
-# This defines the swap size and a fs partition size on the external ramdisk.
-# When the sa@XXXX is larger than the SWAP_KBYTES, the system will use
-# the swap located on the external ramdisk automatically.
-# (sd@xxxx + fs@xxxx) <= ramdisk_size
-options         "PARTITION='sdramp0:sa@2048,fs@14000'"
 options         "NMOUNT=3"

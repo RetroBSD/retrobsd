@@ -49,7 +49,7 @@ struct spiio {
     unsigned int    mode;
 };
 
-extern int spi_setup(struct spiio *io, int channel, unsigned int *tris, unsigned int pin);
+extern int spi_setup(struct spiio *io, int channel, int cs);
 extern void spi_set_cspin(struct spiio *io, unsigned int *tris, unsigned int pin);
 extern void spi_select(struct spiio *io);
 extern void spi_deselect(struct spiio *io);

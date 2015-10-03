@@ -1,9 +1,12 @@
 #ifndef _SPIRAMS_H
 #define _SPIRAMS_H
 
-extern int spirams_size(int unit);
-extern int spirams_read(int unit, unsigned int offset, char *data, unsigned int bcount);
-extern int spirams_write (int unit, unsigned offset, char *data, unsigned bcount);
-extern void spirams_preinit (int unit);
+#ifdef KERNEL
+extern int spirams_open(dev_t dev, int flag, int mode);
+extern int spirams_close(dev_t dev, int flag, int mode);
+extern daddr_t spirams_size(dev_t dev);
+extern void spirams_strategy(struct buf *bp);
+extern int spirams_ioctl (dev_t dev, u_int cmd, caddr_t addr, int flag);
+#endif
 
 #endif

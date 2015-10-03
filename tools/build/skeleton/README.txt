@@ -63,8 +63,8 @@ serial port (COM port) on your computer, depending on your
 board type.
 
 Boards which use HID bootloader: Maximite, Color Maximite,
-Duinomite, CGMMSTICK1. For these boards you do not need to
-specify the -d option and device name.
+Duinomite, CGMMSTICK1, SnadPIC. For these boards you do not
+need to specify the -d option and device name.
 
 Boards which use a virtual serial port for bootloader: Fubarino
 SD, chipKIT Max32, Picadillo 35T, Majenko SDXL. For these

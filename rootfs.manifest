@@ -399,6 +399,9 @@ minor 4
 dir /root
 file /root/.profile
 
+symlink /.profile
+target root/.profile
+
 #
 # Files: /etc
 #
@@ -1014,8 +1017,14 @@ file /share/examples/c/test1.c
 file /share/examples/c/test2.c
 file /share/examples/c/test3.c
 file /share/examples/c/tetris.c
-file /share/examples/c/tft.c
-file /share/examples/c/tftetris.c
+
+#
+# Files: /share/examples/gpanel
+#
+dir /share/examples/gpanel
+file /share/examples/gpanel/Makefile
+file /share/examples/gpanel/tft.c
+file /share/examples/gpanel/tftetris.c
 
 #
 # Files: /share/examples/smallc

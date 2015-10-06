@@ -862,6 +862,7 @@ file /include/sys/file.h
 file /include/sys/fs.h
 file /include/sys/glcd.h
 file /include/sys/glob.h
+file /include/sys/gpanel.h
 file /include/sys/gpio.h
 file /include/sys/inode.h
 file /include/sys/ioctl.h
@@ -928,6 +929,7 @@ file /lib/crt0.o
 file /lib/libc.a
 file /lib/libm.a
 file /lib/libcurses.a
+file /lib/libgpanel.a
 file /lib/libreadline.a
 file /lib/libtermlib.a
 file /lib/libwiznet.a

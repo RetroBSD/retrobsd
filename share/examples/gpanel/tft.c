@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <sys/gpio.h>
+#include <sys/gpanel.h>
 #include <time.h>
 
 #define BLACK 0x0000
@@ -13,83 +14,56 @@
 
 int fd = -1;
 
-//#define PIX_BUF_SIZ 64 // 21 fps
-#define PIX_BUF_SIZ 128 // 28 fps on full-screen continuous box()
-//#define PIX_BUF_SIZ 256 // 32 fps
-//#define PIX_BUF_SIZ 512 // 34 fps
-
-void pixel(unsigned x, unsigned y,
-           unsigned short color)
+void pixel(unsigned x, unsigned y, unsigned color)
 {
-  unsigned short wincoo[4];
-  unsigned short data[2];
+  struct gpanel_pixel_t param;
 
-  wincoo[0] = wincoo[2] = x;
-  wincoo[1] = wincoo[3] = y;
-  ioctl(fd, 0xC0C0, wincoo);
-
-  *data = 1;
-  data[1] = color;
-  ioctl(fd, 0xDADA, data);
-}
-
-void fill(unsigned count, unsigned short color)
-{
-  unsigned short data[1 + PIX_BUF_SIZ];
-
-  unsigned cnt = (count < PIX_BUF_SIZ) ? count : PIX_BUF_SIZ;
-  while (cnt)
-    data[cnt--] = color;
-
-  while (count)
-  {
-    cnt = (count < PIX_BUF_SIZ) ? count : PIX_BUF_SIZ;
-    *data = cnt;
-    ioctl(fd, 0xDADA, data);
-    count -= cnt;
-  }
+  param.color = color;
+  param.x = x;
+  param.y = y;
+  ioctl(fd, GPANEL_PIXEL, &param);
 }
 
 void lineh(unsigned x, unsigned y,
-           unsigned length, unsigned short color)
+           unsigned length, unsigned color)
 {
-  unsigned short wincoo[4];
+  struct gpanel_line_t param;
 
-  wincoo[0] = x;
-  wincoo[1] = wincoo[3] = y;
-  wincoo[2] = x + length - 1;
-  ioctl(fd, 0xC0C0, wincoo);
-
-  fill(length, color);
+  param.color = color;
+  param.x0 = x;
+  param.y0 = y;
+  param.x1 = x + length - 1;
+  param.y1 = y;
+  ioctl(fd, GPANEL_LINE, &param);
 }
 
 void linev(unsigned x, unsigned y,
-           unsigned length, unsigned short color)
+           unsigned length, unsigned color)
 {
-  unsigned short wincoo[4];
+  struct gpanel_line_t param;
 
-  wincoo[0] = wincoo[2] = x;
-  wincoo[1] = y;
-  wincoo[3] = y + length - 1;
-  ioctl(fd, 0xC0C0, wincoo);
-
-  fill(length, color);
+  param.color = color;
+  param.x0 = x;
+  param.y0 = y;
+  param.x1 = x;
+  param.y1 = y + length - 1;
+  ioctl(fd, GPANEL_LINE, &param);
 }
 
 void box(unsigned x, unsigned y,
          unsigned width, unsigned height,
-         unsigned short color,
-         int solid)
+         unsigned color, int solid)
 {
   if (solid)
   {
-    unsigned short wincoo[4];
+    struct gpanel_rect_t param;
 
-    wincoo[0] = x; wincoo[1] = y;
-    wincoo[2] = x + width - 1; wincoo[3] = y + height - 1;
-    ioctl(fd, 0xC0C0, wincoo);
-
-    fill(width * height, color);
+    param.color = color;
+    param.x0 = x;
+    param.y0 = y;
+    param.x1 = x + width - 1;
+    param.y1 = y + height - 1;
+    ioctl(fd, GPANEL_FILL, &param);
   }
   else
   {

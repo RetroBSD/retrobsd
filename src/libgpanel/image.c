@@ -29,7 +29,7 @@ void gpanel_image(int x, int y, int width, int height, const unsigned short *dat
     struct gpanel_image_t param;
 
     param.x = x;
-    param.y = x;
+    param.y = y;
     param.width = width;
     param.height = height;
     param.image = data;

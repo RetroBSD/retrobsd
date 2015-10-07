@@ -30,7 +30,7 @@ void gpanel_circle(int color, int x, int y, int radius)
 
     param.color = color;
     param.x = x;
-    param.y = x;
+    param.y = y;
     param.radius = radius;
     ioctl(_gpanel_fd, GPANEL_CIRCLE, &param);
 }

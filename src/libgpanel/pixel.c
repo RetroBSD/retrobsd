@@ -30,6 +30,6 @@ void gpanel_pixel(int color, int x, int y)
 
     param.color = color;
     param.x = x;
-    param.y = x;
+    param.y = y;
     ioctl(_gpanel_fd, GPANEL_PIXEL, &param);
 }

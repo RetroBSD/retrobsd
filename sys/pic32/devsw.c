@@ -319,8 +319,8 @@ const struct cdevsw cdevsw[] = {
 #endif
 #ifdef HXTFT_ENABLED
     hx8357_open,    hx8357_close,   hx8357_read,    hx8357_write,
-    hx8357_ioctl,   nulldev,        hx8357_ttys,    hx8357_select,
-    nostrategy,     hx8357_getc,    hx8357_putc,
+    hx8357_ioctl,   nulldev,        0,              seltrue,
+    nostrategy,     0,              0,
 #else
     NOCDEV
 #endif

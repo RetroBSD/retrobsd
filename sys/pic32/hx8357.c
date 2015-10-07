@@ -2,6 +2,7 @@
  * HX8357 TFT driver for PIC32.
  *
  * Copyright (C) 2014 Majenko Technologies <matt@majenko.co.uk>
+ * Copyright (C) 2015 Serge Vakulenko <serge@vak.ru>
  *
  * Permission to use, copy, modify, and distribute this software
  * and its documentation for any purpose and without fee is hereby
@@ -29,32 +30,8 @@
 #include <sys/uio.h>
 #include <sys/tty.h>
 #include <sys/kconfig.h>
+#include <sys/gpanel.h>
 #include <machine/hx8357.h>
-#include <sys/fonts/default.h>
-
-char frame[40][80];
-
-typedef struct {
-    unsigned char linesPerCharacter;
-    unsigned char bytesPerLine;
-    unsigned char startGlyph;
-    unsigned char endGlyph;
-    unsigned char bitsPerPixel;
-} FontHeader;
-
-struct tty hx8357_ttys[1];
-
-typedef struct {
-    union {
-        unsigned short value;
-        struct {
-            unsigned r:5;
-            unsigned g:6;
-            unsigned b:5;
-        } __attribute__((packed));
-    } __attribute__((packed));
-} __attribute__((packed)) Color565;
-
 
 #define HX8357_EXIT_SLEEP_MODE              0x11
 #define HX8357_SET_DISPLAY_OFF              0x28
@@ -77,49 +54,43 @@ typedef struct {
 #define HX8357_SET_PANEL_CHARACTERISTIC     0xCC
 #define HX8357_SET_GAMMA_CURVE              0xE0
 
-static int _width = 320;
-static int _height = 480;
+/*
+ * Display size.
+ */
+static int _width, _height;
 
-static int cursor_x = 0;
-static int cursor_y = 0;
+/*
+ * Cursor position for text output.
+ */
+static int _col, _row;
 
-static int rotation = 0;
-
-static unsigned short textcolor = 0x7BEF;
-static unsigned short texthicolor = 0xFFFF;
-static unsigned short textbgcolor = 0x0000;
-
-const unsigned char *font = Default;
-const unsigned char _font_width = 6;
-const unsigned char _font_height = 8;
-
-void inline static writeCommand(unsigned short c)
+static void writeCommand(int c)
 {
     while (PMMODE & PIC32_PMMODE_BUSY);
     PMADDR = 0x0000;
     PMDIN = c;
 }
 
-void inline static writeData(unsigned short c)
+static void writeData(int c)
 {
     while (PMMODE & PIC32_PMMODE_BUSY);
     PMADDR = 0x0001;
     PMDIN = c;
 }
 
-void initDisplay()
+static inline void initDisplay()
 {
     PMCONCLR = PIC32_PMCON_ON;
-    asm volatile("nop");
+    udelay(1);
 
     PMCONSET = PIC32_PMCON_PTWREN | PIC32_PMCON_PTRDEN;
     PMCONCLR = PIC32_PMCON_CSF;
-    PMAEN = 0x0001; // Enable PMA0 pin for RS pin and CS1 as CS
+    PMAEN = 0x0001;             // Enable PMA0 pin for RS pin and CS1 as CS
     PMMODE = PIC32_PMMODE_MODE16 | PIC32_PMMODE_MODE_MAST2;
     PMADDR = 0;
     PMCONSET = PIC32_PMCON_ON;
 
-    writeCommand(HX8357_EXIT_SLEEP_MODE); //Sleep Out
+    writeCommand(HX8357_EXIT_SLEEP_MODE);   //Sleep Out
     udelay(150000);
     writeCommand(HX8357_ENABLE_EXTENSION_COMMAND);
     writeData(0xFF);
@@ -148,10 +119,10 @@ void initDisplay()
     udelay(1000);
     writeCommand(HX8357_SET_INTERNAL_OSCILLATOR);
     writeData(0x68);
-    writeCommand(0xE3); //Unknown Command
+    writeCommand(0xE3);                     //Unknown Command
     writeData(0x2F);
     writeData(0x1F);
-    writeCommand(0xB5); //Set BGP
+    writeCommand(0xB5);                     //Set BGP
     writeData(0x01);
     writeData(0x01);
     writeData(0x67);
@@ -163,7 +134,7 @@ void initDisplay()
     writeData(0xC8);
     writeData(0x08);
     udelay(1000);
-    writeCommand(0xC2); // Set Gate EQ
+    writeCommand(0xC2);                     // Set Gate EQ
     writeData(0x00);
     writeData(0x08);
     writeData(0x04);
@@ -207,91 +178,55 @@ void initDisplay()
     writeData(0x00);
     writeData(0x01);
     udelay(1000);
-    writeCommand(HX8357_SET_PIXEL_FORMAT); //COLMOD RGB888
+    writeCommand(HX8357_SET_PIXEL_FORMAT);  //COLMOD RGB888
     writeData(0x55);
     writeCommand(HX8357_SET_ADDRESS_MODE);
     writeData(0x00);
-    writeCommand(HX8357_SET_TEAR_ON); //TE ON
+    writeCommand(HX8357_SET_TEAR_ON);       //TE ON
     writeData(0x00);
     udelay(10000);
-    writeCommand(HX8357_SET_DISPLAY_ON); //Display On
+    writeCommand(HX8357_SET_DISPLAY_ON);    //Display On
     udelay(10000);
     writeCommand(HX8357_WRITE_MEMORY_START); //Write SRAM Data
-    int l, c;
-    for (l = 0; l < 39; l++) {
-        for (c = 0; c < 80; c++) {
-            frame[l][c]=' ';
-        }
-    }
 }
 
-void inline static setAddrWindow(unsigned short x0, unsigned short y0, unsigned short x1, unsigned short y1)
+static void setAddrWindow(int x0, int y0, int x1, int y1)
 {
     writeCommand(HX8357_SET_COLUMN_ADDRESS); // Column addr set
-    writeData((x0) >> 8);
-    writeData(x0);     // XSTART
-    writeData((x1) >> 8);
-    writeData(x1);     // XEND
+    writeData(x0 >> 8);
+    writeData(x0);                          // XSTART
+    writeData(x1 >> 8);
+    writeData(x1);                          // XEND
 
-    writeCommand(HX8357_SET_PAGE_ADDRESS); // Row addr set
-    writeData((y0) >> 8);
-    writeData(y0);     // YSTART
-    writeData((y1) >> 8);
-    writeData(y1);     // YEND
+    writeCommand(HX8357_SET_PAGE_ADDRESS);  // Row addr set
+    writeData(y0 >> 8);
+    writeData(y0);                          // YSTART
+    writeData(y1 >> 8);
+    writeData(y1);                          // YEND
 
     writeCommand(HX8357_WRITE_MEMORY_START); //Write SRAM Data
 }
 
-void inline static setPixel(int x, int y, unsigned short color)
-{
-    if((x < 0) ||(x >= _width) || (y < 0) || (y >= _height))
-        return;
-    setAddrWindow(x,y,x+1,y+1);
-    while (PMMODE & PIC32_PMMODE_BUSY);
-    PMADDR = 0x0001;
-    PMDIN = color;
-}
-
-
-void inline static fillRectangle(int x, int y, int w, int h, unsigned short color)
-{
-    setAddrWindow(x, y, x+w-1, y+h-1);
-
-    while (PMMODE & PIC32_PMMODE_BUSY);
-    PMADDR = 0x0001;
-    for(y=h; y>0; y--) {
-        for(x=w; x>0; x--) {
-            while (PMMODE & PIC32_PMMODE_BUSY);
-            PMDIN = color;
-        }
-    }
-}
-
-void inline static setRotation(unsigned char m)
+static inline void setRotation(int rotation)
 {
     writeCommand(HX8357_SET_ADDRESS_MODE);
-    rotation = m % 4; // can't be higher than 3
-    switch (rotation) {
-    case 0:
-        //PORTRAIT
+    switch (rotation & 3) {
+    case 0:                     /* Portrait */
         writeData(0x0000);
         _width  = 320;
         _height = 480;
         break;
-    case 1:
-        //LANDSCAPE
+    case 1:                     /* Landscape */
         writeData(0x0060);
         _width  = 480;
         _height = 320;
         break;
-    case 2:
-        //UPSIDE DOWN PORTRAIT
+    case 2:                     /* Upside down portrait */
         writeData(0x00C0);
         _width  = 320;
         _height = 480;
         break;
-    case 3:
-        //UPSIDE DOWN LANDSCAPE
+    case 3:                     /* Upside down landscape */
         writeData(0x00A0);
         _width  = 480;
         _height = 320;
@@ -299,509 +234,417 @@ void inline static setRotation(unsigned char m)
     }
 }
 
-unsigned short inline static mix(unsigned short a, unsigned short b, unsigned char pct)
+/*
+ * Draw a pixel.
+ */
+static void setPixel(int x, int y, int color)
 {
-    Color565 col_a;
-    Color565 col_b;
-    Color565 col_out;
-    col_a.value = a;
-    col_b.value = b;
-    unsigned int temp;
-    temp = (((int)col_a.r * (255-pct)) / 255) + (((unsigned int)col_b.r * pct) / 255);
-    col_out.r = temp;
-    temp = (((int)col_a.g * (255-pct)) / 255) + (((unsigned int)col_b.g * pct) / 255);
-    col_out.g = temp;
-    temp = (((int)col_a.b * (255-pct)) / 255) + (((unsigned int)col_b.b * pct) / 255);
-    col_out.b = temp;
-    return col_out.value;
-}
-
-
-unsigned char drawChar(int x, int y, unsigned char c, unsigned short color, unsigned short bg)
-{
-    if (font == NULL) {
-        return 0;
-    }
-
-    FontHeader *header = (FontHeader *)font;
-
-    if (c < header->startGlyph || c > header->endGlyph) {
-        return 0;
-    }
-
-    c = c - header->startGlyph;
-
-    // Start of this character's data is the character number multiplied by the
-    // number of lines in a character (plus one for the character width) multiplied
-    // by the number of bytes in a line, and then offset by 4 for the header.
-    unsigned int charstart = (c * ((header->linesPerCharacter * header->bytesPerLine) + 1)) + sizeof(FontHeader); // Start of character data
-    unsigned char charwidth = font[charstart++]; // The first byte of a block is the width of the character
-
-    unsigned int bitmask = (1 << header->bitsPerPixel) - 1;
-
-    setAddrWindow(x, y, x + charwidth - 1, y + header->linesPerCharacter - 1);
-
-    char lineNumber = 0;
-    for (lineNumber = 0; lineNumber < header->linesPerCharacter; lineNumber++ ) {
-        unsigned char lineData = 0;
-
-        char bitsLeft = -1;
-        unsigned char byteNumber = 0;
-
-        char pixelNumber = 0;
-        for (pixelNumber = 0; pixelNumber < charwidth; pixelNumber++) {
-            if (bitsLeft <= 0) {
-                bitsLeft = 8;
-                lineData = font[charstart + (lineNumber * header->bytesPerLine) + (header->bytesPerLine - byteNumber - 1)];
-                byteNumber++;
-            }
-            unsigned int pixelValue = lineData & bitmask;
-            if (pixelValue > 0) {
-                writeData(color);
-            } else {
-                writeData(bg);
-            }
-            lineData >>= header->bitsPerPixel;
-            bitsLeft -= header->bitsPerPixel;
-        }
-    }
-    return charwidth;
-}
-
-void updateLine(int l)
-{
-    if (l < 0 || l > 39)
+    if (x < 0 || x >= _width || y < 0 || y >= _height)
         return;
-
-    int c;
-    for (c = 0; c < 80; c++) {
-        drawChar(c * _font_width, l * _font_height, frame[l][c] & 0x7F,
-            frame[l][c] & 0x80 ? texthicolor : textcolor, textbgcolor);
-    }
+    setAddrWindow(x, y, x+1, y+1);
+    while (PMMODE & PIC32_PMMODE_BUSY);
+    PMADDR = 0x0001;
+    PMDIN = color;
 }
 
-void scrollUp()
+/*
+ * Fill a rectangle with specified color.
+ */
+static void fillRectangle(int x0, int y0, int x1, int y1, int color)
 {
-    int l, c;
-    for (l = 0; l < 39; l++) {
-        for (c = 0; c < 80; c++) {
-            frame[l][c] = frame[l+1][c];
+    int x, y;
+
+    if (x1 < x0) {
+        int t = x0;
+        x0 = x1;
+        x1 = t;
+    }
+    if (y1 < y0) {
+        int t = y0;
+        y0 = y1;
+        y1 = t;
+    }
+    setAddrWindow(x0, y0, x1-1, y1-1);
+
+    while (PMMODE & PIC32_PMMODE_BUSY);
+    PMADDR = 0x0001;
+    for (y=y0; y<y1; y++) {
+        for (x=x0; x<x1; x++) {
+            while (PMMODE & PIC32_PMMODE_BUSY);
+            PMDIN = color;
         }
-        updateLine(l);
     }
-    for (c = 0; c < 80; c++) {
-        frame[39][c] = ' ';
-    }
-    updateLine(39);
 }
 
-int inEscape = 0;
-
-int edValPos = 0;
-int edVal[4];
-
-int bold = 0;
-
-void printChar(unsigned char c)
+/*
+ * Fill a rectangle with user data.
+ */
+static void drawImage(int x, int y, int width, int height,
+    const unsigned short *data)
 {
-    switch (c) {
-    case '\n':
-        cursor_y ++;
-        if (cursor_y > 39) {
-            scrollUp();
-            cursor_y = 39;
-        }
-        break;
-    case '\r':
-        cursor_x = 0;
-        break;
-    case 8:
-        cursor_x--;
-        if (cursor_x < 0) {
-            cursor_x = 79;
-            cursor_y--;
-            if (cursor_y < 0) {
-                cursor_y = 0;
-            }
-        }
-        break;
-    default:
-        frame[cursor_y][cursor_x] = c | (bold ? 0x80 : 0x00);
-        cursor_x++;
-        if (cursor_x == 80) {
-            cursor_x = 0;
-            cursor_y++;
-            if (cursor_y == 40) {
-                cursor_y = 39;
-                scrollUp();
-            }
-        }
-        updateLine(cursor_y);
+    unsigned cnt = width * height;
+
+    setAddrWindow(x, y, x + width - 1, y + height - 1);
+    while (PMMODE & PIC32_PMMODE_BUSY);
+    PMADDR = 0x0001;
+    while (cnt--) {
+        while (PMMODE & PIC32_PMMODE_BUSY);
+        PMDIN = *data++;
     }
 }
 
-int extended = 0;
+/*
+ * Draw a line.
+ */
+static void drawLine(int x0, int y0, int x1, int y1, int color)
+{
+    int dx, dy, stepx, stepy, fraction;
 
-void writeChar(unsigned char c)
+    if (x0 == x1 || y0 == y1) {
+        fillRectangle(x0, y0, x1, y1, color);
+        return;
+    }
+
+    /* Use Bresenham's line algorithm. */
+    dy = y1 - y0;
+    if (dy < 0) {
+        dy = -dy;
+        stepy = -1;
+    } else {
+        stepy = 1;
+    }
+    dx = x1 - x0;
+    if (dx < 0) {
+        dx = -dx;
+        stepx = -1;
+    } else {
+        stepx = 1;
+    }
+    dy <<= 1;                           /* dy is now 2*dy */
+    dx <<= 1;                           /* dx is now 2*dx */
+    setPixel(x0, y0, color);
+    if (dx > dy) {
+        fraction = dy - (dx >> 1);      /* same as 2*dy - dx */
+        while (x0 != x1) {
+            if (fraction >= 0) {
+                y0 += stepy;
+                fraction -= dx;         /* same as fraction -= 2*dx */
+            }
+            x0 += stepx;
+            fraction += dy;             /* same as fraction -= 2*dy */
+            setPixel(x0, y0, color);
+        }
+    } else {
+        fraction = dx - (dy >> 1);
+        while (y0 != y1) {
+            if (fraction >= 0) {
+                x0 += stepx;
+                fraction -= dy;
+            }
+            y0 += stepy;
+            fraction += dx;
+            setPixel(x0, y0, color);
+        }
+    }
+}
+
+/*
+ * Draw a rectangular frame.
+ */
+static void drawFrame(int x0, int y0, int x1, int y1, int color)
+{
+    fillRectangle(x0, y0, x1, y0, color);
+    fillRectangle(x0, y1, x1, y1, color);
+    fillRectangle(x0, y0, x0, y1, color);
+    fillRectangle(x1, y0, x1, y1, color);
+}
+
+/*
+ * Draw a circle.
+ */
+static void drawCircle(int x0, int y0, int radius, int color)
+{
+    int f = 1 - radius;
+    int ddF_x = 0;
+    int ddF_y = -2 * radius;
+    int x = 0;
+    int y = radius;
+
+    setPixel(x0, y0 + radius, color);
+    setPixel(x0, y0 - radius, color);
+    setPixel(x0 + radius, y0, color);
+    setPixel(x0 - radius, y0, color);
+    while (x < y) {
+        if (f >= 0) {
+            y--;
+            ddF_y += 2;
+            f += ddF_y;
+        }
+        x++;
+        ddF_x += 2;
+        f += ddF_x + 1;
+        setPixel(x0 + x, y0 + y, color);
+        setPixel(x0 - x, y0 + y, color);
+        setPixel(x0 + x, y0 - y, color);
+        setPixel(x0 - x, y0 - y, color);
+        setPixel(x0 + y, y0 + x, color);
+        setPixel(x0 - y, y0 + x, color);
+        setPixel(x0 + y, y0 - x, color);
+        setPixel(x0 - y, y0 - x, color);
+    }
+}
+
+/*
+ * Start a new line: increase row.
+ */
+static void newLine(const struct gpanel_font_t *font)
+{
+    _col = 0;
+    _row += font->height;
+    if (_row > _height - font->height)
+        _row = 0;
+}
+
+/*
+ * Draw a glyph of one symbol.
+ */
+void drawGlyph(const struct gpanel_font_t *font,
+    int color, int background, int width, const unsigned short *bits)
 {
     int i, j;
-    updateLine(cursor_y);
 
-    if (inEscape == 1) {
-        switch (c) {
-        case 27:
-            inEscape = 0;
-            printChar('^');
-            printChar('[');
-            break;
-        case '[':
-            extended = 1;
-            break;
-        case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-        case '9':
-            edVal[edValPos%4] *= 10;
-            edVal[edValPos%4] += c - '0';
-            break;
-        case ';':
-            edValPos++;
-            edVal[edValPos%4] = 0;
-            break;
-        case 'J':
-            if (extended == 1) {
-                if (edVal[0] == 0) {
-                    for (i = cursor_y; i < 40; i++) {
-                        for (j = 0; j < 80; j++) {
-                            frame[i][j] = ' ';
-                        }
-                        updateLine(i);
-                    }
-                } else if (edVal[0] == 1) {
-                    for (i = 0; i < cursor_y; i++) {
-                        for (j = 0; j < 80; j++) {
-                            frame[i][j] = ' ';
-                        }
-                        updateLine(i);
-                    }
-                } else if (edVal[0] == 2) {
-                    for (i = 0; i < 40; i++) {
-                        for (j = 0; j < 80; j++) {
-                            frame[i][j] = ' ';
-                        }
-                        updateLine(i);
-                    }
-                }
-            }
-            inEscape = 0;
-            break;
-        case 'H':
-            if (extended == 1) {
-                if (edVal[0] == 0) {
-                    edVal[0] = 1;
-                }
-                if (edVal[1] == 0) {
-                    edVal[1] = 1;
-                }
-                cursor_x = (edVal[1] - 1) % 80;
-                cursor_y = (edVal[0] - 1) % 40;
-            }
-            inEscape = 0;
-            break;
-        case 'm':
-            if (extended == 1) {
-                if (edVal[0] == 0) {
-                    bold = 0;
-                } else if (edVal[0] == 1) {
-                    bold = 1;
-                }
-            }
-            inEscape = 0;
-            break;
+    if (background >= 0) {
+        /*
+         * Clear background.
+         */
+        setAddrWindow(_col, _row, _col + width - 1, _row + font->height - 1);
+        while (PMMODE & PIC32_PMMODE_BUSY);
+        PMADDR = 0x0001;
 
-        case 'A':
-            if (extended == 0) {
-                cursor_y--;
-                if (cursor_y > 0) {
-                    cursor_y = 39;
-                }
-            }
-            inEscape = 0;
-            break;
+        /* Loop on each glyph row, backwards from bottom to top. */
+        for (i=0; i<font->height; i++) {
+            unsigned glyph_row = bits[i];
 
-        case 'B':
-            if (extended == 0) {
-                cursor_y++;
-                if (cursor_y == 40) {
-                    cursor_y = 0;
-                }
+            /* Loop on every two pixels in the row (left to right). */
+            for (j=0; j<width; j++) {
+                while (PMMODE & PIC32_PMMODE_BUSY);
+                if (glyph_row & 0x8000)
+                    PMDIN = color;
+                else
+                    PMDIN = background;
+                glyph_row <<= 1;
             }
-            inEscape = 0;
-            break;
-
-        case 'C':
-            if (extended == 0) {
-                cursor_x++;
-                if (cursor_x == 80) {
-                    cursor_x = 0;
-                    cursor_y++;
-                    if (cursor_y == 40) {
-                        cursor_y = 0;
-                    }
-                }
-            }
-            inEscape = 0;
-            break;
-
-        case 'D':
-            if (extended == 0) {
-                cursor_x--;
-                if (cursor_x < 0) {
-                    cursor_x = 79;
-                    cursor_y--;
-                    if (cursor_y < 0) {
-                        cursor_y = 39;
-                    }
-                }
-            }
-            inEscape = 0;
-            break;
-
-        case 'K':
-            if (extended == 1) {
-                if (edVal[0] == 0) {
-                    for (i = cursor_x; i < 80; i++) {
-                        frame[cursor_y][i] = ' ';
-                    }
-                } else if (edVal[1] == 1) {
-                    for (i = 0; i < cursor_x; i++) {
-                        frame[cursor_y][i] = ' ';
-                    }
-                } else {
-                    for (i = 0; i < 80; i++) {
-                        frame[cursor_y][i] = ' ';
-                    }
-                }
-                updateLine(cursor_y);
-            }
-            inEscape = 0;
-            break;
-
-        default:
-            if (extended) {
-                printf("Unhandled extended escape code %c\n", c);
-            } else {
-                printf("Unhandled escape code %c\n", c);
-            }
-            inEscape = 0;
-            break;
-       }
+        }
     } else {
-        if (c == 27) {
-            inEscape = 1;
-            extended = 0;
-            edVal[0] = 0;
-            edValPos = 0;
-        } else {
-            printChar(c);
+        /*
+         * Transparent background.
+         */
+        /* Loop on each glyph row, backwards from bottom to top. */
+        for (i=0; i<font->height; i++) {
+            unsigned glyph_row = bits[i];
+
+            /* Loop on every two pixels in the row (left to right). */
+            for (j=0; j<width; j++) {
+                if (glyph_row & 0x8000)
+                    setPixel(_col + j, _row + i, color);
+                glyph_row <<= 1;
+            }
         }
     }
-    drawChar(cursor_x * _font_width, cursor_y * _font_height,
-        frame[cursor_y][cursor_x] & 0x7F, 0x0000,
-        bold ? texthicolor : textcolor);
-#if 0
-    for (i = 0; i < _font_width; i++) {
-        setPixel(cursor_x * _font_width + i,
-            (cursor_y + 1) * _font_height - 1, 0xFFFF);
-    }
-#endif
 }
 
-void hx8357_start(struct tty *tp)
+/*
+ * Draw a character from a specified font.
+ */
+static void drawChar(const struct gpanel_font_t *font,
+    int color, int background, int sym)
 {
-    register int s;
+    unsigned cindex, width;
+    const unsigned short *bits;
 
-    s = spltty();
-    ttyowake(tp);
-//    tp->t_state &= TS_BUSY;
-    if (tp->t_outq.c_cc > 0) {
-        led_control (LED_TTY, 1);
-        while (tp->t_outq.c_cc != 0) {
-            int c = getc (&tp->t_outq);
-            writeChar(c);
-        }
-        led_control (LED_TTY, 0);
+    switch (sym) {
+    case '\n':      /* goto next line */
+        newLine(font);
+        return;
+    case '\r':      /* carriage return - go to begin of line */
+        _col = 0;
+        return;
+    case '\t':      /* tab replaced by space */
+        sym = ' ';
+        break;
     }
-//    tp->t_state |= TS_BUSY;
-    splx (s);
+
+    if (sym < font->firstchar || sym >= font->firstchar + font->size)
+        sym = font->defaultchar;
+    cindex = sym - font->firstchar;
+
+    /* Get font bitmap depending on fixed pitch or not. */
+    if (font->width) {
+        /* Proportional font. */
+        width = font->width[cindex];
+    } else {
+        /* Fixed width font. */
+        width = font->maxwidth;
+    }
+    if (font->offset) {
+        bits = font->bits + font->offset[cindex];
+    } else {
+        bits = font->bits + cindex * font->height;
+    }
+
+    /* Scrolling. */
+    if (_col > _width - width) {
+        newLine(font);
+    }
+
+    /* Draw a character. */
+    drawGlyph(font, color, background, width, bits);
+    _col += width;
 }
 
-void hx8357_init()
+/*
+ * Draw a string of characters.
+ * TODO: Decode UTF-8.
+ */
+static void drawText(const struct gpanel_font_t *font,
+    int color, int background, int x, int y, const char *text)
 {
-    initDisplay();
-    setRotation(1);
-    int i,j;
-    for (i = 0; i < 40; i++) {
-        for (j = 0; j < 80; j++) {
-            frame[i][j] = ' ';
-        }
-        updateLine(i);
+    int sym;
+
+    _col = x;
+    _row = y;
+    for (;;) {
+        sym = *text++;
+        if (! sym)
+            break;
+
+        drawChar(font, color, background, sym);
     }
 }
-
-int ttyIsOpen = 0;
 
 int hx8357_open(dev_t dev, int flag, int mode)
 {
-    int unit = minor(dev);
-
-    if (unit == 0) {
-        ttyIsOpen = 1;
-        struct tty *tp = &hx8357_ttys[0];
-        tp->t_oproc = hx8357_start;
-        tp->t_state = TS_ISOPEN | TS_CARR_ON;
-        tp->t_flags = ECHO | XTABS | CRMOD | CRTBS | CRTERA | CTLECH | CRTKIL;
-        return ttyopen(dev, tp);
-    }
-    if (unit == 1) {
-        if (!ttyIsOpen) {
-            return EIO;
-        }
-        return 0;
-    }
-    return ENODEV;
+    if (minor(dev) != 0)
+        return ENODEV;
+    return 0;
 }
 
 int hx8357_close(dev_t dev, int flag, int mode)
 {
-    int unit = minor(dev);
-
-    if (unit == 0) {
-        ttyIsOpen = 0;
-        struct tty *tp = &hx8357_ttys[0];
-        ttyclose(tp);
-        return 0;
-    }
-
-    if (unit == 1) {
-        return 0;
-    }
-    return ENODEV;
+    return 0;
 }
 
 int hx8357_read(dev_t dev, struct uio *uio, int flag)
 {
-    int unit = minor(dev);
-
-    if (unit == 0) {
-        struct tty *tp = &hx8357_ttys[unit];
-        return ttread(tp, uio, flag);
-    }
-    if (unit == 1) {
-        return EIO;
-    }
-
     return ENODEV;
 }
 
 int hx8357_write(dev_t dev, struct uio *uio, int flag)
 {
-    int unit = minor(dev);
-
-    if (unit == 0) {
-        struct tty *tp = &hx8357_ttys[0];
-        return ttwrite(tp, uio, flag);
-    }
-
-    if (unit == 1) {
-        if (!ttyIsOpen) {
-            return EIO;
-        }
-        struct tty *tp = &hx8357_ttys[0];
-        struct iovec *iov = uio->uio_iov;
-
-        while (iov->iov_len  > 0) {
-            ttyinput(*(iov->iov_base), tp);
-            iov->iov_base ++;
-            iov->iov_len --;
-            uio->uio_resid --;
-            uio->uio_offset ++;
-        }
-        return 0;
-    }
     return ENODEV;
 }
 
+/*
+ * TODO: check whether user pointers are valid.
+ */
 int hx8357_ioctl(dev_t dev, register u_int cmd, caddr_t addr, int flag)
 {
-    int unit = minor(dev);
+    switch (cmd) {
+        /*
+         * Clear the whole screen with a given color.
+         */
+        case GPANEL_CLEAR: {
+            int color = (int) addr;
 
-    if (unit == 0) {
-#if 0
-        struct tty *tp = &hx8357_ttys[unit];
-        int error;
-
-        error = ttioctl(tp, cmd, addr, flag);
-        if (error < 0)
-            error = ENOTTY;
-        return (error);
-#else
-        switch (cmd) {
-            case 0xC0C0: {
-                unsigned short* wndcoo = (unsigned short*)addr;
-                setAddrWindow(wndcoo[0], wndcoo[1], wndcoo[2], wndcoo[3]);
-                break;
-            }
-            case 0xDADA: {
-                unsigned short* data = (unsigned short*)addr;
-                unsigned short cnt = *data++;
-                while (PMMODE & PIC32_PMMODE_BUSY);
-                PMADDR = 0x0001;
-                while (cnt--) {
-                  while (PMMODE & PIC32_PMMODE_BUSY);
-                  PMDIN = *data++;
-                }
-                break;
-            }
+            fillRectangle(0, 0, _width, _height, color);
+            break;
         }
-        return 0;
-#endif
+
+        /*
+         * Draw a single pixel.
+         */
+        case GPANEL_PIXEL: {
+            struct gpanel_pixel_t *param = (struct gpanel_pixel_t*) addr;
+
+            setPixel(param->x, param->y, param->color);
+            break;
+        }
+
+        /*
+         * Draw a line.
+         */
+        case GPANEL_LINE: {
+            struct gpanel_line_t *param = (struct gpanel_line_t*) addr;
+
+            drawLine(param->x0, param->y0, param->x1, param->y1, param->color);
+            break;
+        }
+
+        /*
+         * Draw a rectangle frame.
+         */
+        case GPANEL_RECT: {
+            struct gpanel_rect_t *param = (struct gpanel_rect_t*) addr;
+
+            drawFrame(param->x0, param->y0, param->x1, param->y1, param->color);
+            break;
+        }
+
+        /*
+         * Fill a rectangle with color.
+         */
+        case GPANEL_FILL: {
+            struct gpanel_rect_t *param = (struct gpanel_rect_t*) addr;
+
+            fillRectangle(param->x0, param->y0, param->x1, param->y1, param->color);
+            break;
+        }
+
+        /*
+         * Draw a circle.
+         */
+        case GPANEL_CIRCLE: {
+            struct gpanel_circle_t *param = (struct gpanel_circle_t*) addr;
+
+            drawCircle(param->x, param->y, param->radius, param->color);
+            break;
+        }
+
+        /*
+         * Fill a rectangular area with the user-supplied data.
+         */
+        case GPANEL_IMAGE: {
+            struct gpanel_image_t *param = (struct gpanel_image_t*) addr;
+
+            drawImage(param->x, param->y, param->width, param->height,
+                param->image);
+            break;
+        }
+
+        /*
+         * Draw a character.
+         */
+        case GPANEL_CHAR: {
+            struct gpanel_char_t *param = (struct gpanel_char_t*) addr;
+
+            _col = param->x;
+            _row = param->y;
+            drawChar(param->font, param->color, param->background, param->sym);
+            break;
+        }
+
+        /*
+         * Draw a string of characters.
+         */
+        case GPANEL_TEXT: {
+            struct gpanel_text_t *param = (struct gpanel_text_t*) addr;
+
+            drawText(param->font, param->color, param->background,
+                param->x, param->y, param->text);
+            break;
+        }
     }
-    if (unit == 1) {
-        return EIO;
-    }
-
-    return ENODEV;
-
-}
-
-void hx8357_putc(dev_t dev, char c)
-{
-    writeChar(c);
-}
-
-char hx8357_getc(dev_t dev)
-{
     return 0;
-}
-
-int hx8357_select (dev_t dev, int rw)
-{
-    int unit = minor(dev);
-    if (unit == 0) {
-        struct tty *tp = &hx8357_ttys[unit];
-        return (ttyselect (tp, rw));
-    }
-    if (unit == 1) {
-        return EIO;
-    }
-    return ENODEV;
 }
 
 /*
@@ -812,9 +655,9 @@ static int
 hxtftprobe(config)
     struct conf_device *config;
 {
-    int flags = config->dev_flags;
-
-    printf("hxtft0: flags %#x\n", flags);
+    initDisplay();
+    setRotation(1);
+    printf("hxtft0: display %ux%u\n", _height, _width);
     return 1;
 }
 

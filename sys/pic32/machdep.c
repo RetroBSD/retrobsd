@@ -671,13 +671,16 @@ boot(dev, howto)
 
 /*
  * Microsecond delay routine for MIPS processor.
+ *
+ * We rely on a hardware register Count, which is increased
+ * every next clock cycle, i.e. at rate CPU_KHZ/2 per millisecond.
  */
 void
 udelay(usec)
     u_int usec;
 {
     unsigned now = mips_read_c0_register(C0_COUNT, 0);
-    unsigned final = now + usec * (CPU_KHZ / 1000);
+    unsigned final = now + usec * (CPU_KHZ / 1000) / 2;
 
     for (;;) {
         now = mips_read_c0_register(C0_COUNT, 0);

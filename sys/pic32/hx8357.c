@@ -207,7 +207,7 @@ static void setAddrWindow(int x0, int y0, int x1, int y1)
     writeCommand(HX8357_WRITE_MEMORY_START); //Write SRAM Data
 }
 
-static inline void setRotation(int rotation)
+static void setRotation(int rotation)
 {
     writeCommand(HX8357_SET_ADDRESS_MODE);
     switch (rotation & 3) {
@@ -554,9 +554,21 @@ int hx8357_ioctl(dev_t dev, register u_int cmd, caddr_t addr, int flag)
          * Clear the whole screen with a given color.
          */
         case GPANEL_CLEAR: {
-            int color = (int) addr;
+            struct gpanel_clear_t *param = (struct gpanel_clear_t*) addr;
 
-            fillRectangle(0, 0, _width, _height, color);
+            if (param->xsize != _width || param->ysize != _height) {
+                /* Change the screen orientation. */
+                if (param->xsize > param->ysize) {
+                    /* Landscape */
+                    setRotation(1);
+                } else if (param->xsize < param->ysize) {
+                    /* Portrait */
+                    setRotation(0);
+                }
+            }
+            fillRectangle(0, 0, _width, _height, param->color);
+            param->xsize = _width;
+            param->ysize = _height;
             break;
         }
 

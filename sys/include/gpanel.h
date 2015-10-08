@@ -46,6 +46,11 @@ struct gpanel_pixel_t {
     int             x, y;           /* pixel position */
 };
 
+struct gpanel_clear_t {
+    int             color;          /* pixel color */
+    int             xsize, ysize;   /* screen size */
+};
+
 struct gpanel_line_t {
     int             color;          /* line color */
     int             x0, y0;         /* start point */
@@ -86,7 +91,7 @@ struct gpanel_text_t {
     const char      *text;          /* UTF-8 text */
 };
 
-#define GPANEL_CLEAR       _IOW('g', 1, int)
+#define GPANEL_CLEAR       _IOW('g', 1, struct gpanel_clear_t)
 #define GPANEL_PIXEL       _IOW('g', 2, struct gpanel_pixel_t)
 #define GPANEL_LINE        _IOW('g', 3, struct gpanel_line_t)
 #define GPANEL_RECT        _IOW('g', 4, struct gpanel_rect_t)
@@ -102,7 +107,7 @@ struct gpanel_text_t {
  */
 int gpanel_open(const char *devname);
 void gpanel_close(void);
-void gpanel_clear(int color);
+void gpanel_clear(int color, int *xsize, int *ysize);
 void gpanel_pixel(int color, int x, int y);
 void gpanel_line(int color, int x0, int y0, int x1, int y1);
 void gpanel_rect(int color, int x0, int y0, int x1, int y1);

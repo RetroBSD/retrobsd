@@ -24,7 +24,16 @@
 #include <sys/ioctl.h>
 #include <sys/gpanel.h>
 
-void gpanel_clear(int color)
+void gpanel_clear(int color, int *xsize, int *ysize)
 {
-    ioctl(_gpanel_fd, GPANEL_CLEAR, color);
+    struct gpanel_clear_t param;
+
+    param.color = color;
+    param.xsize = xsize ? *xsize : 0;
+    param.ysize = ysize ? *ysize : 0;
+    ioctl(_gpanel_fd, GPANEL_CLEAR, &param);
+    if (xsize)
+        *xsize = param.xsize;
+    if (ysize)
+        *ysize = param.ysize;
 }

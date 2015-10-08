@@ -36,10 +36,21 @@ options         "CONS_MINOR=0"              # /dev/tty0
 
 # SPI ports
 controller      spi2                        # SD card
+controller      spi4                        # SPI header
 
 # microSD card
 device          sd0     at spi2 pin RG9     # select pin
 options         "SD_MHZ=10"                 # speed 10 MHz
+
+# General purpose I/O ports
+# Flags define a mask of available pins
+device          gpio0   flags 0xc6fd        # port A
+device          gpio1   flags 0x4fff        # port B
+device          gpio2   flags 0x0010        # port C
+device          gpio3   flags 0xcf0f        # port D
+device          gpio4   flags 0x0300        # port E
+device          gpio5   flags 0x110c        # port F
+device          gpio6   flags 0xf000        # port G
 
 # ADC driver
 device          adc

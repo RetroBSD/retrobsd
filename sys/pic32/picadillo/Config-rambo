@@ -41,6 +41,16 @@ controller      spi4                        # RAM disk: spirams
 device          sd0     at spi2 pin RG9     # select pin
 options         "SD0_MHZ=10"                # speed 10 MHz
 
+# General purpose I/O ports
+# Flags define a mask of available pins
+device          gpio0   flags 0xc608        # port A
+device          gpio1   flags 0x0fff        # port B
+device          gpio2   flags 0x0010        # port C
+device          gpio3   flags 0x8e09        # port D
+device          gpio4   flags 0x0300        # port E
+device          gpio5   flags 0x110c        # port F
+device          gpio6   flags 0x8000        # port G
+
 # ADC driver
 device          adc
 
@@ -52,22 +62,9 @@ device          hxtft
 
 # spirams - SPI block device
 device          sr0 at spi4
-options         "SPIRAMS_PORT=SPI4CON"      # TODO: delete this option
+                pins RA0,  RA1,  RA4,  RA5, # chip select signals
+                     RA2,  RD1,  RD2,  RB14,
+                     RD14, RD8,  RA6,  RA7,
+                     RG14, RG12, RG13, RF5
 options         "SPIRAMS_CHIPSIZE=128"      # chip size in kbytes
 options         "SPIRAMS_CHIPS=16"          # number of chips
-signal          "SPIRAMS_CS0"   pin RA0
-signal          "SPIRAMS_CS1"   pin RA1
-signal          "SPIRAMS_CS2"   pin RA4
-signal          "SPIRAMS_CS3"   pin RA5
-signal          "SPIRAMS_CS4"   pin RA2
-signal          "SPIRAMS_CS5"   pin RD1
-signal          "SPIRAMS_CS6"   pin RD2
-signal          "SPIRAMS_CS7"   pin RB14
-signal          "SPIRAMS_CS8"   pin RD14
-signal          "SPIRAMS_CS9"   pin RD8
-signal          "SPIRAMS_CS10"  pin RA6
-signal          "SPIRAMS_CS11"  pin RA7
-signal          "SPIRAMS_CS12"  pin RG14
-signal          "SPIRAMS_CS13"  pin RG12
-signal          "SPIRAMS_CS14"  pin RG13
-signal          "SPIRAMS_CS15"  pin RF5

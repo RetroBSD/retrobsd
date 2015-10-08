@@ -19,7 +19,9 @@
 #define CPU_TIMO_WAIT_WDONE     10
 #define CPU_TIMO_WAIT_WSTOP     11
 #define CPU_TIMO_WAIT_WIDLE     12
-#define CPU_MAXID               13      /* number of valid machdep ids */
+#define CPU_FREQ_KHZ            13      /* processor clock in kHz */
+#define CPU_BUS_KHZ             14      /* i/o bus clock in kHz */
+#define CPU_MAXID               15      /* number of valid machdep ids */
 
 #ifndef KERNEL
 #define CTL_MACHDEP_NAMES { \
@@ -36,5 +38,7 @@
     { "sd_timeout_wait_wdone", CTLTYPE_INT }, \
     { "sd_timeout_wait_wstop", CTLTYPE_INT }, \
     { "sd_timeout_wait_widle", CTLTYPE_INT }, \
+    { "cpu_khz", CTLTYPE_INT }, \
+    { "bus_khz", CTLTYPE_INT }, \
 }
 #endif

@@ -404,10 +404,6 @@ startup()
 #if CONS_MAJOR == UARTUSB_MAJOR
     usbinit();
 #endif
-#if CONS_MAJOR == HXTFT_MAJOR
-    hx8357_init();
-#endif
-    cninit();
 
     /* Get total RAM size. */
     physmem = BMXDRMSZ;

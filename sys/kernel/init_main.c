@@ -108,7 +108,6 @@ main()
     startup();
     printf ("\n%s", version);
     kconfig();
-    cnidentify();
 
     /*
      * Set up system process 0 (swapper).

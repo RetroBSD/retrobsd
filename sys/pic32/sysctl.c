@@ -290,14 +290,15 @@ cpu_sysctl (name, namelen, oldp, oldlenp, newp, newlen)
     void *newp;
     size_t newlen;
 {
-    int i;
+    int i, khz;
+    dev_t dev;
 
     switch (name[0]) {
     case CPU_CONSDEV:
         if (namelen != 1)
             return ENOTDIR;
-        return sysctl_rdstruct (oldp, oldlenp, newp,
-                &cnttys[0].t_dev, sizeof &cnttys[0].t_dev);
+        dev = makedev(CONS_MAJOR, CONS_MINOR);
+        return sysctl_rdstruct (oldp, oldlenp, newp, &dev, sizeof dev);
 #if NTMSCP > 0
     case CPU_TMSCP:
         /* All sysctl names at this level are terminal */
@@ -355,6 +356,17 @@ cpu_sysctl (name, namelen, oldp, oldlenp, newp, newlen)
         return sysctl_int(oldp, oldlenp, newp, newlen, &sd_timo_wait_wstop);
     case CPU_TIMO_WAIT_WIDLE:
         return sysctl_int(oldp, oldlenp, newp, newlen, &sd_timo_wait_widle);
+
+    case CPU_FREQ_KHZ:
+        if (namelen != 1)
+            return ENOTDIR;
+        khz = CPU_KHZ;
+        return sysctl_rdstruct (oldp, oldlenp, newp, &khz, sizeof khz);
+    case CPU_BUS_KHZ:
+        if (namelen != 1)
+            return ENOTDIR;
+        khz = BUS_KHZ;
+        return sysctl_rdstruct (oldp, oldlenp, newp, &khz, sizeof khz);
 
     default:
         return EOPNOTSUPP;

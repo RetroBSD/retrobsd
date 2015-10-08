@@ -14,49 +14,48 @@
 #include <machine/uart.h>
 #include <machine/usb_uart.h>
 
-dev_t console_device = -1;
-
 struct tty cnttys [1];
 
-void cninit()
+int cnopen(dev_t cn, int flag, int mode)
 {
-    console_device = makedev(CONS_MAJOR, CONS_MINOR);
+    dev_t dev = makedev(CONS_MAJOR, CONS_MINOR);
+
+    return cdevsw[CONS_MAJOR].d_open(dev, flag, mode);
 }
 
-void cnidentify()
+int cnclose (dev_t cn, int flag, int mode)
 {
-    //printf ("console: %s (%d,%d)\n", cdevname(console_device),
-    //    CONS_MAJOR, CONS_MINOR);
+    dev_t dev = makedev(CONS_MAJOR, CONS_MINOR);
+
+    return cdevsw[CONS_MAJOR].d_close(dev, flag, mode);
 }
 
-int cnopen(dev_t dev, int flag, int mode)
+int cnread(dev_t cn, struct uio *uio, int flag)
 {
-    return cdevsw[CONS_MAJOR].d_open(console_device, flag, mode);
+    dev_t dev = makedev(CONS_MAJOR, CONS_MINOR);
+
+    return cdevsw[CONS_MAJOR].d_read(dev, uio, flag);
 }
 
-int cnclose (dev_t dev, int flag, int mode)
+int cnwrite(dev_t cn, struct uio *uio, int flag)
 {
-    return cdevsw[CONS_MAJOR].d_close(console_device, flag, mode);
+    dev_t dev = makedev(CONS_MAJOR, CONS_MINOR);
+
+    return cdevsw[CONS_MAJOR].d_write(dev, uio, flag);
 }
 
-int cnread(dev_t dev,register struct uio *uio, int flag)
+int cnselect(dev_t cn, int rw)
 {
-    return cdevsw[CONS_MAJOR].d_read(console_device, uio, flag);
+    dev_t dev = makedev(CONS_MAJOR, CONS_MINOR);
+
+    return cdevsw[CONS_MAJOR].d_select(dev, rw);
 }
 
-int cnwrite(dev_t dev,register struct uio *uio, int flag)
+int cnioctl(dev_t cn, u_int cmd, caddr_t addr, int flag)
 {
-    return cdevsw[CONS_MAJOR].d_write(console_device, uio, flag);
-}
+    dev_t dev = makedev(CONS_MAJOR, CONS_MINOR);
 
-int cnselect(dev_t dev, int rw)
-{
-    return cdevsw[CONS_MAJOR].d_select(console_device, rw);
-}
-
-int cnioctl(dev_t dev, register u_int cmd, caddr_t addr, int flag)
-{
-    return cdevsw[CONS_MAJOR].d_ioctl(console_device, cmd, addr, flag);
+    return cdevsw[CONS_MAJOR].d_ioctl(dev, cmd, addr, flag);
 }
 
 /*
@@ -65,7 +64,9 @@ int cnioctl(dev_t dev, register u_int cmd, caddr_t addr, int flag)
 void cnputc(char c)
 {
     if (cdevsw[CONS_MAJOR].r_write) {
-        cdevsw[CONS_MAJOR].r_write(console_device, c);
+        dev_t dev = makedev(CONS_MAJOR, CONS_MINOR);
+
+        cdevsw[CONS_MAJOR].r_write(dev, c);
     } else {
         putc(c, &cdevsw[CONS_MAJOR].d_ttys[CONS_MINOR].t_outq);
         ttstart(&cdevsw[CONS_MAJOR].d_ttys[CONS_MINOR]);
@@ -78,10 +79,12 @@ void cnputc(char c)
 /*
  * Receive a symbol from console terminal.
  */
-int cngetc ()
+int cngetc()
 {
     if (cdevsw[CONS_MAJOR].r_read) {
-        return cdevsw[CONS_MAJOR].r_read(console_device);
+        dev_t dev = makedev(CONS_MAJOR, CONS_MINOR);
+
+        return cdevsw[CONS_MAJOR].r_read(dev);
     } else {
         return getc(&cdevsw[CONS_MAJOR].d_ttys[CONS_MINOR].t_rawq);
     }

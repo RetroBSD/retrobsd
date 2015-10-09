@@ -420,7 +420,8 @@ static void newLine(const struct gpanel_font_t *font)
 void drawGlyph(const struct gpanel_font_t *font,
     int color, int background, int width, const unsigned short *bits)
 {
-    int i, j;
+    int h, w;
+    unsigned bitmask = 0;
 
     if (background >= 0) {
         /*
@@ -430,33 +431,38 @@ void drawGlyph(const struct gpanel_font_t *font,
         while (PMMODE & PIC32_PMMODE_BUSY);
         PMADDR = 0x0001;
 
-        /* Loop on each glyph row, backwards from bottom to top. */
-        for (i=0; i<font->height; i++) {
-            unsigned glyph_row = bits[i];
+        /* Loop on each glyph row. */
+        for (h=0; h<font->height; h++) {
+            /* Loop on every pixel in the row (left to right). */
+            for (w=0; w<width; w++) {
+                if ((w & 15) == 0)
+                    bitmask = *bits++;
+                else
+                    bitmask <<= 1;
 
-            /* Loop on every two pixels in the row (left to right). */
-            for (j=0; j<width; j++) {
-                while (PMMODE & PIC32_PMMODE_BUSY);
-                if (glyph_row & 0x8000)
+                while (PMMODE & PIC32_PMMODE_BUSY)
+                    ;
+                if (bitmask & 0x8000)
                     PMDIN = color;
                 else
                     PMDIN = background;
-                glyph_row <<= 1;
             }
         }
     } else {
         /*
          * Transparent background.
          */
-        /* Loop on each glyph row, backwards from bottom to top. */
-        for (i=0; i<font->height; i++) {
-            unsigned glyph_row = bits[i];
+        /* Loop on each glyph row. */
+        for (h=0; h<font->height; h++) {
+            /* Loop on every pixel in the row (left to right). */
+            for (w=0; w<width; w++) {
+                if ((w & 15) == 0)
+                    bitmask = *bits++;
+                else
+                    bitmask <<= 1;
 
-            /* Loop on every two pixels in the row (left to right). */
-            for (j=0; j<width; j++) {
-                if (glyph_row & 0x8000)
-                    setPixel(_col + j, _row + i, color);
-                glyph_row <<= 1;
+                if (bitmask & 0x8000)
+                    setPixel(_col + w, _row + h, color);
             }
         }
     }

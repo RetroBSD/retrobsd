@@ -1,0 +1,173 @@
+.\" No copyright (2015) - Serge Vakulenko (serge@vak.ru)
+.\"
+.TH GPANEL 3 "October 9, 2015"
+.UC 6
+.SH NAME
+gpanel_open, gpanel_close, gpanel_clear, gpanel_pixel, gpanel_line, gpanel_rect, gpanel_fill, gpanel_circle, gpanel_image, gpanel_char, gpanel_text, panel_text_width \- graphics panel routines
+.SH SYNOPSIS
+.nf
+.PP
+.ft B
+#include <sys/gpanel.h>
+.PP
+.ft B
+int gpanel_open(const char *devname);
+.PP
+.ft B
+void gpanel_close(void);
+.PP
+.ft B
+void gpanel_clear(int color, int *xsize, int *ysize);
+.PP
+.ft B
+void gpanel_pixel(int color, int x, int y);
+.PP
+.ft B
+void gpanel_line(int color, int x0, int y0, int x1, int y1);
+.PP
+.ft B
+void gpanel_rect(int color, int x0, int y0, int x1, int y1);
+.PP
+.ft B
+void gpanel_fill(int color, int x0, int y0, int x1, int y1);
+.PP
+.ft B
+void gpanel_circle(int color, int x, int y, int radius);
+.PP
+.ft B
+void gpanel_image(int x, int y, int width, int height,
+                  const unsigned short *data);
+.PP
+.ft B
+void gpanel_char(const struct gpanel_font_t *font, int color,
+                 int background, int x, int y, int sym);
+.PP
+.ft B
+void gpanel_text(const struct gpanel_font_t *font, int color,
+                 int background, int x, int y, const char *text);
+.PP
+.ft B
+int gpanel_text_width(const struct gpanel_font_t *font,
+                      const char *text, int nchars);
+.fi
+.bp
+.SH DESCRIPTION
+This library provides a set of routines for access to a graphics panel
+like TFT LCD or OLED displays.  HX8357 display on a Picadillo-35T board
+is an example of such display. Use cc option
+.I -lgpanel
+to link the gpanel library.
+.PP
+.IR gpanel_open
+\- This routine opens a connection to the display driver.
+The argument to this function is the name of the device, like "/dev/tft0".
+Negative value is returned in case of error.
+.PP
+.IR gpanel_close
+\- Close a connection to the device.
+.PP
+.IR gpanel_clear
+\- This routine is used to clear the whole screen to a given color,
+optionally switch the display resolution and orientation,
+and get the display size in pixels.
+On input, parameters
+.I xsize
+and
+.I ysize
+should contain the desired dimensions of the display, or zeros to use
+the default screen size and orientation. On output,
+.I xsize
+and
+.I ysize
+are set to the current display size.
+.PP
+.IR gpanel_pixel
+\- Draw a single pixel of a specified color.
+.PP
+.IR gpanel_line
+\- Draw a line.
+.PP
+.IR gpanel_rect
+\- Draw a rectangular frame (not filled).
+.PP
+.IR gpanel_fill
+\- Draw a rectangle filled with specified color.
+.PP
+.IR gpanel_circle
+\- Draw a circle with a given center and radius.
+.PP
+.IR gpanel_image
+\- Draw an arbitrary image: fill a rectangular area with pixel values
+from a user-supplied data.
+.PP
+.IR gpanel_char
+\- Draw a single character with a specified Unicode encoding.
+.PP
+.IR gpanel_text
+\- Draw a text string in UTF-8 encoding.
+.PP
+.IR gpanel_text_width
+\- Compute a width in pixels for a text string in UTF-8 encoding.
+.PP
+.SH EXAMPLE
+.ft R
+#include <stdio.h>
+.br
+#include <sys/gpanel.h>
+
+int main()
+.br
+{
+    int xsize, ysize;
+
+    if (gpanel_open("/dev/tft0") < 0) {
+        printf("Cannot open display\n");
+        exit(-1);
+    }
+    /* Get screen size */
+    gpanel_clear(0, &xsize, &ysize);
+
+    /* Draw a white rectangle of max size */
+    gpanel_rect(0xffff, 0, 0, xsize-1, ysize-1);
+    return 0;
+.br
+}
+.fi
+.SH FONTS
+.ft R
+struct gpanel_font_t {
+    const char *    name;         /* font name */
+    int             maxwidth;     /* max width in pixels */
+    unsigned int    height;       /* height in pixels */
+    int             ascent;       /* ascent (baseline) height */
+    int             firstchar;    /* first character in bitmap */
+    int             size;         /* font size in characters */
+    const unsigned short *bits;   /* 16-bit right-padded bitmap data */
+    const unsigned short *offset; /* offsets into bitmap data */
+    const unsigned char *width;   /* character widths or 0 if fixed */
+    int             defaultchar;  /* default char (not glyph index) */
+    long            bits_size;    /* number of words of bits */
+.br
+};
+.PP
+Fonts are specified via a data structure
+.I struct\ gpanel_font_t
+, which defines character sizez and glyph images.
+Font data for some commonly used fonts are available in
+.I /share/examples/gpanel/fonts
+directory.
+A utility
+.I convbdf
+can be used to convert XWindows BDF fonts to a struct gpanel_font_t data.
+When combined with
+.I otf2bdf
+utility, this allows to generate font data for any TrueType font,
+like Verdana or Lucida Sans Unicode.
+.SH BUGS
+Data and font pointers in gpanel_image and gpanel_text routines
+are not checked for validity, and can cause unexpected errors when not correct.
+.SH FILES
+.ta \w'/share/examples/gpanel'u
+/share/examples/gpanel  Examples of using the \fIlibgpanel\fP library.
+.PP
+/dev/tft0               Device name for hx8357 TFT display driver.

@@ -18,14 +18,14 @@ int main()
     gpanel_clear(0, &xsize, &ysize);
     printf("Screen size %u x %u.\n", xsize, ysize);
 
-    srandom(time(0));
+    srand(time(0));
     printf("Draw random pixels.\n");
     printf("Press ^C to stop.\n");
 
     for (;;) {
-        x = random() % xsize;
-        y = random() % ysize;
-        color = random();
+        x = rand() % xsize;
+        y = rand() % ysize;
+        color = rand() << 1;
         gpanel_pixel(color, x, y);
     }
     return 0;

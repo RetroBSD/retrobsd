@@ -18,16 +18,16 @@ int main()
     gpanel_clear(0, &xsize, &ysize);
     printf("Screen size %u x %u.\n", xsize, ysize);
 
-    srandom(time(0));
+    srand(time(0));
     printf("Draw random filled rectangles.\n");
     printf("Press ^C to stop.\n");
 
     for (;;) {
-        x0 = random() % xsize;
-        y0 = random() % ysize;
-        x1 = random() % xsize;
-        y1 = random() % ysize;
-        color = random();
+        x0 = rand() % xsize;
+        y0 = rand() % ysize;
+        x1 = rand() % xsize;
+        y1 = rand() % ysize;
+        color = rand() << 1;
         gpanel_fill(color, x0, y0, x1, y1);
     }
     return 0;

@@ -15,9 +15,6 @@ srand(x)
 int
 rand()
 {
-#ifdef pdp11
-	return(((randx = randx * 1103515245 + 12345)>>16) & 0x7fff);
-#else
-	return((randx = randx * 1103515245 + 12345) & 0x7fffffff);
-#endif
+        randx = randx * 1103515245 + 12345;
+	return (randx >> 16) & 0x7fff;
 }

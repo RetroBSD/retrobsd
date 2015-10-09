@@ -1024,9 +1024,25 @@ file /share/examples/c/tetris.c
 # Files: /share/examples/gpanel
 #
 dir /share/examples/gpanel
+dir /share/examples/gpanel/fonts
 file /share/examples/gpanel/Makefile
+file /share/examples/gpanel/circle.c
+file /share/examples/gpanel/fill.c
+file /share/examples/gpanel/font.c
+file /share/examples/gpanel/line.c
+file /share/examples/gpanel/pixel.c
+file /share/examples/gpanel/rect.c
 file /share/examples/gpanel/tft.c
 file /share/examples/gpanel/tftetris.c
+file /share/examples/gpanel/fonts/5x7.c
+file /share/examples/gpanel/fonts/6x9.c
+file /share/examples/gpanel/fonts/digits20.c
+file /share/examples/gpanel/fonts/digits32.c
+file /share/examples/gpanel/fonts/lucidasans11.c
+file /share/examples/gpanel/fonts/lucidasans15.c
+file /share/examples/gpanel/fonts/lucidasans7.c
+file /share/examples/gpanel/fonts/lucidasans9.c
+file /share/examples/gpanel/fonts/verdana7.c
 
 #
 # Files: /share/examples/smallc

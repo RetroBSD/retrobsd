@@ -1027,11 +1027,13 @@ dir /share/examples/gpanel
 dir /share/examples/gpanel/fonts
 file /share/examples/gpanel/Makefile
 file /share/examples/gpanel/circle.c
+file /share/examples/gpanel/color.c
 file /share/examples/gpanel/fill.c
 file /share/examples/gpanel/font.c
 file /share/examples/gpanel/line.c
 file /share/examples/gpanel/pixel.c
 file /share/examples/gpanel/rect.c
+file /share/examples/gpanel/speed.c
 file /share/examples/gpanel/tft.c
 file /share/examples/gpanel/tftetris.c
 file /share/examples/gpanel/fonts/5x7.c

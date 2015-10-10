@@ -28,10 +28,6 @@
 #   include <machine/usb_function_cdc.h>
 #endif
 
-#ifdef HX8357_ENABLED
-#include <machine/hx8357.h>
-#endif
-
 #ifdef POWER_ENABLED
 extern void power_init();
 extern void power_off();

@@ -16,6 +16,7 @@
 #include <sys/systm.h>
 #include <sys/errno.h>
 #include <machine/uart.h>
+#include <sys/gpanel.h>
 #include <sys/spi.h>
 #include <sys/gpio.h>
 
@@ -55,9 +56,6 @@ extern int strcmp(char *s1, char *s2);
 #endif
 #ifdef PTY_ENABLED
 #   include <sys/pty.h>
-#endif
-#ifdef HXTFT_ENABLED
-#   include <machine/hx8357.h>
 #endif
 #ifdef SKEL_ENABLED
 #   include <sys/skel.h>
@@ -313,13 +311,15 @@ const struct cdevsw cdevsw[] = {
     NOCDEV
 #endif
 },
-{   /* 16 - tft */
-#if HXTFT_MAJOR != 16
-#   error Wrong HXTFT_MAJOR value!
+{   /* 16 - hxtft or .
+     * All LCD display drivers share the same device.
+     * Only one such driver can be present in the kernel.  */
+#if GPANEL_MAJOR != 16
+#   error Wrong GPANEL_MAJOR value!
 #endif
-#ifdef HXTFT_ENABLED
-    hx8357_open,    hx8357_close,   hx8357_read,    hx8357_write,
-    hx8357_ioctl,   nulldev,        0,              seltrue,
+#if defined(HXTFT_ENABLED) || defined(SWTFT_ENABLED)
+    gpanel_open,    gpanel_close,   gpanel_read,    gpanel_write,
+    gpanel_ioctl,   nulldev,        0,              seltrue,
     nostrategy,     0,              0,
 #else
     NOCDEV

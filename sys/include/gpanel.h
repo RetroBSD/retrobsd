@@ -119,6 +119,17 @@ void gpanel_text(const struct gpanel_font_t *font, int color, int background, in
 int gpanel_text_width(const struct gpanel_font_t *font, const char *text, int nchars);
 
 extern int _gpanel_fd;
-#endif
+
+#else /* KERNEL */
+/*
+ * Kernel driver routines.
+ */
+extern int gpanel_open(dev_t dev, int flag, int mode);
+extern int gpanel_close(dev_t dev, int flag, int mode);
+extern int gpanel_read(dev_t dev, struct uio *uio, int flag);
+extern int gpanel_write(dev_t dev, struct uio *uio, int flag);
+extern int gpanel_ioctl(dev_t dev, u_int cmd, caddr_t addr, int flag);
+
+#endif /* KERNEL */
 
 #endif /* _GPANEL_H */

@@ -31,7 +31,6 @@
 #include <sys/tty.h>
 #include <sys/kconfig.h>
 #include <sys/gpanel.h>
-#include <machine/hx8357.h>
 
 #define HX8357_EXIT_SLEEP_MODE              0x11
 #define HX8357_SET_DISPLAY_OFF              0x28
@@ -537,24 +536,24 @@ static void drawText(const struct gpanel_font_t *font,
     }
 }
 
-int hx8357_open(dev_t dev, int flag, int mode)
+int gpanel_open(dev_t dev, int flag, int mode)
 {
     if (minor(dev) != 0)
         return ENODEV;
     return 0;
 }
 
-int hx8357_close(dev_t dev, int flag, int mode)
+int gpanel_close(dev_t dev, int flag, int mode)
 {
     return 0;
 }
 
-int hx8357_read(dev_t dev, struct uio *uio, int flag)
+int gpanel_read(dev_t dev, struct uio *uio, int flag)
 {
     return ENODEV;
 }
 
-int hx8357_write(dev_t dev, struct uio *uio, int flag)
+int gpanel_write(dev_t dev, struct uio *uio, int flag)
 {
     return ENODEV;
 }
@@ -562,7 +561,7 @@ int hx8357_write(dev_t dev, struct uio *uio, int flag)
 /*
  * TODO: check whether user pointers are valid.
  */
-int hx8357_ioctl(dev_t dev, register u_int cmd, caddr_t addr, int flag)
+int gpanel_ioctl(dev_t dev, register u_int cmd, caddr_t addr, int flag)
 {
     switch (cmd) {
         /*

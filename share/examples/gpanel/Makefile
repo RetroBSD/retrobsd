@@ -1,6 +1,6 @@
 CC      = cc
 LIBS    = -lgpanel
-PROG    = tft tftetris pixel line rect fill circle font
+PROG    = tft tftetris pixel line rect fill circle font color speed
 
 FONTS   = 5x7.o 6x9.o digits20.o digits32.o lucidasans11.o lucidasans15.o \
           lucidasans7.o lucidasans9.o verdana7.o
@@ -30,6 +30,12 @@ fill:   fill.c
 
 circle: circle.c
 	$(CC) $(CFLAGS) -o $@ $(LDFLAGS) $? $(LIBS)
+
+color:  color.c
+	$(CC) $(CFLAGS) -o $@ $(LDFLAGS) $? $(LIBS)
+
+speed:  speed.c lucidasans15.o
+	$(CC) $(CFLAGS) -o $@ $(LDFLAGS) speed.c lucidasans15.o $(LIBS)
 
 font:   font.c $(FONTS)
 	$(CC) $(CFLAGS) -o $@ $(LDFLAGS) font.c $(FONTS) $(LIBS)

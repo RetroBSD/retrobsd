@@ -98,6 +98,60 @@ static int _chip_id;
 #define RS_COMMAND()    LAT_CLR(LCD_RS_PORT) = 1<<LCD_RS_PIN
 
 /*
+ * ST7781 registers.
+ */
+#define ST7781_Driver_ID_Code_Read                  0x00
+#define ST7781_Driver_Output_Control                0x01
+#define ST7781_LCD_Driving_Wave_Control             0x02
+#define ST7781_Entry_Mode                           0x03
+#define ST7781_Resize_Control                       0x04
+#define ST7781_Display_Control_1                    0x07
+#define ST7781_Display_control_2                    0x08
+#define ST7781_Display_Control_3                    0x09
+#define ST7781_Display_Control_4                    0x0A
+#define ST7781_Frame_Marker_Position                0x0D
+#define ST7781_Power_Control_1                      0x10
+#define ST7781_Power_Control_2                      0x11
+#define ST7781_Power_Control_3                      0x12
+#define ST7781_Power_Control_4                      0x13
+#define ST7781_DRAM_Horizontal_Address_Set          0x20
+#define ST7781_DRAM_Vertical_Address_Set            0x21
+#define ST7781_Write_Data_to_DRAM                   0x22
+#define ST7781_Read_Data_from_DRAM                  0x22
+#define ST7781_VCOMH_Control                        0x29
+#define ST7781_Frame_Rate_and_Color_Control         0x2B
+#define ST7781_Gamma_Control_1                      0x30
+#define ST7781_Gamma_Control_2                      0x31
+#define ST7781_Gamma_Control_3                      0x32
+#define ST7781_Gamma_Control_4                      0x35
+#define ST7781_Gamma_Control_5                      0x36
+#define ST7781_Gamma_Control_6                      0x37
+#define ST7781_Gamma_Control_7                      0x38
+#define ST7781_Gamma_Control_8                      0x39
+#define ST7781_Gamma_Control_9                      0x3C
+#define ST7781_Gamma_Control_10                     0x3D
+#define ST7781_Horizontal_Address_Start_Position    0x50
+#define ST7781_Horizontal_Address_End_Position      0x51
+#define ST7781_Vertical_Address_Start_Position      0x52
+#define ST7781_Vertical_Address_End_Position        0x53
+#define ST7781_Gate_Scan_Control_1                  0x60
+#define ST7781_Gate_Scan_Control_2                  0x61
+#define ST7781_Partial_Image_1_Display_Position     0x80
+#define ST7781_Partial_Image_1_Start_Address        0x81
+#define ST7781_Partial_Image_1_End_Address          0x82
+#define ST7781_Partial_Image_2_Display_Position     0x83
+#define ST7781_Partial_Image_2_Start_Address        0x84
+#define ST7781_Partial_Image_2_End_Address          0x85
+#define ST7781_Panel_Interface_Control_1            0x90
+#define ST7781_Panel_Interface_Control_2            0x92
+#define ST7781_EEPROM_ID_Code                       0xD2
+#define ST7781_EEPROM_Control_Status                0xD9
+#define ST7781_EEPROM_Wite_Command                  0xDF
+#define ST7781_EEPROM_Enable                        0xFA
+#define ST7781_EEPROM_VCOM_Offset                   0xFE
+#define ST7781_FAh_FEh_Enable                       0xFF
+
+/*
  * Set direction of data bus as output.
  */
 static void setWriteDir()
@@ -215,9 +269,9 @@ static unsigned readDeviceId()
 
     CS_ACTIVE();
     RS_COMMAND();
-    writeByte(0x00);
+    writeByte(ST7781_Driver_ID_Code_Read);
     delay100ns();
-    WR_STROBE();        // Repeat prior byte (0x00)
+    WR_STROBE();        // Repeat prior byte
     setReadDir();       // Switch data bus as input
     RS_DATA();
     value = readByte() << 8;
@@ -277,53 +331,53 @@ static int initDisplay()
 
     /* Initialization of LCD controller. */
     CS_ACTIVE();
-    writeReg(0x01, 0x0100);
-    writeReg(0x02, 0x0700);
-    writeReg(0x03, 0x1030);
-    writeReg(0x08, 0x0302);
-    writeReg(0x09, 0x0000);
-    writeReg(0x0A, 0x0008);
+    writeReg(ST7781_Driver_Output_Control,    0x0100);
+    writeReg(ST7781_LCD_Driving_Wave_Control, 0x0700);
+    writeReg(ST7781_Entry_Mode,               0x1030);
+    writeReg(ST7781_Display_control_2,        0x0302);
+    writeReg(ST7781_Display_Control_3,        0x0000);
+    writeReg(ST7781_Display_Control_4,        0x0008);
 
     /* Power control registers. */
-    writeReg(0x10, 0x0790);
-    writeReg(0x11, 0x0005);
-    writeReg(0x12, 0x0000);
-    writeReg(0x13, 0x0000);
+    writeReg(ST7781_Power_Control_1, 0x0790);
+    writeReg(ST7781_Power_Control_2, 0x0005);
+    writeReg(ST7781_Power_Control_3, 0x0000);
+    writeReg(ST7781_Power_Control_4, 0x0000);
 
     /* Power supply startup 1 settings. */
-    writeReg(0x10, 0x12B0);
-    writeReg(0x11, 0x0007);
+    writeReg(ST7781_Power_Control_1, 0x12B0);
+    writeReg(ST7781_Power_Control_2, 0x0007);
 
     /* Power supply startup 2 settings. */
-    writeReg(0x12, 0x008C);
-    writeReg(0x13, 0x1700);
-    writeReg(0x29, 0x0022);
+    writeReg(ST7781_Power_Control_3, 0x008C);
+    writeReg(ST7781_Power_Control_4, 0x1700);
+    writeReg(ST7781_VCOMH_Control,   0x0022);
 
     /* Gamma cluster settings. */
-    writeReg(0x30, 0x0000);
-    writeReg(0x31, 0x0505);
-    writeReg(0x32, 0x0205);
-    writeReg(0x35, 0x0206);
-    writeReg(0x36, 0x0408);
-    writeReg(0x37, 0x0000);
-    writeReg(0x38, 0x0504);
-    writeReg(0x39, 0x0206);
-    writeReg(0x3C, 0x0206);
-    writeReg(0x3D, 0x0408);
+    writeReg(ST7781_Gamma_Control_1,  0x0000);
+    writeReg(ST7781_Gamma_Control_2,  0x0505);
+    writeReg(ST7781_Gamma_Control_3,  0x0205);
+    writeReg(ST7781_Gamma_Control_4,  0x0206);
+    writeReg(ST7781_Gamma_Control_5,  0x0408);
+    writeReg(ST7781_Gamma_Control_6,  0x0000);
+    writeReg(ST7781_Gamma_Control_7,  0x0504);
+    writeReg(ST7781_Gamma_Control_8,  0x0206);
+    writeReg(ST7781_Gamma_Control_9,  0x0206);
+    writeReg(ST7781_Gamma_Control_10, 0x0408);
 
     /* Display window 240*320. */
-    writeReg(0x50, 0x0000);
-    writeReg(0x51, 0x00EF);
-    writeReg(0x52, 0x0000);
-    writeReg(0x53, 0x013F);
+    writeReg(ST7781_Horizontal_Address_Start_Position, 0x0000);
+    writeReg(ST7781_Horizontal_Address_End_Position,   0x00EF);
+    writeReg(ST7781_Vertical_Address_Start_Position,   0x0000);
+    writeReg(ST7781_Vertical_Address_End_Position,     0x013F);
 
     /* Frame rate settings. */
-    writeReg(0x60, 0xA700);
-    writeReg(0x61, 0x0001);
-    writeReg(0x90, 0x0033); // RTNI setting
+    writeReg(ST7781_Gate_Scan_Control_1,       0xA700);
+    writeReg(ST7781_Gate_Scan_Control_2,       0x0001);
+    writeReg(ST7781_Panel_Interface_Control_1, 0x0033); // RTNI setting
 
     /* Display on. */
-    writeReg(0x07, 0x0133);
+    writeReg(ST7781_Display_Control_1, 0x0133);
     return 0;
 }
 
@@ -331,14 +385,14 @@ static void setAddrWindow(int x0, int y0, int x1, int y1)
 {
     /* Set address window. */
     CS_ACTIVE();
-    writeReg(0x50, x0);
-    writeReg(0x51, x1);
-    writeReg(0x52, y0);
-    writeReg(0x53, y1);
+    writeReg(ST7781_Horizontal_Address_Start_Position, x0);
+    writeReg(ST7781_Horizontal_Address_End_Position,   x1);
+    writeReg(ST7781_Vertical_Address_Start_Position,   y0);
+    writeReg(ST7781_Vertical_Address_End_Position,     y1);
 
     /* Set address counter to top left. */
-    writeReg(0x20, x0);
-    writeReg(0x21, y0);
+    writeReg(ST7781_DRAM_Horizontal_Address_Set, x0);
+    writeReg(ST7781_DRAM_Vertical_Address_Set,   y0);
     CS_IDLE();
 }
 
@@ -350,9 +404,9 @@ static void setPixel(int x, int y, int color)
     if (x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT)
         return;
     CS_ACTIVE();
-    writeReg(0x20, x);
-    writeReg(0x21, y);
-    writeReg(0x22, color);
+    writeReg(ST7781_DRAM_Horizontal_Address_Set, x);
+    writeReg(ST7781_DRAM_Vertical_Address_Set,   y);
+    writeReg(ST7781_Write_Data_to_DRAM,          color);
     CS_IDLE();
 }
 
@@ -370,8 +424,8 @@ static void flood(int color, int npixels)
 
     CS_ACTIVE();
     RS_COMMAND();
-    writeByte(0x00); // High byte of GRAM register...
-    writeByte(0x22); // Write data to GRAM
+    writeByte(0x00); /* High address byte */
+    writeByte(ST7781_Write_Data_to_DRAM);
 
     /* Write first pixel normally, decrement counter by 1. */
     RS_DATA();
@@ -460,8 +514,8 @@ static void drawImage(int x, int y, int width, int height,
     setAddrWindow(x, y, x + width - 1, y + height - 1);
     CS_ACTIVE();
     RS_COMMAND();
-    writeByte(0x00);
-    writeByte(0x22);
+    writeByte(0x00); /* High address byte */
+    writeByte(ST7781_Write_Data_to_DRAM);
     RS_DATA();
     while (cnt--) {
         color = *data++;
@@ -599,8 +653,8 @@ static void drawGlyph(const struct gpanel_font_t *font,
         setAddrWindow(_col, _row, _col + width - 1, _row + font->height - 1);
         CS_ACTIVE();
         RS_COMMAND();
-        writeByte(0x00);
-        writeByte(0x22);
+        writeByte(0x00); /* High address byte */
+        writeByte(ST7781_Write_Data_to_DRAM);
         RS_DATA();
 
         /* Loop on each glyph row. */
@@ -742,8 +796,8 @@ int gpanel_ioctl(dev_t dev, register u_int cmd, caddr_t addr, int flag)
             struct gpanel_clear_t *param = (struct gpanel_clear_t*) addr;
 
             CS_ACTIVE();
-            writeReg(0x20, 0);
-            writeReg(0x21, 0);
+            writeReg(ST7781_DRAM_Horizontal_Address_Set, 0);
+            writeReg(ST7781_DRAM_Vertical_Address_Set,   0);
             flood(param->color, WIDTH * HEIGHT);
             param->xsize = WIDTH;
             param->ysize = HEIGHT;

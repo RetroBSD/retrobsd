@@ -49,14 +49,14 @@ options         "SD_MHZ=10"                 # speed 10 MHz
 #   RG6, RG7, RG8, RD4      - spi2, SD card
 #   RA14, RB0, RB2, RB4,
 #   RB8, RB10, RD0, RD1,
-#   RD2, RD3, RE8, RE9, RF0 - LCD display
+#   RD2, RD3, RE8, RE9, RF1 - LCD display
 #
 device          gpio0   flags 0x86ff    # port A
 device          gpio1   flags 0xfaea    # port B
 device          gpio2   flags 0xf01e    # port C
 device          gpio3   flags 0xffe0    # port D
 device          gpio4   flags 0x00ff    # port E
-device          gpio5   flags 0x303a    # port F
+device          gpio5   flags 0x3039    # port F
 device          gpio6   flags 0xf20f    # port G
 
 # ADC driver
@@ -64,3 +64,19 @@ device          adc
 
 # PWM driver
 device          pwm
+
+# ST7781 TFT display driver
+device          swtft
+signal          "LCD_RST"   pin RB10
+signal          "LCD_CS"    pin RB0
+signal          "LCD_RD"    pin RB2
+signal          "LCD_RS"    pin RB8
+signal          "LCD_WR"    pin RB4
+signal          "LCD_D0"    pin RA14
+signal          "LCD_D1"    pin RD3
+signal          "LCD_D2"    pin RE8
+signal          "LCD_D3"    pin RD0
+signal          "LCD_D4"    pin RF1
+signal          "LCD_D5"    pin RD1
+signal          "LCD_D6"    pin RD2
+signal          "LCD_D7"    pin RE9

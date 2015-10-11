@@ -46,12 +46,40 @@
 static int _col, _row;
 
 /*
+ * ID of the LCD controller chip.
+ */
+static int _chip_id;
+
+/*
+ * Delay for 100 nanoseconds.
+ * Needed to match the /WR and /RD timing requirements.
+ */
+#if CPU_KHZ <= 10000
+#   define delay100ns()     /* empty */
+#elif CPU_KHZ <= 20000
+#   define delay100ns()     asm volatile("nop")
+#elif CPU_KHZ <= 30000
+#   define delay100ns()     asm volatile("nop; nop")
+#elif CPU_KHZ <= 40000
+#   define delay100ns()     asm volatile("nop; nop; nop")
+#elif CPU_KHZ <= 50000
+#   define delay100ns()     asm volatile("nop; nop; nop; nop")
+#elif CPU_KHZ <= 60000
+#   define delay100ns()     asm volatile("nop; nop; nop; nop; nop")
+#elif CPU_KHZ <= 70000
+#   define delay100ns()     asm volatile("nop; nop; nop; nop; nop; nop")
+#else
+#   define delay100ns()     asm volatile("nop; nop; nop; nop; nop; nop; nop; nop")
+#endif
+
+/*
  * Signal mappings:
  *  /RESET  - reset and initialize the chip.
  *  /CS     - chip select when low.
- *  /RS     - data or command selection.
  *  /RD     - read operation enable.
  *  /WR     - write operation enable.
+ *  RS      - command or data mode selection.
+ *  D0-D7   - data bus, bidirectional.
  */
 #define RST_IDLE()      LAT_SET(LCD_RST_PORT) = 1<<LCD_RST_PIN
 #define RST_ACTIVE()    LAT_CLR(LCD_RST_PORT) = 1<<LCD_RST_PIN
@@ -59,27 +87,15 @@ static int _col, _row;
 #define CS_IDLE()       LAT_SET(LCD_CS_PORT) = 1<<LCD_CS_PIN
 #define CS_ACTIVE()     LAT_CLR(LCD_CS_PORT) = 1<<LCD_CS_PIN
 
-#define RS_DATA()       LAT_SET(LCD_RS_PORT) = 1<<LCD_CS_PIN
-#define RS_COMMAND()    LAT_CLR(LCD_RS_PORT) = 1<<LCD_CS_PIN
-
 #define RD_IDLE()       LAT_SET(LCD_RD_PORT) = 1<<LCD_RD_PIN
 #define RD_ACTIVE()     LAT_CLR(LCD_RD_PORT) = 1<<LCD_RD_PIN
 
 #define WR_IDLE()       LAT_SET(LCD_WR_PORT) = 1<<LCD_WR_PIN
 #define WR_ACTIVE()     LAT_CLR(LCD_WR_PORT) = 1<<LCD_WR_PIN
-#define WR_STROBE()     { WR_ACTIVE(); ndelay(50); WR_IDLE(); }
+#define WR_STROBE()     { WR_ACTIVE(); delay100ns(); WR_IDLE(); }
 
-/*
- * Delay for a given number of nanoseconds.
- */
-void ndelay(unsigned nsec)
-{
-    /* Four instructions (cycles) per loop. */
-    unsigned nloops = (nsec * (CPU_KHZ/1000)) / 1000 / 4;
-
-    while (nloops-- > 0)
-        asm volatile ("nop");
-}
+#define RS_DATA()       LAT_SET(LCD_RS_PORT) = 1<<LCD_RS_PIN
+#define RS_COMMAND()    LAT_CLR(LCD_RS_PORT) = 1<<LCD_RS_PIN
 
 /*
  * Set direction of data bus as output.
@@ -164,7 +180,7 @@ static unsigned readByte()
     unsigned value = 0;
 
     RD_ACTIVE();
-    ndelay(100);
+    delay100ns();
     if (PORT_VAL(LCD_D0_PORT) & (1 << LCD_D0_PIN)) value |= 1;
     if (PORT_VAL(LCD_D1_PORT) & (1 << LCD_D1_PIN)) value |= 2;
     if (PORT_VAL(LCD_D2_PORT) & (1 << LCD_D2_PIN)) value |= 4;
@@ -200,6 +216,7 @@ static unsigned readDeviceId()
     CS_ACTIVE();
     RS_COMMAND();
     writeByte(0x00);
+    delay100ns();
     WR_STROBE();        // Repeat prior byte (0x00)
     setReadDir();       // Switch data bus as input
     RS_DATA();
@@ -210,7 +227,11 @@ static unsigned readDeviceId()
     return value;
 }
 
-static void initDisplay()
+/*
+ * Detect the type of the LCD controller, and initialize it.
+ * Return -1 in case of unknown chip.
+ */
+static int initDisplay()
 {
     /*
      * Set all control bits to high (idle).
@@ -231,17 +252,28 @@ static void initDisplay()
 
     /* Reset the chip. */
     RST_ACTIVE();
-    udelay(2000);
+    udelay(1000);
     RST_IDLE();
+    udelay(1000);
 
-    /* Data transfer sync. */
-    CS_ACTIVE();
-    RS_COMMAND();
-    writeByte(0x00);
-    WR_STROBE(); // Three extra 0x00s
-    WR_STROBE();
-    WR_STROBE();
-    CS_IDLE();
+    /* Read the the chip ID register. */
+    _chip_id = readDeviceId();
+    switch (_chip_id) {
+    case 0x7783:
+        printf("swtft0: <Sitronix ST7781>\n");
+        break;
+
+    default:
+        /* Disable outputs. */
+        setReadDir();
+        TRIS_SET(LCD_CS_PORT) = 1 << LCD_CS_PIN;
+        TRIS_SET(LCD_RS_PORT) = 1 << LCD_RS_PIN;
+        TRIS_SET(LCD_WR_PORT) = 1 << LCD_WR_PIN;
+        TRIS_SET(LCD_RD_PORT) = 1 << LCD_RD_PIN;
+        TRIS_SET(LCD_RST_PORT) = 1 << LCD_RST_PIN;
+        printf("swtft0: Unknown chip ID = 0x%x\n", _chip_id);
+        return -1;
+    }
 
     /* Initialization of LCD controller. */
     CS_ACTIVE();
@@ -257,19 +289,15 @@ static void initDisplay()
     writeReg(0x11, 0x0005);
     writeReg(0x12, 0x0000);
     writeReg(0x13, 0x0000);
-    //udelay(50000);
 
     /* Power supply startup 1 settings. */
     writeReg(0x10, 0x12B0);
-    //udelay(50000);
     writeReg(0x11, 0x0007);
-    //udelay(50000);
 
     /* Power supply startup 2 settings. */
     writeReg(0x12, 0x008C);
     writeReg(0x13, 0x1700);
     writeReg(0x29, 0x0022);
-    //udelay(50000);
 
     /* Gamma cluster settings. */
     writeReg(0x30, 0x0000);
@@ -296,59 +324,7 @@ static void initDisplay()
 
     /* Display on. */
     writeReg(0x07, 0x0133);
-#if 0
-    writeReg(0x01, 0x0100);
-    writeReg(0x02, 0x0700);
-    writeReg(0x03, 0x1030);
-    writeReg(0x08, 0x0302);
-    writeReg(0x09, 0x0000);
-    writeReg(0x0A, 0x0008);
-
-    /* Power control registers. */
-    writeReg(0x10, 0x0790);
-    writeReg(0x11, 0x0005);
-    writeReg(0x12, 0x0000);
-    writeReg(0x13, 0x0000);
-    //udelay(50000);
-
-    /* Power supply startup 1 settings. */
-    writeReg(0x10, 0x12B0);
-    //udelay(50000);
-    writeReg(0x11, 0x0007);
-    //udelay(50000);
-
-    /* Power supply startup 2 settings. */
-    writeReg(0x12, 0x008C);
-    writeReg(0x13, 0x1700);
-    writeReg(0x29, 0x0022);
-    //udelay(50000);
-
-    /* Gamma cluster settings. */
-    writeReg(0x30, 0x0000);
-    writeReg(0x31, 0x0505);
-    writeReg(0x32, 0x0205);
-    writeReg(0x35, 0x0206);
-    writeReg(0x36, 0x0408);
-    writeReg(0x37, 0x0000);
-    writeReg(0x38, 0x0504);
-    writeReg(0x39, 0x0206);
-    writeReg(0x3C, 0x0206);
-    writeReg(0x3D, 0x0408);
-
-    /* Display window 240*320. */
-    writeReg(0x50, 0x0000);
-    writeReg(0x51, 0x00EF);
-    writeReg(0x52, 0x0000);
-    writeReg(0x53, 0x013F);
-
-    /* Frame rate settings. */
-    writeReg(0x60, 0xA700);
-    writeReg(0x61, 0x0001);
-    writeReg(0x90, 0x0033); // RTNI setting
-
-    /* Display on. */
-    writeReg(0x07, 0x0133);
-#endif
+    return 0;
 }
 
 static void setAddrWindow(int x0, int y0, int x1, int y1)
@@ -374,9 +350,9 @@ static void setPixel(int x, int y, int color)
     if (x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT)
         return;
     CS_ACTIVE();
-    writeReg(0x0020, x);
-    writeReg(0x0021, y);
-    writeReg(0x0022, color);
+    writeReg(0x20, x);
+    writeReg(0x21, y);
+    writeReg(0x22, color);
     CS_IDLE();
 }
 
@@ -412,14 +388,20 @@ static void flood(int color, int npixels)
             /* 64 pixels/block / 4 pixels/pass. */
             for (i = 16; i > 0; i--) {
                 /* 2 bytes/pixel x 4 pixels. */
-                WR_STROBE(); WR_STROBE(); WR_STROBE(); WR_STROBE();
-                WR_STROBE(); WR_STROBE(); WR_STROBE(); WR_STROBE();
+                delay100ns(); WR_STROBE();
+                delay100ns(); WR_STROBE();
+                delay100ns(); WR_STROBE();
+                delay100ns(); WR_STROBE();
+                delay100ns(); WR_STROBE();
+                delay100ns(); WR_STROBE();
+                delay100ns(); WR_STROBE();
+                delay100ns(); WR_STROBE();
             }
         }
         /* Fill any remaining pixels (1 to 64). */
         for (i = npixels & 63; i > 0; i--) {
-            WR_STROBE();
-            WR_STROBE();
+            delay100ns(); WR_STROBE();
+            delay100ns(); WR_STROBE();
         }
     } else {
         while (blocks--) {
@@ -760,8 +742,8 @@ int gpanel_ioctl(dev_t dev, register u_int cmd, caddr_t addr, int flag)
             struct gpanel_clear_t *param = (struct gpanel_clear_t*) addr;
 
             CS_ACTIVE();
-            writeReg(0x0020, 0);
-            writeReg(0x0021, 0);
+            writeReg(0x20, 0);
+            writeReg(0x21, 0);
             flood(param->color, WIDTH * HEIGHT);
             param->xsize = WIDTH;
             param->ysize = HEIGHT;
@@ -863,13 +845,10 @@ static int
 swtftprobe(config)
     struct conf_device *config;
 {
-    unsigned id;
+    if (initDisplay() < 0)
+        return 0;
 
-    initDisplay();
     printf("swtft0: display %ux%u\n", HEIGHT, WIDTH);
-    id = readDeviceId();
-    if (id == 0x7783)
-        printf("swtft0: Sitronix ST7781 TFT controller\n");
     setAddrWindow(0, 0, WIDTH-1, HEIGHT-1);
     return 1;
 }

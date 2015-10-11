@@ -64,3 +64,19 @@ device          adc
 
 # PWM driver
 device          pwm
+
+# ST7781 TFT display driver
+device          swtft
+signal          "LCD_RST"   pin RB10
+signal          "LCD_CS"    pin RB0
+signal          "LCD_RD"    pin RB2
+signal          "LCD_RS"    pin RB8
+signal          "LCD_WR"    pin RB4
+signal          "LCD_D0"    pin RA14
+signal          "LCD_D1"    pin RD3
+signal          "LCD_D2"    pin RE8
+signal          "LCD_D3"    pin RD0
+signal          "LCD_D4"    pin RF0
+signal          "LCD_D5"    pin RD1
+signal          "LCD_D6"    pin RD2
+signal          "LCD_D7"    pin RE9

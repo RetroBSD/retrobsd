@@ -12,22 +12,7 @@ PARAM += -DGPIO5_ENABLED
 PARAM += -DGPIO6_ENABLED
 PARAM += -DADC_ENABLED
 PARAM += -DPWM_ENABLED
-PARAM += -DSWTFT_ENABLED
-PARAM += -DLCD_D7_PORT=TRISE -DLCD_D7_PIN=9
-PARAM += -DLCD_D6_PORT=TRISD -DLCD_D6_PIN=2
-PARAM += -DLCD_D5_PORT=TRISD -DLCD_D5_PIN=1
-PARAM += -DLCD_D4_PORT=TRISF -DLCD_D4_PIN=0
-PARAM += -DLCD_D3_PORT=TRISD -DLCD_D3_PIN=0
-PARAM += -DLCD_D2_PORT=TRISE -DLCD_D2_PIN=8
-PARAM += -DLCD_D1_PORT=TRISD -DLCD_D1_PIN=3
-PARAM += -DLCD_D0_PORT=TRISA -DLCD_D0_PIN=14
-PARAM += -DLCD_WR_PORT=TRISB -DLCD_WR_PIN=4
-PARAM += -DLCD_RS_PORT=TRISB -DLCD_RS_PIN=8
-PARAM += -DLCD_RD_PORT=TRISB -DLCD_RD_PIN=2
-PARAM += -DLCD_CS_PORT=TRISB -DLCD_CS_PIN=0
-PARAM += -DLCD_RST_PORT=TRISB -DLCD_RST_PIN=10
-PARAM += -DLED_TTY_PORT=TRISA -DLED_TTY_PIN=1
-PARAM += -DLED_DISK_PORT=TRISF -DLED_DISK_PIN=0
+PARAM += -DLED_DISK_PORT=TRISA -DLED_DISK_PIN=1
 PARAM += -DLED_KERNEL_PORT=TRISA -DLED_KERNEL_PIN=0
 PARAM += -DSD_MHZ=10
 PARAM += -DCONS_MINOR=0
@@ -80,7 +65,7 @@ OBJS = exec_aout.o exec_conf.o exec_elf.o exec_script.o exec_subr.o \
 	ufs_namei.o ufs_subr.o ufs_syscalls.o ufs_syscalls2.o \
 	vfs_vnops.o vm_sched.o vm_swap.o vm_swp.o clock.o cons.o devsw.o \
 	exception.o machdep.o mem.o signal.o swap.o sysctl.o adc.o \
-	gpio.o pwm.o sd.o st7781.o spi.o spi_bus.o uart.o 
+	gpio.o pwm.o sd.o spi.o spi_bus.o uart.o 
 
 CFILES = $S/kernel/exec_aout.c $S/kernel/exec_conf.c $S/kernel/exec_elf.c \
 	$S/kernel/exec_script.c $S/kernel/exec_subr.c \
@@ -106,8 +91,8 @@ CFILES = $S/kernel/exec_aout.c $S/kernel/exec_conf.c $S/kernel/exec_elf.c \
 	$S/pic32/devsw.c $S/pic32/exception.c $S/pic32/machdep.c \
 	$S/pic32/mem.c $S/pic32/signal.c $S/pic32/swap.c \
 	$S/pic32/sysctl.c $S/pic32/adc.c $S/pic32/gpio.c $S/pic32/pwm.c \
-	$S/pic32/sd.c $S/pic32/st7781.c $S/pic32/spi.c \
-	$S/pic32/spi_bus.c $S/pic32/uart.c swapunix.c 
+	$S/pic32/sd.c $S/pic32/spi.c $S/pic32/spi_bus.c $S/pic32/uart.c \
+	swapunix.c 
 
 # load lines for config "xxx" will be emitted as:
 # xxx: ${SYSTEM_DEP} swapxxx.o
@@ -349,9 +334,6 @@ pwm.o: $S/pic32/pwm.c
 	${COMPILE_C}
 
 sd.o: $S/pic32/sd.c
-	${COMPILE_C}
-
-st7781.o: $S/pic32/st7781.c
 	${COMPILE_C}
 
 spi.o: $S/pic32/spi.c

@@ -67,7 +67,19 @@ static int _col, _row;
 
 #define WR_IDLE()       LAT_SET(LCD_WR_PORT) = 1<<LCD_WR_PIN
 #define WR_ACTIVE()     LAT_CLR(LCD_WR_PORT) = 1<<LCD_WR_PIN
-#define WR_STROBE()     { WR_ACTIVE(); WR_IDLE(); }
+#define WR_STROBE()     { WR_ACTIVE(); ndelay(50); WR_IDLE(); }
+
+/*
+ * Delay for a given number of nanoseconds.
+ */
+void ndelay(unsigned nsec)
+{
+    /* Four instructions (cycles) per loop. */
+    unsigned nloops = (nsec * (CPU_KHZ/1000)) / 1000 / 4;
+
+    while (nloops-- > 0)
+        asm volatile ("nop");
+}
 
 /*
  * Set direction of data bus as output.
@@ -147,26 +159,12 @@ static void writeByte(unsigned value)
     WR_STROBE();
 }
 
-/*
- * Delay for a given number of nanoseconds.
- */
-void ndelay(unsigned nsec)
-{
-    /* Four instructions (cycles) per loop. */
-    unsigned nloops = (nsec * (CPU_KHZ/1000)) / 1000 / 4;
-
-    while (nloops-- > 0)
-        asm volatile ("nop");
-}
-
 static unsigned readByte()
 {
     unsigned value = 0;
 
-    /* Pixel read operations require a minimum 400 nS delay
-     * from RD_ACTIVE to polling the input pins. */
     RD_ACTIVE();
-    ndelay(400);
+    ndelay(100);
     if (PORT_VAL(LCD_D0_PORT) & (1 << LCD_D0_PIN)) value |= 1;
     if (PORT_VAL(LCD_D1_PORT) & (1 << LCD_D1_PIN)) value |= 2;
     if (PORT_VAL(LCD_D2_PORT) & (1 << LCD_D2_PIN)) value |= 4;
@@ -190,6 +188,26 @@ static void writeReg(unsigned reg, unsigned value)
     RS_DATA();
     writeByte(value >> 8);
     writeByte(value);
+}
+
+/*
+ * Read device ID code.
+ */
+static unsigned readDeviceId()
+{
+    unsigned value;
+
+    CS_ACTIVE();
+    RS_COMMAND();
+    writeByte(0x00);
+    WR_STROBE();        // Repeat prior byte (0x00)
+    setReadDir();       // Switch data bus as input
+    RS_DATA();
+    value = readByte() << 8;
+    value |= readByte();
+    setWriteDir();      // Restore data bus as output
+    CS_IDLE();
+    return value;
 }
 
 static void initDisplay()
@@ -388,24 +406,24 @@ static void flood(int color, int npixels)
     /* 64 pixels/block. */
     blocks = npixels >> 6;
     if (hi == lo) {
-        // High and low bytes are identical.  Leave prior data
-        // on the port(s) and just toggle the write strobe.
+        /* High and low bytes are identical.  Leave prior data
+         * on the port(s) and just toggle the write strobe. */
         while (blocks--) {
-            // 64 pixels/block / 4 pixels/pass
+            /* 64 pixels/block / 4 pixels/pass. */
             for (i = 16; i > 0; i--) {
-                // 2 bytes/pixel x 4 pixels
+                /* 2 bytes/pixel x 4 pixels. */
                 WR_STROBE(); WR_STROBE(); WR_STROBE(); WR_STROBE();
                 WR_STROBE(); WR_STROBE(); WR_STROBE(); WR_STROBE();
             }
         }
-        // Fill any remaining pixels (1 to 64)
+        /* Fill any remaining pixels (1 to 64). */
         for (i = npixels & 63; i > 0; i--) {
             WR_STROBE();
             WR_STROBE();
         }
     } else {
         while (blocks--) {
-            // 64 pixels/block / 4 pixels/pass
+            /* 64 pixels/block / 4 pixels/pass. */
             for (i = 16; i > 0; i--) {
                 writeByte(hi); writeByte(lo); writeByte(hi); writeByte(lo);
                 writeByte(hi); writeByte(lo); writeByte(hi); writeByte(lo);
@@ -835,26 +853,6 @@ int gpanel_ioctl(dev_t dev, register u_int cmd, caddr_t addr, int flag)
         }
     }
     return 0;
-}
-
-/*
- * Read device ID code.
- */
-static unsigned readDeviceId()
-{
-    unsigned value;
-
-    CS_ACTIVE();
-    RS_COMMAND();
-    writeByte(0x00);
-    WR_STROBE();        // Repeat prior byte (0x00)
-    setReadDir();       // Switch data bus as input
-    RS_DATA();
-    value = readByte() << 8;
-    value |= readByte();
-    setWriteDir();      // Restore data bus as output
-    CS_IDLE();
-    return value;
 }
 
 /*

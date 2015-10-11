@@ -81,6 +81,7 @@ pic32/sdramp.c                  optional dr
 pic32/sdram.S                   optional dr
 pic32/spirams.c                 optional sr
 pic32/sramc.c                   optional rc
+pic32/st7781.c                  optional swtft
 pic32/skel.c                    optional skel
 pic32/spi.c                     optional spi
 pic32/spi_bus.c                 optional spi

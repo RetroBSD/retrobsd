@@ -19,7 +19,6 @@ LOCALTIME=	US/Pacific
 # (and add solar87 to the DATA= line below).
 
 CFLAGS= -O
-SEPFLAG=-i
 LINTFLAGS=	-phbaxc
 CC=		cc -g -Wall -Werror
 
@@ -39,7 +38,7 @@ MANSRC=		$(ZICMANSRC) $(ZDUMAN)
 SHARDIR=	${DESTDIR}/share/zoneinfo
 MANDIR=		${DESTDIR}/man/cat8
 
-all:		zdump zic ${ZICMAN} ${ZDUMAN}
+all:		tzfile.h zdump zic ${ZICMAN} ${ZDUMAN}
 
 install:	zic $(DATA) $(MAN)
 		(umask 22; ./zic -d ${SHARDIR} $(DATA))
@@ -55,14 +54,17 @@ zic.0:		$(ZICMANSRC)
 		nroff -man $(ZICMANSRC) > $(ZICMAN)
 
 zdump:		$(TZDOBJS)
-		$(CC) $(CFLAGS) $(LFLAGS) $(SEPFLAG) $(TZDOBJS) -o $@
+		$(CC) $(CFLAGS) $(LFLAGS) $(TZDOBJS) -o $@
 
 zic:		$(TZCOBJS)
-		$(CC) $(CFLAGS) $(LFLAGS) $(SEPFLAG) $(TZCOBJS) -o $@
+		$(CC) $(CFLAGS) $(LFLAGS) $(TZCOBJS) -o $@
+
+tzfile.h:       ${DESTDIR}/include/tzfile.h
+		ln -s $< $@
 
 lint:		$(TZCSRCS) $(TZDSRCS)
 		lint $(LINTFLAGS) $(CFLAGS) $(TZCSRCS)
 		lint $(LINTFLAGS) $(CFLAGS) $(TZDSRCS)
 
 clean:
-		rm -f *.o zdump zic $(ZICMAN) $(ZDUMAN)
+		rm -f *.o zdump zic $(ZICMAN) $(ZDUMAN) tzfile.h

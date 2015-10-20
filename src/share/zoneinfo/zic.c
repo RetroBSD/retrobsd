@@ -3,14 +3,15 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <ctype.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/file.h>
-#include <strings.h>
+#include <string.h>
 #include <time.h>
-#include <tzfile.h>
 #include <getopt.h>
+#include "tzfile.h"
 
 #ifndef BUFSIZ
 #define BUFSIZ	1024
@@ -1049,11 +1050,11 @@ struct zone *	zpfirst;
 	register struct rule *		rp;
 	register int			i, j;
 	register int			usestart, useuntil;
-	register time_t			starttime, untiltime;
+	register time_t			starttime = 0, untiltime = 0;
 	register long			gmtoff;
 	register long			stdoff;
 	register int			year;
-	register long			startoff;
+	register long			startoff = 0;
 	register int			startisdst;
 	register int			type;
 	char				startbuf[BUFSIZ];
@@ -1101,7 +1102,7 @@ struct zone *	zpfirst;
 			}
 			for ( ; ; ) {
 				register int	k;
-				register time_t	jtime, ktime;
+				register time_t	jtime, ktime = 0;
 				register long	offset;
 				char		buf[BUFSIZ];
 

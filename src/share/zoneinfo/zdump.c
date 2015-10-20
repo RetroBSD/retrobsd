@@ -5,9 +5,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
-#include <tzfile.h>
 #include <time.h>
 #include <getopt.h>
+#include "tzfile.h"
 
 #ifndef TRUE
 #define TRUE		1
@@ -15,10 +15,12 @@
 #endif
 
 extern char **environ;
+extern char *tzname[2];
 
 extern char *imalloc(int);
+extern void tzset(void);
 
-static int		longest;
+static int	longest;
 
 static void
 show(zone, t, v)
@@ -26,7 +28,6 @@ char *	zone;
 time_t	t;
 {
 	struct tm *		tmp;
-	extern struct tm *	localtime();
 
 	(void) printf("%-*s  ", longest, zone);
 	if (v)

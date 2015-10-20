@@ -5,6 +5,9 @@
 /*
 ** Information about time zone files.
 */
+            /* Time zone object file directory */
+#define TZDIR       "/usr/share/zoneinfo"
+#define TZDEFAULT   "/etc/localtime"
 
 /*
 ** Each file begins with. . .

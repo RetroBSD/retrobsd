@@ -993,7 +993,6 @@ file /share/zoneinfo/CST6CDT
 file /share/zoneinfo/EET
 file /share/zoneinfo/EST
 file /share/zoneinfo/EST5EDT
-file /share/zoneinfo/GB-Eire
 file /share/zoneinfo/GMT-12
 file /share/zoneinfo/GMT-11
 file /share/zoneinfo/GMT-10
@@ -1022,13 +1021,10 @@ file /share/zoneinfo/GMT+12
 file /share/zoneinfo/GMT+13
 file /share/zoneinfo/Greenwich
 file /share/zoneinfo/HST
-file /share/zoneinfo/Iceland
 file /share/zoneinfo/Japan
-file /share/zoneinfo/MET
 file /share/zoneinfo/MST
 file /share/zoneinfo/MST7MDT
 file /share/zoneinfo/NZ
-file /share/zoneinfo/Poland
 file /share/zoneinfo/PST8PDT
 file /share/zoneinfo/Singapore
 file /share/zoneinfo/SystemV/AST4

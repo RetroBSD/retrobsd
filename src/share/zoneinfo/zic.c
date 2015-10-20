@@ -448,7 +448,8 @@ char *	argv[];
 static void
 setboundaries()
 {
-	register time_t 	bit;
+	register time_t bit;
+        struct tm zerotm = {0};
 
 	for (bit = 1; bit > 0; bit <<= 1)
 		;
@@ -458,10 +459,9 @@ setboundaries()
 		max_time = ~(time_t) 0;
 	} else {
 		tt_signed = TRUE;
-		min_time = bit;
-		max_time = bit;
-		++max_time;
-		max_time = -max_time;
+                min_time = mktime(&zerotm);
+                zerotm.tm_year = TZ_MAX_TIMES/2 - 2;
+                max_time = mktime(&zerotm);
 	}
 	min_year = TM_YEAR_BASE + gmtime(&min_time)->tm_year;
 	max_year = TM_YEAR_BASE + gmtime(&max_time)->tm_year;

@@ -1,15 +1,16 @@
 /*
  *	@(#)zic.c	1.1 zic.c 3/4/87
  */
-
-#include "stdio.h"
-#include "ctype.h"
-#include "sys/types.h"
-#include "sys/stat.h"
-#include "sys/file.h"
-#include "strings.h"
-#include "time.h"
-#include "tzfile.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/file.h>
+#include <strings.h>
+#include <time.h>
+#include <tzfile.h>
+#include <getopt.h>
 
 #ifndef BUFSIZ
 #define BUFSIZ	1024
@@ -23,50 +24,47 @@
 extern char *	icpyalloc();
 extern char *	imalloc();
 extern char *	irealloc();
-extern char *	optarg;
-extern int	optind;
 extern char *	scheck();
-extern char *	sprintf();
 
-static		addtt();
-static		addtype();
-static		associate();
+static void	addtt();
+static int	addtype();
+static void	associate();
 static int	charcnt;
-static		ciequal();
+static int	ciequal();
 static long	eitol();
 static int	errors;
 static char *	filename;
 static char **	getfields();
 static long	gethms();
-static		infile();
-static		inlink();
-static		inrule();
-static		inzcont();
-static		inzone();
-static		inzsub();
+static void	infile();
+static void	inlink();
+static void	inrule();
+static int	inzcont();
+static int	inzone();
+static int	inzsub();
 static int	linenum;
-static		lowerit();
+static int	lowerit();
 static time_t	max_time;
 static int	max_year;
 static time_t	min_time;
 static int	min_year;
-static		mkdirs();
-static		newabbr();
+static int	mkdirs();
+static void	newabbr();
 static int	noise;
-static		nondunlink();
+static void	nondunlink();
 static long	oadd();
-static		outzone();
+static void	outzone();
 static char *	progname;
 static char *	rfilename;
 static int	rlinenum;
 static time_t	rpytime();
-static		rulesub();
-static		setboundaries();
+static void	rulesub();
+static void	setboundaries();
 static time_t	tadd();
 static int	timecnt;
 static int	tt_signed;
 static int	typecnt;
-static		yearistype();
+static int	yearistype();
 
 /*
 ** Line codes.
@@ -210,66 +208,66 @@ struct lookup {
 static struct lookup *	byword();
 
 static struct lookup	line_codes[] = {
-	"Rule",		LC_RULE,
-	"Zone",		LC_ZONE,
-	"Link",		LC_LINK,
-	NULL,		0
+	{ "Rule",	LC_RULE },
+	{ "Zone",	LC_ZONE },
+	{ "Link",	LC_LINK },
+	{ NULL,		0 }
 };
 
 static struct lookup	mon_names[] = {
-	"January",	TM_JANUARY,
-	"February",	TM_FEBRUARY,
-	"March",	TM_MARCH,
-	"April",	TM_APRIL,
-	"May",		TM_MAY,
-	"June",		TM_JUNE,
-	"July",		TM_JULY,
-	"August",	TM_AUGUST,
-	"September",	TM_SEPTEMBER,
-	"October",	TM_OCTOBER,
-	"November",	TM_NOVEMBER,
-	"December",	TM_DECEMBER,
-	NULL,		0
+	{ "January",	TM_JANUARY },
+	{ "February",	TM_FEBRUARY },
+	{ "March",	TM_MARCH },
+	{ "April",	TM_APRIL },
+	{ "May",	TM_MAY },
+	{ "June",	TM_JUNE },
+	{ "July",	TM_JULY },
+	{ "August",	TM_AUGUST },
+	{ "September",	TM_SEPTEMBER },
+	{ "October",	TM_OCTOBER },
+	{ "November",	TM_NOVEMBER },
+	{ "December",	TM_DECEMBER },
+	{ NULL,		0 }
 };
 
 static struct lookup	wday_names[] = {
-	"Sunday",	TM_SUNDAY,
-	"Monday",	TM_MONDAY,
-	"Tuesday",	TM_TUESDAY,
-	"Wednesday",	TM_WEDNESDAY,
-	"Thursday",	TM_THURSDAY,
-	"Friday",	TM_FRIDAY,
-	"Saturday",	TM_SATURDAY,
-	NULL,		0
+	{ "Sunday",	TM_SUNDAY },
+	{ "Monday",	TM_MONDAY },
+	{ "Tuesday",	TM_TUESDAY },
+	{ "Wednesday",	TM_WEDNESDAY },
+	{ "Thursday",	TM_THURSDAY },
+	{ "Friday",	TM_FRIDAY },
+	{ "Saturday",	TM_SATURDAY },
+	{ NULL,		0 }
 };
 
 static struct lookup	lasts[] = {
-	"last-Sunday",		TM_SUNDAY,
-	"last-Monday",		TM_MONDAY,
-	"last-Tuesday",		TM_TUESDAY,
-	"last-Wednesday",	TM_WEDNESDAY,
-	"last-Thursday",	TM_THURSDAY,
-	"last-Friday",		TM_FRIDAY,
-	"last-Saturday",	TM_SATURDAY,
-	NULL,			0
+	{ "last-Sunday",	TM_SUNDAY },
+	{ "last-Monday",	TM_MONDAY },
+	{ "last-Tuesday",	TM_TUESDAY },
+	{ "last-Wednesday",	TM_WEDNESDAY },
+	{ "last-Thursday",	TM_THURSDAY },
+	{ "last-Friday",	TM_FRIDAY },
+	{ "last-Saturday",	TM_SATURDAY },
+	{ NULL,			0 }
 };
 
 static struct lookup	begin_years[] = {
-	"minimum",		YR_MINIMUM,
-	"maximum",		YR_MAXIMUM,
-	NULL,			0
+	{ "minimum",		YR_MINIMUM },
+	{ "maximum",		YR_MAXIMUM },
+	{ NULL,			0 }
 };
 
 static struct lookup	end_years[] = {
-	"minimum",		YR_MINIMUM,
-	"maximum",		YR_MAXIMUM,
-	"only",			YR_ONLY,
-	NULL,			0
+	{ "minimum",		YR_MINIMUM },
+	{ "maximum",		YR_MAXIMUM },
+	{ "only",		YR_ONLY },
+	{ NULL,			0 }
 };
 
 static int	len_months[2][MONS_PER_YEAR] = {
-	31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31,
-	31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+	{ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 },
+	{ 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 }
 };
 
 static int	len_years[2] = {
@@ -306,7 +304,7 @@ char *	ptr;
 ** Error handling.
 */
 
-static
+static void
 eats(name, num, rname, rnum)
 char *	name;
 char *	rname;
@@ -317,14 +315,14 @@ char *	rname;
 	rlinenum = rnum;
 }
 
-static
+static void
 eat(name, num)
 char *	name;
 {
 	eats(name, num, (char *) NULL, -1);
 }
 
-static
+static void
 error(string)
 char *	string;
 {
@@ -342,7 +340,7 @@ char *	string;
 	++errors;
 }
 
-static
+static void
 usage()
 {
 	(void) fprintf(stderr,
@@ -354,6 +352,7 @@ usage()
 static char *	lcltime = NULL;
 static char *	directory = NULL;
 
+int
 main(argc, argv)
 int	argc;
 char *	argv[];
@@ -445,7 +444,7 @@ char *	argv[];
 	exit((errors == 0) ? 0 : 1);
 }
 
-static
+static void
 setboundaries()
 {
 	register time_t 	bit;
@@ -471,7 +470,7 @@ setboundaries()
 ** We get to be careful here since there's a fair chance of root running us.
 */
 
-static
+static void
 nondunlink(name)
 char *	name;
 {
@@ -492,7 +491,7 @@ char *	name;
 ** Sort by rule name.
 */
 
-static
+static int
 rcomp(cp1, cp2)
 char *	cp1;
 char *	cp2;
@@ -501,7 +500,7 @@ char *	cp2;
 		((struct rule *) cp2)->r_name);
 }
 
-static
+static void
 associate()
 {
 	register struct zone *	zp;
@@ -549,7 +548,7 @@ associate()
 		exit(1);
 }
 
-static
+static void
 infile(name)
 char *	name;
 {
@@ -674,7 +673,7 @@ char *	errstring;
 		eitol(SECS_PER_MIN) + eitol(ss));
 }
 
-static
+static void
 inrule(fields, nfields)
 register char **	fields;
 {
@@ -700,7 +699,7 @@ register char **	fields;
 	rules[nrules++] = r;
 }
 
-static
+static int
 inzone(fields, nfields)
 register char **	fields;
 {
@@ -732,7 +731,7 @@ register char **	fields;
 	return inzsub(fields, nfields, FALSE);
 }
 
-static
+static int
 inzcont(fields, nfields)
 register char **	fields;
 {
@@ -743,7 +742,7 @@ register char **	fields;
 	return inzsub(fields, nfields, TRUE);
 }
 
-static
+static int
 inzsub(fields, nfields, iscont)
 register char **	fields;
 {
@@ -813,7 +812,7 @@ error("Zone continuation line end time is not after end time of previous line");
 	return hasuntil;
 }
 
-static
+static void
 inlink(fields, nfields)
 register char **	fields;
 {
@@ -840,7 +839,7 @@ register char **	fields;
 	links[nlinks++] = l;
 }
 
-static
+static void
 rulesub(rp, loyearp, hiyearp, typep, monthp, dayp, timep)
 register struct rule *	rp;
 char *			loyearp;
@@ -981,7 +980,7 @@ char *			timep;
 	}
 }
 
-static
+static void
 puttzcode(val, fp)
 long	val;
 FILE *	fp;
@@ -995,7 +994,7 @@ FILE *	fp;
 	}
 }
 
-static
+static void
 writezone(name)
 char *	name;
 {
@@ -1042,7 +1041,7 @@ char *	name;
 	}
 }
 
-static
+static void
 outzone(zpfirst, zonecount)
 struct zone *	zpfirst;
 {
@@ -1187,7 +1186,7 @@ addtt(starttime, addtype(startoff, startbuf, startisdst));
 	writezone(zpfirst->z_name);
 }
 
-static
+static void
 addtt(starttime, type)
 time_t	starttime;
 {
@@ -1202,7 +1201,7 @@ time_t	starttime;
 	++timecnt;
 }
 
-static
+static int
 addtype(gmtoff, abbr, isdst)
 long	gmtoff;
 char *	abbr;
@@ -1215,7 +1214,7 @@ char *	abbr;
 	*/
 	for (i = 0; i < typecnt; ++i) {
 		if (gmtoff == gmtoffs[i] && isdst == isdsts[i] &&
-			strcmp(abbr, &chars[abbrinds[i]]) == 0)
+			strcmp(abbr, &chars[(int)abbrinds[i]]) == 0)
 				return i;
 	}
 	/*
@@ -1239,7 +1238,7 @@ char *	abbr;
 	return i;
 }
 
-static
+static int
 yearistype(year, type)
 char *	type;
 {
@@ -1265,13 +1264,13 @@ char *	type;
 		exit(1);
 }
 
-static
+static int
 lowerit(a)
 {
 	return (isascii(a) && isupper(a)) ? tolower(a) : a;
 }
 
-static
+static int
 ciequal(ap, bp)		/* case-insensitive equality */
 register char *	ap;
 register char *	bp;
@@ -1282,7 +1281,7 @@ register char *	bp;
 	return FALSE;
 }
 
-static
+static int
 isabbr(abbr, word)
 register char *	abbr;
 register char *	word;
@@ -1318,10 +1317,11 @@ register struct lookup *	table;
 	*/
 	foundlp = NULL;
 	for (lp = table; lp->l_word != NULL; ++lp)
-		if (isabbr(word, lp->l_word))
+		if (isabbr(word, lp->l_word)) {
 			if (foundlp == NULL)
 				foundlp = lp;
 			else	return NULL;	/* multiple inexact matches */
+                }
 	return foundlp;
 }
 
@@ -1368,7 +1368,8 @@ long	t2;
 	register long	t;
 
 	t = t1 + t2;
-	if (t2 > 0 && t <= t1 || t2 < 0 && t >= t1) {
+	if ((t2 > 0 && t <= t1) ||
+            (t2 < 0 && t >= t1)) {
 		error("time overflow");
 		exit(1);
 	}
@@ -1387,7 +1388,8 @@ long	t2;
 	if (t1 == min_time && t2 < 0)
 		return min_time;
 	t = t1 + t2;
-	if (t2 > 0 && t <= t1 || t2 < 0 && t >= t1) {
+	if ((t2 > 0 && t <= t1) ||
+            (t2 < 0 && t >= t1)) {
 		error("time overflow");
 		exit(1);
 	}
@@ -1490,7 +1492,7 @@ register int		wantedy;
 	return tadd(t, rp->r_tod);
 }
 
-static
+static void
 newabbr(string)
 char *	string;
 {
@@ -1505,7 +1507,7 @@ char *	string;
 	charcnt += eitol(i);
 }
 
-static
+static int
 mkdirs(name)
 char *	name;
 {
@@ -1530,7 +1532,9 @@ eitol(i)
 	long	l;
 
 	l = i;
-	if (i < 0 && l >= 0 || i == 0 && l != 0 || i > 0 && l <= 0) {
+	if ((i < 0 && l >= 0) ||
+            (i == 0 && l != 0) ||
+            (i > 0 && l <= 0)) {
 		(void) fprintf(stderr, "%s: %d did not sign extend correctly\n",
 			progname, i);
 		exit(1);

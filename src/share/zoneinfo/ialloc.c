@@ -1,10 +1,9 @@
 /*
  *	@(#)ialloc.c	1.1 ialloc.c 3/4/87
  */
-
-/*LINTLIBRARY*/
-
-#include "stdio.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #ifndef alloc_t
 #define alloc_t	unsigned
@@ -15,11 +14,6 @@
 #else /* !MAL */
 #define NULLMAL(x)	((x) == NULL)
 #endif /* !MAL */
-
-extern char *	calloc();
-extern char *	malloc();
-extern char *	realloc();
-extern char *	strcpy();
 
 char *
 imalloc(n)
@@ -63,7 +57,7 @@ char *	old;
 char *	new;
 {
 	register char *	result;
-	register	oldsize, newsize;
+	register int	oldsize, newsize;
 
 	oldsize = NULLMAL(old) ? 0 : strlen(old);
 	newsize = NULLMAL(new) ? 0 : strlen(new);
@@ -80,6 +74,7 @@ char *	string;
 	return icatalloc((char *) NULL, string);
 }
 
+void
 ifree(p)
 char *	p;
 {

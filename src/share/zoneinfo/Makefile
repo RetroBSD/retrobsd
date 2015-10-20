@@ -1,12 +1,12 @@
 # @(#)Makefile	1.6 Makefile 1997/12/28
-
-DESTDIR=
+TOPSRC          = $(shell cd ../../..; pwd)
+include $(TOPSRC)/target.mk
 
 # If you want something other than Western United States time used on your
 # system, change the line below (after finding the zone you want in the
 # time zone files, or adding it to a time zone file).
 # Alternately, if you discover you've got the wrong time zone, you can just
-#	install -c -m 444 /usr/share/zoneinfo/right_zone /etc/localtime
+#	install -c -m 444 /share/zoneinfo/right_zone /etc/localtime
 
 LOCALTIME=	US/Pacific
 
@@ -21,7 +21,7 @@ LOCALTIME=	US/Pacific
 CFLAGS= -O
 SEPFLAG=-i
 LINTFLAGS=	-phbaxc
-CC=		cc
+CC=		cc -g -Wall -Werror
 
 TZCSRCS=	zic.c scheck.c ialloc.c
 TZCOBJS=	zic.o scheck.o ialloc.o
@@ -36,23 +36,23 @@ ZDUMAN=		zdump.0
 ZDUMANSRC=	zdump.8
 MAN=		$(ZICMAN) $(ZDUMAN)
 MANSRC=		$(ZICMANSRC) $(ZDUMAN)
-SHARDIR=	${DESTDIR}/usr/share/zoneinfo
-MANDIR=		${DESTDIR}/usr/man/cat8
+SHARDIR=	${DESTDIR}/share/zoneinfo
+MANDIR=		${DESTDIR}/man/cat8
 
 all:		zdump zic ${ZICMAN} ${ZDUMAN}
 
 install:	zic $(DATA) $(MAN)
 		(umask 22; ./zic -d ${SHARDIR} $(DATA))
-		install -c -m 444 -o bin -g bin ${SHARDIR}/${LOCALTIME} ${DESTDIR}/etc/localtime
-		install -c -m 444 -o bin -g bin $(ZICMAN) ${MANDIR}/${ZICMAN}
-		install -c -m 444 -o bin -g bin $(ZDUMAN) ${MANDIR}/${ZDUMAN}
-		install -c -s -m 755 -o bin -g bin zic ${DESTDIR}/usr/sbin/zic
+		install -c ${SHARDIR}/${LOCALTIME} ${DESTDIR}/etc/localtime
+#		install -c $(ZICMAN) ${MANDIR}/${ZICMAN}
+#		install -c $(ZDUMAN) ${MANDIR}/${ZDUMAN}
+#		install -c -s zic ${DESTDIR}/sbin/zic
 
 zdump.0:	$(ZDUMANSRC)
-		/usr/man/manroff $(ZDUMANSRC) > $(ZDUMAN)
+		nroff -man $(ZDUMANSRC) > $(ZDUMAN)
 
 zic.0:		$(ZICMANSRC)
-		/usr/man/manroff $(ZICMANSRC) > $(ZICMAN)
+		nroff -man $(ZICMANSRC) > $(ZICMAN)
 
 zdump:		$(TZDOBJS)
 		$(CC) $(CFLAGS) $(LFLAGS) $(SEPFLAG) $(TZDOBJS) -o $@

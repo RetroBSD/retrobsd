@@ -1,11 +1,10 @@
 /*
  *	@(#)scheck.c	1.1 scheck.c 3/4/87
  */
-
-/*LINTLIBRARY*/
-
-#include "stdio.h"
-#include "ctype.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <string.h>
 
 extern char *	imalloc();
 

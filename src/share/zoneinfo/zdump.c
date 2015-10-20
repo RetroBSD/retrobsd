@@ -1,38 +1,59 @@
 /*
  *	@(#)zdump.c	1.1 zdump.c 3/4/87
  */
-
-#include "stdio.h"
-
-#include "sys/types.h"
-#include "tzfile.h"
-#include "time.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <tzfile.h>
+#include <time.h>
+#include <getopt.h>
 
 #ifndef TRUE
 #define TRUE		1
 #define FALSE		0
 #endif
 
-extern char *		asctime();
-extern char **		environ;
-extern struct tm *	gmtime();
-extern char *		imalloc();
-extern char *		optarg;
-extern int		optind;
-extern char *		sprintf();
-extern long		time();
-extern char *		tzname[2];
-extern void		tzset();
+extern char **environ;
 
-/*
-** For the benefit of cyntax...
-*/
-
-static long		tzdecode();
-static			readerr();
-static			show();
+extern char *imalloc(int);
 
 static int		longest;
+
+static void
+show(zone, t, v)
+char *	zone;
+time_t	t;
+{
+	struct tm *		tmp;
+	extern struct tm *	localtime();
+
+	(void) printf("%-*s  ", longest, zone);
+	if (v)
+		(void) printf("%.24s GMT = ", asctime(gmtime(&t)));
+	tmp = localtime(&t);
+	(void) printf("%.24s", asctime(tmp));
+	if (*tzname[tmp->tm_isdst] != '\0')
+		(void) printf(" %s", tzname[tmp->tm_isdst]);
+	if (v) {
+		(void) printf(" isdst=%d", tmp->tm_isdst);
+		(void) printf(" gmtoff=%ld", tmp->tm_gmtoff);
+	}
+	(void) printf("\n");
+}
+
+static void
+readerr(fp, progname, filename)
+FILE *	fp;
+char *	progname;
+char *	filename;
+{
+	(void) fprintf(stderr, "%s: Error reading ", progname);
+	if (ferror(fp))
+		perror(filename);
+	else	(void) fprintf(stderr, "%s: Premature EOF\n", filename);
+	exit(1);
+}
 
 static long
 tzdecode(codep)
@@ -47,6 +68,7 @@ char *	codep;
 	return result;
 }
 
+int
 main(argc, argv)
 int	argc;
 char *	argv[];
@@ -55,7 +77,7 @@ char *	argv[];
 	register int	i, j, c;
 	register int	vflag;
 	register char *	cutoff;
-	register int	cutyear;
+	register int	cutyear = 0;
 	register long	cuttime;
 	time_t		now;
 	time_t		t;
@@ -68,7 +90,8 @@ char *	argv[];
 		if (c == 'v')
 			vflag = 1;
 		else	cutoff = optarg;
-	if (c != EOF || optind == argc - 1 && strcmp(argv[optind], "=") == 0) {
+	if (c != EOF ||
+            (optind == argc - 1 && strcmp(argv[optind], "=") == 0)) {
 		(void) fprintf(stderr, "%s: usage is %s [ -v ] zonename ...\n",
 			argv[0], argv[0]);
 		exit(1);
@@ -171,39 +194,4 @@ char *	argv[];
 		exit(1);
 	}
 	return 0;
-}
-
-static
-show(zone, t, v)
-char *	zone;
-time_t	t;
-{
-	struct tm *		tmp;
-	extern struct tm *	localtime();
-
-	(void) printf("%-*s  ", longest, zone);
-	if (v)
-		(void) printf("%.24s GMT = ", asctime(gmtime(&t)));
-	tmp = localtime(&t);
-	(void) printf("%.24s", asctime(tmp));
-	if (*tzname[tmp->tm_isdst] != '\0')
-		(void) printf(" %s", tzname[tmp->tm_isdst]);
-	if (v) {
-		(void) printf(" isdst=%d", tmp->tm_isdst);
-		(void) printf(" gmtoff=%ld", tmp->tm_gmtoff);
-	}
-	(void) printf("\n");
-}
-
-static
-readerr(fp, progname, filename)
-FILE *	fp;
-char *	progname;
-char *	filename;
-{
-	(void) fprintf(stderr, "%s: Error reading ", progname);
-	if (ferror(fp))
-		perror(filename);
-	else	(void) fprintf(stderr, "%s: Premature EOF\n", filename);
-	exit(1);
 }

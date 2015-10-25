@@ -41,7 +41,7 @@ MANDIR=		${DESTDIR}/man/cat8
 all:		tzfile.h zdump zic ${ZICMAN} ${ZDUMAN}
 
 install:	zic $(DATA) $(MAN)
-		(umask 22; ./zic -d ${SHARDIR} $(DATA))
+		(umask 22; ./zic -v -d ${SHARDIR} $(DATA))
 		install -c ${SHARDIR}/${LOCALTIME} ${DESTDIR}/etc/localtime
 #		install -c $(ZICMAN) ${MANDIR}/${ZICMAN}
 #		install -c $(ZDUMAN) ${MANDIR}/${ZDUMAN}

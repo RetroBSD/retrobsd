@@ -459,9 +459,19 @@ setboundaries()
 		max_time = ~(time_t) 0;
 	} else {
 		tt_signed = TRUE;
-                min_time = mktime(&zerotm);
+		for (;;) {
+                    min_time = mktime(&zerotm);
+                    if (min_time != -1)
+                        break;
+                    zerotm.tm_year++;
+                }
                 zerotm.tm_year = TZ_MAX_TIMES/2 - 2;
-                max_time = mktime(&zerotm);
+		for (;;) {
+                    max_time = mktime(&zerotm);
+                    if (max_time != -1)
+                        break;
+                    zerotm.tm_year--;
+                }
 	}
 	min_year = TM_YEAR_BASE + gmtime(&min_time)->tm_year;
 	max_year = TM_YEAR_BASE + gmtime(&max_time)->tm_year;

@@ -436,7 +436,7 @@ void mips_trigger_exception (cpu_mips_t * cpu, u_int exc_code, int bd_slot)
 
     /* we don't set EPC if EXL is set */
     if (!(cp0->reg[MIPS_CP0_STATUS] & MIPS_CP0_STATUS_EXL)) {
-        cp0->reg[MIPS_CP0_EPC] = cpu->pc;
+        cp0->reg[MIPS_CP0_EPC] = cpu->pc | cpu->is_mips16e;
         /*Cause BD is not update. MIPS VOLUME  V3 P65 */
         cause &= ~MIPS_CP0_CAUSE_BD_SLOT;       //clear bd
         if (bd_slot)
@@ -446,6 +446,7 @@ void mips_trigger_exception (cpu_mips_t * cpu, u_int exc_code, int bd_slot)
 
     }
 
+    cpu->is_mips16e = 0;
     cause &= ~MIPS_CP0_CAUSE_EXC_MASK;  //clear exec-code
     cause |= (exc_code << 2);
     cp0->reg[MIPS_CP0_CAUSE] = cause;
@@ -535,6 +536,8 @@ void fastcall mips_exec_eret (cpu_mips_t * cpu)
     /* We have to clear the LLbit */
     cpu->ll_bit = 0;
 
+    cpu->is_mips16e = cpu->pc & 1;
+    cpu->pc &= 0xFFFFFFFE;
 }
 
 /* Execute BREAK instruction */

@@ -33,3 +33,4 @@ clean:
 		rm -f *.o smlrc smlrc.dis smlrc.elf
 ###
 smlrc.o: smlrc.c cgmips.c
+		${CC} ${CFLAGS} -mips16 smlrc.c -c -o $@

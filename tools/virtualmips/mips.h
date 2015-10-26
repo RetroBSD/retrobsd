@@ -427,6 +427,9 @@ struct cpu_mips {
     u_int addr_mode;
 
     int is_in_bdslot;
+    int insn_len; /* length of last fetched instruction in bytes */
+    int is_mips16e; /* 1 if ISA Mode is MIPS16e, 0 if MIPS32 */
+
     int trace_syscall;
 
     /* Current exec page (non-JIT) info */

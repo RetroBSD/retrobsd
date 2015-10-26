@@ -39,6 +39,9 @@ static const struct mips_op_desc mips_spec2_opcodes[];
 static const struct mips_op_desc mips_spec3_opcodes[];
 static const struct mips_op_desc mips_tlb_opcodes[];
 
+static int mips_exec_mips16e (cpu_mips_t * cpu,
+    mips_insn_t instruction);
+
 extern cpu_mips_t *current_cpu;
 
 /*for emulation performance check*/
@@ -56,11 +59,9 @@ static void forced_inline mips_main_loop_wait (cpu_mips_t * cpu,
         vp_get_clock (rt_clock));
 }
 
-/* Execute a memory operation (2) */
-static int forced_inline mips_exec_memop2 (cpu_mips_t * cpu, int memop,
-    m_va_t base, int offset, u_int dst_reg, int keep_ll_bit)
+static int forced_inline mips_exec_memop (cpu_mips_t * cpu, int memop,
+    m_va_t vaddr, u_int dst_reg, int keep_ll_bit)
 {
-    m_va_t vaddr = cpu->gpr[base] + sign_extend (offset, 16);
     mips_memop_fn fn;
 
     if (!keep_ll_bit)
@@ -69,8 +70,16 @@ static int forced_inline mips_exec_memop2 (cpu_mips_t * cpu, int memop,
     return (fn (cpu, vaddr, dst_reg));
 }
 
+/* Execute a memory operation (2) */
+static int forced_inline mips_exec_memop2 (cpu_mips_t * cpu, int memop,
+    u_int base_reg, int offset, u_int dst_reg, int keep_ll_bit)
+{
+    m_va_t vaddr = cpu->gpr[base_reg] + sign_extend (offset, 16);
+    return mips_exec_memop (cpu, memop, vaddr, dst_reg, keep_ll_bit);
+}
+
 /* Fetch an instruction */
-int mips_fetch_instruction (cpu_mips_t * cpu,
+static int mips_fetch_instruction_word (cpu_mips_t * cpu,
     m_va_t pc, mips_insn_t * insn)
 {
     m_va_t exec_page;
@@ -89,6 +98,42 @@ int mips_fetch_instruction (cpu_mips_t * cpu,
     *insn = vmtoh32 (cpu->njm_exec_ptr[offset]);
 //  printf ("(%08x) %08x\n", pc, *insn);
     return (0);
+}
+
+int mips_fetch_instruction (cpu_mips_t * cpu,
+    m_va_t pc, mips_insn_t * insn)
+{
+    int res = mips_fetch_instruction_word(cpu, pc, insn);
+    cpu->insn_len = 4;
+    if (unlikely(res)) {
+        return res;
+    }
+    if (unlikely(cpu->is_mips16e)) {
+        mips_insn_t i;
+        if (pc & 2) {
+            i = *insn >> 16;
+        } else {
+            i = *insn & 0xFFFF;
+        }
+        if (unlikely((i >> 11) == 0x1E || (i >> 11) == 3)) {
+            /* 4-byte extended instruction or jal(x) */
+            if (pc & 2) {
+                /* 2 more bytes needed */
+                res = mips_fetch_instruction_word(cpu, pc + 2, insn);
+                if (unlikely(res)) {
+                    return res;
+                }
+                *insn = (i << 16) | (*insn & 0xFFFF);
+            } else {
+                *insn = (*insn << 16) | (*insn >> 16);
+            }
+        } else {
+            /* 2-byte instruction */
+            *insn = i;
+            cpu->insn_len = 2;
+        }
+    }
+    return res;
 }
 
 /* Execute a single instruction */
@@ -111,9 +156,13 @@ static forced_inline int mips_exec_single_instruction (cpu_mips_t * cpu,
         exit (1);
     }
 #endif
-    register uint op;
-    op = MAJOR_OP (instruction);
-    return mips_opcodes[op].func (cpu, instruction);
+    if (unlikely(cpu->is_mips16e)) {
+        return mips_exec_mips16e (cpu, instruction);
+    } else {
+        register uint op;
+        op = MAJOR_OP (instruction);
+        return mips_opcodes[op].func (cpu, instruction);
+    }
 }
 
 /* Single-step execution */
@@ -121,11 +170,12 @@ void fastcall mips_exec_single_step (cpu_mips_t * cpu,
     mips_insn_t instruction)
 {
     int res;
+    int insn_len = cpu->insn_len;
 
     res = mips_exec_single_instruction (cpu, instruction);
     /* Normal flow ? */
     if (likely (!res))
-        cpu->pc += 4;
+        cpu->pc += insn_len;
 }
 
 void dumpregs (cpu_mips_t *cpu)
@@ -164,6 +214,8 @@ void *mips_cpu_fdd (cpu_mips_t * cpu)
 
 start_cpu:
     for (;;) {
+        int insn_len;
+
         if (unlikely (cpu->state != CPU_STATE_RUNNING))
             break;
 
@@ -182,6 +234,7 @@ start_cpu:
         }
         /* Fetch  the instruction */
         res = mips_fetch_instruction (cpu, cpu->pc, &insn);
+        insn_len = cpu->insn_len;
 
         if (cpu->vm->trace_address == cpu->pc) {
             /* Trace address. */
@@ -228,11 +281,12 @@ start_cpu:
             }
 #endif
         }
+
         res = mips_exec_single_instruction (cpu, insn);
 
         /* Normal flow ? */
         if (likely (!res))
-            cpu->pc += sizeof (mips_insn_t);
+            cpu->pc += insn_len;
     }
 
     while (cpu->cpu_thread_running) {
@@ -266,15 +320,18 @@ static forced_inline int mips_exec_bdslot (cpu_mips_t * cpu)
 {
     mips_insn_t insn;
     int res = 0;
+    int insn_len = cpu->insn_len;
+
     cpu->is_in_bdslot = 1;
 
     /* Fetch the instruction in delay slot */
-    res = mips_fetch_instruction (cpu, cpu->pc + 4, &insn);
+    res = mips_fetch_instruction (cpu, cpu->pc + insn_len, &insn);
     if (res == 1) {
         /*exception when fetching instruction */
         cpu->is_in_bdslot = 0;
         return (1);
     }
+
     cpu->is_in_bdslot = 1;
 
     if (cpu->vm->debug_level > 2 || (cpu->vm->debug_level > 1 &&
@@ -282,7 +339,7 @@ static forced_inline int mips_exec_bdslot (cpu_mips_t * cpu)
         ! (cpu->cp0.reg[MIPS_CP0_STATUS] & MIPS_CP0_STATUS_EXL)))
     {
         /* Print instructions in user mode. */
-        printf ("%08x:       %08x        ", cpu->pc + 4, insn);
+        printf ("%08x:       %08x        ", cpu->pc + insn_len, insn);
         print_insn_mips (cpu->pc, insn, stdout);
         printf ("\n");
         fflush (stdout);
@@ -290,6 +347,7 @@ static forced_inline int mips_exec_bdslot (cpu_mips_t * cpu)
 
     /* Execute the instruction */
     res = mips_exec_single_instruction (cpu, insn);
+
     cpu->is_in_bdslot = 0;
     return res;
 }

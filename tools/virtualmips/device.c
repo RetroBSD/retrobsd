@@ -226,6 +226,7 @@ struct vdevice *dev_create_ram (vm_instance_t * vm, char *name, m_pa_t paddr,
     dev->phys_len = len;
     //dev->flags = VDEVICE_FLAG_CACHING;
     dev->host_addr = (m_iptr_t) m_memalign (4096, dev->phys_len);
+    memset ((void*) dev->host_addr, 0, dev->phys_len);
 
     if (!dev->host_addr) {
         free (dev);

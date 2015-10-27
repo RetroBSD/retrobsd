@@ -63,7 +63,7 @@ int main (int argc, char *argv[])
     char *configure_filename = NULL;
 
     printf ("VirtualMIPS (version %s)\n", VERSION);
-    printf ("Copyright (c) 2008 yajin, 2011 vak.\n");
+    printf ("Copyright (c) 2008 yajin, 2011-2015 vak.\n");
     printf ("Build date: %s %s\n\n", __DATE__, __TIME__);
 
     /* Initialize CRC functions */

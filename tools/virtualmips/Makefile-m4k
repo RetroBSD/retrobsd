@@ -33,12 +33,17 @@ endif
 CFLAGS		+= -O
 #CFLAGS		+= -O3 -fomit-frame-pointer
 
-PROG		= pic32
-OBJS		= pic32.o pic32_dev_flash.o pic32_dev_uart.o pic32_dev_intcon.o \
-              pic32_dev_spi.o pic32_dev_gpio.o dev_sdcard.o dev_swap.o \
-              pic32_dev_bmxcon.o pic32_dev_dmacon.o pic32_dev_syscon.o \
-              pic32_dev_prefetch.o pic32_dev_adc.o pic32_dev_devcfg.o \
-              pic32_dev_rtcc.o pic32_dev_timer.o
+# Microchip PIC32MX
+#PROG		= pic32
+#OBJS		= pic32.o pic32_dev_flash.o pic32_dev_uart.o pic32_dev_intcon.o \
+#              pic32_dev_spi.o pic32_dev_gpio.o dev_sdcard.o dev_swap.o \
+#              pic32_dev_bmxcon.o pic32_dev_dmacon.o pic32_dev_syscon.o \
+#              pic32_dev_prefetch.o pic32_dev_adc.o pic32_dev_devcfg.o \
+#              pic32_dev_rtcc.o pic32_dev_timer.o
+
+# Generic M4K core
+PROG		= m4k
+OBJS		= m4k.o
 
 # Ingenic JZ4740.
 #CFLAGS		+= -DSIM_PAVO -D_USE_FDD_
@@ -74,7 +79,7 @@ $(PROG):	$(OBJS)
 			@mkdir .deps
 
 clean:
-			rm -rf *.o *~ *_log.txt .deps pavo pic32 m4k
+			rm -rf *.o *~ *_log.txt .deps pavo m4k pic32 pic32-log.txt
 
 ifeq (.deps, $(wildcard .deps))
 -include .deps/*.dep

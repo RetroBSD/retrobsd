@@ -125,10 +125,12 @@ int vm_create_log (vm_instance_t * vm)
     if (vm->log_file_enabled) {
         vm_close_log (vm);
 
-        if (!(vm->log_file = vm_build_filename (vm, "log.txt")))
+        vm->log_file = vm_build_filename (vm, "log.txt");
+        if (! vm->log_file)
             return (-1);
 
-        if (!(vm->log_fd = fopen (vm->log_file, "w"))) {
+        vm->log_fd = fopen (vm->log_file, "w");
+        if (! vm->log_fd) {
             fprintf (stderr, "VM %s: unable to create log file '%s'\n",
                 vm->name, vm->log_file);
             free (vm->log_file);
@@ -174,7 +176,7 @@ vm_instance_t *vm_create (const char *name, int machine_type)
     for (i=1; i<NVTTY; i++)
         vm->vtty_type[i] = VTTY_TYPE_NONE;
     //vm->timer_irq_check_itv = VM_TIMER_IRQ_CHECK_ITV;
-    vm->log_file_enabled = TRUE;
+    //vm->log_file_enabled = TRUE;
 
     vm->name = strdup (name);
     if (!name) {
@@ -276,9 +278,6 @@ void vm_free (vm_instance_t * vm)
         free (vm);
     }
 }
-
-int dev_ram_init (vm_instance_t * vm, char *name, m_pa_t paddr,
-    m_uint32_t len);
 
 /*
  * Initialize RAM

@@ -2,7 +2,7 @@ TOPSRC          = $(shell cd ../../..; pwd)
 include $(TOPSRC)/target.mk
 #include $(TOPSRC)/cross.mk
 
-CFLAGS          = -Os
+CFLAGS          += -Os
 LIBS		= -lc
 
 ARCH            = mips

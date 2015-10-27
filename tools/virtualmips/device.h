@@ -68,6 +68,7 @@ static forced_inline
 
 struct vdevice *dev_lookup (vm_instance_t * vm, m_pa_t phys_addr);
 void dev_init (struct vdevice *dev);
+int dev_ram_init (vm_instance_t * vm, char *name, m_pa_t paddr, m_uint32_t len);
 struct vdevice *dev_create (char *name);
 struct vdevice *dev_create_ram (vm_instance_t * vm, char *name, m_pa_t paddr,
     m_uint32_t len);

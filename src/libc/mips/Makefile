@@ -17,7 +17,7 @@ mips.a:		${ALL}
 		rm -rf tmp
 
 ${ALL}:	FRC
-	cd $@; ${MAKE} ${MFLAGS} DEFS=${DEFS}
+	cd $@; ${MAKE} ${MFLAGS} DEFS="${DEFS}"
 
 FRC:
 
@@ -32,4 +32,4 @@ clean:
 
 depend:
 		for i in ${ALL}; do \
-			(cd $$i; ${MAKE} ${MFLAGS} DEFS=${DEFS} depend); done
+			(cd $$i; ${MAKE} ${MFLAGS} DEFS="${DEFS}" depend); done

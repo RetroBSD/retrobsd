@@ -27,7 +27,7 @@ void dev_ram_reset (cpu_mips_t * cpu, struct vdevice *dev)
 {
     assert (dev->host_addr != 0);
     /*reset ram */
-    memset ((unsigned char *) dev->host_addr, 0x0, dev->phys_len);
+    //memset ((unsigned char *) dev->host_addr, 0x0, dev->phys_len);
 
 }
 

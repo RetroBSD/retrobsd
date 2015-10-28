@@ -1389,6 +1389,21 @@ static int sltiu_op (cpu_mips_t * cpu, mips_insn_t insn)
     int imm = bits (insn, 0, 15);
     m_reg_t val = sign_extend (imm, 16);
 
+    if (rs == 0 && rt == 0 && cpu->magic_opcodes) {
+        if (imm == 0xabc1) {
+            printf ("%08x: Test FAIL\n", cpu->pc);
+            printf ("\n--- Stop simulation\n");
+            fprintf (stderr, "Test FAIL\n");
+            exit (EXIT_SUCCESS);
+        }
+        if (imm == 0xabc2) {
+            printf ("%08x: Test PASS\n", cpu->pc);
+            printf ("\n--- Stop simulation\n");
+            fprintf (stderr, "Test PASS\n");
+            exit (EXIT_SUCCESS);
+        }
+    }
+
     if (cpu->gpr[rs] < val)
         cpu->reg_set (cpu, rt, 1);
     else
@@ -2745,4 +2760,3 @@ lInvalidInstruction:
 #undef xsregs
 #undef code6
 }
-

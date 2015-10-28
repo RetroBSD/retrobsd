@@ -431,6 +431,7 @@ struct cpu_mips {
     int is_mips16e; /* 1 if ISA Mode is MIPS16e, 0 if MIPS32 */
 
     int trace_syscall;
+    int magic_opcodes;
 
     /* Current exec page (non-JIT) info */
     m_va_t njm_exec_page;

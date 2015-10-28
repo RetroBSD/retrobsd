@@ -213,76 +213,9 @@ void host_alarm (cpu_mips_t *cpu, int nclocks)
 }
 
 /*
- * Configuration information.
- */
-static char *start_address = "0xbfc00000";
-
-static void configure_parameter (void *arg, char *section, char *param, char *value)
-{
-    m4k_t *m4k = arg;
-    vm_instance_t *vm = m4k->vm;
-
-    if (strcmp (param, "ram_size") == 0)
-        vm->ram_size = strtoul (value, 0, 0);
-    else if (strcmp (param, "gdb_debug") == 0)
-        vm->gdb_debug = strtoul (value, 0, 0);
-    else if (strcmp (param, "gdb_port") == 0)
-        vm->gdb_port = strtoul (value, 0, 0);
-    else if (strcmp (param, "jit_use") == 0)
-        vm->jit_use = strtoul (value, 0, 0);
-    else if (strcmp (param, "debug_level") == 0)
-        vm->debug_level = strtoul (value, 0, 0);
-    else if (strcmp (param, "hex_file_name") == 0)
-        m4k->boot_file_name = strdup (value);
-    else if (strcmp (param, "start_address") == 0)
-        start_address = strdup (value);
-    else {
-        fprintf (stderr, "%s: unknown parameter `%s'\n", vm->configure_filename, param);
-        exit (-1);
-    }
-    //printf ("Configure: %s = '%s'\n", param, value);
-}
-
-static void m4k_parse_configure (m4k_t *m4k)
-{
-    vm_instance_t *vm = m4k->vm;
-
-    conf_parse (vm->configure_filename, configure_parameter, m4k);
-    if (start_address)
-        m4k->start_address = strtoul (start_address, 0, 0);
-
-    ASSERT(vm->ram_size != 0, "ram_size can not be 0\n");
-
-    /* Add other configure information validation here */
-    if (vm->jit_use) {
-        ASSERT (JIT_SUPPORT == 1,
-            "You must compile with JIT Support to use jit.\n");
-    }
-
-    const char *output_file_name = "m4k.trace";
-    printf ("Redirect output to %s\n", output_file_name);
-    if (freopen(output_file_name, "w", stdout) != stdout) {
-        fprintf (stderr, "M4K: Unable to redirect output!\n");
-        exit(-1);
-    }
-
-    /* Print the configure information */
-    printf("Using configure file: %s\n", vm->configure_filename);
-    printf("ram_size: %dk bytes \n", vm->ram_size);
-
-    if (vm->gdb_debug != 0) {
-    	printf("GDB debug enable\n");
-    	printf("GDB port: %d \n",vm->gdb_port);
-    }
-
-    /* print other configure information here */
-    printf ("start_address: 0x%x\n", m4k->start_address);
-}
-
-/*
  * Create an instance of virtual machine.
  */
-vm_instance_t *create_instance (char *configure_filename)
+vm_instance_t *create_instance (char *filename)
 {
     vm_instance_t *vm;
     m4k_t *m4k;
@@ -305,12 +238,22 @@ vm_instance_t *create_instance (char *configure_filename)
     m4k->vm = vm;
 
     /* Initialize default parameters for  m4k */
-    if (configure_filename == NULL)
-        configure_filename = "m4k.conf";
-    vm->configure_filename = strdup (configure_filename);
     vm->ram_size = 4*1024;          /* kilobytes */
+    vm->debug_level = 3;            /* trace all instructions */
 
-    m4k_parse_configure (m4k);
+    m4k->boot_file_name = filename ? filename : "test.hex";
+    m4k->start_address = 0xbfc00000;
+
+    const char *output_file_name = "m4k.trace";
+    printf ("Redirect output to %s\n", output_file_name);
+    if (freopen(output_file_name, "w", stdout) != stdout) {
+        fprintf (stderr, "M4K: Unable to redirect output!\n");
+        exit(-1);
+    }
+
+    /* Print the configure information */
+    printf("ram_size: %dk bytes \n", vm->ram_size);
+    printf("start_address: 0x%x\n", m4k->start_address);
 
     /* init gdb debug */
     vm_debug_init (m4k->vm);
@@ -359,6 +302,9 @@ int init_instance (vm_instance_t * vm)
     cpu->cp0.reg[MIPS_CP0_PRID] = 0x00018700;
     cpu->cp0.tlb_entries = 0;
     cpu->pc = m4k->start_address;
+
+    /* Enable magic opcodes. */
+    cpu->magic_opcodes = 1;
 
     /* reset all devices */
     dev_reset_all (vm);

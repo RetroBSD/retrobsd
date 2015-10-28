@@ -73,6 +73,8 @@ int main (int argc, char *argv[])
     vtty_init ();
 
     /* Create the default instance */
+    if (argc > 1)
+        configure_filename = argv[1];
     vm = create_instance (configure_filename);
     if (!vm)
         return EXIT_FAILURE;

@@ -544,7 +544,7 @@ static const struct mips_opcode mips_opcodes[] =
 {"daddu",   "d,v,t",    0x0000002d, 0xfc0007ff, WR_d|RD_s|RD_t,         0,              I3      },
 {"daddu",   "t,r,I",    0,    (int) M_DADDU_I,  INSN_MACRO,             0,              I3      },
 {"daddwc",  "d,s,t",    0x70000038, 0xfc0007ff, WR_d|RD_s|RD_t|WR_C0|RD_C0,     0,      XLR     },
-{"dbreak",  "",         0x7000003f, 0xffffffff, 0,                      0,              N5      },
+{"sdbbp",   "",         0x7000003f, 0xffffffff, 0,                      0,              N5      },
 {"dclo",    "U,s",      0x70000025, 0xfc0007ff, RD_s|WR_d|WR_t,         0,              I64|N55 },
 {"dclz",    "U,s",      0x70000024, 0xfc0007ff, RD_s|WR_d|WR_t,         0,              I64|N55 },
 /* dctr and dctw are used on the r5000.  */

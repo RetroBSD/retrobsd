@@ -78,10 +78,11 @@ static inline m_cp0_reg_t mips_cp0_get_reg_fast (cpu_mips_t * cpu,
 
     case MIPS_CP0_RANDOM:
         return (mips_cp0_get_random_reg (cpu));
+
     case MIPS_CP0_CONFIG:
         if (! ((1 << sel) & cp0->config_usable)) {
 unimpl:     fprintf (stderr,
-                "Reading unimplemented CP0 register %s\n",
+                "Read from unimplemented CP0 register %s\n",
                 cp0reg_name (cp0_reg, sel));
             return 0;
         }
@@ -93,6 +94,8 @@ unimpl:     fprintf (stderr,
             return cp0->reg[cp0_reg];
         case 1:                         /* IntCtl */
             return cp0->intctl_reg;
+        case 2:                         /* SRSCtl */
+            return 0;
         }
         goto unimpl;
 
@@ -172,6 +175,9 @@ void mips_cp0_set_reg (cpu_mips_t * cpu, u_int cp0_reg, u_int sel,
         case 1:                         /* IntCtl */
             cp0->intctl_reg = val;
             break;
+        case 2:                         /* SRSCtl */
+            /* Read-only */
+            break;
         default:
             goto unimpl;
         }
@@ -208,22 +214,23 @@ void mips_cp0_set_reg (cpu_mips_t * cpu, u_int cp0_reg, u_int sel,
     case MIPS_CP0_CONFIG:
         if (! ((1 << sel) & cp0->config_usable))
             goto unimpl;
-        if (sel != 0)
-            fprintf (stderr,
-                "Writing to read only configure register sel %u\n", sel);
-        if (sel == 0) {
+        switch (sel) {
+        case 0:                         /* Config */
             /* only bits 0:2 are writable */
             val &= 3;
             cp0->config_reg[sel] &= 0xfffffffc;
-            cp0->config_reg[sel] += val;
-        } else
-            cp0->config_reg[sel] = val;
+            cp0->config_reg[sel] |= val;
+            break;
+        default:
+            /* Config1-Config7 registers are read-only. */
+            break;
+        }
         break;
 
     default:
         if (sel != 0) {
 unimpl:     fprintf (stderr,
-                "Writing to unimplemented CP0 register %s\n",
+                "Write to unimplemented register %s\n",
                 cp0reg_name (cp0_reg, sel));
             break;
         }
@@ -372,7 +379,7 @@ void fastcall mips_cp0_exec_tlbr (cpu_mips_t * cpu)
     index = cp0->reg[MIPS_CP0_INDEX];
 
 #if DEBUG_TLB_ACTIVITY
-    cpu_log (cpu, "TLB", "CP0_TLBR: reading entry %u.\n", index);
+    cpu_log (cpu, "TLB", "CP0_TLBR: Read entry %u.\n", index);
 #endif
 
     if (index < cp0->tlb_entries) {

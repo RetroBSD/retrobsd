@@ -62,7 +62,7 @@ int main (int argc, char *argv[])
     vm_instance_t *vm;
     char *configure_filename = NULL;
 
-    printf ("VirtualMIPS (version %s)\n", VERSION);
+    printf ("\nVirtualMIPS (version %s)\n", VERSION);
     printf ("Copyright (c) 2008 yajin, 2011-2015 vak.\n");
     printf ("Build date: %s %s\n\n", __DATE__, __TIME__);
 

@@ -29,12 +29,12 @@
 #include "mips_cp0.h"
 #include "mips_jit.h"
 
-#define GDB_SR            32
-#define GDB_LO            33
-#define GDB_HI            34
-#define GDB_BAD         35
-#define GDB_CAUSE    36
-#define GDB_PC           37
+#define GDB_SR      32
+#define GDB_LO      33
+#define GDB_HI      34
+#define GDB_BAD     35
+#define GDB_CAUSE   36
+#define GDB_PC      37
 
 /* MIPS general purpose registers names */
 char *mips_gpr_reg_names[MIPS64_GPR_NR] = {
@@ -48,6 +48,11 @@ char *mips_gpr_reg_names[MIPS64_GPR_NR] = {
 static int cca_cache_status[8] = {
     1, 1, 0, 1, 0, 1, 0, 0,
 };
+
+/* Exception vectors. */
+#define VECTOR_TLB_REFILL   0x000
+#define VECTOR_GENERIC      0x180
+#define VECTOR_INTERRUPT    0x200
 
 /* Get register index given its name */
 int mips_get_reg_index (char *name)
@@ -429,21 +434,21 @@ void mips_trigger_exception (cpu_mips_t * cpu, u_int exc_code, int bd_slot)
 {
     mips_cp0_t *cp0 = &cpu->cp0;
     m_uint64_t new_pc;
+    m_uint32_t old_status = cp0->reg[MIPS_CP0_STATUS];
     m_reg_t cause;
 
     /* keep IM, set exception code and bd slot */
     cause = cp0->reg[MIPS_CP0_CAUSE];
 
-    /* we don't set EPC if EXL is set */
-    if (!(cp0->reg[MIPS_CP0_STATUS] & MIPS_CP0_STATUS_EXL)) {
+    /* If EXL is set, neither EPC nor Cause.BD are modified. */
+    if (! (old_status & MIPS_CP0_STATUS_EXL)) {
         cp0->reg[MIPS_CP0_EPC] = cpu->pc | cpu->is_mips16e;
-        /*Cause BD is not update. MIPS VOLUME  V3 P65 */
-        cause &= ~MIPS_CP0_CAUSE_BD_SLOT;       //clear bd
+
+        /* Update Cause.BD */
         if (bd_slot)
             cause |= MIPS_CP0_CAUSE_BD_SLOT;
         else
             cause &= ~MIPS_CP0_CAUSE_BD_SLOT;
-
     }
 
     cpu->is_mips16e = 0;
@@ -464,45 +469,33 @@ void mips_trigger_exception (cpu_mips_t * cpu, u_int exc_code, int bd_slot)
     if (cpu->vm->debug_level > 2) {
         printf ("        exception %u at %08x\n", exc_code, cpu->pc);
     }
+
+    /* Compute the vector address. */
     if (cp0->reg[MIPS_CP0_STATUS] & MIPS_CP0_STATUS_BEV) {
-        if ((exc_code == MIPS_CP0_CAUSE_TLB_LOAD)
-            || (exc_code == MIPS_CP0_CAUSE_TLB_SAVE)) {
-            if (cp0->reg[MIPS_CP0_STATUS] & MIPS_CP0_STATUS_EXL)
-                new_pc = 0xffffffffbfc00380ULL;
-            else
-                new_pc = 0xffffffffbfc00200ULL;
-        } else if (exc_code == MIPS_CP0_CAUSE_INTERRUPT) {
-            if (cp0->reg[MIPS_CP0_CAUSE] & MIPS_CP0_CAUSE_IV)
-                new_pc = 0xffffffffbfc00400ULL;
-            else
-                new_pc = 0xffffffffbfc00380ULL;
-
-        } else
-            new_pc = 0xffffffffbfc00380ULL;
-
+        /* Boot exception vector. */
+        new_pc = 0xffffffffbfc00200ULL + VECTOR_GENERIC;
     } else {
-#if SIM_PIC32
-        /* TODO */
-        new_pc = cp0->ebase_reg + 0x200;
-        if (exc_code != MIPS_CP0_CAUSE_INTERRUPT &&
-            (exc_code != MIPS_CP0_CAUSE_SYSCALL || cpu->vm->debug_level > 0))
-            print_exception (cpu, exc_code);
-#else
-        if ((exc_code == MIPS_CP0_CAUSE_TLB_LOAD)
-            || (exc_code == MIPS_CP0_CAUSE_TLB_SAVE)) {
-            if (cp0->reg[MIPS_CP0_STATUS] & MIPS_CP0_STATUS_EXL)
-                new_pc = 0xffffffff80000180ULL;
-            else
-                new_pc = 0xffffffff80000000ULL;
-        } else if (exc_code == MIPS_CP0_CAUSE_INTERRUPT) {
-            if (cp0->reg[MIPS_CP0_CAUSE] & MIPS_CP0_CAUSE_IV)
-                new_pc = 0xffffffff80000200ULL;
-            else
-                new_pc = 0xffffffff80000180ULL;
-        } else
-            new_pc = 0xffffffff80000180ULL;
-#endif
+        /* Use EBase register value. */
+        new_pc = cp0->ebase_reg + VECTOR_GENERIC;
     }
+    if (! (old_status & MIPS_CP0_STATUS_EXL)) {
+        if (exc_code == MIPS_CP0_CAUSE_TLB_LOAD ||
+            exc_code == MIPS_CP0_CAUSE_TLB_SAVE)
+        {
+            /* TBL refill: use offset 0. */
+            new_pc += VECTOR_TLB_REFILL - VECTOR_GENERIC;
+
+        } else if (exc_code == MIPS_CP0_CAUSE_INTERRUPT &&
+                   (cp0->reg[MIPS_CP0_CAUSE] & MIPS_CP0_CAUSE_IV))
+        {
+            /* Interrupt: use offset 0x200. */
+            new_pc += VECTOR_INTERRUPT - VECTOR_GENERIC;
+        }
+    }
+
+    if (exc_code != MIPS_CP0_CAUSE_INTERRUPT &&
+        (exc_code != MIPS_CP0_CAUSE_SYSCALL || cpu->vm->debug_level > 0))
+        print_exception (cpu, exc_code);
 
     cpu->pc = (m_va_t) new_pc;
 

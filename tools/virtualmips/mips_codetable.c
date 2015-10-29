@@ -1645,42 +1645,98 @@ static int tlbwr_op (cpu_mips_t * cpu, mips_insn_t insn)
 
 static int tge_op (cpu_mips_t * cpu, mips_insn_t insn)
 {
-    return unknown_op (cpu, insn);
+    int rs = bits (insn, 21, 25);
+    int rt = bits (insn, 16, 20);
+
+    if ((m_ireg_t) cpu->gpr[rs] >= (m_ireg_t) cpu->gpr[rt]) {
+        mips_trigger_trap_exception (cpu);
+        return (1);
+    }
+    return (0);
 }
 
 static int tgei_op (cpu_mips_t * cpu, mips_insn_t insn)
 {
-    return unknown_op (cpu, insn);
+    int rs = bits (insn, 21, 25);
+    m_ireg_t val = sign_extend (bits (insn, 0, 15), 16);
+
+    if (unlikely ((m_ireg_t) cpu->gpr[rs] >= val)) {
+        mips_trigger_trap_exception (cpu);
+        return (1);
+    }
+    return (0);
 }
 
 static int tgeiu_op (cpu_mips_t * cpu, mips_insn_t insn)
 {
-    return unknown_op (cpu, insn);
+    int rs = bits (insn, 21, 25);
+    m_reg_t val = sign_extend (bits (insn, 0, 15), 16);
+
+    if (unlikely ((m_reg_t) cpu->gpr[rs] >= val)) {
+        mips_trigger_trap_exception (cpu);
+        return (1);
+    }
+    return (0);
 }
 
 static int tgeu_op (cpu_mips_t * cpu, mips_insn_t insn)
 {
-    return unknown_op (cpu, insn);
+    int rs = bits (insn, 21, 25);
+    int rt = bits (insn, 16, 20);
+
+    if ((m_reg_t) cpu->gpr[rs] >= (m_reg_t) cpu->gpr[rt]) {
+        mips_trigger_trap_exception (cpu);
+        return (1);
+    }
+    return (0);
 }
 
 static int tlt_op (cpu_mips_t * cpu, mips_insn_t insn)
 {
-    return unknown_op (cpu, insn);
+    int rs = bits (insn, 21, 25);
+    int rt = bits (insn, 16, 20);
+
+    if ((m_ireg_t) cpu->gpr[rs] < (m_ireg_t) cpu->gpr[rt]) {
+        mips_trigger_trap_exception (cpu);
+        return (1);
+    }
+    return (0);
 }
 
 static int tlti_op (cpu_mips_t * cpu, mips_insn_t insn)
 {
-    return unknown_op (cpu, insn);
+    int rs = bits (insn, 21, 25);
+    m_ireg_t val = sign_extend (bits (insn, 0, 15), 16);
+
+    if (unlikely ((m_ireg_t) cpu->gpr[rs] < val)) {
+        mips_trigger_trap_exception (cpu);
+        return (1);
+    }
+    return (0);
 }
 
 static int tltiu_op (cpu_mips_t * cpu, mips_insn_t insn)
 {
-    return unknown_op (cpu, insn);
+    int rs = bits (insn, 21, 25);
+    m_reg_t val = sign_extend (bits (insn, 0, 15), 16);
+
+    if (unlikely ((m_reg_t) cpu->gpr[rs] < val)) {
+        mips_trigger_trap_exception (cpu);
+        return (1);
+    }
+    return (0);
 }
 
 static int tltu_op (cpu_mips_t * cpu, mips_insn_t insn)
 {
-    return unknown_op (cpu, insn);
+    int rs = bits (insn, 21, 25);
+    int rt = bits (insn, 16, 20);
+
+    if ((m_reg_t) cpu->gpr[rs] < (m_reg_t) cpu->gpr[rt]) {
+        mips_trigger_trap_exception (cpu);
+        return (1);
+    }
+    return (0);
 }
 
 static int tne_op (cpu_mips_t * cpu, mips_insn_t insn)
@@ -1689,16 +1745,22 @@ static int tne_op (cpu_mips_t * cpu, mips_insn_t insn)
     int rt = bits (insn, 16, 20);
 
     if ((m_ireg_t) cpu->gpr[rs] != (m_ireg_t) cpu->gpr[rt]) {
-        /*take a trap */
         mips_trigger_trap_exception (cpu);
         return (1);
-    } else
-        return (0);
+    }
+    return (0);
 }
 
 static int tnei_op (cpu_mips_t * cpu, mips_insn_t insn)
 {
-    return unknown_op (cpu, insn);
+    int rs = bits (insn, 21, 25);
+    m_reg_t val = sign_extend (bits (insn, 0, 15), 16);
+
+    if (unlikely (cpu->gpr[rs] != val)) {
+        mips_trigger_trap_exception (cpu);
+        return (1);
+    }
+    return (0);
 }
 
 static int wait_op (cpu_mips_t * cpu, mips_insn_t insn)
@@ -1787,7 +1849,7 @@ static int undef_tlb (cpu_mips_t * cpu, mips_insn_t insn)
 }
 
 /*
- * Main instruction table.
+ * Main instruction table, indexed by bits 31:26 of opcode.
  */
 static const struct mips_op_desc mips_opcodes[] = {
     {"spec",    spec_op,    0x00},      /* indexed by FUNC field */

@@ -239,7 +239,7 @@ start_cpu:
         if (cpu->vm->trace_address == cpu->pc) {
             /* Trace address. */
             printf ("*** %08x: %08x ", cpu->pc, insn);
-            print_insn_mips (cpu->pc, insn, stdout);
+            print_mips (cpu->pc, insn, cpu->insn_len, cpu->is_mips16e, stdout);
             printf ("\n");
             dumpregs (cpu);
         }
@@ -264,8 +264,13 @@ start_cpu:
             ! (cpu->cp0.reg[MIPS_CP0_STATUS] & MIPS_CP0_STATUS_EXL)))
         {
             /* Print instructions in user mode. */
-            printf ("%08x:       %08x        ", cpu->pc, insn);
-            print_insn_mips (cpu->pc, insn, stdout);
+            printf ("%08x:       ", cpu->pc);
+            if (insn_len == 2)
+                printf ("    %04x        ", insn);
+            else
+                printf ("%08x        ", insn);
+
+            print_mips (cpu->pc, insn, insn_len, cpu->is_mips16e, stdout);
             printf ("\n");
             fflush (stdout);
 #if 0
@@ -340,7 +345,7 @@ static forced_inline int mips_exec_bdslot (cpu_mips_t * cpu)
     {
         /* Print instructions in user mode. */
         printf ("%08x:       %08x        ", cpu->pc + insn_len, insn);
-        print_insn_mips (cpu->pc, insn, stdout);
+        print_mips (cpu->pc, insn, insn_len, cpu->is_mips16e, stdout);
         printf ("\n");
         fflush (stdout);
     }

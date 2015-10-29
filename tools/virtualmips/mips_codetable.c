@@ -11,7 +11,7 @@ static int unknown_op (cpu_mips_t * cpu, mips_insn_t insn)
 {
     printf ("--- Unknown instruction:\n");
     printf ("%08x:       %08x        ", cpu->pc, insn);
-    print_insn_mips (cpu->pc, insn, stdout);
+    print_mips (cpu->pc, insn, cpu->insn_len, cpu->is_mips16e, stdout);
     printf ("\n");
     exit (EXIT_FAILURE);
 }

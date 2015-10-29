@@ -32,12 +32,12 @@ void bad_memory_access (cpu_mips_t * cpu, m_va_t vaddr)
     printf ("*** %08x: bad memory reference\n", vaddr);
     if (mips_fetch_instruction (cpu, cpu->pc, &insn) == 0) {
         printf ("*** %08x: %08x ", cpu->pc, insn);
-        print_insn_mips (cpu->pc, insn, stdout);
+        print_mips (cpu->pc, insn, cpu->insn_len, cpu->is_mips16e, stdout);
         printf ("\n");
     }
     if (mips_fetch_instruction (cpu, cpu->pc + 4, &insn) == 0) {
         printf ("*** %08x: %08x ", cpu->pc + 4, insn);
-        print_insn_mips (cpu->pc, insn, stdout);
+        print_mips (cpu->pc, insn, cpu->insn_len, cpu->is_mips16e, stdout);
         printf ("\n");
     }
     dumpregs (cpu);

@@ -384,7 +384,7 @@ if (code == 1) cpu->vm->debug_level = 1;
         printf (") at %08x\n", cpu->pc);
 	    return;
 	}
-    printf ("\n*** 0x%08x: exception ", cpu->pc);
+    printf ("\n--- 0x%08x: exception ", cpu->pc);
 
 	switch (exc_code) {
 	case MIPS_CP0_CAUSE_INTERRUPT:	code = "Interrupt"; break;
@@ -407,7 +407,7 @@ if (code == 1) cpu->vm->debug_level = 1;
 	switch (exc_code) {
 	case MIPS_CP0_CAUSE_ADDR_LOAD:
 	case MIPS_CP0_CAUSE_ADDR_SAVE:
-        printf ("*** badvaddr = 0x%08x\n", cpu->cp0.reg[MIPS_CP0_BADVADDR]);
+        printf ("--- badvaddr = 0x%08x\n", cpu->cp0.reg[MIPS_CP0_BADVADDR]);
         break;
     }
 	printf ("                t0 = %8x   s0 = %8x   t8 = %8x   lo = %8x\n",
@@ -466,10 +466,6 @@ void mips_trigger_exception (cpu_mips_t * cpu, u_int exc_code, int bd_slot)
     /*TODO: RESET SOFT RESET AND NMI EXCEPTION */
     cp0->reg[MIPS_CP0_STATUS] &= ~MIPS_CP0_STATUS_ERL;
 
-    if (cpu->vm->debug_level > 2) {
-        printf ("        exception %u at %08x\n", exc_code, cpu->pc);
-    }
-
     /* Compute the vector address. */
     if (cp0->reg[MIPS_CP0_STATUS] & MIPS_CP0_STATUS_BEV) {
         /* Boot exception vector. */
@@ -493,9 +489,15 @@ void mips_trigger_exception (cpu_mips_t * cpu, u_int exc_code, int bd_slot)
         }
     }
 
-    if (exc_code != MIPS_CP0_CAUSE_INTERRUPT &&
-        (exc_code != MIPS_CP0_CAUSE_SYSCALL || cpu->vm->debug_level > 0))
+    if (cpu->vm->debug_level > 2 ||
+        (exc_code != MIPS_CP0_CAUSE_INTERRUPT &&
+         (exc_code != MIPS_CP0_CAUSE_SYSCALL ||
+          cpu->vm->debug_level > 0)))
+    {
         print_exception (cpu, exc_code);
+        if (cpu->vm->debug_level > 2)
+            printf ("\n");
+    }
 
     cpu->pc = (m_va_t) new_pc;
 
@@ -537,11 +539,10 @@ void fastcall mips_exec_eret (cpu_mips_t * cpu)
 void fastcall mips_exec_break (cpu_mips_t * cpu, u_int code)
 {
     //mips_dump_regs(cpu);
-    printf ("exec break cpu->pc %x\n", cpu->pc);
+    //printf ("exec break cpu->pc %x\n", cpu->pc);
 
     /* XXX TODO: Branch Delay slot */
     mips_trigger_exception (cpu, MIPS_CP0_CAUSE_BP, 0);
-
 }
 
 /* Trigger a Trap Exception */

@@ -492,8 +492,16 @@ void mips_clear_irq (cpu_mips_t * cpu, m_uint8_t irq);
 void set_timer_irq (cpu_mips_t *cpu);
 void clear_timer_irq (cpu_mips_t *cpu);
 
-/* Print the mips instruction at address MEMADDR in debugged memory. */
-int print_insn_mips (unsigned memaddr, unsigned long int word, FILE *stream);
+/*
+ * Disassemble and print the instruction mnemonics.
+ * Opcode size can be 4 or 2 bytes.
+ * Parameter `isa' defines an instruction set architecture:
+ *      0 - mips32 encoding
+ *      1 - mips16e encoding
+ *      2 - micromips encoding (someday)
+ */
+void print_mips (unsigned memaddr, unsigned int opcode, int nbytes,
+    int isa, FILE *stream);
 
 const char *cp0reg_name (unsigned cp0reg, unsigned sel);
 

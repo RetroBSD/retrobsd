@@ -240,9 +240,6 @@ struct mips_opcode
   unsigned long pinfo;
   /* A collection of additional bits describing the instruction. */
   unsigned long pinfo2;
-  /* A collection of bits describing the instruction sets of which this
-     instruction or macro is a member. */
-  unsigned long membership;
 };
 
 /* These are the characters which may appear in the args field of an
@@ -494,45 +491,6 @@ struct mips_opcode
    same information.  */
 #define INSN2_M_FP_D		    0x00000010
 
-/* Masks used to mark instructions to indicate which MIPS ISA level
-   they were introduced in.  INSN_ISA_MASK masks an enumeration that
-   specifies the base ISA level(s).  The remainder of a 32-bit
-   word constructed using these macros is a bitmask of the remaining
-   INSN_* values below.  */
-
-#define INSN_ISA_MASK		  0x0000000ful
-
-/* We cannot start at zero due to ISA_UNKNOWN below.  */
-#define INSN_ISA1                 1
-#define INSN_ISA2                 2
-#define INSN_ISA3                 3
-#define INSN_ISA4                 4
-#define INSN_ISA5                 5
-#define INSN_ISA32                6
-#define INSN_ISA32R2              7
-#define INSN_ISA64                8
-#define INSN_ISA64R2              9
-/* Below this point the INSN_* values correspond to combinations of ISAs.
-   They are only for use in the opcodes table to indicate membership of
-   a combination of ISAs that cannot be expressed using the usual inclusion
-   ordering on the above INSN_* values.  */
-#define INSN_ISA3_32              10
-#define INSN_ISA3_32R2            11
-#define INSN_ISA4_32              12
-#define INSN_ISA4_32R2            13
-#define INSN_ISA5_32R2            14
-
-/* Given INSN_ISA* values X and Y, where X ranges over INSN_ISA1 through
-   INSN_ISA5_32R2 and Y ranges over INSN_ISA1 through INSN_ISA64R2,
-   this table describes whether at least one of the ISAs described by X
-   is/are implemented by ISA Y.  (Think of Y as the ISA level supported by
-   a particular core and X as the ISA level(s) at which a certain instruction
-   is defined.)  The ISA(s) described by X is/are implemented by Y iff
-   (mips_isa_table[(Y & INSN_ISA_MASK) - 1] >> ((X & INSN_ISA_MASK) - 1)) & 1
-   is non-zero.  */
-static const unsigned int mips_isa_table[] =
-  { 0x0001, 0x0003, 0x0607, 0x1e0f, 0x3e1f, 0x0a23, 0x3e63, 0x3ebf, 0x3fff };
-
 /* Masks used for Chip specific instructions.  */
 #define INSN_CHIP_MASK		  0xc3ff0820
 
@@ -639,41 +597,6 @@ static const unsigned int mips_isa_table[] =
 #define CPU_LOONGSON_2F 3002
 #define CPU_OCTEON	6501
 #define CPU_XLR     	887682   	/* decimal 'XLR'   */
-
-/* Test for membership in an ISA including chip specific ISAs.  INSN
-   is pointer to an element of the opcode table; ISA is the specified
-   ISA/ASE bitmask to test against; and CPU is the CPU specific ISA to
-   test, or zero if no CPU specific ISA test is desired.  */
-
-#define OPCODE_IS_MEMBER(insn, isa, cpu)				\
-    (((isa & INSN_ISA_MASK) != 0                                        \
-      && ((insn)->membership & INSN_ISA_MASK) != 0                      \
-      && ((mips_isa_table [(isa & INSN_ISA_MASK) - 1] >>                \
-           (((insn)->membership & INSN_ISA_MASK) - 1)) & 1) != 0)       \
-     || ((isa & ~INSN_ISA_MASK)                                         \
-          & ((insn)->membership & ~INSN_ISA_MASK)) != 0                 \
-     || (cpu == CPU_R4650 && ((insn)->membership & INSN_4650) != 0)	\
-     || (cpu == CPU_RM7000 && ((insn)->membership & INSN_4650) != 0)	\
-     || (cpu == CPU_RM9000 && ((insn)->membership & INSN_4650) != 0)	\
-     || (cpu == CPU_R4010 && ((insn)->membership & INSN_4010) != 0)	\
-     || (cpu == CPU_VR4100 && ((insn)->membership & INSN_4100) != 0)	\
-     || (cpu == CPU_R3900 && ((insn)->membership & INSN_3900) != 0)	\
-     || ((cpu == CPU_R10000 || cpu == CPU_R12000 || cpu == CPU_R14000	\
-	  || cpu == CPU_R16000)						\
-	 && ((insn)->membership & INSN_10000) != 0)			\
-     || (cpu == CPU_SB1 && ((insn)->membership & INSN_SB1) != 0)	\
-     || (cpu == CPU_R4111 && ((insn)->membership & INSN_4111) != 0)	\
-     || (cpu == CPU_VR4120 && ((insn)->membership & INSN_4120) != 0)	\
-     || (cpu == CPU_VR5400 && ((insn)->membership & INSN_5400) != 0)	\
-     || (cpu == CPU_VR5500 && ((insn)->membership & INSN_5500) != 0)	\
-     || (cpu == CPU_LOONGSON_2E                                         \
-         && ((insn)->membership & INSN_LOONGSON_2E) != 0)               \
-     || (cpu == CPU_LOONGSON_2F                                         \
-         && ((insn)->membership & INSN_LOONGSON_2F) != 0)               \
-     || (cpu == CPU_OCTEON						\
-	 && ((insn)->membership & INSN_OCTEON) != 0)			\
-     || (cpu == CPU_XLR && ((insn)->membership & INSN_XLR) != 0)        \
-     || 0)	/* Please keep this term for easier source merging.  */
 
 /* This is a list of macro expanded instructions.
 

@@ -151,48 +151,7 @@ static const char *const mips_hwr_names[32] = {
  */
 static int no_aliases = 0;
 
-static int big_endian;
-static int branch_delay_insns;
-static int data_size;
 static unsigned target;
-
-enum dis_insn_type {
-    dis_noninsn,		/* Not a valid instruction.  */
-    dis_nonbranch,		/* Not a branch instruction.  */
-    dis_branch,			/* Unconditional branch.  */
-    dis_condbranch,		/* Conditional branch.  */
-    dis_jsr,			/* Jump to subroutine.  */
-    dis_condjsr,		/* Conditional jump to subroutine.  */
-    dis_dref,			/* Data reference instruction.  */
-    dis_dref2			/* Two data references in instruction.  */
-};
-
-static enum dis_insn_type insn_type;
-
-#if 0
-/*
- * Get LENGTH bytes from info's buffer, at target address memaddr.
- *  Transfer them to myaddr.
- */
-int
-read_memory (unsigned memaddr,
-		    unsigned char *myaddr,
-		    unsigned int nbytes)
-{
-    //unsigned char *buffer;
-    //unsigned int buffer_length;
-    //unsigned int buffer_vma;
-
-    if (memaddr < buffer_vma ||
-        memaddr - buffer_vma > buffer_length ||
-        memaddr - buffer_vma + nbytes > buffer_length) {
-        /* Out of bounds.  Use EIO because GDB uses it.  */
-        return EIO;
-    }
-    memcpy (myaddr, info->buffer + memaddr - buffer_vma, nbytes);
-    return 0;
-}
-#endif
 
 static void
 print_address (unsigned address, FILE *stream)
@@ -763,11 +722,9 @@ print_insn_args (const char *d,
 }
 
 /*
- * Print the mips instruction at address MEMADDR in debugged memory.
- * Returns length of the instruction, in bytes, which is
- * always INSNLEN.
+ * Print the mips instruction at address MEMADDR.
  */
-int
+static void
 print_insn_mips (unsigned memaddr,
     unsigned long int word, FILE *stream)
 {
@@ -794,9 +751,6 @@ print_insn_mips (unsigned memaddr,
         init = 1;
     }
 
-    branch_delay_insns = 0;
-    data_size = 0;
-    insn_type = dis_nonbranch;
     target = 0;
 
     op = mips_hash[(word >> OP_SH_OP) & OP_MASK_OP];
@@ -807,25 +761,6 @@ print_insn_mips (unsigned memaddr,
                 && (word & op->mask) == op->match) {
                 const char *d;
 
-                /* Figure out instruction type and branch delay information.  */
-                if ((op->pinfo & INSN_UNCOND_BRANCH_DELAY) != 0) {
-                    if ((op->pinfo & (INSN_WRITE_GPR_31
-                                | INSN_WRITE_GPR_D)) != 0)
-                        insn_type = dis_jsr;
-                    else
-                        insn_type = dis_branch;
-                    branch_delay_insns = 1;
-                } else if ((op->pinfo & (INSN_COND_BRANCH_DELAY
-                            | INSN_COND_BRANCH_LIKELY)) != 0) {
-                    if ((op->pinfo & INSN_WRITE_GPR_31) != 0)
-                        insn_type = dis_condjsr;
-                    else
-                        insn_type = dis_condbranch;
-                    branch_delay_insns = 1;
-                } else if ((op->pinfo & (INSN_STORE_MEMORY
-                            | INSN_LOAD_MEMORY_DELAY)) != 0)
-                    insn_type = dis_dref;
-
                 fprintf (stream, "%s", op->name);
 
                 d = op->args;
@@ -833,16 +768,13 @@ print_insn_mips (unsigned memaddr,
                     fprintf (stream, "\t");
                     print_insn_args (d, word, memaddr, stream, op);
                 }
-
-                return INSNLEN;
+                return;
             }
         }
     }
 
     /* Handle undefined instructions.  */
-    insn_type = dis_noninsn;
     fprintf (stream, "0x%lx", word);
-    return INSNLEN;
 }
 
 static unsigned
@@ -889,8 +821,7 @@ print_mips16_insn_arg (char type,
     const struct mips_opcode *op,
     int l,
     int use_extend,
-    int extend, unsigned memaddr, FILE *stream,
-    int (*read_memory) (unsigned addr, unsigned char *buf, unsigned nbytes))
+    int extend, unsigned memaddr, FILE *stream)
 {
     switch (type) {
     case ',':
@@ -1017,32 +948,21 @@ print_mips16_insn_arg (char type,
             case '5':
                 nbits = 5;
                 immed = (l >> MIPS16OP_SH_IMM5) & MIPS16OP_MASK_IMM5;
-                insn_type = dis_dref;
-                data_size = 1;
                 break;
             case 'H':
                 nbits = 5;
                 shift = 1;
                 immed = (l >> MIPS16OP_SH_IMM5) & MIPS16OP_MASK_IMM5;
-                insn_type = dis_dref;
-                data_size = 2;
                 break;
             case 'W':
                 nbits = 5;
                 shift = 2;
                 immed = (l >> MIPS16OP_SH_IMM5) & MIPS16OP_MASK_IMM5;
-                if ((op->pinfo & MIPS16_INSN_READ_PC) == 0
-                    && (op->pinfo & MIPS16_INSN_READ_SP) == 0) {
-                    insn_type = dis_dref;
-                    data_size = 4;
-                }
                 break;
             case 'D':
                 nbits = 5;
                 shift = 3;
                 immed = (l >> MIPS16OP_SH_IMM5) & MIPS16OP_MASK_IMM5;
-                insn_type = dis_dref;
-                data_size = 8;
                 break;
             case 'j':
                 nbits = 5;
@@ -1063,15 +983,11 @@ print_mips16_insn_arg (char type,
                 immed = (l >> MIPS16OP_SH_IMM8) & MIPS16OP_MASK_IMM8;
                 /* FIXME: This might be lw, or it might be addiu to $sp or
                  * $pc.  We assume it's load.  */
-                insn_type = dis_dref;
-                data_size = 4;
                 break;
             case 'C':
                 nbits = 8;
                 shift = 3;
                 immed = (l >> MIPS16OP_SH_IMM8) & MIPS16OP_MASK_IMM8;
-                insn_type = dis_dref;
-                data_size = 8;
                 break;
             case 'U':
                 nbits = 8;
@@ -1109,16 +1025,12 @@ print_mips16_insn_arg (char type,
                 immed = (l >> MIPS16OP_SH_IMM8) & MIPS16OP_MASK_IMM8;
                 pcrel = 1;
                 /* FIXME: This can be lw or la.  We assume it is lw.  */
-                insn_type = dis_dref;
-                data_size = 4;
                 break;
             case 'B':
                 nbits = 5;
                 shift = 3;
                 immed = (l >> MIPS16OP_SH_IMM5) & MIPS16OP_MASK_IMM5;
                 pcrel = 1;
-                insn_type = dis_dref;
-                data_size = 8;
                 break;
             case 'E':
                 nbits = 5;
@@ -1158,35 +1070,10 @@ print_mips16_insn_arg (char type,
                 if (branch) {
                     immed *= 2;
                     baseaddr = memaddr + 2;
-                } else if (use_extend)
+                } else if (use_extend) {
                     baseaddr = memaddr - 2;
-                else {
-                    int status;
-                    unsigned char buffer[2];
-
+                } else {
                     baseaddr = memaddr;
-
-                    /* If this instruction is in the delay slot of a jr
-                     * instruction, the base address is the address of the
-                     * jr instruction.  If it is in the delay slot of jalr
-                     * instruction, the base address is the address of the
-                     * jalr instruction.  This test is unreliable: we have
-                     * no way of knowing whether the previous word is
-                     * instruction or data.  */
-                    status = read_memory (memaddr - 4, buffer, 2);
-                    if (status == 0
-                        && (((big_endian ? getb16 (buffer)
-                                         : getl16 (buffer))
-                                & 0xf800) == 0x1800))
-                        baseaddr = memaddr - 4;
-                    else {
-                        status = read_memory (memaddr - 2, buffer, 2);
-                        if (status == 0
-                            && (((big_endian ? getb16 (buffer)
-                                             : getl16 (buffer))
-                                    & 0xf81f) == 0xe800))
-                            baseaddr = memaddr - 2;
-                    }
                 }
                 target = (baseaddr & ~((1 << shift) - 1)) + immed;
                 if (pcrel && branch)
@@ -1346,67 +1233,33 @@ print_mips16_insn_arg (char type,
     }
 }
 
-/* Disassemble mips16 instructions.  */
-
-static int print_insn_mips16 (unsigned memaddr, FILE *stream,
-    int (*read_memory) (unsigned addr, unsigned char *buf, unsigned nbytes))
+/*
+ * Disassemble mips16 instructions.
+ */
+static void print_insn_mips16 (unsigned memaddr,
+    unsigned int opcode, int nbytes, FILE *stream)
 {
     int status;
     unsigned char buffer[2];
-    int length;
-    int insn;
-    int use_extend;
-    int extend = 0;
+    int insn, use_extend, extend;
     const struct mips_opcode *op, *opend;
 
-    branch_delay_insns = 0;
-    data_size = 0;
-    insn_type = dis_nonbranch;
-    target = 0;
-
-    status = read_memory (memaddr, buffer, 2);
-    if (status != 0) {
-        memory_error (status, memaddr, stream);
-        return -1;
-    }
-
-    length = 2;
-
-    if (big_endian)
-        insn = getb16 (buffer);
-    else
-        insn = getl16 (buffer);
-
-    /* Handle the extend opcode specially.  */
-    use_extend = 0;
-    if ((insn & 0xf800) == 0xf000) {
-        use_extend = 1;
-        extend = insn & 0x7ff;
-
-        memaddr += 2;
-
-        status = read_memory (memaddr, buffer, 2);
-        if (status != 0) {
-            fprintf (stream, "extend 0x%x",
-                (unsigned int) extend);
-            memory_error (status, memaddr, stream);
-            return -1;
+    insn = opcode;
+    if (nbytes == 2) {
+        use_extend = 0;
+        insn = opcode;
+    } else {
+        if ((opcode & 0xf8000000) == 0xf0000000) {
+            /* Handle the extend opcode specially.  */
+            use_extend = 1;
+            insn = opcode & 0xffff;
+            extend = (opcode >> 16) & 0x7ff;
+        } else {
+            /* jal, jalx */
+            use_extend = 0;
+            insn = opcode >> 16;
+            extend = opcode & 0xffff;
         }
-
-        if (big_endian)
-            insn = getb16 (buffer);
-        else
-            insn = getl16 (buffer);
-
-        /* Check for an extend opcode followed by an extend opcode.  */
-        if ((insn & 0xf800) == 0xf000) {
-            fprintf (stream, "extend 0x%x",
-                (unsigned int) extend);
-            insn_type = dis_noninsn;
-            return length;
-        }
-
-        length += 2;
     }
 
     /* FIXME: Should probably use a hash table on the major opcode here.  */
@@ -1414,32 +1267,8 @@ static int print_insn_mips16 (unsigned memaddr, FILE *stream,
     opend = mips16_opcodes + mips16_num_opcodes;
     for (op = mips16_opcodes; op < opend; op++) {
         if (op->pinfo != INSN_MACRO
-            && !(no_aliases && (op->pinfo2 & INSN2_ALIAS))
             && (insn & op->mask) == op->match) {
             const char *s;
-
-            if (strchr (op->args, 'a') != NULL) {
-                if (use_extend) {
-                    fprintf (stream, "extend 0x%x",
-                        (unsigned int) extend);
-                    insn_type = dis_noninsn;
-                    return length - 2;
-                }
-
-                use_extend = 0;
-
-                memaddr += 2;
-
-                status = read_memory (memaddr, buffer, 2);
-                if (status == 0) {
-                    use_extend = 1;
-                    if (big_endian)
-                        extend = getb16 (buffer);
-                    else
-                        extend = getl16 (buffer);
-                    length += 2;
-                }
-            }
 
             fprintf (stream, "%s", op->name);
             if (op->args[0] != '\0')
@@ -1462,68 +1291,39 @@ static int print_insn_mips16 (unsigned memaddr, FILE *stream,
                     ++s;
                     continue;
                 }
-                print_mips16_insn_arg (*s, op, insn, use_extend, extend,
-                    memaddr, stream, read_memory);
+                print_mips16_insn_arg (*s, op, insn,
+                    use_extend, extend, memaddr, stream);
             }
-
-            /* Figure out branch instruction type and delay slot information.  */
-            if ((op->pinfo & INSN_UNCOND_BRANCH_DELAY) != 0)
-                branch_delay_insns = 1;
-            if ((op->pinfo & (INSN_UNCOND_BRANCH_DELAY
-                        | MIPS16_INSN_UNCOND_BRANCH)) != 0) {
-                if ((op->pinfo & INSN_WRITE_GPR_31) != 0)
-                    insn_type = dis_jsr;
-                else
-                    insn_type = dis_branch;
-            } else if ((op->pinfo & MIPS16_INSN_COND_BRANCH) != 0)
-                insn_type = dis_condbranch;
-
-            return length;
+            return;
         }
     }
 
     if (use_extend)
         fprintf (stream, "0x%x", extend | 0xf000);
     fprintf (stream, "0x%x", insn);
-    insn_type = dis_noninsn;
-
-    return length;
 }
 
 /*
- * In an environment where we do not know the symbol type of the
- * instruction we are forced to assume that the low order bit of the
- * instructions' address may mark it as a mips16 instruction.  If we
- * are single stepping, or the pc is within the disassembled function,
- * this works.  Otherwise, we need a clue.  Sometimes.
+ * Disassemble and print the instruction mnemonics.
+ * Opcode size can be 4 or 2 bytes.
+ * Parameter `isa' defines an instruction set architecture:
+ *      0 - mips32 encoding
+ *      1 - mips16e encoding
+ *      2 - micromips encoding (someday)
  */
-int
-print_mips (unsigned memaddr, FILE *stream, int bigendian_flag,
-    int (*read_memory) (unsigned addr, unsigned char *buf, unsigned nbytes))
+void print_mips (unsigned memaddr, unsigned int opcode, int nbytes,
+    int isa, FILE *stream)
 {
-    unsigned char buffer[INSNLEN];
-    int status;
-
-    big_endian = bigendian_flag;
-#if 1
-    /* FIXME: If odd address, this is CLEARLY a mips 16 instruction.  */
-    /* Only a few tools will work this way.  */
-    if (memaddr & 0x01)
-        return print_insn_mips16 (memaddr, stream, read_memory);
-#endif
-
-    status = read_memory (memaddr, buffer, INSNLEN);
-    if (status == 0) {
-        unsigned long insn;
-
-        if (big_endian)
-            insn = (unsigned long) getb32 (buffer);
-        else
-            insn = (unsigned long) getl32 (buffer);
-
-        return print_insn_mips (memaddr, insn, stream);
-    } else {
-        memory_error (status, memaddr, stream);
-        return -1;
+    switch (isa) {
+    default:
+    case 0:
+        print_insn_mips (memaddr, opcode, stream);
+        break;
+    case 1:
+        print_insn_mips16 (memaddr, opcode, nbytes, stream);
+        break;
+    case 2:
+        /* TODO: micromips encoding */
+        break;
     }
 }

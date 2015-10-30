@@ -78,17 +78,27 @@ static int forced_inline mips_exec_memop2 (cpu_mips_t * cpu, int memop,
     return mips_exec_memop (cpu, memop, vaddr, dst_reg, keep_ll_bit);
 }
 
+extern void mips_access_special (cpu_mips_t * cpu, m_va_t vaddr, m_uint32_t mask,
+    u_int op_code, u_int op_type, u_int op_size, m_reg_t * data, u_int * exc);
+
 /* Fetch an instruction */
-static int mips_fetch_instruction_word (cpu_mips_t * cpu,
-    m_va_t pc, mips_insn_t * insn)
+static int mips_fetch_instruction_inner (cpu_mips_t * cpu,
+    m_va_t pc, mips_insn_t * insn, u_int size)
 {
     m_va_t exec_page;
     m_uint32_t offset;
+
+    if (unlikely (pc & (size - 1))) {
+        u_int exc = 0;
+        mips_access_special(cpu, pc, MTS_ACC_AE, MIPS_MEMOP_LOOKUP, MTS_READ, size, NULL, &exc);
+        return (1);
+    }
 
     exec_page = pc & ~(m_va_t) MIPS_MIN_PAGE_IMASK;
     if (unlikely (exec_page != cpu->njm_exec_page)) {
         cpu->njm_exec_ptr = cpu->mem_op_lookup (cpu, exec_page);
     }
+
     if (cpu->njm_exec_ptr == NULL) {
         //exception when fetching instruction
         return (1);
@@ -96,6 +106,13 @@ static int mips_fetch_instruction_word (cpu_mips_t * cpu,
     cpu->njm_exec_page = exec_page;
     offset = (pc & MIPS_MIN_PAGE_IMASK) >> 2;
     *insn = vmtoh32 (cpu->njm_exec_ptr[offset]);
+    if (unlikely (size == 2)) {
+        if (pc & 2) {
+            *insn >>= 16;
+        } else {
+            *insn &= 0xFFFF;
+        }
+    }
 //  printf ("(%08x) %08x\n", pc, *insn);
     return (0);
 }
@@ -103,35 +120,28 @@ static int mips_fetch_instruction_word (cpu_mips_t * cpu,
 int mips_fetch_instruction (cpu_mips_t * cpu,
     m_va_t pc, mips_insn_t * insn)
 {
-    int res = mips_fetch_instruction_word(cpu, pc, insn);
-    cpu->insn_len = 4;
-    if (unlikely(res)) {
-        return res;
-    }
+    int res;
     if (unlikely(cpu->is_mips16e)) {
-        mips_insn_t i;
-        if (pc & 2) {
-            i = *insn >> 16;
-        } else {
-            i = *insn & 0xFFFF;
+        res = mips_fetch_instruction_inner(cpu, pc, insn, 2);
+        if (unlikely(res)) {
+            return res;
         }
-        if (unlikely((i >> 11) == 0x1E || (i >> 11) == 3)) {
-            /* 4-byte extended instruction or jal(x) */
-            if (pc & 2) {
-                /* 2 more bytes needed */
-                res = mips_fetch_instruction_word(cpu, pc + 2, insn);
-                if (unlikely(res)) {
-                    return res;
-                }
-                *insn = (i << 16) | (*insn & 0xFFFF);
-            } else {
-                *insn = (*insn << 16) | (*insn >> 16);
+        if (unlikely((*insn >> 11) == 0x1E || (*insn >> 11) == 3)) {
+            /* 4-byte extended instruction or jal(x): 2 more bytes needed */
+            mips_insn_t i;
+            res = mips_fetch_instruction_inner(cpu, pc + 2, &i, 2);
+            if (unlikely(res)) {
+                return res;
             }
+            *insn = (*insn << 16) | i;
+            cpu->insn_len = 4;
         } else {
             /* 2-byte instruction */
-            *insn = i;
             cpu->insn_len = 2;
         }
+    } else {
+        res = mips_fetch_instruction_inner(cpu, pc, insn, 4);
+        cpu->insn_len = 4;
     }
     return res;
 }

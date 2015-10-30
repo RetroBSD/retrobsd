@@ -575,7 +575,6 @@ void fastcall mips_exec_soft_fpu (cpu_mips_t * cpu)
     cp0->reg[MIPS_CP0_CAUSE] |= 0x10000000;     //CE=1
     mips_trigger_exception (cpu, MIPS_CP0_CAUSE_CP_UNUSABLE,
         cpu->is_in_bdslot);
-
 }
 
 /* Execute ERET instruction */
@@ -624,19 +623,14 @@ void fastcall mips_exec_deret (cpu_mips_t *cpu)
 /* Execute BREAK instruction */
 void fastcall mips_exec_break (cpu_mips_t * cpu, u_int code)
 {
-    //mips_dump_regs(cpu);
-    //printf ("exec break cpu->pc %x\n", cpu->pc);
-
-    /* XXX TODO: Branch Delay slot */
-    mips_trigger_exception (cpu, MIPS_CP0_CAUSE_BP, 0);
+    mips_trigger_exception (cpu, MIPS_CP0_CAUSE_BP, cpu->is_in_bdslot);
 }
 
 /* Trigger a Trap Exception */
 void fastcall mips_trigger_trap_exception (cpu_mips_t * cpu)
 {
-    /* XXX TODO: Branch Delay slot */
-    printf ("MIPS64: TRAP exception, CPU=%p\n", cpu);
-    mips_trigger_exception (cpu, MIPS_CP0_CAUSE_TRAP, 0);
+    //printf ("MIPS64: TRAP exception, CPU=%p\n", cpu);
+    mips_trigger_exception (cpu, MIPS_CP0_CAUSE_TRAP, cpu->is_in_bdslot);
 }
 
 /* Execute SYSCALL instruction */

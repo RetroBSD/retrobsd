@@ -2418,6 +2418,7 @@ static int mips_exec_mips16e(cpu_mips_t* cpu, mips_insn_t instr)
                 cpu->reg_set(cpu, MIPS_GPR_SP, cpu->gpr[MIPS_GPR_SP] + (simm8 << 3));
                 break;
             case 4: // SVRS
+                // TBD!!! handle memory errors better
                 if (instr & 0x80) { // save
                     uint32_t temp = cpu->gpr[MIPS_GPR_SP];
                     cpu->reg_set(cpu, MIPS_GPR_SP, cpu->gpr[MIPS_GPR_SP] - (imm4 ? imm4 * 8 : 128));
@@ -2722,6 +2723,7 @@ static int mips_exec_mips16e(cpu_mips_t* cpu, mips_insn_t instr)
                 cpu->reg_set(cpu, MIPS_GPR_SP, cpu->gpr[MIPS_GPR_SP] + simm16);
                 break;
             case 4: { // SVRS
+                // TBD!!! handle memory errors better
                 uint32_t astatic = 0;
                 uint32_t i, temp;
                 switch (aregs) {

@@ -505,6 +505,70 @@ void mips_trigger_exception (cpu_mips_t * cpu, u_int exc_code, int bd_slot)
     cpu->irq_pending = 0;
 }
 
+/*
+ * Generate a Debug exception
+ */
+void mips_trigger_debug_exception (cpu_mips_t *cpu, u_int dexc_type)
+{
+    mips_cp0_t *cp0 = &cpu->cp0;
+    int old_dm = cpu->cp0.reg[MIPS_CP0_DEBUG] & MIPS_CP0_DEBUG_DM;
+
+    /* Set DEPC. */
+    cp0->reg[MIPS_CP0_DEPC] = cpu->pc;
+
+    /* Update exception type bits. */
+    cpu->cp0.reg[MIPS_CP0_DEBUG] &= ~(MIPS_CP0_DEBUG_DSS |
+        MIPS_CP0_DEBUG_DBP | MIPS_CP0_DEBUG_DDBL | MIPS_CP0_DEBUG_DDBS |
+        MIPS_CP0_DEBUG_DIB | MIPS_CP0_DEBUG_DINT |
+        MIPS_CP0_DEBUG_DDBLIMPR | MIPS_CP0_DEBUG_DDBSIMPR);
+    if (! old_dm) {
+        cpu->cp0.reg[MIPS_CP0_DEBUG] |= dexc_type;
+    }
+
+    /* Update delay slot flag. */
+    if (cpu->is_in_bdslot)
+        cpu->cp0.reg[MIPS_CP0_DEBUG] |= MIPS_CP0_DEBUG_DBD;
+    else
+        cpu->cp0.reg[MIPS_CP0_DEBUG] &= ~MIPS_CP0_DEBUG_DBD;
+
+    /* Set Debug mode. */
+    cpu->cp0.reg[MIPS_CP0_DEBUG] |= MIPS_CP0_DEBUG_DM;
+    cpu->cp0.reg[MIPS_CP0_DEBUG] |= MIPS_CP0_DEBUG_IEXI;
+
+    if (cpu->vm->debug_level > 2) {
+        char *type = 0;
+        printf ("--- 0x%08x: ", cpu->pc);
+
+        if (old_dm)
+            type = " Debug exception in Debug mode";
+        else
+            switch (dexc_type) {
+            case MIPS_CP0_DEBUG_DSS:      type = "Debug Single Step exception"; break;
+            case MIPS_CP0_DEBUG_DBP:      type = "Debug Breakpoint exception"; break;
+            case MIPS_CP0_DEBUG_DDBL:     type = "Debug Data Break Load exception"; break;
+            case MIPS_CP0_DEBUG_DDBS:     type = "Debug Data Break Store exception"; break;
+            case MIPS_CP0_DEBUG_DIB:      type = "Debug Instruction Break exception"; break;
+            case MIPS_CP0_DEBUG_DINT:     type = "Debug Interrupt exception"; break;
+            case MIPS_CP0_DEBUG_DDBLIMPR: type = "Debug Data Break Load Impresize exception"; break;
+            case MIPS_CP0_DEBUG_DDBSIMPR: type = "Debug Data Break Store Impresize exception"; break;
+            }
+        if (type)
+            printf ("%s\n", type);
+        else
+            printf ("Debug exception %#x\n", dexc_type);
+
+        printf ("        c0_debug := %08x\n", cpu->cp0.reg[MIPS_CP0_DEBUG]);
+        printf ("        c0_depc := %08x\n", cpu->cp0.reg[MIPS_CP0_DEPC]);
+    }
+
+    /* Debug exception vector. */
+    cpu->pc = (m_va_t) 0xffffffffbfc00480ULL;
+    cpu->is_mips16e = 0;
+
+    /* Clear the pending IRQ flag */
+    cpu->irq_pending = 0;
+}
+
 /* Execute fpu instruction */
 void fastcall mips_exec_soft_fpu (cpu_mips_t * cpu)
 {

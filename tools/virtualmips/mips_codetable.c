@@ -1813,6 +1813,26 @@ static int xori_op (cpu_mips_t * cpu, mips_insn_t insn)
     return (0);
 }
 
+static int sdbbp_op (cpu_mips_t * cpu, mips_insn_t insn)
+{
+    /* Clear status of previos Debug exception. */
+    cpu->cp0.reg[MIPS_CP0_DEBUG] &= ~MIPS_CP0_DEBUG_DEXCCODE;
+
+    if (cpu->cp0.reg[MIPS_CP0_DEBUG] & MIPS_CP0_DEBUG_DM) {
+        /* Already in Debug mode: take nested debug exception. */
+        mips_trigger_debug_exception (cpu, 0);
+
+        /* Set nested exception type. */
+        cpu->cp0.reg[MIPS_CP0_DEBUG] |=
+            MIPS_CP0_CAUSE_BP << MIPS_CP0_DEBUG_DEXCCODE_SHIFT;
+
+    } else {
+        /* Take a Breakpoint exception. */
+        mips_trigger_debug_exception (cpu, MIPS_CP0_DEBUG_DBP);
+    }
+    return 1;
+}
+
 static int undef_op (cpu_mips_t * cpu, mips_insn_t insn)
 {
     return unknown_op (cpu, insn);
@@ -2131,7 +2151,7 @@ static const struct mips_op_desc mips_spec2_opcodes[] = {
     {"?spec2",	undef_spec2,0x3c},
     {"?spec2",	undef_spec2,0x3d},
     {"?spec2",	undef_spec2,0x3e},
-    {"?spec2",	undef_spec2,0x3f},
+    {"?spec2",	sdbbp_op,   0x3f},
 };
 
 /*

@@ -299,9 +299,10 @@ int init_instance (vm_instance_t * vm)
     cpu->cp0.config_reg[3] = 0x00000020;
 
     /* set PC and PRID */
-    cpu->cp0.reg[MIPS_CP0_PRID] = 0x00018700;
-    cpu->cp0.tlb_entries = 0;
     cpu->pc = m4k->start_address;
+    cpu->cp0.tlb_entries = 0;
+    cpu->cp0.reg[MIPS_CP0_PRID]  = 0x00018700;
+    cpu->cp0.reg[MIPS_CP0_DEBUG] = 0x00010000;
 
     /* Enable magic opcodes. */
     cpu->magic_opcodes = 1;

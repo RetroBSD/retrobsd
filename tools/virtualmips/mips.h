@@ -76,6 +76,8 @@
 #define MIPS_CP0_WATCHLO     18 /* Low Watch address   */
 #define MIPS_CP0_WATCHHI     19 /* High Watch address  */
 #define MIPS_CP0_XCONTEXT    20 /* Extended context    */
+#define MIPS_CP0_DEBUG       23 /* Debug               */
+#define MIPS_CP0_DEPC        24 /* DEPC                */
 #define MIPS_CP0_ECC         26 /* ECC and parity      */
 #define MIPS_CP0_CACHERR     27 /* Cache Err/Status    */
 #define MIPS_CP0_TAGLO       28 /* Cache Tag Lo        */
@@ -127,7 +129,6 @@
 /*
  * CP0 Cause register
  */
-
 #define MIPS_CP0_CAUSE_BD_SLOT      0x80000000
 
 #define MIPS_CP0_CAUSE_MASK         0x0000007C
@@ -174,6 +175,25 @@
 /* cp0 context */
 #define MIPS_CP0_CONTEXT_PTEBASE_MASK  0xff800000
 #define MIPS_CP0_CONTEXT_BADVPN2_MASK  0x0007ffff0
+
+/*
+ * CP0 Debug register
+ */
+#define MIPS_CP0_DEBUG_DBD          0x80000000  /* Debug exception on delay slot */
+#define MIPS_CP0_DEBUG_DM           0x40000000  /* Debug mode */
+#define MIPS_CP0_DEBUG_IEXI         0x00100000  /* Imprecise Error eXception Inhibit */
+#define MIPS_CP0_DEBUG_DDBSIMPR     0x00080000  /* Debug Data Break Store Impresize exception */
+#define MIPS_CP0_DEBUG_DDBLIMPR     0x00040000  /* Debug Data Break Load Impresize exception */
+#define MIPS_CP0_DEBUG_DEXCCODE     0x00003c00  /* Debug exception code */
+#define MIPS_CP0_DEBUG_DEXCCODE_SHIFT   10
+#define MIPS_CP0_DEBUG_DINT         0x00000020  /* Debug Interrupt exception */
+#define MIPS_CP0_DEBUG_DIB          0x00000010  /* Debug Instruction Break exception */
+#define MIPS_CP0_DEBUG_DDBS         0x00000008  /* Debug Data Break Store exception */
+#define MIPS_CP0_DEBUG_DDBL         0x00000004  /* Debug Data Break Load exception */
+#define MIPS_CP0_DEBUG_DBP          0x00000002  /* Debug Breakpoint exception */
+#define MIPS_CP0_DEBUG_DSS          0x00000001  /* Debug Single Step exception */
+
+#define MIPS_CP0_DEBUG_WMASK        0x10700180  /* Writable bits */
 
 /* TLB masks and shifts */
 #define MIPS_TLB_PAGE_MASK     0x01ffe000
@@ -479,6 +499,7 @@ int mips_load_elf_image (cpu_mips_t * cpu, char *filename,
 void mips_delete (cpu_mips_t * cpu);
 int fastcall mips_update_irq_flag (cpu_mips_t * cpu);
 void mips_trigger_exception (cpu_mips_t * cpu, u_int exc_code, int bd_slot);
+void mips_trigger_debug_exception (cpu_mips_t * cpu, u_int dexc_type);
 void fastcall mips_exec_soft_fpu (cpu_mips_t * cpu);
 void fastcall mips_exec_eret (cpu_mips_t * cpu);
 void fastcall mips_exec_break (cpu_mips_t * cpu, u_int code);

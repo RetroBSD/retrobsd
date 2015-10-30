@@ -227,6 +227,14 @@ void mips_cp0_set_reg (cpu_mips_t * cpu, u_int cp0_reg, u_int sel,
         }
         break;
 
+    case MIPS_CP0_DEBUG:
+        /* Only some bits of Debug register are writable. */
+        if (sel != 0)
+            goto unimpl;
+        cp0->reg[cp0_reg] &= ~MIPS_CP0_DEBUG_WMASK;
+        cp0->reg[cp0_reg] |= val & MIPS_CP0_DEBUG_WMASK;
+        break;
+
     default:
         if (sel != 0) {
 unimpl:     fprintf (stderr,

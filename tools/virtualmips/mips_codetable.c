@@ -735,6 +735,12 @@ static int eret_op (cpu_mips_t * cpu, mips_insn_t insn)
     return (1);
 }
 
+static int deret_op (cpu_mips_t * cpu, mips_insn_t insn)
+{
+    mips_exec_deret (cpu);
+    return (1);
+}
+
 static int j_op (cpu_mips_t * cpu, mips_insn_t insn)
 {
     u_int instr_index = bits (insn, 0, 25);
@@ -2259,7 +2265,7 @@ static const struct mips_op_desc mips_tlb_opcodes[] = {
     {"?tlb",	undef_tlb,	0x1c},
     {"?tlb",	undef_tlb,	0x1d},
     {"?tlb",	undef_tlb,	0x1e},
-    {"?tlb",	undef_tlb,	0x1f},
+    {"deret",	deret_op,	0x1f},
     {"wait",	wait_op,	0x20},
     {"?tlb",	undef_tlb,	0x21},
     {"?tlb",	undef_tlb,	0x22},

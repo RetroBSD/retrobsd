@@ -513,17 +513,13 @@ void mips_trigger_debug_exception (cpu_mips_t *cpu, u_int dexc_type)
     mips_cp0_t *cp0 = &cpu->cp0;
     int old_dm = cpu->cp0.reg[MIPS_CP0_DEBUG] & MIPS_CP0_DEBUG_DM;
 
-    /* Set DEPC. */
-    cp0->reg[MIPS_CP0_DEPC] = cpu->pc;
-
     /* Update exception type bits. */
     cpu->cp0.reg[MIPS_CP0_DEBUG] &= ~(MIPS_CP0_DEBUG_DSS |
-        MIPS_CP0_DEBUG_DBP | MIPS_CP0_DEBUG_DDBL | MIPS_CP0_DEBUG_DDBS |
-        MIPS_CP0_DEBUG_DIB | MIPS_CP0_DEBUG_DINT |
-        MIPS_CP0_DEBUG_DDBLIMPR | MIPS_CP0_DEBUG_DDBSIMPR);
-    if (! old_dm) {
-        cpu->cp0.reg[MIPS_CP0_DEBUG] |= dexc_type;
-    }
+        MIPS_CP0_DEBUG_DBP | MIPS_CP0_DEBUG_DDBL |
+        MIPS_CP0_DEBUG_DDBS | MIPS_CP0_DEBUG_DIB |
+        MIPS_CP0_DEBUG_DINT | MIPS_CP0_DEBUG_DDBLIMPR |
+        MIPS_CP0_DEBUG_DDBSIMPR | MIPS_CP0_DEBUG_DEXCCODE);
+    cpu->cp0.reg[MIPS_CP0_DEBUG] |= dexc_type;
 
     /* Update delay slot flag. */
     if (cpu->is_in_bdslot)
@@ -534,6 +530,9 @@ void mips_trigger_debug_exception (cpu_mips_t *cpu, u_int dexc_type)
     /* Set Debug mode. */
     cpu->cp0.reg[MIPS_CP0_DEBUG] |= MIPS_CP0_DEBUG_DM;
     cpu->cp0.reg[MIPS_CP0_DEBUG] |= MIPS_CP0_DEBUG_IEXI;
+
+    /* Set DEPC. */
+    cp0->reg[MIPS_CP0_DEPC] = cpu->pc | cpu->is_mips16e;
 
     if (cpu->vm->debug_level > 2) {
         char *type = 0;
@@ -561,7 +560,7 @@ void mips_trigger_debug_exception (cpu_mips_t *cpu, u_int dexc_type)
         printf ("        c0_depc := %08x\n", cpu->cp0.reg[MIPS_CP0_DEPC]);
     }
 
-    /* Debug exception vector. */
+    /* Jump to Debug exception vector. */
     cpu->pc = (m_va_t) 0xffffffffbfc00480ULL;
     cpu->is_mips16e = 0;
 
@@ -587,16 +586,39 @@ void fastcall mips_exec_eret (cpu_mips_t * cpu)
     if (cp0->reg[MIPS_CP0_STATUS] & MIPS_CP0_STATUS_ERL) {
         cp0->reg[MIPS_CP0_STATUS] &= ~MIPS_CP0_STATUS_ERL;
         cpu->pc = cp0->reg[MIPS_CP0_ERR_EPC];
-
     } else {
         cp0->reg[MIPS_CP0_STATUS] &= ~MIPS_CP0_STATUS_EXL;
         cpu->pc = cp0->reg[MIPS_CP0_EPC];
     }
+    if (cpu->vm->debug_level > 2) {
+        printf ("        c0_status := %08x\n", cpu->cp0.reg[MIPS_CP0_STATUS]);
+    }
+
     /* We have to clear the LLbit */
     cpu->ll_bit = 0;
 
     cpu->is_mips16e = cpu->pc & 1;
-    cpu->pc &= 0xFFFFFFFE;
+    cpu->pc &= ~1;
+}
+
+/* Execute DERET instruction */
+void fastcall mips_exec_deret (cpu_mips_t *cpu)
+{
+    mips_cp0_t *cp0 = &cpu->cp0;
+
+    /* Clear Debug mode. */
+    cpu->cp0.reg[MIPS_CP0_DEBUG] &= ~MIPS_CP0_DEBUG_DM;
+    cpu->cp0.reg[MIPS_CP0_DEBUG] &= ~MIPS_CP0_DEBUG_IEXI;
+
+    /* Restore PC. */
+    cpu->pc = cp0->reg[MIPS_CP0_DEPC];
+
+    cpu->is_mips16e = cpu->pc & 1;
+    cpu->pc &= ~1;
+
+    if (cpu->vm->debug_level > 2) {
+        printf ("        c0_debug := %08x\n", cpu->cp0.reg[MIPS_CP0_DEBUG]);
+    }
 }
 
 /* Execute BREAK instruction */

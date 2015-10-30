@@ -502,6 +502,7 @@ void mips_trigger_exception (cpu_mips_t * cpu, u_int exc_code, int bd_slot);
 void mips_trigger_debug_exception (cpu_mips_t * cpu, u_int dexc_type);
 void fastcall mips_exec_soft_fpu (cpu_mips_t * cpu);
 void fastcall mips_exec_eret (cpu_mips_t * cpu);
+void fastcall mips_exec_deret (cpu_mips_t * cpu);
 void fastcall mips_exec_break (cpu_mips_t * cpu, u_int code);
 void fastcall mips_trigger_trap_exception (cpu_mips_t * cpu);
 void fastcall mips_exec_syscall (cpu_mips_t * cpu);

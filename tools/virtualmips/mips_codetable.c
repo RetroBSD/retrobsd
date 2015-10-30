@@ -42,15 +42,21 @@ static int cop_unusable(cpu_mips_t * cpu, int cop_index)
     return 1;
 }
 
-static int add_op (cpu_mips_t * cpu, mips_insn_t insn)
+static int add_op (cpu_mips_t *cpu, mips_insn_t insn)
 {
     int rs = bits (insn, 21, 25);
     int rt = bits (insn, 16, 20);
     int rd = bits (insn, 11, 15);
-    m_reg_t res;
+    m_ireg_t a = cpu->gpr[rs];
+    m_ireg_t b = cpu->gpr[rt];
+    m_ireg_t res = a + b;
 
-    /* TODO: Exception handling */
-    res = (m_uint32_t) cpu->gpr[rs] + (m_uint32_t) cpu->gpr[rt];
+    if ((a > 0 && b > 0 && res < 0) ||
+        (a < 0 && b < 0 && res >= 0)) {
+        /* Take overflow exception. */
+        mips_trigger_exception (cpu, MIPS_CP0_CAUSE_OVFLW, cpu->is_in_bdslot);
+        return 1;
+    }
     cpu->reg_set (cpu, rd, sign_extend (res, 32));
     return (0);
 }
@@ -60,10 +66,16 @@ static int addi_op (cpu_mips_t * cpu, mips_insn_t insn)
     int rs = bits (insn, 21, 25);
     int rt = bits (insn, 16, 20);
     int imm = bits (insn, 0, 15);
-    m_uint32_t res, val = sign_extend (imm, 16);
+    m_ireg_t a = cpu->gpr[rs];
+    m_ireg_t b = sign_extend (imm, 16);
+    m_ireg_t res = a + b;
 
-    /* TODO: Exception handling */
-    res = (m_uint32_t) cpu->gpr[rs] + val;
+    if ((a > 0 && b > 0 && res < 0) ||
+        (a < 0 && b < 0 && res >= 0)) {
+        /* Take overflow exception. */
+        mips_trigger_exception (cpu, MIPS_CP0_CAUSE_OVFLW, cpu->is_in_bdslot);
+        return 1;
+    }
     cpu->reg_set (cpu, rt, sign_extend (res, 32));
     return (0);
 }
@@ -619,9 +631,14 @@ static int div_op (cpu_mips_t * cpu, mips_insn_t insn)
     int rs = bits (insn, 21, 25);
     int rt = bits (insn, 16, 20);
 
-    if (cpu->gpr[rt] == 0 ||
-        (cpu->gpr[rs] == 0x80000000 && cpu->gpr[rt] == 0xFFFFFFFF))
+    if (cpu->gpr[rt] == 0)
         return (0);
+
+    if (cpu->gpr[rs] == 0x80000000 && cpu->gpr[rt] == 0xFFFFFFFF) {
+        cpu->lo = 0x80000000;
+        cpu->hi = 0;
+        return (0);
+    }
 
     cpu->lo = (m_int32_t) cpu->gpr[rs] / (m_int32_t) cpu->gpr[rt];
     cpu->hi = (m_int32_t) cpu->gpr[rs] % (m_int32_t) cpu->gpr[rt];
@@ -1347,10 +1364,16 @@ static int sub_op (cpu_mips_t * cpu, mips_insn_t insn)
     int rs = bits (insn, 21, 25);
     int rt = bits (insn, 16, 20);
     int rd = bits (insn, 11, 15);
-    m_uint32_t res;
+    m_ireg_t a = cpu->gpr[rs];
+    m_ireg_t b = cpu->gpr[rt];
+    m_ireg_t res = a - b;
 
-    /* TODO: Exception handling */
-    res = (m_uint32_t) cpu->gpr[rs] - (m_uint32_t) cpu->gpr[rt];
+    if ((a > 0 && b < 0 && res < 0) ||
+        (a < 0 && b > 0 && res >= 0)) {
+        /* Take overflow exception. */
+        mips_trigger_exception (cpu, MIPS_CP0_CAUSE_OVFLW, cpu->is_in_bdslot);
+        return 1;
+    }
     cpu->reg_set (cpu, rd, sign_extend (res, 32));
     return (0);
 }

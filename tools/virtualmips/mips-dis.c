@@ -709,7 +709,7 @@ print_insn_args (const char *d,
 
         default:
             /* xgettext:c-format */
-            fprintf (stream, "# internal error, undefined modifier (%c)", *d);
+            fprintf (stream, "# internal error, undefined modifier (%c)\n", *d);
             return;
         }
     }
@@ -1186,7 +1186,7 @@ print_mips16_insn_arg (char type,
 
     default:
         /* xgettext:c-format */
-        fprintf (stream, "# internal disassembler error, unrecognised modifier (%c)", type);
+        fprintf (stream, "# internal disassembler error, unrecognised modifier (%c)\n", type);
         abort ();
     }
 }
@@ -1255,9 +1255,10 @@ static void print_insn_mips16 (unsigned memaddr,
         }
     }
 
+    fprintf (stream, "0x");
     if (use_extend)
-        fprintf (stream, "0x%x", extend | 0xf000);
-    fprintf (stream, "0x%x", insn);
+        fprintf (stream, "%04x", extend | 0xf000);
+    fprintf (stream, "%04x", insn);
 }
 
 /*

@@ -2208,10 +2208,10 @@ static int mips_exec_mips16e(cpu_mips_t* cpu, mips_insn_t instr)
         res = 1;
     } else if (!extend) {
         switch (op) {
-        case 0: // addiu[sp] rx, sp, imm8
+        case 0: // addiu[sp] rx, sp, imm8<<2
             cpu->reg_set(cpu, xlat(rx), cpu->gpr[MIPS_GPR_SP] + (imm8 << 2));
             break;
-        case 1: // addiu[pc] rx, pc, imm8
+        case 1: // addiu[pc] rx, pc, imm8<<2
             cpu->reg_set(cpu, xlat(rx), (pc + (imm8 << 2)) & 0xFFFFFFFC);
             break;
         case 2: // b ofs11<<1 (no delay slot)
@@ -2246,10 +2246,12 @@ static int mips_exec_mips16e(cpu_mips_t* cpu, mips_insn_t instr)
                 goto lInvalidInstruction;
             }
             break;
-        case 8: // addiu ry, rx, imm4
+        case 8: // RRI-A addiu ry, rx, simm4
+            if (unlikely(instr & 0x10))
+                goto lInvalidInstruction;
             cpu->reg_set(cpu, xlat(ry), cpu->gpr[xlat(rx)] + simm4);
             break;
-        case 9: // addiu[8] rx, imm8
+        case 9: // addiu[8] rx, simm8
             cpu->reg_set(cpu, xlat(rx), cpu->gpr[xlat(rx)] + simm8);
             break;
         case 10: // slti rx, imm8
@@ -2275,7 +2277,7 @@ static int mips_exec_mips16e(cpu_mips_t* cpu, mips_insn_t instr)
             case 2: // sw[rasp] ra, ofs8<<2(sp)
                 res = mips_exec_memop2(cpu, MIPS_MEMOP_SW, MIPS_GPR_SP, imm8 << 2, MIPS_GPR_RA, FALSE);
                 break;
-            case 3: // ADJSP AKA addiu sp, imm8
+            case 3: // ADJSP AKA addiu sp, simm8<<3
                 cpu->reg_set(cpu, MIPS_GPR_SP, cpu->gpr[MIPS_GPR_SP] + (simm8 << 3));
                 break;
             case 4: // SVRS
@@ -2375,6 +2377,8 @@ static int mips_exec_mips16e(cpu_mips_t* cpu, mips_insn_t instr)
                     res = 1;
                     break;
                 case 1: // jr ra (delay slot)
+                    if (unlikely(rx))
+                        goto lInvalidInstruction;
                     nextPc = cpu->gpr[MIPS_GPR_RA];
                     if (mips_exec_bdslot(cpu) == 0) {
                         cpu->pc = nextPc & 0xFFFFFFFE;
@@ -2398,6 +2402,8 @@ static int mips_exec_mips16e(cpu_mips_t* cpu, mips_insn_t instr)
                     res = 1;
                     break;
                 case 5: // jrc ra (no delay slot)
+                    if (unlikely(rx))
+                        goto lInvalidInstruction;
                     nextPc = cpu->gpr[MIPS_GPR_RA];
                     cpu->pc = nextPc & 0xFFFFFFFE;
                     cpu->is_mips16e = nextPc & 1; // may switch to MIPS32
@@ -2454,6 +2460,8 @@ static int mips_exec_mips16e(cpu_mips_t* cpu, mips_insn_t instr)
                 cpu->reg_set(cpu, xlat(rx), ~cpu->gpr[xlat(ry)]);
                 break;
             case 16: // mfhi rx
+                if (unlikely(ry))
+                    goto lInvalidInstruction;
                 cpu->reg_set(cpu, xlat(rx), cpu->hi);
                 break;
             case 17: // CNVT
@@ -2475,6 +2483,8 @@ static int mips_exec_mips16e(cpu_mips_t* cpu, mips_insn_t instr)
                 }
                 break;
             case 18: // mflo rx
+                if (unlikely(ry))
+                    goto lInvalidInstruction;
                 cpu->reg_set(cpu, xlat(rx), cpu->lo);
                 break;
             case 24: { // mult rx, ry
@@ -2512,25 +2522,37 @@ static int mips_exec_mips16e(cpu_mips_t* cpu, mips_insn_t instr)
         // ^^^ NON-EXTENDED ^^^
     } else {
         // vvv EXTENDED vvv
+        if (unlikely(cpu->is_in_bdslot))
+            goto lInvalidInstruction;
         switch (op) {
-        case 0: // addiu[sp] rx, sp, imm16
+        case 0: // addiu[sp] rx, sp, simm16
+            if (unlikely(ry))
+                goto lInvalidInstruction;
             cpu->reg_set(cpu, xlat(rx), cpu->gpr[MIPS_GPR_SP] + simm16);
             break;
-        case 1: // addiu[pc] rx, pc, imm16
+        case 1: // addiu[pc] rx, pc, simm16
+            if (unlikely(ry))
+                goto lInvalidInstruction;
             cpu->reg_set(cpu, xlat(rx), (pc & 0xFFFFFFFC) + simm16);
             break;
         case 2: // b ofs16<<1 (no delay slot)
+            if (unlikely(instr & 0x7E0))
+                goto lInvalidInstruction;
             nextPc += simm16 << 1;
             cpu->pc = nextPc;
             res = 1;
             break;
         case 4: // beqz rx, ofs16<<1 (no delay slot)
+            if (unlikely(ry))
+                goto lInvalidInstruction;
             if (cpu->gpr[xlat(rx)] == 0)
                 nextPc += simm16 << 1;
             cpu->pc = nextPc;
             res = 1;
             break;
         case 5: // bnez rx, ofs16<<1 (no delay slot)
+            if (unlikely(ry))
+                goto lInvalidInstruction;
             if (cpu->gpr[xlat(rx)] != 0)
                 nextPc += simm16 << 1;
             cpu->pc = nextPc;
@@ -2539,48 +2561,70 @@ static int mips_exec_mips16e(cpu_mips_t* cpu, mips_insn_t instr)
         case 6: // SHIFT
             switch (imm2) {
             case 0: // sll rx, ry, imm5
+                if (unlikely((extend & 0x3F) | rz))
+                    goto lInvalidInstruction;
                 cpu->reg_set(cpu, xlat(rx), cpu->gpr[xlat(ry)] << sa5);
                 break;
             case 2: // srl rx, ry, imm5
+                if (unlikely((extend & 0x3F) | rz))
+                    goto lInvalidInstruction;
                 cpu->reg_set(cpu, xlat(rx), cpu->gpr[xlat(ry)] >> sa5);
                 break;
             case 3: // sra rx, ry, imm5
+                if (unlikely((extend & 0x3F) | rz))
+                    goto lInvalidInstruction;
                 cpu->reg_set(cpu, xlat(rx), (int32_t)cpu->gpr[xlat(ry)] >> sa5);
                 break;
             default:
                 goto lInvalidInstruction;
             }
             break;
-        case 8: // addiu ry, rx, imm15
+        case 8: // RRI-A addiu ry, rx, simm15
+            if (unlikely(instr & 0x10))
+                goto lInvalidInstruction;
             cpu->reg_set(cpu, xlat(ry), cpu->gpr[xlat(rx)] + simm15);
             break;
-        case 9: // addiu rx, imm16
+        case 9: // addiu rx, simm16
+            if (unlikely(ry))
+                goto lInvalidInstruction;
             cpu->reg_set(cpu, xlat(rx), cpu->gpr[xlat(rx)] + simm16);
             break;
-        case 10: // slti rx, imm16
+        case 10: // slti rx, simm16
+            if (unlikely(ry))
+                goto lInvalidInstruction;
             cpu->reg_set(cpu, MIPS_GPR_T8, (int32_t)cpu->gpr[xlat(rx)] < simm16);
             break;
-        case 11: // sltiu rx, imm16
+        case 11: // sltiu rx, simm16
+            if (unlikely(ry))
+                goto lInvalidInstruction;
             cpu->reg_set(cpu, MIPS_GPR_T8, cpu->gpr[xlat(rx)] < (uint32_t)simm16);
             break;
         case 12: // I8
             switch (rx) {
             case 0: // bteqz ofs16<<1 (no delay slot)
+                if (unlikely(ry))
+                    goto lInvalidInstruction;
                 if (cpu->gpr[MIPS_GPR_T8] == 0)
                     nextPc += simm16 << 1;
                 cpu->pc = nextPc;
                 res = 1;
                 break;
             case 1: // btnez ofs16<<1 (no delay slot)
+                if (unlikely(ry))
+                    goto lInvalidInstruction;
                 if (cpu->gpr[MIPS_GPR_T8] != 0)
                     nextPc += simm16 << 1;
                 cpu->pc = nextPc;
                 res = 1;
                 break;
             case 2: // sw[rasp] ra, ofs16(sp)
+                if (unlikely(ry))
+                    goto lInvalidInstruction;
                 res = mips_exec_memop2(cpu, MIPS_MEMOP_SW, MIPS_GPR_SP, simm16, MIPS_GPR_RA, FALSE);
                 break;
-            case 3: // ADJSP AKA addiu sp, imm16
+            case 3: // ADJSP AKA addiu sp, simm16
+                if (unlikely(ry))
+                    goto lInvalidInstruction;
                 cpu->reg_set(cpu, MIPS_GPR_SP, cpu->gpr[MIPS_GPR_SP] + simm16);
                 break;
             case 4: { // SVRS
@@ -2592,6 +2636,8 @@ static int mips_exec_mips16e(cpu_mips_t* cpu, mips_insn_t instr)
                 case 2: case 6: case 10: astatic = 2; break;
                 case 3: case 7: astatic = 3; break;
                 case 11: astatic = 4; break;
+                case 15:
+                    goto lInvalidInstruction; // TBD!!! or address error???
                 }
                 if (instr & 0x80) { // save
                     uint32_t args = 0;
@@ -2600,6 +2646,8 @@ static int mips_exec_mips16e(cpu_mips_t* cpu, mips_insn_t instr)
                     case 8: case 9: case 10: args = 2; break;
                     case 12: case 13: args = 3; break;
                     case 14: args = 4; break;
+                    case 15:
+                        goto lInvalidInstruction; // TBD!!! or address error???
                     }
                     temp = cpu->gpr[MIPS_GPR_SP];
                     cpu->reg_set(cpu, MIPS_GPR_SP, cpu->gpr[MIPS_GPR_SP] - fmsz8 * 8);
@@ -2637,9 +2685,13 @@ static int mips_exec_mips16e(cpu_mips_t* cpu, mips_insn_t instr)
             }
             break;
         case 13: // li rx, imm16
+            if (unlikely(ry))
+                goto lInvalidInstruction;
             cpu->reg_set(cpu, xlat(rx), imm16);
             break;
         case 14: // cmpi rx, imm16
+            if (unlikely(ry))
+                goto lInvalidInstruction;
             cpu->reg_set(cpu, MIPS_GPR_T8, cpu->gpr[xlat(rx)] ^ imm16);
             break;
         case 16: // lb ry, ofs16(rx)
@@ -2649,6 +2701,8 @@ static int mips_exec_mips16e(cpu_mips_t* cpu, mips_insn_t instr)
             res = mips_exec_memop2(cpu, MIPS_MEMOP_LH, xlat(rx), simm16, xlat(ry), TRUE);
             break;
         case 18: // lw[sp] rx, ofs16(sp)
+            if (unlikely(ry))
+                goto lInvalidInstruction;
             res = mips_exec_memop2(cpu, MIPS_MEMOP_LW, MIPS_GPR_SP, simm16, xlat(rx), TRUE);
             break;
         case 19: // lw ry, ofs16(rx)
@@ -2661,6 +2715,8 @@ static int mips_exec_mips16e(cpu_mips_t* cpu, mips_insn_t instr)
             res = mips_exec_memop2(cpu, MIPS_MEMOP_LHU, xlat(rx), simm16, xlat(ry), TRUE);
             break;
         case 22: // lw[pc] rx, ofs16(pc)
+            if (unlikely(ry))
+                goto lInvalidInstruction;
             res = mips_exec_memop(cpu, MIPS_MEMOP_LW, (pc & 0xFFFFFFFC) + simm16, xlat(rx), TRUE);
             break;
         case 24: // sb ry, ofs16(rx)
@@ -2670,6 +2726,8 @@ static int mips_exec_mips16e(cpu_mips_t* cpu, mips_insn_t instr)
             res = mips_exec_memop2(cpu, MIPS_MEMOP_SH, xlat(rx), simm16, xlat(ry), FALSE);
             break;
         case 26: // sw[sp] rx, ofs16(sp)
+            if (unlikely(ry))
+                goto lInvalidInstruction;
             res = mips_exec_memop2(cpu, MIPS_MEMOP_SW, MIPS_GPR_SP, simm16, xlat(rx), FALSE);
             break;
         case 27: // sw ry, ofs16(rx)

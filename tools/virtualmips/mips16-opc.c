@@ -138,7 +138,6 @@ static const struct mips_opcode mips16_opcodes[] =
 {"exit",    "L",        0xee09, 0xff1f,     TRAP, },
 {"exit",    "L",        0xef09, 0xff1f,     TRAP, },
 {"entry",   "l",        0xe809, 0xf81f,     TRAP, },
-{"extend",  "e",        0xf000, 0xf800,     0, },
 {"jalr",    "x",        0xe840, 0xf8ff,     UBD|WR_31|RD_x, },
 {"jalr",    "R,x",      0xe840, 0xf8ff,     UBD|WR_31|RD_x, },
 {"jal",     "x",        0xe840, 0xf8ff,     UBD|WR_31|RD_x, },

@@ -7,6 +7,9 @@
  * See LICENSE file for terms of the license.
  */
 
+/*
+ * Take the 'reserved instruction' exception.
+ */
 static int unknown_op (cpu_mips_t * cpu, mips_insn_t insn)
 {
 #if 0
@@ -14,9 +17,28 @@ static int unknown_op (cpu_mips_t * cpu, mips_insn_t insn)
     printf ("%08x:       %08x        ", cpu->pc, insn);
     print_mips (cpu->pc, insn, cpu->insn_len, cpu->is_mips16e, stdout);
     printf ("\n");
-    exit (EXIT_FAILURE);
 #endif
     mips_trigger_exception (cpu, MIPS_CP0_CAUSE_ILLOP, cpu->is_in_bdslot);
+    return 1;
+}
+
+/*
+ * Take the 'coprocessor unusable' exception.
+ */
+static int cop_unusable(cpu_mips_t * cpu, int cop_index)
+{
+    if (cpu->cp0.reg[MIPS_CP0_DEBUG] & MIPS_CP0_DEBUG_DM) {
+        /* Coprocessor unusable in Debug mode. */
+        mips_trigger_debug_exception (cpu, 0);
+        cpu->cp0.reg[MIPS_CP0_DEBUG] |=
+            MIPS_CP0_CAUSE_CP_UNUSABLE << MIPS_CP0_DEBUG_DEXCCODE_SHIFT;
+    } else {
+        /* Set Cause.CE field. */
+        cpu->cp0.reg[MIPS_CP0_CAUSE] &= ~MIPS_CP0_CAUSE_CEMASK;
+        cpu->cp0.reg[MIPS_CP0_CAUSE] |= cop_index << MIPS_CP0_CAUSE_CESHIFT;
+
+        mips_trigger_exception (cpu, MIPS_CP0_CAUSE_CP_UNUSABLE, cpu->is_in_bdslot);
+    }
     return 1;
 }
 
@@ -577,22 +599,18 @@ static int cop1_op (cpu_mips_t * cpu, mips_insn_t insn)
     mips_exec_soft_fpu (cpu);
     return (1);
 #else
-    return unknown_op (cpu, insn);
-#endif
-}
-
-static int cop1x_op (cpu_mips_t * cpu, mips_insn_t insn)
-{
-#if SOFT_FPU
-    mips_exec_soft_fpu (cpu);
-    return (1);
-#else
+    if (! (cpu->cp0.reg [MIPS_CP0_STATUS] & MIPS_CP0_STATUS_CU1)) {
+        return cop_unusable (cpu, 1);
+    }
     return unknown_op (cpu, insn);
 #endif
 }
 
 static int cop2_op (cpu_mips_t * cpu, mips_insn_t insn)
 {
+    if (! (cpu->cp0.reg [MIPS_CP0_STATUS] & MIPS_CP0_STATUS_CU2)) {
+        return cop_unusable (cpu, 2);
+    }
     return unknown_op (cpu, insn);
 }
 
@@ -815,22 +833,6 @@ static int lw_op (cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-static int lwc1_op (cpu_mips_t * cpu, mips_insn_t insn)
-{
-#if SOFT_FPU
-    mips_exec_soft_fpu (cpu);
-    return (1);
-#else
-    return unknown_op (cpu, insn);
-#endif
-
-}
-
-static int lwc2_op (cpu_mips_t * cpu, mips_insn_t insn)
-{
-    return unknown_op (cpu, insn);
-}
-
 static int lwl_op (cpu_mips_t * cpu, mips_insn_t insn)
 {
     int base = bits (insn, 21, 25);
@@ -983,6 +985,9 @@ static int mflo_op (cpu_mips_t * cpu, mips_insn_t insn)
 
 static int movc_op (cpu_mips_t * cpu, mips_insn_t insn)
 {
+    if (! (cpu->cp0.reg [MIPS_CP0_STATUS] & MIPS_CP0_STATUS_CU1)) {
+        return cop_unusable (cpu, 1);
+    }
     return unknown_op (cpu, insn);
 }
 
@@ -1370,21 +1375,6 @@ static int sw_op (cpu_mips_t * cpu, mips_insn_t insn)
     return (mips_exec_memop2 (cpu, MIPS_MEMOP_SW, base, offset, rt, FALSE));
 }
 
-static int swc1_op (cpu_mips_t * cpu, mips_insn_t insn)
-{
-#if SOFT_FPU
-    mips_exec_soft_fpu (cpu);
-    return (1);
-#else
-    return unknown_op (cpu, insn);
-#endif
-}
-
-static int swc2_op (cpu_mips_t * cpu, mips_insn_t insn)
-{
-    return unknown_op (cpu, insn);
-}
-
 static int swl_op (cpu_mips_t * cpu, mips_insn_t insn)
 {
     int base = bits (insn, 21, 25);
@@ -1719,7 +1709,7 @@ static const struct mips_op_desc mips_opcodes[] = {
     {"cop0",    cop0_op,    0x10},      /* indexed by RS field */
     {"cop1",    cop1_op,    0x11},
     {"cop2",    cop2_op,    0x12},
-    {"cop1x",   cop1x_op,   0x13},
+    {"cop1x",   cop1_op,    0x13},
     {"beql",    beql_op,    0x14},
     {"bnel",    bnel_op,    0x15},
     {"blezl",   blezl_op,   0x16},
@@ -1749,20 +1739,20 @@ static const struct mips_op_desc mips_opcodes[] = {
     {"swr",     swr_op,     0x2E},
     {"cache",   cache_op,   0x2F},
     {"ll",      ll_op,      0x30},
-    {"lwc1",    lwc1_op,    0x31},
-    {"lwc2",    lwc2_op,    0x32},
+    {"lwc1",    cop1_op,    0x31},
+    {"lwc2",    cop2_op,    0x32},
     {"pref",    pref_op,    0x33},
     {"lld",     unknown_op, 0x34},
-    {"ldc1",    unknown_op, 0x35},
-    {"ldc2",    unknown_op, 0x36},
+    {"ldc1",    cop1_op,    0x35},
+    {"ldc2",    cop2_op,    0x36},
     {"ld",      unknown_op, 0x37},
     {"sc",      sc_op,      0x38},
-    {"swc1",    swc1_op,    0x39},
-    {"swc2",    swc2_op,    0x3A},
+    {"swc1",    cop1_op,    0x39},
+    {"swc2",    cop2_op,    0x3A},
     {"undef",   undef_op,   0x3B},
     {"scd",     unknown_op, 0x3C},
-    {"sdc1",    unknown_op, 0x3D},
-    {"sdc2",    unknown_op, 0x3E},
+    {"sdc1",    cop1_op,    0x3D},
+    {"sdc2",    cop2_op,    0x3E},
     {"sd",      unknown_op, 0x3F},
 };
 

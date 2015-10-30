@@ -89,6 +89,7 @@
  */
 #define MIPS_CP0_STATUS_CU0         0x10000000
 #define MIPS_CP0_STATUS_CU1         0x20000000
+#define MIPS_CP0_STATUS_CU2         0x40000000
 #define MIPS_CP0_STATUS_BEV         0x00400000
 #define MIPS_CP0_STATUS_TS          0x00200000
 #define MIPS_CP0_STATUS_SR          0x00100000
@@ -133,6 +134,7 @@
 
 #define MIPS_CP0_CAUSE_MASK         0x0000007C
 #define MIPS_CP0_CAUSE_CEMASK       0x30000000
+#define MIPS_CP0_CAUSE_CESHIFT      28
 #ifdef SIM_PIC32
 #define MIPS_CP0_CAUSE_IMASK        0x0000FC00  /* mips r2 */
 #else

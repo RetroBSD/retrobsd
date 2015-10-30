@@ -91,7 +91,6 @@ _reset_vector_: .globl  _reset_vector_
                 mfc0    $k0, $C0_STATUS
                 ori     $k0, $k0, ST_UM | ST_EXL | ST_IE # Set user mode and enable interrupts
                 mtc0    $k0, $C0_STATUS                 # Put SR back
-                ehb
                 eret                                    # PC <= EPC; EXL <= 0
                 nop                                     # just to be safe
 
@@ -258,7 +257,6 @@ restore_regs:
 
                 # Return from exception
                 bnez    $k1, debug_request              # single-step request
-                ehb
                 eret                                    # PC <= EPC; EXL <= 0
 debug_request:
                 sdbbp                                   # enter debug mode
@@ -285,9 +283,11 @@ _debug_vector_: .globl _debug_vector_
                 mfc0    $k0, $C0_STATUS
                 xori    $k0, ST_EXL                     # Clear EXL
                 mtc0    $k0, $C0_STATUS
-                ehb
                 deret                                   # PC <= DEPC; DM <= 0
-
+                # A single instruction of the user program
+                # is executed here, then jump to _debug_vector_
+                # with updated DEPC.
+                # Continue below.
 single_step_done:
                 mtc0    $k0, $C0_EPC                    # EPC <= DEPC
 
@@ -303,7 +303,6 @@ single_step_done:
                 mfc0    $k1, $C0_STATUS
                 ori     $k1, ST_EXL                     # Set EXL
                 mtc0    $k1, $C0_STATUS
-                ehb
                 deret                                   # PC <= DEPC; DM <= 0
 
 #---------------------------------------

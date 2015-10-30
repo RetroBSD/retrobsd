@@ -1032,13 +1032,14 @@ u_int fastcall mips_mts32_sc (cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
     u_int exc = 0;
     m_uint8_t has_set_value = FALSE;
 
+    data = cpu->gpr[reg] & 0xffffffff;
+    haddr =
+        mips_mts32_access (cpu, vaddr, MIPS_MEMOP_SC, 4, MTS_WRITE, &data,
+        &exc, &has_set_value, 0);
+    if (exc)
+        return exc;
+
     if (cpu->ll_bit) {
-        data = cpu->gpr[reg] & 0xffffffff;
-        haddr =
-            mips_mts32_access (cpu, vaddr, MIPS_MEMOP_SC, 4, MTS_WRITE, &data,
-            &exc, &has_set_value, 0);
-        if (exc)
-            return exc;
         if ((haddr == NULL) && (has_set_value == FALSE)) {
             bad_memory_access (cpu, vaddr);
         }

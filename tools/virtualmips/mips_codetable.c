@@ -543,6 +543,23 @@ static int clz_op (cpu_mips_t * cpu, mips_insn_t insn)
     return (0);
 }
 
+static int clo_op (cpu_mips_t * cpu, mips_insn_t insn)
+{
+    int rs = bits (insn, 21, 25);
+    int rd = bits (insn, 11, 15);
+    int i;
+    m_uint32_t val;
+    val = 32;
+    for (i = 31; i >= 0; i--) {
+        if (! (cpu->gpr[rs] & (1 << i))) {
+            val = 31 - i;
+            break;
+        }
+    }
+    cpu->reg_set (cpu, rd, val);
+    return (0);
+}
+
 static int cop0_op (cpu_mips_t * cpu, mips_insn_t insn)
 {
     uint16_t special_func = bits (insn, 21, 25);
@@ -2126,8 +2143,8 @@ static const struct mips_op_desc mips_spec2_opcodes[] = {
     {"?spec2",	undef_spec2,0x1d},
     {"?spec2",	undef_spec2,0x1e},
     {"?spec2",	undef_spec2,0x1f},
-    {"clz",		clz_op,		0x20},
-    {"?spec2",	undef_spec2,0x21},
+    {"clz",     clz_op,     0x20},
+    {"clo",     clo_op,     0x21},
     {"?spec2",	undef_spec2,0x22},
     {"?spec2",	undef_spec2,0x23},
     {"?spec2",	undef_spec2,0x24},

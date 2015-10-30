@@ -9,11 +9,15 @@
 
 static int unknown_op (cpu_mips_t * cpu, mips_insn_t insn)
 {
+#if 0
     printf ("--- Unknown instruction:\n");
     printf ("%08x:       %08x        ", cpu->pc, insn);
     print_mips (cpu->pc, insn, cpu->insn_len, cpu->is_mips16e, stdout);
     printf ("\n");
     exit (EXIT_FAILURE);
+#endif
+    mips_trigger_exception (cpu, MIPS_CP0_CAUSE_ILLOP, cpu->is_in_bdslot);
+    return 1;
 }
 
 static int add_op (cpu_mips_t * cpu, mips_insn_t insn)
@@ -592,36 +596,6 @@ static int cop2_op (cpu_mips_t * cpu, mips_insn_t insn)
     return unknown_op (cpu, insn);
 }
 
-static int dadd_op (cpu_mips_t * cpu, mips_insn_t insn)
-{
-    return unknown_op (cpu, insn);
-}
-
-static int daddi_op (cpu_mips_t * cpu, mips_insn_t insn)
-{
-    return unknown_op (cpu, insn);
-}
-
-static int daddiu_op (cpu_mips_t * cpu, mips_insn_t insn)
-{
-    return unknown_op (cpu, insn);
-}
-
-static int daddu_op (cpu_mips_t * cpu, mips_insn_t insn)
-{
-    return unknown_op (cpu, insn);
-}
-
-static int ddiv_op (cpu_mips_t * cpu, mips_insn_t insn)
-{
-    return unknown_op (cpu, insn);
-}
-
-static int ddivu_op (cpu_mips_t * cpu, mips_insn_t insn)
-{
-    return unknown_op (cpu, insn);
-}
-
 static int div_op (cpu_mips_t * cpu, mips_insn_t insn)
 {
     int rs = bits (insn, 21, 25);
@@ -654,81 +628,6 @@ static int divu_op (cpu_mips_t * cpu, mips_insn_t insn)
     cpu->hi = sign_extend (cpu->hi, 32);
     return (0);
 
-}
-
-static int dmfc0_op (cpu_mips_t * cpu, mips_insn_t insn)
-{
-    return unknown_op (cpu, insn);
-}
-
-static int dmtc0_op (cpu_mips_t * cpu, mips_insn_t insn)
-{
-    return unknown_op (cpu, insn);
-}
-
-static int dmult_op (cpu_mips_t * cpu, mips_insn_t insn)
-{
-    return unknown_op (cpu, insn);
-}
-
-static int dmultu_op (cpu_mips_t * cpu, mips_insn_t insn)
-{
-    return unknown_op (cpu, insn);
-}
-
-static int dsll_op (cpu_mips_t * cpu, mips_insn_t insn)
-{
-    return unknown_op (cpu, insn);
-}
-
-static int dsllv_op (cpu_mips_t * cpu, mips_insn_t insn)
-{
-    return unknown_op (cpu, insn);
-}
-
-static int dsrlv_op (cpu_mips_t * cpu, mips_insn_t insn)
-{
-    return unknown_op (cpu, insn);
-}
-
-static int dsrav_op (cpu_mips_t * cpu, mips_insn_t insn)
-{
-    return unknown_op (cpu, insn);
-}
-
-static int dsub_op (cpu_mips_t * cpu, mips_insn_t insn)
-{
-    return unknown_op (cpu, insn);
-}
-
-static int dsubu_op (cpu_mips_t * cpu, mips_insn_t insn)
-{
-    return unknown_op (cpu, insn);
-}
-
-static int dsrl_op (cpu_mips_t * cpu, mips_insn_t insn)
-{
-    return unknown_op (cpu, insn);
-}
-
-static int dsra_op (cpu_mips_t * cpu, mips_insn_t insn)
-{
-    return unknown_op (cpu, insn);
-}
-
-static int dsll32_op (cpu_mips_t * cpu, mips_insn_t insn)
-{
-    return unknown_op (cpu, insn);
-}
-
-static int dsrl32_op (cpu_mips_t * cpu, mips_insn_t insn)
-{
-    return unknown_op (cpu, insn);
-}
-
-static int dsra32_op (cpu_mips_t * cpu, mips_insn_t insn)
-{
-    return unknown_op (cpu, insn);
 }
 
 static int eret_op (cpu_mips_t * cpu, mips_insn_t insn)
@@ -870,31 +769,6 @@ static int lbu_op (cpu_mips_t * cpu, mips_insn_t insn)
     return (mips_exec_memop2 (cpu, MIPS_MEMOP_LBU, base, offset, rt, TRUE));
 }
 
-static int ld_op (cpu_mips_t * cpu, mips_insn_t insn)
-{
-    return unknown_op (cpu, insn);
-}
-
-static int ldc1_op (cpu_mips_t * cpu, mips_insn_t insn)
-{
-    return unknown_op (cpu, insn);
-}
-
-static int ldc2_op (cpu_mips_t * cpu, mips_insn_t insn)
-{
-    return unknown_op (cpu, insn);
-}
-
-static int ldl_op (cpu_mips_t * cpu, mips_insn_t insn)
-{
-    return unknown_op (cpu, insn);
-}
-
-static int ldr_op (cpu_mips_t * cpu, mips_insn_t insn)
-{
-    return unknown_op (cpu, insn);
-}
-
 static int lh_op (cpu_mips_t * cpu, mips_insn_t insn)
 {
     int base = bits (insn, 21, 25);
@@ -920,11 +794,6 @@ static int ll_op (cpu_mips_t * cpu, mips_insn_t insn)
     int offset = bits (insn, 0, 15);
 
     return (mips_exec_memop2 (cpu, MIPS_MEMOP_LL, base, offset, rt, TRUE));
-}
-
-static int lld_op (cpu_mips_t * cpu, mips_insn_t insn)
-{
-    return unknown_op (cpu, insn);
 }
 
 static int lui_op (cpu_mips_t * cpu, mips_insn_t insn)
@@ -979,15 +848,6 @@ static int lwr_op (cpu_mips_t * cpu, mips_insn_t insn)
     int offset = bits (insn, 0, 15);
 
     return (mips_exec_memop2 (cpu, MIPS_MEMOP_LWR, base, offset, rt, TRUE));
-}
-
-static int lwu_op (cpu_mips_t * cpu, mips_insn_t insn)
-{
-    int base = bits (insn, 21, 25);
-    int rt = bits (insn, 16, 20);
-    int offset = bits (insn, 0, 15);
-
-    return (mips_exec_memop2 (cpu, MIPS_MEMOP_LWU, base, offset, rt, TRUE));
 }
 
 static int spec3_op (cpu_mips_t * cpu, mips_insn_t insn)
@@ -1310,41 +1170,6 @@ static int sc_op (cpu_mips_t * cpu, mips_insn_t insn)
     return (mips_exec_memop2 (cpu, MIPS_MEMOP_SC, base, offset, rt, TRUE));
 }
 
-static int scd_op (cpu_mips_t * cpu, mips_insn_t insn)
-{
-    return unknown_op (cpu, insn);
-}
-
-static int sd_op (cpu_mips_t * cpu, mips_insn_t insn)
-{
-    return unknown_op (cpu, insn);
-}
-
-static int sdc1_op (cpu_mips_t * cpu, mips_insn_t insn)
-{
-#if SOFT_FPU
-    mips_exec_soft_fpu (cpu);
-    return (1);
-#else
-    return unknown_op (cpu, insn);
-#endif
-}
-
-static int sdc2_op (cpu_mips_t * cpu, mips_insn_t insn)
-{
-    return unknown_op (cpu, insn);
-}
-
-static int sdl_op (cpu_mips_t * cpu, mips_insn_t insn)
-{
-    return unknown_op (cpu, insn);
-}
-
-static int sdr_op (cpu_mips_t * cpu, mips_insn_t insn)
-{
-    return unknown_op (cpu, insn);
-}
-
 static int sh_op (cpu_mips_t * cpu, mips_insn_t insn)
 {
     int base = bits (insn, 21, 25);
@@ -1614,26 +1439,6 @@ static int teqi_op (cpu_mips_t * cpu, mips_insn_t insn)
         return (1);
     }
     return (0);
-}
-
-static int mfmc0_op (cpu_mips_t * cpu, mips_insn_t insn)
-{
-    int rt = bits (insn, 16, 20);
-    int rd = bits (insn, 11, 15);
-    int func = bits (insn, 0, 5);
-
-    if (rd != 12)
-        return unknown_op (cpu, insn);
-
-    cpu->reg_set (cpu, rt, cpu->cp0.reg [MIPS_CP0_STATUS]);
-    if (func & 0x20) {
-        /* ei - enable interrupts */
-        cpu->cp0.reg [MIPS_CP0_STATUS] |= MIPS_CP0_STATUS_IE;
-    } else {
-        /* di - disable interrupts */
-        cpu->cp0.reg [MIPS_CP0_STATUS] &= ~MIPS_CP0_STATUS_IE;
-    }
-    return 0;
 }
 
 static int tlb_op (cpu_mips_t * cpu, mips_insn_t insn)
@@ -1919,10 +1724,10 @@ static const struct mips_op_desc mips_opcodes[] = {
     {"bnel",    bnel_op,    0x15},
     {"blezl",   blezl_op,   0x16},
     {"bgtzl",   bgtzl_op,   0x17},
-    {"daddi",   daddi_op,   0x18},
-    {"daddiu",  daddiu_op,  0x19},
-    {"ldl",     ldl_op,     0x1A},
-    {"ldr",     ldr_op,     0x1B},
+    {"daddi",   unknown_op, 0x18},
+    {"daddiu",  unknown_op, 0x19},
+    {"ldl",     unknown_op, 0x1A},
+    {"ldr",     unknown_op, 0x1B},
     {"spec2",   spec2_op,   0x1C},      /* indexed by FUNC field */
     {"jalx",    jalx_op,    0x1D},
     {"undef",   undef_op,   0x1E},
@@ -1934,31 +1739,31 @@ static const struct mips_op_desc mips_opcodes[] = {
     {"lbu",     lbu_op,     0x24},
     {"lhu",     lhu_op,     0x25},
     {"lwr",     lwr_op,     0x26},
-    {"lwu",     lwu_op,     0x27},
+    {"lwu",     unknown_op, 0x27},
     {"sb",      sb_op,      0x28},
     {"sh",      sh_op,      0x29},
     {"swl",     swl_op,     0x2A},
     {"sw",      sw_op,      0x2B},
-    {"sdl",     sdl_op,     0x2C},
-    {"sdr",     sdr_op,     0x2D},
+    {"sdl",     unknown_op, 0x2C},
+    {"sdr",     unknown_op, 0x2D},
     {"swr",     swr_op,     0x2E},
     {"cache",   cache_op,   0x2F},
     {"ll",      ll_op,      0x30},
     {"lwc1",    lwc1_op,    0x31},
     {"lwc2",    lwc2_op,    0x32},
     {"pref",    pref_op,    0x33},
-    {"lld",     lld_op,     0x34},
-    {"ldc1",    ldc1_op,    0x35},
-    {"ldc2",    ldc2_op,    0x36},
-    {"ld",      ld_op,      0x37},
+    {"lld",     unknown_op, 0x34},
+    {"ldc1",    unknown_op, 0x35},
+    {"ldc2",    unknown_op, 0x36},
+    {"ld",      unknown_op, 0x37},
     {"sc",      sc_op,      0x38},
     {"swc1",    swc1_op,    0x39},
     {"swc2",    swc2_op,    0x3A},
     {"undef",   undef_op,   0x3B},
-    {"scd",     scd_op,     0x3C},
-    {"sdc1",    sdc1_op,    0x3D},
-    {"sdc2",    sdc2_op,    0x3E},
-    {"sd",      sd_op,      0x3F},
+    {"scd",     unknown_op, 0x3C},
+    {"sdc1",    unknown_op, 0x3D},
+    {"sdc2",    unknown_op, 0x3E},
+    {"sd",      unknown_op, 0x3F},
 };
 
 /*
@@ -1985,18 +1790,18 @@ static const struct mips_op_desc mips_spec_opcodes[] = {
     {"mthi",	mthi_op,	0x11},
     {"mflo",	mflo_op,	0x12},
     {"mtlo",	mtlo_op,	0x13},
-    {"dsllv",	dsllv_op,	0x14},
+    {"dsllv",	unknown_op,	0x14},
     {"?spec",   undef_spec,	0x15},
-    {"dsrlv",	dsrlv_op,	0x16},
-    {"dsrav",	dsrav_op,	0x17},
+    {"dsrlv",	unknown_op,	0x16},
+    {"dsrav",	unknown_op,	0x17},
     {"mult",	mult_op,	0x18},
     {"multu",	multu_op,	0x19},
     {"div",		div_op,		0x1A},
     {"divu",	divu_op,	0x1B},
-    {"dmult",	dmult_op,	0x1C},
-    {"dmultu",	dmultu_op,	0x1D},
-    {"ddiv",	ddiv_op,	0x1E},
-    {"ddivu",	ddivu_op,	0x1F},
+    {"dmult",	unknown_op,	0x1C},
+    {"dmultu",	unknown_op,	0x1D},
+    {"ddiv",	unknown_op,	0x1E},
+    {"ddivu",	unknown_op,	0x1F},
     {"add",		add_op,		0x20},
     {"addu",	addu_op,	0x21},
     {"sub",		sub_op,		0x22},
@@ -2009,10 +1814,10 @@ static const struct mips_op_desc mips_spec_opcodes[] = {
     {"?spec",   undef_spec,	0x29},
     {"slt",		slt_op,		0x2A},
     {"sltu",	sltu_op,	0x2B},
-    {"dadd",	dadd_op,	0x2C},
-    {"daddu",	daddu_op,	0x2D},
-    {"dsub",	dsub_op,	0x2E},
-    {"dsubu",	dsubu_op,	0x2F},
+    {"dadd",	unknown_op,	0x2C},
+    {"daddu",	unknown_op,	0x2D},
+    {"dsub",	unknown_op,	0x2E},
+    {"dsubu",	unknown_op,	0x2F},
     {"tge",		tge_op,		0x30},
     {"tgeu",	tgeu_op,	0x31},
     {"tlt",		tlt_op,		0x32},
@@ -2021,14 +1826,14 @@ static const struct mips_op_desc mips_spec_opcodes[] = {
     {"?spec",   undef_spec,	0x35},
     {"tne",		tne_op,		0x36},
     {"?spec",   undef_spec,	0x37},
-    {"dsll",	dsll_op,	0x38},
+    {"dsll",	unknown_op,	0x38},
     {"?spec",   undef_spec,	0x39},
-    {"dsrl",	dsrl_op,	0x3A},
-    {"dsra",	dsra_op,	0x3B},
-    {"dsll32",	dsll32_op,	0x3C},
+    {"dsrl",	unknown_op,	0x3A},
+    {"dsra",	unknown_op,	0x3B},
+    {"dsll32",	unknown_op,	0x3C},
     {"?spec",   undef_spec,	0x3D},
-    {"dsrl32",	dsrl32_op,	0x3E},
-    {"dsra32",	dsra32_op,	0x3F}
+    {"dsrl32",	unknown_op,	0x3E},
+    {"dsra32",	unknown_op,	0x3F}
 };
 
 /*
@@ -2074,17 +1879,17 @@ static const struct mips_op_desc mips_bcond_opcodes[] = {
  */
 static const struct mips_op_desc mips_cop0_opcodes[] = {
     {"mfc0",	mfc0_op,	0x0},
-    {"dmfc0",	dmfc0_op,	0x1},
+    {"dmfc0",	unknown_op,	0x1},
     {"cfc0",	cfc0_op,	0x2},
     {"?cop0",   undef_cop0,	0x3},
     {"mtc0",	mtc0_op,	0x4},
-    {"dmtc0",	dmtc0_op,	0x5},
+    {"dmtc0",	unknown_op,	0x5},
     {"?cop0",   undef_cop0,	0x6},
     {"?cop0",   undef_cop0,	0x7},
     {"?cop0",   undef_cop0,	0x8},
     {"?cop0",   undef_cop0,	0x9},
     {"?cop0",   rdpgpr_op,	0xa},
-    {"?cop0",   mfmc0_op,	0xb},
+    {"?cop0",   undef_cop0,	0xb},
     {"?cop0",   undef_cop0,	0xc},
     {"?cop0",   undef_cop0,	0xd},
     {"wrpgpr",  wrpgpr_op,	0xe},

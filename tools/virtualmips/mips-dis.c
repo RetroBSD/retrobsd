@@ -162,12 +162,6 @@ print_address (unsigned address, FILE *stream)
         fprintf (stream, "0x%x", address);
 }
 
-static void
-memory_error (int status, unsigned memaddr, FILE *stream)
-{
-    fprintf (stream, "Error reading memory at 0x%08x: %s", memaddr, strerror (status));
-}
-
 static const struct mips_cp0sel_name *
 lookup_mips_cp0sel_name (const struct
     mips_cp0sel_name *names, unsigned int len, unsigned int cp0reg,
@@ -777,42 +771,6 @@ print_insn_mips (unsigned memaddr,
     fprintf (stream, "0x%lx", word);
 }
 
-static unsigned
-getb16 (const unsigned char *buf)
-{
-    return (buf[0] << 8) | buf[1];
-}
-
-static unsigned
-getl16 (const unsigned char *buf)
-{
-    return (buf[1] << 8) | buf[0];
-}
-
-static unsigned
-getb32 (const unsigned char *buf)
-{
-    unsigned long v;
-
-    v = (unsigned long) buf[0] << 24;
-    v |= (unsigned long) buf[1] << 16;
-    v |= (unsigned long) buf[2] << 8;
-    v |= (unsigned long) buf[3];
-    return v;
-}
-
-static unsigned
-getl32 (const unsigned char *buf)
-{
-    unsigned long v;
-
-    v = (unsigned long) buf[0];
-    v |= (unsigned long) buf[1] << 8;
-    v |= (unsigned long) buf[2] << 16;
-    v |= (unsigned long) buf[3] << 24;
-    return v;
-}
-
 /*
  * Disassemble an operand for a mips16 instruction.
  */
@@ -1239,14 +1197,13 @@ print_mips16_insn_arg (char type,
 static void print_insn_mips16 (unsigned memaddr,
     unsigned int opcode, int nbytes, FILE *stream)
 {
-    int status;
-    unsigned char buffer[2];
     int insn, use_extend, extend;
     const struct mips_opcode *op, *opend;
 
     insn = opcode;
     if (nbytes == 2) {
         use_extend = 0;
+        extend = 0;
         insn = opcode;
     } else {
         if ((opcode & 0xf8000000) == 0xf0000000) {

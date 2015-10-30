@@ -1454,6 +1454,32 @@ static int teqi_op (cpu_mips_t * cpu, mips_insn_t insn)
     return (0);
 }
 
+/*
+ * DI and EI instructions
+ */
+static int mfmc0_op (cpu_mips_t * cpu, mips_insn_t insn)
+{
+    int rt = bits (insn, 16, 20);
+    int rd = bits (insn, 11, 15);
+    int func = bits (insn, 0, 10);
+
+    if (rd == 12) {
+        switch (func) {
+        case 0x020:
+            /* ei - enable interrupts */
+            cpu->reg_set (cpu, rt, cpu->cp0.reg [MIPS_CP0_STATUS]);
+            cpu->cp0.reg [MIPS_CP0_STATUS] |= MIPS_CP0_STATUS_IE;
+            return 0;
+        case 0x000:
+            /* di - disable interrupts */
+            cpu->reg_set (cpu, rt, cpu->cp0.reg [MIPS_CP0_STATUS]);
+            cpu->cp0.reg [MIPS_CP0_STATUS] &= ~MIPS_CP0_STATUS_IE;
+            return 0;
+        }
+    }
+    return unknown_op (cpu, insn);
+}
+
 static int tlb_op (cpu_mips_t * cpu, mips_insn_t insn)
 {
     uint16_t func = bits (insn, 0, 5);
@@ -1902,7 +1928,7 @@ static const struct mips_op_desc mips_cop0_opcodes[] = {
     {"?cop0",   undef_cop0,	0x8},
     {"?cop0",   undef_cop0,	0x9},
     {"?cop0",   rdpgpr_op,	0xa},
-    {"?cop0",   undef_cop0,	0xb},
+    {"?cop0",   mfmc0_op,   0xb},
     {"?cop0",   undef_cop0,	0xc},
     {"?cop0",   undef_cop0,	0xd},
     {"wrpgpr",  wrpgpr_op,	0xe},

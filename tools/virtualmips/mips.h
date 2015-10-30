@@ -160,10 +160,8 @@
 #define MIPS_CP0_CAUSE_CP_UNUSABLE  11
 #define MIPS_CP0_CAUSE_OVFLW        12
 #define MIPS_CP0_CAUSE_TRAP         13
-#define MIPS_CP0_CAUSE_VC_INSTR     14        /* Virtual Coherency */
 #define MIPS_CP0_CAUSE_FPE          15
 #define MIPS_CP0_CAUSE_WATCH        23
-#define MIPS_CP0_CAUSE_VC_DATA      31        /* Virtual Coherency */
 
 #define MIPS_CP0_CAUSE_IBIT7        0x00008000
 #define MIPS_CP0_CAUSE_IBIT6        0x00004000

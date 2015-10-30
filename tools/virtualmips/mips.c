@@ -384,7 +384,7 @@ if (code == 1) cpu->vm->debug_level = 1;
         printf (") at %08x\n", cpu->pc);
 	    return;
 	}
-    printf ("\n--- 0x%08x: exception ", cpu->pc);
+    printf ("--- %08x: exception ", cpu->pc);
 
 	switch (exc_code) {
 	case MIPS_CP0_CAUSE_INTERRUPT:	code = "Interrupt"; break;
@@ -404,28 +404,18 @@ if (code == 1) cpu->vm->debug_level = 1;
 	else
 		printf ("%d\n", exc_code);
 
+	printf ("        c0_status = %08x\n", cpu->cp0.reg[MIPS_CP0_STATUS]);
+	printf ("        c0_cause = %08x\n", cpu->cp0.reg[MIPS_CP0_CAUSE]);
+	printf ("        c0_epc = %08x\n", cpu->cp0.reg[MIPS_CP0_EPC]);
 	switch (exc_code) {
+    case MIPS_CP0_CAUSE_TLB_MOD:
+    case MIPS_CP0_CAUSE_TLB_LOAD:
+    case MIPS_CP0_CAUSE_TLB_SAVE:
 	case MIPS_CP0_CAUSE_ADDR_LOAD:
 	case MIPS_CP0_CAUSE_ADDR_SAVE:
-        printf ("--- badvaddr = 0x%08x\n", cpu->cp0.reg[MIPS_CP0_BADVADDR]);
+        printf ("        c0_badvaddr = %08x\n", cpu->cp0.reg[MIPS_CP0_BADVADDR]);
         break;
     }
-	printf ("                t0 = %8x   s0 = %8x   t8 = %8x   lo = %8x\n",
-		cpu->gpr[8], cpu->gpr[16], cpu->gpr[24], cpu->lo);
-	printf ("at = %8x   t1 = %8x   s1 = %8x   t9 = %8x   hi = %8x\n",
-		cpu->gpr[1], cpu->gpr[9], cpu->gpr[17], cpu->gpr[25], cpu->hi);
-	printf ("v0 = %8x   t2 = %8x   s2 = %8x               status = %8x\n",
-		cpu->gpr[2], cpu->gpr[10], cpu->gpr[18], cpu->cp0.reg[MIPS_CP0_STATUS]);
-	printf ("v1 = %8x   t3 = %8x   s3 = %8x                cause = %8x\n",
-		cpu->gpr[3], cpu->gpr[11],cpu->gpr[19], cpu->cp0.reg[MIPS_CP0_CAUSE]);
-	printf ("a0 = %8x   t4 = %8x   s4 = %8x   gp = %8x  epc = %8x\n",
-		cpu->gpr[4], cpu->gpr[12], cpu->gpr[20], cpu->gpr[MIPS_GPR_GP], cpu->pc);
-	printf ("a1 = %8x   t5 = %8x   s5 = %8x   sp = %8x\n",
-		cpu->gpr[5], cpu->gpr[13], cpu->gpr[21], cpu->gpr[MIPS_GPR_SP]);
-	printf ("a2 = %8x   t6 = %8x   s6 = %8x   fp = %8x\n",
-		cpu->gpr[6], cpu->gpr[14], cpu->gpr[22], cpu->gpr[MIPS_GPR_FP]);
-	printf ("a3 = %8x   t7 = %8x   s7 = %8x   ra = %8x\n",
-		cpu->gpr[7], cpu->gpr[15], cpu->gpr[23], cpu->gpr[MIPS_GPR_RA]);
 }
 #endif
 
@@ -492,11 +482,8 @@ void mips_trigger_exception (cpu_mips_t * cpu, u_int exc_code, int bd_slot)
     if (cpu->vm->debug_level > 2 ||
         (exc_code != MIPS_CP0_CAUSE_INTERRUPT &&
          (exc_code != MIPS_CP0_CAUSE_SYSCALL ||
-          cpu->vm->debug_level > 0)))
-    {
+          cpu->vm->debug_level > 0))) {
         print_exception (cpu, exc_code);
-        if (cpu->vm->debug_level > 2)
-            printf ("\n");
     }
 
     cpu->pc = (m_va_t) new_pc;

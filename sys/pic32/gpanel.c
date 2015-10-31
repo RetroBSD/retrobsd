@@ -2,9 +2,6 @@
  * Generic TFT LCD driver for PIC32.
  * Supported chips: ST7781.
  *
- * Based on code provided by Smoke And Wires
- * https://github.com/Smoke-And-Wires/TFT-Shield-Example-Code
- *
  * Copyright (C) 2015 Serge Vakulenko <serge@vak.ru>
  *
  * Permission to use, copy, modify, and distribute this software
@@ -36,10 +33,9 @@
 #include <sys/gpanel.h>
 
 /*
- * Display size.
+ * Descriptor for access to the hardware-level driver.
  */
-#define WIDTH   240
-#define HEIGHT  320
+static struct gpanel_hw hw;
 
 /*
  * Cursor position for text output.
@@ -93,69 +89,14 @@ static int _chip_id;
 
 #define WR_IDLE()       LAT_SET(LCD_WR_PORT) = 1<<LCD_WR_PIN
 #define WR_ACTIVE()     LAT_CLR(LCD_WR_PORT) = 1<<LCD_WR_PIN
-#define WR_STROBE()     { WR_ACTIVE(); delay100ns(); WR_IDLE(); }
 
 #define RS_DATA()       LAT_SET(LCD_RS_PORT) = 1<<LCD_RS_PIN
 #define RS_COMMAND()    LAT_CLR(LCD_RS_PORT) = 1<<LCD_RS_PIN
 
 /*
- * ST7781 registers.
- */
-#define ST7781_Driver_ID_Code_Read                  0x00
-#define ST7781_Driver_Output_Control                0x01
-#define ST7781_LCD_Driving_Wave_Control             0x02
-#define ST7781_Entry_Mode                           0x03
-#define ST7781_Resize_Control                       0x04
-#define ST7781_Display_Control_1                    0x07
-#define ST7781_Display_control_2                    0x08
-#define ST7781_Display_Control_3                    0x09
-#define ST7781_Display_Control_4                    0x0A
-#define ST7781_Frame_Marker_Position                0x0D
-#define ST7781_Power_Control_1                      0x10
-#define ST7781_Power_Control_2                      0x11
-#define ST7781_Power_Control_3                      0x12
-#define ST7781_Power_Control_4                      0x13
-#define ST7781_DRAM_Horizontal_Address_Set          0x20
-#define ST7781_DRAM_Vertical_Address_Set            0x21
-#define ST7781_Write_Data_to_DRAM                   0x22
-#define ST7781_Read_Data_from_DRAM                  0x22
-#define ST7781_VCOMH_Control                        0x29
-#define ST7781_Frame_Rate_and_Color_Control         0x2B
-#define ST7781_Gamma_Control_1                      0x30
-#define ST7781_Gamma_Control_2                      0x31
-#define ST7781_Gamma_Control_3                      0x32
-#define ST7781_Gamma_Control_4                      0x35
-#define ST7781_Gamma_Control_5                      0x36
-#define ST7781_Gamma_Control_6                      0x37
-#define ST7781_Gamma_Control_7                      0x38
-#define ST7781_Gamma_Control_8                      0x39
-#define ST7781_Gamma_Control_9                      0x3C
-#define ST7781_Gamma_Control_10                     0x3D
-#define ST7781_Horizontal_Address_Start_Position    0x50
-#define ST7781_Horizontal_Address_End_Position      0x51
-#define ST7781_Vertical_Address_Start_Position      0x52
-#define ST7781_Vertical_Address_End_Position        0x53
-#define ST7781_Gate_Scan_Control_1                  0x60
-#define ST7781_Gate_Scan_Control_2                  0x61
-#define ST7781_Partial_Image_1_Display_Position     0x80
-#define ST7781_Partial_Image_1_Start_Address        0x81
-#define ST7781_Partial_Image_1_End_Address          0x82
-#define ST7781_Partial_Image_2_Display_Position     0x83
-#define ST7781_Partial_Image_2_Start_Address        0x84
-#define ST7781_Partial_Image_2_End_Address          0x85
-#define ST7781_Panel_Interface_Control_1            0x90
-#define ST7781_Panel_Interface_Control_2            0x92
-#define ST7781_EEPROM_ID_Code                       0xD2
-#define ST7781_EEPROM_Control_Status                0xD9
-#define ST7781_EEPROM_Wite_Command                  0xDF
-#define ST7781_EEPROM_Enable                        0xFA
-#define ST7781_EEPROM_VCOM_Offset                   0xFE
-#define ST7781_FAh_FEh_Enable                       0xFF
-
-/*
  * Set direction of data bus as output.
  */
-static void setWriteDir()
+static void set_write_dir()
 {
     TRIS_CLR(LCD_D0_PORT) = 1 << LCD_D0_PIN;
     TRIS_CLR(LCD_D1_PORT) = 1 << LCD_D1_PIN;
@@ -170,7 +111,7 @@ static void setWriteDir()
 /*
  * Set direction of data bus as input.
  */
-static void setReadDir()
+static void set_read_dir()
 {
     TRIS_SET(LCD_D0_PORT) = 1 << LCD_D0_PIN;
     TRIS_SET(LCD_D1_PORT) = 1 << LCD_D1_PIN;
@@ -183,9 +124,32 @@ static void setReadDir()
 }
 
 /*
+ * Control /CS signal.
+ */
+void gpanel_cs_active() { CS_ACTIVE(); }
+void gpanel_cs_idle()   { CS_IDLE(); }
+
+/*
+ * Control /RS signal.
+ */
+void gpanel_rs_command() { RS_COMMAND(); }
+void gpanel_rs_data()    { RS_DATA(); }
+
+/*
+ * Generate a /WR strobe.
+ */
+void gpanel_wr_strobe()
+{
+    delay100ns();
+    WR_ACTIVE();
+    delay100ns();
+    WR_IDLE();
+}
+
+/*
  * Send a byte to the data bus.
  */
-static void writeByte(unsigned value)
+void gpanel_write_byte(int value)
 {
     if (value & 1) {
         LAT_SET(LCD_D0_PORT) = 1 << LCD_D0_PIN;
@@ -227,12 +191,17 @@ static void writeByte(unsigned value)
     } else {
         LAT_CLR(LCD_D7_PORT) = 1 << LCD_D7_PIN;
     }
-    WR_STROBE();
+    WR_ACTIVE();
+    delay100ns();
+    WR_IDLE();
 }
 
-static unsigned readByte()
+/*
+ * Read a byte from the data bus.
+ */
+int gpanel_read_byte()
 {
-    unsigned value = 0;
+    int value = 0;
 
     RD_ACTIVE();
     delay100ns();
@@ -249,292 +218,37 @@ static unsigned readByte()
 }
 
 /*
- * Write a 16-bit value to the ST7781 register.
- */
-static void writeReg(unsigned reg, unsigned value)
-{
-    RS_COMMAND();
-    writeByte(reg >> 8);
-    writeByte(reg);
-    RS_DATA();
-    writeByte(value >> 8);
-    writeByte(value);
-}
-
-/*
  * Read device ID code.
  */
-static unsigned readDeviceId()
+static unsigned read_device_id()
 {
     unsigned value;
 
     CS_ACTIVE();
     RS_COMMAND();
-    writeByte(ST7781_Driver_ID_Code_Read);
+    gpanel_write_byte(0);   // Read register #0
     delay100ns();
-    WR_STROBE();        // Repeat prior byte
-    setReadDir();       // Switch data bus as input
+    WR_ACTIVE();
+    delay100ns();
+    WR_IDLE();
+    set_read_dir();         // Switch data bus as input
     RS_DATA();
-    value = readByte() << 8;
-    value |= readByte();
-    setWriteDir();      // Restore data bus as output
+    value = gpanel_read_byte() << 8;
+    value |= gpanel_read_byte();
+    set_write_dir();        // Restore data bus as output
     CS_IDLE();
     return value;
 }
 
 /*
- * Detect the type of the LCD controller, and initialize it.
- * Return -1 in case of unknown chip.
- */
-static int initDisplay()
-{
-    /*
-     * Set all control bits to high (idle).
-     * Signals are active low.
-     */
-    CS_IDLE();
-    WR_IDLE();
-    RD_IDLE();
-    RST_IDLE();
-
-    /* Enable outputs. */
-    TRIS_CLR(LCD_CS_PORT) = 1 << LCD_CS_PIN;
-    TRIS_CLR(LCD_RS_PORT) = 1 << LCD_RS_PIN;
-    TRIS_CLR(LCD_WR_PORT) = 1 << LCD_WR_PIN;
-    TRIS_CLR(LCD_RD_PORT) = 1 << LCD_RD_PIN;
-    TRIS_CLR(LCD_RST_PORT) = 1 << LCD_RST_PIN;
-    setWriteDir();
-
-    /* Reset the chip. */
-    RST_ACTIVE();
-    udelay(1000);
-    RST_IDLE();
-    udelay(1000);
-
-    /* Read the the chip ID register. */
-    _chip_id = readDeviceId();
-    switch (_chip_id) {
-    case 0x7783:
-        printf("gpanel0: <Sitronix ST7781>\n");
-        break;
-
-    default:
-        /* Disable outputs. */
-        setReadDir();
-        TRIS_SET(LCD_CS_PORT) = 1 << LCD_CS_PIN;
-        TRIS_SET(LCD_RS_PORT) = 1 << LCD_RS_PIN;
-        TRIS_SET(LCD_WR_PORT) = 1 << LCD_WR_PIN;
-        TRIS_SET(LCD_RD_PORT) = 1 << LCD_RD_PIN;
-        TRIS_SET(LCD_RST_PORT) = 1 << LCD_RST_PIN;
-        printf("gpanel0: Unknown chip ID = 0x%x\n", _chip_id);
-        return -1;
-    }
-
-    /* Initialization of LCD controller. */
-    CS_ACTIVE();
-    writeReg(ST7781_Driver_Output_Control,    0x0100);
-    writeReg(ST7781_LCD_Driving_Wave_Control, 0x0700);
-    writeReg(ST7781_Entry_Mode,               0x1030);
-    writeReg(ST7781_Display_control_2,        0x0302);
-    writeReg(ST7781_Display_Control_3,        0x0000);
-    writeReg(ST7781_Display_Control_4,        0x0008);
-
-    /* Power control registers. */
-    writeReg(ST7781_Power_Control_1, 0x0790);
-    writeReg(ST7781_Power_Control_2, 0x0005);
-    writeReg(ST7781_Power_Control_3, 0x0000);
-    writeReg(ST7781_Power_Control_4, 0x0000);
-
-    /* Power supply startup 1 settings. */
-    writeReg(ST7781_Power_Control_1, 0x12B0);
-    writeReg(ST7781_Power_Control_2, 0x0007);
-
-    /* Power supply startup 2 settings. */
-    writeReg(ST7781_Power_Control_3, 0x008C);
-    writeReg(ST7781_Power_Control_4, 0x1700);
-    writeReg(ST7781_VCOMH_Control,   0x0022);
-
-    /* Gamma cluster settings. */
-    writeReg(ST7781_Gamma_Control_1,  0x0000);
-    writeReg(ST7781_Gamma_Control_2,  0x0505);
-    writeReg(ST7781_Gamma_Control_3,  0x0205);
-    writeReg(ST7781_Gamma_Control_4,  0x0206);
-    writeReg(ST7781_Gamma_Control_5,  0x0408);
-    writeReg(ST7781_Gamma_Control_6,  0x0000);
-    writeReg(ST7781_Gamma_Control_7,  0x0504);
-    writeReg(ST7781_Gamma_Control_8,  0x0206);
-    writeReg(ST7781_Gamma_Control_9,  0x0206);
-    writeReg(ST7781_Gamma_Control_10, 0x0408);
-
-    /* Display window 240*320. */
-    writeReg(ST7781_Horizontal_Address_Start_Position, 0x0000);
-    writeReg(ST7781_Horizontal_Address_End_Position,   0x00EF);
-    writeReg(ST7781_Vertical_Address_Start_Position,   0x0000);
-    writeReg(ST7781_Vertical_Address_End_Position,     0x013F);
-
-    /* Frame rate settings. */
-    writeReg(ST7781_Gate_Scan_Control_1,       0xA700);
-    writeReg(ST7781_Gate_Scan_Control_2,       0x0001);
-    writeReg(ST7781_Panel_Interface_Control_1, 0x0033); // RTNI setting
-
-    /* Display on. */
-    writeReg(ST7781_Display_Control_1, 0x0133);
-    return 0;
-}
-
-static void setAddrWindow(int x0, int y0, int x1, int y1)
-{
-    /* Set address window. */
-    CS_ACTIVE();
-    writeReg(ST7781_Horizontal_Address_Start_Position, x0);
-    writeReg(ST7781_Horizontal_Address_End_Position,   x1);
-    writeReg(ST7781_Vertical_Address_Start_Position,   y0);
-    writeReg(ST7781_Vertical_Address_End_Position,     y1);
-
-    /* Set address counter to top left. */
-    writeReg(ST7781_DRAM_Horizontal_Address_Set, x0);
-    writeReg(ST7781_DRAM_Vertical_Address_Set,   y0);
-    CS_IDLE();
-}
-
-/*
- * Draw a pixel.
- */
-static void setPixel(int x, int y, int color)
-{
-    if (x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT)
-        return;
-    CS_ACTIVE();
-    writeReg(ST7781_DRAM_Horizontal_Address_Set, x);
-    writeReg(ST7781_DRAM_Vertical_Address_Set,   y);
-    writeReg(ST7781_Write_Data_to_DRAM,          color);
-    CS_IDLE();
-}
-
-/*
- * Fast block fill operation.
- * Requires setAddrWindow() has previously been called to set
- * the fill bounds.
- * 'npixels' is inclusive, MUST be >= 1.
- */
-static void flood(int color, int npixels)
-{
-    unsigned blocks, i;
-    unsigned hi = color >> 8,
-             lo = color;
-
-    CS_ACTIVE();
-    RS_COMMAND();
-    writeByte(0x00); /* High address byte */
-    writeByte(ST7781_Write_Data_to_DRAM);
-
-    /* Write first pixel normally, decrement counter by 1. */
-    RS_DATA();
-    writeByte(hi);
-    writeByte(lo);
-    npixels--;
-
-    /* 64 pixels/block. */
-    blocks = npixels >> 6;
-    if (hi == lo) {
-        /* High and low bytes are identical.  Leave prior data
-         * on the port(s) and just toggle the write strobe. */
-        while (blocks--) {
-            /* 64 pixels/block / 4 pixels/pass. */
-            for (i = 16; i > 0; i--) {
-                /* 2 bytes/pixel x 4 pixels. */
-                delay100ns(); WR_STROBE();
-                delay100ns(); WR_STROBE();
-                delay100ns(); WR_STROBE();
-                delay100ns(); WR_STROBE();
-                delay100ns(); WR_STROBE();
-                delay100ns(); WR_STROBE();
-                delay100ns(); WR_STROBE();
-                delay100ns(); WR_STROBE();
-            }
-        }
-        /* Fill any remaining pixels (1 to 64). */
-        for (i = npixels & 63; i > 0; i--) {
-            delay100ns(); WR_STROBE();
-            delay100ns(); WR_STROBE();
-        }
-    } else {
-        while (blocks--) {
-            /* 64 pixels/block / 4 pixels/pass. */
-            for (i = 16; i > 0; i--) {
-                writeByte(hi); writeByte(lo); writeByte(hi); writeByte(lo);
-                writeByte(hi); writeByte(lo); writeByte(hi); writeByte(lo);
-            }
-        }
-        for (i = npixels & 63; i > 0; i--) {
-            writeByte(hi);
-            writeByte(lo);
-        }
-    }
-    CS_IDLE();
-}
-
-/*
- * Fill a rectangle with specified color.
- */
-static void fillRectangle(int x0, int y0, int x1, int y1, int color)
-{
-    if (x0 < 0) x0 = 0;
-    if (y0 < 0) x0 = 0;
-    if (x1 < 0) x1 = 0;
-    if (y1 < 0) x1 = 0;
-    if (x0 >= WIDTH) x0 = WIDTH-1;
-    if (x1 >= WIDTH) x1 = WIDTH-1;
-    if (y0 >= HEIGHT) y0 = HEIGHT-1;
-    if (y1 >= HEIGHT) y1 = HEIGHT-1;
-
-    if (x1 < x0) {
-        int t = x0;
-        x0 = x1;
-        x1 = t;
-    }
-    if (y1 < y0) {
-        int t = y0;
-        y0 = y1;
-        y1 = t;
-    }
-    setAddrWindow(x0, y0, x1, y1);
-    flood(color, (x1 - x0 + 1) * (y1 - y0 + 1));
-    setAddrWindow(0, 0, WIDTH-1, HEIGHT-1);
-}
-
-/*
- * Fill a rectangle with user data.
- */
-static void drawImage(int x, int y, int width, int height,
-    const unsigned short *data)
-{
-    unsigned cnt = width * height;
-    int color;
-
-    setAddrWindow(x, y, x + width - 1, y + height - 1);
-    CS_ACTIVE();
-    RS_COMMAND();
-    writeByte(0x00); /* High address byte */
-    writeByte(ST7781_Write_Data_to_DRAM);
-    RS_DATA();
-    while (cnt--) {
-        color = *data++;
-        writeByte(color >> 8);
-        writeByte(color);
-    }
-    CS_IDLE();
-}
-
-/*
  * Draw a line.
  */
-static void drawLine(int x0, int y0, int x1, int y1, int color)
+static void gpanel_draw_line(int x0, int y0, int x1, int y1, int color)
 {
     int dx, dy, stepx, stepy, fraction;
 
     if (x0 == x1 || y0 == y1) {
-        fillRectangle(x0, y0, x1, y1, color);
+        hw.fill_rectangle(x0, y0, x1, y1, color);
         return;
     }
 
@@ -555,7 +269,7 @@ static void drawLine(int x0, int y0, int x1, int y1, int color)
     }
     dy <<= 1;                           /* dy is now 2*dy */
     dx <<= 1;                           /* dx is now 2*dx */
-    setPixel(x0, y0, color);
+    hw.set_pixel(x0, y0, color);
     if (dx > dy) {
         fraction = dy - (dx >> 1);      /* same as 2*dy - dx */
         while (x0 != x1) {
@@ -565,7 +279,7 @@ static void drawLine(int x0, int y0, int x1, int y1, int color)
             }
             x0 += stepx;
             fraction += dy;             /* same as fraction -= 2*dy */
-            setPixel(x0, y0, color);
+            hw.set_pixel(x0, y0, color);
         }
     } else {
         fraction = dx - (dy >> 1);
@@ -576,7 +290,7 @@ static void drawLine(int x0, int y0, int x1, int y1, int color)
             }
             y0 += stepy;
             fraction += dx;
-            setPixel(x0, y0, color);
+            hw.set_pixel(x0, y0, color);
         }
     }
 }
@@ -584,18 +298,18 @@ static void drawLine(int x0, int y0, int x1, int y1, int color)
 /*
  * Draw a rectangular frame.
  */
-static void drawFrame(int x0, int y0, int x1, int y1, int color)
+static void gpanel_draw_frame(int x0, int y0, int x1, int y1, int color)
 {
-    fillRectangle(x0, y0, x1, y0, color);
-    fillRectangle(x0, y1, x1, y1, color);
-    fillRectangle(x0, y0, x0, y1, color);
-    fillRectangle(x1, y0, x1, y1, color);
+    hw.fill_rectangle(x0, y0, x1, y0, color);
+    hw.fill_rectangle(x0, y1, x1, y1, color);
+    hw.fill_rectangle(x0, y0, x0, y1, color);
+    hw.fill_rectangle(x1, y0, x1, y1, color);
 }
 
 /*
  * Draw a circle.
  */
-static void drawCircle(int x0, int y0, int radius, int color)
+static void gpanel_draw_circle(int x0, int y0, int radius, int color)
 {
     int f = 1 - radius;
     int ddF_x = 0;
@@ -603,10 +317,10 @@ static void drawCircle(int x0, int y0, int radius, int color)
     int x = 0;
     int y = radius;
 
-    setPixel(x0, y0 + radius, color);
-    setPixel(x0, y0 - radius, color);
-    setPixel(x0 + radius, y0, color);
-    setPixel(x0 - radius, y0, color);
+    hw.set_pixel(x0, y0 + radius, color);
+    hw.set_pixel(x0, y0 - radius, color);
+    hw.set_pixel(x0 + radius, y0, color);
+    hw.set_pixel(x0 - radius, y0, color);
     while (x < y) {
         if (f >= 0) {
             y--;
@@ -616,87 +330,21 @@ static void drawCircle(int x0, int y0, int radius, int color)
         x++;
         ddF_x += 2;
         f += ddF_x + 1;
-        setPixel(x0 + x, y0 + y, color);
-        setPixel(x0 - x, y0 + y, color);
-        setPixel(x0 + x, y0 - y, color);
-        setPixel(x0 - x, y0 - y, color);
-        setPixel(x0 + y, y0 + x, color);
-        setPixel(x0 - y, y0 + x, color);
-        setPixel(x0 + y, y0 - x, color);
-        setPixel(x0 - y, y0 - x, color);
-    }
-}
-
-/*
- * Start a new line: increase row.
- */
-static void newLine(const struct gpanel_font_t *font)
-{
-    _col = 0;
-    _row += font->height;
-    if (_row > HEIGHT - font->height)
-        _row = 0;
-}
-
-/*
- * Draw a glyph of one symbol.
- */
-static void drawGlyph(const struct gpanel_font_t *font,
-    int color, int background, int width, const unsigned short *bits)
-{
-    int h, w, c;
-    unsigned bitmask = 0;
-
-    if (background >= 0) {
-        /*
-         * Clear background.
-         */
-        setAddrWindow(_col, _row, _col + width - 1, _row + font->height - 1);
-        CS_ACTIVE();
-        RS_COMMAND();
-        writeByte(0x00); /* High address byte */
-        writeByte(ST7781_Write_Data_to_DRAM);
-        RS_DATA();
-
-        /* Loop on each glyph row. */
-        for (h=0; h<font->height; h++) {
-            /* Loop on every pixel in the row (left to right). */
-            for (w=0; w<width; w++) {
-                if ((w & 15) == 0)
-                    bitmask = *bits++;
-                else
-                    bitmask <<= 1;
-
-                c = (bitmask & 0x8000) ? color : background;
-                writeByte(c >> 8);
-                writeByte(c);
-            }
-        }
-        CS_IDLE();
-    } else {
-        /*
-         * Transparent background.
-         */
-        /* Loop on each glyph row. */
-        for (h=0; h<font->height; h++) {
-            /* Loop on every pixel in the row (left to right). */
-            for (w=0; w<width; w++) {
-                if ((w & 15) == 0)
-                    bitmask = *bits++;
-                else
-                    bitmask <<= 1;
-
-                if (bitmask & 0x8000)
-                    setPixel(_col + w, _row + h, color);
-            }
-        }
+        hw.set_pixel(x0 + x, y0 + y, color);
+        hw.set_pixel(x0 - x, y0 + y, color);
+        hw.set_pixel(x0 + x, y0 - y, color);
+        hw.set_pixel(x0 - x, y0 - y, color);
+        hw.set_pixel(x0 + y, y0 + x, color);
+        hw.set_pixel(x0 - y, y0 + x, color);
+        hw.set_pixel(x0 + y, y0 - x, color);
+        hw.set_pixel(x0 - y, y0 - x, color);
     }
 }
 
 /*
  * Draw a character from a specified font.
  */
-static void drawChar(const struct gpanel_font_t *font,
+static void gpanel_draw_char(const struct gpanel_font_t *font,
     int color, int background, int sym)
 {
     unsigned cindex, width;
@@ -704,7 +352,10 @@ static void drawChar(const struct gpanel_font_t *font,
 
     switch (sym) {
     case '\n':      /* goto next line */
-        newLine(font);
+        _row += font->height;
+        _col = 0;
+        if (_row > hw.height - font->height)
+            _row = 0;
         return;
     case '\r':      /* carriage return - go to begin of line */
         _col = 0;
@@ -732,13 +383,8 @@ static void drawChar(const struct gpanel_font_t *font,
         bits = font->bits + cindex * font->height;
     }
 
-    /* Scrolling. */
-    if (_col > WIDTH - width) {
-        newLine(font);
-    }
-
     /* Draw a character. */
-    drawGlyph(font, color, background, width, bits);
+    hw.draw_glyph(font, color, background, _col, _row, width, bits);
     _col += width;
 }
 
@@ -746,7 +392,7 @@ static void drawChar(const struct gpanel_font_t *font,
  * Draw a string of characters.
  * TODO: Decode UTF-8.
  */
-static void drawText(const struct gpanel_font_t *font,
+static void gpanel_draw_text(const struct gpanel_font_t *font,
     int color, int background, int x, int y, const char *text)
 {
     int sym;
@@ -758,7 +404,7 @@ static void drawText(const struct gpanel_font_t *font,
         if (! sym)
             break;
 
-        drawChar(font, color, background, sym);
+        gpanel_draw_char(font, color, background, sym);
     }
 }
 
@@ -796,12 +442,9 @@ int gpanel_ioctl(dev_t dev, register u_int cmd, caddr_t addr, int flag)
         case GPANEL_CLEAR: {
             struct gpanel_clear_t *param = (struct gpanel_clear_t*) addr;
 
-            CS_ACTIVE();
-            writeReg(ST7781_DRAM_Horizontal_Address_Set, 0);
-            writeReg(ST7781_DRAM_Vertical_Address_Set,   0);
-            flood(param->color, WIDTH * HEIGHT);
-            param->xsize = WIDTH;
-            param->ysize = HEIGHT;
+            hw.clear(&hw, param->color, param->xsize, param->ysize);
+            param->xsize = hw.width;
+            param->ysize = hw.height;
             break;
         }
 
@@ -811,7 +454,7 @@ int gpanel_ioctl(dev_t dev, register u_int cmd, caddr_t addr, int flag)
         case GPANEL_PIXEL: {
             struct gpanel_pixel_t *param = (struct gpanel_pixel_t*) addr;
 
-            setPixel(param->x, param->y, param->color);
+            hw.set_pixel(param->x, param->y, param->color);
             break;
         }
 
@@ -821,7 +464,7 @@ int gpanel_ioctl(dev_t dev, register u_int cmd, caddr_t addr, int flag)
         case GPANEL_LINE: {
             struct gpanel_line_t *param = (struct gpanel_line_t*) addr;
 
-            drawLine(param->x0, param->y0, param->x1, param->y1, param->color);
+            gpanel_draw_line(param->x0, param->y0, param->x1, param->y1, param->color);
             break;
         }
 
@@ -831,7 +474,7 @@ int gpanel_ioctl(dev_t dev, register u_int cmd, caddr_t addr, int flag)
         case GPANEL_RECT: {
             struct gpanel_rect_t *param = (struct gpanel_rect_t*) addr;
 
-            drawFrame(param->x0, param->y0, param->x1, param->y1, param->color);
+            gpanel_draw_frame(param->x0, param->y0, param->x1, param->y1, param->color);
             break;
         }
 
@@ -841,7 +484,7 @@ int gpanel_ioctl(dev_t dev, register u_int cmd, caddr_t addr, int flag)
         case GPANEL_FILL: {
             struct gpanel_rect_t *param = (struct gpanel_rect_t*) addr;
 
-            fillRectangle(param->x0, param->y0, param->x1, param->y1, param->color);
+            hw.fill_rectangle(param->x0, param->y0, param->x1, param->y1, param->color);
             break;
         }
 
@@ -851,7 +494,7 @@ int gpanel_ioctl(dev_t dev, register u_int cmd, caddr_t addr, int flag)
         case GPANEL_CIRCLE: {
             struct gpanel_circle_t *param = (struct gpanel_circle_t*) addr;
 
-            drawCircle(param->x, param->y, param->radius, param->color);
+            gpanel_draw_circle(param->x, param->y, param->radius, param->color);
             break;
         }
 
@@ -861,7 +504,7 @@ int gpanel_ioctl(dev_t dev, register u_int cmd, caddr_t addr, int flag)
         case GPANEL_IMAGE: {
             struct gpanel_image_t *param = (struct gpanel_image_t*) addr;
 
-            drawImage(param->x, param->y, param->width, param->height,
+            hw.draw_image(param->x, param->y, param->width, param->height,
                 param->image);
             break;
         }
@@ -874,7 +517,7 @@ int gpanel_ioctl(dev_t dev, register u_int cmd, caddr_t addr, int flag)
 
             _col = param->x;
             _row = param->y;
-            drawChar(param->font, param->color, param->background, param->sym);
+            gpanel_draw_char(param->font, param->color, param->background, param->sym);
             break;
         }
 
@@ -884,7 +527,7 @@ int gpanel_ioctl(dev_t dev, register u_int cmd, caddr_t addr, int flag)
         case GPANEL_TEXT: {
             struct gpanel_text_t *param = (struct gpanel_text_t*) addr;
 
-            drawText(param->font, param->color, param->background,
+            gpanel_draw_text(param->font, param->color, param->background,
                 param->x, param->y, param->text);
             break;
         }
@@ -893,17 +536,56 @@ int gpanel_ioctl(dev_t dev, register u_int cmd, caddr_t addr, int flag)
 }
 
 /*
- * Test to see if device is present.
+ * Detect the type of the LCD controller, and initialize it.
  * Return true if found and initialized ok.
  */
 static int probe(config)
     struct conf_device *config;
 {
-    if (initDisplay() < 0)
-        return 0;
+    /*
+     * Set all control bits to high (idle).
+     * Signals are active low.
+     */
+    CS_IDLE();
+    WR_IDLE();
+    RD_IDLE();
+    RST_IDLE();
 
-    printf("gpanel0: display %ux%u\n", WIDTH, HEIGHT);
-    setAddrWindow(0, 0, WIDTH-1, HEIGHT-1);
+    /* Enable outputs. */
+    TRIS_CLR(LCD_CS_PORT) = 1 << LCD_CS_PIN;
+    TRIS_CLR(LCD_RS_PORT) = 1 << LCD_RS_PIN;
+    TRIS_CLR(LCD_WR_PORT) = 1 << LCD_WR_PIN;
+    TRIS_CLR(LCD_RD_PORT) = 1 << LCD_RD_PIN;
+    TRIS_CLR(LCD_RST_PORT) = 1 << LCD_RST_PIN;
+    set_write_dir();
+
+    /* Reset the chip. */
+    RST_ACTIVE();
+    udelay(1000);
+    RST_IDLE();
+    udelay(1000);
+
+    /* Read the the chip ID register. */
+    _chip_id = read_device_id();
+    switch (_chip_id) {
+    case 0x7783:
+        st7781_init_display(&hw);
+        break;
+
+    default:
+        printf("gpanel0: Unknown chip ID = 0x%x\n", _chip_id);
+
+        /* Disable outputs. */
+        set_read_dir();
+        TRIS_SET(LCD_CS_PORT) = 1 << LCD_CS_PIN;
+        TRIS_SET(LCD_RS_PORT) = 1 << LCD_RS_PIN;
+        TRIS_SET(LCD_WR_PORT) = 1 << LCD_WR_PIN;
+        TRIS_SET(LCD_RD_PORT) = 1 << LCD_RD_PIN;
+        TRIS_SET(LCD_RST_PORT) = 1 << LCD_RST_PIN;
+        return 0;
+    }
+
+    printf("gpanel0: <%s> display %ux%u\n", hw.name, hw.width, hw.height);
     return 1;
 }
 

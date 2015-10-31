@@ -124,11 +124,38 @@ extern int _gpanel_fd;
 /*
  * Kernel driver routines.
  */
+struct uio;
 extern int gpanel_open(dev_t dev, int flag, int mode);
 extern int gpanel_close(dev_t dev, int flag, int mode);
 extern int gpanel_read(dev_t dev, struct uio *uio, int flag);
 extern int gpanel_write(dev_t dev, struct uio *uio, int flag);
 extern int gpanel_ioctl(dev_t dev, u_int cmd, caddr_t addr, int flag);
+
+extern int gpanel_read_byte(void);
+extern void gpanel_write_byte(int value);
+extern void gpanel_cs_active(void);
+extern void gpanel_cs_idle(void);
+extern void gpanel_rs_command(void);
+extern void gpanel_rs_data(void);
+extern void gpanel_wr_strobe(void);
+
+/*
+ * Descriptor for access to the hardware-level driver.
+ */
+struct gpanel_hw {
+    const char *name;
+    int width;
+    int height;
+    void (*clear)(struct gpanel_hw *hw, int color, int width, int height);
+    void (*set_pixel)(int x, int y, int color);
+    void (*fill_rectangle)(int x0, int y0, int x1, int y1, int color);
+    void (*draw_image)(int x, int y, int width, int height,
+        const unsigned short *data);
+    void (*draw_glyph)(const struct gpanel_font_t *font,
+        int color, int background, int x, int y, int width,
+        const unsigned short *bits);
+};
+extern void st7781_init_display(struct gpanel_hw *hw);
 
 #endif /* KERNEL */
 

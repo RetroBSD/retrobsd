@@ -65,8 +65,8 @@ device          adc
 # PWM driver
 device          pwm
 
-# ST7781 TFT display driver
-device          swtft
+# TFT display driver: ST7781
+device          gpanel
 signal          "LCD_RST"   pin RB10
 signal          "LCD_CS"    pin RB0
 signal          "LCD_RD"    pin RB2

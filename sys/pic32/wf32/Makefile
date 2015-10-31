@@ -12,7 +12,7 @@ PARAM += -DGPIO5_ENABLED
 PARAM += -DGPIO6_ENABLED
 PARAM += -DADC_ENABLED
 PARAM += -DPWM_ENABLED
-PARAM += -DSWTFT_ENABLED
+PARAM += -DGPANEL_ENABLED
 PARAM += -DLCD_D7_PORT=TRISE -DLCD_D7_PIN=9
 PARAM += -DLCD_D6_PORT=TRISD -DLCD_D6_PIN=2
 PARAM += -DLCD_D5_PORT=TRISD -DLCD_D5_PIN=1
@@ -79,7 +79,7 @@ OBJS = exec_aout.o exec_conf.o exec_elf.o exec_script.o exec_subr.o \
 	ufs_namei.o ufs_subr.o ufs_syscalls.o ufs_syscalls2.o \
 	vfs_vnops.o vm_sched.o vm_swap.o vm_swp.o clock.o cons.o devsw.o \
 	exception.o machdep.o mem.o signal.o swap.o sysctl.o adc.o \
-	gpio.o pwm.o sd.o st7781.o spi.o spi_bus.o uart.o 
+	gpanel.o gpio.o pwm.o sd.o spi.o spi_bus.o uart.o 
 
 CFILES = $S/kernel/exec_aout.c $S/kernel/exec_conf.c $S/kernel/exec_elf.c \
 	$S/kernel/exec_script.c $S/kernel/exec_subr.c \
@@ -104,8 +104,8 @@ CFILES = $S/kernel/exec_aout.c $S/kernel/exec_conf.c $S/kernel/exec_elf.c \
 	$S/kernel/vm_swp.c $S/pic32/clock.c $S/pic32/cons.c \
 	$S/pic32/devsw.c $S/pic32/exception.c $S/pic32/machdep.c \
 	$S/pic32/mem.c $S/pic32/signal.c $S/pic32/swap.c \
-	$S/pic32/sysctl.c $S/pic32/adc.c $S/pic32/gpio.c $S/pic32/pwm.c \
-	$S/pic32/sd.c $S/pic32/st7781.c $S/pic32/spi.c \
+	$S/pic32/sysctl.c $S/pic32/adc.c $S/pic32/gpanel.c \
+	$S/pic32/gpio.c $S/pic32/pwm.c $S/pic32/sd.c $S/pic32/spi.c \
 	$S/pic32/spi_bus.c $S/pic32/uart.c swapunix.c 
 
 # load lines for config "xxx" will be emitted as:
@@ -341,6 +341,9 @@ sysctl.o: $S/pic32/sysctl.c
 adc.o: $S/pic32/adc.c
 	${COMPILE_C}
 
+gpanel.o: $S/pic32/gpanel.c
+	${COMPILE_C}
+
 gpio.o: $S/pic32/gpio.c
 	${COMPILE_C}
 
@@ -348,9 +351,6 @@ pwm.o: $S/pic32/pwm.c
 	${COMPILE_C}
 
 sd.o: $S/pic32/sd.c
-	${COMPILE_C}
-
-st7781.o: $S/pic32/st7781.c
 	${COMPILE_C}
 
 spi.o: $S/pic32/spi.c

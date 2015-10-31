@@ -130,8 +130,8 @@ device          picga0  at spi1 pin RA4     # chip select signal
 options         "PICGA_BUS=SPI1CON"         # TODO: delete this option
 signal          "PICGA_CS" pin RA4          # TODO: delete
 
-# ST7781 TFT display driver
-device          swtft
+# TFT display driver: ST7781
+device          gpanel
 signal          "LCD_RST"   pin RB10
 signal          "LCD_CS"    pin RB0
 signal          "LCD_RD"    pin RB2

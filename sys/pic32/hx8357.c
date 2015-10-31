@@ -683,7 +683,7 @@ hxtftprobe(config)
 {
     initDisplay();
     setRotation(1);
-    printf("hxtft0: display %ux%u\n", _height, _width);
+    printf("hxtft0: display %ux%u\n", _width, _height);
     return 1;
 }
 

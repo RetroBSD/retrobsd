@@ -1,5 +1,6 @@
 /*
- * ST7781 TFT LCD driver for PIC32.
+ * Generic TFT LCD driver for PIC32.
+ * Supported chips: ST7781.
  *
  * Based on code provided by Smoke And Wires
  * https://github.com/Smoke-And-Wires/TFT-Shield-Example-Code
@@ -314,7 +315,7 @@ static int initDisplay()
     _chip_id = readDeviceId();
     switch (_chip_id) {
     case 0x7783:
-        printf("swtft0: <Sitronix ST7781>\n");
+        printf("gpanel0: <Sitronix ST7781>\n");
         break;
 
     default:
@@ -325,7 +326,7 @@ static int initDisplay()
         TRIS_SET(LCD_WR_PORT) = 1 << LCD_WR_PIN;
         TRIS_SET(LCD_RD_PORT) = 1 << LCD_RD_PIN;
         TRIS_SET(LCD_RST_PORT) = 1 << LCD_RST_PIN;
-        printf("swtft0: Unknown chip ID = 0x%x\n", _chip_id);
+        printf("gpanel0: Unknown chip ID = 0x%x\n", _chip_id);
         return -1;
     }
 
@@ -895,18 +896,17 @@ int gpanel_ioctl(dev_t dev, register u_int cmd, caddr_t addr, int flag)
  * Test to see if device is present.
  * Return true if found and initialized ok.
  */
-static int
-swtftprobe(config)
+static int probe(config)
     struct conf_device *config;
 {
     if (initDisplay() < 0)
         return 0;
 
-    printf("swtft0: display %ux%u\n", HEIGHT, WIDTH);
+    printf("gpanel0: display %ux%u\n", WIDTH, HEIGHT);
     setAddrWindow(0, 0, WIDTH-1, HEIGHT-1);
     return 1;
 }
 
-struct driver swtftdriver = {
-    "swtft", swtftprobe,
+struct driver gpaneldriver = {
+    "gpanel", probe,
 };

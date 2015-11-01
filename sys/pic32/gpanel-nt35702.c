@@ -430,38 +430,38 @@ void nt35702_init_display(struct gpanel_hw *h)
     set_rotation(1);                /* Landscape */
 
     write_command(NT35702_GAMCTRP1);
+    write_data(0x22);
     write_data(0x23);
-    write_data(0x23);
-    write_data(0x24);
-    write_data(0x02);
-    write_data(0x08);
-    write_data(0x0F);
-    write_data(0x35);
-    write_data(0x7B);
-    write_data(0x43);
-    write_data(0x0E);
-    write_data(0x1F);
     write_data(0x25);
+    write_data(0x08);
     write_data(0x10);
-    write_data(0x16);
-    write_data(0x31);
+    write_data(0x14);
+    write_data(0x40);
+    write_data(0x7B);
+    write_data(0x50);
+    write_data(0x0B);
+    write_data(0x1B);
+    write_data(0x22);
+    write_data(0x20);
+    write_data(0x2F);
+    write_data(0x37);
 
     write_command(NT35702_GAMCTRN1);
-    write_data(0x0D);
-    write_data(0x28);
-    write_data(0x2E);
-    write_data(0x0B);
-    write_data(0x11);
-    write_data(0x12);
-    write_data(0x3E);
+    write_data(0x0C);
+    write_data(0x14);
+    write_data(0x23);
+    write_data(0x0E);
+    write_data(0x14);
+    write_data(0x15);
+    write_data(0x36);
     write_data(0x59);
-    write_data(0x4C);
-    write_data(0x10);
-    write_data(0x26);
-    write_data(0x2B);
-    write_data(0x1B);
-    write_data(0x1B);
-    write_data(0x1B);
+    write_data(0x46);
+    write_data(0x0B);
+    write_data(0x1F);
+    write_data(0x27);
+    write_data(0x1F);
+    write_data(0x20);
+    write_data(0x22);
 
     write_command(NT35702_DISPON);
 

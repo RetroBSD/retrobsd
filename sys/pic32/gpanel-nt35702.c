@@ -377,7 +377,6 @@ static void nt35702_draw_glyph(const struct gpanel_font_t *font,
 void nt35702_init_display(struct gpanel_hw *h)
 {
     gpanel_cs_active();
-    gpanel_cs_active();
     write_command(NT35702_SWRESET);
     udelay(20000);
 

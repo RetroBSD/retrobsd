@@ -583,7 +583,9 @@ static int probe(config)
     RST_IDLE();
     udelay(1000);
 
-    /* Read the the chip ID register. */
+    /* Read the the chip ID register.
+     * Some controllers have a register #0
+     * programmed with unique chip ID. */
     _chip_id = read_reg16(0);
     switch (_chip_id) {
     default:
@@ -591,11 +593,13 @@ static int probe(config)
         goto failed;
 
     case 0x7783:
+        /* Sitronix ST7781. */
         st7781_init_display(&hw);
         break;
 
     case 0:
-        /* Family of ILI9341-alike chips. */
+        /* Register #0 is zero.
+         * In this case the ID is available in register #4. */
         _chip_id = read_reg32(4) & 0xffffff;
         switch (_chip_id) {
         default:
@@ -603,11 +607,12 @@ static int probe(config)
             goto failed;
 
         case 0x009341:
-            //TODO
-            //ili9341_init_display(&hw);
+            /* Ilitek ILI9341. */
+            ili9341_init_display(&hw);
             break;
 
         case 0x388000:
+            /* Novatek NT35702. */
             nt35702_init_display(&hw);
             break;
         }

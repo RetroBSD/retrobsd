@@ -157,6 +157,7 @@ struct gpanel_hw {
 };
 extern void st7781_init_display(struct gpanel_hw *hw);
 extern void nt35702_init_display(struct gpanel_hw *hw);
+extern void ili9341_init_display(struct gpanel_hw *hw);
 
 #endif /* KERNEL */
 

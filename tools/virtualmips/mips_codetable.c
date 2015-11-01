@@ -2018,7 +2018,7 @@ static const struct mips_op_desc mips_spec2_opcodes[] = {
     {"?spec2",	undef_spec2,0x3c},
     {"?spec2",	undef_spec2,0x3d},
     {"?spec2",	undef_spec2,0x3e},
-    {"?spec2",	sdbbp_op,   0x3f},
+    {"sdbbp",	sdbbp_op,   0x3f},
 };
 
 /*
@@ -2196,7 +2196,6 @@ static int mips_exec_mips16e(cpu_mips_t* cpu, mips_insn_t instr)
 #define xsregs  ((extend >> 8) & 0x7) // EXT-SVRS
 #define code6   ((instr >> 5) & 0x3F) // break, sdbbp
 
-    // TBD!!! better checks for invalid encodings
     if ((extend >> 11) == 3) {
         // jal(x) adr26<<2 (32-bit instruction; delay slot)
         cpu->reg_set(cpu, MIPS_GPR_RA, nextPc + 3); // 2 for non-extended instruction in delay slot + 1 for ISA Mode
@@ -2281,25 +2280,26 @@ static int mips_exec_mips16e(cpu_mips_t* cpu, mips_insn_t instr)
                 cpu->reg_set(cpu, MIPS_GPR_SP, cpu->gpr[MIPS_GPR_SP] + (simm8 << 3));
                 break;
             case 4: // SVRS
-                // TBD!!! handle memory errors better
                 if (instr & 0x80) { // save
-                    uint32_t temp = cpu->gpr[MIPS_GPR_SP];
-                    cpu->reg_set(cpu, MIPS_GPR_SP, cpu->gpr[MIPS_GPR_SP] - (imm4 ? imm4 * 8 : 128));
+                    uint32_t temp = cpu->gpr[MIPS_GPR_SP], temp2 = temp - (imm4 ? imm4 * 8 : 128);
                     if (instr & 0x40) // ra
-                        res |= mips_exec_memop(cpu, MIPS_MEMOP_SW, temp -= 4, MIPS_GPR_RA, FALSE);
-                    if (instr & 0x10) // s1
-                        res |= mips_exec_memop(cpu, MIPS_MEMOP_SW, temp -= 4, MIPS_GPR_S1, FALSE);
-                    if (instr & 0x20) // s0
-                        res |= mips_exec_memop(cpu, MIPS_MEMOP_SW, temp -= 4, MIPS_GPR_S0, FALSE);
+                        res = mips_exec_memop(cpu, MIPS_MEMOP_SW, temp -= 4, MIPS_GPR_RA, FALSE);
+                    if ((instr & 0x10) && !res) // s1
+                        res = mips_exec_memop(cpu, MIPS_MEMOP_SW, temp -= 4, MIPS_GPR_S1, FALSE);
+                    if ((instr & 0x20) && !res) // s0
+                        res = mips_exec_memop(cpu, MIPS_MEMOP_SW, temp -= 4, MIPS_GPR_S0, FALSE);
+                    if (!res)
+                        cpu->reg_set(cpu, MIPS_GPR_SP, temp2);
                 } else { // restore
                     uint32_t temp = cpu->gpr[MIPS_GPR_SP] + (imm4 ? imm4 * 8 : 128), temp2 = temp;
                     if (instr & 0x40) // ra
-                        res |= mips_exec_memop(cpu, MIPS_MEMOP_LW, temp -= 4, MIPS_GPR_RA, TRUE);
-                    if (instr & 0x10) // s1
-                        res |= mips_exec_memop(cpu, MIPS_MEMOP_LW, temp -= 4, MIPS_GPR_S1, TRUE);
-                    if (instr & 0x20) // s0
-                        res |= mips_exec_memop(cpu, MIPS_MEMOP_LW, temp -= 4, MIPS_GPR_S0, TRUE);
-                    cpu->reg_set(cpu, MIPS_GPR_SP, temp2);
+                        res = mips_exec_memop(cpu, MIPS_MEMOP_LW, temp -= 4, MIPS_GPR_RA, TRUE);
+                    if ((instr & 0x10) && !res) // s1
+                        res = mips_exec_memop(cpu, MIPS_MEMOP_LW, temp -= 4, MIPS_GPR_S1, TRUE);
+                    if ((instr & 0x20) && !res) // s0
+                        res = mips_exec_memop(cpu, MIPS_MEMOP_LW, temp -= 4, MIPS_GPR_S0, TRUE);
+                    if (!res)
+                        cpu->reg_set(cpu, MIPS_GPR_SP, temp2);
                 }
                 break;
             case 5: // move r32, rz (nop = move $0, $16)
@@ -2421,7 +2421,8 @@ static int mips_exec_mips16e(cpu_mips_t* cpu, mips_insn_t instr)
                 }
                 break;
             case 1: // sdbbp imm6
-                goto lInvalidInstruction;
+                res = sdbbp_op(cpu, instr);
+                break;
             case 2: // slt rx, ry
                 cpu->reg_set(cpu, MIPS_GPR_T8, (int32_t)cpu->gpr[xlat(rx)] < (int32_t)cpu->gpr[xlat(ry)]);
                 break;
@@ -2628,9 +2629,8 @@ static int mips_exec_mips16e(cpu_mips_t* cpu, mips_insn_t instr)
                 cpu->reg_set(cpu, MIPS_GPR_SP, cpu->gpr[MIPS_GPR_SP] + simm16);
                 break;
             case 4: { // SVRS
-                // TBD!!! handle memory errors better
                 uint32_t astatic = 0;
-                uint32_t i, temp;
+                uint32_t i;
                 switch (aregs) {
                 case 1: case 5: case 9: case 13: astatic = 1; break;
                 case 2: case 6: case 10: astatic = 2; break;
@@ -2640,6 +2640,7 @@ static int mips_exec_mips16e(cpu_mips_t* cpu, mips_insn_t instr)
                     goto lInvalidInstruction; // TBD!!! or address error???
                 }
                 if (instr & 0x80) { // save
+                    uint32_t temp = cpu->gpr[MIPS_GPR_SP], temp2 = temp - fmsz8 * 8;
                     uint32_t args = 0;
                     switch (aregs) {
                     case 4: case 5: case 6: case 7: args = 1; break;
@@ -2649,34 +2650,34 @@ static int mips_exec_mips16e(cpu_mips_t* cpu, mips_insn_t instr)
                     case 15:
                         goto lInvalidInstruction; // TBD!!! or address error???
                     }
-                    temp = cpu->gpr[MIPS_GPR_SP];
-                    cpu->reg_set(cpu, MIPS_GPR_SP, cpu->gpr[MIPS_GPR_SP] - fmsz8 * 8);
-                    for (i = 0; i < args; i++)
-                        res |= mips_exec_memop(cpu, MIPS_MEMOP_SW, temp + i * 4, 4 + i, FALSE);
-                    if (instr & 0x40) // ra
-                        res |= mips_exec_memop(cpu, MIPS_MEMOP_SW, temp -= 4, MIPS_GPR_RA, FALSE);
-                    for (i = xsregs; i; i--)
-                        res |= mips_exec_memop(cpu, MIPS_MEMOP_SW, temp -= 4, (i == 7) ? 30 : 17 + i, FALSE);
-                    if (instr & 0x10) // s1
-                        res |= mips_exec_memop(cpu, MIPS_MEMOP_SW, temp -= 4, MIPS_GPR_S1, FALSE);
-                    if (instr & 0x20) // s0
-                        res |= mips_exec_memop(cpu, MIPS_MEMOP_SW, temp -= 4, MIPS_GPR_S0, FALSE);
-                    for (i = 0; i < astatic; i++)
-                        res |= mips_exec_memop(cpu, MIPS_MEMOP_SW, temp -= 4, 7 - i, FALSE);
+                    for (i = 0; i < args && !res; i++)
+                        res = mips_exec_memop(cpu, MIPS_MEMOP_SW, temp + i * 4, 4 + i, FALSE);
+                    if ((instr & 0x40) && !res) // ra
+                        res = mips_exec_memop(cpu, MIPS_MEMOP_SW, temp -= 4, MIPS_GPR_RA, FALSE);
+                    for (i = xsregs; i && !res; i--)
+                        res = mips_exec_memop(cpu, MIPS_MEMOP_SW, temp -= 4, (i == 7) ? 30 : 17 + i, FALSE);
+                    if ((instr & 0x10) && !res) // s1
+                        res = mips_exec_memop(cpu, MIPS_MEMOP_SW, temp -= 4, MIPS_GPR_S1, FALSE);
+                    if ((instr & 0x20) && !res) // s0
+                        res = mips_exec_memop(cpu, MIPS_MEMOP_SW, temp -= 4, MIPS_GPR_S0, FALSE);
+                    for (i = 0; i < astatic && !res; i++)
+                        res = mips_exec_memop(cpu, MIPS_MEMOP_SW, temp -= 4, 7 - i, FALSE);
+                    if (!res)
+                        cpu->reg_set(cpu, MIPS_GPR_SP, temp2);
                 } else { // restore
-                    uint32_t temp2 = cpu->gpr[MIPS_GPR_SP] + fmsz8 * 8;
-                    temp = temp2;
+                    uint32_t temp2 = cpu->gpr[MIPS_GPR_SP] + fmsz8 * 8, temp = temp2;
                     if (instr & 0x40) // ra
-                        res |= mips_exec_memop(cpu, MIPS_MEMOP_LW, temp -= 4, MIPS_GPR_RA, TRUE);
-                    for (i = xsregs; i; i--)
-                        res |= mips_exec_memop(cpu, MIPS_MEMOP_LW, temp -= 4, (i == 7) ? 30 : 17 + i, TRUE);
-                    if (instr & 0x10) // s1
-                        res |= mips_exec_memop(cpu, MIPS_MEMOP_LW, temp -= 4, MIPS_GPR_S1, TRUE);
-                    if (instr & 0x20) // s0
-                        res |= mips_exec_memop(cpu, MIPS_MEMOP_LW, temp -= 4, MIPS_GPR_S0, TRUE);
-                    for (i = 0; i < astatic; i++)
-                        res |= mips_exec_memop(cpu, MIPS_MEMOP_LW, temp -= 4, 7 - i, TRUE);
-                    cpu->reg_set(cpu, MIPS_GPR_SP, temp2);
+                        res = mips_exec_memop(cpu, MIPS_MEMOP_LW, temp -= 4, MIPS_GPR_RA, TRUE);
+                    for (i = xsregs; i && !res; i--)
+                        res = mips_exec_memop(cpu, MIPS_MEMOP_LW, temp -= 4, (i == 7) ? 30 : 17 + i, TRUE);
+                    if ((instr & 0x10) && !res) // s1
+                        res = mips_exec_memop(cpu, MIPS_MEMOP_LW, temp -= 4, MIPS_GPR_S1, TRUE);
+                    if ((instr & 0x20) && !res) // s0
+                        res = mips_exec_memop(cpu, MIPS_MEMOP_LW, temp -= 4, MIPS_GPR_S0, TRUE);
+                    for (i = 0; i < astatic && !res; i++)
+                        res = mips_exec_memop(cpu, MIPS_MEMOP_LW, temp -= 4, 7 - i, TRUE);
+                    if (!res)
+                        cpu->reg_set(cpu, MIPS_GPR_SP, temp2);
                 }
                 }
                 break;

@@ -317,7 +317,7 @@ const struct cdevsw cdevsw[] = {
 #if GPANEL_MAJOR != 16
 #   error Wrong GPANEL_MAJOR value!
 #endif
-#if defined(HXTFT_ENABLED) || defined(SWTFT_ENABLED)
+#if defined(HXTFT_ENABLED) || defined(GPANEL_ENABLED)
     gpanel_open,    gpanel_close,   gpanel_read,    gpanel_write,
     gpanel_ioctl,   nulldev,        0,              seltrue,
     nostrategy,     0,              0,

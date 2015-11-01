@@ -156,6 +156,7 @@ struct gpanel_hw {
         const unsigned short *bits);
 };
 extern void st7781_init_display(struct gpanel_hw *hw);
+extern void nt35702_init_display(struct gpanel_hw *hw);
 
 #endif /* KERNEL */
 

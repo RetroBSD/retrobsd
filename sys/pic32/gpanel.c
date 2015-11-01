@@ -218,22 +218,40 @@ int gpanel_read_byte()
 }
 
 /*
- * Read device ID code.
+ * Read a 16-bit value from the specified chip register.
  */
-static unsigned read_device_id()
+static int read_reg16(int reg)
 {
     unsigned value;
 
     CS_ACTIVE();
     RS_COMMAND();
-    gpanel_write_byte(0);   // Read register #0
-    delay100ns();
-    WR_ACTIVE();
-    delay100ns();
-    WR_IDLE();
-    set_read_dir();         // Switch data bus as input
+    //gpanel_write_byte(reg >> 8);
+    gpanel_write_byte(reg);
+    set_read_dir();         // Switch data bus to input
     RS_DATA();
     value = gpanel_read_byte() << 8;
+    value |= gpanel_read_byte();
+    set_write_dir();        // Restore data bus as output
+    CS_IDLE();
+    return value;
+}
+
+/*
+ * Read a 32-bit value from the specified chip register.
+ */
+static int read_reg32(int reg)
+{
+    unsigned value;
+
+    CS_ACTIVE();
+    RS_COMMAND();
+    gpanel_write_byte(reg);
+    set_read_dir();         // Switch data bus to input
+    RS_DATA();
+    value = gpanel_read_byte() << 24;
+    value |= gpanel_read_byte() << 16;
+    value |= gpanel_read_byte() << 8;
     value |= gpanel_read_byte();
     set_write_dir();        // Restore data bus as output
     CS_IDLE();
@@ -566,27 +584,47 @@ static int probe(config)
     udelay(1000);
 
     /* Read the the chip ID register. */
-    _chip_id = read_device_id();
+    _chip_id = read_reg16(0);
     switch (_chip_id) {
+    default:
+        printf("gpanel0: Unknown chip ID0 = 0x%04x\n", _chip_id);
+        goto failed;
+
     case 0x7783:
         st7781_init_display(&hw);
         break;
 
-    default:
-        printf("gpanel0: Unknown chip ID = 0x%x\n", _chip_id);
+    case 0:
+        /* Family of ILI9341-alike chips. */
+        _chip_id = read_reg32(4) & 0xffffff;
+        switch (_chip_id) {
+        default:
+            printf("gpanel0: Unknown chip ID4 = 0x%06x\n", _chip_id);
+            goto failed;
 
-        /* Disable outputs. */
-        set_read_dir();
-        TRIS_SET(LCD_CS_PORT) = 1 << LCD_CS_PIN;
-        TRIS_SET(LCD_RS_PORT) = 1 << LCD_RS_PIN;
-        TRIS_SET(LCD_WR_PORT) = 1 << LCD_WR_PIN;
-        TRIS_SET(LCD_RD_PORT) = 1 << LCD_RD_PIN;
-        TRIS_SET(LCD_RST_PORT) = 1 << LCD_RST_PIN;
-        return 0;
+        case 0x009341:
+            //TODO
+            //ili9341_init_display(&hw);
+            break;
+
+        case 0x388000:
+            nt35702_init_display(&hw);
+            break;
+        }
+        break;
     }
-
     printf("gpanel0: <%s> display %ux%u\n", hw.name, hw.width, hw.height);
     return 1;
+
+failed:
+    /* Disable outputs. */
+    set_read_dir();
+    TRIS_SET(LCD_CS_PORT) = 1 << LCD_CS_PIN;
+    TRIS_SET(LCD_RS_PORT) = 1 << LCD_RS_PIN;
+    TRIS_SET(LCD_WR_PORT) = 1 << LCD_WR_PIN;
+    TRIS_SET(LCD_RD_PORT) = 1 << LCD_RD_PIN;
+    TRIS_SET(LCD_RST_PORT) = 1 << LCD_RST_PIN;
+    return 0;
 }
 
 struct driver gpaneldriver = {

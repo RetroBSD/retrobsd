@@ -3,7 +3,7 @@ include $(TOPSRC)/target.mk
 
 vpath %.c $(TOPSRC)/src/libtermlib
 
-CFLAGS		+= -B$(TOPSRC)/lib/ $(DEFS) -Wa,-x -Wall -Werror
+CFLAGS		= -Os -B$(TOPSRC)/lib/ $(DEFS) -Wa,-x -Wall -Werror
 
 OBJS		= termcap.o tgoto.o tputs.o tcattr.o
 

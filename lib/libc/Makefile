@@ -8,7 +8,7 @@ vpath %.c $(LIBCDIR)/mips/sys $(LIBCDIR)/gen $(LIBCDIR)/stdio \
           $(LIBCDIR)/stdlib $(LIBCDIR)/string $(LIBCDIR)/inet \
           $(LIBCDIR)/compat $(LIBCDIR)/runtime
 
-CFLAGS		+= -B$(TOPSRC)/lib/ $(DEFS) -Wa,-x -Wall -Werror
+CFLAGS		= -Os -B$(TOPSRC)/lib/ $(DEFS) -Wa,-x -Wall -Werror
 ASFLAGS		+= -B$(TOPSRC)/lib/ $(DEFS) -Wa,-x -I$(LIBCDIR)/mips/sys
 
 # modules which can not use SYSCALL and must be assembled from sources.  The

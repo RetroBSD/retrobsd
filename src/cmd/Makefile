@@ -16,7 +16,7 @@ SUBDIR		= adb adc-demo aout ar as awk basic calendar cc chflags \
                   man md5 med more nm passwd pdc picoc portio printf pwm \
                   ranlib re renice retroforth scm sed setty sh sl smallc \
                   smlrc smux stty sysctl test uname wiznet xargs \
-                  zmodem gtest msec unixbench cron compress date2 tip \
+                  zmodem gtest msec cron compress date2 tip \
                   talloc uucp
 
 # /sbin

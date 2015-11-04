@@ -50,7 +50,8 @@ strip(name)
     head.a_reldata = 0;
     head.a_syms = 0;
     (void) lseek(f, (off_t)0, SEEK_SET);
-    (void) write(f, (char *)&head, sizeof (head));
+    if (write(f, (char *)&head, sizeof (head)) != sizeof (head))
+            /* ignore */;
 out:
     close(f);
 }

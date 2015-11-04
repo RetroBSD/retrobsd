@@ -57,7 +57,7 @@ OPTON = -O2 -fomit-frame-pointer -fforce-addr -ffast-math -Wall
 #CFLAGS = -DTIME -std1 -verbose -w0
 
 ## generic gcc CFLAGS.  -DTIME must be included
-CFLAGS = -DTIME -Wall -pedantic -ansi
+#CFLAGS = -DTIME -Wall -pedantic -ansi
 
 # local directories
 PROGDIR = ./pgms

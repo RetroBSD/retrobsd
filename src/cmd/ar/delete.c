@@ -91,7 +91,8 @@ delete(argv)
 	SETCF(tfd, tname, afd, archive, NOPAD);
 	copy_ar(&cf, size);
 	(void)close(tfd);
-	(void)ftruncate(afd, size + SARMAG);
+	if (ftruncate(afd, size + SARMAG) < 0)
+                /* ignore */;
 	close_archive(afd);
 
 	if (*argv) {

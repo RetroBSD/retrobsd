@@ -190,7 +190,8 @@ append:	while ((file = *argv++) != 0) {
 	cf.rfd = tfd2;
 	copy_ar(&cf, size);
 
-	(void)ftruncate(afd, tsize + SARMAG);
+	if (ftruncate(afd, tsize + SARMAG) < 0)
+	        /* ignore */;
 	close_archive(afd);
 	return(err);
 }

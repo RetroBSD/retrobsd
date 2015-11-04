@@ -9,7 +9,7 @@ TOPSRC		= $(shell cd ../../..; pwd)
 include $(TOPSRC)/target.mk
 #include $(TOPSRC)/cross.mk
 
-CFLAGS          = -Os -g -Werror -Wall
+CFLAGS          += -Os -g -Werror -Wall
 CFLAGS          += -DBSD -DDEST=\"/games/lib/atc/\"
 #CFLAGS          += -DSYSV -DDEST=\"games/\"
 YFLAGS          = -d

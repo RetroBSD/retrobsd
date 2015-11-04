@@ -9,7 +9,7 @@ TOPSRC          = $(shell cd ../..; pwd)
 include $(TOPSRC)/target.mk
 vpath %.c $(TOPSRC)/src/startup-mips
 
-CFLAGS          = -B$(TOPSRC)/lib/ -O -Wa,-x $(DEFS)
+CFLAGS          = -Os -B$(TOPSRC)/lib/ -Wa,-x $(DEFS)
 
 OBJS		= ../crt0.o
 

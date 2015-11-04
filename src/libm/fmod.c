@@ -1,7 +1,33 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#include "ieee.h"
+typedef union {
+    double value;
+    struct {
+        uint32_t lo;
+        uint32_t hi;
+    } uns;
+} union64_t;
+
+/*
+ * Get two 32 bit ints from a double.
+ */
+#define EXTRACT_WORDS(high,low,d) {\
+        union64_t u = {0}; \
+        u.value = d; \
+        high = u.uns.hi; \
+        low  = u.uns.lo; \
+    }
+
+/*
+ * Set a double from two 32 bit ints.
+ */
+#define INSERT_WORDS(d,high,low) { \
+        union64_t u = {0}; \
+        u.uns.hi = high; \
+        u.uns.lo = low; \
+        d = u.value; \
+    }
 
 static const double one = 1.0, Zero[] = {0.0, -0.0,};
 

@@ -85,3 +85,6 @@ CFLAGS		= -O
 LDFLAGS		+= -N -nostartfiles -fno-dwarf2-cfi-asm -T$(TOPSRC)/src/elf32-mips.ld \
 		   $(TOPSRC)/src/crt0.o -L$(TOPSRC)/src
 LIBS		= -lc
+
+# Enable mips16e instruction set by default
+CFLAGS		+= -mips16

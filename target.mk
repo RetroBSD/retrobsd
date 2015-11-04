@@ -80,7 +80,7 @@ TAGSFILE	= tags
 MANROFF		= nroff -man -h -Tascii
 ELF2AOUT	= $(TOPSRC)/tools/elf2aout/elf2aout
 
-CFLAGS		= -O
+CFLAGS		= -Os
 
 LDFLAGS		+= -N -nostartfiles -fno-dwarf2-cfi-asm -T$(TOPSRC)/src/elf32-mips.ld \
 		   $(TOPSRC)/src/crt0.o -L$(TOPSRC)/src

@@ -327,6 +327,9 @@ static void nt35702_draw_glyph(const struct gpanel_font_t *font,
     int h, w, c;
     unsigned bitmask = 0;
 
+    if (x + width > _width ||  y + font->height > _height)
+        return;
+
     if (background >= 0) {
         /*
          * Clear background.

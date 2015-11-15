@@ -29,7 +29,7 @@ options         "EXEC_AOUT"                 # Run a.out binaries
 options         "EXEC_ELF"                  # Run ELF binaries
 options         "EXEC_SCRIPT"               # Run shell scripts
 options         "UCB_METER"                 # Collect kernel statistics
-options         "NPROC=10"                  # Number of processes, default 10
+options         "NPROC=10"                  # Number of processes, default 25
 options         "NBUF=10"                   # Number of i/o buffers, default 10
 options         "NFILE=24"                  # Number of files, default 24
 options         "NINODE=24"                 # Number of i-nodes, default 24

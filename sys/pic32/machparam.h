@@ -44,7 +44,7 @@
 #define MAXUSERS        1                       /* number of user logins */
 #endif
 #ifndef NPROC
-#define NPROC           10                      /* number of processes */
+#define NPROC           25                      /* number of processes */
 #endif
 #ifndef NINODE
 #define NINODE          24

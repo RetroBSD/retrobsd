@@ -3,7 +3,7 @@ include $(TOPSRC)/target.mk
 
 vpath %.c $(TOPSRC)/src/libwiznet
 
-CFLAGS		+= -B$(TOPSRC)/lib/ $(DEFS) -Wa,-x -Wall -Werror
+CFLAGS		= -Os -B$(TOPSRC)/lib/ $(DEFS) -Wa,-x -Wall -Werror
 
 OBJS		= w5100.o socket.o ethernet.o client.o server.o udp.o
 

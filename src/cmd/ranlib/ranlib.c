@@ -385,7 +385,8 @@ int build()
 	(void)lseek(tfd, (off_t)0, SEEK_SET);
 	SETCF(tfd, tname, afd, archive, RPAD|WPAD);
 	copy_ar(&cf, size);
-	(void)ftruncate(afd, lseek(afd, (off_t)0, SEEK_CUR));
+	if (ftruncate(afd, lseek(afd, (off_t)0, SEEK_CUR)) < 0)
+	        /* ignore */;
 	(void)close(tfd);
 
 	/* Set the time. */

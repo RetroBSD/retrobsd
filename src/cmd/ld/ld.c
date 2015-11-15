@@ -1568,7 +1568,8 @@ int main (argc, argv)
 
 	if (! ofilfnd) {
 		unlink ("a.out");
-		link ("l.out", "a.out");
+		if (link ("l.out", "a.out") < 0)
+		        perror("a.out");
 		ofilename = "a.out";
 	}
 	delarg = errlev;

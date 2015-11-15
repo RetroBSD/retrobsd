@@ -3,7 +3,7 @@ include $(TOPSRC)/target.mk
 
 vpath %.c $(TOPSRC)/src/libcurses
 
-CFLAGS		+= -B$(TOPSRC)/lib/ $(DEFS) -Wa,-x -Wall -Werror
+CFLAGS		= -Os -B$(TOPSRC)/lib/ $(DEFS) -Wa,-x -Wall -Werror
 
 OBJS		= addch.o addstr.o box.o clear.o clrtobot.o clrtoeol.o cr_put.o \
                   cr_tty.o curses.o delch.o deleteln.o delwin.o endwin.o erase.o \

@@ -91,6 +91,7 @@ exform(fcount, ifp, itype, ptype)
     struct {
         long    sa;
         int     sb, sc;
+        double  sd;     /* assume double = float = 32 bits */
     } fw;
 
     while (fcount > 0) {
@@ -225,18 +226,20 @@ exform(fcount, ifp, itype, ptype)
             break;
 
         case 'f':
-            *(double *)&fw = 0.0;
+        case 'F':
+            fw.sd = 0.0;
             fw.sa = wx;
-            print("%-16.9f", *(double *)&fw);
+            print("%-16.9f", fw.sd);
             dotinc = 4;
             break;
-
+#if 0
+/* 64-bit double not supported */
         case 'F':
             fw.sa = wx;
             print("%-32.18F", *(double *)&fw);
             dotinc = 8;
             break;
-
+#endif
         case 'n': case 'N':
             printc('\n');
             dotinc = 0;

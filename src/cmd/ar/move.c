@@ -136,7 +136,8 @@ move(argv)
 	cf.rfd = tfd3;
 	copy_ar(&cf, size);
 
-	(void)ftruncate(afd, tsize + SARMAG);
+	if (ftruncate(afd, tsize + SARMAG) < 0)
+	        /* ignore */;
 	close_archive(afd);
 
 	if (*argv) {

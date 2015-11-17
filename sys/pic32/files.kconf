@@ -73,6 +73,7 @@ pic32/glcd.c                    optional glcd
 pic32/gpanel.c                  optional gpanel
 pic32/gpanel-ili9341.c          optional gpanel
 pic32/gpanel-nt35702.c          optional gpanel
+pic32/gpanel-s6d04h0.c          optional gpanel
 pic32/gpanel-st7781.c           optional gpanel
 pic32/gpio.c                    optional gpio
 pic32/hx8357.c                  optional hxtft

@@ -598,8 +598,7 @@ static int probe(config)
         break;
 
     case 0:
-        /* Register #0 is zero.
-         * In this case the ID is available in register #4. */
+        /* Try ID from register #4. */
         _chip_id = read_reg32(4) & 0xffffff;
         switch (_chip_id) {
         default:
@@ -615,6 +614,22 @@ static int probe(config)
             /* Novatek NT35702. */
             nt35702_init_display(&hw);
             break;
+
+        case 0:
+            /* Try ID from register #D3.
+             * Samsung controller needs 120us to finish the reset. */
+            udelay(120000);
+            _chip_id = read_reg32(0xD3) & 0xffffff;
+            switch (_chip_id) {
+            default:
+                printf("gpanel0: Unknown chip ID_D3 = 0x%06x\n", _chip_id);
+                goto failed;
+
+            case 0x009341:
+                /* Samsung S6D04H0. */
+                s6d04h0_init_display(&hw);
+                break;
+            }
         }
         break;
     }

@@ -386,9 +386,16 @@ static void ili9341_draw_glyph(const struct gpanel_font_t *font,
  */
 void ili9341_init_display(struct gpanel_hw *h)
 {
+    /* Use a few NOPs to synchronize after the hard Reset. */
     gpanel_cs_active();
+    write_command(ILI9341_No_Operation);
+    write_command(ILI9341_No_Operation);
+    write_command(ILI9341_No_Operation);
+    write_command(ILI9341_No_Operation);
+
+    /* Need at least 200msec to restore after the soft Reset. */
     write_command(ILI9341_Software_Reset);
-    udelay(50000);
+    udelay(200000);
 
     write_command(ILI9341_Display_OFF);
 
@@ -405,7 +412,7 @@ void ili9341_init_display(struct gpanel_hw *h)
     write_command(ILI9341_VCOM_Control_2);
     write_data(0xC0);
 
-    set_rotation(1);                /* Landscape */
+    set_rotation(3);                /* Landscape */
 
     write_command(ILI9341_Pixel_Format_Set);
     write_data(0x55);
@@ -418,12 +425,9 @@ void ili9341_init_display(struct gpanel_hw *h)
     write_data(0x07);
 
     write_command(ILI9341_Sleep_OUT);
-    write_data(0);
     udelay(150000);
 
     write_command(ILI9341_Display_ON);
-    write_data(0);
-    udelay(500000);
 
     set_window(0, 0, _width-1, _height-1);
     gpanel_cs_idle();

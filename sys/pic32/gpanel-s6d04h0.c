@@ -122,8 +122,10 @@ static int _width, _height;
  */
 static void write_command(int cmd)
 {
+    gpanel_cs_active();
     gpanel_rs_command();
     gpanel_write_byte(cmd);
+    gpanel_cs_idle();
 }
 
 /*
@@ -131,8 +133,10 @@ static void write_command(int cmd)
  */
 static void write_data(int cmd)
 {
+    gpanel_cs_active();
     gpanel_rs_data();
     gpanel_write_byte(cmd);
+    gpanel_cs_idle();
 }
 
 /*
@@ -162,11 +166,9 @@ static void s6d04h0_set_pixel(int x, int y, int color)
 {
     if (x < 0 || x >= _width || y < 0 || y >= _height)
         return;
-    gpanel_cs_active();
     set_window(x, y, x, y);
     write_data(color >> 8);
     write_data(color);
-    gpanel_cs_idle();
 }
 
 /*
@@ -260,8 +262,6 @@ static void set_rotation(int rotation)
 
 static void s6d04h0_clear(struct gpanel_hw *h, int color, int width, int height)
 {
-    gpanel_cs_active();
-
     /* Switch screen orientaation. */
     if (width > height)
         set_rotation(1);        /* Landscape */
@@ -271,7 +271,6 @@ static void s6d04h0_clear(struct gpanel_hw *h, int color, int width, int height)
     /* Fill the screen with a color. */
     set_window(0, 0, _width-1, _height-1);
     flood(color, _width * _height);
-    gpanel_cs_idle();
 }
 
 /*
@@ -298,10 +297,8 @@ static void s6d04h0_fill_rectangle(int x0, int y0, int x1, int y1, int color)
         y0 = y1;
         y1 = t;
     }
-    gpanel_cs_active();
     set_window(x0, y0, x1, y1);
     flood(color, (x1 - x0 + 1) * (y1 - y0 + 1));
-    gpanel_cs_idle();
 }
 
 /*
@@ -313,7 +310,6 @@ static void s6d04h0_draw_image(int x, int y, int width, int height,
     unsigned cnt = width * height;
     int color;
 
-    gpanel_cs_active();
     set_window(x, y, x + width - 1, y + height - 1);
     gpanel_rs_data();
     while (cnt--) {
@@ -321,7 +317,6 @@ static void s6d04h0_draw_image(int x, int y, int width, int height,
         gpanel_write_byte(color >> 8);
         gpanel_write_byte(color);
     }
-    gpanel_cs_idle();
 }
 
 /*
@@ -338,8 +333,8 @@ static void s6d04h0_draw_glyph(const struct gpanel_font_t *font,
         /*
          * Clear background.
          */
-        gpanel_cs_active();
         set_window(x, y, x + width - 1, y + font->height - 1);
+        gpanel_cs_active();
         gpanel_rs_data();
 
         /* Loop on each glyph row. */
@@ -383,27 +378,223 @@ static void s6d04h0_draw_glyph(const struct gpanel_font_t *font,
  */
 void s6d04h0_init_display(struct gpanel_hw *h)
 {
-    gpanel_cs_active();
-    write_command(S6D04H0_Software_Reset);
-    udelay(50000);
+    write_command(S6D04H0_PASSWD1);
+    write_data(0x5A);
+    write_data(0x5A);
+
+    write_command(0xFC);
+    write_data(0x5A);
+    write_data(0x5A);
+
+    write_command(0xFD);
+    write_data(0x00);
+    write_data(0x00);
+    write_data(0x10);
+    write_data(0x14);
+    write_data(0x12);
+    write_data(0x00);
+    write_data(0x04);
+    write_data(0x48);
+    write_data(0x40);
+    write_data(0x16);
+    write_data(0x16);
+
+    write_command(S6D04H0_Tearing_Effect_Line_On);
 
     write_command(S6D04H0_Display_Off);
 
-    set_rotation(1);                /* Landscape */
+    set_rotation(3);
 
     write_command(S6D04H0_Interface_Pixel_Format);
     write_data(0x55);
 
+    write_command(S6D04H0_DISCTL);
+    write_data(0x28);
+    write_data(0x5B);
+    write_data(0x7F);
+    write_data(0x08);
+    write_data(0x08);
+    write_data(0x00);
+    write_data(0x00);
+    write_data(0x15);
+    write_data(0x48);
+    write_data(0x04);
+    write_data(0x07);
+    write_data(0x01);
+    write_data(0x00);
+    write_data(0x00);
+    write_data(0x63);
+    write_data(0x08);
+    write_data(0x08);
+
+    write_command(S6D04H0_IFCTL);
+    write_data(0x01);
+    write_data(0x00);
+    write_data(0x10);
+    write_data(0x00);
+
+    write_command(S6D04H0_PANELCTL);
+    write_data(0x33);
+    write_data(0x00);
+    write_data(0x00);
+
+    write_command(S6D04H0_SRCCTL);
+    write_data(0x01);
+    write_data(0x01);
+    write_data(0x07);
+    write_data(0x00);
+    write_data(0x01);
+    write_data(0x0C);
+    write_data(0x03);
+    write_data(0x0C);
+    write_data(0x03);
+
+    write_command(S6D04H0_VCMCTL);
+    write_data(0x00);
+    write_data(0x2E);
+    write_data(0x40);
+    write_data(0x00);
+    write_data(0x00);
+    write_data(0x01);
+    write_data(0x00);
+    write_data(0x00);
+    write_data(0x0D);
+    write_data(0x0D);
+    write_data(0x00);
+    write_data(0x00);
+
+    write_command(S6D04H0_PWRCTL);
+    write_data(0x07);
+    write_data(0x00);
+    write_data(0x00);
+    write_data(0x00);
+    write_data(0x22);
+    write_data(0x64);
+    write_data(0x01);
+    write_data(0x02);
+    write_data(0x2A);
+    write_data(0x4D);
+    write_data(0x06);
+    write_data(0x2A);
+    write_data(0x00);
+    write_data(0x06);
+    write_data(0x00);
+    write_data(0x00);
+    write_data(0x00);
+    write_data(0x00);
+    write_data(0x00);
+    write_data(0x00);
+
+    write_command(S6D04H0_MANPWRSEQ);
+    write_data(0x01);
+
+    write_command(S6D04H0_GAMMASEL);
+    write_data(0x04);
+
+    write_command(S6D04H0_PGAMMACTL);
+    write_data(0x0A);
+    write_data(0x04);
+    write_data(0x0C);
+    write_data(0x19);
+    write_data(0x25);
+    write_data(0x33);
+    write_data(0x2D);
+    write_data(0x27);
+    write_data(0x22);
+    write_data(0x1E);
+    write_data(0x1A);
+    write_data(0x00);
+
+    write_command(S6D04H0_NGAMMACTL);
+    write_data(0x0C);
+    write_data(0x04);
+    write_data(0x19);
+    write_data(0x1E);
+    write_data(0x20);
+    write_data(0x23);
+    write_data(0x18);
+    write_data(0x3D);
+    write_data(0x25);
+    write_data(0x19);
+    write_data(0x0B);
+    write_data(0x00);
+
+    write_command(S6D04H0_GAMMASEL);
+    write_data(0x02);
+
+    write_command(S6D04H0_PGAMMACTL);
+    write_data(0x0A);
+    write_data(0x04);
+    write_data(0x0C);
+    write_data(0x19);
+    write_data(0x25);
+    write_data(0x33);
+    write_data(0x2D);
+    write_data(0x27);
+    write_data(0x22);
+    write_data(0x1E);
+    write_data(0x1A);
+    write_data(0x00);
+
+    write_command(S6D04H0_NGAMMACTL);
+    write_data(0x0C);
+    write_data(0x04);
+    write_data(0x19);
+    write_data(0x1E);
+    write_data(0x20);
+    write_data(0x23);
+    write_data(0x18);
+    write_data(0x3D);
+    write_data(0x25);
+    write_data(0x19);
+    write_data(0x0B);
+    write_data(0x00);
+
+    write_command(S6D04H0_GAMMASEL);
+    write_data(0x01);
+
+    write_command(S6D04H0_PGAMMACTL);
+    write_data(0x0A);
+    write_data(0x04);
+    write_data(0x0C);
+    write_data(0x19);
+    write_data(0x25);
+    write_data(0x33);
+    write_data(0x2D);
+    write_data(0x27);
+    write_data(0x22);
+    write_data(0x1E);
+    write_data(0x1A);
+    write_data(0x00);
+
+    write_command(S6D04H0_NGAMMACTL);
+    write_data(0x0C);
+    write_data(0x04);
+    write_data(0x19);
+    write_data(0x1E);
+    write_data(0x20);
+    write_data(0x23);
+    write_data(0x18);
+    write_data(0x3D);
+    write_data(0x25);
+    write_data(0x19);
+    write_data(0x0B);
+    write_data(0x00);
+
     write_command(S6D04H0_Sleep_Out);
-    write_data(0);
     udelay(150000);
 
+    write_command(S6D04H0_PASSWD1);
+    write_data(0xA5);
+    write_data(0xA5);
+
+    write_command(0xFC);
+    write_data(0xA5);
+    write_data(0xA5);
+
     write_command(S6D04H0_Display_On);
-    write_data(0);
-    udelay(500000);
 
     set_window(0, 0, _width-1, _height-1);
-    gpanel_cs_idle();
 
     /*
      * Fill the gpanel_hw descriptor.

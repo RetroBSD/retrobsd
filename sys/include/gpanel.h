@@ -138,6 +138,8 @@ extern void gpanel_cs_idle(void);
 extern void gpanel_rs_command(void);
 extern void gpanel_rs_data(void);
 extern void gpanel_wr_strobe(void);
+extern void gpanel_read_dir(void);
+extern void gpanel_write_dir(void);
 
 /*
  * Descriptor for access to the hardware-level driver.

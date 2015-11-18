@@ -96,7 +96,7 @@ static int _chip_id;
 /*
  * Set direction of data bus as output.
  */
-static void set_write_dir()
+void gpanel_write_dir()
 {
     TRIS_CLR(LCD_D0_PORT) = 1 << LCD_D0_PIN;
     TRIS_CLR(LCD_D1_PORT) = 1 << LCD_D1_PIN;
@@ -111,7 +111,7 @@ static void set_write_dir()
 /*
  * Set direction of data bus as input.
  */
-static void set_read_dir()
+void gpanel_read_dir()
 {
     TRIS_SET(LCD_D0_PORT) = 1 << LCD_D0_PIN;
     TRIS_SET(LCD_D1_PORT) = 1 << LCD_D1_PIN;
@@ -228,11 +228,11 @@ static int read_reg16(int reg)
     RS_COMMAND();
     //gpanel_write_byte(reg >> 8);
     gpanel_write_byte(reg);
-    set_read_dir();         // Switch data bus to input
+    gpanel_read_dir();         // Switch data bus to input
     RS_DATA();
     value = gpanel_read_byte() << 8;
     value |= gpanel_read_byte();
-    set_write_dir();        // Restore data bus as output
+    gpanel_write_dir();        // Restore data bus as output
     CS_IDLE();
     return value;
 }
@@ -247,13 +247,13 @@ static int read_reg32(int reg)
     CS_ACTIVE();
     RS_COMMAND();
     gpanel_write_byte(reg);
-    set_read_dir();         // Switch data bus to input
+    gpanel_read_dir();         // Switch data bus to input
     RS_DATA();
     value = gpanel_read_byte() << 24;
     value |= gpanel_read_byte() << 16;
     value |= gpanel_read_byte() << 8;
     value |= gpanel_read_byte();
-    set_write_dir();        // Restore data bus as output
+    gpanel_write_dir();        // Restore data bus as output
     CS_IDLE();
     return value;
 }
@@ -554,6 +554,37 @@ int gpanel_ioctl(dev_t dev, register u_int cmd, caddr_t addr, int flag)
 }
 
 /*
+ * Read the the chip ID register.
+ * Some controllers have a register #0
+ * programmed with unique chip ID.
+ */
+static int read_id()
+{
+    int id, retry;
+
+    /* Some controllers have a register #0
+     * programmed with unique chip ID. */
+    id = read_reg16(0);
+    if (id != 0)
+        return id;
+
+    /* Try ID from register #4. */
+    id = read_reg32(4) & 0xffffff;
+    if (id != 0)
+        return id;
+
+    /* Try ID from register #D3.
+     * Might need to wait until the register becomes alive after Reset. */
+    for (retry=0; retry<5; retry++) {
+        id = read_reg32(0xD3) & 0xffffff;
+        if (id != 0)
+            return id;
+        udelay(50000);
+    }
+    return 0;
+}
+
+/*
  * Detect the type of the LCD controller, and initialize it.
  * Return true if found and initialized ok.
  */
@@ -575,7 +606,7 @@ static int probe(config)
     TRIS_CLR(LCD_WR_PORT) = 1 << LCD_WR_PIN;
     TRIS_CLR(LCD_RD_PORT) = 1 << LCD_RD_PIN;
     TRIS_CLR(LCD_RST_PORT) = 1 << LCD_RST_PIN;
-    set_write_dir();
+    gpanel_write_dir();
 
     /* Reset the chip. */
     RST_ACTIVE();
@@ -586,10 +617,10 @@ static int probe(config)
     /* Read the the chip ID register.
      * Some controllers have a register #0
      * programmed with unique chip ID. */
-    _chip_id = read_reg16(0);
+    _chip_id = read_id();
     switch (_chip_id) {
     default:
-        printf("gpanel0: Unknown chip ID0 = 0x%04x\n", _chip_id);
+        printf("gpanel0: Unknown chip ID = 0x%04x\n", _chip_id);
         goto failed;
 
     case 0x7783:
@@ -597,40 +628,14 @@ static int probe(config)
         st7781_init_display(&hw);
         break;
 
-    case 0:
-        /* Try ID from register #4. */
-        _chip_id = read_reg32(4) & 0xffffff;
-        switch (_chip_id) {
-        default:
-            printf("gpanel0: Unknown chip ID4 = 0x%06x\n", _chip_id);
-            goto failed;
+    case 0x009341:
+        /* Ilitek ILI9341. */
+        ili9341_init_display(&hw);
+        break;
 
-        case 0x009341:
-            /* Ilitek ILI9341. */
-            ili9341_init_display(&hw);
-            break;
-
-        case 0x388000:
-            /* Novatek NT35702. */
-            nt35702_init_display(&hw);
-            break;
-
-        case 0:
-            /* Try ID from register #D3.
-             * Samsung controller needs 120us to finish the reset. */
-            udelay(120000);
-            _chip_id = read_reg32(0xD3) & 0xffffff;
-            switch (_chip_id) {
-            default:
-                printf("gpanel0: Unknown chip ID_D3 = 0x%06x\n", _chip_id);
-                goto failed;
-
-            case 0x009341:
-                /* Samsung S6D04H0. */
-                s6d04h0_init_display(&hw);
-                break;
-            }
-        }
+    case 0x388000:
+        /* Novatek NT35702. */
+        nt35702_init_display(&hw);
         break;
     }
     printf("gpanel0: <%s> display %ux%u\n", hw.name, hw.width, hw.height);
@@ -638,7 +643,7 @@ static int probe(config)
 
 failed:
     /* Disable outputs. */
-    set_read_dir();
+    gpanel_read_dir();
     TRIS_SET(LCD_CS_PORT) = 1 << LCD_CS_PIN;
     TRIS_SET(LCD_RS_PORT) = 1 << LCD_RS_PIN;
     TRIS_SET(LCD_WR_PORT) = 1 << LCD_WR_PIN;

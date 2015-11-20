@@ -1,6 +1,6 @@
 /*
  * Generic TFT LCD driver for PIC32.
- * Supported chips: ST7781.
+ * Supported chips: ST7781, NT35702, ILI9341.
  *
  * Copyright (C) 2015 Serge Vakulenko <serge@vak.ru>
  *
@@ -554,6 +554,41 @@ int gpanel_ioctl(dev_t dev, register u_int cmd, caddr_t addr, int flag)
 }
 
 /*
+ * Draw a BSD logo on the screen.
+ */
+static void draw_logo()
+{
+#define K       7
+#define COLOR_B 0xf81f
+#define COLOR_S 0x07ff
+#define COLOR_D 0xffe0
+
+    int x = hw.width/2  - 17*K;
+    int y = hw.height/2 + 11*K;
+
+    hw.clear(&hw, 0, 0, 0);
+
+    /* B */
+    gpanel_draw_line( 0*K+x, y- 0*K,  0*K+x, y-11*K, COLOR_B);
+    gpanel_draw_line( 0*K+x, y-11*K,  0*K+x, y-22*K, COLOR_B);
+    gpanel_draw_line( 0*K+x, y-22*K, 10*K+x, y-19*K, COLOR_B);
+    gpanel_draw_line(10*K+x, y-19*K,  0*K+x, y-11*K, COLOR_B);
+    gpanel_draw_line( 0*K+x, y-11*K, 10*K+x, y- 8*K, COLOR_B);
+    gpanel_draw_line(10*K+x, y- 8*K,  0*K+x, y- 0*K, COLOR_B);
+
+    /* S */
+    gpanel_draw_line(22*K+x, y-22*K, 12*K+x, y-19*K, COLOR_S);
+    gpanel_draw_line(12*K+x, y-19*K, 22*K+x, y- 8*K, COLOR_S);
+    gpanel_draw_line(22*K+x, y- 8*K, 12*K+x, y- 0*K, COLOR_S);
+
+    /* D */
+    gpanel_draw_line(24*K+x, y-22*K, 24*K+x, y- 0*K, COLOR_D);
+    gpanel_draw_line(24*K+x, y-22*K, 34*K+x, y-19*K, COLOR_D);
+    gpanel_draw_line(34*K+x, y-19*K, 34*K+x, y- 8*K, COLOR_D);
+    gpanel_draw_line(34*K+x, y- 8*K, 24*K+x, y- 0*K, COLOR_D);
+}
+
+/*
  * Read the the chip ID register.
  * Some controllers have a register #0
  * programmed with unique chip ID.
@@ -639,6 +674,7 @@ static int probe(config)
         break;
     }
     printf("gpanel0: <%s> display %ux%u\n", hw.name, hw.width, hw.height);
+    draw_logo();
     return 1;
 
 failed:

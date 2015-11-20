@@ -25,11 +25,6 @@
 #include <sys/gpanel.h>
 
 /*
- * Display size.
- */
-static int _width, _height;
-
-/*
  * ILI9341 registers.
  */
 #define ILI9341_No_Operation                                0x00
@@ -160,9 +155,9 @@ static void set_window(int x0, int y0, int x1, int y1)
 /*
  * Draw a pixel.
  */
-static void ili9341_set_pixel(int x, int y, int color)
+void ili9341_set_pixel(int x, int y, int color)
 {
-    if (x < 0 || x >= _width || y < 0 || y >= _height)
+    if (x < 0 || x >= gpanel_width || y < 0 || y >= gpanel_height)
         return;
     gpanel_cs_active();
     set_window(x, y, x, y);
@@ -239,28 +234,28 @@ static void set_rotation(int rotation)
     switch (rotation & 3) {
     case 0:                     /* Portrait */
         write_data(MADCTL_MX | MADCTL_BGR);
-        _width  = 240;
-        _height = 320;
+        gpanel_width  = 240;
+        gpanel_height = 320;
         break;
     case 1:                     /* Landscape */
         write_data(MADCTL_MV | MADCTL_BGR);
-        _width  = 320;
-        _height = 240;
+        gpanel_width  = 320;
+        gpanel_height = 240;
         break;
     case 2:                     /* Upside down portrait */
         write_data(MADCTL_MY | MADCTL_BGR);
-        _width  = 240;
-        _height = 320;
+        gpanel_width  = 240;
+        gpanel_height = 320;
         break;
     case 3:                     /* Upside down landscape */
         write_data(MADCTL_MX | MADCTL_MY | MADCTL_MV | MADCTL_BGR);
-        _width  = 320;
-        _height = 240;
+        gpanel_width  = 320;
+        gpanel_height = 240;
         break;
     }
 }
 
-static void ili9341_clear(struct gpanel_hw *h, int color, int width, int height)
+static void ili9341_resize(struct gpanel_hw *h, int width, int height)
 {
     gpanel_cs_active();
 
@@ -270,25 +265,22 @@ static void ili9341_clear(struct gpanel_hw *h, int color, int width, int height)
     else if (width < height)
         set_rotation(0);        /* Portrait */
 
-    /* Fill the screen with a color. */
-    set_window(0, 0, _width-1, _height-1);
-    flood(color, _width * _height);
     gpanel_cs_idle();
 }
 
 /*
  * Fill a rectangle with specified color.
  */
-static void ili9341_fill_rectangle(int x0, int y0, int x1, int y1, int color)
+void ili9341_fill_rectangle(int x0, int y0, int x1, int y1, int color)
 {
     if (x0 < 0) x0 = 0;
     if (y0 < 0) x0 = 0;
     if (x1 < 0) x1 = 0;
     if (y1 < 0) x1 = 0;
-    if (x0 >= _width) x0 = _width-1;
-    if (x1 >= _width) x1 = _width-1;
-    if (y0 >= _height) y0 = _height-1;
-    if (y1 >= _height) y1 = _height-1;
+    if (x0 >= gpanel_width) x0 = gpanel_width-1;
+    if (x1 >= gpanel_width) x1 = gpanel_width-1;
+    if (y0 >= gpanel_height) y0 = gpanel_height-1;
+    if (y1 >= gpanel_height) y1 = gpanel_height-1;
 
     if (x1 < x0) {
         int t = x0;
@@ -309,7 +301,7 @@ static void ili9341_fill_rectangle(int x0, int y0, int x1, int y1, int color)
 /*
  * Fill a rectangle with user data.
  */
-static void ili9341_draw_image(int x, int y, int width, int height,
+void ili9341_draw_image(int x, int y, int width, int height,
     const unsigned short *data)
 {
     unsigned cnt = width * height;
@@ -329,14 +321,14 @@ static void ili9341_draw_image(int x, int y, int width, int height,
 /*
  * Draw a glyph of one symbol.
  */
-static void ili9341_draw_glyph(const struct gpanel_font_t *font,
+void ili9341_draw_glyph(const struct gpanel_font_t *font,
     int color, int background, int x, int y, int width,
     const unsigned short *bits)
 {
     int h, w, c;
     unsigned bitmask = 0;
 
-    if (x + width > _width ||  y + font->height > _height)
+    if (x + width > gpanel_width ||  y + font->height > gpanel_height)
         return;
 
     if (background >= 0) {
@@ -426,16 +418,14 @@ void ili9341_init_display(struct gpanel_hw *h)
     write_command(ILI9341_Display_ON);
 
     set_rotation(1);                /* Landscape */
-    set_window(0, 0, _width-1, _height-1);
+    set_window(0, 0, gpanel_width-1, gpanel_height-1);
     gpanel_cs_idle();
 
     /*
      * Fill the gpanel_hw descriptor.
      */
     h->name           = "Ilitek ILI9341";
-    h->width          = _width;
-    h->height         = _height;
-    h->clear          = ili9341_clear;
+    h->resize         = ili9341_resize;
     h->set_pixel      = ili9341_set_pixel;
     h->fill_rectangle = ili9341_fill_rectangle;
     h->draw_image     = ili9341_draw_image;

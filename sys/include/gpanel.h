@@ -146,9 +146,7 @@ extern void gpanel_write_dir(void);
  */
 struct gpanel_hw {
     const char *name;
-    int width;
-    int height;
-    void (*clear)(struct gpanel_hw *hw, int color, int width, int height);
+    void (*resize)(struct gpanel_hw *hw, int width, int height);
     void (*set_pixel)(int x, int y, int color);
     void (*fill_rectangle)(int x0, int y0, int x1, int y1, int color);
     void (*draw_image)(int x, int y, int width, int height,
@@ -157,6 +155,8 @@ struct gpanel_hw {
         int color, int background, int x, int y, int width,
         const unsigned short *bits);
 };
+extern int gpanel_width;
+extern int gpanel_height;
 extern void st7781_init_display(struct gpanel_hw *hw);
 extern void nt35702_init_display(struct gpanel_hw *hw);
 extern void ili9341_init_display(struct gpanel_hw *hw);

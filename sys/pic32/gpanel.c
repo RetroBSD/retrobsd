@@ -48,6 +48,11 @@ static int _col, _row;
 static int _chip_id;
 
 /*
+ * Display size.
+ */
+int gpanel_width, gpanel_height;
+
+/*
  * Delay for 100 nanoseconds.
  * Needed to match the /WR and /RD timing requirements.
  */
@@ -372,7 +377,7 @@ static void gpanel_draw_char(const struct gpanel_font_t *font,
     case '\n':      /* goto next line */
         _row += font->height;
         _col = 0;
-        if (_row > hw.height - font->height)
+        if (_row > gpanel_height - font->height)
             _row = 0;
         return;
     case '\r':      /* carriage return - go to begin of line */
@@ -460,9 +465,11 @@ int gpanel_ioctl(dev_t dev, register u_int cmd, caddr_t addr, int flag)
         case GPANEL_CLEAR: {
             struct gpanel_clear_t *param = (struct gpanel_clear_t*) addr;
 
-            hw.clear(&hw, param->color, param->xsize, param->ysize);
-            param->xsize = hw.width;
-            param->ysize = hw.height;
+            if (hw.resize != 0)
+                hw.resize(&hw, param->xsize, param->ysize);
+            hw.fill_rectangle(0, 0, gpanel_width - 1, gpanel_height - 1, param->color);
+            param->xsize = gpanel_width;
+            param->ysize = gpanel_height;
             break;
         }
 
@@ -563,10 +570,10 @@ static void draw_logo()
 #define COLOR_S 0x07ff
 #define COLOR_D 0xffe0
 
-    int x = hw.width/2  - 17*K;
-    int y = hw.height/2 + 11*K;
+    int x = gpanel_width/2  - 17*K;
+    int y = gpanel_height/2 + 11*K;
 
-    hw.clear(&hw, 0, 0, 0);
+    hw.fill_rectangle(0, 0, gpanel_width - 1, gpanel_height - 1, 0);
 
     /* B */
     gpanel_draw_line( 0*K+x, y- 0*K,  0*K+x, y-11*K, COLOR_B);
@@ -673,7 +680,7 @@ static int probe(config)
         nt35702_init_display(&hw);
         break;
     }
-    printf("gpanel0: <%s> display %ux%u\n", hw.name, hw.width, hw.height);
+    printf("gpanel0: <%s> display %ux%u\n", hw.name, gpanel_width, gpanel_height);
     draw_logo();
     return 1;
 

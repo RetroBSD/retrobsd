@@ -194,14 +194,6 @@ static void flood(int color, int npixels)
     gpanel_cs_idle();
 }
 
-static void st7781_clear(struct gpanel_hw *h, int color, int width, int height)
-{
-    gpanel_cs_active();
-    write_reg(ST7781_DRAM_Horizontal_Address_Set, 0);
-    write_reg(ST7781_DRAM_Vertical_Address_Set,   0);
-    flood(color, WIDTH * HEIGHT);
-}
-
 /*
  * Fill a rectangle with specified color.
  */
@@ -370,11 +362,10 @@ void st7781_init_display(struct gpanel_hw *h)
 
     /* Fill the gpanel_hw descriptor. */
     h->name           = "Sitronix ST7781";
-    h->width          = WIDTH;
-    h->height         = HEIGHT;
-    h->clear          = st7781_clear;
     h->set_pixel      = st7781_set_pixel;
     h->fill_rectangle = st7781_fill_rectangle;
     h->draw_image     = st7781_draw_image;
     h->draw_glyph     = st7781_draw_glyph;
+    gpanel_width      = WIDTH;
+    gpanel_height     = HEIGHT;
 }

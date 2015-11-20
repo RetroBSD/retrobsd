@@ -1,5 +1,7 @@
 /*
  * Display driver for NT35702 LCD controller.
+ * This controller is partially compatible with ILI9341 chip,
+ * so we can reuse most of ili9341_xxx() routines.
  *
  * Copyright (C) 2015 Serge Vakulenko <serge@vak.ru>
  *
@@ -23,11 +25,6 @@
  */
 #include <sys/param.h>
 #include <sys/gpanel.h>
-
-/*
- * Display size.
- */
-static int _width, _height;
 
 /*
  * NT35702 registers.
@@ -121,6 +118,17 @@ static int _width, _height;
 #define MADCTL_MH           0x04    /* Horisontal refresh direction: 1=left-to-right */
 
 /*
+ * Reuse ILI9341 routines.
+ */
+extern void ili9341_set_pixel(int x, int y, int color);
+extern void ili9341_fill_rectangle(int x0, int y0, int x1, int y1, int color);
+extern void ili9341_draw_image(int x, int y, int width, int height,
+    const unsigned short *data);
+extern void ili9341_draw_glyph(const struct gpanel_font_t *font,
+    int color, int background, int x, int y, int width,
+    const unsigned short *bits);
+
+/*
  * Write a 8-bit value to the NT35702 Command register.
  */
 static void write_command(int cmd)
@@ -139,99 +147,6 @@ static void write_data(int cmd)
 }
 
 /*
- * Set address window.
- */
-static void set_window(int x0, int y0, int x1, int y1)
-{
-    write_command(NT35702_CASET);
-    write_data(x0 >> 8);
-    gpanel_write_byte(x0);
-    gpanel_write_byte(x1 >> 8);
-    gpanel_write_byte(x1);
-
-    write_command(NT35702_RASET);
-    write_data(y0 >> 8);
-    gpanel_write_byte(y0);
-    gpanel_write_byte(y1 >> 8);
-    gpanel_write_byte(y1);
-
-    write_command(NT35702_RAMWR);
-}
-
-/*
- * Draw a pixel.
- */
-static void nt35702_set_pixel(int x, int y, int color)
-{
-    if (x < 0 || x >= _width || y < 0 || y >= _height)
-        return;
-    gpanel_cs_active();
-    set_window(x, y, x, y);
-    write_data(color >> 8);
-    write_data(color);
-    gpanel_cs_idle();
-}
-
-/*
- * Fast block fill operation.
- * Requires set_window() has previously been called to set
- * the fill bounds.
- * 'npixels' is inclusive, MUST be >= 1.
- */
-static void flood(int color, int npixels)
-{
-    unsigned blocks, i;
-    unsigned hi = color >> 8,
-             lo = color;
-
-    /* Write first pixel normally, decrement counter by 1. */
-    gpanel_rs_data();
-    gpanel_write_byte(hi);
-    gpanel_write_byte(lo);
-    npixels--;
-
-    /* 64 pixels/block. */
-    blocks = npixels >> 6;
-    if (hi == lo) {
-        /* High and low bytes are identical.  Leave prior data
-         * on the port(s) and just toggle the write strobe. */
-        while (blocks--) {
-            /* 64 pixels/block / 4 pixels/pass. */
-            for (i = 16; i > 0; i--) {
-                /* 2 bytes/pixel x 4 pixels. */
-                gpanel_wr_strobe();
-                gpanel_wr_strobe();
-                gpanel_wr_strobe();
-                gpanel_wr_strobe();
-                gpanel_wr_strobe();
-                gpanel_wr_strobe();
-                gpanel_wr_strobe();
-                gpanel_wr_strobe();
-            }
-        }
-        /* Fill any remaining pixels (1 to 64). */
-        for (i = npixels & 63; i > 0; i--) {
-            gpanel_wr_strobe();
-            gpanel_wr_strobe();
-        }
-    } else {
-        while (blocks--) {
-            /* 64 pixels/block / 4 pixels/pass. */
-            for (i = 16; i > 0; i--) {
-                gpanel_write_byte(hi); gpanel_write_byte(lo);
-                gpanel_write_byte(hi); gpanel_write_byte(lo);
-                gpanel_write_byte(hi); gpanel_write_byte(lo);
-                gpanel_write_byte(hi); gpanel_write_byte(lo);
-            }
-        }
-        for (i = npixels & 63; i > 0; i--) {
-            gpanel_write_byte(hi);
-            gpanel_write_byte(lo);
-        }
-    }
-}
-
-/*
  * Switch the screen orientation.
  */
 static void set_rotation(int rotation)
@@ -240,28 +155,28 @@ static void set_rotation(int rotation)
     switch (rotation & 3) {
     case 0:                     /* Portrait */
         write_data(MADCTL_MX | MADCTL_MY | MADCTL_BGR);
-        _width  = 240;
-        _height = 320;
+        gpanel_width  = 240;
+        gpanel_height = 320;
         break;
     case 1:                     /* Landscape */
         write_data(MADCTL_MY | MADCTL_MV | MADCTL_BGR);
-        _width  = 320;
-        _height = 240;
+        gpanel_width  = 320;
+        gpanel_height = 240;
         break;
     case 2:                     /* Upside down portrait */
         write_data(MADCTL_BGR);
-        _width  = 240;
-        _height = 320;
+        gpanel_width  = 240;
+        gpanel_height = 320;
         break;
     case 3:                     /* Upside down landscape */
         write_data(MADCTL_MX | MADCTL_MV | MADCTL_BGR);
-        _width  = 320;
-        _height = 240;
+        gpanel_width  = 320;
+        gpanel_height = 240;
         break;
     }
 }
 
-static void nt35702_clear(struct gpanel_hw *h, int color, int width, int height)
+static void nt35702_resize(struct gpanel_hw *h, int width, int height)
 {
     gpanel_cs_active();
 
@@ -271,116 +186,7 @@ static void nt35702_clear(struct gpanel_hw *h, int color, int width, int height)
     else if (width < height)
         set_rotation(0);        /* Portrait */
 
-    /* Fill the screen with a color. */
-    set_window(0, 0, _width-1, _height-1);
-    flood(color, _width * _height);
     gpanel_cs_idle();
-}
-
-/*
- * Fill a rectangle with specified color.
- */
-static void nt35702_fill_rectangle(int x0, int y0, int x1, int y1, int color)
-{
-    if (x0 < 0) x0 = 0;
-    if (y0 < 0) x0 = 0;
-    if (x1 < 0) x1 = 0;
-    if (y1 < 0) x1 = 0;
-    if (x0 >= _width) x0 = _width-1;
-    if (x1 >= _width) x1 = _width-1;
-    if (y0 >= _height) y0 = _height-1;
-    if (y1 >= _height) y1 = _height-1;
-
-    if (x1 < x0) {
-        int t = x0;
-        x0 = x1;
-        x1 = t;
-    }
-    if (y1 < y0) {
-        int t = y0;
-        y0 = y1;
-        y1 = t;
-    }
-    gpanel_cs_active();
-    set_window(x0, y0, x1, y1);
-    flood(color, (x1 - x0 + 1) * (y1 - y0 + 1));
-    gpanel_cs_idle();
-}
-
-/*
- * Fill a rectangle with user data.
- */
-static void nt35702_draw_image(int x, int y, int width, int height,
-    const unsigned short *data)
-{
-    unsigned cnt = width * height;
-    int color;
-
-    gpanel_cs_active();
-    set_window(x, y, x + width - 1, y + height - 1);
-    gpanel_rs_data();
-    while (cnt--) {
-        color = *data++;
-        gpanel_write_byte(color >> 8);
-        gpanel_write_byte(color);
-    }
-    gpanel_cs_idle();
-}
-
-/*
- * Draw a glyph of one symbol.
- */
-static void nt35702_draw_glyph(const struct gpanel_font_t *font,
-    int color, int background, int x, int y, int width,
-    const unsigned short *bits)
-{
-    int h, w, c;
-    unsigned bitmask = 0;
-
-    if (x + width > _width ||  y + font->height > _height)
-        return;
-
-    if (background >= 0) {
-        /*
-         * Clear background.
-         */
-        gpanel_cs_active();
-        set_window(x, y, x + width - 1, y + font->height - 1);
-        gpanel_rs_data();
-
-        /* Loop on each glyph row. */
-        for (h=0; h<font->height; h++) {
-            /* Loop on every pixel in the row (left to right). */
-            for (w=0; w<width; w++) {
-                if ((w & 15) == 0)
-                    bitmask = *bits++;
-                else
-                    bitmask <<= 1;
-
-                c = (bitmask & 0x8000) ? color : background;
-                gpanel_write_byte(c >> 8);
-                gpanel_write_byte(c);
-            }
-        }
-        gpanel_cs_idle();
-    } else {
-        /*
-         * Transparent background.
-         */
-        /* Loop on each glyph row. */
-        for (h=0; h<font->height; h++) {
-            /* Loop on every pixel in the row (left to right). */
-            for (w=0; w<width; w++) {
-                if ((w & 15) == 0)
-                    bitmask = *bits++;
-                else
-                    bitmask <<= 1;
-
-                if (bitmask & 0x8000)
-                    nt35702_set_pixel(x + w, y + h, color);
-            }
-        }
-    }
 }
 
 /*
@@ -484,11 +290,9 @@ void nt35702_init_display(struct gpanel_hw *h)
      * Fill the gpanel_hw descriptor.
      */
     h->name           = "Novatek NT35702";
-    h->width          = _width;
-    h->height         = _height;
-    h->clear          = nt35702_clear;
-    h->set_pixel      = nt35702_set_pixel;
-    h->fill_rectangle = nt35702_fill_rectangle;
-    h->draw_image     = nt35702_draw_image;
-    h->draw_glyph     = nt35702_draw_glyph;
+    h->resize         = nt35702_resize;
+    h->set_pixel      = ili9341_set_pixel;
+    h->fill_rectangle = ili9341_fill_rectangle;
+    h->draw_image     = ili9341_draw_image;
+    h->draw_glyph     = ili9341_draw_glyph;
 }

@@ -112,13 +112,12 @@ static int _width, _height;
 /*
  * Memory Access Control register
  */
-#define MADCTL_MY           0x80
-#define MADCTL_MX           0x40
-#define MADCTL_MV           0x20
-#define MADCTL_ML           0x10
-#define MADCTL_BGR          0x08
-#define MADCTL_MH           0x04
-#define MADCTL_RGB          0x00
+#define MADCTL_MY           0x80    /* Row address order */
+#define MADCTL_MX           0x40    /* Column address order */
+#define MADCTL_MV           0x20    /* Row/column exchange */
+#define MADCTL_ML           0x10    /* Vertical refresh order */
+#define MADCTL_BGR          0x08    /* Color filter selector: 0=RGB, 1=BGR */
+#define MADCTL_MH           0x04    /* Horisontal refresh direction: 1=left-to-right */
 
 /*
  * Write a 8-bit value to the ILI9341 Command register.
@@ -239,22 +238,22 @@ static void set_rotation(int rotation)
     write_command(ILI9341_Memory_Access_Control);
     switch (rotation & 3) {
     case 0:                     /* Portrait */
-        write_data(MADCTL_MY | MADCTL_BGR);
-        _width  = 240;
-        _height = 320;
-        break;
-    case 1:                     /* Landscape */
-        write_data(MADCTL_MX | MADCTL_MY | MADCTL_MV | MADCTL_BGR);
-        _width  = 320;
-        _height = 240;
-        break;
-    case 2:                     /* Upside down portrait */
         write_data(MADCTL_MX | MADCTL_BGR);
         _width  = 240;
         _height = 320;
         break;
-    case 3:                     /* Upside down landscape */
+    case 1:                     /* Landscape */
         write_data(MADCTL_MV | MADCTL_BGR);
+        _width  = 320;
+        _height = 240;
+        break;
+    case 2:                     /* Upside down portrait */
+        write_data(MADCTL_MY | MADCTL_BGR);
+        _width  = 240;
+        _height = 320;
+        break;
+    case 3:                     /* Upside down landscape */
+        write_data(MADCTL_MX | MADCTL_MY | MADCTL_MV | MADCTL_BGR);
         _width  = 320;
         _height = 240;
         break;
@@ -337,6 +336,9 @@ static void ili9341_draw_glyph(const struct gpanel_font_t *font,
     int h, w, c;
     unsigned bitmask = 0;
 
+    if (x + width > _width ||  y + font->height > _height)
+        return;
+
     if (background >= 0) {
         /*
          * Clear background.
@@ -393,9 +395,8 @@ void ili9341_init_display(struct gpanel_hw *h)
     write_command(ILI9341_No_Operation);
     write_command(ILI9341_No_Operation);
 
-    /* Need at least 200msec to restore after the soft Reset. */
-    write_command(ILI9341_Software_Reset);
-    udelay(200000);
+    write_command(ILI9341_Sleep_OUT);
+    udelay(150000);
 
     write_command(ILI9341_Display_OFF);
 
@@ -412,8 +413,6 @@ void ili9341_init_display(struct gpanel_hw *h)
     write_command(ILI9341_VCOM_Control_2);
     write_data(0xC0);
 
-    set_rotation(3);                /* Landscape */
-
     write_command(ILI9341_Pixel_Format_Set);
     write_data(0x55);
 
@@ -424,11 +423,9 @@ void ili9341_init_display(struct gpanel_hw *h)
     write_command(ILI9341_Entry_Mode_Set);
     write_data(0x07);
 
-    write_command(ILI9341_Sleep_OUT);
-    udelay(150000);
-
     write_command(ILI9341_Display_ON);
 
+    set_rotation(1);                /* Landscape */
     set_window(0, 0, _width-1, _height-1);
     gpanel_cs_idle();
 

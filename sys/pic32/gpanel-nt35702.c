@@ -111,6 +111,16 @@ static int _width, _height;
 #define NT35702_AVDDCLP     0xFD    /* AVDD Clamp Voltage */
 
 /*
+ * Memory Access Control register
+ */
+#define MADCTL_MY           0x80    /* Row address order */
+#define MADCTL_MX           0x40    /* Column address order */
+#define MADCTL_MV           0x20    /* Row/column exchange */
+#define MADCTL_ML           0x10    /* Vertical refresh order */
+#define MADCTL_BGR          0x08    /* Color filter selector: 0=RGB, 1=BGR */
+#define MADCTL_MH           0x04    /* Horisontal refresh direction: 1=left-to-right */
+
+/*
  * Write a 8-bit value to the NT35702 Command register.
  */
 static void write_command(int cmd)
@@ -229,22 +239,22 @@ static void set_rotation(int rotation)
     write_command(NT35702_MADCTL);
     switch (rotation & 3) {
     case 0:                     /* Portrait */
-        write_data(0xC8);
+        write_data(MADCTL_MX | MADCTL_MY | MADCTL_BGR);
         _width  = 240;
         _height = 320;
         break;
     case 1:                     /* Landscape */
-        write_data(0xA8);
+        write_data(MADCTL_MY | MADCTL_MV | MADCTL_BGR);
         _width  = 320;
         _height = 240;
         break;
     case 2:                     /* Upside down portrait */
-        write_data(0x08);
+        write_data(MADCTL_BGR);
         _width  = 240;
         _height = 320;
         break;
     case 3:                     /* Upside down landscape */
-        write_data(0x68);
+        write_data(MADCTL_MX | MADCTL_MV | MADCTL_BGR);
         _width  = 320;
         _height = 240;
         break;

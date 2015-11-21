@@ -126,7 +126,7 @@ static void set_window(int x0, int y0, int x1, int y1)
         swapi(x0, x1);
         break;
     case PORTRAIT_UPSIDE_DOWN:
-        write_reg(ST7781_Entry_Mode, 0x1010);
+        write_reg(ST7781_Entry_Mode, 0x1000);
         x0 = 240 - x0 - 1;
         x1 = 240 - x1 - 1;
         swapi(x0, x1);
@@ -325,6 +325,9 @@ static void st7781_draw_glyph(const struct gpanel_font_t *font,
 {
     int h, w, c;
     unsigned bitmask = 0;
+
+    if (x + width > gpanel_width ||  y + font->height > gpanel_height)
+        return;
 
     if (background >= 0) {
         /*

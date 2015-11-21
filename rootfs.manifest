@@ -671,6 +671,7 @@ default
 filemode 0775
 dir /games
 file /games/adventure
+file /games/aclock
 file /games/arithmetic
 file /games/atc
 file /games/backgammon

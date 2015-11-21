@@ -18,7 +18,7 @@ SUBDIR          = adventure atc backgammon battlestar boggle btlgammon \
 # C programs that live in the current directory and do not need
 # explicit make lines.
 #
-STD             = banner arithmetic bcd cfscores factor fish morse \
+STD             = banner aclock arithmetic bcd cfscores factor fish morse \
                   number ppt wump
 
 # C programs that live in the current directory and need explicit make lines.

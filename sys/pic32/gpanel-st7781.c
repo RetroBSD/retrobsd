@@ -28,10 +28,16 @@
 #include <sys/gpanel.h>
 
 /*
- * Display size.
+ * Display orientation.
  */
-#define WIDTH   240
-#define HEIGHT  320
+typedef enum {
+    PORTRAIT,
+    LANDSCAPE,
+    PORTRAIT_UPSIDE_DOWN,
+    LANDSCAPE_UPSIDE_DOWN,
+} orient_t;
+
+static orient_t orientation;
 
 /*
  * ST7781 registers.
@@ -87,6 +93,9 @@
 #define ST7781_EEPROM_VCOM_Offset                   0xFE
 #define ST7781_FAh_FEh_Enable                       0xFF
 
+/* Swap values of two integer variables. */
+#define swapi(x,y) { int _t = x; x = y; y = _t; }
+
 /*
  * Write a 16-bit value to the ST7781 register.
  */
@@ -102,8 +111,39 @@ static void write_reg(unsigned reg, unsigned value)
 
 static void set_window(int x0, int y0, int x1, int y1)
 {
-    /* Set address window. */
     gpanel_cs_active();
+
+    /* Check rotation, move pixel around if necessary. */
+    switch (orientation) {
+    case PORTRAIT:
+        break;
+    case LANDSCAPE:
+        write_reg(ST7781_Entry_Mode, 0x1028);
+        swapi(x0, y0);
+        swapi(x1, y1);
+        x0 = 240 - x0 - 1;
+        x1 = 240 - x1 - 1;
+        swapi(x0, x1);
+        break;
+    case PORTRAIT_UPSIDE_DOWN:
+        write_reg(ST7781_Entry_Mode, 0x1010);
+        x0 = 240 - x0 - 1;
+        x1 = 240 - x1 - 1;
+        swapi(x0, x1);
+        y0 = 320 - y0 - 1;
+        y1 = 320 - y1 - 1;
+        swapi(y0, y1);
+        break;
+    case LANDSCAPE_UPSIDE_DOWN:
+        write_reg(ST7781_Entry_Mode, 0x1018);
+        swapi(x0, y0);
+        swapi(x1, y1);
+        y0 = 320 - y0 - 1;
+        y1 = 320 - y1 - 1;
+        swapi(y0, y1);
+        break;
+    }
+    /* Set address window. */
     write_reg(ST7781_Horizontal_Address_Start_Position, x0);
     write_reg(ST7781_Horizontal_Address_End_Position,   x1);
     write_reg(ST7781_Vertical_Address_Start_Position,   y0);
@@ -115,17 +155,46 @@ static void set_window(int x0, int y0, int x1, int y1)
     gpanel_cs_idle();
 }
 
+static void clear_window()
+{
+    gpanel_cs_active();
+    write_reg(ST7781_Entry_Mode, 0x1030);
+    write_reg(ST7781_Horizontal_Address_Start_Position, 0);
+    write_reg(ST7781_Horizontal_Address_End_Position,   240-1);
+    write_reg(ST7781_Vertical_Address_Start_Position,   0);
+    write_reg(ST7781_Vertical_Address_End_Position,     320-1);
+    gpanel_cs_idle();
+}
+
 /*
  * Draw a pixel.
  */
 static void st7781_set_pixel(int x, int y, int color)
 {
-    if (x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT)
+    if (x < 0 || x >= gpanel_width || y < 0 || y >= gpanel_height)
         return;
+
+    /* Check rotation, move pixel around if necessary. */
+    switch (orientation) {
+    case PORTRAIT:
+        break;
+    case LANDSCAPE:
+        swapi(x, y);
+        x = 240 - x - 1;
+        break;
+    case PORTRAIT_UPSIDE_DOWN:
+        x = 240 - x - 1;
+        y = 320 - y - 1;
+        break;
+    case LANDSCAPE_UPSIDE_DOWN:
+        swapi(x, y);
+        y = 320 - y - 1;
+        break;
+    }
     gpanel_cs_active();
     write_reg(ST7781_DRAM_Horizontal_Address_Set, x);
     write_reg(ST7781_DRAM_Vertical_Address_Set,   y);
-    write_reg(ST7781_Write_Data_to_DRAM,          color);
+    write_reg(ST7781_Write_Data_to_DRAM, color);
     gpanel_cs_idle();
 }
 
@@ -203,10 +272,10 @@ static void st7781_fill_rectangle(int x0, int y0, int x1, int y1, int color)
     if (y0 < 0) x0 = 0;
     if (x1 < 0) x1 = 0;
     if (y1 < 0) x1 = 0;
-    if (x0 >= WIDTH) x0 = WIDTH-1;
-    if (x1 >= WIDTH) x1 = WIDTH-1;
-    if (y0 >= HEIGHT) y0 = HEIGHT-1;
-    if (y1 >= HEIGHT) y1 = HEIGHT-1;
+    if (x0 >= gpanel_width) x0 = gpanel_width-1;
+    if (x1 >= gpanel_width) x1 = gpanel_width-1;
+    if (y0 >= gpanel_height) y0 = gpanel_height-1;
+    if (y1 >= gpanel_height) y1 = gpanel_height-1;
 
     if (x1 < x0) {
         int t = x0;
@@ -220,7 +289,7 @@ static void st7781_fill_rectangle(int x0, int y0, int x1, int y1, int color)
     }
     set_window(x0, y0, x1, y1);
     flood(color, (x1 - x0 + 1) * (y1 - y0 + 1));
-    set_window(0, 0, WIDTH-1, HEIGHT-1);
+    clear_window();
 }
 
 /*
@@ -244,6 +313,7 @@ static void st7781_draw_image(int x, int y, int width, int height,
         gpanel_write_byte(color);
     }
     gpanel_cs_idle();
+    clear_window();
 }
 
 /*
@@ -282,6 +352,7 @@ static void st7781_draw_glyph(const struct gpanel_font_t *font,
             }
         }
         gpanel_cs_idle();
+        clear_window();
     } else {
         /*
          * Transparent background.
@@ -303,6 +374,45 @@ static void st7781_draw_glyph(const struct gpanel_font_t *font,
 }
 
 /*
+ * Switch the screen orientation.
+ */
+static void set_rotation(orient_t rotation)
+{
+    orientation = rotation;
+    switch (orientation) {
+    case PORTRAIT:
+        gpanel_width  = 240;
+        gpanel_height = 320;
+        break;
+    case LANDSCAPE:
+        gpanel_width  = 320;
+        gpanel_height = 240;
+        break;
+    case PORTRAIT_UPSIDE_DOWN:
+        gpanel_width  = 240;
+        gpanel_height = 320;
+        break;
+    case LANDSCAPE_UPSIDE_DOWN:
+        gpanel_width  = 320;
+        gpanel_height = 240;
+        break;
+    }
+}
+
+static void st7781_resize(struct gpanel_hw *h, int width, int height)
+{
+    gpanel_cs_active();
+
+    /* Switch screen orientaation. */
+    if (width > height)
+        set_rotation(LANDSCAPE);
+    else if (width < height)
+        set_rotation(PORTRAIT);
+
+    gpanel_cs_idle();
+}
+
+/*
  * Initialize the LCD controller.
  * Fill the gpanel_hw descriptor.
  */
@@ -312,7 +422,6 @@ void st7781_init_display(struct gpanel_hw *h)
     gpanel_cs_active();
     write_reg(ST7781_Driver_Output_Control,    0x0100);
     write_reg(ST7781_LCD_Driving_Wave_Control, 0x0700);
-    write_reg(ST7781_Entry_Mode,               0x1030);
     write_reg(ST7781_Display_control_2,        0x0302);
     write_reg(ST7781_Display_Control_3,        0x0000);
     write_reg(ST7781_Display_Control_4,        0x0008);
@@ -344,12 +453,6 @@ void st7781_init_display(struct gpanel_hw *h)
     write_reg(ST7781_Gamma_Control_9,  0x0206);
     write_reg(ST7781_Gamma_Control_10, 0x0408);
 
-    /* Display window 240*320. */
-    write_reg(ST7781_Horizontal_Address_Start_Position, 0x0000);
-    write_reg(ST7781_Horizontal_Address_End_Position,   0x00EF);
-    write_reg(ST7781_Vertical_Address_Start_Position,   0x0000);
-    write_reg(ST7781_Vertical_Address_End_Position,     0x013F);
-
     /* Frame rate settings. */
     write_reg(ST7781_Gate_Scan_Control_1,       0xA700);
     write_reg(ST7781_Gate_Scan_Control_2,       0x0001);
@@ -357,15 +460,16 @@ void st7781_init_display(struct gpanel_hw *h)
 
     /* Display on. */
     write_reg(ST7781_Display_Control_1, 0x0133);
+    clear_window();
 
-    set_window(0, 0, WIDTH-1, HEIGHT-1);
+    /* Screen orientation. */
+    set_rotation(LANDSCAPE);
 
     /* Fill the gpanel_hw descriptor. */
     h->name           = "Sitronix ST7781";
+    h->resize         = st7781_resize;
     h->set_pixel      = st7781_set_pixel;
     h->fill_rectangle = st7781_fill_rectangle;
     h->draw_image     = st7781_draw_image;
     h->draw_glyph     = st7781_draw_glyph;
-    gpanel_width      = WIDTH;
-    gpanel_height     = HEIGHT;
 }

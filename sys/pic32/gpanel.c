@@ -231,13 +231,13 @@ static int read_reg16(int reg)
 
     CS_ACTIVE();
     RS_COMMAND();
-    //gpanel_write_byte(reg >> 8);
+    gpanel_write_byte(reg >> 8);    /* Need 2 bytes of address for ST7781 */
     gpanel_write_byte(reg);
-    gpanel_read_dir();         // Switch data bus to input
+    gpanel_read_dir();              /* Switch data bus to input */
     RS_DATA();
     value = gpanel_read_byte() << 8;
     value |= gpanel_read_byte();
-    gpanel_write_dir();        // Restore data bus as output
+    gpanel_write_dir();             /* Restore data bus as output */
     CS_IDLE();
     return value;
 }
@@ -252,13 +252,13 @@ static int read_reg32(int reg)
     CS_ACTIVE();
     RS_COMMAND();
     gpanel_write_byte(reg);
-    gpanel_read_dir();         // Switch data bus to input
+    gpanel_read_dir();              /* Switch data bus to input */
     RS_DATA();
     value = gpanel_read_byte() << 24;
     value |= gpanel_read_byte() << 16;
     value |= gpanel_read_byte() << 8;
     value |= gpanel_read_byte();
-    gpanel_write_dir();        // Restore data bus as output
+    gpanel_write_dir();             /* Restore data bus as output */
     CS_IDLE();
     return value;
 }

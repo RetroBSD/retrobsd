@@ -1,5 +1,5 @@
 CFLAGS		= -Wall -O -g
-LDFLAGS		= -lpng
+LDFLAGS		= -L/opt/local/lib -lpng
 
 FONTS           = digits32.c \
                   digits20.c \
@@ -46,6 +46,11 @@ lucidasans15.c:	convbdf ttf/Lucida_Sans_Unicode.ttf
 		-otf2bdf -p 15 -l "$(CHARSET)" ttf/Lucida_Sans_Unicode.ttf > lucidasans15.bdf
 		./convbdf -u164 -a5 -d5 lucidasans15.bdf
 		rm -f lucidasans15.bdf
+
+lucidasans28.c:	convbdf ttf/Lucida_Sans_Unicode.ttf
+		-otf2bdf -p 28 -l "$(CHARSET)" ttf/Lucida_Sans_Unicode.ttf > lucidasans28.bdf
+		./convbdf -u164 -a11 -d9 lucidasans28.bdf
+		rm -f lucidasans28.bdf
 
 lucidasans9.c:	convbdf ttf/Lucida_Sans_Unicode.ttf
 		-otf2bdf -p 9 -l "$(CHARSET)" ttf/Lucida_Sans_Unicode.ttf > lucidasans9.bdf

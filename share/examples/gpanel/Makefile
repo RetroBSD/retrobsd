@@ -3,7 +3,7 @@ LIBS    = -lgpanel
 PROG    = tft tftetris pixel line rect fill circle font color speed flappy
 
 FONTS   = 5x7.o 6x9.o digits20.o digits32.o lucidasans11.o lucidasans15.o \
-          lucidasans7.o lucidasans9.o verdana7.o
+          lucidasans28.o lucidasans7.o lucidasans9.o verdana7.o
 
 all:    $(PROG)
 
@@ -37,8 +37,8 @@ color:  color.c
 speed:  speed.c lucidasans15.o
 	$(CC) $(CFLAGS) -o $@ $(LDFLAGS) speed.c lucidasans15.o $(LIBS)
 
-flappy: flappy.c lucidasans15.o
-	$(CC) $(CFLAGS) -o $@ $(LDFLAGS) flappy.c lucidasans15.o $(LIBS)
+flappy: flappy.c lucidasans15.o lucidasans28.o
+	$(CC) $(CFLAGS) -o $@ $(LDFLAGS) flappy.c lucidasans15.o lucidasans28.o $(LIBS)
 
 font:   font.c $(FONTS)
 	$(CC) $(CFLAGS) -o $@ $(LDFLAGS) font.c $(FONTS) $(LIBS)
@@ -59,6 +59,9 @@ lucidasans11.o: fonts/lucidasans11.c
 	$(CC) $(CFLAGS) -o $@ -c $?
 
 lucidasans15.o: fonts/lucidasans15.c
+	$(CC) $(CFLAGS) -o $@ -c $?
+
+lucidasans28.o: fonts/lucidasans28.c
 	$(CC) $(CFLAGS) -o $@ -c $?
 
 lucidasans7.o: fonts/lucidasans7.c

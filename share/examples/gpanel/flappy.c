@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <signal.h>
 #include <sys/gpanel.h>
 #include <sys/time.h>
 #ifdef CROSS
@@ -30,6 +31,7 @@
  * Data from external font files.
  */
 extern const struct gpanel_font_t font_lucidasans15;
+extern const struct gpanel_font_t font_lucidasans28;
 
 int wing;
 int fx, fy, fallRate;
@@ -106,10 +108,10 @@ void drawFlappy(int x, int y)
     fill(BLACK, x+18, y+2,  2, 2);
     fill(BLACK, x+16, y+4,  2, 6);
     fill(BLACK, x+18, y+10, 2, 2);
-    fill(BLACK, x+18, y+4,  2, 6);
-    fill(BLACK, x+20, y+2,  4, 10);
-    fill(BLACK, x+24, y+4,  2, 8);
-    fill(BLACK, x+26, y+6,  2, 6);
+    fill(WHITE, x+18, y+4,  2, 6);
+    fill(WHITE, x+20, y+2,  4, 10);
+    fill(WHITE, x+24, y+4,  2, 8);
+    fill(WHITE, x+26, y+6,  2, 6);
     fill(BLACK, x+24, y+6,  2, 4);
 
     // Beak
@@ -176,22 +178,24 @@ void startGame()
 {
     fx = 50;
     fy = 125;
-    fallRate = 1;
+    fallRate = -1;
     pillarPos = 320;
     gapPos = 60;
     crashed = 0;
     score = 0;
 
     gpanel_clear(BLUE, 0, 0);
-    gpanel_text(&font_lucidasans15, WHITE, BLUE, 5, 5,
-        "Flappy Bird: tap to begin");
+    gpanel_text(&font_lucidasans28, WHITE, BLUE, 10, 10,
+        "Flappy Bird");
+    gpanel_text(&font_lucidasans15, WHITE, BLUE, 50, 180,
+        "(Press Space to start)");
 
     //TODO: read high score value from file.
     highScore = 0;
 
     char scoreLine[80];
-    sprintf(scoreLine, "High Score : %u", highScore);
-    gpanel_text(&font_lucidasans15, GREEN, BLUE, 60, 60, scoreLine);
+    sprintf(scoreLine, "High Score: %u", highScore);
+    gpanel_text(&font_lucidasans28, GREEN, BLUE, 10, 60, scoreLine);
 
     // Draw Ground
     int tx, ty = 230;
@@ -201,6 +205,8 @@ void startGame()
         gpanel_fill_triangle(YELLOW, tx+10, ty,    tx+20, ty, tx+10, ty+10);
         gpanel_fill_triangle(GREEN,  tx+20, ty+10, tx+20, ty, tx+10, ty+10);
     }
+
+    nextDrawLoopRunTime = millis() + DRAW_LOOP_INTERVAL;
 }
 
 void drawLoop()
@@ -214,7 +220,7 @@ void drawLoop()
         fy += fallRate;
         fallRate++;
 
-        pillarPos -=5;
+        pillarPos -= 5;
         if (pillarPos == 0) {
             score++;
         }
@@ -258,17 +264,15 @@ void checkCollision()
              crashed = 1;
 
     if (crashed) {
-        //TODO: use larger font.
-        gpanel_text(&font_lucidasans15, RED, BLUE, 75, 75, "Game Over!");
+        gpanel_text(&font_lucidasans28, RED, BLUE, 50, 50, "Game Over!");
 
         char scoreLine[80];
-        sprintf(scoreLine, "%u", score);
-        gpanel_text(&font_lucidasans15, RED, BLUE, 75,  125, "Score:");
-        gpanel_text(&font_lucidasans15, RED, BLUE, 220, 125, scoreLine);
+        sprintf(scoreLine, "Score: %u", score);
+        gpanel_text(&font_lucidasans28, RED, BLUE, 50, 100, scoreLine);
 
         if (score > highScore) {
             highScore = score;
-            gpanel_text(&font_lucidasans15, RED, BLUE, 75, 175, "NEW HIGH!");
+            gpanel_text(&font_lucidasans28, RED, BLUE, 50, 150, "NEW HIGH!");
 
             //TODO: Write high score value to file.
         }
@@ -284,15 +288,15 @@ void checkCollision()
 #if 1
 struct sgttyb origtty, newtty;
 
-int restore_input()
+/*
+ * Terminate the game when ^C pressed.
+ */
+void quit(int sig)
 {
-#ifdef CROSS
-    if (newtty.c_cc[VMIN] != 0)
-        ioctl(0, TCSETAW, &origtty);
-#else
+    signal(SIGINT, SIG_IGN);
     if (newtty.sg_flags != 0)
         ioctl(0, TIOCSETP, &origtty);
-#endif
+    exit(0);
 }
 
 /*
@@ -300,25 +304,14 @@ int restore_input()
  */
 int get_input()
 {
-#ifdef CROSS
-    if (newtty.c_cc[VMIN] == 0) {
-        ioctl(0, TCGETA, &origtty);
-        newtty = origtty;
-        newtty.c_lflag &= ~(ICANON | ECHO);
-        newtty.c_oflag &= ~ONLCR;
-        newtty.c_cc[VMIN] = 1;
-        newtty.c_cc[VTIME] = 0;
-        ioctl(0, TCSETAW, &newtty);
-    }
-#else
     if (newtty.sg_flags == 0) {
         ioctl(0, TIOCGETP, &origtty);
+
         newtty = origtty;
         newtty.sg_flags &= ~(ECHO|CRMOD|XTABS);
         newtty.sg_flags |= CBREAK;
         ioctl(0, TIOCSETP, &newtty);
     }
-#endif
     int nchars = 0;
     ioctl(0, FIONREAD, &nchars);
     if (nchars <= 0)
@@ -342,13 +335,15 @@ int main()
     gpanel_clear(BLUE, &xsize, &ysize);
     startGame();
 
-    nextDrawLoopRunTime = millis() + DRAW_LOOP_INTERVAL;
+    signal(SIGINT, quit);
+
     for (;;) {
         if (millis() > nextDrawLoopRunTime && !crashed) {
             drawLoop();
             checkCollision();
             nextDrawLoopRunTime += DRAW_LOOP_INTERVAL;
         }
+        usleep(10000);
 
         // Get user input.
         int user_input = get_input();
@@ -361,7 +356,8 @@ int main()
             }
             else if (!running) {
                 // clear text & start scrolling
-                gpanel_fill(BLUE, 0, 0, 320-1, 80);
+                gpanel_fill(BLUE, 0, 0, 320-1, 100);
+                gpanel_fill(BLUE, 0, 180, 320-1, 205);
                 running = 1;
             } else {
                 // fly up

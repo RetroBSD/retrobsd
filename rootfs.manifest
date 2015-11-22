@@ -1117,6 +1117,7 @@ file /share/examples/gpanel/Makefile
 file /share/examples/gpanel/circle.c
 file /share/examples/gpanel/color.c
 file /share/examples/gpanel/fill.c
+file /share/examples/gpanel/flappy.c
 file /share/examples/gpanel/font.c
 file /share/examples/gpanel/line.c
 file /share/examples/gpanel/pixel.c

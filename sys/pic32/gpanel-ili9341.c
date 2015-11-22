@@ -150,6 +150,7 @@ static void set_window(int x0, int y0, int x1, int y1)
     gpanel_write_byte(y1);
 
     write_command(ILI9341_Memory_Write);
+    gpanel_rs_data();
 }
 
 /*
@@ -161,8 +162,8 @@ void ili9341_set_pixel(int x, int y, int color)
         return;
     gpanel_cs_active();
     set_window(x, y, x, y);
-    write_data(color >> 8);
-    write_data(color);
+    gpanel_write_byte(color >> 8);
+    gpanel_write_byte(color);
     gpanel_cs_idle();
 }
 
@@ -179,7 +180,6 @@ static void flood(int color, int npixels)
              lo = color;
 
     /* Write first pixel normally, decrement counter by 1. */
-    gpanel_rs_data();
     gpanel_write_byte(hi);
     gpanel_write_byte(lo);
     npixels--;
@@ -309,7 +309,6 @@ void ili9341_draw_image(int x, int y, int width, int height,
 
     gpanel_cs_active();
     set_window(x, y, x + width - 1, y + height - 1);
-    gpanel_rs_data();
     while (cnt--) {
         color = *data++;
         gpanel_write_byte(color >> 8);
@@ -337,7 +336,6 @@ void ili9341_draw_glyph(const struct gpanel_font_t *font,
          */
         gpanel_cs_active();
         set_window(x, y, x + width - 1, y + font->height - 1);
-        gpanel_rs_data();
 
         /* Loop on each glyph row. */
         for (h=0; h<font->height; h++) {
@@ -418,7 +416,6 @@ void ili9341_init_display(struct gpanel_hw *h)
     write_command(ILI9341_Display_ON);
 
     set_rotation(1);                /* Landscape */
-    set_window(0, 0, gpanel_width-1, gpanel_height-1);
     gpanel_cs_idle();
 
     /*

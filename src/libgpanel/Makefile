@@ -5,8 +5,8 @@ CFLAGS          += -O -Wall -Werror
 MAN             = gpanel.0
 MANSRC          = gpanel.3
 
-OBJS    	= open.o clear.o pixel.o line.o rect.o fill.o circle.o \
-                  image.o char.o text.o text_width.o
+OBJS    	= open.o clear.o pixel.o line.o rect.o fill.o fill_triangle.o \
+                  circle.o image.o char.o text.o text_width.o
 
 all:    	../libgpanel.a $(MAN)
 

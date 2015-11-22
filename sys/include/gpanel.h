@@ -112,6 +112,7 @@ void gpanel_pixel(int color, int x, int y);
 void gpanel_line(int color, int x0, int y0, int x1, int y1);
 void gpanel_rect(int color, int x0, int y0, int x1, int y1);
 void gpanel_fill(int color, int x0, int y0, int x1, int y1);
+void gpanel_fill_triangle(int color, int x0, int y0, int x1, int y1, int x2, int y2);
 void gpanel_circle(int color, int x, int y, int radius);
 void gpanel_image(int x, int y, int width, int height, const unsigned short *data);
 void gpanel_char(const struct gpanel_font_t *font, int color, int background, int x, int y, int sym);

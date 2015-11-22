@@ -55,6 +55,9 @@ void fill(int color, int x, int y, int w, int h)
 
 void drawPillar(int x, int gap)
 {
+    if (x >= 320)
+        return;
+
     fill(GREEN, x+2, 2,      46, gap-4);
     fill(GREEN, x+2, gap+92, 46, 136-gap);
 
@@ -66,6 +69,9 @@ void drawPillar(int x, int gap)
 
 void clearPillar(int x, int gap)
 {
+    if (x >= 320)
+        return;
+
     // "cheat" slightly and just clear the right hand pixels
     // to help minimise flicker, the rest will be overdrawn
     fill(BLUE, x+45, 0,      5, gap);
@@ -199,11 +205,11 @@ void startGame()
 
     // Draw Ground
     int tx, ty = 230;
-    for (tx = 0; tx <= 300; tx +=20) {
-        gpanel_fill_triangle(GREEN,  tx,    ty,    tx+10, ty, tx,    ty+10);
-        gpanel_fill_triangle(YELLOW, tx+10, ty+10, tx+10, ty, tx,    ty+10);
-        gpanel_fill_triangle(YELLOW, tx+10, ty,    tx+20, ty, tx+10, ty+10);
-        gpanel_fill_triangle(GREEN,  tx+20, ty+10, tx+20, ty, tx+10, ty+10);
+    for (tx = 0; tx <= 300; tx += 20) {
+        gpanel_fill_triangle(GREEN,  tx,    ty,   tx+9,  ty, tx,    ty+9);
+        gpanel_fill_triangle(YELLOW, tx+9,  ty+9, tx+9,  ty, tx,    ty+9);
+        gpanel_fill_triangle(YELLOW, tx+10, ty,   tx+19, ty, tx+10, ty+9);
+        gpanel_fill_triangle(GREEN,  tx+19, ty+9, tx+19, ty, tx+10, ty+9);
     }
 
     nextDrawLoopRunTime = millis() + DRAW_LOOP_INTERVAL;

@@ -63,7 +63,7 @@ void gpanel_fill_triangle(int color, int x0, int y0,
         else if (x2 > b)
             b = x2;
 
-        gpanel_fill(color, a, y0, b-a+1, y0);
+        gpanel_fill(color, a, y0, b, y0);
         return;
     }
 
@@ -100,7 +100,7 @@ void gpanel_fill_triangle(int color, int x0, int y0,
         if (a > b)
             swapi(a, b);
 
-        gpanel_fill(color, a, y, b-a+1, y);
+        gpanel_fill(color, a, y, b, y);
     }
 
     // For lower part of triangle, find scanline crossings for segments
@@ -120,6 +120,6 @@ void gpanel_fill_triangle(int color, int x0, int y0,
         if (a > b)
             swapi(a, b);
 
-        gpanel_fill(color, a, y, b-a+1, y);
+        gpanel_fill(color, a, y, b, y);
     }
 }

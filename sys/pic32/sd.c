@@ -59,11 +59,14 @@
 #define SECTSIZE        512
 #define SPI_ENHANCED            /* use SPI fifo */
 #ifndef SD_MHZ
-#define SD_MHZ          13      /* speed 13.33 MHz */
+#define SD_MHZ          12      /* set 12.5Mhz; really 13.33MHz */
+#endif
+#ifndef SD_FAST_MHZ
+#define SD_FAST_MHZ     25      /* up to 25Mhz is allowed by the spec */
 #endif
 
 #define TIMO_WAIT_WDONE 400000
-#define TIMO_WAIT_WIDLE 200000
+#define TIMO_WAIT_WIDLE 300000
 #define TIMO_WAIT_CMD   100000
 #define TIMO_WAIT_WDATA 30000
 #define TIMO_READ       90000
@@ -101,6 +104,9 @@ struct disk {
     int     label_writable;     /* is sector 0 writable? */
     int     dkindex;            /* disk index for statistics */
     u_int   openpart;           /* all partitions open on this drive */
+    u_char  ocr[4];             /* operation condition register */
+    u_char  csd[16];            /* card-specific data */
+    int     ma;                 /* power consumption */
 };
 
 struct disk sddrives[NSD];      /* Table of units */
@@ -120,6 +126,7 @@ int sd_timo_wait_widle;
  */
 #define CMD_GO_IDLE             0       /* CMD0 */
 #define CMD_SEND_OP_MMC         1       /* CMD1 (MMC) */
+#define CMD_SWITCH_FUNC         6
 #define CMD_SEND_IF_COND        8
 #define CMD_SEND_CSD            9
 #define CMD_SEND_CID            10
@@ -239,7 +246,6 @@ static int card_cmd(unsigned int unit, unsigned int cmd, unsigned int addr)
 static int card_init(int unit)
 {
     int i, reply;
-    unsigned char response[4];
     int timeout = 4;
     struct spiio *io = &sddrives[unit].spiio;
     struct disk *du = &sddrives[unit];
@@ -279,6 +285,7 @@ static int card_init(int unit)
         card_release(io);
         du->card_type = TYPE_SD_LEGACY;
     } else {
+        u_char response[4];
         response[0] = spi_transfer(io, 0xFF);
         response[1] = spi_transfer(io, 0xFF);
         response[2] = spi_transfer(io, 0xFF);
@@ -324,17 +331,16 @@ static int card_init(int unit)
             printf("sd%d: READ_OCR failed, reply=%02x\n", unit, reply);
             return 0;
         }
-        response[0] = spi_transfer(io, 0xFF);
-        response[1] = spi_transfer(io, 0xFF);
-        response[2] = spi_transfer(io, 0xFF);
-        response[3] = spi_transfer(io, 0xFF);
+        du->ocr[0] = spi_transfer(io, 0xFF);
+        du->ocr[1] = spi_transfer(io, 0xFF);
+        du->ocr[2] = spi_transfer(io, 0xFF);
+        du->ocr[3] = spi_transfer(io, 0xFF);
         card_release(io);
-        if ((response[0] & 0xC0) == 0xC0)
+        if ((du->ocr[0] & 0xC0) == 0xC0)
         {
             du->card_type = TYPE_SDHC;
         }
     }
-
     /* Fast speed. */
     spi_brg(io, SD_MHZ * 1000);
     return 1;
@@ -346,11 +352,11 @@ static int card_init(int unit)
  */
 static int card_size(int unit)
 {
-    unsigned char csd [16];
     unsigned csize, n;
     int reply, i;
     int nsectors;
     struct spiio *io = &sddrives[unit].spiio;
+    struct disk *du = &sddrives[unit];
 
     spi_select(io);
     reply = card_cmd(unit, CMD_SEND_CSD, 0);
@@ -377,8 +383,8 @@ static int card_size(int unit)
         sd_timo_send_csd = i;
 
     /* Read data. */
-    for (i=0; i<sizeof(csd); i++) {
-        csd [i] = spi_transfer(io, 0xFF);
+    for (i=0; i<16; i++) {
+        du->csd[i] = spi_transfer(io, 0xFF);
     }
     /* Ignore CRC. */
     spi_transfer(io, 0xFF);
@@ -389,20 +395,68 @@ static int card_size(int unit)
 
     /* CSD register has different structure
      * depending upon protocol version. */
-    switch (csd[0] >> 6) {
+    switch (du->csd[0] >> 6) {
     case 1:                     /* SDC ver 2.00 */
-        csize = csd[9] + (csd[8] << 8) + 1;
+        csize = du->csd[9] + (du->csd[8] << 8) + 1;
         nsectors = csize << 10;
         break;
     case 0:                     /* SDC ver 1.XX or MMC. */
-        n = (csd[5] & 15) + ((csd[10] & 128) >> 7) + ((csd[9] & 3) << 1) + 2;
-        csize = (csd[8] >> 6) + (csd[7] << 2) + ((csd[6] & 3) << 10) + 1;
+        n = (du->csd[5] & 15) + ((du->csd[10] & 128) >> 7) +
+            ((du->csd[9] & 3) << 1) + 2;
+        csize = (du->csd[8] >> 6) + (du->csd[7] << 2) +
+            ((du->csd[6] & 3) << 10) + 1;
         nsectors = csize << (n - 9);
         break;
     default:                    /* Unknown version. */
         return 0;
     }
     return nsectors;
+}
+
+/*
+ * Use CMD6 to enable high-speed mode.
+ */
+static void card_high_speed(int unit)
+{
+    int reply, i;
+    struct spiio *io = &sddrives[unit].spiio;
+    struct disk *du = &sddrives[unit];
+    unsigned char status[64];
+
+    /* Here we set HighSpeed 50MHz.
+     * We do not tackle the power and io driver strength yet. */
+    spi_select(io);
+    reply = card_cmd(unit, CMD_SWITCH_FUNC, 0x80000001);
+    if (reply != 0) {
+        /* Command rejected. */
+        card_release(io);
+        return;
+    }
+
+    /* Wait for a response. */
+    for (i=0; ; i++) {
+        reply = spi_transfer(io, 0xFF);
+        if (reply == DATA_START_BLOCK)
+            break;
+        if (i >= 5000) {
+            /* Command timed out. */
+            card_release(io);
+            printf("sd%d: card_size: SWITCH_FUNC timed out, reply = %d\n",
+                unit, reply);
+            return;
+        }
+    }
+
+    /* Read 64-byte status. */
+    for (i=0; i<64; i++)
+        status[i] = spi_transfer(io, 0xFF);
+    card_release(io);
+
+    if ((status[16] & 0xF) == 1) {
+        /* The card has switched to high-speed mode. */
+        spi_brg(io, SD_FAST_MHZ * 1000);
+    }
+    du->ma = status[0] << 8 | status[1];
 }
 
 /*
@@ -605,11 +659,21 @@ static int sd_setup(int unit)
         printf("sd%d: cannot get card size\n", unit);
         return 0;
     }
-    printf("sd%d: type %s, size %u kbytes, speed %u Mbit/sec\n", unit,
+
+    /* Switch to the high speed mode, if possible. */
+    if (du->csd[4] & 0x40) {
+        /* Class 10 card: switch to high-speed mode.
+         * SPI interface of pic32 allows up to 25MHz clock rate. */
+        card_high_speed(unit);
+    }
+    printf("sd%d: type %s, size %u kbytes, speed %u Mbit/sec", unit,
         (du->card_type == TYPE_SDHC) ? "SDHC" :
         (du->card_type == TYPE_SD_II) ? "II" : "I",
         du->part[RAWPART].dp_nsectors / 2,
         spi_get_brg(io) / 1000);
+    if (du->ma > 0)
+        printf(", current %u mA", du->ma);
+    printf("\n");
 
     /* Read partition table. */
     int s = splbio();
@@ -885,7 +949,7 @@ sd_probe(config)
     /* Disable power to the SD card. */
     sd_release(unit);
 
-    spi_brg(io, SD_MHZ * 1000);
+    spi_brg(io, 250);
     spi_set(io, PIC32_SPICON_CKE);
 
 #ifdef UCB_METER

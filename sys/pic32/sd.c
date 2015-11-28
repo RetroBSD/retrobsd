@@ -106,6 +106,7 @@ struct disk {
     u_int   openpart;           /* all partitions open on this drive */
     u_char  ocr[4];             /* operation condition register */
     u_char  csd[16];            /* card-specific data */
+    u_short group[6];           /* function group bitmasks */
     int     ma;                 /* power consumption */
 };
 
@@ -456,7 +457,23 @@ static void card_high_speed(int unit)
         /* The card has switched to high-speed mode. */
         spi_brg(io, SD_FAST_MHZ * 1000);
     }
+
+    /* Save function group information for later use. */
     du->ma = status[0] << 8 | status[1];
+    du->group[0] = status[12] << 8 | status[13];
+    du->group[1] = status[10] << 8 | status[11];
+    du->group[2] = status[8] << 8 | status[9];
+    du->group[3] = status[6] << 8 | status[7];
+    du->group[4] = status[4] << 8 | status[5];
+    du->group[5] = status[2] << 8 | status[3];
+
+    printf("sd%d: function groups %x/%x/%x/%x/%x/%x", unit,
+        du->group[0] & 0x7fff, du->group[1] & 0x7fff,
+        du->group[2] & 0x7fff, du->group[3] & 0x7fff,
+        du->group[4] & 0x7fff, du->group[5] & 0x7fff);
+    if (du->ma > 0)
+        printf(", max current %u mA", du->ma);
+    printf("\n");
 }
 
 /*
@@ -666,14 +683,11 @@ static int sd_setup(int unit)
          * SPI interface of pic32 allows up to 25MHz clock rate. */
         card_high_speed(unit);
     }
-    printf("sd%d: type %s, size %u kbytes, speed %u Mbit/sec", unit,
+    printf("sd%d: type %s, size %u kbytes, speed %u Mbit/sec\n", unit,
         (du->card_type == TYPE_SDHC) ? "SDHC" :
         (du->card_type == TYPE_SD_II) ? "II" : "I",
         du->part[RAWPART].dp_nsectors / 2,
         spi_get_brg(io) / 1000);
-    if (du->ma > 0)
-        printf(", current %u mA", du->ma);
-    printf("\n");
 
     /* Read partition table. */
     int s = splbio();

@@ -46,11 +46,6 @@ static struct gpanel_hw hw;
 static int _col, _row;
 
 /*
- * ID of the LCD controller chip.
- */
-static int _chip_id;
-
-/*
  * Data/command signal pin.
  */
 static int _dc;
@@ -91,23 +86,6 @@ int gpanel_send_data(int value)
         _last_dc = 1;
     }
     return spi_transfer(&_spiio, value);
-}
-
-/*
- * Read a 32-bit value from the specified chip register.
- */
-static int read_reg32(int reg)
-{
-    unsigned value;
-
-    spi_select(&_spiio);
-    gpanel_send_command(reg);
-    value = gpanel_send_data(0) << 24;
-    value |= gpanel_send_data(0) << 16;
-    value |= gpanel_send_data(0) << 8;
-    value |= gpanel_send_data(0);
-    spi_deselect(&_spiio);
-    return value;
 }
 
 /*
@@ -467,31 +445,21 @@ static int probe(config)
     }
     spi_brg(io, SGPANEL_KHZ);
     spi_set(io, PIC32_SPICON_CKE);
-
-    /* Enable outputs. */
     gpio_set_output(_dc);
 
-    /* Read the the chip ID register. */
-    _chip_id = read_reg32(0xD3) & 0xffffff;
-    switch (_chip_id) {
-    default:
-        printf("sgpanel0: Unknown chip ID = 0x%04x\n", _chip_id);
-        goto failed;
+    /* Ilitek ILI9341. */
+    ili9341_init_display(&hw);
 
-    case 0x009341:
-        /* Ilitek ILI9341. */
-        ili9341_init_display(&hw);
-        break;
-    }
     printf("gpanel0: <%s> display %ux%u\n", hw.name, gpanel_width, gpanel_height);
     draw_logo();
     return 1;
-
+#if 0
 failed:
     /* Disable outputs. */
     gpio_set_input(_dc);
     gpio_set_input(cs);
     return 0;
+#endif
 }
 
 struct driver sgpaneldriver = {

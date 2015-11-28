@@ -141,6 +141,8 @@ extern void gpanel_rs_data(void);
 extern void gpanel_wr_strobe(void);
 extern void gpanel_read_dir(void);
 extern void gpanel_write_dir(void);
+extern int gpanel_send_command(int value);
+extern int gpanel_send_data(int value);
 
 /*
  * Descriptor for access to the hardware-level driver.

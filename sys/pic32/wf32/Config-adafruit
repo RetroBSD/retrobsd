@@ -1,5 +1,5 @@
 #
-# chipKIT WF32 board with microSD card on 2.4" LCD TFT display shield
+# chipKIT WF32 board with microSD card on Adafruit 2.8" TFT Touch Shield
 #
 # To build the kernel, use:
 #   cd sys/pic32/wf32
@@ -39,7 +39,7 @@ options         "CONS_MINOR=0"              # /dev/tty0
 controller      spi2                        # SD card
 
 # microSD card
-device          sd0     at spi2 pin RD4     # select pin RD4
+device          sd0     at spi2 pin RF1     # select pin RF1 (Digital #4)
 options         "SD_MHZ=10"                 # speed 10 MHz
 
 # General purpose I/O ports
@@ -65,19 +65,8 @@ device          adc
 # PWM driver
 device          pwm
 
-# TFT display driver with 8-bit parallel interface.
-# Supported controllers: ST7781, ILI9341, NT35702
-device          gpanel
-signal          "LCD_RST"   pin RB10
-signal          "LCD_CS"    pin RB0
-signal          "LCD_RD"    pin RB2
-signal          "LCD_RS"    pin RB8
-signal          "LCD_WR"    pin RB4
-signal          "LCD_D0"    pin RA14
-signal          "LCD_D1"    pin RD3
-signal          "LCD_D2"    pin RE8
-signal          "LCD_D3"    pin RD0
-signal          "LCD_D4"    pin RF1
-signal          "LCD_D5"    pin RD1
-signal          "LCD_D6"    pin RD2
-signal          "LCD_D7"    pin RE9
+# TFT display driver with SPI interface.
+# Supported controllers: ILI9341.
+device          sgpanel at spi2
+                        pins RD4,       # CS - Digital #10
+                             RD3        # DC - Digital #9

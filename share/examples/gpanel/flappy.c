@@ -1,15 +1,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <signal.h>
+#include <string.h>
+#include <unistd.h>
 #include <fcntl.h>
-#include <sys/gpanel.h>
+#include <sgtty.h>
 #include <sys/time.h>
-#ifdef CROSS
-#   include <termios.h>
-#   define sgttyb termio
-#else
-#   include <sgtty.h>
-#endif
+#include <sys/gpanel.h>
 
 /*
  * Assign human-readable names to some common 16-bit color values:
@@ -343,7 +340,9 @@ void check_collision()
 }
 
 #if 1
+#ifndef SDL
 struct sgttyb origtty, newtty;
+#endif
 
 /*
  * Terminate the game when ^C pressed.
@@ -351,8 +350,11 @@ struct sgttyb origtty, newtty;
 void quit(int sig)
 {
     signal(SIGINT, SIG_IGN);
+#ifndef SDL
     if (newtty.sg_flags != 0)
         ioctl(0, TIOCSETP, &origtty);
+#endif
+    gpanel_close();
     exit(0);
 }
 
@@ -361,6 +363,11 @@ void quit(int sig)
  */
 int get_input()
 {
+#ifdef SDL
+    extern int gpanel_input(void);
+
+    return gpanel_input();
+#else
     if (newtty.sg_flags == 0) {
         ioctl(0, TIOCGETP, &origtty);
 
@@ -377,6 +384,7 @@ int get_input()
     char c;
     read(0, &c, 1);
     return 1;
+#endif
 }
 #endif
 

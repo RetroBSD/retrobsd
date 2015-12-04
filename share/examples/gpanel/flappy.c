@@ -225,10 +225,11 @@ void draw_loop()
 {
     /* Clear moving items. */
     clear_pillar(pillar_pos, gap_pos);
-    clear_flappy(fx, fy);
 
     /* Move items. */
     if (running) {
+        clear_flappy(fx, fy);
+
         fy += fall_rate;
         fall_rate++;
 
@@ -243,8 +244,8 @@ void draw_loop()
     }
 
     /* Draw moving items & animate. */
-    draw_pillar(pillar_pos, gap_pos);
     draw_flappy(fx, fy);
+    draw_pillar(pillar_pos, gap_pos);
     switch (wing) {
     case 0:
     case 1:

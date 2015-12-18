@@ -9,25 +9,25 @@
 #include "edef.h"
 
 extern void mlwrite();
-extern void lchange(int flag);
+extern void lchange(int);
 extern int lnewline();
-extern int linsert(int n, int c);
-extern int backchar(int f, int n);
+extern int linsert(int, int);
+extern int backchar(int, int);
 extern void kdelete();
-extern int ldelete(int f, int n);
-extern int kremove(int k);
+extern int ldelete(int, int);
+extern int kremove(int);
 
-int setfillcol(int f, int n);
-int getccol(int bflg);
-int twiddle(int f, int n);
-int quote(int f, int n);
-int tab(int f, int n);
-int openline(int f, int n);
-int newline(int f, int n);
-int forwdel(int f, int n);
-int backdel(int f, int n);
-int killtext(int f, int n);
-int yank(int f, int n);
+int setfillcol(int, int);
+int getccol(int);
+int twiddle(int, int);
+int quote(int, int);
+int tab(int, int);
+int openline(int, int);
+int newline(int, int);
+int forwdel(int, int);
+int backdel(int, int);
+int killtext(int, int);
+int yank(int, int);
 
 /*
  * Set fill column to n.

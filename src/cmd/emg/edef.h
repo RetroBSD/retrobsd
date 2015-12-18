@@ -26,11 +26,11 @@ int curcol;			/* Cursor column */
 int thisflag;			/* Flags, this command */
 int lastflag;			/* Flags, last command */
 int curgoal;			/* Goal for C-P, C-N */
+int rows;			/* Screen rows for C-V, M-V */
 WINDOW *curwp;			/* Current window */
 BUFFER *curbp;			/* Current buffer */
 WINDOW *wheadp;			/* Head of list of windows */
 BUFFER *bheadp;			/* Head of list of buffers */
-BUFFER *blistp;			/* Buffer for C-X C-B */
 short *kbdmip;			/* Input pointer for above */
 short *kbdmop;			/* Output pointer for above */
 
@@ -61,18 +61,14 @@ extern int curcol;		/* Cursor column */
 extern int thisflag;		/* Flags, this command */
 extern int lastflag;		/* Flags, last command */
 extern int curgoal;		/* Goal for C-P, C-N */
+extern int rows;		/* Screen rows for C-V, M-V */
 extern WINDOW *curwp;		/* Current window */
 extern BUFFER *curbp;		/* Current buffer */
 extern WINDOW *wheadp;		/* Head of list of windows */
 extern BUFFER *bheadp;		/* Head of list of buffers */
-extern BUFFER *blistp;		/* Buffer for C-X C-B */
 extern short *kbdmip;		/* Input pointer for above */
 extern short *kbdmop;		/* Output pointer for above */
 
 #endif
 
-/* terminal table defined only in TERM.C */
-
-#ifndef	termdef
 extern TERM term;		/* Terminal information */
-#endif

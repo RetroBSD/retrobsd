@@ -17,28 +17,28 @@ extern int typeahead();
 extern int ctrlg();
 extern int getccol();
 
-void movecursor(int row, int col);
+void movecursor(int, int);
 void mlerase();
 int  refresh();
 void vtinit();
 void vttidy();
-void vtmove(int row, int col);
-void vtputc(int c);
-void vtpute(int c);
-int  vtputs(const char *s);
+void vtmove(int, int);
+void vtputc(int);
+void vtpute(int);
+int  vtputs(const char *);
 void vteeol();
 void update();
 void updext();
-void updateline(int row, char vline[], char pline[], short *flags);
-void modeline(WINDOW *wp);
+void updateline(int, char [], char [], short *);
+void modeline(WINDOW *);
 void upmode();
-int mlyesno(char *prompt);
-int mlreplyt(char *prompt, char *buf, int nbuf, char eolchar);
-int mlreply(char *prompt, char *buf, int nbuf);
+int mlyesno(char *);
+int mlreplyt(char *, char *, int, char);
+int mlreply(char *, char *, int);
 void mlwrite();
-void mlputs(char *s);
-void mlputi(int i, int r);
-void mlputli(long l, int r);
+void mlputs(char *);
+void mlputi(int, int);
+void mlputli(long, int);
 
 typedef struct VIDEO {
   short v_flag;			/* Flags */
@@ -1001,4 +1001,3 @@ void mlputli(long l, int r)
   (*term.t_putchar) ((int) (l % r) + '0');
   ++ttcol;
 }
-

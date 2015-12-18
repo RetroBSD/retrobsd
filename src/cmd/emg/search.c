@@ -11,21 +11,21 @@
 #include "edef.h"
 
 extern void mlwrite();
-extern int mlreplyt(char *prompt, char *buf, int nbuf, char eolchar);
+extern int mlreplyt(char *, char *, int, char);
 extern void update();
-extern int forwchar(int f, int n);
-extern int ldelete(int n, int kflag);
-extern int linsert(int n, int c);
+extern int forwchar(int, int);
+extern int ldelete(int, int);
+extern int linsert(int, int);
 
-int forwsearch(int f, int n);
-int forwhunt(int f, int n);
-int backsearch(int f, int n);
-int backhunt(int f, int n);
-int bsearch(int f, int n);
-int eq(int bc, int pc);
-int readpattern(char *prompt);
-int forscan(char *patrn, int leavep);
-void expandp(char *srcstr, char *deststr, int maxlength);
+int forwsearch(int, int);
+int forwhunt(int, int);
+int backsearch(int, int);
+int backhunt(int, int);
+int bsearch(int, int);
+int eq(int, int);
+int readpattern(char *);
+int forscan(char *, int);
+void expandp(char *, char *, int);
 
 #define	PTBEG	1		/* leave the point at the begining on search */
 #define	PTEND	2		/* leave the point at the end on search */

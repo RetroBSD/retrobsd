@@ -1,13 +1,26 @@
 ChangeLog
 =========
 
+December 17, 2015 : emg 2.0
+---------------------------
+Remove several unused functions.
+Greatly simplify the buffer logic. emg no longer has multi-buffer support.
+Remember to reset line number when opening files.
+
+August 21, 2015 : emg 1.9
+-------------------------
+Smarter terminal setup.
+Clarify quit message if you haven't saved the file.
+Remove non-standard M-Z quick save.
+Simpler arrow key and PgUp/PgDn logic.
+
 August 10, 2015 : emg 1.8
 -------------------------
 Remove most buffer functions.
 Remove all window functions.
 Remove window.c, the one remaining function goes to display.c
 Rework the modeline to look like Mg.
-Add a version function, bound to "M-e".
+Add a version function, bound to "M-E".
 
 July 10, 2014 : emg 1.7
 -----------------------

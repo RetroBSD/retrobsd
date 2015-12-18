@@ -50,9 +50,12 @@ KEYTAB keytab[] = {
   {META | 'S', forwsearch},		/* non-standard */
   {META | 'V', pageup},
   {META | 'W', copyregion},
-  {META | 'Z', quickexit},
+  {METE | 'A', backline},
+  {METE | 'B', forwline},
+  {METE | 'C', forwchar},
+  {METE | 'D', backchar},
+  {METE | '5', pageup},
+  {METE | '6', pagedown},
   {0x7F, backdel},
-  {META | '[', extendedcmd},
-  {META | 'O', extendedcmd},
   {0, 0}
 };

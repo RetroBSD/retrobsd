@@ -44,11 +44,9 @@ extern int killtext();	       /* Kill forward */
 extern int yank();	       /* Yank back from killbuffer */
 extern int killregion();       /* Kill region */
 extern int copyregion();       /* Copy region to kill buffer */
-extern int quickexit();        /* low keystroke style exit */
 extern int setline();	       /* go to a numbered line */
 extern int deskey();	       /* describe a key's binding */
 extern int insfile();	       /* insert a file */
 extern int forwhunt();	       /* hunt forward for next match */
 extern int backhunt();	       /* hunt backwards for next match */
-extern int extendedcmd();      /* parse ANSI/VT100 extended keys */
 extern int showversion();      /* show emacs version */

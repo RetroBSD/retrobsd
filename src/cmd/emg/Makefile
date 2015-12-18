@@ -13,11 +13,6 @@ CFLAGS +=	-ffunction-sections -fdata-sections
 # This reduces code size significantly.
 CFLAGS +=	-mips16
 
-# Set the screen size.
-# Will default to COLS=80 and ROWS=24
-# if not set here.
-#CFLAGS +=	-DCOLS=80 -DROWS=24
-
 # with CFLAGS+=	-ffunction-sections -fdata-sections
 LDFLAGS +=	-Wl,--gc-sections
 

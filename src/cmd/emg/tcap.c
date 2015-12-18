@@ -2,9 +2,8 @@
 
 /* termios video driver */
 
-#define termdef 1	/* don't define "term" externally */
-
 #include <stdio.h>	/* puts(3), snprintf(3) */
+
 #include "estruct.h"
 #include "edef.h"
 #undef CTRL		/* Needs to be done here. */
@@ -22,15 +21,15 @@ extern void ttputc();
 extern void ttflush();
 extern void ttclose();
 
-extern void panic();
+extern void panic(char *);
 
-void getwinsize();
-void tcapopen();
-void tcapmove(int row, int col);
-void tcapeeol();
-void tcapeeop();
-void tcaprev();
-void tcapbeep();
+void getwinsize(void);
+void tcapopen(void);
+void tcapmove(int, int);
+void tcapeeol(void);
+void tcapeeop(void);
+void tcaprev(int);
+void tcapbeep(void);
 
 #define	MARGIN 8
 #define	SCRSIZ 64
@@ -45,25 +44,27 @@ TERM term = {
   ttflush, tcapmove, tcapeeol, tcapeeop, tcapbeep, tcaprev
 };
 
-void getwinsize()
+void
+getwinsize(void)
 {
-  int cols = COLS;
-  int rows = ROWS;
+  struct winsize ws;
 
-  /* Too small and we're out */
-  if ((cols < 10) || (rows < 3))
-      panic("Too few columns or rows");
+  if (ioctl(0, TIOCGWINSZ, &ws) == 0) {
+    term.t_ncol = ws.ws_col;
+    rows = ws.ws_row;
+  }
 
-  if (COLS > MAXCOL)
-      cols = MAXCOL;
-  if (ROWS > MAXROW)
-      rows = MAXROW;
+  /* Too small and we hard code */
+  if ((term.t_ncol < 10) || (rows < 3)) {
+    term.t_ncol = 80;
+    rows = 24;
+  }
 
-  term.t_ncol = cols;
   term.t_nrow = rows - 1;
 }
 
-void tcapopen()
+void
+tcapopen(void)
 {
   char tcbuf[1024];
   char *p, *tv_stype;
@@ -84,34 +85,39 @@ void tcapopen()
   if (SO != NULL && SE != NULL)
     revexist = TRUE;
   if (CL == NULL || CM == NULL)
-      panic("Need cl & cm abilities");
+    panic("Need cl & cm abilities");
   if (p >= &tcapbuf[TCAPSLEN])	/* XXX */
-      panic("Description too big");
-  ttopen ();
+    panic("Description too big");
+  ttopen();
 }
 
-void tcaprev(int state)
+void
+tcaprev(int state)
 {
   if (revexist)
     tputs((state ? SO : SE), 1, ttputc);
 }
 
-void tcapmove (int row, int col)
+void
+tcapmove(int row, int col)
 {
   tputs(tgoto(CM, col, row), 1, ttputc);
 }
 
-void tcapeeol()
+void
+tcapeeol(void)
 {
   tputs(CE, 1, ttputc);
 }
 
-void tcapeeop()
+void
+tcapeeop(void)
 {
   tputs(CL, 1, ttputc);
 }
 
-void tcapbeep()
+void
+tcapbeep(void)
 {
   ttputc(BEL);
 }

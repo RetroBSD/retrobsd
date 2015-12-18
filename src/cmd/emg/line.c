@@ -6,12 +6,6 @@
  * and window structures, to make sure that the necessary updating gets done.
  * There are routines in this file that handle the kill buffer too. It isn't
  * here for any good reason.
- *
- * Note that this code only updates the dot and mark values in the window
- * list. Since all the code acts on the current window, the buffer that we are
- * editing must be being displayed, which means that "b_nwnd" is non zero,
- * which means that the dot and mark values in the buffer headers are
- * nonsense
  */
 
 #include <stdlib.h>		/* malloc(3) */
@@ -19,18 +13,18 @@
 #include "edef.h"
 
 extern void mlwrite();
-extern int backchar(int f, int n);
+extern int backchar(int, int);
 
-LINE* lalloc(int used);
-void lfree(LINE *lp);
-void lchange(int flag);
-int linsert(int n, int c);
+LINE* lalloc(int);
+void lfree(LINE *);
+void lchange(int);
+int linsert(int, int);
 int lnewline();
-int ldelete(int n, int kflag);
+int ldelete(int, int);
 int ldelnewline();
 void kdelete();
-int kinsert(int c);
-int kremove(int n);
+int kinsert(int);
+int kremove(int);
 
 #define NBLOCK	16		/* Line block chunk size */
 #define KBLOCK	1024		/* Kill buffer block size */
@@ -45,7 +39,8 @@ unsigned long ksize = 0;	/* # of bytes allocated in KB */
  * a pointer to the new block, or NULL if there isn't any memory left. Print a
  * message in the message line if no space.
  */
-LINE* lalloc(int used)
+LINE *
+lalloc(int used)
 {
   LINE *lp;
   int size;
@@ -69,7 +64,8 @@ LINE* lalloc(int used)
  * might be in. Release the memory. The buffers are updated too; the magic
  * conditions described in the above comments don't hold here
  */
-void lfree(LINE *lp)
+void
+lfree(LINE *lp)
 {
   BUFFER *bp;
   WINDOW *wp;
@@ -92,23 +88,17 @@ void lfree(LINE *lp)
       wp = wp->w_wndp;
     }
   bp = bheadp;
-  while (bp != NULL)
-    {
-      if (bp->b_nwnd == 0)
-	{
-	  if (bp->b_dotp == lp)
-	    {
-	      bp->b_dotp = lp->l_fp;
-	      bp->b_doto = 0;
-	    }
-	  if (bp->b_markp == lp)
-	    {
-	      bp->b_markp = lp->l_fp;
-	      bp->b_marko = 0;
-	    }
-	}
-      bp = bp->b_bufp;
+  while (bp != NULL) {
+    if (bp->b_dotp == lp) {
+      bp->b_dotp = lp->l_fp;
+      bp->b_doto = 0;
     }
+    if (bp->b_markp == lp) {
+      bp->b_markp = lp->l_fp;
+      bp->b_marko = 0;
+    }
+    bp = bp->b_bufp;
+  }
   lp->l_bp->l_fp = lp->l_fp;
   lp->l_fp->l_bp = lp->l_bp;
   free((char *) lp);
@@ -117,28 +107,24 @@ void lfree(LINE *lp)
 /*
  * This routine gets called when a character is changed in place in the
  * current buffer. It updates all of the required flags in the buffer and
- * window system. The flag used is passed as an argument; if the buffer is
- * being displayed in more than 1 window we change EDIT t HARD. Set MODE if
- * the mode line needs to be updated (the "*" has to be set).
+ * window system. The flag used is passed as an argument. Set MODE if the
+ * mode line needs to be updated (the "**" has to be set).
  */
-void lchange(int flag)
+void
+lchange(int flag)
 {
   WINDOW *wp;
 
-  if (curbp->b_nwnd != 1)      /* Ensure hard */
-    flag = WFHARD;
-  if ((curbp->b_flag & BFCHG) == 0)
-    {			       /* First change, so */
-      flag |= WFMODE;	       /* update mode lines */
-      curbp->b_flag |= BFCHG;
-    }
+  if ((curbp->b_flag & BFCHG) == 0) {	/* First change, so */
+    flag |= WFMODE;			/* update mode lines */
+    curbp->b_flag |= BFCHG;
+  }
   wp = wheadp;
-  while (wp != NULL)
-    {
-      if (wp->w_bufp == curbp)
-	wp->w_flag |= flag;
-      wp = wp->w_wndp;
-    }
+  while (wp != NULL) {
+    if (wp->w_bufp == curbp)
+      wp->w_flag |= flag;
+    wp = wp->w_wndp;
+  }
 }
 
 /*
@@ -150,7 +136,8 @@ void lchange(int flag)
  * greater than the place where you did the insert. Return TRUE if all is
  * well, and FALSE on errors
  */
-int linsert(int n, int c)
+int
+linsert(int n, int c)
 {
   WINDOW *wp;
   LINE *lp1, *lp2, *lp3;
@@ -238,7 +225,8 @@ int linsert(int n, int c)
  * update of dot and mark is a bit easier then in the above case, because the
  * split forces more updating.
  */
-int lnewline()
+int
+lnewline()
 {
   WINDOW *wp;
   char *cp1, *cp2;
@@ -296,7 +284,8 @@ int lnewline()
  * deleted, and FALSE if they were not (because dot ran into the end of the
  * buffer. The "kflag" is TRUE if the text should be put in the kill buffer.
  */
-int ldelete(int n, int kflag)
+int
+ldelete(int n, int kflag)
 {
   LINE *dotp;
   WINDOW *wp;
@@ -368,7 +357,8 @@ int ldelete(int n, int kflag)
  * require that lines be moved about in memory. Return FALSE on error and TRUE
  * if all looks ok. Called by "ldelete" only.
  */
-int ldelnewline()
+int
+ldelnewline()
 {
   LINE *lp1, *lp2, *lp3;
   WINDOW *wp;
@@ -457,10 +447,10 @@ int ldelnewline()
  * new kill context is being created. The kill buffer array is released, just
  * in case the buffer has grown to immense size. No errors.
  */
-void kdelete()
+void
+kdelete()
 {
-  if (kbufp != NULL)
-    {
+  if (kbufp != NULL) {
       free((char *) kbufp);
       kbufp = NULL;
       kused = 0;
@@ -474,7 +464,8 @@ void kdelete()
  * put something in the kill buffer you are going to put more stuff there too
  * later. Return TRUE if all is well, and FALSE on errors.
  */
-int kinsert(int c)
+int
+kinsert(int c)
 {
   char *nbufp;
 
@@ -498,7 +489,8 @@ int kinsert(int c)
  * "n" is off the end, it returns "-1". This lets the caller just scan along
  * until it gets a "-1" back.
  */
-int kremove(int n)
+int
+kremove(int n)
 {
   if (n >= kused)
     return (-1);

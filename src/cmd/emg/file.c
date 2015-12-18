@@ -9,40 +9,37 @@
 #include "estruct.h"
 #include "edef.h"
 
-extern int mlreply(char *prompt, char *buf, int nbuf);
-extern int swbuffer(BUFFER *bp);
+extern int mlreply(char *, char *, int);
 extern void mlwrite();
-extern int bclear(BUFFER *bp);
-extern int ffropen(char *fn);
-extern int ffgetline(char buf[], int nbuf);
-extern int ffwopen(char *fn);
+extern int bclear(BUFFER *);
+extern int ffropen(char *);
+extern int ffgetline(char [], int);
+extern int ffwopen(char *);
 extern int ffclose();
-extern int ffputline(char buf[], int nbuf);
+extern int ffputline(char [], int);
 extern BUFFER *bfind();
 extern LINE *lalloc();
 
-int fileread(int f, int n);
-int insfile(int f, int n);
-int getfile(char fname[]);
-int readin(char fname[]);
-void makename(char bname[], char fname[]);
-int filewrite(int f, int n);
-int filesave(int f, int n);
-int writeout(char *fn);
-int filename(int f, int n);
-int ifile(char fname[]);
+int fileread(int, int);
+int insfile(int, int);
+int readin(char []);
+int filewrite(int, int);
+int filesave(int, int);
+int writeout(char *);
+int filename(int, int);
+int ifile(char []);
 
 /*
  * Read a file into the current buffer. This is really easy; all you do it
  * find the name of the file, and call the standard "read a file into the
- * current buffer" code. Bound to "C-X C-R"
+ * current buffer" code. Bound to "C-X C-F"
  */
 int fileread(int f, int n)
 {
   int s;
   char fname[NFILEN];
 
-  if ((s = mlreply("Read file: ", fname, NFILEN)) != TRUE)
+  if ((s = mlreply("Open file: ", fname, NFILEN)) != TRUE)
     return (s);
   return (readin(fname));
 }
@@ -60,65 +57,6 @@ int insfile(int f, int n)
   if ((s = mlreply("Insert file: ", fname, NFILEN)) != TRUE)
     return (s);
   return (ifile(fname));
-}
-
-int getfile(char fname[])
-{
-  BUFFER *bp;
-  LINE *lp;
-  char bname[NBUFN];		/* buffer name to put file */
-  int i, s;
-
-  for (bp = bheadp; bp != (BUFFER*)0; bp = bp->b_bufp)
-    {
-      if ((bp->b_flag & BFTEMP) == 0 && strcmp(bp->b_fname, fname) == 0)
-	{
-	  if (--curbp->b_nwnd == 0)
-	    {
-	      curbp->b_dotp = curwp->w_dotp;
-	      curbp->b_doto = curwp->w_doto;
-	      curbp->b_markp = curwp->w_markp;
-	      curbp->b_marko = curwp->w_marko;
-	    }
-	  swbuffer(bp);
-	  lp = curwp->w_dotp;
-	  i = curwp->w_ntrows / 2;
-	  while (i-- && lback(lp) != curbp->b_linep)
-	    lp = lback(lp);
-	  curwp->w_linep = lp;
-	  curwp->w_flag |= WFMODE | WFHARD;
-	  mlwrite("[Old buffer]");
-	  return (TRUE);
-	}
-    }
-  makename(bname, fname);	/* New buffer name */
-  while ((bp = bfind(bname, FALSE, 0)) != (BUFFER*)0)
-    {
-      s = mlreply("Buffer name: ", bname, NBUFN);
-      if (s == ABORT)		/* ^G to just quit */
-	return (s);
-      if (s == FALSE)
-	{			/* CR to clobber it */
-	  makename(bname, fname);
-	  break;
-	}
-    }
-  if (bp == (BUFFER*)0 && (bp = bfind(bname, TRUE, 0)) == (BUFFER*)0)
-    {
-      mlwrite("Cannot create buffer");
-      return (FALSE);
-    }
-  if (--curbp->b_nwnd == 0)
-    {				/* Undisplay */
-      curbp->b_dotp = curwp->w_dotp;
-      curbp->b_doto = curwp->w_doto;
-      curbp->b_markp = curwp->w_markp;
-      curbp->b_marko = curwp->w_marko;
-    }
-  curbp = bp;			/* Switch to it */
-  curwp->w_bufp = bp;
-  curbp->b_nwnd++;
-  return (readin(fname));	/* Read it in */
 }
 
 /*
@@ -196,33 +134,13 @@ int readin(char fname[])
 	  wp->w_doto = 0;
 	  wp->w_markp = NULL;
 	  wp->w_marko = 0;
+	  wp->w_dotline = 0;
 	  wp->w_flag |= WFMODE | WFHARD;
 	}
     }
   if (s == FIOERR || s == FIOFNF) /* False if error */
     return (FALSE);
   return (TRUE);
-}
-
-/*
- * Take a file name, and from it fabricate a buffer name. This routine knows
- * about the syntax of file names on the target system. I suppose that this
- * information could be put in a better place than a line of code.
- */
-void makename(char bname[], char fname[])
-{
-  char *cp1, *cp2;
-
-  cp1 = &fname[0];
-  while (*cp1 != 0)
-    ++cp1;
-
-  while (cp1 != &fname[0] && cp1[-1] != '/')
-    --cp1;
-  cp2 = &bname[0];
-  while (cp2 != &bname[NBUFN - 1] && *cp1 != 0 && *cp1 != ';')
-    *cp2++ = *cp1++;
-  *cp2 = 0;
 }
 
 /*
@@ -267,7 +185,7 @@ int filesave(int f, int n)
 
   if ((curbp->b_flag & BFCHG) == 0) /* Return, no changes */
     return (TRUE);
-  if (curbp->b_fname[0] == 0)
+  if (curbp->b_fname[0] == '\0')
       filename(f, n);		/* Must have a name */
   if ((s = writeout(curbp->b_fname)) == TRUE)
     {

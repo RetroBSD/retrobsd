@@ -17,6 +17,7 @@
 #define CTRL	0x0100		/* Control flag, or'ed in */
 #define META	0x0200		/* Meta flag, or'ed in */
 #define CTLX	0x0400		/* ^X flag, or'ed in */
+#define METE	0x0800		/* M-[ flag, or'ed in */
 
 #define FALSE	0		/* False, no, bad, etc */
 #define TRUE	1		/* True, yes, good, etc */
@@ -30,35 +31,6 @@
 
 #define CFCPCN	0x0001		/* Last command was C-P, C-N */
 #define CFKILL	0x0002		/* Last command was a kill */
-
-/*
- * screen constants
- * override with
- * CFLAGS += -DCOLS=XXX -DROWS=XXX
- */
-#ifndef COLS
-#define COLS 80
-#endif
-
-#ifndef ROWS
-#define ROWS 24
-#endif
-
-/*
- * XXX:
- * Default/sane(?) maximum column and row sizes.
- * Taken from mg1a.
- *
- * Let the user override these with
- * CFLAGS += -DMAXCOL=XXX -DMAXROW=XXX
- */
-#ifndef MAXCOL
-#define MAXCOL 132
-#endif
-
-#ifndef MAXROW
-#define MAXROW 66
-#endif
 
 /*
  * There is a window structure allocated for every active display window. The
@@ -95,12 +67,9 @@ typedef struct WINDOW
  * Text is kept in buffers. A buffer header, described below, exists for every
  * buffer in the system. The buffers are kept in a big list, so that commands
  * that search for a buffer by name can find the buffer header. There is a
- * safe store for the dot and mark in the header, but this is only valid if
- * the buffer is not being displayed (that is, if "b_nwnd" is 0). The text for
- * the buffer is kept in a circularly linked list of lines, with a pointer to
- * the header line in "b_linep". Buffers may be "Inactive" which means the
- * files accosiated with them have not been read in yet. These get read in at
- * "use buffer" time
+ * safe store for the dot and mark in the header. The text for the buffer is
+ * kept in a circularly linked list of lines, with a pointer to the header
+ * line in "b_linep".
  */
 typedef struct BUFFER
 {
@@ -110,11 +79,8 @@ typedef struct BUFFER
   struct LINE *b_markp;		/* The same as the above two, */
   long b_marko;			/* but for the "mark" */
   struct LINE *b_linep;		/* Link to the header LINE */
-  char b_active;		/* window activated flag */
-  char b_nwnd;			/* Count of windows on buffer */
   char b_flag;			/* Flags */
   char b_fname[NFILEN];		/* File name */
-  char b_bname[NBUFN];		/* Buffer name */
   int b_lines;			/* Number of lines in file */
 } BUFFER;
 

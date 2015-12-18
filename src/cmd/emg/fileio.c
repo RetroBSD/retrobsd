@@ -11,11 +11,11 @@
 
 extern void mlwrite();
 
-int ffropen(char *fn);
-int ffwopen(char *fn);
+int ffropen(char *);
+int ffwopen(char *);
 int ffclose();
-int ffputline(char buf[], int nbuf);
-int ffgetline(char buf[], int nbuf);
+int ffputline(char [], int);
+int ffgetline(char [], int);
 
 FILE *ffp;			/* File pointer, all functions */
 

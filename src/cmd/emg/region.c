@@ -10,13 +10,13 @@
 #include "edef.h"
 
 extern void kdelete();
-extern int ldelete(int f, int n);
-extern int kinsert(int c);
+extern int ldelete(int, int);
+extern int kinsert(int);
 extern void mlwrite();
 
-int killregion(int f, int n);
-int copyregion(int f, int n);
-int getregion(REGION *rp);
+int killregion(int, int);
+int copyregion(int, int);
+int getregion(REGION *);
 
 /*
  * Kill the region. Ask "getregion" to figure out the bounds of the region.

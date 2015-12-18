@@ -9,11 +9,11 @@
 #include "estruct.h"
 #include "edef.h"
 
-extern int backchar(int f, int n);
-extern int forwchar(int f, int n);
+extern int backchar(int, int);
+extern int forwchar(int, int);
 
-int backword(int f, int n);
-int forwword(int f, int n);
+int backword(int, int);
+int forwword(int, int);
 int inword(void);
 
 /*
@@ -21,14 +21,14 @@ int inword(void);
  * performed by the "backchar" and "forwchar" routines. Error if you try to
  * move beyond the buffers
  */
-int backword(int f, int n)
+int
+backword(int f, int n)
 {
   if (n < 0)
     return (forwword(f, -n));
   if (backchar(FALSE, 1) == FALSE)
     return (FALSE);
-  while (n--)
-    {
+  while (n--) {
       while (inword() == FALSE)
 	{
 	  if (backchar(FALSE, 1) == FALSE)
@@ -47,12 +47,12 @@ int backword(int f, int n)
  * Move the cursor forward by the specified number of words. All of the motion
  * is done by "forwchar". Error if you try and move beyond the buffer's end
  */
-int forwword(int f, int n)
+int
+forwword(int f, int n)
 {
   if (n < 0)
     return (backword(f, -n));
-  while (n--)
-    {
+  while (n--) {
       while (inword() != FALSE)
 	{
 	  if (forwchar(FALSE, 1) == FALSE)
@@ -71,7 +71,8 @@ int forwword(int f, int n)
  * Return TRUE if the character at dot is a character that is considered to be
  * part of a word. The word character list is hard coded. Should be setable
  */
-int inword(void)
+int
+inword(void)
 {
   int c;
 

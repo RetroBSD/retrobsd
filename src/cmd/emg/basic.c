@@ -12,16 +12,16 @@
 #include "estruct.h"
 #include "edef.h"
 
-extern int getccol(int bflg);
+extern int getccol(int);
 extern void mlwrite();
 extern int mlreplyt();
 
-int forwchar(int f, int n);
-int backchar(int f, int n);
-int forwline(int f, int n);
-int backline(int f, int n);
-int pagedown(int f, int n);
-int pageup(int f, int n);
+int forwchar(int, int);
+int backchar(int, int);
+int forwline(int, int);
+int backline(int, int);
+int pagedown(int, int);
+int pageup(int, int);
 
 /*
  * This routine, given a pointer to a LINE, and the current cursor goal
@@ -254,24 +254,24 @@ int backline(int f, int n)
 }
 
 /*
- * PgDn. Scroll down (ROWS - 1).
- * Just forwline(f, (ROWS -1))
+ * PgDn. Scroll down (rows / 2).
+ * Just forwline(f, (rows / 2))
  * Bound to C-V
  */
 int pagedown(int f, int n)
 {
-  forwline(f, (ROWS - 1));
+  forwline(f, (rows / 2));
   return (TRUE);
 }
 
 /*
- * PgUp. Scroll up (ROWS - 1).
- * Just backline(f, (ROWS -1))
+ * PgUp. Scroll up (rows / 2).
+ * Just backline(f, (rows / 2))
  * Bound to M-V
  */
 int pageup(int f, int n)
 {
-  backline(f, (ROWS - 1));
+  backline(f, (rows / 2));
   return (TRUE);
 }
 

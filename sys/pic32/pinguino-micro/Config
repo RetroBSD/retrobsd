@@ -1,7 +1,9 @@
 #
-# Olimex Pinguino-Micro board with PIC32MX795 processor
+# Olimex PIC32-RetroBSD board, or
+# Pinguino-Micro board with PIC32MX795 processor
 # =====================================================
 # Console on USB.
+# For details, see https://github.com/RetroBSD/retrobsd/wiki/Board-Olimex-PIC32-RetroBSD
 #
 # To build the kernel, use:
 #   cd sys/pic32/pinguino-micro
@@ -37,6 +39,10 @@ device          uartusb
 options         "USB_MAX_EP_NUMBER=3"
 options         "USB_NUM_STRING_DESCRIPTORS=3"
 
+# Serial UART ports
+device          uart1                       # Pins 4, 5 at CON2 connector
+device          uart2                       # Pins 3, 4 at UEXT connector
+
 # SPI ports
 controller      spi2                        # SD card
 
@@ -45,14 +51,13 @@ device          sd0     at spi2 pin RB13    # select pin
 
 # General purpose I/O ports
 # Flags define a mask of available pins
-# The following pins excluded:
-#   RG6, RG7, RG8, RB13 - spi2, SD card
-device          gpio1   flags 0xdfff    # port B
-device          gpio2   flags 0xf000    # port C
-device          gpio3   flags 0x0fff    # port D
-device          gpio4   flags 0x00ff    # port E
-device          gpio5   flags 0x003b    # port F
-device          gpio6   flags 0x020c    # port G
+# See schematics for details
+device          gpio1   flags 0xdfff        # port B
+device          gpio2   flags 0x6000        # port C
+device          gpio3   flags 0x0ff3        # port D
+device          gpio4   flags 0x00ff        # port E
+device          gpio5   flags 0x000b        # port F
+device          gpio6   flags 0x0200        # port G
 
 # ADC driver
 device          adc

@@ -6,11 +6,13 @@ OBJS		= fsutil.o superblock.o block.c inode.o create.o check.o \
 PROG		= fsutil
 
 # For Mac OS X
-#LIBS		= -largp
+ifneq ($(wildcard /usr/local/lib/pkgconfig),)
+    FUSE_PATH   = /usr/local/lib/pkgconfig
+endif
 
 # Fuse
-MOUNT_CFLAGS    = $(shell pkg-config fuse --cflags)
-LIBS            += $(shell pkg-config fuse --libs)
+MOUNT_CFLAGS    = $(shell PKG_CONFIG_PATH=$(FUSE_PATH) pkg-config fuse --cflags)
+LIBS            += $(shell PKG_CONFIG_PATH=$(FUSE_PATH) pkg-config fuse --libs)
 
 all:		$(PROG)
 

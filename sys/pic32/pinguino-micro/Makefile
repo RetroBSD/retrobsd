@@ -1,6 +1,8 @@
 PARAM = -DPINGUINO_MICRO
 PARAM += -DPIC32MX7
 PARAM += -DUARTUSB_ENABLED
+PARAM += -DUART1_ENABLED
+PARAM += -DUART2_ENABLED
 PARAM += -DSPI2_ENABLED
 PARAM += -DSD_ENABLED
 PARAM += -DGPIO1_ENABLED
@@ -63,7 +65,7 @@ OBJS = exec_aout.o exec_conf.o exec_elf.o exec_script.o exec_subr.o \
 	ufs_namei.o ufs_subr.o ufs_syscalls.o ufs_syscalls2.o \
 	vfs_vnops.o vm_sched.o vm_swap.o vm_swp.o clock.o cons.o devsw.o \
 	exception.o machdep.o mem.o signal.o swap.o sysctl.o adc.o \
-	gpio.o pwm.o sd.o spi.o spi_bus.o usb_device.o \
+	gpio.o pwm.o sd.o spi.o spi_bus.o uart.o usb_device.o \
 	usb_function_cdc.o usb_uart.o 
 
 CFILES = $S/kernel/exec_aout.c $S/kernel/exec_conf.c $S/kernel/exec_elf.c \
@@ -90,7 +92,7 @@ CFILES = $S/kernel/exec_aout.c $S/kernel/exec_conf.c $S/kernel/exec_elf.c \
 	$S/pic32/devsw.c $S/pic32/exception.c $S/pic32/machdep.c \
 	$S/pic32/mem.c $S/pic32/signal.c $S/pic32/swap.c \
 	$S/pic32/sysctl.c $S/pic32/adc.c $S/pic32/gpio.c $S/pic32/pwm.c \
-	$S/pic32/sd.c $S/pic32/spi.c $S/pic32/spi_bus.c \
+	$S/pic32/sd.c $S/pic32/spi.c $S/pic32/spi_bus.c $S/pic32/uart.c \
 	$S/pic32/usb_device.c $S/pic32/usb_function_cdc.c \
 	$S/pic32/usb_uart.c swapunix.c 
 
@@ -340,6 +342,9 @@ spi.o: $S/pic32/spi.c
 	${COMPILE_C}
 
 spi_bus.o: $S/pic32/spi_bus.c
+	${COMPILE_C}
+
+uart.o: $S/pic32/uart.c
 	${COMPILE_C}
 
 usb_device.o: $S/pic32/usb_device.c

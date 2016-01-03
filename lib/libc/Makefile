@@ -95,7 +95,8 @@ OBJS            += creat.o ftime.o gethostid.o memccpy.o memchr.o \
 
 # libc/runtime
 OBJS            += addsf3.o comparesf2.o divsf3.o fixsfsi.o floatsisf.o \
-                   mulsf3.o negsf2.o subsf3.o sc_case.o
+                   mulsf3.o negsf2.o subsf3.o sc_case.o fixunssfsi.o \
+                   floatunsisf.o
 
 all:            ../libc.a
 

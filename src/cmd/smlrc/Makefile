@@ -32,5 +32,5 @@ install:        smlrc
 clean:
 		rm -f *.o smlrc smlrc.dis smlrc.elf
 ###
-smlrc.o: smlrc.c cgmips.c
+smlrc.o: smlrc.c fp.c cgmips.c
 		${CC} ${CFLAGS} -mips16 smlrc.c -c -o $@

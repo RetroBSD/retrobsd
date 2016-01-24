@@ -9,6 +9,8 @@ ldexp(fr, exp)
 	int neg;
 	int i;
 
+	if (fr == 0)
+		return 0;
 	neg = 0;
 	if (fr < 0) {
 		fr = -fr;

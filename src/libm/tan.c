@@ -64,8 +64,8 @@ tan(arg)
 		if(temp == 0.) {
 			errno = ERANGE;
 			if (sign>0)
-				return(HUGE);
-			return(-HUGE);
+				return(HUGE_VAL);
+			return(-HUGE_VAL);
 		}
 		temp = 1./temp;
 	}

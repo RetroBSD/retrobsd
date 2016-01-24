@@ -1,3 +1,4 @@
+#include <float.h>
 #include <math.h>
 
 double
@@ -5,7 +6,6 @@ ldexp(fr, exp)
         double fr;
         int exp;
 {
-        double	huge	= 1.701411834604692293e38;
 	int neg;
 	int i;
 
@@ -20,13 +20,13 @@ ldexp(fr, exp)
 		i = i-1;
 	}
 	exp = exp+i;
-	if (exp > 127) {
+	if (exp >= DBL_MAX_EXP) {
 		if (neg)
-			return(-huge);
+			return(-HUGE_VAL);
 		else
-			return(huge);
+			return(HUGE_VAL);
         }
-	if (exp < -127)
+	if (exp < DBL_MIN_EXP - 2)
 		return(0);
 	while (exp > 30) {
 		fr = fr*(1L<<30);

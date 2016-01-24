@@ -31,7 +31,7 @@ double arg;
 
 	if(arg <= 0.) {
 		errno = EDOM;
-		return(-HUGE);
+		return(-HUGE_VAL);
 	}
 	x = frexp(arg,&exp);
 	while(x<0.5) {

@@ -41,8 +41,10 @@
 #include <float.h>
 #include <math.h>
 
-/* Max number conversion buffer length: a long in base 2, plus NUL byte. */
-#define MAXNBUF	(sizeof(long) * 8 + 1)
+/* Max number conversion buffer length. */
+#define MAXNBUF	\
+	(1/*sign*/ + DBL_MAX_10_EXP+1/*max integral digits*/ + \
+	1/*.*/ + DBL_DIG+1/*max fractional digits*/ + 1/*NUL*/)
 
 static unsigned char *ksprintn (unsigned char *buf, unsigned long v, unsigned char base,
 	int width, unsigned char *lp);
@@ -403,7 +405,7 @@ number:		if (sign && ((long) ul != 0L)) {
 					nbuf [size + 1] = 0;
 				}
 			}
-			if (neg)
+			if (neg || sign)
 				size++;
 			if (! ladjust && width && padding == ' ' &&
 			    (width -= size) > 0)
@@ -411,8 +413,11 @@ number:		if (sign && ((long) ul != 0L)) {
 					PUTC (' ');
 				} while (--width > 0);
 
-			if (neg)
+			if (neg) {
 				PUTC ('-');
+			} else if (sign) {
+				PUTC ('+');
+			}
 
 			if (! ladjust && width && (width -= size) > 0)
 				do {

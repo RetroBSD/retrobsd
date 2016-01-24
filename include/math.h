@@ -4,16 +4,16 @@
  * specifies the terms and conditions for redistribution.
  */
 
-double  fabs(), floor(), ceil(), fmod(), ldexp();
-double  sqrt(), hypot(), atof();
-double  sin(), cos(), tan(), asin(), acos(), atan(), atan2();
-double  exp(), log(), log10(), pow();
-double  sinh(), cosh(), tanh();
-double  gamma();
-double  j0(), j1(), jn(), y0(), y1(), yn();
+double  fabs(double), floor(double), ceil(double);
+double  sqrt(double), hypot(double, double);
+double  sin(double), cos(double), tan(double);
+double  asin(double), acos(double), atan(double), atan2(double, double);
+double  exp(double), log(double), log10(double), pow(double, double);
+double  sinh(double), cosh(double), tanh(double);
+double  j0(double), j1(double), jn(int, double);
+double  y0(double), y1(double), yn(int, double);
 
-#define HUGE        1.701411733192644270e38
-#define LOGHUGE     39
+#define HUGE_VAL    3.40282347e+38 /* TBD??? use infinity? */
 
 int isnanf(float x);
 int isnan(double x);

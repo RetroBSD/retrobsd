@@ -96,12 +96,10 @@ long    random (void);
 char    *setstate (char *);
 void    srandom (unsigned);
 
-#ifndef __SMALLER_C__
 double  atof (const char *);
 double  strtod (const char *, char **);
 char    *ecvt (double, int, int *, int *);
 char    *fcvt (double, int, int *, int *);
 char    *gcvt (double, int, char *);
-#endif
 
 #endif /* _STDLIB_H_ */

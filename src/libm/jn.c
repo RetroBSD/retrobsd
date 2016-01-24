@@ -82,7 +82,7 @@ yn(n,x) int n; double x;{
 
 	if (x <= 0) {
 		errno = EDOM;
-		return(-HUGE);
+		return(-HUGE_VAL);
 	}
 	sign = 1;
 	if(n<0){

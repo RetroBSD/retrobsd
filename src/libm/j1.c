@@ -182,7 +182,7 @@ y1(arg)
 	x = arg;
 	if(x <= 0.){
 		errno = EDOM;
-		return(-HUGE);
+		return(-HUGE_VAL);
 	}
 	if(x > 8.){
 		asympt(x);

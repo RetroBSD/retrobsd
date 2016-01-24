@@ -4,6 +4,7 @@
  *
  * The coefficients are #1069 from Hart and Cheney. (22.35D)
  */
+#include <float.h>
 #include <errno.h>
 #include <math.h>
 
@@ -16,7 +17,7 @@ static double	q1	= .3277251518082914423057964422e6;
 static double	q2	= .1749287689093076403844945335e4;
 static double	log2e	= 1.4426950408889634073599247;
 static double	sqrt2	= 1.4142135623730950488016887;
-static double	maxf	= 10000;
+static double	maxf	= DBL_MAX_10_EXP * 2.5/*>ln(10)*/;
 
 double
 exp(arg)
@@ -32,7 +33,7 @@ double arg;
 		return(0.);
 	if(arg > maxf) {
 		errno = ERANGE;
-		return(HUGE);
+		return(HUGE_VAL);
 	}
 	arg *= log2e;
 	ent = floor(arg);

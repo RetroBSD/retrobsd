@@ -176,7 +176,7 @@ y0(arg)
 	errno = 0;
 	if(arg <= 0.){
 		errno = EDOM;
-		return(-HUGE);
+		return(-HUGE_VAL);
 	}
 	if(arg > 8.){
 		asympt(arg);

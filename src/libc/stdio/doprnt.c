@@ -186,6 +186,7 @@ reswitch:	switch (c = *fmt++) {
 			break;
 
 		case 'd':
+		case 'i':
 			ul = lflag ? va_arg (ap, long) : va_arg (ap, int);
 			if (! sign) sign = 1;
 			base = 10;
@@ -211,7 +212,7 @@ reswitch:	switch (c = *fmt++) {
 			sharpflag = (width == 0);
 			goto nosign;
 
-		case 'n':
+		case 'n': /* TBD!!! fix this non-standard %n */
 			ul = lflag ? va_arg (ap, unsigned long) :
 				sign ? (unsigned long) va_arg (ap, int) :
 				va_arg (ap, unsigned int);
@@ -294,7 +295,7 @@ cnt_unknown:				if (ladjust)
 			goto number;
 
 nosign:			sign = 0;
-number:		if (sign && ((long) ul != 0L)) {
+number:			if (sign) {
 				if ((long) ul < 0L) {
 					neg = '-';
 					ul = -(long) ul;

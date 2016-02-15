@@ -15,7 +15,6 @@
  *  only. IE: A is equivalent to A0 ... Z$ is equivalent to Z0$
  *
  * Statements:
- *  BEEP freq,ms            - Generate a BEEP on the PC speaker
  *  CLEAR                   - Erase variables only
  *  CLOSE#n                 - Close file (0-9) opened with OPEN
  *  DATA                    - Enter "inline" data statements
@@ -155,7 +154,7 @@
 #define SAVE        25
 #define LOAD        26
 #define DELAY       27
-#define BEEP        28
+//#define BEEP        28
 #define DOS         29
 #define OUT         30
 
@@ -278,11 +277,6 @@ char *char_vars[NUM_VAR];           /* Character variables */
 int eval_sub(void);
 
 WINDOW *win;
-
-void beep (int i, int t)
-{
-    printf("BEEP not implemented yet, at line %u\n", line);
-}
 
 void delay (int msec)
 {
@@ -1370,11 +1364,6 @@ input:  if (ii == -1)
         break;
     case SRND:
         srandom(eval_num());
-        break;
-    case BEEP:
-        i = eval_num();
-        expect(',');
-        beep(i, eval_num());
         break;
     case DOS:
         eval_char();

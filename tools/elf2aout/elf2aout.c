@@ -31,7 +31,9 @@
  */
 #include <sys/types.h>
 
+#ifndef _WIN32
 #include <err.h>
+#endif
 #include <errno.h>
 #include <fcntl.h>
 #include <limits.h>
@@ -41,6 +43,86 @@
 #include <unistd.h>
 #include <stdint.h>
 #include <getopt.h>
+
+#ifdef _WIN32
+#include <stdarg.h>
+
+typedef unsigned char u_char;
+typedef unsigned int u_int;
+
+
+void verr(int eval, const char *fmt, va_list ap) {
+    char* __progname = "elf2aout";
+    int sverrno;
+
+    sverrno = errno;
+    (void)fprintf(stderr, "%s: ", __progname);
+    if (fmt != NULL) {
+        (void)vfprintf(stderr, fmt, ap);
+        (void)fprintf(stderr, ": ");
+    }
+    (void)fprintf(stderr, "%s\n", strerror(sverrno));
+    exit(eval);
+}
+
+void err(int eval, const char *fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+    verr(eval, fmt, ap);
+    va_end(ap);
+}
+
+void verrx(int eval, const char *fmt, va_list ap) {
+    char* __progname = "elf2aout";
+    (void)fprintf(stderr, "%s: ", __progname);
+    if (fmt != NULL)
+        (void)vfprintf(stderr, fmt, ap);
+    (void)fprintf(stderr, "\n");
+    exit(eval);
+}
+
+void errx(int eval, const char *fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+    verrx(eval, fmt, ap);
+    va_end(ap);
+}
+
+void vwarn(const char *fmt, va_list ap) {
+    int sverrno = errno;
+    char* __progname = "elf2aout";
+    (void)fprintf(stderr, "%s: ", __progname);
+    if (fmt != NULL) {
+        (void)vfprintf(stderr, fmt, ap);
+        (void)fprintf(stderr, ": ");
+    }
+    (void)fprintf(stderr, "%s\n", strerror(sverrno));
+}
+
+void warn(const char *fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+    vwarn(fmt, ap);
+    va_end(ap);
+}
+
+void vwarnx(const char *fmt, va_list ap) {
+    char* __progname = "elf2aout";
+    (void)fprintf(stderr, "%s: ", __progname);
+    if (fmt != NULL)
+        (void)vfprintf(stderr, fmt, ap);
+    (void)fprintf(stderr, "\n");
+}
+
+void warnx(const char *fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+    vwarnx(fmt, ap);
+    va_end(ap);
+}
+
+
+#endif
 
 /*
  * Header prepended to each a.out file.

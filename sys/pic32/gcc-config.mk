@@ -3,7 +3,7 @@
 # Use UECIDE package from http://uecide.org/download
 ifndef MIPS_GCC_PREFIX
     ifdef UECIDE
-        MIPS_GCC_PREFIX = $(UECIDE)/compilers/pic32-tools/bin/pic32-
+        MIPS_GCC_PREFIX = $(UECIDE)/compilers/pic32-tools-452/bin/pic32-
         MIPS_GCC_FORMAT = elf32-tradlittlemips
     endif
 endif

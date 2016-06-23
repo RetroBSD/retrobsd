@@ -13,6 +13,7 @@
 
 #define _GNU_SOURCE
 #include <sys/signal.h>
+#include <sys/socket.h>
 #include <string.h>
 
 #include "vm.h"

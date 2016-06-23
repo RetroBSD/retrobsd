@@ -41,6 +41,19 @@ ifeq (/usr/local/mips-gcc-4.8.1/bin/mips-elf-gcc,$(wildcard /usr/local/mips-gcc-
 endif
 endif
 
+# Generic MIPS toolchain on *BSD
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# You can build it from sources, as described on page
+# http://retrobsd.org/wiki/doku.php/doc/toolchain-mips
+# Maybe you can install it from packages one day too.
+ifndef GCCPREFIX
+ifeq (/usr/local/mips-elf/bin/mips-elf-gcc,$(wildcard /usr/local/mips-elf/bin/mips-elf-gcc))
+    GCCPREFIX   = /usr/local/mips-elf/bin/mips-elf-
+    LDFLAGS     =
+    INCLUDES    =
+endif
+endif
+
 # Mentor Sourcery CodeBench Lite toolchain
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # You can download a Linux or Windows binary package from

@@ -23,6 +23,7 @@
  */
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 #include "bsdfs.h"
 
 extern int verbose;

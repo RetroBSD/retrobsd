@@ -77,7 +77,7 @@ typedef struct {
     unsigned        ilock;              /* lock during I list manipulation */
     unsigned        fmod;               /* super block modified flag */
     unsigned        ronly;              /* mounted read-only flag */
-    long            utime;              /* current date of last update */
+    time_t          utime;              /* current date of last update */
     unsigned        tfree;              /* total free blocks */
     unsigned        tinode;             /* total free inodes */
     char            fsmnt [MAXMNTLEN];  /* ordinary file mounted on */
@@ -127,9 +127,9 @@ typedef struct {
 #define SYS_IMMUTABLE   0x0200          /* file may not be changed */
 #define SYS_APPEND      0x0400          /* writes to file may only append */
 
-    long            atime;              /* time last accessed */
-    long            mtime;              /* time last modified */
-    long            ctime;              /* time created */
+    time_t          atime;              /* time last accessed */
+    time_t          mtime;              /* time last modified */
+    time_t          ctime;              /* time created */
 } fs_inode_t;
 
 typedef struct {

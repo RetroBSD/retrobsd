@@ -131,10 +131,17 @@ static void add_entry (manifest_t *m, int filetype, char *path, char *link,
 /*
  * Compare two entries of file traverse scan.
  */
+#ifdef __FreeBSD__
+static int ftsent_compare (const FTSENT * const *a, const FTSENT *const *b)
+{
+    return strcmp((*a)->fts_name, (*b)->fts_name);
+}
+#else
 static int ftsent_compare (const FTSENT **a, const FTSENT **b)
 {
     return strcmp((*a)->fts_name, (*b)->fts_name);
 }
+#endif
 
 /*
  * Scan the directory and create a manifest from it's contents.

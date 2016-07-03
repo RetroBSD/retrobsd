@@ -22,6 +22,7 @@
  * this software.
  */
 #include <stdio.h>
+#include <time.h>
 #include "bsdfs.h"
 
 extern int verbose;

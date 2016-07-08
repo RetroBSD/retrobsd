@@ -1,4 +1,4 @@
-BOARD_LIST      = duinomite fubarino max32 maximite maximite-color \
+BOARD_LIST      = duinomite duinomite-emega fubarino max32 maximite maximite-color \
                   picadillo pinguino-micro sdxl snadpic ubw32
 
 SKEL_SCRATCH    = skeleton/linux32/pic32prog \

@@ -1,0 +1,73 @@
+#
+# PONTECH Quick240
+# =================
+# Console on USB.
+# For details, see https://github.com/RetroBSD/retrobsd/wiki/Board-Quick240
+#
+# To build the kernel, use:
+#   cd sys/pic32/pontech_quick240
+#   kconfig Config
+#   make clean
+#   make
+#
+# Format of this file is described on page:
+# http://retrobsd.org/wiki/doku.php/doc/kconfig
+#
+architecture    "pic32"
+cpu             "PIC32MX7"                  # Processor variant
+board           "QUICK240"                  # Board type
+ldscript        "max32/bootloader.ld"       # Linker script
+
+# Standard system options
+options         "CPU_KHZ=80000"             # Oscillator frequency of CPU core
+options         "BUS_KHZ=80000"             # Frequency of peripheral bus
+options         "BUS_DIV=1"                 # Bus clock divisor 1/2/4/8
+options         "USB_AUTOBOOT=YES"          # Don't wait for a keypress on boot
+
+# LED
+signal          "LED_KERNEL"    pin RE0     # kernel activity indicator
+signal          "LED_DISK"      pin RA7     # kernel activity indicator
+
+# Button
+# Hold this button pressed at startup to enter single-user mode.
+#signal          "BUTTON1"   pin RG15 invert  # PRG button, active low
+
+# Root filesystem at /dev/sd0a, swap at /dev/sd0b
+config          unix    root on sd0a
+                        swap on sd0b
+
+# Console options
+options         "CONS_MAJOR=UARTUSB_MAJOR"  # UARTUSB device
+
+# Virtual UART on USB
+device          uartusb
+options         "USB_MAX_EP_NUMBER=3"
+options         "USB_NUM_STRING_DESCRIPTORS=3"
+
+# UART ports
+device          uart1 
+device          uart2 
+device          uart3
+
+# SPI ports
+controller      spi1                        # SD card
+
+# microSD card
+device          sd0     at spi1 pin RD2     # select pin
+
+# General purpose I/O ports
+#                                                   1111 11
+# Flags define a mask of available pins             5432 1098 7654 3210
+device          gpio0   flags 0xc201    # port A    11.. ..1. .... ...1
+device          gpio1   flags 0x471f    # port B    .1.. .111 ...1 1111
+device          gpio2   flags 0x000e    # port C    .... .... .... 111.
+device          gpio3   flags 0x303a    # port D    ..11 .... ..11 1.1.
+device          gpio4   flags 0x01fc    # port E    .... ...1 1111 11..
+#device          gpio5   flags 0x0000    # port F    .... .... .... ....
+device          gpio6   flags 0x70c3    # port G    .111 .... 11.. ..11
+
+# ADC driver
+device          adc
+
+# PWM driver
+device          pwm

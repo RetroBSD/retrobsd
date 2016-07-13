@@ -33,7 +33,7 @@
 # ifdef MEDIUM
 # define ACTSIZE 4000
 # define MEMSIZE 5200
-# define NSTATES 600
+# define NSTATES 750
 # define NTERMS 127
 # define NPROD 400
 # define NNONTERM 200
@@ -41,6 +41,19 @@
 # define CNAMSZ 4000
 # define LSETSIZE 450
 # define WSETSIZE 250
+# endif
+
+# ifdef TINY
+# define ACTSIZE 1000
+# define MEMSIZE 1300
+# define NSTATES 750
+# define NTERMS 127
+# define NPROD 200
+# define NNONTERM 50
+# define TEMPSIZE 200
+# define CNAMSZ 1000
+# define LSETSIZE 250
+# define WSETSIZE 100
 # endif
 
 # define NAMESIZE 50

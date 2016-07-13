@@ -605,6 +605,7 @@ file /bin/whoami
 file /bin/write
 mode 02755
 file /bin/xargs
+file /bin/yacc
 file /bin/zcat
 
 link /bin/[

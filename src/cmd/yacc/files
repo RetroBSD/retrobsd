@@ -17,4 +17,5 @@
 
 	/* basic size of the Yacc implementation */
 /* # define HUGE */
-#define MEDIUM
+/* #define MEDIUM */
+#define TINY

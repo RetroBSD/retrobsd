@@ -35,7 +35,7 @@ config          unix    root on sd0a
 options         "CONS_MAJOR=UARTUSB_MAJOR"  # USB device
 
 # Virtual UART on USB
-device          uartusb0
+device          uartusb
 options         "USB_MAX_EP_NUMBER=3"
 options         "USB_NUM_STRING_DESCRIPTORS=3"
 

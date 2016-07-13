@@ -21,7 +21,7 @@ ldscript        "maximite/bootloader.ld"    # Linker script
 
 # Standard system options
 options         "CPU_KHZ=80000"             # Oscillator frequency of CPU core
-options         "BUS_KHZ=40000"             # Frequency of peripheral bus
+options         "BUS_KHZ=80000"             # Frequency of peripheral bus
 options         "BUS_DIV=1"                 # Bus clock divisor 1/2/4/8
 
 # LEDs
@@ -33,7 +33,7 @@ config          unix    root on sd0a
                         swap on sd0b
 
 # Console options
-options         "CONS_MAJOR=UARTUSB_MAJOR"  # UARTUSB device
+options         "CONS_MAJOR=UARTUSB_MAJOR"  # USB device
 
 # Virtual UART on USB
 device          uartusb
@@ -50,13 +50,13 @@ signal          "SD0_ENA"       pin RG13    # SD card enable
 # General purpose I/O ports
 # Flags define a mask of available pins
 # The following pins excluded:
-#   RD1, RD2, RD3, RG12, RG13 - spi3, SD card
+#   RD15, RF2, RF8, RG12, RG13 - spi3, SD card
 device          gpio0   flags 0xc6ff    # port A
 device          gpio1   flags 0xffff    # port B
 device          gpio2   flags 0xf01e    # port C
-device          gpio3   flags 0xfff1    # port D
+device          gpio3   flags 0x7fff    # port D
 device          gpio4   flags 0x03ff    # port E
-device          gpio5   flags 0x313f    # port F
+device          gpio5   flags 0x303b    # port F
 device          gpio6   flags 0xc3cf    # port G
 
 # ADC driver

@@ -7,9 +7,11 @@ VERSION     = $(RELEASE)-$(BUILD)
 # chipKIT PIC32 compiler from UECIDE
 ifdef UECIDE
 ifndef GCCPREFIX
-    GCCPREFIX   = ${UECIDE}/compilers/pic32-tools-452/bin/pic32-
-    LDFLAGS     = -Wl,--oformat=elf32-tradlittlemips
-    INCLUDES    = -I${UECIDE}/compilers/pic32-tools-452/lib/gcc/pic32mx/4.5.2/include
+	ifeq ($(UECIDE)/compilers/pic32-tools-452/bin/pic32-gcc,$(wildcard $(UECIDE)/compilers/pic32-tools-452/bin/pic32-gcc))
+		GCCPREFIX   = ${UECIDE}/compilers/pic32-tools-452/bin/pic32-
+		LDFLAGS     = -Wl,--oformat=elf32-tradlittlemips
+		INCLUDES    = -I${UECIDE}/compilers/pic32-tools-452/lib/gcc/pic32mx/4.5.2/include
+	endif
 endif
 endif
 

@@ -309,6 +309,8 @@ static void
 eats(name, num, rname, rnum)
 char *	name;
 char *	rname;
+int num;
+int rnum;
 {
 	filename = name;
 	linenum = num;
@@ -319,6 +321,7 @@ char *	rname;
 static void
 eat(name, num)
 char *	name;
+int num;
 {
 	eats(name, num, (char *) NULL, -1);
 }
@@ -653,6 +656,7 @@ static long
 gethms(string, errstring, signable)
 char *	string;
 char *	errstring;
+int signable;
 {
 	int	hh, mm, ss, sign;
 
@@ -687,6 +691,7 @@ char *	errstring;
 static void
 inrule(fields, nfields)
 register char **	fields;
+int nfields;
 {
 	struct rule	r;
 
@@ -713,6 +718,7 @@ register char **	fields;
 static int
 inzone(fields, nfields)
 register char **	fields;
+int nfields;
 {
 	register int	i;
 	char		buf[132];
@@ -743,8 +749,9 @@ register char **	fields;
 }
 
 static int
-inzcont(fields, nfields)
+inzcont(fields,  nfields)
 register char **	fields;
+int nfields;
 {
 	if (nfields < ZONEC_MINFIELDS || nfields > ZONEC_MAXFIELDS) {
 		error("wrong number of fields on Zone continuation line");
@@ -756,6 +763,8 @@ register char **	fields;
 static int
 inzsub(fields, nfields, iscont)
 register char **	fields;
+int nfields;
+int  iscont;
 {
 	register char *	cp;
 	struct zone	z;
@@ -826,6 +835,7 @@ error("Zone continuation line end time is not after end time of previous line");
 static void
 inlink(fields, nfields)
 register char **	fields;
+int  nfields;
 {
 	struct link	l;
 
@@ -1055,6 +1065,7 @@ char *	name;
 static void
 outzone(zpfirst, zonecount)
 struct zone *	zpfirst;
+int zonecount;
 {
 	register struct zone *		zp;
 	register struct rule *		rp;
@@ -1200,6 +1211,7 @@ addtt(starttime, addtype(startoff, startbuf, startisdst));
 static void
 addtt(starttime, type)
 time_t	starttime;
+int type;
 {
 	if (timecnt != 0 && type == types[timecnt - 1])
 		return;	/* easy enough! */
@@ -1216,6 +1228,7 @@ static int
 addtype(gmtoff, abbr, isdst)
 long	gmtoff;
 char *	abbr;
+int isdst;
 {
 	register int	i, j;
 
@@ -1251,6 +1264,7 @@ char *	abbr;
 
 static int
 yearistype(year, type)
+int year;
 char *	type;
 {
 	char	buf[BUFSIZ];
@@ -1276,7 +1290,7 @@ char *	type;
 }
 
 static int
-lowerit(a)
+lowerit(int a)
 {
 	return (isascii(a) && isupper(a)) ? tolower(a) : a;
 }
@@ -1538,7 +1552,7 @@ char *	name;
 }
 
 static long
-eitol(i)
+eitol(int i)
 {
 	long	l;
 

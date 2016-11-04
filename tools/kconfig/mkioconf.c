@@ -36,8 +36,7 @@
 /*
  * build the ioconf.c file
  */
-static void
-service_ioconf(fp)
+static void service_ioconf(fp)
     register FILE *fp;
 {
     register struct device *dp;
@@ -56,8 +55,7 @@ service_ioconf(fp)
     fprintf(fp, "    { 0 }\n};\n");
 }
 
-static char *
-wnum(num)
+static char *wnum(int num)
 {
     if (num == QUES || num == UNKNOWN)
         return ("?");

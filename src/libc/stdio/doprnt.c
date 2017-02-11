@@ -171,19 +171,8 @@ reswitch:	switch (c = *fmt++) {
 			break;
 
 		case 'D':
-			s = va_arg (ap, const unsigned char*);
-			if (! width)
-				width = 16;
-			if (sharpflag)
-				padding = ':';
-			while (width--) {
-				c = *s++;
-				PUTC (mkhex (c >> 4));
-				PUTC (mkhex (c));
-				if (width)
-					PUTC (padding);
-			}
-			break;
+			lflag=1;
+			/* FALLTHROUGH */
 
 		case 'd':
 		case 'i':

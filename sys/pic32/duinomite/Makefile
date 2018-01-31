@@ -11,6 +11,20 @@ PARAM += -DGPIO5_ENABLED
 PARAM += -DGPIO6_ENABLED
 PARAM += -DADC_ENABLED
 PARAM += -DPWM_ENABLED
+PARAM += -DGPANEL_ENABLED
+PARAM += -DLCD_D1_PORT=TRISB -DLCD_D1_PIN=12
+PARAM += -DLCD_D0_PORT=TRISB -DLCD_D0_PIN=11
+PARAM += -DLCD_D7_PORT=TRISE -DLCD_D7_PIN=7
+PARAM += -DLCD_D6_PORT=TRISE -DLCD_D6_PIN=6
+PARAM += -DLCD_D5_PORT=TRISE -DLCD_D5_PIN=5
+PARAM += -DLCD_D4_PORT=TRISE -DLCD_D4_PIN=4
+PARAM += -DLCD_D3_PORT=TRISE -DLCD_D3_PIN=3
+PARAM += -DLCD_D2_PORT=TRISE -DLCD_D2_PIN=2
+PARAM += -DLCD_RD_PORT=TRISB -DLCD_RD_PIN=3
+PARAM += -DLCD_WR_PORT=TRISB -DLCD_WR_PIN=4
+PARAM += -DLCD_RS_PORT=TRISB -DLCD_RS_PIN=6
+PARAM += -DLCD_CS_PORT=TRISB -DLCD_CS_PIN=7
+PARAM += -DLCD_RST_PORT=TRISB -DLCD_RST_PIN=9
 PARAM += -DSD0_ENA_PORT=TRISB -DSD0_ENA_PIN=13
 PARAM += -DLED_DISK_PORT=TRISB -DLED_DISK_PIN=12
 PARAM += -DLED_KERNEL_PORT=TRISB -DLED_KERNEL_PIN=15
@@ -65,6 +79,7 @@ OBJS = exec_aout.o exec_conf.o exec_elf.o exec_script.o exec_subr.o \
 	ufs_namei.o ufs_subr.o ufs_syscalls.o ufs_syscalls2.o \
 	vfs_vnops.o vm_sched.o vm_swap.o vm_swp.o clock.o cons.o devsw.o \
 	exception.o machdep.o mem.o signal.o swap.o sysctl.o adc.o \
+	gpanel.o gpanel-ili9341.o gpanel-nt35702.o gpanel-st7781.o \
 	gpio.o pwm.o sd.o spi.o spi_bus.o usb_device.o \
 	usb_function_cdc.o usb_uart.o 
 
@@ -91,7 +106,9 @@ CFILES = $S/kernel/exec_aout.c $S/kernel/exec_conf.c $S/kernel/exec_elf.c \
 	$S/kernel/vm_swp.c $S/pic32/clock.c $S/pic32/cons.c \
 	$S/pic32/devsw.c $S/pic32/exception.c $S/pic32/machdep.c \
 	$S/pic32/mem.c $S/pic32/signal.c $S/pic32/swap.c \
-	$S/pic32/sysctl.c $S/pic32/adc.c $S/pic32/gpio.c $S/pic32/pwm.c \
+	$S/pic32/sysctl.c $S/pic32/adc.c $S/pic32/gpanel.c \
+	$S/pic32/gpanel-ili9341.c $S/pic32/gpanel-nt35702.c \
+	$S/pic32/gpanel-st7781.c $S/pic32/gpio.c $S/pic32/pwm.c \
 	$S/pic32/sd.c $S/pic32/spi.c $S/pic32/spi_bus.c \
 	$S/pic32/usb_device.c $S/pic32/usb_function_cdc.c \
 	$S/pic32/usb_uart.c swapunix.c 
@@ -327,6 +344,18 @@ sysctl.o: $S/pic32/sysctl.c
 	${COMPILE_C}
 
 adc.o: $S/pic32/adc.c
+	${COMPILE_C}
+
+gpanel.o: $S/pic32/gpanel.c
+	${COMPILE_C}
+
+gpanel-ili9341.o: $S/pic32/gpanel-ili9341.c
+	${COMPILE_C}
+
+gpanel-nt35702.o: $S/pic32/gpanel-nt35702.c
+	${COMPILE_C}
+
+gpanel-st7781.o: $S/pic32/gpanel-st7781.c
 	${COMPILE_C}
 
 gpio.o: $S/pic32/gpio.c

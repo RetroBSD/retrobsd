@@ -62,3 +62,20 @@ device          adc
 
 # PWM driver
 device          pwm
+
+# TFT display driver with 8-bit parallel interface.
+# Supported controllers: ST7781, ILI9341, NT35702
+device          gpanel
+signal          "LCD_RST"   pin RB9     # arduino A4
+signal          "LCD_CS"    pin RB7     # arduino A3
+signal          "LCD_RS"    pin RB6     # arduino A2
+signal          "LCD_WR"    pin RB4     # arduino A1
+signal          "LCD_RD"    pin RB3     # arduino A0
+signal          "LCD_D2"    pin RE2     # arduino D2
+signal          "LCD_D3"    pin RE3     # arduino D3
+signal          "LCD_D4"    pin RE4     # arduino D4
+signal          "LCD_D5"    pin RE5     # arduino D5
+signal          "LCD_D6"    pin RE6     # arduino D6
+signal          "LCD_D7"    pin RE7     # arduino D7
+signal          "LCD_D0"    pin RB11    # arduino D8
+signal          "LCD_D1"    pin RB12    # arduino D9

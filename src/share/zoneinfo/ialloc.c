@@ -16,7 +16,7 @@
 #endif /* !MAL */
 
 char *
-imalloc(n)
+imalloc(int n)
 {
 #ifdef MAL
 	register char *	result;
@@ -33,7 +33,7 @@ imalloc(n)
 }
 
 char *
-icalloc(nelem, elsize)
+icalloc(int nelem, int elsize)
 {
 	if (nelem == 0 || elsize == 0)
 		nelem = elsize = 1;
@@ -41,8 +41,7 @@ icalloc(nelem, elsize)
 }
 
 char *
-irealloc(pointer, size)
-char *	pointer;
+irealloc(char *pointer, int size)
 {
 	if (NULLMAL(pointer))
 		return imalloc(size);

@@ -310,14 +310,14 @@ int fastcall mips_update_irq_flag (cpu_mips_t * cpu)
 }
 
 #if SIM_PIC32
-static void print_arg (val) {
+static void print_arg (int val) {
     if (val & 0xff000000)
         printf ("%08x", val);
     else
         printf ("%u", val);
 }
 
-static void print_args (narg, arg0, arg1, arg2, arg3, arg4, arg5)
+static void print_args (int narg, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5)
 {
     print_arg (arg0);
     if (narg > 1) { printf (", "); print_arg (arg1); }

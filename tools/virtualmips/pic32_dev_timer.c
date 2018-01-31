@@ -44,7 +44,7 @@ static const int timer_scale[8] = {
 /*
  * Perform an assign/clear/set/invert operation.
  */
-static inline unsigned write_op (a, b, op)
+static inline unsigned write_op (int a, int b, int op)
 {
     switch (op & 0xc) {
     case 0x0:           /* Assign */

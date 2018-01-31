@@ -163,6 +163,7 @@ extern int gpanel_height;
 extern void st7781_init_display(struct gpanel_hw *hw);
 extern void nt35702_init_display(struct gpanel_hw *hw);
 extern void ili9341_init_display(struct gpanel_hw *hw);
+extern void ili9481_init_display(struct gpanel_hw *hw);
 extern void s6d04h0_init_display(struct gpanel_hw *hw);
 
 #endif /* KERNEL */

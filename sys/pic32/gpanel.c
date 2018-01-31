@@ -675,6 +675,11 @@ static int probe(config)
         ili9341_init_display(&hw);
         break;
 
+    case 0x012200:
+        /* Ilitek ILI9481. */
+        ili9481_init_display(&hw);
+        break;
+
     case 0x388000:
         /* Novatek NT35702. */
         nt35702_init_display(&hw);

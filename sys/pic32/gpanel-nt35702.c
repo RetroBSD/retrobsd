@@ -1,7 +1,7 @@
 /*
  * Display driver for NT35702 LCD controller.
  * This controller is partially compatible with ILI9341 chip,
- * so we can reuse most of ili9341_xxx() routines.
+ * so we can reuse most of ili_xxx() routines.
  *
  * Copyright (C) 2015 Serge Vakulenko <serge@vak.ru>
  *
@@ -120,11 +120,11 @@
 /*
  * Reuse ILI9341 routines.
  */
-extern void ili9341_set_pixel(int x, int y, int color);
-extern void ili9341_fill_rectangle(int x0, int y0, int x1, int y1, int color);
-extern void ili9341_draw_image(int x, int y, int width, int height,
+extern void ili_set_pixel(int x, int y, int color);
+extern void ili_fill_rectangle(int x0, int y0, int x1, int y1, int color);
+extern void ili_draw_image(int x, int y, int width, int height,
     const unsigned short *data);
-extern void ili9341_draw_glyph(const struct gpanel_font_t *font,
+extern void ili_draw_glyph(const struct gpanel_font_t *font,
     int color, int background, int x, int y, int width,
     const unsigned short *bits);
 
@@ -291,8 +291,8 @@ void nt35702_init_display(struct gpanel_hw *h)
      */
     h->name           = "Novatek NT35702";
     h->resize         = nt35702_resize;
-    h->set_pixel      = ili9341_set_pixel;
-    h->fill_rectangle = ili9341_fill_rectangle;
-    h->draw_image     = ili9341_draw_image;
-    h->draw_glyph     = ili9341_draw_glyph;
+    h->set_pixel      = ili_set_pixel;
+    h->fill_rectangle = ili_fill_rectangle;
+    h->draw_image     = ili_draw_image;
+    h->draw_glyph     = ili_draw_glyph;
 }

@@ -69,8 +69,8 @@
 #define ILI9341_VCOM_Control_1                              0xC5
 #define ILI9341_VCOM_Control_2                              0xC7
 #define ILI9341_NV_Memory_Write                             0xD0
-#define ILI9341_NV_Memory_Protection Key                    0xD1
-#define ILI9341_NV_Memory_Status Read                       0xD2
+#define ILI9341_NV_Memory_Protection_Key                    0xD1
+#define ILI9341_NV_Memory_Status_Read                       0xD2
 #define ILI9341_Read_ID4                                    0xD3
 #define ILI9341_Positive_Gamma_Correction                   0xE0
 #define ILI9341_Negative_Gamma_Correction                   0xE1

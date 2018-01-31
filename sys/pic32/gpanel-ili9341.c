@@ -67,7 +67,7 @@ static void set_window(int x0, int y0, int x1, int y1)
 /*
  * Draw a pixel.
  */
-void ili9341_set_pixel(int x, int y, int color)
+void ili_set_pixel(int x, int y, int color)
 {
     if (x < 0 || x >= gpanel_width || y < 0 || y >= gpanel_height)
         return;
@@ -139,7 +139,7 @@ static void flood(int color, int npixels)
 /*
  * Switch the screen orientation.
  */
-static void set_rotation(int rotation)
+static void ili9341_set_rotation(int rotation)
 {
     write_command(ILI9341_Memory_Access_Control);
     switch (rotation & 3) {
@@ -166,15 +166,58 @@ static void set_rotation(int rotation)
     }
 }
 
+/*
+ * Switch the screen orientation.
+ */
+static void ili9481_set_rotation(int rotation)
+{
+    write_command(ILI9341_Memory_Access_Control);
+    switch (rotation & 3) {
+    case 0:                     /* Portrait */
+        write_data(MADCTL_MX | MADCTL_BGR);
+        gpanel_width  = 320;
+        gpanel_height = 480;
+        break;
+    case 1:                     /* Landscape */
+        write_data(MADCTL_MV | MADCTL_BGR);
+        gpanel_width  = 480;
+        gpanel_height = 320;
+        break;
+    case 2:                     /* Upside down portrait */
+        write_data(MADCTL_MY | MADCTL_BGR);
+        gpanel_width  = 320;
+        gpanel_height = 480;
+        break;
+    case 3:                     /* Upside down landscape */
+        write_data(MADCTL_MX | MADCTL_MY | MADCTL_MV | MADCTL_BGR);
+        gpanel_width  = 480;
+        gpanel_height = 320;
+        break;
+    }
+}
+
 static void ili9341_resize(struct gpanel_hw *h, int width, int height)
 {
     gpanel_cs_active();
 
     /* Switch screen orientaation. */
     if (width > height)
-        set_rotation(1);        /* Landscape */
+        ili9341_set_rotation(1);    /* Landscape */
     else if (width < height)
-        set_rotation(0);        /* Portrait */
+        ili9341_set_rotation(0);    /* Portrait */
+
+    gpanel_cs_idle();
+}
+
+static void ili9481_resize(struct gpanel_hw *h, int width, int height)
+{
+    gpanel_cs_active();
+
+    /* Switch screen orientaation. */
+    if (width > height)
+        ili9481_set_rotation(1);    /* Landscape */
+    else if (width < height)
+        ili9481_set_rotation(0);    /* Portrait */
 
     gpanel_cs_idle();
 }
@@ -182,7 +225,7 @@ static void ili9341_resize(struct gpanel_hw *h, int width, int height)
 /*
  * Fill a rectangle with specified color.
  */
-void ili9341_fill_rectangle(int x0, int y0, int x1, int y1, int color)
+void ili_fill_rectangle(int x0, int y0, int x1, int y1, int color)
 {
     if (x0 < 0) x0 = 0;
     if (y0 < 0) x0 = 0;
@@ -212,7 +255,7 @@ void ili9341_fill_rectangle(int x0, int y0, int x1, int y1, int color)
 /*
  * Fill a rectangle with user data.
  */
-void ili9341_draw_image(int x, int y, int width, int height,
+void ili_draw_image(int x, int y, int width, int height,
     const unsigned short *data)
 {
     unsigned cnt = width * height;
@@ -231,7 +274,7 @@ void ili9341_draw_image(int x, int y, int width, int height,
 /*
  * Draw a glyph of one symbol.
  */
-void ili9341_draw_glyph(const struct gpanel_font_t *font,
+void ili_draw_glyph(const struct gpanel_font_t *font,
     int color, int background, int x, int y, int width,
     const unsigned short *bits)
 {
@@ -277,7 +320,7 @@ void ili9341_draw_glyph(const struct gpanel_font_t *font,
                     bitmask <<= 1;
 
                 if (bitmask & 0x8000)
-                    ili9341_set_pixel(x + w, y + h, color);
+                    ili_set_pixel(x + w, y + h, color);
             }
         }
     }
@@ -326,7 +369,7 @@ void ili9341_init_display(struct gpanel_hw *h)
 
     write_command(ILI9341_Display_ON);
 
-    set_rotation(1);                /* Landscape */
+    ili9341_set_rotation(1);    /* Landscape */
     gpanel_cs_idle();
 
     /*
@@ -334,8 +377,82 @@ void ili9341_init_display(struct gpanel_hw *h)
      */
     h->name           = "Ilitek ILI9341";
     h->resize         = ili9341_resize;
-    h->set_pixel      = ili9341_set_pixel;
-    h->fill_rectangle = ili9341_fill_rectangle;
-    h->draw_image     = ili9341_draw_image;
-    h->draw_glyph     = ili9341_draw_glyph;
+    h->set_pixel      = ili_set_pixel;
+    h->fill_rectangle = ili_fill_rectangle;
+    h->draw_image     = ili_draw_image;
+    h->draw_glyph     = ili_draw_glyph;
+}
+
+/*
+ * Initialize the LCD controller.
+ * Fill the gpanel_hw descriptor.
+ */
+void ili9481_init_display(struct gpanel_hw *h)
+{
+    /* Use a few NOPs to synchronize after the hard Reset. */
+    gpanel_cs_active();
+    write_command(ILI9341_No_Operation);
+    write_command(ILI9341_No_Operation);
+    write_command(ILI9341_No_Operation);
+    write_command(ILI9341_No_Operation);
+
+    write_command(ILI9341_Sleep_OUT);
+    udelay(150000);
+
+    write_command(ILI9341_NV_Memory_Write);
+    write_data(0x07);
+    write_data(0x42);
+    write_data(0x18);
+
+    write_command(ILI9341_NV_Memory_Protection_Key);
+    write_data(0x00);
+    write_data(0x07);
+    write_data(0x10);
+
+    write_command(ILI9341_NV_Memory_Status_Read);
+    write_data(0x01);
+    write_data(0x02);
+
+    write_command(ILI9341_Power_Control_1);
+    write_data(0x10);
+    write_data(0x3B);
+    write_data(0x00);
+    write_data(0x02);
+    write_data(0x11);
+
+    write_command(ILI9341_VCOM_Control_1);
+    write_data(0x03);
+
+    write_command(ILI9341_Memory_Access_Control);
+    write_data(0x0A);
+
+    write_command(ILI9341_Pixel_Format_Set);
+    write_data(0x55);
+
+    write_command(ILI9341_Column_Address_Set);
+    write_data(0x00);
+    write_data(0x00);
+    write_data(0x01);
+    write_data(0x3F);
+
+    write_command(ILI9341_Page_Address_Set);
+    write_data(0x00);
+    write_data(0x00);
+    write_data(0x01);
+    write_data(0xE0);
+
+    write_command(ILI9341_Display_ON);
+
+    ili9481_set_rotation(1);    /* Landscape */
+    gpanel_cs_idle();
+
+    /*
+     * Fill the gpanel_hw descriptor.
+     */
+    h->name           = "Ilitek ILI9341";
+    h->resize         = ili9481_resize;
+    h->set_pixel      = ili_set_pixel;
+    h->fill_rectangle = ili_fill_rectangle;
+    h->draw_image     = ili_draw_image;
+    h->draw_glyph     = ili_draw_glyph;
 }

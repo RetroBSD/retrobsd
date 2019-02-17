@@ -67,7 +67,6 @@ char *vi_Version =
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-//#include <termios.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <sys/time.h>
@@ -81,12 +80,17 @@ char *vi_Version =
 #include <ctype.h>
 #include <assert.h>
 #include <errno.h>
-//#include <err.h>
 #include <stdarg.h>
 
 #include "lib/last_char_is.c"
-#include "lib/strlcat.c"
-#include "lib/strlcpy.c"
+#if defined(linux) || defined(__APPLE__)
+#   include <termios.h>
+#   include <err.h>
+#else
+#   include "lib/strlcat.c"
+#   include "lib/strlcpy.c"
+#   define termios              sgttyb
+#endif
 
 #include <strings.h>
 
@@ -96,7 +100,6 @@ char *vi_Version =
 #endif							/* TRUE */
 #define MAX_SCR_COLS		BUFSIZ
 #define BUFSIZ_STATBUF		200
-#define termios                 sgttyb
 
 // Misc. non-Ascii keys that report an escape sequence
 #define VI_K_UP			128	// cursor key Up
@@ -1789,7 +1792,8 @@ static void colon(Byte * buf)
 	while (isblnk(*buf))
 		buf++;
 	/* FIXED strcpy((char *) args, (char *) buf); */
-	if (strlcpy((char *) args, (char *) buf, sizeof((char *)args)) > sizeof((char *)args)) err(1, "strlcpy overflow in function colon");
+	if (strlcpy((char *) args, (char *) buf, sizeof(args)) > sizeof(args))
+            err(1, "strlcpy overflow in function colon");
 	buf1 = (Byte *)last_char_is((char *)cmd, '!');
 	if (buf1) {
 		useforce = TRUE;
@@ -3183,7 +3187,7 @@ static int isblnk(Byte c) // is the char a blank or tab
 //----- Set terminal attributes --------------------------------
 static void rawmode(void)
 {
-#if 0
+#ifdef TCSANOW
 	tcgetattr(0, &term_orig);
 	term_vi = term_orig;
 	term_vi.c_lflag &= (~ICANON & ~ECHO);	// leave ISIG ON- allow intr's
@@ -3208,7 +3212,7 @@ static void rawmode(void)
 
 static void cookmode(void)
 {
-#if 0
+#ifdef TCSANOW
 	tcsetattr(0, TCSANOW, &term_orig);
 #else
         ioctl(0, TIOCSETP, &term_orig);

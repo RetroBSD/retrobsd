@@ -4,75 +4,14 @@ RELEASE     = 0.0
 BUILD       = $(shell git rev-list HEAD --count)
 VERSION     = $(RELEASE)-$(BUILD)
 
-# chipKIT PIC32 compiler from UECIDE
-ifdef UECIDE
+# PIC32 compiler from UECIDE
+# Use UECIDE package from http://uecide.org/download
 ifndef GCCPREFIX
-	ifeq ($(UECIDE)/compilers/pic32-tools-452/bin/pic32-gcc,$(wildcard $(UECIDE)/compilers/pic32-tools-452/bin/pic32-gcc))
-		GCCPREFIX   = ${UECIDE}/compilers/pic32-tools-452/bin/pic32-
-		LDFLAGS     = -Wl,--oformat=elf32-tradlittlemips
-		INCLUDES    = -I${UECIDE}/compilers/pic32-tools-452/lib/gcc/pic32mx/4.5.2/include
-	endif
-endif
-endif
-
-# chipKIT PIC32 compiler on Linux
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Download from https://github.com/jasonkajita/chipKIT-cxx/downloads
-# and unzip to /usr/local.
-# Need to copy pic32-tools/pic32mx/include/stdarg.h
-# to pic32-tools/lib/gcc/pic32mx/4.5.1/include.
-# MPLABX C32 compiler doesn't support some functionality
-# we need, so use chipKIT compiler by default.
-ifndef GCCPREFIX
-ifeq (/usr/local/pic32-tools/bin/pic32-gcc,$(wildcard /usr/local/pic32-tools/bin/pic32-gcc))
-    GCCPREFIX   = /usr/local/pic32-tools/bin/pic32-
-    LDFLAGS     = -Wl,--oformat=elf32-tradlittlemips
-    INCLUDES    = -I/usr/local/pic32-tools/lib/gcc/pic32mx/4.5.1/include
-endif
-endif
-
-# Generic MIPS toolchain
-# ~~~~~~~~~~~~~~~~~~~~~~
-# You can build it from sources, as described on page
-# http://retrobsd.org/wiki/doku.php/doc/toolchain-mips
-ifndef GCCPREFIX
-ifeq (/usr/local/mips-gcc-4.8.1/bin/mips-elf-gcc,$(wildcard /usr/local/mips-gcc-4.8.1/bin/mips-elf-gcc))
-    GCCPREFIX   = /usr/local/mips-gcc-4.8.1/bin/mips-elf-
-    LDFLAGS     =
-    INCLUDES    =
-endif
-endif
-
-# Generic MIPS toolchain on *BSD
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# You can build it from sources, as described on page
-# http://retrobsd.org/wiki/doku.php/doc/toolchain-mips
-# Maybe you can install it from packages one day too.
-ifndef GCCPREFIX
-ifeq (/usr/local/mips-elf/bin/mips-elf-gcc,$(wildcard /usr/local/mips-elf/bin/mips-elf-gcc))
-    GCCPREFIX   = /usr/local/mips-elf/bin/mips-elf-
-    LDFLAGS     =
-    INCLUDES    =
-endif
-endif
-
-# Mentor Sourcery CodeBench Lite toolchain
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# You can download a Linux or Windows binary package from
-# https://sourcery.mentor.com/GNUToolchain/release2641
-ifndef GCCPREFIX
-ifeq (/usr/local/mips-2013.11/bin/mips-sde-elf-gcc,$(wildcard /usr/local/mips-2013.11/bin/mips-sde-elf-gcc))
-    GCCPREFIX   = /usr/local/mips-2013.11/bin/mips-sde-elf-
-    LDFLAGS     = -Wl,--oformat=elf32-tradlittlemips
-    INCLUDES    =
-endif
-endif
-ifndef GCCPREFIX
-ifeq (/usr/local/mips-2014.05/bin/mips-sde-elf-gcc,$(wildcard /usr/local/mips-2014.05/bin/mips-sde-elf-gcc))
-    GCCPREFIX   = /usr/local/mips-2014.05/bin/mips-sde-elf-
-    LDFLAGS     = -Wl,--oformat=elf32-tradlittlemips
-    INCLUDES    =
-endif
+    ifeq ($(HOME)/.uecide/compilers/pic32-tools/bin/pic32-gcc,$(wildcard $(HOME)/.uecide/compilers/pic32-tools/bin/pic32-gcc))
+        GCCPREFIX   = $(HOME)/.uecide/compilers/pic32-tools/bin/pic32-
+        LDFLAGS     = -Wl,--oformat=elf32-tradlittlemips
+        INCLUDES    = -I$(HOME)/.uecide/compilers/pic32-tools/lib/gcc/pic32mx/4.5.2/include
+    endif
 endif
 
 ifndef GCCPREFIX

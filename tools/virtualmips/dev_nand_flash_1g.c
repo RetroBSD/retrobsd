@@ -373,7 +373,7 @@ static int load_nand_flash_file (nand_flash_1g_data_t * d)
     int i, j = 0;
     struct dirent *ent = NULL;
     DIR *p_dir;
-    char file_path[64];
+    char file_path[1024];
     char *file_name;
     char block_number[16];
     int fd;

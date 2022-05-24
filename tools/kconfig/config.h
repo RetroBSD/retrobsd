@@ -125,15 +125,15 @@ struct config {
 /*
  * Config has a global notion of which architecture is being used.
  */
-int     arch;
-char    *archname;
+extern int     arch;
+extern char    *archname;
 #define ARCH_PIC32      1
 
 /*
  * For each architecture, a set of CPU's may be specified as supported.
  * These and the options (below) are put in the C flags in the makefile.
  */
-struct cputype {
+extern struct cputype {
     char    *cpu_name;
     struct  cputype *cpu_next;
 } *cputype;
@@ -143,7 +143,7 @@ struct cputype {
  * but which may also specify values for the options.
  * A separate set of options may be defined for make-style options.
  */
-struct opt {
+extern struct opt {
     char    *op_name;
     char    *op_value;
     struct  opt *op_next;
@@ -152,30 +152,30 @@ struct opt {
 /*
  * Mapping of signal names to pins.
  */
-struct signal {
+extern struct signal {
     char    *sig_name;
     int     sig_pin;
     int     sig_invert;
     struct  signal *sig_next;
 } *siglist;
 
-char    *board;
-char    *ldscript;
+extern char    *board;
+extern char    *ldscript;
 
-int do_trace;
+extern int do_trace;
 
-struct  device *dtab;
+extern struct  device *dtab;
 
-char    errbuf[80];
-int     yyline;
+extern char    errbuf[80];
+extern int     yyline;
 
-struct  file_list *ftab, *conf_list, **confp, *comp_list, **compp;
+extern struct  file_list *ftab, *conf_list, **confp, *comp_list, **compp;
 
-int     zone, hadtz;
-int     dst;
-int     debugging;
+extern int     zone, hadtz;
+extern int     dst;
+extern int     debugging;
 
-int     maxusers;
+extern int     maxusers;
 
 #define eq(a,b) (!strcmp(a,b))
 

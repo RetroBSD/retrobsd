@@ -102,6 +102,7 @@
 #include "config.h"
 #include <ctype.h>
 #include <stdio.h>
+#include <sys/sysmacros.h>
 
 struct  device cur;
 struct  device *curp = 0;

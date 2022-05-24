@@ -3,7 +3,7 @@
  */
 OUTPUT_FORMAT("elf32-littlemips", "elf32-bigmips",
 	      "elf32-littlemips")
-OUTPUT_ARCH(mips)
+OUTPUT_ARCH(pic32mx)
 ENTRY(_reset_vector_)
 MEMORY
 {

@@ -262,7 +262,7 @@ bad1:	(void)lseek(rfd, (off_t)r_off, SEEK_SET);
 void symobj()
 {
 	register RLIB *rp;
-	char hb[sizeof(struct ar_hdr) + 1];
+	char hb[sizeof(struct ar_hdr) + 1 + 64];
 	long ransize, baseoff;
 
 	/* Rewind the archive, leaving the magic number. */

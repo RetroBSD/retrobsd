@@ -3,18 +3,19 @@
  */
 OUTPUT_FORMAT("elf32-littlemips", "elf32-bigmips",
 	      "elf32-littlemips")
-OUTPUT_ARCH(mips)
+OUTPUT_ARCH(pic32mx)
 ENTRY(_start)
 
 /* Required by Microchip C32 linker */
-/*MEMORY
+MEMORY
 {
-  kseg0_program_mem    (rx)  : ORIGIN = 0x9D000000, LENGTH = 0x80000
-  kseg0_boot_mem             : ORIGIN = 0x9FC00490, LENGTH = 0x970
-  exception_mem              : ORIGIN = 0x9FC01000, LENGTH = 0x1000
-  kseg1_boot_mem             : ORIGIN = 0xBFC00000, LENGTH = 0x490
+  kseg0_program_mem    (rx)  : ORIGIN = 0x9D000000, LENGTH = 512K
+  exception_mem        (rx)  : ORIGIN = 0x9D000000, LENGTH = 0x1000
+  kseg0_boot_mem       (rx)  : ORIGIN = 0x9FC00000, LENGTH = 12K-16
+  kseg1_boot_mem       (rx)  : ORIGIN = 0xBFC00000, LENGTH = 0x490
   kseg1_data_mem       (w!x) : ORIGIN = 0xA0000000, LENGTH = 0x20000
-}*/
+}
+_min_heap_size = 0;
 
 SECTIONS
 {

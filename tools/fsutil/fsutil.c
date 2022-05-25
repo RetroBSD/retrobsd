@@ -85,7 +85,9 @@ static void print_help (char *progname)
     printf ("  %s [--verbose] [--partition=n] disk.img\n", progname);
     printf ("  %s --check [--fix] [--partition=n] disk.img\n", progname);
     printf ("  %s --new [--size=kbytes | --partition=n] [--manifest=file] disk.img [dir]\n", progname);
+#ifdef ENABLE_FUSE
     printf ("  %s --mount [--partition=n] disk.img dir\n", progname);
+#endif
     printf ("  %s --add [--partition=n] disk.img files...\n", progname);
     printf ("  %s --extract [--partition=n] disk.img\n", progname);
     printf ("  %s --repartition=format disk.img\n", progname);
@@ -99,7 +101,9 @@ static void print_help (char *progname)
     printf ("  -s NUM, --size=NUM  Size of filesystem in kbytes.\n");
     printf ("  -M file, --manifest=file\n");
     printf ("                      List of files and attributes to create.\n");
+#ifdef ENABLE_FUSE
     printf ("  -m, --mount         Mount the filesystem.\n");
+#endif
     printf ("  -a, --add           Add files to filesystem.\n");
     printf ("  -x, --extract       Extract all files.\n");
     printf ("  -r format, --repartition=format\n");
@@ -889,7 +893,12 @@ int main (int argc, char **argv)
             print_help (argv[0]);
             return -1;
         }
+#ifdef ENABLE_FUSE
         return fs_mount(&fs, argv[i+1]);
+#else
+        fprintf (stderr, "fsutil: -m, --mount options are not supported in this version.\n");
+        return -1;
+#endif
     }
 
     /* Print the structure of flesystem. */

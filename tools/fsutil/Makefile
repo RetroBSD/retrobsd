@@ -5,14 +5,21 @@ OBJS		= fsutil.o superblock.o block.c inode.o create.o check.o \
                   file.o mount.o manifest.o
 PROG		= fsutil
 
+# Enable mount option.
+#ENABLE_FUSE    = 1
+
 # For Mac OS X
 ifneq ($(wildcard /usr/local/lib/pkgconfig),)
     FUSE_PATH   = /usr/local/lib/pkgconfig
 endif
 
 # Fuse
-MOUNT_CFLAGS    = $(shell PKG_CONFIG_PATH=$(FUSE_PATH) pkg-config fuse --cflags)
-LIBS            += $(shell PKG_CONFIG_PATH=$(FUSE_PATH) pkg-config fuse --libs)
+ifneq ($(ENABLE_FUSE),)
+    CFLAGS       += -DENABLE_FUSE
+    MOUNT_CFLAGS = -DFUSE_USE_VERSION=26
+    MOUNT_CFLAGS += $(shell PKG_CONFIG_PATH=$(FUSE_PATH) pkg-config fuse --cflags)
+    LIBS         += $(shell PKG_CONFIG_PATH=$(FUSE_PATH) pkg-config fuse --libs)
+endif
 
 all:		$(PROG)
 

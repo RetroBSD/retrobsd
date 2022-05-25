@@ -16,8 +16,11 @@ CFLAGS		= -DSIM_PIC32 -DPIC32MX7 -DMAX32
 #CFLAGS		= -DSIM_PIC32 -DPIC32MX7 -DUBW32
 
 CC          = gcc -g
-CFLAGS		+= -Wall -Werror -MT $@ -MD -MP -MF .deps/$*.dep -I/opt/local/include -I/opt/local/include/libelf
-LIBS		= -lpthread -lelf
+CFLAGS		+= -Wall -Werror -MT $@ -MD -MP -MF .deps/$*.dep
+LIBS		= -lpthread
+
+CFLAGS      += $(shell pkg-config libelf --cflags)
+LIBS		+= $(shell pkg-config libelf --libs)
 
 ifneq ($(wildcard /usr/lib/librt.a),)
 LIBS		+= -lrt                             # Linux

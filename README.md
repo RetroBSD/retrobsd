@@ -36,7 +36,7 @@ Berkeley YACC, GNU bison, flex, groff, ELF library and FUSE library.
 Under Ubuntu, for example, you can do it by command:
 
 ```shell
-$ sudo apt-get install bison byacc flex groff-base libelf-dev libfuse-dev
+$ sudo apt-get install bison byacc flex groff-base libelf-dev
 ```
 
 You can change a desired filesystem size and swap area size, as required.

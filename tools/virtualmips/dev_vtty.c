@@ -803,12 +803,12 @@ static void vtty_read_and_store (vtty_t * vtty)
         vtty->telnet_opt = c;
         /* if telnet client can support ttype, ask it to send ttype string */
         if ((vtty->telnet_cmd == WILL) && (vtty->telnet_opt == TELOPT_TTYPE)) {
-            vtty_put_char (vtty, IAC);
-            vtty_put_char (vtty, SB);
+            vtty_put_char (vtty, (char)IAC);
+            vtty_put_char (vtty, (char)SB);
             vtty_put_char (vtty, TELOPT_TTYPE);
             vtty_put_char (vtty, TELQUAL_SEND);
-            vtty_put_char (vtty, IAC);
-            vtty_put_char (vtty, SE);
+            vtty_put_char (vtty, (char)IAC);
+            vtty_put_char (vtty, (char)SE);
         }
         vtty->input_state = VTTY_INPUT_TEXT;
         return;

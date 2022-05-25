@@ -28,7 +28,7 @@
 #include <unistd.h>
 #include <errno.h>
 
-#define FUSE_USE_VERSION 26
+#ifdef ENABLE_FUSE
 #include <fuse.h>
 
 #include "bsdfs.h"
@@ -909,3 +909,5 @@ int fs_mount(fs_t *fs, char *dirname)
     printf ("\nFilesystem %s unmounted\n", dirname);
     return ret;
 }
+
+#endif /* ENABLE_FUSE */

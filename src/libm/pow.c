@@ -5,8 +5,6 @@
 #include <errno.h>
 #include <math.h>
 
-int errno;
-
 double
 pow(arg1,arg2)
         double arg1, arg2;

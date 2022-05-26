@@ -8,7 +8,6 @@
 #include <errno.h>
 #include <math.h>
 
-int	errno;
 static double	p0	= .2080384346694663001443843411e7;
 static double	p1	= .3028697169744036299076048876e5;
 static double	p2	= .6061485330061080841615584556e2;

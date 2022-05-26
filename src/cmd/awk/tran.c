@@ -19,6 +19,10 @@ cell	*recloc;	/* location of record */
 cell	*nrloc;		/* NR */
 cell	*nfloc;		/* NF */
 
+void checkval(cell *vp);
+int hash(char *s);
+
+void
 syminit()
 {
 	setsymtab("0", tostring("0"), 0.0, NUM|STR|CON|FLD, symtab);
@@ -51,6 +55,7 @@ cell **makesymtab()
 	return(cp);
 }
 
+void
 freesymtab(ap)	/* free symbol table */
 cell *ap;
 {
@@ -76,7 +81,7 @@ awkfloat f;
 unsigned t;
 cell **tab;
 {
-	register h;
+	int h;
 	register cell *p;
 	cell *lookup();
 
@@ -101,13 +106,14 @@ cell **tab;
 	return(p);
 }
 
+int
 hash(s)	/* form hash value for string s */
-register unsigned char *s;
+char *s;
 {
 	register int hashval;
 
 	for (hashval = 0; *s != '\0'; )
-		hashval += *s++;
+		hashval += (unsigned char) *s++;
 	return(hashval % MAXSYM);
 }
 
@@ -206,6 +212,7 @@ register cell *vp;
 	return(vp->sval);
 }
 
+void
 checkval(vp)
 register cell *vp;
 {

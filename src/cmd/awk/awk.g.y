@@ -1,4 +1,8 @@
 /*	awk.g.y	4.1	82/05/07	*/
+%code requires {
+#define YYSTYPE node *
+#define YYSTYPE_IS_DECLARED 1
+}
 
 %token	FIRSTTOKEN	/*must be first*/
 %token	FINAL FATAL
@@ -37,14 +41,22 @@
 #ifndef	DEBUG
 #   define PUTS(x)
 #endif
-#define YYSTYPE node *
 int yylex(void);
-void yyerror(char *s);
 node *valtonode(cell *a, int b);
+node *stat1(int a, node *b);
 node *stat2(int a, node *b, node *c);
 node *stat3(int a, node *b, node *c, node *d);
+node *stat4(int a, node *b, node *c, node *d, node *e);
 node *op1(int a, node *b);
 node *op2(int a, node *b, node *c);
+node *op3(int a, node *b, node *c, node *d);
+node *genprint(void);
+node *pa2stat(node *a, node *b, node *c);
+node *linkum(node *a, node *b);
+struct fa *makedfa(node *p);
+char *cclenter(char *p);
+node *exptostat(node *a);
+void startreg(void);
 %}
 %%
 
@@ -91,7 +103,7 @@ else:
 	;
 
 field:
-	  FIELD		{ PUTS("field"); $$ = valtonode($1, CFLD); }
+	  FIELD		{ PUTS("field"); $$ = valtonode((cell *) $1, CFLD); }
 	| INDIRECT term { PUTS("ind field"); $$ = op1(INDIRECT, $2); }
 	;
 
@@ -100,14 +112,14 @@ if:
 	;
 
 lex_expr:
-	  expr MATCHOP regular_expr	{ PUTS("expr~re"); $$ = op2($2, $1, makedfa($3)); }
+	  expr MATCHOP regular_expr	{ PUTS("expr~re"); $$ = op2((int) $2, $1, (node *) makedfa($3)); }
 	| '(' lex_expr ')'	{ PUTS("(lex_expr)"); $$ = $2; }
 	;
 
 var:
-	  NUMBER	{PUTS("number"); $$ = valtonode($1, CCON); }
-	| STRING 	{ PUTS("string"); $$ = valtonode($1, CCON); }
-	| VAR		{ PUTS("var"); $$ = valtonode($1, CVAR); }
+	  NUMBER	{PUTS("number"); $$ = valtonode((cell *) $1, CCON); }
+	| STRING 	{ PUTS("string"); $$ = valtonode((cell *) $1, CCON); }
+	| VAR		{ PUTS("var"); $$ = valtonode((cell *) $1, CVAR); }
 	| VAR '[' expr ']'	{ PUTS("array[]"); $$ = op2(ARRAY, $1, $3); }
 	| field
 	;
@@ -121,7 +133,7 @@ term:
 			$$ = op2(FNCN, $1, valtonode(lookup("$record", symtab, 0), CFLD));
 			}
 	| FNCN '(' expr ')'	{ PUTS("func(expr)"); $$ = op2(FNCN, $1, $3); }
-	| SPRINTF print_list	{ PUTS("sprintf"); $$ = op1($1, $2); }
+	| SPRINTF print_list	{ PUTS("sprintf"); $$ = op1((int) $1, $2); }
 	| SUBSTR '(' expr ',' expr ',' expr ')'
 			{ PUTS("substr(e,e,e)"); $$ = op3(SUBSTR, $3, $5, $7); }
 	| SUBSTR '(' expr ',' expr ')'
@@ -149,7 +161,7 @@ term:
 expr:
 	  term		{ PUTS("term"); }
 	| expr term	{ PUTS("expr term"); $$ = op2(CAT, $1, $2); }
-	| var ASGNOP expr	{ PUTS("var=expr"); $$ = stat2($2, $1, $3); }
+	| var ASGNOP expr	{ PUTS("var=expr"); $$ = stat2((int) $2, $1, $3); }
 	;
 
 optNL:
@@ -174,7 +186,7 @@ pa_stats:
 
 pattern:
 	  regular_expr	{ PUTS("regex");
-		$$ = op2(MATCH, valtonode(lookup("$record", symtab, 0), CFLD), makedfa($1));
+		$$ = op2(MATCH, valtonode(lookup("$record", symtab, 0), CFLD), (node *) makedfa($1));
 		}
 	| rel_expr	{ PUTS("relexpr"); }
 	| lex_expr	{ PUTS("lexexpr"); }
@@ -207,10 +219,10 @@ regular_expr:
 r:
 	  CHAR		{ PUTS("regex CHAR"); $$ = op2(CHAR, (node *) 0, $1); }
 	| DOT		{ PUTS("regex DOT"); $$ = op2(DOT, (node *) 0, (node *) 0); }
-	| CCL		{ PUTS("regex CCL"); $$ = op2(CCL, (node *) 0, cclenter($1)); }
-	| NCCL		{ PUTS("regex NCCL"); $$ = op2(NCCL, (node *) 0, cclenter($1)); }
-	| '^'		{ PUTS("regex ^"); $$ = op2(CHAR, (node *) 0, HAT); }
-	| '$'		{ PUTS("regex $"); $$ = op2(CHAR, (node *) 0 ,(node *) 0); }
+	| CCL		{ PUTS("regex CCL"); $$ = op2(CCL, (node *) 0, (node *) cclenter((char*)$1)); }
+	| NCCL		{ PUTS("regex NCCL"); $$ = op2(NCCL, (node *) 0, (node *) cclenter((char*)$1)); }
+	| '^'		{ PUTS("regex ^"); $$ = op2(CHAR, (node *) 0, (node *) HAT); }
+	| '$'		{ PUTS("regex $"); $$ = op2(CHAR, (node *) 0, (node *) 0); }
 	| r OR r	{ PUTS("regex OR"); $$ = op2(OR, $1, $3); }
 	| r r   %prec CAT
 			{ PUTS("regex CAT"); $$ = op2(CAT, $1, $2); }
@@ -222,7 +234,7 @@ r:
 
 rel_expr:
 	  expr RELOP expr
-		{ PUTS("expr relop expr"); $$ = op2($2, $1, $3); }
+		{ PUTS("expr relop expr"); $$ = op2((int) $2, $1, $3); }
 	| '(' rel_expr ')'
 		{ PUTS("(relexpr)"); $$ = $2; }
 	;
@@ -234,13 +246,13 @@ st:
 
 simple_stat:
 	  PRINT print_list redir expr
-		{ PUTS("print>stat"); $$ = stat3($1, $2, $3, $4); }
+		{ PUTS("print>stat"); $$ = stat3((int) $1, $2, $3, $4); }
 	| PRINT print_list
-		{ PUTS("print list"); $$ = stat3($1, $2, nullstat, nullstat); }
+		{ PUTS("print list"); $$ = stat3((int) $1, $2, nullstat, nullstat); }
 	| PRINTF print_list redir expr
-		{ PUTS("printf>stat"); $$ = stat3($1, $2, $3, $4); }
+		{ PUTS("printf>stat"); $$ = stat3((int) $1, $2, $3, $4); }
 	| PRINTF print_list
-		{ PUTS("printf list"); $$ = stat3($1, $2, nullstat, nullstat); }
+		{ PUTS("printf list"); $$ = stat3((int) $1, $2, nullstat, nullstat); }
 	| expr	{ PUTS("expr"); $$ = exptostat($1); }
 	|		{ PUTS("null simple statement"); $$ = nullstat; }
 	| error		{ yyclearin; yyerror("illegal statement"); }

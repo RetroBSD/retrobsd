@@ -31,6 +31,10 @@ static cell nullval = { EMPTY, EMPTY, 0.0, NUM, 0 };
 obj	true	= { OBOOL, BTRUE, 0 };
 obj	false	= { OBOOL, BFALSE, 0 };
 
+void redirprint(char *s, int a, node *b);
+void tempfree(obj a);
+
+void
 run()
 {
 	register int i;
@@ -40,7 +44,7 @@ run()
 	/* Wait for children to complete if output to a pipe. */
 	for (i=0; i<FILENUM; i++)
 		if (files[i].fp && files[i].type == '|')
-			pclose(files[i].fp);
+			fclose(files[i].fp);
 }
 
 obj execute(u) node *u;
@@ -152,7 +156,7 @@ obj matchop(a,n) node **a;
 	if (isstr(x)) s = x.optr->sval;
 	else	s = getsval(x.optr);
 	tempfree(x);
-	i = match(a[1], s);
+	i = match((struct fa*) a[1], s);
 	if (n==MATCH && i==1 || n==NOTMATCH && i==0)
 		return(true);
 	else
@@ -224,6 +228,7 @@ obj relop(a,n) node **a;
 	}
 }
 
+void
 tempfree(a) obj a;
 {
 	if (!istemp(a)) return;
@@ -397,7 +402,7 @@ char *format(s,a) char *s; node *a;
 	return(buf);
 }
 
-obj asprintf(a,n) node **a;
+obj asprintf1(a,n) node **a;
 {
 	obj x;
 	node *y;
@@ -592,7 +597,7 @@ obj aprintf(a,n) node **a;
 {
 	obj x;
 
-	x = asprintf(a,n);
+	x = asprintf1(a,n);
 	if (a[1]==NULL) {
 		printf("%s", x.optr->sval);
 		tempfree(x);
@@ -840,7 +845,11 @@ obj print(a,n) node **a;
 	return(false);
 }
 
-obj nullproc() {}
+obj nullproc()
+{
+        static const obj zero;
+        return zero;
+}
 
 obj nodetoobj(a) node *a;
 {
@@ -853,6 +862,7 @@ obj nodetoobj(a) node *a;
 	return(x);
 }
 
+void
 redirprint(s, a, b) char *s; node *b;
 {
 	register int i;

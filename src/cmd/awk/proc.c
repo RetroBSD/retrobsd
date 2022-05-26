@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "awk.def.h"
 #include "awk.h"
 
 struct tok

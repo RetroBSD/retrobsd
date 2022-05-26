@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
+#include <string.h>
 #include "awk.def.h"
 #include "awk.h"
 
@@ -13,12 +14,12 @@ int	svargc;
 char	**svargv, **xargv;
 extern FILE	*yyin;	/* lex input file */
 char	*lexprog;	/* points to program argument if it exists */
-extern	errorflag;	/* non-zero if any syntax errors; set by yyerror */
 
 int filefd, symnum, ansfd;
 char *filelist;
-extern int maxsym, errno;
+extern int maxsym;
 
+int
 main(argc, argv)
         int argc;
         char *argv[];
@@ -29,10 +30,10 @@ main(argc, argv)
 	while (argc > 1) {
 		argc--;
 		argv++;
-		/* this nonsense is because gcos argument handling */
-		/* folds -F into -f.  accordingly, one checks the next
-		/* character after f to see if it's -f file or -Fx.
-		*/
+		/* this nonsense is because gcos argument handling
+		 * folds -F into -f.  accordingly, one checks the next
+		 * character after f to see if it's -f file or -Fx.
+		 */
 		if (argv[0][0] == '-' && TOLOWER(argv[0][1]) == 'f' && argv[0][2] == '\0') {
 			yyin = fopen(argv[1], "r");
 			if (yyin == NULL)
@@ -92,6 +93,7 @@ main(argc, argv)
 	exit(errorflag);
 }
 
+int
 yywrap()
 {
 	return(1);

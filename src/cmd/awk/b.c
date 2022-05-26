@@ -38,6 +38,12 @@ node	*point[MAXLIN];
 int	setcnt;
 int	line;
 
+void follow(node *v);
+int notin(int **array, int n, int *prev);
+void cfoll(node *v);
+void overflo(void);
+void freetr(node *p);
+void penter(node *p);
 
 struct fa *makedfa(p)	/* returns dfa for tree pointed to by p */
 node *p;
@@ -58,6 +64,7 @@ node *p;
 	return(fap);
 }
 
+void
 penter(p)	/* set up parent pointers and leaf indices */
 node *p;
 {
@@ -83,6 +90,7 @@ node *p;
 	}
 }
 
+void
 freetr(p)	/* free parse tree and follow sets */
 node *p;
 {
@@ -109,7 +117,7 @@ node *p;
 char *cclenter(p)
 register char *p;
 {
-	register i, c;
+	int i, c;
 	char *op;
 
 	op = p;
@@ -137,15 +145,17 @@ register char *p;
 	return(tostring(chars));
 }
 
+void
 overflo()
 {
 	error(FATAL, "regular expression too long\n");
 }
 
+void
 cfoll(v)		/* enter follow set of each leaf of vertex v into foll[leaf] */
 register node *v;
 {
-	register i;
+	int i;
 	int prev;
 	int *add();
 
@@ -174,10 +184,11 @@ register node *v;
 	}
 }
 
+int
 first(p)			/* collects initially active leaves of p into setvec */
 register node *p;		/* returns 0 or 1 depending on whether p matches empty string */
 {
-	register b;
+	int b;
 
 	switch(type(p)) {
 		LEAF
@@ -208,6 +219,7 @@ register node *p;		/* returns 0 or 1 depending on whether p matches empty string
 	return(-1);
 }
 
+void
 follow(v)
 node *v;		/* collects leaves that can follow v into setvec */
 {
@@ -243,8 +255,8 @@ node *v;		/* collects leaves that can follow v into setvec */
 	}
 }
 
-member(c, s)	/* is c in s? */
-register char c, *s;
+int
+member(char c, char *s)	/* is c in s? */
 {
 	while (*s)
 		if (c == *s++)
@@ -252,10 +264,11 @@ register char c, *s;
 	return(0);
 }
 
+int
 notin(array, n, prev)		/* is setvec in array[0] thru array[n]? */
 int **array;
 int *prev; {
-	register i, j;
+	int i, j;
 	int *ptr;
 	for (i=0; i<=n; i++) {
 		ptr = array[i];
@@ -272,7 +285,7 @@ int *prev; {
 
 int *add(n) {		/* remember setvec */
 	int *ptr, *p;
-	register i;
+	int i;
 	if ((p = ptr = (int *) malloc((n+1)*sizeof(int))) == NULL)
 		overflo();
 	*ptr = n;
@@ -288,8 +301,8 @@ int *add(n) {		/* remember setvec */
 
 struct fa *cgotofn()
 {
-	register i, k;
-	register int *ptr;
+	int i, k;
+	int *ptr;
 	char c;
 	char *p;
 	node *cp;
@@ -505,11 +518,12 @@ struct fa *cgotofn()
 	return(where[0]);
 }
 
+int
 match(pfa, p)
 register struct fa *pfa;
 register char *p;
 {
-	register count;
+	int count;
 	char c;
 	if (p == 0) return(0);
 	if (pfa->cch == 1) {		/* fast test for first character, if possible */

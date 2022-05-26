@@ -68,7 +68,7 @@ typedef struct {
 	cell *optr;
 } obj;
 
-#define BOTCH	1
+#define BOTCH	0
 struct nd {
 	char ntype;
 	char subtype;
@@ -127,9 +127,23 @@ extern int	pairstack[], paircnt;
 #define istemp(n)	(n.otype == OCELL && n.osub == CTEMP)
 #define isfld(n)	(!donefld && n.osub==CFLD && n.otype==OCELL && n.optr->nval==EMPTY)
 #define isrec(n)	(donefld && n.osub==CFLD && n.otype==OCELL && n.optr->nval!=EMPTY)
-obj	nullproc();
-obj	relop();
+obj	nullproc(void);
+obj	relop(node **a, int n);
 
 #define MAXSYM	50
 #define	HAT	0177	/* matches ^ in regular expr */
 			/* watch out for mach dep */
+struct fa;
+void yyerror(char *s);
+void error(int f, char *s, ...);
+void syminit(void);
+int freeze(char *s);
+int thaw(char *s);
+void run(void);
+void recbld(void);
+int isnumber(char *s);
+int getrec(void);
+int member(char c, char *s);
+void fldbld(void);
+void freesymtab(cell *ap);
+int match(struct fa *pfa, char *p);

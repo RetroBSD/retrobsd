@@ -7,8 +7,6 @@
 #include <errno.h>
 #include <math.h>
 
-int	errno;
-
 static double invpi	  = 1.27323954473516268;
 static double p0	 = -0.1306820264754825668269611177e+5;
 static double p1	  = 0.1055970901714953193602353981e+4;

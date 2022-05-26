@@ -1,12 +1,15 @@
-#include "stdio.h"
+#include <stdio.h>
+#include <unistd.h>
+#include <fcntl.h>
 
+int
 freeze(s)
         char *s;
 {
         int fd;
-	unsigned int *len;
+	size_t len;
 
-	len = (unsigned int *)sbrk(0);
+	len = (size_t) sbrk(0);
 	if((fd = creat(s, 0666)) < 0) {
 		perror(s);
 		return(1);
@@ -17,6 +20,7 @@ freeze(s)
 	return(0);
 }
 
+int
 thaw(s)
         char *s;
 {

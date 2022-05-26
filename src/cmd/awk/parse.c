@@ -119,7 +119,7 @@ node *stat4(a,b,c,d,e) node *b, *c, *d, *e;
 node *valtonode(a, b) cell *a;
 {
 	register node *x;
-	x = node0(a);
+	x = node0((int) a);
 	x->ntype = NVALUE;
 	x->subtype = b;
 	return(x);

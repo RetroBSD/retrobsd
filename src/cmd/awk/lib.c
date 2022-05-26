@@ -30,6 +30,8 @@ cell fldtab[MAXFLD] = {	/*room for fields */
 };
 int	maxfld	= 0;	/* last used field */
 
+void setclvar(char *s);
+
 void
 error(int f, char *s, ...)
 {
@@ -46,12 +48,13 @@ error(int f, char *s, ...)
 		exit(2);
 }
 
+int
 getrec()
 {
 	register char *rr;
 	extern int svargc;
 	extern char **svargv;
-	register c, sep;
+	int c, sep;
 
 	dprintf("**RS=%o, **FS=%o\n", **RS, **FS, NULL);
 	donefld = 0;
@@ -108,6 +111,7 @@ getrec()
 	return(0);	/* true end of file */
 }
 
+void
 setclvar(s)	/* set var=value from s */
 char *s;
 {
@@ -122,6 +126,7 @@ char *s;
 	dprintf("command line set %s to |%s|\n", s, p, NULL);
 }
 
+void
 fldbld()
 {
 	register char *r, *fr, sep;
@@ -183,6 +188,7 @@ fldbld()
 			printf("field %d: |%s|\n", i, fldtab[i].sval);
 }
 
+void
 recbld()
 {
 	int i;
@@ -193,7 +199,7 @@ recbld()
 	r = record;
 	for (i = 1; i <= *NF; i++) {
 		p = getsval(&fldtab[i]);
-		while (*r++ = *p++)
+		while ((*r++ = *p++))
 			;
 		*(r-1) = **OFS;
 	}
@@ -223,6 +229,7 @@ yyerror(s)
 	errorflag = 2;
 }
 
+void
 PUTS(s)
         char *s;
 {
@@ -231,10 +238,11 @@ PUTS(s)
 
 #define	MAXEXPON	38	/* maximum exponenet for fp number */
 
+int
 isnumber(s)
 register char *s;
 {
-	register d1, d2;
+	int d1, d2;
 	int point;
 	char *es;
 

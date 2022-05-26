@@ -30,20 +30,19 @@ LDSCRIPT = "mmb-mx7/bootloader.ld"
 #
 # DEBUG is set to -g by kconfig if debugging is requested (kconfig -g).
 #
-include ../gcc-config.mk
+include ../clang-config.mk
 
-AS              = ${MIPS_GCC_PREFIX}as ${DEBUG} -mips32r2 -EL
-CC              = ${MIPS_GCC_PREFIX}gcc ${DEBUG} -mips32r2 -EL -nostdinc -fno-builtin -Werror -Wall
-CPP             = ${MIPS_GCC_PREFIX}cpp
-LD              = ${MIPS_GCC_PREFIX}gcc -mips32r2 -EL
+AS              = $(LLVMBIN)clang -target mipsel -mcpu=mips32r2 ${DEBUG}
+CC              =  -mabi=o32 -mfloat-abi=soft \
+                  -nostdinc -fshort-double -fomit-frame-pointer -finline-hint-functions -I$(TOPSRC)/include
+CC              = $(LLVMBIN)clang -target mipsel -mcpu=mips32r2 -mabi=o32 -mfloat-abi=soft \
+                  ${DEBUG} -nostdinc -fno-builtin -Werror -Wall
+CPP             = $(LLVMBIN)clang-cpp
+LD              = /usr/lib/llvm-12/bin/ld.lld -m elf32ltsmip
 LDFLAGS         = -nostdlib -T ../${LDSCRIPT} -Wl,-Map=$(basename $@).map
-SIZE            = ${MIPS_GCC_PREFIX}size
-OBJCOPY         = ${MIPS_GCC_PREFIX}objcopy
-OBJDUMP         = ${MIPS_GCC_PREFIX}objdump
-
-ifneq (${MIPS_GCC_FORMAT},)
-    LDFLAGS     += -Wl,--oformat=${MIPS_GCC_FORMAT}
-endif
+SIZE            = $(LLVMBIN)llvm-size
+OBJCOPY         = $(LLVMBIN)llvm-objcopy
+OBJDUMP         = $(LLVMBIN)llvm-objdump
 
 # sources are located via $S relative to the compilation directory
 S               = ../..

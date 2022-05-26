@@ -19,7 +19,8 @@ execlp(name, argv)
 
 static char *
 execat(s1, s2, si)
-	register char *s1, *s2;
+	register char *s1;
+	const char *s2;
 	char *si;
 {
 	register char *s;

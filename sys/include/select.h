@@ -62,7 +62,7 @@ typedef struct fd_set {
 
 #ifndef KERNEL
 #ifndef CROSS
-void     bzero(void *, unsigned long);
+void     bzero(void *, unsigned int);
 #endif
 
 /* According to POSIX.1-2001 */

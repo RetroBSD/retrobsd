@@ -23,9 +23,13 @@ LDFLAGS		=
 LIBS		=
 
 # Add system include path
-ifeq (,$(wildcard /usr/include/i386-linux-gnu))
-    CFLAGS      += -I/usr/include
+ifeq (/usr/include/x86_64-linux-gnu,$(wildcard /usr/include/x86_64-linux-gnu))
+    CFLAGS      += -I/usr/include/x86_64-linux-gnu
 else
+ifeq (/usr/include/i386-linux-gnu,$(wildcard /usr/include/i386-linux-gnu))
     CFLAGS      += -I/usr/include/i386-linux-gnu
+else
+    CFLAGS      += -I/usr/include
+endif
 endif
 CFLAGS		+= -I$(TOPSRC)/include

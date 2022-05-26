@@ -85,7 +85,7 @@ vsyslog(pri, fmt, ap)
 	}
 
 	/* Check priority against setlogmask values. */
-	if (! LOG_MASK(LOG_PRI(pri)) && LogMask)
+	if (LOG_MASK(LOG_PRI(pri)) == 0 && LogMask)
 		return;
 
 	saved_errno = errno;
@@ -161,7 +161,7 @@ vsyslog(pri, fmt, ap)
 		if (pid == -1)
 			return;
 		if (pid == 0) {
-	   		fd = open(_PATH_CONSOLE, O_WRONLY, 0);
+			fd = open(_PATH_CONSOLE, O_WRONLY, 0);
 			p = index(tbuf, '>') + 1;
 			(void)write(fd, p, cnt - (p - tbuf));
 			(void)close(fd);

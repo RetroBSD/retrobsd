@@ -9,14 +9,15 @@ TOPSRC          = $(shell cd ../..; pwd)
 include $(TOPSRC)/target.mk
 vpath %.c $(TOPSRC)/src/startup-mips
 
-CFLAGS          = -Os -B$(TOPSRC)/lib/ -Wa,-x $(DEFS)
+CFLAGS          = -v -Os -B$(TOPSRC)/lib/ $(DEFS)
 
 OBJS		= ../crt0.o
 
 all:		$(OBJS)
 
 ../crt0.o:	crt0.c
-		$(CC) $(DEFS) $(CFLAGS) -c $< -o $@
+		$(CC) $(DEFS) $(CFLAGS) -S $< -o crt0.s
+		$(TOPSRC)/lib/as -x crt0.s -o $@
 
 clean:
 		rm -f $(OBJS) *~

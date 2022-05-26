@@ -12,6 +12,7 @@ OBJS            = adddf3.o \
                   fixdfsi.o \
                   floatsidf.o \
                   floatsisf.o \
+                  fp_mode.o \
                   muldf3.o \
                   mulsf3.o \
                   subsf3.o

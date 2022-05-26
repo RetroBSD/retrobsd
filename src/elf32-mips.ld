@@ -250,4 +250,5 @@ SECTIONS
   .gcc_compiled_long64 : { KEEP(*(.gcc_compiled_long64)) }
   /DISCARD/ : { *(.rel.dyn) }
   /DISCARD/ : { *(.note.GNU-stack) *(.gnu_debuglink) }
+  /DISCARD/ : { *(.reginfo) *(.MIPS.abiflags) *(.got.plt) *(.got) }
 }

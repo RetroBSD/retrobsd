@@ -17,6 +17,8 @@
 #include <sys/dir.h>
 #include <grp.h>
 #include <strings.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 static	char	*fchdirmsg = "Can't fchdir() back to starting directory";
 struct	passwd *pwd;
@@ -27,88 +29,52 @@ int	status;
 int	fflag;
 int	rflag;
 
-main(argc, argv)
-	char *argv[];
-{
-	register int c;
-	register gid_t gid;
-	register char *cp, *group;
-	struct group *grp;
-	int	fcurdir;
-
-	argc--, argv++;
-	while (argc > 0 && argv[0][0] == '-') {
-		for (cp = &argv[0][1]; *cp; cp++) switch (*cp) {
-
-		case 'f':
-			fflag++;
-			break;
-
-		case 'R':
-			rflag++;
-			break;
-
-		default:
-			fatal(255, "unknown option: %c", *cp);
-		}
-		argv++, argc--;
-	}
-	if (argc < 2) {
-		fprintf(stderr, "usage: chown [-fR] owner[.group] file ...\n");
-		exit(-1);
-	}
-	gid = -1;
-	group = index(argv[0], '.');
-	if (group != NULL) {
-		*group++ = '\0';
-		if (!isnumber(group)) {
-			if ((grp = getgrnam(group)) == NULL)
-				fatal(255, "unknown group: %s",group);
-			gid = grp -> gr_gid;
-			(void) endgrent();
-		} else if (*group != '\0')
-			gid = atoi(group);
-	}
-	if (!isnumber(argv[0])) {
-		if ((pwd = getpwnam(argv[0])) == NULL)
-			fatal(255, "unknown user id: %s",argv[0]);
-		uid = pwd->pw_uid;
-	} else
-		uid = atoi(argv[0]);
-
-	fcurdir = open(".", O_RDONLY);
-	if	(fcurdir < 0)
-		fatal(255, "Can't open .");
-
-	for (c = 1; c < argc; c++) {
-		/* do stat for directory arguments */
-		if (lstat(argv[c], &stbuf) < 0) {
-			status += Perror(argv[c]);
-			continue;
-		}
-		if (rflag && ((stbuf.st_mode&S_IFMT) == S_IFDIR)) {
-			status += chownr(argv[c], uid, gid, fcurdir);
-			continue;
-		}
-		if (chown(argv[c], uid, gid)) {
-			status += Perror(argv[c]);
-			continue;
-		}
-	}
-	exit(status);
-}
-
+int
 isnumber(s)
 	char *s;
 {
-	register c;
+	int c;
 
-	while(c = *s++)
+	while ((c = *s++))
 		if (!isdigit(c))
 			return (0);
 	return (1);
 }
 
+int
+Perror(s)
+	char *s;
+{
+	if (!fflag) {
+		fprintf(stderr, "chown: ");
+		perror(s);
+	}
+	return (!fflag);
+}
+
+int
+error(fmt, a)
+	char *fmt, *a;
+{
+	if (!fflag) {
+		fprintf(stderr, "chown: ");
+		fprintf(stderr, fmt, a);
+		putc('\n', stderr);
+	}
+	return (!fflag);
+}
+
+void
+fatal(status, fmt, a)
+	int status;
+	char *fmt, *a;
+{
+	fflag = 0;
+	(void) error(fmt, a);
+	exit(status);
+}
+
+int
 chownr(dir, uid, gid, savedir)
 	char *dir;
 {
@@ -150,41 +116,80 @@ chownr(dir, uid, gid, savedir)
 		    (ecode = Perror(dp->d_name)))
 			break;
 	}
-	if	(fchdir(savedir) < 0)
-		fatal(255, fchdirmsg);
+	if (fchdir(savedir) < 0)
+		fatal(255, fchdirmsg, "");
 	closedir(dirp);
 	return (ecode);
 }
 
-error(fmt, a)
-	char *fmt, *a;
+int
+main(argc, argv)
+	char *argv[];
 {
+	register int c;
+	register gid_t gid;
+	register char *cp, *group;
+	struct group *grp;
+	int	fcurdir;
 
-	if (!fflag) {
-		fprintf(stderr, "chown: ");
-		fprintf(stderr, fmt, a);
-		putc('\n', stderr);
+	argc--, argv++;
+	while (argc > 0 && argv[0][0] == '-') {
+		for (cp = &argv[0][1]; *cp; cp++) switch (*cp) {
+
+		case 'f':
+			fflag++;
+			break;
+
+		case 'R':
+			rflag++;
+			break;
+
+		default:
+			fatal(255, "unknown option: %c", (char*)(int)*cp);
+		}
+		argv++, argc--;
 	}
-	return (!fflag);
-}
+	if (argc < 2) {
+		fprintf(stderr, "usage: chown [-fR] owner[.group] file ...\n");
+		exit(-1);
+	}
+	gid = -1;
+	group = index(argv[0], '.');
+	if (group != NULL) {
+		*group++ = '\0';
+		if (!isnumber(group)) {
+			if ((grp = getgrnam(group)) == NULL)
+				fatal(255, "unknown group: %s", group);
+			gid = grp -> gr_gid;
+			(void) endgrent();
+		} else if (*group != '\0')
+			gid = atoi(group);
+	}
+	if (!isnumber(argv[0])) {
+		if ((pwd = getpwnam(argv[0])) == NULL)
+			fatal(255, "unknown user id: %s", argv[0]);
+		uid = pwd->pw_uid;
+	} else
+		uid = atoi(argv[0]);
 
-fatal(status, fmt, a)
-	int status;
-	char *fmt, *a;
-{
+	fcurdir = open(".", O_RDONLY);
+	if	(fcurdir < 0)
+		fatal(255, "Can't open .", "");
 
-	fflag = 0;
-	(void) error(fmt, a);
+	for (c = 1; c < argc; c++) {
+		/* do stat for directory arguments */
+		if (lstat(argv[c], &stbuf) < 0) {
+			status += Perror(argv[c]);
+			continue;
+		}
+		if (rflag && ((stbuf.st_mode&S_IFMT) == S_IFDIR)) {
+			status += chownr(argv[c], uid, gid, fcurdir);
+			continue;
+		}
+		if (chown(argv[c], uid, gid)) {
+			status += Perror(argv[c]);
+			continue;
+		}
+	}
 	exit(status);
-}
-
-Perror(s)
-	char *s;
-{
-
-	if (!fflag) {
-		fprintf(stderr, "chown: ");
-		perror(s);
-	}
-	return (!fflag);
 }

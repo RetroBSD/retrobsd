@@ -1,7 +1,7 @@
 TOPSRC		= $(shell cd ../../..; pwd)
 include $(TOPSRC)/target.mk
 
-CFLAGS          = -O
+CFLAGS          = -O -Werror
 SRCS            = chown.c
 OBJS            = chown.o
 MAN             = chown.0

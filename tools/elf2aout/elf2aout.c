@@ -447,9 +447,14 @@ usage:                  fprintf(stderr,
                     ph[i].p_type == PT_GNU_EH_FRAME)
 			continue;
 
+                /* Ignore zero sized segments. */
+                if (ph[i].p_memsz == 0)
+                        continue;
+
                 if (verbose)
                         printf ("Section type=%x flags=%x vaddr=%x filesz=%x\n",
                             ph[i].p_type, ph[i].p_flags, ph[i].p_vaddr, ph[i].p_filesz);
+
 		/* Section types we can't handle... */
 		if (ph[i].p_type != PT_LOAD && ph[i].p_type != PT_GNU_EH_FRAME)
 			errx(1, "Program header %d type %x can't be converted.", i, ph[i].p_type);

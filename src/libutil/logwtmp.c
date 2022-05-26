@@ -20,7 +20,10 @@
 #include <sys/stat.h>
 #include <utmp.h>
 #include <paths.h>
+#include <fcntl.h>
+#include <unistd.h>
 
+void
 logwtmp(line, name, host)
 	char *line, *name, *host;
 {
@@ -30,7 +33,8 @@ logwtmp(line, name, host)
 	time_t time();
 	char *strncpy();
 
-	if ((fd = open(_PATH_WTMP, O_WRONLY|O_APPEND, 0)) < 0)
+	fd = open(_PATH_WTMP, O_WRONLY|O_APPEND, 0);
+	if (fd < 0)
 		return;
 	if (!fstat(fd, &buf)) {
 		(void)strncpy(ut.ut_line, line, sizeof(ut.ut_line));

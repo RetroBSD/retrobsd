@@ -10,5 +10,5 @@ int
 fileno(fp)
         register FILE *fp;
 {
-	return fileno(fp);
+	return fp->_file;
 }

@@ -37,9 +37,7 @@ set_ch(win, y, x, ch)
 /*
  * This routine adds the character to the current position
  */
-int waddch(win, c)
-        WINDOW	*win;
-        char	c;
+int waddch(WINDOW *win, char c)
 {
 	int	x, y;
 	int	newx;

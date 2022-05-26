@@ -12,7 +12,7 @@ CFLAGS		+= -DNUM_SYMS_CACHE=50 -Wall -Werror
 all:            adb
 
 adb:            $(OBJS)
-		${CC} ${LDFLAGS} -o adb.elf $(OBJS) ${LIBS}
+		${LD} ${LDFLAGS} -o adb.elf $(OBJS) ${LIBS}
 		${OBJDUMP} -S adb.elf > adb.dis
 		${SIZE} adb.elf
 		${ELF2AOUT} adb.elf $@ && rm adb.elf

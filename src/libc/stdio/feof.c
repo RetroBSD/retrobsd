@@ -10,5 +10,5 @@ int
 feof(fp)
         register FILE *fp;
 {
-	return feof(fp);
+	return (fp->_flag & _IOEOF) != 0;
 }

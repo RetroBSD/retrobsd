@@ -10,7 +10,7 @@
  *				   been reduced to two write() statements.
  *	3.0	08Sep93		5. Polish it up for use in 'ld.c' (2.11BSD).
  *				   Release into the Public Domain.
- *      --------------------------------------------------              
+ *      --------------------------------------------------
 */
 
 #include <vmf.h>
@@ -20,12 +20,14 @@
 #include <stdlib.h>
 #include <strings.h>
 #include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 /*
  * Choose ONE and only one of the following swap policies
  */
-/* #define LRU                  /* Least Recently Used */
-/* #define PERC 3               /* Percolation */
+// #define LRU                  /* Least Recently Used */
+// #define PERC 3               /* Percolation */
 #define LRS                     /* Least Recently Swapped */
 
 #ifndef DEBUG
@@ -107,13 +109,13 @@ vmmapseg(vspace, segno)
 	/* look for segment in memory */
 	for	(s = (struct vseg *)seghead[0].fwd;
 		 s->s_segno != segno || s->s_vspace != vspace;
-	    	 s = (struct vseg *)s->s_link.fwd)
+		 s = (struct vseg *)s->s_link.fwd)
 		{
 		if	(s == (struct vseg *)seghead)
 			{     /* not in memory */
 			int status;
 
-			for (s = (struct vseg *)s->s_link.back; s->s_lock_count != 0; 
+			for (s = (struct vseg *)s->s_link.back; s->s_lock_count != 0;
 					s = (struct vseg *)s->s_link.back)
 				{
 				if (s == (struct vseg *)seghead)
@@ -196,7 +198,7 @@ swap(seg, iofunc)           /* used only from this file */
 	if	(lseek(v->v_fd, file_address, L_SET) == -1L)
 		return(-2);
 
-	switch	((*iofunc)(v->v_fd, seg->s_cinfo, BYTESPERSEG)) 
+	switch	((*iofunc)(v->v_fd, seg->s_cinfo, BYTESPERSEG))
 		{
 		case BYTESPERSEG:
 			return(0);
@@ -330,9 +332,9 @@ vmclose(vs)
 	vmflush();
 	/* invalidate all segments associated with that file */
 	for	(s = (struct vseg *)seghead[0].fwd; s != (struct vseg *)seghead;
-		 s = (struct vseg *)s->s_link.fwd) 
+		 s = (struct vseg *)s->s_link.fwd)
 		{
-		if	(s->s_vspace == vs) 
+		if	(s->s_vspace == vs)
 			{
 			s->s_segno = NOSEGNO;
 			s->s_vspace = NULL;

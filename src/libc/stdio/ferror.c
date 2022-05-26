@@ -10,5 +10,5 @@ int
 ferror(fp)
         register FILE *fp;
 {
-	return ferror(fp);
+	return (fp->_flag & _IOERR) != 0;
 }

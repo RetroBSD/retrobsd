@@ -10,7 +10,7 @@ MANSRC          = chown.8
 all:            chown $(MAN)
 
 chown:          ${OBJS}
-		${CC} ${LDFLAGS} -o chown.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o chown.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S chown.elf > chown.dis
 		${SIZE} chown.elf
 		${ELF2AOUT} chown.elf $@ && rm chown.elf

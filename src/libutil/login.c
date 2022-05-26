@@ -19,6 +19,10 @@
 #include <utmp.h>
 #include <stdio.h>
 #include <paths.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+int ttyslot(void);
 
 void
 login(ut)

@@ -11,9 +11,7 @@
  *
  */
 void
-box(win, vert, hor)
-        WINDOW	*win;
-        char	vert, hor;
+box(WINDOW *win, char vert, char hor)
 {
 	int	i;
 	int	endy, endx;

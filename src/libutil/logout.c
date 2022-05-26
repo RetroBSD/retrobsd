@@ -18,11 +18,15 @@
 #include <sys/file.h>
 #include <sys/time.h>
 #include <strings.h>
+#include <string.h>
 #include <utmp.h>
 #include <paths.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 typedef struct utmp UTMP;
 
+int
 logout(line)
 	register char *line;
 {

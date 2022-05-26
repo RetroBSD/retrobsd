@@ -9,9 +9,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-int _flsbuf(c, iop)
-    unsigned char c;
-    register FILE *iop;
+int _flsbuf(unsigned char c, register FILE *iop)
 {
 	register char *base;
 	register int n, rn;

@@ -39,10 +39,10 @@ ifeq ($(LLVMBIN),)
 endif
 
 CC		= $(LLVMBIN)clang -target mipsel -mcpu=mips32r2 -mabi=o32 -mfloat-abi=soft \
-                  -nostdinc -fomit-frame-pointer -finline-hint-functions -I$(TOPSRC)/include \
+                  -fomit-frame-pointer -finline-hint-functions -I$(TOPSRC)/include \
                   -Wno-builtin-requires-header
 CXX             = $(LLVMBIN)clang++ -target mipsel -mcpu=mips32r2 -mabi=o32 -mfloat-abi=soft \
-                  -nostdinc -fomit-frame-pointer -finline-hint-functions -I$(TOPSRC)/include
+                  -fomit-frame-pointer -finline-hint-functions -I$(TOPSRC)/include
 LD		= $(LLVMBIN)ld.lld -m elf32ltsmip
 AR		= $(LLVMBIN)llvm-ar
 RANLIB          = $(LLVMBIN)llvm-ranlib
@@ -57,10 +57,9 @@ TAGSFILE	= tags
 MANROFF		= nroff -man -h -Tascii
 ELF2AOUT	= $(TOPSRC)/tools/elf2aout/elf2aout
 
-CFLAGS		= -Os
+CFLAGS		= -Os -nostdinc
 
-LDFLAGS		= -N -nostartfiles -fno-dwarf2-cfi-asm -T$(TOPSRC)/src/elf32-mips.ld \
-		   $(TOPSRC)/src/crt0.o -L$(TOPSRC)/src
+LDFLAGS		= -T$(TOPSRC)/src/elf32-mips.ld $(TOPSRC)/src/crt0.o -L$(TOPSRC)/src
 LIBS		= -lc
 
 # Enable mips16e instruction set by default

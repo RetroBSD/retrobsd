@@ -17,7 +17,7 @@
 TOPSRC		= $(shell cd ../..; pwd)
 include $(TOPSRC)/target.mk
 
-CFLAGS          += ${DEFS}
+CFLAGS          += ${DEFS} -Werror
 
 SRCS            = login.c logout.c logwtmp.c
 OBJS            = login.o logout.o logwtmp.o

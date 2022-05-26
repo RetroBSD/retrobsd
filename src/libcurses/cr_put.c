@@ -155,7 +155,7 @@ plod(cnt)
 	}
 	else
 */
-		j = outcol - destcol;
+	j = outcol - destcol;
 	/*
 	 * If we will later need a \n which will turn into a \r\n by
 	 * the system or the terminal, then don't bother to try to \r.

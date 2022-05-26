@@ -5,6 +5,55 @@ char *Ipath = "/share/adb";
 
 static int exitflg;
 
+struct sgttyb adbtty, usrtty;
+jmp_buf erradb;
+sig_t sigint, sigqit;
+MAP     txtmap;
+MAP     datmap;
+BKPTR   bkpthead;       /* breakpoints */
+struct SYMbol *symbol;
+const char *errflg;
+char    *lp;
+char    *myname;        /* program name */
+char    printbuf[MAXLIN];
+int     wtflag;
+int     pid;
+int     executing;
+int     fcor;
+int     fsym;
+int     mkfault;
+int     dotinc;
+int     adrflg;
+int     cntflg;
+int     lastframe;
+int     kernel;
+int     callpc;
+int     octal;
+int     localok;
+int     maxoff;
+int     maxpos;
+int     eof;
+int     infile;
+int     argcount;
+int     magic;
+int     signo;
+long    dot;
+long    ditto;
+long    expv;
+long    adrval;
+long    cntval;
+long    localval;
+long    maxfile;
+long    txtsiz;
+long    datsiz;
+long    datbas;
+long    stksiz;
+long    entrypt;
+long    loopcnt;
+long    var[36];
+u_int   corhdr [USIZE/sizeof(u_int)];
+off_t   symoff;
+
 long
 roundn(a, b)
     long a, b;

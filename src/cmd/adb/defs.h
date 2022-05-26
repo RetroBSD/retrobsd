@@ -152,68 +152,68 @@ typedef struct reglist REGLIST;
 #define leng(a)         ((long)((unsigned)(a)))
 #define shorten(a)      ((long)a)
 
-struct sgttyb adbtty, usrtty;
-jmp_buf erradb;
-sig_t sigint, sigqit;
+extern struct sgttyb adbtty, usrtty;
+extern jmp_buf erradb;
+extern sig_t sigint, sigqit;
 
-MAP     txtmap;
-MAP     datmap;
+extern MAP     txtmap;
+extern MAP     datmap;
 
-BKPTR   bkpthead;       /* breakpoints */
+extern BKPTR   bkpthead;       /* breakpoints */
 
-struct SYMbol *symbol;
+extern struct SYMbol *symbol;
 
 extern u_int *uframe;
-const char *errflg;
-char    *lp;
-char    *myname;        /* program name */
-char    *printptr;
+extern const char *errflg;
+extern char    *lp;
+extern char    *myname;        /* program name */
+extern char    *printptr;
 extern char *Ipath;
 extern char *symfil;
 extern char *corfil;
-char    printbuf[MAXLIN];
-int     wtflag;
-int     pid;
-int     executing;
-int     fcor;
-int     fsym;
-int     mkfault;
-int     dotinc;
-int     adrflg;
-int     cntflg;
-int     lastframe;
-int     kernel;
-int     callpc;
-int     octal;
-int     localok;
-int     maxoff;
-int     maxpos;
-int     eof;
-int     infile;
-int     argcount;
-int     magic;
-int     signo;
+extern char    printbuf[MAXLIN];
+extern int     wtflag;
+extern int     pid;
+extern int     executing;
+extern int     fcor;
+extern int     fsym;
+extern int     mkfault;
+extern int     dotinc;
+extern int     adrflg;
+extern int     cntflg;
+extern int     lastframe;
+extern int     kernel;
+extern int     callpc;
+extern int     octal;
+extern int     localok;
+extern int     maxoff;
+extern int     maxpos;
+extern int     eof;
+extern int     infile;
+extern int     argcount;
+extern int     magic;
+extern int     signo;
 extern int lastc;
 extern int lastcom;
 extern int outfile;
-long    dot;
-long    ditto;
-long    expv;
-long    adrval;
-long    cntval;
-long    localval;
-long    maxfile;
-long    txtsiz;
-long    datsiz;
-long    datbas;
-long    stksiz;
-long    entrypt;
-long    loopcnt;
+extern long    dot;
+extern long    ditto;
+extern long    expv;
+extern long    adrval;
+extern long    cntval;
+extern long    localval;
+extern long    maxfile;
+extern long    txtsiz;
+extern long    datsiz;
+extern long    datbas;
+extern long    stksiz;
+extern long    entrypt;
+extern long    loopcnt;
 
-long    var[36];
-u_int   corhdr [USIZE/sizeof(u_int)];
+extern long    var[36];
+extern u_int   corhdr [USIZE/sizeof(u_int)];
 
-off_t   symoff;
+extern off_t   symoff;
 
 extern const REGLIST reglist [];
 

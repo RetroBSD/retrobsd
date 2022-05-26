@@ -13,7 +13,7 @@ OBJS            = data.o error.o expr.o function.o gen.o initialise.o io.o lex.o
 all:		smallc
 
 smallc: 	$(OBJS)
-		${CC} ${LDFLAGS} -o $@.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o $@.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S $@.elf > $@.dis
 		${SIZE} $@.elf
 		${ELF2AOUT} $@.elf $@

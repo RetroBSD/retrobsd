@@ -14,7 +14,7 @@ SRCS            = y1.c y2.c y3.c y4.c
 all:            yacc
 
 yacc:       ${OBJS}
-		${CC} ${LDFLAGS} -o yacc.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o yacc.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S yacc.elf > yacc.dis
 		${SIZE} yacc.elf
 		${ELF2AOUT} yacc.elf $@

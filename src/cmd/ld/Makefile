@@ -16,7 +16,7 @@ MANSRC		= ld.1
 all:            ld $(MAN)
 
 ld:             ${OBJS}
-		${CC} ${LDFLAGS} -o ld.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o ld.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S ld.elf > ld.dis
 		${SIZE} ld.elf
 		${ELF2AOUT} ld.elf $@ && rm ld.elf

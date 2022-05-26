@@ -14,7 +14,7 @@ MANSRC		= chflags.1
 all:            chflags chflags.0
 
 chflags:        ${OBJS}
-		${CC} ${LDFLAGS} -o chflags.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o chflags.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S chflags.elf > chflags.dis
 		${SIZE} chflags.elf
 		${ELF2AOUT} chflags.elf $@ && rm chflags.elf

@@ -9,7 +9,7 @@ OBJS            = setbrk.o blok.o stak.o cmd.o fault.o main.o word.o \
 all:		sh
 
 sh:		${OBJS}
-		${CC} ${LDFLAGS} -o sh.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o sh.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S sh.elf > sh.dis
 		${SIZE} sh.elf
 		${ELF2AOUT} sh.elf $@ && rm sh.elf

@@ -9,7 +9,7 @@ OBJS		= disktool.o
 all:            disktool
 
 disktool:       ${OBJS}
-		${CC} ${LDFLAGS} -o disktool.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o disktool.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S disktool.elf > disktool.dis
 		${SIZE} disktool.elf
 		${ELF2AOUT} disktool.elf $@ && rm disktool.elf

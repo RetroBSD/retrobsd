@@ -22,7 +22,7 @@ OBJS            = alloc.o printf.o sh.char.o sh.dir.o sh.dol.o \
 all:		csh
 
 csh:		${OBJS}
-		${CC} ${LDFLAGS} -o csh.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o csh.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S csh.elf > csh.dis
 		${SIZE} csh.elf
 		${ELF2AOUT} csh.elf $@ && rm csh.elf

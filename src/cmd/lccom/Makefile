@@ -40,7 +40,7 @@ build:
 # lccom: the C compiler
 #
 lccom:          ${OBJS}
-		${CC} ${LDFLAGS} -o lccom.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o lccom.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S lccom.elf > lccom.dis
 		${SIZE} lccom.elf
 		${ELF2AOUT} lccom.elf $@ && rm lccom.elf

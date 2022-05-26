@@ -10,7 +10,7 @@ TESTS           = tests/*.scm
 all:            scm ${MAN}
 
 scm:            ${OBJS}
-		${CC} ${LDFLAGS} -o scm.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o scm.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S scm.elf > scm.dis
 		${SIZE} scm.elf
 		${ELF2AOUT} scm.elf $@ && rm scm.elf

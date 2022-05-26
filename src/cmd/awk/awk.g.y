@@ -37,6 +37,14 @@
 #ifndef	DEBUG
 #   define PUTS(x)
 #endif
+#define YYSTYPE node *
+int yylex(void);
+void yyerror(char *s);
+node *valtonode(cell *a, int b);
+node *stat2(int a, node *b, node *c);
+node *stat3(int a, node *b, node *c, node *d);
+node *op1(int a, node *b);
+node *op2(int a, node *b, node *c);
 %}
 %%
 
@@ -48,13 +56,13 @@ program:
 begin:
 	  XBEGIN '{' stat_list '}'	{ PUTS("XBEGIN list"); $$ = $3; }
 	| begin NL
-	| 	{ PUTS("empty XBEGIN"); $$ = (hack)nullstat; }
+	| 	{ PUTS("empty XBEGIN"); $$ = nullstat; }
 	;
 
 end:
 	  XEND '{' stat_list '}'	{ PUTS("XEND list"); $$ = $3; }
 	| end NL
-	|	{ PUTS("empty END"); $$ = (hack)nullstat; }
+	|	{ PUTS("empty END"); $$ = nullstat; }
 	;
 
 compound_conditional:
@@ -160,7 +168,7 @@ pa_stat:
 
 pa_stats:
 	  pa_stats pa_stat st	{ PUTS("pa_stats pa_stat"); $$ = linkum($1, $2); }
-	|	{ PUTS("null pa_stat"); $$ = (hack)nullstat; }
+	|	{ PUTS("null pa_stat"); $$ = nullstat; }
 	| pa_stats pa_stat	{PUTS("pa_stats pa_stat"); $$ = linkum($1, $2); }
 	;
 
@@ -234,7 +242,7 @@ simple_stat:
 	| PRINTF print_list
 		{ PUTS("printf list"); $$ = stat3($1, $2, nullstat, nullstat); }
 	| expr	{ PUTS("expr"); $$ = exptostat($1); }
-	|		{ PUTS("null simple statement"); $$ = (hack)nullstat; }
+	|		{ PUTS("null simple statement"); $$ = nullstat; }
 	| error		{ yyclearin; yyerror("illegal statement"); }
 	;
 
@@ -255,7 +263,7 @@ statement:
 
 stat_list:
 	  stat_list statement	{ PUTS("stat_list stat"); $$ = linkum($1, $2); }
-	|			{ PUTS("null stat list"); $$ = (hack)nullstat; }
+	|			{ PUTS("null stat list"); $$ = nullstat; }
 	;
 
 while:

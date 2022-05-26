@@ -9,7 +9,7 @@ OBJS		= sed0.o sed1.o
 all:            sed
 
 sed:            ${OBJS}
-		${CC} ${LDFLAGS} -o sed.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o sed.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S sed.elf > sed.dis
 		${SIZE} sed.elf
 		${ELF2AOUT} sed.elf $@ && rm sed.elf

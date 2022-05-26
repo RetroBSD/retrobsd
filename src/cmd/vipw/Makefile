@@ -27,7 +27,7 @@ MANSRC		= vipw.8
 all:            vipw ${MAN}
 
 vipw:        	${OBJS}
-		${CC} ${LDFLAGS} -o vipw.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o vipw.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S vipw.elf > vipw.dis
 		${SIZE} vipw.elf
 		${ELF2AOUT} vipw.elf $@ && rm vipw.elf

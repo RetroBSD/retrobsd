@@ -15,7 +15,7 @@ LIBS            += -lcurses -ltermcap -lvmf -lc
 all:            med
 
 med: 		${OBJS}
-		${CC} ${LDFLAGS} -o med.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o med.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S med.elf > med.dis
 		${SIZE} med.elf
 		${ELF2AOUT} med.elf $@ && rm med.elf

@@ -14,7 +14,7 @@ MANSRC		= fstat.8
 all:            fstat fstat.0
 
 fstat:          ${OBJS}
-		${CC} ${LDFLAGS} -o fstat.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o fstat.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S fstat.elf > fstat.dis
 		${SIZE} fstat.elf
 		${ELF2AOUT} fstat.elf $@ && rm fstat.elf

@@ -11,7 +11,7 @@ LDFLAGS         +=
 all:            as
 
 as:             as.o
-		${CC} ${LDFLAGS} -o as.elf as.o ${LIBS}
+		${LD} ${LDFLAGS} -o as.elf as.o ${LIBS}
 		${OBJDUMP} -S as.elf > as.dis
 		${SIZE} as.elf
 		${ELF2AOUT} as.elf $@ && rm as.elf

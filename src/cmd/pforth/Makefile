@@ -33,7 +33,7 @@ OBJS            += pf_io_stdio.o
 all:            ../pforth ../../lib/pforth.dic
 
 ../pforth:      ${OBJS}
-		${CC} ${LDFLAGS} -o pforth.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o pforth.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S pforth.elf > pforth.dis
 		${SIZE} pforth.elf
 		${ELF2AOUT} pforth.elf $@

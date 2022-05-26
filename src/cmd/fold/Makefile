@@ -10,7 +10,7 @@ MANSRC          = fold.1
 all:            fold $(MAN)
 
 fold:          ${OBJS}
-		${CC} ${LDFLAGS} -o fold.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o fold.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S fold.elf > fold.dis
 		${SIZE} fold.elf
 		${ELF2AOUT} fold.elf $@ && rm fold.elf

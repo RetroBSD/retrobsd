@@ -48,79 +48,79 @@ libacu:
 
 
 uuencode: uuencode.o
-	${CC} ${LDFLAGS} -o uuencode.elf uuencode.o ${LIBS}
+	${LD} ${LDFLAGS} -o uuencode.elf uuencode.o ${LIBS}
 	${OBJDUMP} -S uuencode.elf > uuencode.dis
 	${SIZE} uuencode.elf
 	${ELF2AOUT} uuencode.elf $@
 
 uudecode: uudecode.o
-	${CC} ${LDFLAGS} -o uudecode.elf uudecode.o ${LIBS}
+	${LD} ${LDFLAGS} -o uudecode.elf uudecode.o ${LIBS}
 	${OBJDUMP} -S uudecode.elf > uudecode.dis
 	${SIZE} uudecode.elf
 	${ELF2AOUT} uudecode.elf $@
 
 uucp: uucp.o libuucp.a
-	${CC} ${LDFLAGS} -o uucp.elf uucp.o -L. -luucp ${LIBS}
+	${LD} ${LDFLAGS} -o uucp.elf uucp.o -L. -luucp ${LIBS}
 	${OBJDUMP} -S uucp.elf > uucp.dis
 	${SIZE} uucp.elf
 	${ELF2AOUT} uucp.elf $@
 
 uux: uux.o libuucp.a
-	${CC} ${LDFLAGS} -o uux.elf uux.o -L. -luucp ${LIBS}
+	${LD} ${LDFLAGS} -o uux.elf uux.o -L. -luucp ${LIBS}
 	${OBJDUMP} -S uux.elf > uux.dis
 	${SIZE} uux.elf
 	${ELF2AOUT} uux.elf $@
 
 uuxqt: uuxqt.o libuucp.a
-	${CC} ${LDFLAGS} -o uuxqt.elf uuxqt.o -L. -luucp ${LIBS}
+	${LD} ${LDFLAGS} -o uuxqt.elf uuxqt.o -L. -luucp ${LIBS}
 	${OBJDUMP} -S uuxqt.elf > uuxqt.dis
 	${SIZE} uuxqt.elf
 	${ELF2AOUT} uuxqt.elf $@
 
 uulog: uulog.o libuucp.a
-	${CC} ${LDFLAGS} -o uulog.elf uulog.o -L. -luucp ${LIBS}
+	${LD} ${LDFLAGS} -o uulog.elf uulog.o -L. -luucp ${LIBS}
 	${OBJDUMP} -S uulog.elf > uulog.dis
 	${SIZE} uulog.elf
 	${ELF2AOUT} uulog.elf $@
 
 uuclean: uuclean.o libuucp.a
-	${CC} ${LDFLAGS} -o uuclean.elf uuclean.o -L. -luucp ${LIBS}
+	${LD} ${LDFLAGS} -o uuclean.elf uuclean.o -L. -luucp ${LIBS}
 	${OBJDUMP} -S uuclean.elf > uuclean.dis
 	${SIZE} uuclean.elf
 	${ELF2AOUT} uuclean.elf $@
 
 uuname: uuname.o libuucp.a
-	${CC} ${LDFLAGS} -o uuname.elf uuname.o -L. -luucp ${LIBS}
+	${LD} ${LDFLAGS} -o uuname.elf uuname.o -L. -luucp ${LIBS}
 	${OBJDUMP} -S uuname.elf > uuname.dis
 	${SIZE} uuname.elf
 	${ELF2AOUT} uuname.elf $@
 
 uupoll: uupoll.o libuucp.a
-	${CC} ${LDFLAGS} -o uupoll.elf uupoll.o -L. -luucp ${LIBS}
+	${LD} ${LDFLAGS} -o uupoll.elf uupoll.o -L. -luucp ${LIBS}
 	${OBJDUMP} -S uupoll.elf > uupoll.dis
 	${SIZE} uupoll.elf
 	${ELF2AOUT} uupoll.elf $@
 
 uusnap: uusnap.o libuucp.a
-	${CC} ${LDFLAGS} -o uusnap.elf uusnap.o -L. -luucp ${LIBS}
+	${LD} ${LDFLAGS} -o uusnap.elf uusnap.o -L. -luucp ${LIBS}
 	${OBJDUMP} -S uusnap.elf > uusnap.dis
 	${SIZE} uusnap.elf
 	${ELF2AOUT} uusnap.elf $@
 
 uusend: uusend.o libuucp.a
-	${CC} ${LDFLAGS} -o uusend.elf uusend.o -L. -luucp ${LIBS}
+	${LD} ${LDFLAGS} -o uusend.elf uusend.o -L. -luucp ${LIBS}
 	${OBJDUMP} -S uusend.elf > uusend.dis
 	${SIZE} uusend.elf
 	${ELF2AOUT} uusend.elf $@
 
 uuq: uuq.o libuucp.a
-	${CC} ${LDFLAGS} -o uuq.elf uuq.o -L. -luucp ${LIBS}
+	${LD} ${LDFLAGS} -o uuq.elf uuq.o -L. -luucp ${LIBS}
 	${OBJDUMP} -S uuq.elf > uuq.dis
 	${SIZE} uuq.elf
 	${ELF2AOUT} uuq.elf $@
 
 uucico: cico.o libuucp.a
-	${CC} ${LDFLAGS} -o uucico.elf cico.o -L. -Laculib -luucp -lacu ${LIBS}
+	${LD} ${LDFLAGS} -o uucico.elf cico.o -L. -Laculib -luucp -lacu ${LIBS}
 	${OBJDUMP} -S uucico.elf > uucico.dis
 	${SIZE} uucico.elf
 	${ELF2AOUT} uucico.elf $@

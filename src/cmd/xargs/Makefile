@@ -14,7 +14,7 @@ MANSRC		= xargs.1
 all:            xargs ${MAN}
 
 xargs:          ${OBJS}
-		${CC} ${LDFLAGS} -o xargs.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o xargs.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S xargs.elf > xargs.dis
 		${SIZE} xargs.elf
 		${ELF2AOUT} xargs.elf $@ && rm xargs.elf

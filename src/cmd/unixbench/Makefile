@@ -153,43 +153,43 @@ programs: $(BINS)
 
 # Individual programs
 $(PROGDIR)/arithoh:	$(SRCDIR)/arith.c
-	${CC} ${LDFLAGS} -o $@.elf $< ${LIBS} ${OPTON} -Darithoh
+	${LD} ${LDFLAGS} -o $@.elf $< ${LIBS} ${OPTON} -Darithoh
 	${OBJDUMP} -S $@.elf > $@.dis
 	${SIZE} $@.elf
 	${ELF2AOUT} $@.elf $@
 
 $(PROGDIR)/register: $(SRCDIR)/arith.c
-	${CC} ${LDFLAGS} -o $@.elf $< ${LIBS} ${OPTON} -Ddatum='register int'
+	${LD} ${LDFLAGS} -o $@.elf $< ${LIBS} ${OPTON} -Ddatum='register int'
 	${OBJDUMP} -S $@.elf > $@.dis
 	${SIZE} $@.elf
 	${ELF2AOUT} $@.elf $@
 
 $(PROGDIR)/short: $(SRCDIR)/arith.c
-	${CC} ${LDFLAGS} -o $@.elf $< ${LIBS} ${OPTON} -Ddatum=short
+	${LD} ${LDFLAGS} -o $@.elf $< ${LIBS} ${OPTON} -Ddatum=short
 	${OBJDUMP} -S $@.elf > $@.dis
 	${SIZE} $@.elf
 	${ELF2AOUT} $@.elf $@
 
 $(PROGDIR)/int: $(SRCDIR)/arith.c
-	${CC} ${LDFLAGS} -o $@.elf $< ${LIBS} ${OPTON} -Ddatum=int
+	${LD} ${LDFLAGS} -o $@.elf $< ${LIBS} ${OPTON} -Ddatum=int
 	${OBJDUMP} -S $@.elf > $@.dis
 	${SIZE} $@.elf
 	${ELF2AOUT} $@.elf $@
 
 $(PROGDIR)/long: $(SRCDIR)/arith.c
-	${CC} ${LDFLAGS} -o $@.elf $< ${LIBS} ${OPTON} -Ddatum=long
+	${LD} ${LDFLAGS} -o $@.elf $< ${LIBS} ${OPTON} -Ddatum=long
 	${OBJDUMP} -S $@.elf > $@.dis
 	${SIZE} $@.elf
 	${ELF2AOUT} $@.elf $@
 
 $(PROGDIR)/float: $(SRCDIR)/arith.c
-	${CC} ${LDFLAGS} -o $@.elf $< ${LIBS} ${OPTON} -Ddatum=float
+	${LD} ${LDFLAGS} -o $@.elf $< ${LIBS} ${OPTON} -Ddatum=float
 	${OBJDUMP} -S $@.elf > $@.dis
 	${SIZE} $@.elf
 	${ELF2AOUT} $@.elf $@
 
 $(PROGDIR)/double: $(SRCDIR)/arith.c
-	${CC} ${LDFLAGS} -o $@.elf $< ${LIBS} ${OPTON} -Ddatum=double
+	${LD} ${LDFLAGS} -o $@.elf $< ${LIBS} ${OPTON} -Ddatum=double
 	${OBJDUMP} -S $@.elf > $@.dis
 	${SIZE} $@.elf
 	${ELF2AOUT} $@.elf $@
@@ -197,82 +197,82 @@ $(PROGDIR)/double: $(SRCDIR)/arith.c
 
 
 $(PROGDIR)/whetstone-double: $(SRCDIR)/whets.c
-	${CC} ${LDFLAGS} -o $@.elf $< ${LIBS} ${OPTON} -DDP -DUNIX -DUNIXBENCH -lm -lc
+	${LD} ${LDFLAGS} -o $@.elf $< ${LIBS} ${OPTON} -DDP -DUNIX -DUNIXBENCH -lm -lc
 	${OBJDUMP} -S $@.elf > $@.dis
 	${SIZE} $@.elf
 	${ELF2AOUT} $@.elf $@
 
 $(PROGDIR)/hanoi: $(SRCDIR)/hanoi.c
-	${CC} ${LDFLAGS} -o $@.elf $< ${LIBS} ${OPTON}
+	${LD} ${LDFLAGS} -o $@.elf $< ${LIBS} ${OPTON}
 	${OBJDUMP} -S $@.elf > $@.dis
 	${SIZE} $@.elf
 	${ELF2AOUT} $@.elf $@
 
 
 $(PROGDIR)/poll: $(SRCDIR)/time-polling.c
-	${CC} ${LDFLAGS} -o $@.elf $< ${LIBS} ${OPTON}
+	${LD} ${LDFLAGS} -o $@.elf $< ${LIBS} ${OPTON}
 	${OBJDUMP} -S $@.elf > $@.dis
 	${SIZE} $@.elf
 	${ELF2AOUT} $@.elf $@
 
 $(PROGDIR)/poll2: $(SRCDIR)/time-polling.c
-	${CC} ${LDFLAGS} -o $@.elf $< ${LIBS} ${OPTON}
+	${LD} ${LDFLAGS} -o $@.elf $< ${LIBS} ${OPTON}
 	${OBJDUMP} -S $@.elf > $@.dis
 	${SIZE} $@.elf
 	${ELF2AOUT} $@.elf $@
 	$(CC) -DHAS_POLL2 -DUNIXBENCH -o $(PROGDIR)/poll2 ${CFLAGS} ${OPTON} $(SRCDIR)/time-polling.c
 
 $(PROGDIR)/select: $(SRCDIR)/time-polling.c
-	${CC} ${LDFLAGS} -o $@.elf $< ${LIBS} ${OPTON}
+	${LD} ${LDFLAGS} -o $@.elf $< ${LIBS} ${OPTON}
 	${OBJDUMP} -S $@.elf > $@.dis
 	${SIZE} $@.elf
 	${ELF2AOUT} $@.elf $@
 	$(CC) -DHAS_SELECT -DUNIXBENCH -o $(PROGDIR)/select ${CFLAGS} ${OPTON} $(SRCDIR)/time-polling.c
 
 $(PROGDIR)/fstime: $(SRCDIR)/fstime.c
-	${CC} ${LDFLAGS} -o $@.elf $< ${LIBS} ${OPTON} -Dawk=1
+	${LD} ${LDFLAGS} -o $@.elf $< ${LIBS} ${OPTON} -Dawk=1
 	${OBJDUMP} -S $@.elf > $@.dis
 	${SIZE} $@.elf
 	${ELF2AOUT} $@.elf $@
 
 $(PROGDIR)/fsbuffer: $(SRCDIR)/fstime.c
-	${CC} ${LDFLAGS} -o $@.elf $< ${LIBS} ${OPTON} -Dawk=1 -DFSBUFFER
+	${LD} ${LDFLAGS} -o $@.elf $< ${LIBS} ${OPTON} -Dawk=1 -DFSBUFFER
 	${OBJDUMP} -S $@.elf > $@.dis
 	${SIZE} $@.elf
 	${ELF2AOUT} $@.elf $@
 
 $(PROGDIR)/fsdisk: $(SRCDIR)/fstime.c
-	${CC} ${LDFLAGS} -o $@.elf $< ${LIBS} ${OPTON} -Dawk=1 -DFSDISK
+	${LD} ${LDFLAGS} -o $@.elf $< ${LIBS} ${OPTON} -Dawk=1 -DFSDISK
 	${OBJDUMP} -S $@.elf > $@.dis
 	${SIZE} $@.elf
 	${ELF2AOUT} $@.elf $@
 
 $(PROGDIR)/syscall: $(SRCDIR)/syscall.c
-	${CC} ${LDFLAGS} -o $@.elf $< ${LIBS} ${OPTON}
+	${LD} ${LDFLAGS} -o $@.elf $< ${LIBS} ${OPTON}
 	${OBJDUMP} -S $@.elf > $@.dis
 	${SIZE} $@.elf
 	${ELF2AOUT} $@.elf $@
 
 $(PROGDIR)/context1: $(SRCDIR)/context1.c
-	${CC} ${LDFLAGS} -o $@.elf $< ${LIBS} ${OPTON}
+	${LD} ${LDFLAGS} -o $@.elf $< ${LIBS} ${OPTON}
 	${OBJDUMP} -S $@.elf > $@.dis
 	${SIZE} $@.elf
 	${ELF2AOUT} $@.elf $@
 
 $(PROGDIR)/pipe: $(SRCDIR)/pipe.c
-	${CC} ${LDFLAGS} -o $@.elf $< ${LIBS} ${OPTON}
+	${LD} ${LDFLAGS} -o $@.elf $< ${LIBS} ${OPTON}
 	${OBJDUMP} -S $@.elf > $@.dis
 	${SIZE} $@.elf
 	${ELF2AOUT} $@.elf $@
 
 $(PROGDIR)/spawn: $(SRCDIR)/spawn.c
-	${CC} ${LDFLAGS} -o $@.elf $< ${LIBS} ${OPTON}
+	${LD} ${LDFLAGS} -o $@.elf $< ${LIBS} ${OPTON}
 	${OBJDUMP} -S $@.elf > $@.dis
 	${SIZE} $@.elf
 	${ELF2AOUT} $@.elf $@
 
 $(PROGDIR)/execl: $(SRCDIR)/execl.c $(SRCDIR)/big.c
-	${CC} ${LDFLAGS} -o $@.elf $< ${LIBS} ${OPTON}
+	${LD} ${LDFLAGS} -o $@.elf $< ${LIBS} ${OPTON}
 	${OBJDUMP} -S $@.elf > $@.dis
 	${SIZE} $@.elf
 	${ELF2AOUT} $@.elf $@
@@ -280,7 +280,7 @@ $(PROGDIR)/execl: $(SRCDIR)/execl.c $(SRCDIR)/big.c
 $(PROGDIR)/dhry2: $(SRCDIR)/dhry_1.c $(SRCDIR)/dhry_2.c $(SRCDIR)/dhry.h
 	cd $(SRCDIR); $(CC) -c ${CFLAGS} -DHZ=${HZ} ${OPTON} dhry_1.c
 	cd $(SRCDIR); $(CC) -c ${CFLAGS} -DHZ=${HZ} ${OPTON} dhry_2.c
-	${CC} ${LDFLAGS} -o $@.elf $(SRCDIR)/dhry_1.o $(SRCDIR)/dhry_2.o ${LIBS} ${OPTON}
+	${LD} ${LDFLAGS} -o $@.elf $(SRCDIR)/dhry_1.o $(SRCDIR)/dhry_2.o ${LIBS} ${OPTON}
 	${OBJDUMP} -S $@.elf > $@.dis
 	${SIZE} $@.elf
 	${ELF2AOUT} $@.elf $@
@@ -289,7 +289,7 @@ $(PROGDIR)/dhry2: $(SRCDIR)/dhry_1.c $(SRCDIR)/dhry_2.c $(SRCDIR)/dhry.h
 $(PROGDIR)/dhry2reg: $(SRCDIR)/dhry_1.c $(SRCDIR)/dhry_2.c $(SRCDIR)/dhry.h
 	cd $(SRCDIR); $(CC) -c ${CFLAGS} -DHZ=${HZ} ${OPTON} dhry_1.c -DREG=register
 	cd $(SRCDIR); $(CC) -c ${CFLAGS} -DHZ=${HZ} ${OPTON} dhry_2.c -DREG=register
-	${CC} ${LDFLAGS} -o $@.elf $(SRCDIR)/dhry_1.o $(SRCDIR)/dhry_2.o ${LIBS} ${OPTON}
+	${LD} ${LDFLAGS} -o $@.elf $(SRCDIR)/dhry_1.o $(SRCDIR)/dhry_2.o ${LIBS} ${OPTON}
 	${OBJDUMP} -S $@.elf > $@.dis
 	${SIZE} $@.elf
 	${ELF2AOUT} $@.elf $@
@@ -299,14 +299,14 @@ $(PROGDIR)/dhry2reg: $(SRCDIR)/dhry_1.c $(SRCDIR)/dhry_2.c $(SRCDIR)/dhry.h
 dhry2reg: $(SRCDIR)/dhry_1.c $(SRCDIR)/dhry_2.c $(SRCDIR)/dhry.h
 	cd $(SRCDIR); $(CC) -c ${CFLAGS} -DHZ=${HZ} ${OPTON} $(OPT3) dhry_1.c -DREG=register
 	cd $(SRCDIR); $(CC) -c ${CFLAGS} -DHZ=${HZ} ${OPTON} $(OPT3) dhry_2.c -DREG=register
-	${CC} ${LDFLAGS} -o $@.elf $(SRCDIR)/dhry_1.o $(SRCDIR)/dhry_2.o ${LIBS} ${OPTON}
+	${LD} ${LDFLAGS} -o $@.elf $(SRCDIR)/dhry_1.o $(SRCDIR)/dhry_2.o ${LIBS} ${OPTON}
 	${OBJDUMP} -S $@.elf > $@.dis
 	${SIZE} $@.elf
 	${ELF2AOUT} $@.elf $@
 	cd $(SRCDIR); rm -f dhry_1.o dhry_2.o
 
 $(PROGDIR)/looper: $(SRCDIR)/looper.c
-	${CC} ${LDFLAGS} -o $@.elf $< ${LIBS} ${OPTON}
+	${LD} ${LDFLAGS} -o $@.elf $< ${LIBS} ${OPTON}
 	${OBJDUMP} -S $@.elf > $@.dis
 	${SIZE} $@.elf
 	${ELF2AOUT} $@.elf $@

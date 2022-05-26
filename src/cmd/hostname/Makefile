@@ -13,7 +13,7 @@ MAN             = hostname.0
 all:            hostname ${MAN}
 
 hostname:       ${OBJS}
-		${CC} ${LDFLAGS} -o hostname.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o hostname.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S hostname.elf > hostname.dis
 		${SIZE} hostname.elf
 		${ELF2AOUT} hostname.elf $@ && rm hostname.elf

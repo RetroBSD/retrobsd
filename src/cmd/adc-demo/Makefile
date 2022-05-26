@@ -14,7 +14,7 @@ SRCS            = adc-demo.c
 all:            adc-demo
 
 adc-demo:       ${OBJS}
-		${CC} ${LDFLAGS} -o adc-demo.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o adc-demo.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S adc-demo.elf > adc-demo.dis
 		${SIZE} adc-demo.elf
 		${ELF2AOUT} adc-demo.elf $@

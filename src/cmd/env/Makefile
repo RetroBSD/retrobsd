@@ -15,7 +15,7 @@ CFLAGS          += -DVERSSTR=\"1.0\" \
 all:            env
 
 env:            $(OBJS)
-		${CC} ${LDFLAGS} -o env.elf $(OBJS) ${LIBS}
+		${LD} ${LDFLAGS} -o env.elf $(OBJS) ${LIBS}
 		${OBJDUMP} -S env.elf > env.dis
 		${SIZE} env.elf
 		${ELF2AOUT} env.elf $@ && rm env.elf

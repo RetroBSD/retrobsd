@@ -14,7 +14,7 @@ MANSRC		= ar.1 ar.5
 all:            ar $(MAN)
 
 ar:             ${OBJS}
-		${CC} ${LDFLAGS} -o ar.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o ar.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S ar.elf > ar.dis
 		${SIZE} ar.elf
 		${ELF2AOUT} ar.elf $@ && rm ar.elf

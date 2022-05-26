@@ -17,7 +17,7 @@ OBJS            = r.cmd.o r.edit.o r.file.o r.gettc.o r.misc.o \
 all:            re
 
 re:          	${OBJS}
-		${CC} ${LDFLAGS} -o re.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o re.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S re.elf > re.dis
 		${SIZE} re.elf
 		${ELF2AOUT} re.elf $@

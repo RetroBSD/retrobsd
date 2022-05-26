@@ -13,7 +13,7 @@ AOUTOBJS        = aout.o mips-dis.o
 all:            aout
 
 aout:           $(AOUTOBJS)
-		${CC} ${LDFLAGS} -o aout.elf $(AOUTOBJS) ${LIBS}
+		${LD} ${LDFLAGS} -o aout.elf $(AOUTOBJS) ${LIBS}
 		${OBJDUMP} -S aout.elf > aout.dis
 		${SIZE} aout.elf
 		${ELF2AOUT} aout.elf $@ && rm aout.elf

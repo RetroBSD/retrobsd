@@ -10,7 +10,7 @@ OBJS		= nm.o
 all:            nm
 
 nm:          	${OBJS}
-		${CC} ${LDFLAGS} -o nm.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o nm.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S nm.elf > nm.dis
 		${SIZE} nm.elf
 		${ELF2AOUT} nm.elf $@ && rm nm.elf

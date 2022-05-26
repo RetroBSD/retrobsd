@@ -7,7 +7,7 @@ OBJS            = dc.o
 all:            dc
 
 dc:             ${OBJS}
-		${CC} ${LDFLAGS} -o dc.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o dc.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S dc.elf > dc.dis
 		${SIZE} dc.elf
 		${ELF2AOUT} dc.elf $@ && rm dc.elf

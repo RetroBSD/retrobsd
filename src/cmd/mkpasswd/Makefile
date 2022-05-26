@@ -27,7 +27,7 @@ MANSRC		= mkpasswd.8
 all:            mkpasswd ${MAN}
 
 mkpasswd:    	${OBJS}
-		${CC} ${LDFLAGS} -o mkpasswd.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o mkpasswd.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S mkpasswd.elf > mkpasswd.dis
 		${SIZE} mkpasswd.elf
 		${ELF2AOUT} mkpasswd.elf $@ && rm mkpasswd.elf

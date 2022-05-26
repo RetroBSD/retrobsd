@@ -15,7 +15,7 @@ LIBS            += -lcurses -ltermcap -lc
 all:            sl
 
 sl:             ${OBJS}
-		${CC} ${LDFLAGS} -o sl.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o sl.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S sl.elf > sl.dis
 		${SIZE} sl.elf
 		${ELF2AOUT} sl.elf $@ && rm sl.elf

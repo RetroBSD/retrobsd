@@ -13,10 +13,10 @@ OBJS            = smux.o
 all: smux
 
 smux: $(OBJS)
-			${CC} ${LDFLAGS} -o $@.elf ${OBJS} ${LIBS}
-			${OBJDUMP} -S $@.elf > $@.dis
-			${SIZE} $@.elf
-			${ELF2AOUT} $@.elf $@
+		${LD} ${LDFLAGS} -o $@.elf ${OBJS} ${LIBS}
+		${OBJDUMP} -S $@.elf > $@.dis
+		${SIZE} $@.elf
+		${ELF2AOUT} $@.elf $@
 
 clean:
 		rm -f *.o *.elf *.elf *.dis tags *~ $(BIN)

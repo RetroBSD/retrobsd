@@ -13,31 +13,31 @@ EXAMPLES        = telnet \
 all:            $(EXAMPLES)
 
 web-client:     web-client.o
-		${CC} ${LDFLAGS} -o $@.elf $< ${LIBS}
+		${LD} ${LDFLAGS} -o $@.elf $< ${LIBS}
 		${OBJDUMP} -S $@.elf > $@.dis
 		${SIZE} $@.elf
 		${ELF2AOUT} $@.elf $@
 
 web-server:     web-server.o
-		${CC} ${LDFLAGS} -o $@.elf $< ${LIBS}
+		${LD} ${LDFLAGS} -o $@.elf $< ${LIBS}
 		${OBJDUMP} -S $@.elf > $@.dis
 		${SIZE} $@.elf
 		${ELF2AOUT} $@.elf $@
 
 telnet:         telnet.o
-		${CC} ${LDFLAGS} -o $@.elf $< ${LIBS}
+		${LD} ${LDFLAGS} -o $@.elf $< ${LIBS}
 		${OBJDUMP} -S $@.elf > $@.dis
 		${SIZE} $@.elf
 		${ELF2AOUT} $@.elf $@
 
 ntpdate:        ntpdate.o
-		${CC} ${LDFLAGS} -o $@.elf $< ${LIBS}
+		${LD} ${LDFLAGS} -o $@.elf $< ${LIBS}
 		${OBJDUMP} -S $@.elf > $@.dis
 		${SIZE} $@.elf
 		${ELF2AOUT} $@.elf $@
 
 chat-server:    chat-server.o
-		${CC} ${LDFLAGS} -o $@.elf $< ${LIBS}
+		${LD} ${LDFLAGS} -o $@.elf $< ${LIBS}
 		${OBJDUMP} -S $@.elf > $@.dis
 		${SIZE} $@.elf
 		${ELF2AOUT} $@.elf $@

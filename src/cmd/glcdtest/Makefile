@@ -12,7 +12,7 @@ OBJS            = glcdtest.o
 all:            glcdtest
 
 glcdtest:    ${OBJS}
-		${CC} ${LDFLAGS} -o glcdtest.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o glcdtest.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S glcdtest.elf > glcdtest.dis
 		${SIZE} glcdtest.elf
 		${ELF2AOUT} glcdtest.elf $@

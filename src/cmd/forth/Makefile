@@ -10,7 +10,7 @@ OBJS            = forth.o func.o
 all:            forth
 
 forth:          ${OBJS}
-		${CC} ${LDFLAGS} -o forth.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o forth.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S forth.elf > forth.dis
 		${SIZE} forth.elf
 		${ELF2AOUT} forth.elf $@ && rm forth.elf

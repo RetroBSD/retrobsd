@@ -27,7 +27,7 @@ OBJS =	basic.o buffer.o display.o file.o fileio.o line.o main.o \
 all:	emg ${MAN}
 
 emg:	${OBJS}
-	${CC} ${LDFLAGS} -o emg.elf ${OBJS} ${LIBS}
+	${LD} ${LDFLAGS} -o emg.elf ${OBJS} ${LIBS}
 	${OBJDUMP} -S emg.elf > emg.dis
 	${SIZE} emg.elf
 	${ELF2AOUT} emg.elf $@ && rm emg.elf

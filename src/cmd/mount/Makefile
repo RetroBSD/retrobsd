@@ -14,7 +14,7 @@ MANSRC		= mount.8
 all:            mount ${MAN}
 
 mount:       	${OBJS}
-		${CC} ${LDFLAGS} -o mount.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o mount.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S mount.elf > mount.dis
 		${SIZE} mount.elf
 		${ELF2AOUT} mount.elf $@ && rm mount.elf

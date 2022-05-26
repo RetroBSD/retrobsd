@@ -15,7 +15,7 @@ MANSRC		= mkfs.8
 all:		mkfs mkfs.0
 
 mkfs:		${OBJS}
-		${CC} ${LDFLAGS} -o mkfs.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o mkfs.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S mkfs.elf > mkfs.dis
 		${SIZE} mkfs.elf
 		${ELF2AOUT} mkfs.elf $@ && rm mkfs.elf

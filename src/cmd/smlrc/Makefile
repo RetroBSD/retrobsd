@@ -20,7 +20,7 @@ OBJS            = smlrc.o lb.o
 all:		smlrc
 
 smlrc:          $(OBJS)
-		${CC} ${LDFLAGS} -o $@.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o $@.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S $@.elf > $@.dis
 		${SIZE} $@.elf
 		${ELF2AOUT} $@.elf $@

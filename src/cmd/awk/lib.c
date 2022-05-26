@@ -215,6 +215,7 @@ cell *fieldadr(n)
 
 int	errorflag	= 0;
 
+void
 yyerror(s)
         char *s;
 {

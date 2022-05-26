@@ -53,7 +53,7 @@ OBJS    = acu.o acutab.o cmds.o cmdtab.o cu.o hunt.o log.o partab.o remcap.o \
 all: aculib tip
 
 tip:    ${OBJS}
-	${CC} ${LDFLAGS} -o tip.elf ${OBJS} ${LIBS}
+	${LD} ${LDFLAGS} -o tip.elf ${OBJS} ${LIBS}
 	${OBJDUMP} -S tip.elf > tip.dis
 	${SIZE} tip.elf
 	${ELF2AOUT} tip.elf $@

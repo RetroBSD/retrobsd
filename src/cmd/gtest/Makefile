@@ -12,19 +12,19 @@ OBJS            = globread.o globwrite.o
 all:            globread globwrite globdump
 
 globread:	globread.o
-		${CC} ${LDFLAGS} -o $@.elf $< ${LIBS}
+		${LD} ${LDFLAGS} -o $@.elf $< ${LIBS}
 		${OBJDUMP} -S $@.elf > $@.dis
 		${SIZE} $@.elf
 		${ELF2AOUT} $@.elf $@
 
 globdump:	globdump.o
-		${CC} ${LDFLAGS} -o $@.elf $< ${LIBS}
+		${LD} ${LDFLAGS} -o $@.elf $< ${LIBS}
 		${OBJDUMP} -S $@.elf > $@.dis
 		${SIZE} $@.elf
 		${ELF2AOUT} $@.elf $@
 
 globwrite:	globwrite.o
-		${CC} ${LDFLAGS} -o $@.elf $< ${LIBS}
+		${LD} ${LDFLAGS} -o $@.elf $< ${LIBS}
 		${OBJDUMP} -S $@.elf > $@.dis
 		${SIZE} $@.elf
 		${ELF2AOUT} $@.elf $@

@@ -22,7 +22,7 @@ MANSRC		= ccom.1
 all:            ccom $(MAN)
 
 ccom:           ${OBJS}
-		${CC} ${LDFLAGS} -o ccom.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o ccom.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S ccom.elf > ccom.dis
 		${SIZE} ccom.elf
 		${ELF2AOUT} ccom.elf $@ && rm ccom.elf

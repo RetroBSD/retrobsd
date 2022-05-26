@@ -11,7 +11,7 @@ OBJS		= ls.o stat_flags.o
 all:		ls
 
 ls:		${OBJS}
-		${CC} ${LDFLAGS} -o ls.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o ls.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S ls.elf > ls.dis
 		${SIZE} ls.elf
 		${ELF2AOUT} ls.elf $@ && rm ls.elf

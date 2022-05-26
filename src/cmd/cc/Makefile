@@ -15,7 +15,7 @@ CFLAGS          += -DVERSSTR=\"1.0\" \
 all:            cc
 
 cc:             $(OBJS)
-		${CC} ${LDFLAGS} -o cc.elf $(OBJS) ${LIBS}
+		${LD} ${LDFLAGS} -o cc.elf $(OBJS) ${LIBS}
 		${OBJDUMP} -S cc.elf > cc.dis
 		${SIZE} cc.elf
 		${ELF2AOUT} cc.elf $@ && rm cc.elf

@@ -19,7 +19,7 @@ OBJS            := $(SRCS:%.c=%.o)
 all:            $(TARGET)
 
 $(TARGET):      $(OBJS)
-		${CC} ${LDFLAGS} -o ${TARGET}.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o ${TARGET}.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S ${TARGET}.elf > ${TARGET}.dis
 		${SIZE} ${TARGET}.elf
 		${ELF2AOUT} ${TARGET}.elf $@

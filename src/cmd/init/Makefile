@@ -11,7 +11,7 @@ MANSRC		= init.8
 all:		init init.0
 
 init:		${OBJS}
-		${CC} ${LDFLAGS} -o init.elf ${OBJS} -lc
+		${LD} ${LDFLAGS} -o init.elf ${OBJS} -lc
 		${OBJDUMP} -S init.elf > init.dis
 		${SIZE} init.elf
 		${ELF2AOUT} init.elf $@ && rm init.elf

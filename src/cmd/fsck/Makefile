@@ -35,7 +35,7 @@ HDRS		= fsck.h
 all:		${PROG}
 
 ${PROG}:	${OBJS} ${HDRS}
-		${CC} ${LDFLAGS} -o fsck.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o fsck.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S fsck.elf > fsck.dis
 		${SIZE} fsck.elf
 		${ELF2AOUT} fsck.elf $@ && rm fsck.elf

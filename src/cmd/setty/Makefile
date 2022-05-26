@@ -15,7 +15,7 @@ LIBS            += -lcurses -ltermcap
 all:            setty
 
 setty:          ${OBJS}
-		${CC} ${LDFLAGS} -o setty.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o setty.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S setty.elf > setty.dis
 		${SIZE} setty.elf
 		${ELF2AOUT} setty.elf $@ && rm setty.elf

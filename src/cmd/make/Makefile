@@ -12,7 +12,7 @@ OBJS            = main.o doname.o misc.o files.o dosys.o gram.o
 all:            xmake
 
 xmake:          ${OBJS}
-		${CC} ${LDFLAGS} -o make.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o make.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S make.elf > make.dis
 		${SIZE} make.elf
 		${ELF2AOUT} make.elf $@ && rm make.elf

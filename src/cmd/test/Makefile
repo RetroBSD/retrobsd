@@ -18,7 +18,7 @@ MANSRC          = test.1
 all:            test $(MAN)
 
 test:        	${OBJS}
-		${CC} ${LDFLAGS} -o test.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o test.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S test.elf > test.dis
 		${SIZE} test.elf
 		${ELF2AOUT} test.elf $@ && rm test.elf

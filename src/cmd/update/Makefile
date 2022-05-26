@@ -13,7 +13,7 @@ MANSRC		= update.8
 all:		update ${MAN}
 
 update:		${OBJS}
-		${CC} ${LDFLAGS} -o update.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o update.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S update.elf > update.dis
 		${SIZE} update.elf
 		${ELF2AOUT} update.elf $@ && rm update.elf

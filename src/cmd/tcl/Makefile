@@ -12,7 +12,7 @@ LIBS		= -ltcl
 all:            tcl
 
 tcl:         	${OBJS}
-		${CC} ${LDFLAGS} -o tcl.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o tcl.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S tcl.elf > tcl.dis
 		${SIZE} tcl.elf
 		${ELF2AOUT} tcl.elf $@ && rm tcl.elf

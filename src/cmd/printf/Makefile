@@ -14,7 +14,7 @@ MANSRC		= printf.1
 all:            printf ${MAN}
 
 printf:         ${OBJS}
-		${CC} ${LDFLAGS} -o printf.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o printf.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S printf.elf > printf.dis
 		${SIZE} printf.elf
 		${ELF2AOUT} printf.elf $@ && rm printf.elf

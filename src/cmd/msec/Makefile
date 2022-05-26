@@ -14,7 +14,7 @@ MAN             = $(BIN).0
 all:            $(BIN) ${MAN}
 
 $(BIN):    ${OBJS}
-		${CC} ${LDFLAGS} -o $@.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o $@.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S $@.elf > $@.dis
 		${SIZE} $@.elf
 		${ELF2AOUT} $@.elf $@

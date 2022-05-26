@@ -25,7 +25,7 @@ MANSRC          = chroot.8
 all:            chroot ${MAN}
 
 chroot:         ${OBJS}
-		${CC} ${LDFLAGS} -o chroot.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o chroot.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S chroot.elf > chroot.dis
 		${SIZE} chroot.elf
 		${ELF2AOUT} chroot.elf $@ && rm chroot.elf

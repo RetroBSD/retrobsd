@@ -14,7 +14,7 @@ MANSRC		= stty.1
 all:		stty ${MAN}
 
 stty:		${OBJS}
-		${CC} ${LDFLAGS} -o stty.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o stty.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S stty.elf > stty.dis
 		${SIZE} stty.elf
 		${ELF2AOUT} stty.elf $@ && rm stty.elf

@@ -16,7 +16,7 @@ MANSRC		= md5.1
 all:            md5 $(MAN)
 
 md5:             ${OBJS}
-		${CC} ${LDFLAGS} -o md5.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o md5.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S md5.elf > md5.dis
 		${SIZE} md5.elf
 		${ELF2AOUT} md5.elf $@ && rm md5.elf

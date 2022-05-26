@@ -14,7 +14,7 @@ MANSRC		= renice.8
 all:            renice ${MAN}
 
 renice:         ${OBJS}
-		${CC} ${LDFLAGS} -o renice.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o renice.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S renice.elf > renice.dis
 		${SIZE} renice.elf
 		${ELF2AOUT} renice.elf $@ && rm renice.elf

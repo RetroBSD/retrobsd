@@ -12,7 +12,7 @@ CFLAGS		+= -Werror -Wall -Os
 all:            lcpp
 
 lcpp:           $(OBJS)
-		${CC} ${LDFLAGS} -o lcpp.elf $(OBJS) ${LIBS}
+		${LD} ${LDFLAGS} -o lcpp.elf $(OBJS) ${LIBS}
 		${OBJDUMP} -S lcpp.elf > lcpp.dis
 		${SIZE} lcpp.elf
 		${ELF2AOUT} lcpp.elf $@ && rm lcpp.elf

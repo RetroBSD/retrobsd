@@ -12,7 +12,7 @@ OBJS            = pwm.o
 all:            pwm
 
 pwm:    ${OBJS}
-		${CC} ${LDFLAGS} -o pwm.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o pwm.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S pwm.elf > pwm.dis
 		${SIZE} pwm.elf
 		${ELF2AOUT} pwm.elf $@

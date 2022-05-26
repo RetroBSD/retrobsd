@@ -14,7 +14,7 @@ MANSRC		= mknod.8
 all:            mknod mknod.0
 
 mknod:       	${OBJS}
-		${CC} ${LDFLAGS} -o mknod.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o mknod.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S mknod.elf > mknod.dis
 		${SIZE} mknod.elf
 		${ELF2AOUT} mknod.elf $@ && rm mknod.elf

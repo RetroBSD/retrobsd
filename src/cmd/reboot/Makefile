@@ -9,7 +9,7 @@ MANSRC          = reboot.8
 all:            reboot ${MAN}
 
 reboot:         ${OBJS}
-		${CC} ${LDFLAGS} -o reboot.elf ${OBJS} -lc
+		${LD} ${LDFLAGS} -o reboot.elf ${OBJS} -lc
 		${OBJDUMP} -S reboot.elf > reboot.dis
 		${SIZE} reboot.elf
 		${ELF2AOUT} reboot.elf $@

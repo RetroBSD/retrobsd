@@ -11,7 +11,7 @@ OBJS 		= compress.o
 CFLAGS          += -DUSERMEM=1024 -Wall -Werror
 
 compress: $(OBJS)
-	${CC} ${LDFLAGS} -o $@.elf ${OBJS} ${LIBS}
+	${LD} ${LDFLAGS} -o $@.elf ${OBJS} ${LIBS}
 	${OBJDUMP} -S $@.elf > $@.dis
 	${SIZE} $@.elf
 	${ELF2AOUT} $@.elf $@

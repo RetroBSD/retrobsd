@@ -13,7 +13,7 @@ MANSRC		= ranlib.1
 all:            ranlib $(MAN)
 
 ranlib:         ${OBJS}
-		${CC} ${LDFLAGS} -o ranlib.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o ranlib.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S ranlib.elf > ranlib.dis
 		${SIZE} ranlib.elf
 		${ELF2AOUT} ranlib.elf $@

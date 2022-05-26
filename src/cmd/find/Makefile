@@ -8,19 +8,19 @@ SRCS            = find.c bigram.c code.c
 all:            find bigram code
 
 find:           find.o
-		${CC} ${LDFLAGS} -o find.elf $< ${LIBS}
+		${LD} ${LDFLAGS} -o find.elf $< ${LIBS}
 		${OBJDUMP} -S find.elf > find.dis
 		${SIZE} find.elf
 		${ELF2AOUT} find.elf $@ && rm find.elf
 
 bigram:         bigram.o
-		${CC} ${LDFLAGS} -o bigram.elf $< ${LIBS}
+		${LD} ${LDFLAGS} -o bigram.elf $< ${LIBS}
 		${OBJDUMP} -S bigram.elf > bigram.dis
 		${SIZE} bigram.elf
 		${ELF2AOUT} bigram.elf $@ && rm bigram.elf
 
 code:           code.o
-		${CC} ${LDFLAGS} -o code.elf $< ${LIBS}
+		${LD} ${LDFLAGS} -o code.elf $< ${LIBS}
 		${OBJDUMP} -S code.elf > code.dis
 		${SIZE} code.elf
 		${ELF2AOUT} code.elf $@ && rm code.elf

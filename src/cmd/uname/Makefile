@@ -14,7 +14,7 @@ MANSRC		= uname.1
 all:            uname uname.0
 
 uname:          ${OBJS}
-		${CC} ${LDFLAGS} -o uname.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o uname.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S uname.elf > uname.dis
 		${SIZE} uname.elf
 		${ELF2AOUT} uname.elf $@ && rm uname.elf

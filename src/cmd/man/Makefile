@@ -25,13 +25,13 @@ OBJS		= man.o
 all:            man apropos
 
 man:            ${OBJS}
-		${CC} ${LDFLAGS} -o man.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o man.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S man.elf > man.dis
 		${SIZE} man.elf
 		${ELF2AOUT} man.elf $@ && rm man.elf
 
 apropos:        ${OBJS}
-		${CC} ${LDFLAGS} -o apropos.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o apropos.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S apropos.elf > apropos.dis
 		${SIZE} apropos.elf
 		${ELF2AOUT} apropos.elf $@ && rm apropos.elf

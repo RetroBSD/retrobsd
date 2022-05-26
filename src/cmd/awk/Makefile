@@ -11,7 +11,7 @@ SOURCE          = awk.def.h awk.g.y awk.lx.l b.c lib.c main.c parse.c \
                   proc.c freeze.c run.c tran.c
 
 awk:            $(FILES) awk.g.o
-		${CC} ${LDFLAGS} -o awk.elf $(FILES) awk.g.o ${LIBS}
+		${LD} ${LDFLAGS} -o awk.elf $(FILES) awk.g.o ${LIBS}
 		${OBJDUMP} -S awk.elf > awk.dis
 		${SIZE} awk.elf
 		${ELF2AOUT} awk.elf $@ && rm awk.elf

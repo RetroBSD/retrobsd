@@ -14,7 +14,7 @@ MANSRC          = sysctl.8
 all:            sysctl $(MAN)
 
 sysctl:      	${OBJS}
-		${CC} ${LDFLAGS} -o sysctl.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o sysctl.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S sysctl.elf > sysctl.dis
 		${SIZE} sysctl.elf
 		${ELF2AOUT} sysctl.elf $@ && rm sysctl.elf

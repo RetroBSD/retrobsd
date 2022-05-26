@@ -10,7 +10,7 @@ MANSRC          = calendar.1
 all:            calendar $(MAN)
 
 calendar:          ${OBJS}
-		${CC} ${LDFLAGS} -o calendar.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o calendar.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S calendar.elf > calendar.dis
 		${SIZE} calendar.elf
 		${ELF2AOUT} calendar.elf $@ && rm calendar.elf

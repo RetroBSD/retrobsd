@@ -810,7 +810,7 @@ obj fncn(a,n) node **a;
 	else if (t == FEXP)
 		u = exp(getfval(x.optr));
 	else if (t == FSQRT)
-		u = sqrt(getfval(x.optr));
+		u = 0 /* TODO: sqrt(getfval(x.optr))*/;
 	else
 		error(FATAL, "illegal function type %d", t);
 	tempfree(x);

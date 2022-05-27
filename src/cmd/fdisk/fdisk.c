@@ -98,7 +98,7 @@ void print_ptable()
 	{
 		if(mbr.partitions[i].type!=0)
 		{
-			printf("%2d %8d %8d %02X %c\n",
+			printf("%2d %8ld %8ld %02X %c\n",
 				i+1,
 				mbr.partitions[i].lbastart>>1,
 				mbr.partitions[i].lbalength>>1,
@@ -175,7 +175,7 @@ void new_part(unsigned int size, int type)
 	// MBR...
 	if(start==0)
 		start=1;
-	printf("Start: %lu\n",start);
+	printf("Start: %u\n", start);
 
 	if(start+size > blocks)
 	{
@@ -281,7 +281,7 @@ int main(int argc, char *argv[])
 	fd = open(device,O_RDWR);
 	if(!fd)
 	{
-		printf("Cannot open %d\n",device);
+		printf("Cannot open %s\n", device);
 		return 10;
 	}
 

@@ -12,11 +12,24 @@
 char path[MAXPATH];
 char oldpath[MAXPATH] = " ";
 
-main ( )
+int
+prefix_length(s1, s2)		/* return length of longest common prefix */
+	char *s1, *s2;		/* ... of strings s1 and s2 */
 {
-  	register int count, j;
+	register char *start;
 
-     	while ( gets ( path ) != NULL ) {
+	for ( start = s1; *s1 == *s2; s1++, s2++ )
+		if ( *s1 == NULL )
+			break;
+	return ( s1 - start );
+}
+
+int
+main()
+{
+	register int count, j;
+
+	while ( gets ( path ) != NULL ) {
 
 		count = prefix_length ( oldpath, path );
 		/*
@@ -30,16 +43,5 @@ main ( )
 			putchar ( '\n' );
 		}
 		strcpy ( oldpath, path );
-   	}
-}
-
-prefix_length ( s1, s2 )	/* return length of longest common prefix */
-	char *s1, *s2;		/* ... of strings s1 and s2 */
-{
-	register char *start;
-
-    	for ( start = s1; *s1 == *s2; s1++, s2++ )
-		if ( *s1 == NULL )
-	    		break;
-    	return ( s1 - start );
+	}
 }

@@ -28,7 +28,7 @@ void
 tputs(cp, affcnt, outc)
 	register char *cp;
 	int affcnt;
-	int (*outc)();
+	int (*outc)(int);
 {
 	register int i = 0;
 	register int mspc10;

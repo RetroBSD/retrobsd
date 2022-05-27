@@ -6,6 +6,6 @@ extern int tgetnum(char *);
 extern int tgetflag(char *);
 extern char *tgetstr(char *, char **);
 extern char *tgoto(char *, int, int);
-extern int tputs(register char *, int, int (*)());
+extern int tputs(register char *, int, int (*)(int));
 
 #endif

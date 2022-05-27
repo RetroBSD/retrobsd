@@ -3,10 +3,36 @@
  */
 #include "diff.h"
 
+int	opt;
+int	tflag;			/* expand tabs on output */
+int	hflag;			/* -h, use halfhearted DIFFH */
+int	bflag;			/* ignore blanks in comparisons */
+int	wflag;			/* totally ignore blanks in comparisons */
+int	iflag;			/* ignore case in comparisons */
+int	lflag;			/* long output format with header */
+int	rflag;			/* recursively trace directories */
+int	sflag;			/* announce files which are same */
+char	*start;			/* do file only if name >= this */
+int	wantelses;		/* -E */
+char	*ifdef1;		/* String for -1 */
+char	*ifdef2;		/* String for -2 */
+char	*endifname;		/* What we will print on next #endif */
+int	inifdef;
+int	context;		/* lines of context to be printed */
+int	status;
+int	anychange;
+char	*tempfile;		/* used when comparing against std input */
+char	**diffargv;		/* option list to pass to recursive diffs */
+char	*file1, *file2, *efile1, *efile2;
+struct	stat stb1, stb2;
+
 char	diff[] = DIFF;
 char	diffh[] = DIFFH;
 char	pr[] = PR;
 
+void noroom(void);
+
+int
 main(argc, argv)
 	int argc;
 	char **argv;
@@ -158,6 +184,7 @@ savestr(cp)
 	return (dp);
 }
 
+int
 min(a,b)
 	int a,b;
 {
@@ -165,6 +192,7 @@ min(a,b)
 	return (a < b ? a : b);
 }
 
+int
 max(a,b)
 	int a,b;
 {
@@ -172,7 +200,8 @@ max(a,b)
 	return (a > b ? a : b);
 }
 
-void done(sig)
+void
+done(sig)
         int sig;
 {
 	if (tempfile)
@@ -185,9 +214,10 @@ talloc(n)
 {
 	register char *p;
 
-	if ((p = malloc((unsigned)n)) != NULL)
-		return(p);
-	noroom();
+	p = malloc((unsigned)n);
+	if (p == NULL)
+		noroom();
+	return(p);
 }
 
 char *
@@ -201,6 +231,7 @@ char *p;
 	return(q);
 }
 
+void
 noroom()
 {
 	fprintf(stderr, "diff: files too big, try -h\n");

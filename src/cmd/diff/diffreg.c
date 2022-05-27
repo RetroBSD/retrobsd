@@ -135,6 +135,28 @@ const char cup2low[256] = {
 0xf0,0xf1,0xf2,0xf3,0xf4,0xf5,0xf6,0xf7,0xf8,0xf9,0xfa,0xfb,0xfc,0xfd,0xfe,0xff
 };
 
+char *splice(char *dir, char *file);
+char *copytemp(void);
+int asciifile(FILE *f);
+void prepare(int i, FILE *fd);
+void prune(void);
+void sort(struct line *a, int n);
+void equiv(struct line *a, int n, struct line *b, int m, int *c);
+void unsort(struct line *f, int l, int *b);
+int stone(int *a, int n, int *b, int *c);
+void unravel(int p);
+void check(void);
+void output(void);
+int readhash(FILE *f);
+int newcand(int x, int y, int pred);
+int search(int *c, int k, int y);
+int skipline(int f);
+void change(int a, int b, int c, int d);
+void dump_context_vec(void);
+void range(int a, int b, char *separator);
+void fetch(long *f, int a, int b, FILE *lb, char *s, int oldfile);
+
+void
 diffreg()
 {
 	register int i, j;
@@ -306,16 +328,17 @@ splice(dir, file)
 	return (savestr(buf));
 }
 
+void
 prepare(i, fd)
 	int i;
 	FILE *fd;
 {
 	register struct line *p;
-	register j,h;
+	register int j, h;
 
 	fseek(fd, (long)0, 0);
 	p = (struct line *)talloc(3*sizeof(line));
-	for(j=0; h=readhash(fd);) {
+	for (j = 0; (h = readhash(fd)); ) {
 		p = (struct line *)ralloc((char *)p,(++j+3)*sizeof(line));
 		p[j].value = h;
 	}
@@ -323,9 +346,10 @@ prepare(i, fd)
 	file[i] = p;
 }
 
+void
 prune()
 {
-	register i,j;
+	register int i, j;
 	for(pref=0;pref<len[0]&&pref<len[1]&&
 		file[0][pref+1].value==file[1][pref+1].value;
 		pref++ ) ;
@@ -340,6 +364,7 @@ prune()
 	}
 }
 
+void
 equiv(a,n,b,m,c)
 struct line *a, *b;
 int *c;
@@ -368,6 +393,7 @@ int *c;
 	c[j] = -1;
 }
 
+int
 stone(a,n,b,c)
 int *a;
 int *b;
@@ -409,6 +435,7 @@ register int *c;
 	return(k);
 }
 
+int
 newcand(x,y,pred)
 {
 	register struct cand *q;
@@ -420,6 +447,7 @@ newcand(x,y,pred)
 	return(clen-1);
 }
 
+int
 search(c, k, y)
 int *c;
 {
@@ -444,6 +472,7 @@ int *c;
 	return(l+1);
 }
 
+void
 unravel(p)
 {
 	register int i;
@@ -461,6 +490,7 @@ unravel(p)
 to confounding by hashing (which result in "jackpot")
 2.  collect random access indexes to the two files */
 
+void
 check()
 {
 	register int i, j;
@@ -560,6 +590,7 @@ check()
 */
 }
 
+void
 sort(a,n)	/*shellsort CACM #201*/
 struct line *a;
 {
@@ -595,6 +626,7 @@ struct line *a;
 	}
 }
 
+void
 unsort(f, l, b)
 struct line *f;
 int *b;
@@ -609,9 +641,10 @@ int *b;
 	free((char *)a);
 }
 
+int
 skipline(f)
 {
-	register i, c;
+	register int i, c;
 
 	for(i=1;(c=getc(input[f]))!='\n';i++)
 		if (c < 0)
@@ -619,6 +652,7 @@ skipline(f)
 	return(i);
 }
 
+void
 output()
 {
 	int m;
@@ -686,6 +720,7 @@ struct	context_vec	*context_vec_start,
    and this means that there were lines appended (beginning at b).
    If c is greater than d then there are lines missing from the to file.
 */
+void
 change(a,b,c,d)
 {
 	int ch;
@@ -776,6 +811,7 @@ change(a,b,c,d)
 	}
 }
 
+void
 range(a,b,separator)
 char *separator;
 {
@@ -785,6 +821,7 @@ char *separator;
 	}
 }
 
+void
 fetch(f,a,b,lb,s,oldfile)
 long *f;
 FILE *lb;
@@ -864,13 +901,14 @@ char *s;
  * arranging line in 7-bit bytes and then
  * summing 1-s complement in 16-bit hunks
  */
+int
 readhash(f)
 register FILE *f;
 {
 	register long sum;
 	register unsigned shift;
-	register t;
-	register space;
+	register int t;
+	register int space;
 
 	sum = 1;
 	space = 0;
@@ -931,6 +969,7 @@ register FILE *f;
 
 #include <a.out.h>
 
+int
 asciifile(f)
 	FILE *f;
 {
@@ -953,8 +992,8 @@ asciifile(f)
 	return (1);
 }
 
-
 /* dump accumulated "context" diff changes */
+void
 dump_context_vec()
 {
 	register int	a, b, c, d;
@@ -998,15 +1037,15 @@ dump_context_vec()
 				ch = (a <= b) ? 'd' : 'a';
 
 			if (ch == 'a')
-				fetch(ixold,lowa,b,input[0],"  ");
+				fetch(ixold,lowa,b,input[0],"  ", 0);
 			else {
-				fetch(ixold,lowa,a-1,input[0],"  ");
-				fetch(ixold,a,b,input[0],ch == 'c' ? "! " : "- ");
+				fetch(ixold,lowa,a-1,input[0],"  ", 0);
+				fetch(ixold,a,b,input[0],ch == 'c' ? "! " : "- ", 0);
 			}
 			lowa = b + 1;
 			cvp++;
 		}
-		fetch(ixold, b+1, upb, input[0], "  ");
+		fetch(ixold, b+1, upb, input[0], "  ", 0);
 	}
 
 	/* output changes to the "new" file */
@@ -1032,15 +1071,15 @@ dump_context_vec()
 				ch = (a <= b) ? 'd' : 'a';
 
 			if (ch == 'd')
-				fetch(ixnew,lowc,d,input[1],"  ");
+				fetch(ixnew,lowc,d,input[1],"  ", 0);
 			else {
-				fetch(ixnew,lowc,c-1,input[1],"  ");
-				fetch(ixnew,c,d,input[1],ch == 'c' ? "! " : "+ ");
+				fetch(ixnew,lowc,c-1,input[1],"  ", 0);
+				fetch(ixnew,c,d,input[1],ch == 'c' ? "! " : "+ ", 0);
 			}
 			lowc = d + 1;
 			cvp++;
 		}
-		fetch(ixnew, d+1, upd, input[1], "  ");
+		fetch(ixnew, d+1, upd, input[1], "  ", 0);
 	}
 
 	context_vec_ptr = context_vec_start - 1;

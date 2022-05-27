@@ -139,7 +139,7 @@ typedef struct
   void (*t_open) ();		/* Open terminal at the start */
   void (*t_close) ();		/* Close terminal at end */
   int (*t_getchar) ();		/* Get character from keyboard */
-  void (*t_putchar) ();		/* Put character to display */
+  int (*t_putchar) ();		/* Put character to display */
   void (*t_flush) ();		/* Flush output buffers */
   void (*t_move) ();		/* Move the cursor, origin 0 */
   void (*t_eeol) ();		/* Erase to end of line */

@@ -8,16 +8,12 @@
 #include "edef.h"
 #undef CTRL		/* Needs to be done here. */
 #include <sys/ioctl.h>
-
-extern int tgetent();
-extern char *tgetstr();
-extern char *tgoto();
-extern void tputs();
+#include <term.h>
 
 extern char *getenv();
 extern void ttopen();
 extern int ttgetc();
-extern void ttputc();
+extern int ttputc(int);
 extern void ttflush();
 extern void ttclose();
 
@@ -38,6 +34,11 @@ void tcapbeep(void);
 
 char tcapbuf[TCAPSLEN];		/* capabilities actually used */
 char *CM, *CE, *CL, *SO, *SE;
+
+char *UP;                       /* required by libtermcap */
+char *BC;
+char PC = '\0';
+short ospeed = 0;
 
 TERM term = {
   0, 0, MARGIN, SCRSIZ, tcapopen, ttclose, ttgetc, ttputc,

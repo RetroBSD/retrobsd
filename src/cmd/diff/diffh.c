@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -17,12 +18,22 @@ int bflag;
 int debug = 0;
 FILE *file[2];
 
+void progerr(char *s);
+int hardsynch(void);
+void movstr(char *s, char *t);
+void error(char *s, char *t);
+int cmp(char *s, char *t);
+int easysynch(void);
+int output(int a, int b);
+void change(long a, int b, long c, int d, char *s);
+void range(long a, int b);
+
 	/* return pointer to line n of file f*/
 char *getl(f,n)
 long n;
 {
 	register char *t;
-	register delta, nt;
+	register int delta, nt;
 again:
 	delta = n - lineno[f];
 	nt = ntext[f];
@@ -39,11 +50,12 @@ again:
 	t = text[f][nt];
 	if(t==0) {
 		t = text[f][nt] = malloc(LEN+1);
-		if(t==NULL)
+		if(t==NULL) {
 			if(hardsynch())
 				goto again;
 			else
 				progerr("5");
+                }
 	}
 	t = fgets(t,LEN,file[f]);
 	if(t!=NULL)
@@ -52,10 +64,11 @@ again:
 }
 
 	/*remove thru line n of file f from storage*/
+void
 clrl(f,n)
 long n;
 {
-	register i,j;
+	register int i,j;
 	j = n-lineno[f]+1;
 	for(i=0;i+j<ntext[f];i++)
 		movstr(text[f][i+j],text[f][i]);
@@ -63,13 +76,15 @@ long n;
 	ntext[f] -= j;
 }
 
+void
 movstr(s,t)
 register char *s, *t;
 {
-	while(*t++= *s++)
+	while ((*t++ = *s++))
 		continue;
 }
 
+int
 main(argc,argv)
 char **argv;
 {
@@ -112,10 +127,11 @@ char **argv;
 }
 
 	/* synch on C successive matches*/
+int
 easysynch()
 {
 	int i,j;
-	register k,m;
+	register int k,m;
 	char *s0,*s1;
 	for(i=j=1;i<RANGE&&j<RANGE;i++,j++) {
 		s0 = getl(0,n0+i);
@@ -144,9 +160,10 @@ cont2:			;
 	return(0);
 }
 
+int
 output(a,b)
 {
-	register i;
+	register int i;
 	char *s;
 	if(a<0)
 		change(n0-1,0,n1,b,"a");
@@ -175,6 +192,7 @@ output(a,b)
 	return(1);
 }
 
+void
 change(a,b,c,d,s)
 long a,c;
 char *s;
@@ -185,6 +203,7 @@ char *s;
 	printf("\n");
 }
 
+void
 range(a,b)
 long a;
 {
@@ -196,6 +215,7 @@ long a;
 		printf("%ld,%ld",a,a+b);
 }
 
+int
 cmp(s,t)
 char *s,*t;
 {
@@ -220,20 +240,21 @@ char *f1,*f2;
 	FILE *f;
 	char b[100],*bptr,*eptr;
 	struct stat statbuf;
-	if(cmp(f1,"-")==0)
+	if (cmp(f1, "-") == 0) {
 		if(cmp(f2,"-")==0)
 			error("can't do - -","");
 		else
 			return(stdin);
+        }
 	if(stat(f1,&statbuf)==-1)
 		error("can't access ",f1);
 	if((statbuf.st_mode&S_IFMT)==S_IFDIR) {
-		for(bptr=b;*bptr= *f1++;bptr++) ;
+		for (bptr = b; (*bptr = *f1++); bptr++) ;
 		*bptr++ = '/';
 		for(eptr=f2;*eptr;eptr++)
 			if(*eptr=='/'&&eptr[1]!=0&&eptr[1]!='/')
 				f2 = eptr+1;
-		while(*bptr++= *f2++) ;
+		while ((*bptr++ = *f2++)) ;
 		f1 = b;
 	}
 	f = fopen(f1,"r");
@@ -242,13 +263,14 @@ char *f1,*f2;
 	return(f);
 }
 
-
+void
 progerr(s)
 char *s;
 {
 	error("program error ",s);
 }
 
+void
 error(s,t)
 char *s,*t;
 {
@@ -257,6 +279,7 @@ char *s,*t;
 }
 
 	/*stub for resychronization beyond limits of text buf*/
+int
 hardsynch()
 {
 	change(n0,INF,n1,INF,"c");

@@ -11,10 +11,10 @@ CFLAGS =	-Os -Wall -Werror
 CFLAGS +=	-ffunction-sections -fdata-sections
 
 # This reduces code size significantly.
-CFLAGS +=	-mips16
+#CFLAGS +=	-mips16
 
 # with CFLAGS+=	-ffunction-sections -fdata-sections
-LDFLAGS +=	-Wl,--gc-sections
+#LDFLAGS +=	-Wl,--gc-sections
 
 LIBS =		-ltermcap -lc
 

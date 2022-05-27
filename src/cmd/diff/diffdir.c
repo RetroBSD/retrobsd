@@ -1,6 +1,7 @@
 /*
  * diff - directory comparison
  */
+#include <sys/wait.h>
 #include "diff.h"
 
 #define	d_flags	d_ino
@@ -21,6 +22,15 @@ struct	dir *setupdir();
 int	header;
 char	title[2*BUFSIZ], *etitle;
 
+void setfile(char **fpp, char **epp, char *file);
+int useless(char *cp);
+void only(struct dir *dp, int which);
+void compare(struct dir *dp);
+void scanpr(struct dir *dp, int test, char *title, char *file1, char *efile1, char *file2, char *efile2);
+void calldiff(char *wantpr);
+int ascii(int f);
+
+void
 diffdir(argv)
 	char **argv;
 {
@@ -109,6 +119,7 @@ diffdir(argv)
 	}
 }
 
+void
 setfile(fpp, epp, file)
 	char **fpp, **epp;
 	char *file;
@@ -127,6 +138,7 @@ setfile(fpp, epp, file)
 	*epp = cp;
 }
 
+void
 scanpr(dp, test, title, file1, efile1, file2, efile2)
 	register struct dir *dp;
 	int test;
@@ -152,6 +164,7 @@ scanpr(dp, test, title, file1, efile1, file2, efile2)
 	}
 }
 
+void
 only(dp, which)
 	struct dir *dp;
 	int which;
@@ -193,7 +206,7 @@ setupdir(cp)
 		fprintf(stderr, "diff: ran out of memory\n");
 		done(0);
 	}
-	while (rp = readdir(dirp)) {
+	while ((rp = readdir(dirp))) {
 		ep = &dp[nitems++];
 		ep->d_reclen = rp->d_reclen;
 		ep->d_namlen = rp->d_namlen;
@@ -222,12 +235,14 @@ setupdir(cp)
 	return (dp);
 }
 
+int
 entcmp(d1, d2)
 	struct dir *d1, *d2;
 {
 	return (strcmp(d1->d_entry, d2->d_entry));
 }
 
+void
 compare(dp)
 	register struct dir *dp;
 {
@@ -320,6 +335,7 @@ closem:
 
 char	*prargs[] = { "pr", "-h", 0, "-f", 0, 0 };
 
+void
 calldiff(wantpr)
 	char *wantpr;
 {
@@ -379,6 +395,7 @@ calldiff(wantpr)
 
 #include <a.out.h>
 
+int
 ascii(f)
 	int f;
 {
@@ -404,6 +421,7 @@ ascii(f)
 /*
  * THIS IS CRUDE.
  */
+int
 useless(cp)
 register char *cp;
 {

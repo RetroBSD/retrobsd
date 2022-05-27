@@ -21,10 +21,11 @@ CFLAGS          += ${DEFS}
 
 OBJS            = adddf3.o \
                   addsf3.o \
-                  divdf3.o \
-                  divsf3.o \
                   comparedf2.o \
                   comparesf2.o \
+                  divdf3.o \
+                  divdi3.o \
+                  divsf3.o \
                   extendsfdf2.o \
                   fixdfsi.o \
                   fixsfsi.o \
@@ -32,11 +33,15 @@ OBJS            = adddf3.o \
                   floatsisf.o \
                   floatunsisf.o \
                   fp_mode.o \
+                  moddi3.o \
                   muldf3.o \
                   mulsf3.o \
                   subdf3.o \
                   subsf3.o \
-                  truncdfsf2.o
+                  truncdfsf2.o \
+                  udivdi3.o \
+                  udivmoddi4.o \
+                  umoddi3.o
 
 runtime.a:      ${OBJS}
 		@echo "buiding runtime.a"

@@ -2,8 +2,39 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <unistd.h>
+#include <sys/wait.h>
 #include "dc.h"
 
+void init(int argc, char *argv[]);
+void commnds(void);
+int readc(void);
+void unreadc(char c);
+void pushp(struct blk *p);
+void sdump(char *s1, struct blk *hptr);
+void chsign(struct blk *p);
+void more(struct blk *hptr);
+int subt(void);
+int eqk(void);
+void binop(char c);
+int dscale(void);
+void release(struct blk *p);
+int log2v(long n);
+void print(struct blk *hptr);
+void load(void);
+void seekc(struct blk *hptr, int n);
+void salterwd(struct wblk *hptr, struct blk *n);
+void putwd(struct blk *p, struct blk *c);
+int command(void);
+int cond(char c);
+void oneot(struct blk *p, int sc, char ch);
+void tenot(struct blk *p, int sc);
+void hexot(struct blk *p, int flg);
+void bigot(struct blk *p, int flg);
+void garbage(char *s);
+void ospace(char *s);
+void redef(struct blk *p);
+
+int
 main(argc,argv)
 int argc;
 char *argv[];
@@ -12,6 +43,7 @@ char *argv[];
 	commnds();
 }
 
+void
 commnds()
 {
 	register int c;
@@ -491,7 +523,7 @@ sempty:
 			if (q!=NULL) release(q);
 			s = pop();
 			EMPTY;
-			salterwd(p,s);
+			salterwd((struct wblk *) p, s);
 			sptr->val = p;
 			continue;
 		case ';':
@@ -703,6 +735,7 @@ ddone:
 	return(p);
 }
 
+int
 dscale()
 {
 	register struct blk *dd,*dr;
@@ -873,7 +906,8 @@ edone:
 	return(r);
 }
 
-void onintr(sig)
+void
+onintr(sig)
 {
 	signal(SIGINT,onintr);
 	while(readptr != &readstk[0]){
@@ -884,6 +918,7 @@ void onintr(sig)
 	commnds();
 }
 
+void
 init(argc,argv)
 int argc;
 char *argv[];
@@ -943,6 +978,7 @@ char *argv[];
 	return;
 }
 
+void
 pushp(p)
 struct blk *p;
 {
@@ -1098,6 +1134,7 @@ struct blk *p,*q;
 	return(mr);
 }
 
+void
 chsign(p)
 struct blk *p;
 {
@@ -1133,6 +1170,7 @@ struct blk *p;
 	return;
 }
 
+int
 readc()
 {
 loop:
@@ -1157,8 +1195,8 @@ loop:
 	exit(0);
 }
 
-unreadc(c)
-char c;
+void
+unreadc(char c)
 {
 
 	if((readptr != &readstk[0]) && (*readptr != 0)){
@@ -1168,8 +1206,8 @@ char c;
 	return;
 }
 
-binop(c)
-char c;
+void
+binop(char c)
 {
 	register struct blk *r;
 
@@ -1191,6 +1229,7 @@ char c;
 	return;
 }
 
+void
 print(hptr)
 struct blk *hptr;
 {
@@ -1304,6 +1343,7 @@ struct blk *p;
 	return(q);
 }
 
+void
 tenot(p,sc)
 struct blk *p;
 {
@@ -1354,9 +1394,8 @@ struct blk *p;
 	return;
 }
 
-oneot(p,sc,ch)
-struct blk *p;
-char ch;
+void
+oneot(struct blk *p, int sc, char ch)
 {
 	register struct blk *q;
 
@@ -1374,6 +1413,7 @@ char ch;
 	return;
 }
 
+void
 hexot(p,flg)
 struct blk *p;
 {
@@ -1394,6 +1434,7 @@ struct blk *p;
 	return;
 }
 
+void
 bigot(p,flg)
 struct blk *p;
 {
@@ -1494,6 +1535,7 @@ struct blk *a1,*a2;
 	return(p);
 }
 
+int
 eqk()
 {
 	register struct blk *p,*q;
@@ -1577,6 +1619,7 @@ struct blk *p;
 	return(q);
 }
 
+int
 subt()
 {
 	arg1=pop();
@@ -1590,6 +1633,7 @@ subt()
 	return(0);
 }
 
+int
 command()
 {
 	int c;
@@ -1622,8 +1666,8 @@ command()
 	}
 }
 
-cond(c)
-char c;
+int
+cond(char c)
 {
 	register struct blk *p;
 	register char cc;
@@ -1664,6 +1708,7 @@ char c;
 	return(1);
 }
 
+void
 load()
 {
 	register int c;
@@ -1699,6 +1744,7 @@ load()
 	return;
 }
 
+int
 log2v(n)
 long n;
 {
@@ -1793,17 +1839,20 @@ int size;
 	return(hdr);
 }
 
+void
 sdump(s1,hptr)
 char *s1;
 struct blk *hptr;
 {
 	char *p;
-	printf("%s %o rd %o wt %o beg %o last %o\n",s1,hptr,hptr->rd,hptr->wt,hptr->beg,hptr->last);
+	printf("%s %p rd %p wt %p beg %p last %p\n",
+            s1, hptr, hptr->rd, hptr->wt, hptr->beg, hptr->last);
 	p = hptr->beg;
 	while(p < hptr->wt)printf("%d ",*p++);
 	printf("\n");
 }
 
+void
 seekc(hptr,n)
 struct blk *hptr;
 {
@@ -1828,16 +1877,19 @@ struct blk *hptr;
 	return;
 }
 
+void
 salterwd(hptr,n)
 struct wblk *hptr;
 struct blk *n;
 {
-	if(hptr->rdw == hptr->lastw)more(hptr);
+	if (hptr->rdw == hptr->lastw)
+            more((struct blk *) hptr);
 	*hptr->rdw++ = n;
-	if(hptr->rdw > hptr->wtw)hptr->wtw = hptr->rdw;
-	return;
+	if (hptr->rdw > hptr->wtw)
+            hptr->wtw = hptr->rdw;
 }
 
+void
 more(hptr)
 struct blk *hptr;
 {
@@ -1860,6 +1912,7 @@ struct blk *hptr;
 	return;
 }
 
+void
 ospace(s)
 char *s;
 {
@@ -1870,6 +1923,7 @@ char *s;
 	abort();
 }
 
+void
 garbage(s)
 char *s;
 {
@@ -1904,7 +1958,7 @@ char *s;
 						if(q != 0){
 							if(((int)q->beg & 01) != 0){
 								printf("array %o elt %d odd\n",i-ARRAYST,ct);
-printf("tmps %o p %o\n",tmps,p);
+								printf("tmps %p p %p\n", tmps, p);
 								sdump("elt",q);
 							}
 							redef(q);
@@ -1917,14 +1971,15 @@ printf("tmps %o p %o\n",tmps,p);
 	}
 }
 
+void
 redef(p)
 struct blk *p;
 {
-	register offset;
+	register int offset;
 	register char *newp;
 
 	if ((int)p->beg&01) {
-		printf("odd ptr %o hdr %o\n",p->beg,p);
+		printf("odd ptr %p hdr %p\n",p->beg,p);
 		ospace("redef-bad");
 	}
 	newp = realloc(p->beg, (unsigned)(p->last-p->beg));
@@ -1936,6 +1991,7 @@ struct blk *p;
 	p->last += offset;
 }
 
+void
 release(p)
 register struct blk *p;
 {
@@ -1958,6 +2014,7 @@ struct blk *p;
 	return(*wp->rdw++);
 }
 
+void
 putwd(p, c)
 struct blk *p, *c;
 {

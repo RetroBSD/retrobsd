@@ -16,8 +16,8 @@ static short tmspc10[] = {
 	0, 2000, 1333, 909, 743, 666, 500, 333, 166, 83, 55, 41, 20, 10, 5
 };
 
-short	ospeed;
-char	PC;
+extern short	ospeed;
+extern char	PC;
 
 /*
  * Put the character string cp out, with padding.

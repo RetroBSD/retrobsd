@@ -9,8 +9,8 @@
 
 #define MAXRETURNSIZE 64
 
-char	*UP;
-char	*BC;
+extern char	*UP;
+extern char	*BC;
 
 /*
  * Routine to perform cursor addressing.

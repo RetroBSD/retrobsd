@@ -30,7 +30,7 @@ struct xx
 	{ INDIRECT, "indirect", "$("},
 	{ SUBSTR, "substr", "substr"},
 	{ INDEX, "sindex", "sindex"},
-	{ SPRINTF, "asprintf", "sprintf "},
+	{ SPRINTF, "awksprintf", "sprintf "},
 	{ ADD, "arith", " + "},
 	{ MINUS, "arith", " - "},
 	{ MULT, "arith", " * "},

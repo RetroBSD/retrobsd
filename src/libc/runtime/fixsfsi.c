@@ -1,46 +1,23 @@
-//===-- lib/fixsfsi.c - Single-precision -> integer conversion ----*- C -*-===//
+//===-- fixsfsi.c - Implement __fixsfsi -----------------------------------===//
 //
-//                     The LLVM Compiler Infrastructure
-//
-// This file is dual licensed under the MIT and the University of Illinois Open
-// Source Licenses. See LICENSE.TXT for details.
-//
-//===----------------------------------------------------------------------===//
-//
-// This file implements single-precision to integer conversion for the
-// compiler-rt library.  No range checking is performed; the behavior of this
-// conversion is undefined for out of range values in the C standard.
+// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
+// See https://llvm.org/LICENSE.txt for license information.
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 //
 //===----------------------------------------------------------------------===//
 
 #define SINGLE_PRECISION
 #include "fp_lib.h"
+typedef si_int fixint_t;
+typedef su_int fixuint_t;
+#include "fp_fixint_impl.inc"
 
-int
-__fixsfsi(fp_t a)
-{
-    // Break a into sign, exponent, significand
-    const rep_t aRep = toRep(a);
-    const rep_t aAbs = aRep & absMask;
-    const int sign = aRep & signBit ? -1 : 1;
-    const int exponent = (aAbs >> significandBits) - exponentBias;
-    const rep_t significand = (aAbs & significandMask) | implicitBit;
+COMPILER_RT_ABI si_int __fixsfsi(fp_t a) { return __fixint(a); }
 
-    // If 0 < exponent < significandBits, right shift to get the result.
-    if ((unsigned int)exponent < significandBits) {
-        return sign * (significand >> (significandBits - exponent));
-    }
-
-    // If exponent is negative, the result is zero.
-    else if (exponent < 0) {
-        return 0;
-    }
-
-    // If significandBits < exponent, left shift to get the result.  This shift
-    // may end up being larger than the type width, which incurs undefined
-    // behavior, but the conversion itself is undefined in that case, so
-    // whatever the compiler decides to do is fine.
-    else {
-        return sign * (significand << (exponent - significandBits));
-    }
-}
+#if defined(__ARM_EABI__)
+#if defined(COMPILER_RT_ARMHF_TARGET)
+AEABI_RTABI si_int __aeabi_f2iz(fp_t a) { return __fixsfsi(a); }
+#else
+COMPILER_RT_ALIAS(__fixsfsi, __aeabi_f2iz)
+#endif
+#endif

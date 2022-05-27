@@ -24,7 +24,7 @@
 
 static int	outcol, outline, destcol, destline;
 
-WINDOW		*_win;
+extern WINDOW	*_win;
 
 /*
  * Move (slowly) to destination.

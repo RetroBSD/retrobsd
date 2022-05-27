@@ -402,7 +402,7 @@ char *format(s,a) char *s; node *a;
 	return(buf);
 }
 
-obj asprintf1(a,n) node **a;
+obj awksprintf(a,n) node **a;
 {
 	obj x;
 	node *y;
@@ -597,7 +597,7 @@ obj aprintf(a,n) node **a;
 {
 	obj x;
 
-	x = asprintf1(a,n);
+	x = awksprintf(a,n);
 	if (a[1]==NULL) {
 		printf("%s", x.optr->sval);
 		tempfree(x);

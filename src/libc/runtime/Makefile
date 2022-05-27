@@ -19,20 +19,30 @@ include $(TOPSRC)/target.mk
 
 CFLAGS          += ${DEFS}
 
-OBJS            = addsf3.o comparesf2.o divsf3.o fixsfsi.o floatsisf.o \
-                  mulsf3.o negsf2.o subsf3.o sc_case.o fixunssfsi.o \
-                  floatunsisf.o
+OBJS            = adddf3.o \
+                  addsf3.o \
+                  divdf3.o \
+                  divsf3.o \
+                  comparedf2.o \
+                  comparesf2.o \
+                  extendsfdf2.o \
+                  fixdfsi.o \
+                  fixsfsi.o \
+                  floatsidf.o \
+                  floatsisf.o \
+                  floatunsisf.o \
+                  fp_mode.o \
+                  muldf3.o \
+                  mulsf3.o \
+                  subdf3.o \
+                  subsf3.o \
+                  truncdfsf2.o
 
-all:		${OBJS}
-
+runtime.a:      ${OBJS}
+		@echo "buiding runtime.a"
+		@$(AR) cru runtime.a ${OBJS}
 clean:
 		rm -f *.a *.o *~ profiled/*.o tags
 
 cleandir:       clean
 		rm -f .depend
-
-install:        all
-#		cp ../libgcc.a ${DESTDIR}/lib/
-#		$(RANLIB) -t ${DESTDIR}/lib/libgcc.a
-#		cp libgcc_p.a ${DESTDIR}/lib/
-#		$(RANLIB) -t ${DESTDIR}/lib/libgcc_p.a

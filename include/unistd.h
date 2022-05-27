@@ -105,6 +105,7 @@ int     unlink (const char *pathname);
 int     link (const char *oldpath, const char *newpath);
 ssize_t readlink (const char *path, char *buf, size_t bufsiz);
 int     chown (const char *path, uid_t owner, gid_t group);
+int     fchown(int fd, uid_t owner, gid_t group);
 int     nice (int inc);
 int     setuid (uid_t uid);
 int     setgid (gid_t gid);

@@ -20,6 +20,7 @@
 #include <sys/signal.h>
 #include <sys/time.h>
 #include <sys/resource.h>
+#include <sys/wait.h>
 #include <pwd.h>
 #include <errno.h>
 #include <stdio.h>
@@ -29,6 +30,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <paths.h>
+#include <fcntl.h>
 #include "chpass.h"
 
 char e1[] = ": ";
@@ -57,6 +59,16 @@ struct entry list[] = {
 
 uid_t uid;
 
+void loadpw(char *arg, struct passwd *pw);
+void usage(void);
+int info(struct passwd *pw);
+int copy(struct passwd *pw, FILE *fp);
+int makedb(char *file);
+int edit(char *file);
+int check(FILE *fp, struct passwd *pw);
+int prompt(void);
+
+int
 main(argc, argv)
 	int argc;
 	char **argv;
@@ -70,7 +82,6 @@ main(argc, argv)
 	int aflag, ch, fd;
 	char *fend, *passwd, *temp, *tend;
 	char from[MAXPATHLEN], to[MAXPATHLEN];
-	char *getusershell();
 
 	uid = getuid();
 	aflag = 0;
@@ -220,6 +231,7 @@ bad:		(void)fprintf(stderr, "%s unchanged.\n", _PATH_SHADOW);
 	exit(0);
 }
 
+int
 info(pw)
 	struct passwd *pw;
 {
@@ -268,6 +280,7 @@ info(pw)
 	return(rval);
 }
 
+int
 check(fp, pw)
 	FILE *fp;
 	struct passwd *pw;
@@ -331,6 +344,7 @@ check(fp, pw)
 	return(1);
 }
 
+int
 copy(pw, fp)
 	struct passwd *pw;
 	FILE *fp;
@@ -371,6 +385,7 @@ copy(pw, fp)
 	return(1);
 }
 
+int
 makedb(file)
 	char *file;
 {
@@ -384,14 +399,17 @@ makedb(file)
 	return(w == -1 || status);
 }
 
+int
 edit(file)
 	char *file;
 {
 	int status, pid, w;
 	char *p, *editor, *getenv();
 
-	if (editor = getenv("EDITOR")) {
-		if (p = rindex(editor, '/'))
+	editor = getenv("EDITOR");
+	if (editor) {
+	        p = rindex(editor, '/');
+		if (p)
 			++p;
 		else
 			p = editor;
@@ -408,6 +426,7 @@ edit(file)
 	return(w == -1 || status);
 }
 
+void
 loadpw(arg, pw)
 	char *arg;
 	register struct passwd *pw;
@@ -432,6 +451,7 @@ bad:		(void)fprintf(stderr, "chpass: bad password list.\n");
 	}
 }
 
+int
 prompt()
 {
 	register int c;
@@ -447,6 +467,7 @@ prompt()
 	/* NOTREACHED */
 }
 
+void
 usage()
 {
 	(void)fprintf(stderr, "usage: chpass [-a list] [user]\n");

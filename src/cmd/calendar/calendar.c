@@ -56,6 +56,7 @@ static char sccsid[] = "@(#)calendar.c	8.3 (Berkeley) 3/25/94";
 #include <string.h>
 #include <tzfile.h>
 #include <unistd.h>
+#include <strings.h>
 
 #include "pathnames.h"
 
@@ -290,7 +291,7 @@ opencal()
 			return (NULL);
 		errx(1, "no calendar file.");
 	}
-	if (pipe(pdes) < 0) 
+	if (pipe(pdes) < 0)
 		return (NULL);
 	switch (vfork()) {
 	case -1:			/* error */
@@ -339,14 +340,14 @@ closecal(fp)
 	(void)rewind(fp);
 	if (fstat(fileno(fp), &sbuf) || !sbuf.st_size)
 		goto done;
-	if (pipe(pdes) < 0) 
+	if (pipe(pdes) < 0)
 		goto done;
 	switch (vfork()) {
 	case -1:			/* error */
 		(void)close(pdes[0]);
 		(void)close(pdes[1]);
 		goto done;
-	case 0:		
+	case 0:
 		/* child -- set stdin to pipe output */
 		if (pdes[0] != STDIN_FILENO) {
 			(void)dup2(pdes[0], STDIN_FILENO);

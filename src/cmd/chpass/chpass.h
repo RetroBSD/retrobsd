@@ -22,3 +22,5 @@ struct entry {
 };
 
 extern uid_t uid;
+
+void print(FILE *fp, struct passwd *pw);

@@ -19,7 +19,10 @@
 #include <pwd.h>
 #include <stdio.h>
 #include <string.h>
+#include <strings.h>
 #include <ctype.h>
+#include <stdlib.h>
+#include <unistd.h>
 #include <paths.h>
 #include "chpass.h"
 
@@ -46,6 +49,7 @@ ttoa(tval)
 	return(tbuf);
 }
 
+int
 atot(p, store)
 	char *p;
 	time_t *store;
@@ -109,13 +113,13 @@ bad:		return(1);
 	return(0);
 }
 
+void
 print(fp, pw)
 	register FILE *fp;
 	struct passwd *pw;
 {
 	register char *p;
 	char	*bp;
-	char *getusershell(), *ttoa();
 
 	fprintf(fp, "#Changing user database information for %s.\n",
 	    pw->pw_name);

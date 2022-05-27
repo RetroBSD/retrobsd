@@ -95,6 +95,7 @@ void    setbuffer (FILE *, char *, size_t);
 void    setlinebuf (FILE *);
 int     setvbuf (FILE *, char *, int, size_t);
 int     fseek (FILE *, long, int);
+int     rename(const char *, const char *);
 void    rewind (FILE *);
 int     remove (const char *);
 int     getw(FILE *stream);

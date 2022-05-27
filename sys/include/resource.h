@@ -100,7 +100,9 @@ void ruadd (struct k_rusage *ru, struct k_rusage *ru2);
 
 #else
 
-int getrusage (int who, struct rusage *usage);
+int getrlimit(int resource, struct rlimit *rlim);
+int getrusage(int who, struct rusage *usage);
+int setrlimit(int resource, const struct rlimit *rlim);
 
 #endif
 

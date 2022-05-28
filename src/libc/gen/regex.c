@@ -68,6 +68,7 @@
  *	11. An empty regular expression stands for a copy of the last
  *	    regular expression encountered.
  */
+#include <regex.h>
 
 /*
  * constants for re's
@@ -87,7 +88,8 @@
 #define	ESIZE	512
 #define	NBRA	9
 
-static	char	expbuf[ESIZE], *braslist[NBRA], *braelist[NBRA];
+static	char	expbuf[ESIZE];
+static	const char *braslist[NBRA], *braelist[NBRA];
 static	char	circf;
 
 /*
@@ -95,7 +97,7 @@ static	char	circf;
  */
 char *
 re_comp(sp)
-	register char	*sp;
+	register const char	*sp;
 {
 	register int	c;
 	register char	*ep = expbuf;
@@ -233,9 +235,9 @@ cclass(set, c, af)
 static int
 backref(i, lp)
 	register int	i;
-	register char	*lp;
+	register const char	*lp;
 {
-	register char	*bp;
+	register const char	*bp;
 
 	bp = braslist[i];
 	while (*bp++ == *lp++)
@@ -249,9 +251,10 @@ backref(i, lp)
  */
 static	int
 advance(lp, ep)
-	register char	*lp, *ep;
+	register const char *lp;
+	register char *ep;
 {
-	register char	*curlp;
+	register const char	*curlp;
 	int	ct, i;
 	int	rv;
 
@@ -362,7 +365,7 @@ advance(lp, ep)
  */
 int
 re_exec(p1)
-	register char	*p1;
+	register const char	*p1;
 {
 	register char	*p2 = expbuf;
 	register int	c;

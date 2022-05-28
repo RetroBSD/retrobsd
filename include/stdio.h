@@ -65,13 +65,6 @@ typedef unsigned size_t;
         _flsbuf((unsigned char)(x), p)))
 #endif /* not lint */
 
-#define getchar()   getc(stdin)
-#define putchar(x)  putc(x,stdout)
-#define feof(p)     (((p)->_flag&_IOEOF)!=0)
-#define ferror(p)   (((p)->_flag&_IOERR)!=0)
-#define fileno(p)   ((p)->_file)
-#define clearerr(p) ((p)->_flag &= ~(_IOERR|_IOEOF))
-
 FILE    *fopen (const char *, const char *);
 FILE    *fdopen (int, const char *);
 FILE    *freopen (const char *, const char *, FILE *);
@@ -83,6 +76,7 @@ int     fflush (FILE *);
 int     fgetc (FILE *);
 int     ungetc (int, FILE *);
 int     fputc (int, FILE *);
+int     putchar (int);
 int     fputs (const char *, FILE *);
 int     puts (const char *);
 char    *fgets (char *, int, FILE *);
@@ -112,6 +106,13 @@ int     snprintf (char *, size_t, const char *, ...);
 int     fscanf (FILE *, const char *, ...);
 int     scanf (const char *, ...);
 int     sscanf (const char *, const char *, ...);
+
+#define getchar()   getc(stdin)
+#define putchar(x)  putc(x,stdout)
+#define feof(p)     (((p)->_flag&_IOEOF)!=0)
+#define ferror(p)   (((p)->_flag&_IOERR)!=0)
+#define fileno(p)   ((p)->_file)
+#define clearerr(p) ((p)->_flag &= ~(_IOERR|_IOEOF))
 
 #ifndef _VA_LIST_
 # ifdef __GNUC__

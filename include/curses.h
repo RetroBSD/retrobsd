@@ -84,17 +84,17 @@ extern WINDOW   *stdscr, *curscr;
 int __void__;
 #define VOID(x)     (__void__ = (int) (x))
 #else
-#define VOID(x)     (x)
+#define VOID(x)     ((void)(x))
 #endif
 
 /*
  * psuedo functions for standard screen
  */
 #define addch(ch)   VOID(waddch(stdscr, ch))
-#define getch()     VOID(wgetch(stdscr))
+#define getch()     wgetch(stdscr)
 #define addstr(str) VOID(waddstr(stdscr, str))
 #define getstr(str) VOID(wgetstr(stdscr, str))
-#define move(y, x)  VOID(wmove(stdscr, y, x))
+#define move(y, x)  wmove(stdscr, y, x)
 #define clear()     VOID(wclear(stdscr))
 #define erase()     VOID(werase(stdscr))
 #define clrtobot()  VOID(wclrtobot(stdscr))

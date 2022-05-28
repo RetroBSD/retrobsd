@@ -162,7 +162,7 @@ void refresh_screen()
 
     mvwaddstr(win,screen_height,0,temp);
     standend();
-    
+
     mvwinch(win,cursor_line,cpos);
     refresh();
 }
@@ -239,7 +239,7 @@ void save_file(char *fn)
 
     file = fopen(fn,"w");
     if(!file)
-        return; 
+        return;
     for(i=0; i<file_lines; i++)
     {
         seg = vmmapseg(&space,i);
@@ -251,40 +251,35 @@ void save_file(char *fn)
 
 int get_key()
 {
-    char escape[4];
-    int key;
     int c;
-    c = getch();
-    if(c == '\e')
-    {
+
+    for (;;) {
+        c = getch();
+        if (c != '\e')
+            return c;
 
         // Start an escape sequence
-        escape[0] = 0;
-        escape[1] = 0;
-        escape[2] = 0;
-        escape[3] = 0;
+        c = getch();
+        switch (c) {
+        case '[':       // Esc [
+            c = getch();
+            switch (c) {
+            case 'A': return KEY_UP;
+            case 'B': return KEY_DOWN;
+            case 'C': return KEY_RIGHT;
+            case 'D': return KEY_LEFT;
+            default: break;
+            }
+            break;
+        case 'O':       // Esc O
+            c = getch();
+            switch (c) {
+            case 'S': return KEY_F4;
+            default: break;
+            }
+            break;
+        }
 
-        escape[0] = '\e';
-        escape[1] = getch();
-        escape[2] = getch(); 
-
-        if(!strcmp(escape,"\e[A"))
-            return KEY_UP;
-
-        if(!strcmp(escape,"\e[B"))
-            return KEY_DOWN;
-
-        if(!strcmp(escape,"\e[D"))
-            return KEY_LEFT;
-
-        if(!strcmp(escape,"\e[C"))
-            return KEY_RIGHT;
-
-        if(!strcmp(escape,"\eOS"))
-            return KEY_F4;
-
-    } else {
-        return c;
     }
 }
 
@@ -351,7 +346,7 @@ int main(int argc, char **argv)
         }
 
         fclose(file);
-    } else {    
+    } else {
         file_lines = 1;
     }
 
@@ -403,7 +398,7 @@ int main(int argc, char **argv)
                 if(cursor_column >= strlen(seg->s_cinfo))
                     cursor_column = strlen(seg->s_cinfo);
                 refresh_screen();
-                break;    
+                break;
             case KEY_DOWN:
                 if(cursor_line+offset_line<file_lines-1)
                 {
@@ -418,7 +413,7 @@ int main(int argc, char **argv)
                         cursor_column = strlen(seg->s_cinfo);
                     refresh_screen();
                 }
-                break;    
+                break;
             case KEY_RIGHT:
                 cursor_column++;
                 seg = vmmapseg(&space,offset_line+cursor_line);
@@ -520,7 +515,7 @@ int main(int argc, char **argv)
                     refresh_screen();
                 }
         }
-        if(d==CTRL_X) 
+        if(d==CTRL_X)
             break;
     }
 

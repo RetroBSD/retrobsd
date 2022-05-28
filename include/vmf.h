@@ -48,8 +48,8 @@ struct  vseg {                  /* structure of a segment in memory */
 /* masks for s_flags */
 #define S_DIRTY     01          /* segment has been modified */
 
-long    nswaps;                 /* number of swaps */
-long    nmapsegs;               /* number of mapseg calls */
+extern long    nswaps;          /* number of swaps */
+extern long    nmapsegs;        /* number of mapseg calls */
 
 int vminit(), vmopen();
 struct  vseg    *vmmapseg();

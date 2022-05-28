@@ -23,6 +23,8 @@
 #include <ctype.h>
 #include <string.h>
 #include <paths.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 #define	NEW_PATH	"/new/man"
 
@@ -63,7 +65,7 @@ static MANDIR	list3[2];		/* single section */
  * cat --
  *	cat out the file
  */
-static
+static void
 cat(fname)
 	char *fname;
 {
@@ -90,7 +92,7 @@ cat(fname)
  * add --
  *	add a file name to the list for future paging
  */
-static
+static void
 add(fname)
 	char *fname;
 {
@@ -127,7 +129,7 @@ add(fname)
  *	matches; check ${directory}/${dir}/{file name} and
  *	${directory}/${dir}/${machine}/${file name}.
  */
-static
+static int
 manual(section, name)
 	MANDIR *section;
 	char *name;
@@ -140,7 +142,7 @@ manual(section, name)
 	if (strlen(name) > MAXNAMLEN-2)	/* leave room for the ".0" */
 		name[MAXNAMLEN-2] = '\0';
 	for (beg = manpath, res = 0;; beg = end + 1) {
-		if (end = index(beg, ':'))
+		if ((end = index(beg, ':')))
 			*end = '\0';
 		for (dp = section; dp->name; ++dp) {
 			(void)sprintf(fname, "%s/%s/%s.0", beg, dp->name, name);
@@ -165,6 +167,7 @@ manual(section, name)
 		*end = ':';
 	}
 	/*NOTREACHED*/
+	return 0;
 }
 
 /*
@@ -230,7 +233,7 @@ getsect(s)
 	return((MANDIR *)NULL);
 }
 
-static
+static void
 man(argv)
 	char **argv;
 {
@@ -276,7 +279,7 @@ man(argv)
 			break;
 		case '1': case '2': case '3': case '4':
 		case '5': case '6': case '7': case '8':
-			if (section = getsect(*argv))
+			if ((section = getsect(*argv)))
 				++argv;
 		}
 
@@ -315,7 +318,7 @@ man(argv)
  * jump --
  *	strip out flag argument and jump
  */
-static
+static void
 jump(argv, flag, name)
 	char **argv, *name;
 	register char *flag;
@@ -337,26 +340,28 @@ jump(argv, flag, name)
  * This is done in a function by itself because 'uname()' uses a 640
  * structure which we do not want permanently allocated on main()'s stack.
 */
+static void
 setmachine()
-        {
-        struct  utsname foo;
+{
+        struct utsname foo;
 
-        if      (uname(&foo) < 0)
+        if (uname(&foo) < 0)
                 strcpy(foo.machine, "?");
         machine = strdup(foo.machine);
-        }
+}
 
 /*
  * usage --
  *	print usage and die
  */
-static
+static void
 usage()
 {
 	fputs("usage: man [-] [-a] [-M path] [section] title ...\n", stderr);
 	exit(1);
 }
 
+int
 main(argc, argv)
 	int argc;
 	register char **argv;
@@ -403,10 +408,10 @@ main(argc, argv)
 	if (!*argv)
 		usage();
 
-	if (!(how & CAT))
+	if (!(how & CAT)) {
 		if (!isatty(1))
 			how |= CAT;
-		else if (pager = getenv("PAGER")) {
+		else if ((pager = getenv("PAGER"))) {
 			register char *p;
 
 			/*
@@ -433,6 +438,7 @@ main(argc, argv)
 		}
 		else
 			pager = _PATH_MORE " -s";
+        }
 	if (!(machine = getenv("MACHINE")))
 		setmachine();
 	if (!defpath && !(defpath = getenv("MANPATH")))

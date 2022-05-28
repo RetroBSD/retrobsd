@@ -783,13 +783,13 @@ layout(){
 		fprintf(fout, "define YYTOPVAL %d\n", yytop);
 		rprint(verify,"verif",yytop+1);
 		rprint(advance,"advan",yytop+1);
- 		shiftr(stoff, stnum);
+		shiftr(stoff, stnum);
 		rprint(stoff,"stoff",stnum+1);
- 		shiftr(sfall, stnum); upone(sfall, stnum+1);
+		shiftr(sfall, stnum); upone(sfall, stnum+1);
 		rprint(sfall,"sfall",stnum+1);
 		bprint(extra,"extra",casecount+1);
 		bprint(match,"match",NCH);
- 		shiftr(atable, stnum);
+		shiftr(atable, stnum);
 		rprint(atable,"atable",stnum+1);
 		return;
 		}
@@ -862,7 +862,7 @@ layout(){
 					fprintf(fout, "0%-3o,",fbarr[i+j]);
 				putc('\n',fout);
 				}
-			cfree(fbarr, 2*NCH, 1);
+			free(fbarr);
 			}
 		fprintf(fout,"0};\n");
 		}

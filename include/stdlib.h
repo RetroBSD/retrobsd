@@ -57,49 +57,49 @@
 typedef unsigned size_t;
 #endif
 
-void    abort (void);
-int     abs (int);
-int     atexit (void (*)(void));
-int     atoi (const char *);
-long    atol (const char *);
-void    *calloc (size_t, size_t);
-void    exit (int);
-void    free (void *);
-char    *getenv (const char *);
-long    labs (long);
-void    *malloc (size_t);
-char    *mktemp (char *);
-int     mkstemp (char *);
-void    qsort (void *, size_t, size_t, int (*)(const void *, const void *));
-int     rand (void);
-void    *realloc (void*, size_t);
-void    srand (unsigned);
-long    strtol (const char *, char **, int);
-unsigned long strtoul (const char *, char **, int);
-int     system (const char *);
+void    abort(void);
+int     abs(int);
+int     atexit(void (*)(void));
+int     atoi(const char *);
+long    atol(const char *);
+void    *calloc(size_t, size_t);
+void    exit(int);
+void    free(void *);
+char    *getenv(const char *);
+long    labs(long);
+void    *malloc(size_t);
+char    *mktemp(char *);
+int     mkstemp(char *);
+void    qsort(void *, size_t, size_t, int (*)(const void *, const void *));
+int     rand(void);
+void    *realloc(void*, size_t);
+void    srand(unsigned);
+long    strtol(const char *, char **, int);
+unsigned long strtoul(const char *, char **, int);
+int     system(const char *);
 
-int     putenv (char *string);
-int     setenv (const char *name, const char *value, int overwrite);
-int     unsetenv (const char *name);
-char    *_findenv (const char *name, int *offset);
+int     putenv(char *string);
+int     setenv(const char *name, const char *value, int overwrite);
+int     unsetenv(const char *name);
+char    *_findenv(const char *name, int *offset);
 
-void    *alloca (size_t size);
+void    *alloca(size_t size);
 
-int     daemon (int, int);
-char    *devname (int dev, int type);
-int     getloadavg (unsigned loadavg[], int nelem);
+int     daemon(int, int);
+char    *devname(int dev, int type);
+int     getloadavg(unsigned loadavg[], int nelem);
 
 extern char *suboptarg;                 /* getsubopt(3) external variable */
-int     getsubopt (char **, char **, char **);
+int     getsubopt(char **, char **, char **);
 
-long    random (void);
-char    *setstate (char *);
-void    srandom (unsigned);
+long    random(void);
+char    *setstate(char *);
+void    srandom(unsigned);
 
-double  atof (const char *);
-double  strtod (const char *, char **);
-char    *ecvt (double, int, int *, int *);
-char    *fcvt (double, int, int *, int *);
-char    *gcvt (double, int, char *);
+double  atof(const char *);
+double  strtod(const char *, char **);
+char    *ecvt(double, int, int *, int *);
+char    *fcvt(double, int, int *, int *);
+char    *gcvt(double, int, char *);
 
 #endif /* _STDLIB_H_ */

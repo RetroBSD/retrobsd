@@ -17,12 +17,3 @@ calloc(num, size)
 		bzero(p, size);
 	return (p);
 }
-
-void
-cfree(p, num, size)
-	char *p;
-	unsigned num;
-	unsigned size;
-{
-	free(p);
-}

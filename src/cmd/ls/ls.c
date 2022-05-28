@@ -18,6 +18,7 @@
 #include <sgtty.h>
 #include <string.h>
 #include <sys/time.h>
+#include <unistd.h>
 
 #define	kbytes(size)	(((size) + 1023) / 1024)
 
@@ -53,15 +54,24 @@ char	*dotp = ".";
 struct	winsize win;
 int	twidth;
 
-struct	afile *gstat();
-int	fcmp();
-char	*cat(), *savestr();
-char	*fmtentry();
-char	*getname(), *getgroup();
-
 char	*flags_to_string (unsigned flags, char *def);
 unsigned string_to_flags (char **stringp, unsigned *setp, unsigned *clrp);
+void    formatf(struct afile *fp0, struct afile *fplast);
+struct afile *gstat(struct afile *fp, char *file, int statarg, long *pnb);
+int     fcmp(const void *a, const void *b);
+void    formatd(char *name, int dotitle);
+long    getdir(char *dir, struct afile **pfp0, struct afile **pfplast, int *isadir);
+char    *savestr(char *str);
+char    *cat(char *dir, char *file);
+char    *fmtentry(struct afile *fp, int maxflags);
+char    *fmtinum(struct afile *p);
+char    *fmtsize(struct afile *p);
+char    *fmtlstuff(struct afile *p, int maxflags);
+char    *getname(uid_t uid);
+char    *getgroup(gid_t gid);
+char    *fmtmode(char *lp, int flags);
 
+int
 main(argc, argv)
 	int argc;
 	char *argv[];
@@ -71,7 +81,6 @@ main(argc, argv)
 	register struct afile *fp;
 	struct sgttyb sgbuf;
 	int ch, i;
-	time_t time();
 
 	Aflg = !getuid();
 	(void) time(&now); sixmonthsago = now - 6L*30L*24L*60L*60L; now += 60;
@@ -161,7 +170,7 @@ main(argc, argv)
 	}
 	fp0 = fp;
 	for (i = 0; i < argc; i++) {
-		if (gstat(fp, *argv, 1, (int *)0)) {
+		if (gstat(fp, *argv, 1, (long *)0)) {
 			fp->fname = *argv;
 			fp->fmode |= ISARG;
 			fp++;
@@ -195,8 +204,8 @@ main(argc, argv)
 				t = subdirs; subdirs = t->sd_next;
 				putchar('\n');
 				formatd(t->sd_name, 1);
-				cfree(t->sd_name);
-				cfree((char *)t);
+				free(t->sd_name);
+				free((char *)t);
 			}
 			if (++fp == fplast)
 				break;
@@ -206,6 +215,7 @@ main(argc, argv)
 	exit(0);
 }
 
+void
 formatd(name, dotitle)
 	char *name;
 	int dotitle;
@@ -214,7 +224,7 @@ formatd(name, dotitle)
 	register struct subdirs *dp;
 	struct afile *dfp0, *dfplast;
 	int isadir;
-	long nkb, getdir();
+	long nkb;
 
 	nkb = getdir(name, &dfp0, &dfplast, &isadir);
 	if (dfp0 == 0)
@@ -238,11 +248,11 @@ formatd(name, dotitle)
 		}
 	for (fp = dfp0; fp < dfplast; fp++) {
 		if ((fp->fmode&ISARG) == 0 && fp->fname)
-			cfree(fp->fname);
+			free(fp->fname);
 		if (fp->flinkto)
-			cfree(fp->flinkto);
+			free(fp->flinkto);
 	}
-	cfree((char *)dfp0);
+	free((char *)dfp0);
 }
 
 long
@@ -272,7 +282,7 @@ getdir(dir, pfp0, pfplast, isadir)
 	fp = *pfp0 = (struct afile *)calloc(nent, sizeof (struct afile));
 	*pfplast = *pfp0 + nent;
 	nb = 0;
-	while (dp = readdir(dirp)) {
+	while ((dp = readdir(dirp))) {
 		if (dp->d_ino == 0)
 			continue;
 		if (aflg == 0 && dp->d_name[0]=='.' &&
@@ -300,8 +310,6 @@ getdir(dir, pfp0, pfplast, isadir)
 	*pfplast = fp;
 	return (kbytes (nb * DEV_BSIZE));
 }
-
-int	stat(), lstat();
 
 struct afile *
 gstat(fp, file, statarg, pnb)
@@ -377,6 +385,7 @@ gstat(fp, file, statarg, pnb)
 	return (fp);
 }
 
+void
 formatf(fp0, fplast)
 	struct afile *fp0, *fplast;
 {
@@ -437,9 +446,11 @@ formatf(fp0, fplast)
 	}
 }
 
-fcmp(f1, f2)
-	register struct afile *f1, *f2;
+int
+fcmp(const void *a, const void *b)
 {
+	const struct afile *f1 = a;
+	const struct afile *f2 = b;
 
 	if (dflg == 0 && fflg == 0) {
 		if ((f1->fmode&ISARG) && f1->ftype == 'd') {
@@ -493,12 +504,10 @@ savestr(str)
 	return(cp);
 }
 
-char	*fmtinum(), *fmtsize(), *fmtlstuff(), *fmtmode();
-
 char *
 fmtentry(fp, maxflags)
-	register struct afile *fp;
-	int maxflags;
+        register struct afile *fp;
+        int maxflags;
 {
 	static char fmtres[BUFSIZ];
 	register char *cp, *dp;

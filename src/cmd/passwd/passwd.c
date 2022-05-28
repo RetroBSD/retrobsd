@@ -19,6 +19,8 @@
 #include <sys/signal.h>
 #include <sys/time.h>
 #include <sys/resource.h>
+#include <sys/stat.h>
+#include <sys/wait.h>
 #include <errno.h>
 #include <pwd.h>
 #include <stdio.h>
@@ -28,9 +30,14 @@
 #include <strings.h>
 #include <unistd.h>
 #include <paths.h>
+#include <fcntl.h>
 
 uid_t uid;
 
+int copy(char *name, char *np, FILE *fp, struct passwd *pw);
+int makedb(char *file);
+
+int
 main(argc, argv)
 	int argc;
 	char **argv;
@@ -152,6 +159,7 @@ bad:		fprintf(stderr, "; password unchanged.\n");
 	exit(0);
 }
 
+int
 copy(name, np, fp, pw)
 	char *name, *np;
 	FILE *fp;
@@ -243,6 +251,7 @@ getnewpasswd(pw, temp)
 	return(crypt(buf, salt));
 }
 
+int
 makedb(file)
 	char *file;
 {

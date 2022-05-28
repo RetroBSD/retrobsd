@@ -28,6 +28,8 @@ static FILE *stderrValue;
 
 struct ValueType *FilePtrType = NULL;
 
+int fgetpos(FILE *stream, int *pos);
+int fsetpos(FILE *stream, int *pos);
 
 /* our own internal output stream which can output to FILE * or strings */
 typedef struct StdOutStreamStruct

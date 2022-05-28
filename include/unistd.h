@@ -57,7 +57,7 @@
 #define X_OK            1       /* Test for execute permission.  */
 #define F_OK            0       /* Test for existence.  */
 
-void    _exit (int);
+void    _exit(int);
 int     access();
 unsigned int alarm();
 pid_t   fork();
@@ -74,12 +74,12 @@ off_t   lseek();
 ssize_t read();
 unsigned int    sleep();
 char    *ttyname();
-ssize_t write (int fd, const void *buf, size_t count);
-int     truncate (const char *path, off_t length);
-int     ftruncate (int fd, off_t length);
+ssize_t write(int fd, const void *buf, size_t count);
+int     truncate(const char *path, off_t length);
+int     ftruncate(int fd, off_t length);
 
-void    *brk (const void *addr);
-int     _brk (const void *addr);
+void    *brk(const void *addr);
+int     _brk(const void *addr);
 char    *crypt();
 void    endusershell();
 long    gethostid();
@@ -89,63 +89,69 @@ char    *getwd();
 void    psignal();
 extern  char    *sys_siglist[];
 char    *re_comp();
-void    *sbrk (int incr);
+void    *sbrk(int incr);
 int     sethostid();
 void    setusershell();
 void    sync();
 unsigned int    ualarm();
 void    usleep();
-int     pause (void);
+int     pause(void);
 pid_t   vfork();
 
-int     pipe (int pipefd[2]);
-int     close (int fd);
-int     dup (int oldfd);
-int     dup2 (int oldfd, int newfd);
-int     unlink (const char *pathname);
-int     link (const char *oldpath, const char *newpath);
-ssize_t readlink (const char *path, char *buf, size_t bufsiz);
-int     chown (const char *path, uid_t owner, gid_t group);
+int     pipe(int pipefd[2]);
+int     close(int fd);
+int     dup(int oldfd);
+int     dup2(int oldfd, int newfd);
+int     unlink(const char *pathname);
+int     link(const char *oldpath, const char *newpath);
+ssize_t readlink(const char *path, char *buf, size_t bufsiz);
+int     chown(const char *path, uid_t owner, gid_t group);
 int     fchown(int fd, uid_t owner, gid_t group);
-int     nice (int inc);
-int     setuid (uid_t uid);
-int     setgid (gid_t gid);
-int     seteuid (uid_t euid);
-int     setegid (gid_t egid);
-int     setreuid (uid_t ruid, uid_t euid);
-int     setregid (gid_t rgid, gid_t egid);
-int     isatty (int fd);
-int     chdir (const char *path);
-int     fchdir (int fd);
-int     chflags (const char *path, u_long flags);
-int     fchflags (int fd, u_long flags);
-int     getgroups (int size, gid_t list[]);
-int     getdtablesize (void);
-int     rmdir (const char *pathname);
+int     nice(int inc);
+int     setuid(uid_t uid);
+int     setgid(gid_t gid);
+int     seteuid(uid_t euid);
+int     setegid(gid_t egid);
+int     setreuid(uid_t ruid, uid_t euid);
+int     setregid(gid_t rgid, gid_t egid);
+int     setpgrp(void);
+int     isatty(int fd);
+int     chdir(const char *path);
+int     fchdir(int fd);
+int     chflags(const char *path, u_long flags);
+int     fchflags(int fd, u_long flags);
+int     getgroups(int size, gid_t list[]);
+int     getdtablesize(void);
+int     rmdir(const char *pathname);
 
 struct stat;
-int     stat (const char *path, struct stat *buf);
-int     fstat (int fd, struct stat *buf);
-int     lstat (const char *path, struct stat *buf);
+int     stat(const char *path, struct stat *buf);
+int     fstat(int fd, struct stat *buf);
+int     lstat(const char *path, struct stat *buf);
 
-int     execl (const char *path, const char *arg0, ... /* NULL */);
-int     execle (const char *path, const char *arg0, ... /* NULL, char *envp[] */);
-int     execlp (const char *file, const char *arg0, ... /* NULL */);
+int     execl(const char *path, const char *arg0, ... /* NULL */);
+int     execle(const char *path, const char *arg0, ... /* NULL, char *envp[] */);
+int     execlp(const char *file, const char *arg0, ... /* NULL */);
 
-int     execv (const char *path, char *const argv[]);
-int     execve (const char *path, char *const arg0[], char *const envp[]);
-int     execvp (const char *file, char *const argv[]);
+int     execv(const char *path, char *const argv[]);
+int     execve(const char *path, char *const arg0[], char *const envp[]);
+int     execvp(const char *file, char *const argv[]);
 
 extern  char    **environ;              /* Environment, from crt0. */
 extern  const char *__progname;         /* Program name, from crt0. */
 
-int     getopt (int argc, char * const argv[], const char *optstring);
+int     getopt(int argc, char * const argv[], const char *optstring);
 
 extern  char    *optarg;                /* getopt(3) external variables */
 extern  int     opterr, optind, optopt;
 
 int     gethostname(char *name, int namelen);
 int     sethostname(char *name, int namelen);
+
+int     chroot(const char *path);
+int     fsync(int fd);
+int     getpagesize(void);
+int     symlink(const char *target, const char *linkpath);
 
 #ifndef _VA_LIST_
 # ifdef __GNUC__
@@ -156,14 +162,14 @@ int     sethostname(char *name, int namelen);
 # endif
 #endif
 
-void    err (int eval, const char *fmt, ...);
-void    errx (int eval, const char *fmt, ...);
-void    warn (const char *fmt, ...);
-void    warnx (const char *fmt, ...);
-void    verr (int eval, const char *fmt, va_list ap);
-void    verrx (int eval, const char *fmt, va_list ap);
-void    vwarn (const char *fmt, va_list ap);
-void    vwarnx (const char *fmt, va_list ap);
+void    err(int eval, const char *fmt, ...);
+void    errx(int eval, const char *fmt, ...);
+void    warn(const char *fmt, ...);
+void    warnx(const char *fmt, ...);
+void    verr(int eval, const char *fmt, va_list ap);
+void    verrx(int eval, const char *fmt, va_list ap);
+void    vwarn(const char *fmt, va_list ap);
+void    vwarnx(const char *fmt, va_list ap);
 
 #ifndef _VA_LIST_
 # undef va_list

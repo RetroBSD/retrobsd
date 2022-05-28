@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
 #include "sed.h"
 
 char	*trans[040]  = {
@@ -37,11 +39,20 @@ char	*trans[040]  = {
 };
 char	rub[] = {"\177"};
 
-execute(file)
-char *file;
+char *gline(char *addr);
+int match(char *expbuf, int gf);
+void command(union reptr *ipc);
+void arout(void);
+int advance(char *alp, char *aep);
+int ecmp(char *a, char *b, int count);
+void dosub(char *rhsbuf);
+char *place(char *asp, char *al1, char *al2);
+
+void execute(file)
+        char *file;
 {
-	register char *p1, *p2;
-	register union reptr	*ipc;
+	char	*p1, *p2;
+	union reptr	*ipc;
 	int	c;
 	char	*execp;
 
@@ -55,86 +66,86 @@ char *file;
 	ebp = ibuf;
 	cbp = ibuf;
 
-	if(pending) {
+	if (pending) {
 		ipc = pending;
 		pending = 0;
 		goto yes;
 	}
 
-	for(;;) {
-		if((execp = gline(linebuf)) == badp) {
+	for (;;) {
+		if ((execp = gline(linebuf)) == badp) {
 			close(f);
 			return;
 		}
 		spend = execp;
 
-		for(ipc = ptrspace; ipc->A.command; ) {
+		for (ipc = ptrspace; ipc->A.command; ) {
 
 			p1 = ipc->A.ad1;
 			p2 = ipc->A.ad2;
 
-			if(p1) {
+			if (p1) {
 
-				if(ipc->A.inar) {
-					if(*p2 == CEND) {
+				if (ipc->A.inar) {
+					if (*p2 == CEND) {
 						p1 = 0;
-					} else if(*p2 == CLNUM) {
+					} else if (*p2 == CLNUM) {
 						c = p2[1];
-						if(lnum > tlno[c]) {
+						if (lnum > tlno[c]) {
 							ipc->A.inar = 0;
-							if(ipc->A.negfl)
+							if (ipc->A.negfl)
 								goto yes;
 							ipc++;
 							continue;
 						}
-						if(lnum == tlno[c]) {
+						if (lnum == tlno[c]) {
 							ipc->A.inar = 0;
 						}
-					} else if(match(p2, 0)) {
+					} else if (match(p2, 0)) {
 						ipc->A.inar = 0;
 					}
-				} else if(*p1 == CEND) {
-					if(!dolflag) {
-						if(ipc->A.negfl)
+				} else if (*p1 == CEND) {
+					if (!dolflag) {
+						if (ipc->A.negfl)
 							goto yes;
 						ipc++;
 						continue;
 					}
 
-				} else if(*p1 == CLNUM) {
+				} else if (*p1 == CLNUM) {
 					c = p1[1];
-					if(lnum != tlno[c]) {
-						if(ipc->A.negfl)
+					if (lnum != tlno[c]) {
+						if (ipc->A.negfl)
 							goto yes;
 						ipc++;
 						continue;
 					}
-					if(p2)
+					if (p2)
 						ipc->A.inar = 1;
-				} else if(match(p1, 0)) {
-					if(p2)
+				} else if (match(p1, 0)) {
+					if (p2)
 						ipc->A.inar = 1;
 				} else {
-					if(ipc->A.negfl)
+					if (ipc->A.negfl)
 						goto yes;
 					ipc++;
 					continue;
 				}
 			}
 
-			if(ipc->A.negfl) {
+			if (ipc->A.negfl) {
 				ipc++;
 				continue;
 			}
 	yes:
 			command(ipc);
 
-			if(delflag)
+			if (delflag)
 				break;
 
-			if(jflag) {
+			if (jflag) {
 				jflag = 0;
-				if((ipc = ipc->B.lb1) == 0) {
+				if ((ipc = ipc->B.lb1) == 0) {
 					ipc = ptrspace;
 					break;
 				}
@@ -142,13 +153,13 @@ char *file;
 				ipc++;
 
 		}
-		if(!nflag && !delflag) {
-			for(p1 = linebuf; p1 < spend; p1++)
+		if (!nflag && !delflag) {
+			for (p1 = linebuf; p1 < spend; p1++)
 				putc(*p1, stdout);
 			putc('\n', stdout);
 		}
 
-		if(aptr > abuf) {
+		if (aptr > abuf) {
 			arout();
 		}
 
@@ -156,16 +167,18 @@ char *file;
 
 	}
 }
-match(expbuf, gf)
-char	*expbuf;
-{
-	register char	*p1, *p2, c;
 
-	if(gf) {
-		if(*expbuf)	return(0);
+int match(expbuf, gf)
+        char *expbuf;
+{
+	char	*p1, *p2, c;
+
+	if (gf) {
+		if (*expbuf)
+                        return(0);
 		p1 = linebuf;
 		p2 = genbuf;
-		while(*p1++ = *p2++);
+		while ((*p1++ = *p2++));
 		locs = p1 = loc2;
 	} else {
 		p1 = linebuf;
@@ -173,45 +186,46 @@ char	*expbuf;
 	}
 
 	p2 = expbuf;
-	if(*p2++) {
+	if (*p2++) {
 		loc1 = p1;
-		if(*p2 == CCHR && p2[1] != *p1)
+		if (*p2 == CCHR && p2[1] != *p1)
 			return(0);
 		return(advance(p1, p2));
 	}
 
 	/* fast check for first character */
 
-	if(*p2 == CCHR) {
+	if (*p2 == CCHR) {
 		c = p2[1];
 		do {
-			if(*p1 != c)
+			if (*p1 != c)
 				continue;
-			if(advance(p1, p2)) {
+			if (advance(p1, p2)) {
 				loc1 = p1;
 				return(1);
 			}
-		} while(*p1++);
+		} while (*p1++);
 		return(0);
 	}
 
 	do {
-		if(advance(p1, p2)) {
+		if (advance(p1, p2)) {
 			loc1 = p1;
 			return(1);
 		}
-	} while(*p1++);
+	} while (*p1++);
 	return(0);
 }
-advance(alp, aep)
-char	*alp, *aep;
+
+int advance(alp, aep)
+        char *alp, *aep;
 {
-	register char *lp, *ep, *curlp;
+	char	*lp, *ep, *curlp;
 	char	c;
-	char *bbeg;
+	char	*bbeg;
 	int	ct;
 
-/*fprintf(stderr, "*lp = %c, %o\n*ep = %c, %o\n", *lp, *lp, *ep, *ep);	/*DEBUG*/
+        /*fprintf(stderr, "*lp = %c, %o\n*ep = %c, %o\n", *lp, *lp, *ep, *ep);*/	/*DEBUG*/
 
 	lp = alp;
 	ep = aep;
@@ -239,7 +253,7 @@ char	*alp, *aep;
 
 	case CCL:
 		c = *lp++ & 0177;
-		if(ep[c>>3] & bittab[c & 07]) {
+		if (ep[c>>3] & bittab[c & 07]) {
 			ep += 16;
 			continue;
 		}
@@ -257,7 +271,7 @@ char	*alp, *aep;
 		bbeg = braslist[*ep];
 		ct = braelist[*ep++] - bbeg;
 
-		if(ecmp(bbeg, lp, ct)) {
+		if (ecmp(bbeg, lp, ct)) {
 			lp += ct;
 			continue;
 		}
@@ -267,11 +281,11 @@ char	*alp, *aep;
 		bbeg = braslist[*ep];
 		ct = braelist[*ep++] - bbeg;
 		curlp = lp;
-		while(ecmp(bbeg, lp, ct))
+		while (ecmp(bbeg, lp, ct))
 			lp += ct;
 
-		while(lp >= curlp) {
-			if(advance(lp, ep))	return(1);
+		while (lp >= curlp) {
+			if (advance(lp, ep))	return(1);
 			lp -= ct;
 		}
 		return(0);
@@ -292,39 +306,39 @@ char	*alp, *aep;
 		curlp = lp;
 		do {
 			c = *lp++ & 0177;
-		} while(ep[c>>3] & bittab[c & 07]);
+		} while (ep[c>>3] & bittab[c & 07]);
 		ep += 16;
 		goto star;
 
 	star:
-		if(--lp == curlp) {
+		if (--lp == curlp) {
 			continue;
 		}
 
-		if(*ep == CCHR) {
+		if (*ep == CCHR) {
 			c = ep[1];
 			do {
-				if(*lp != c)
+				if (*lp != c)
 					continue;
-				if(advance(lp, ep))
+				if (advance(lp, ep))
 					return(1);
-			} while(lp-- > curlp);
+			} while (lp-- > curlp);
 			return(0);
 		}
 
-		if(*ep == CBACK) {
+		if (*ep == CBACK) {
 			c = *(braslist[ep[1]]);
 			do {
-				if(*lp != c)
+				if (*lp != c)
 					continue;
-				if(advance(lp, ep))
+				if (advance(lp, ep))
 					return(1);
-			} while(lp-- > curlp);
+			} while (lp-- > curlp);
 			return(0);
 		}
 
 		do {
-			if(lp == locs)	break;
+			if (lp == locs)	break;
 			if (advance(lp, ep))
 				return(1);
 		} while (lp-- > curlp);
@@ -334,27 +348,28 @@ char	*alp, *aep;
 		fprintf(stderr, "RE botch, %o\n", *--ep);
 	}
 }
-substitute(ipc)
-union reptr	*ipc;
+
+int substitute(ipc)
+        union reptr *ipc;
 {
-	if(match(ipc->A.re1, 0) == 0)	return(0);
+	if (match(ipc->A.re1, 0) == 0)	return(0);
 
 	sflag = 1;
 	dosub(ipc->A.rhs);
 
-	if(ipc->A.gfl) {
-		while(*loc2) {
-			if(match(ipc->A.re1, 1) == 0) break;
+	if (ipc->A.gfl) {
+		while (*loc2) {
+			if (match(ipc->A.re1, 1) == 0) break;
 			dosub(ipc->A.rhs);
 		}
 	}
 	return(1);
 }
 
-dosub(rhsbuf)
-char	*rhsbuf;
+void dosub(rhsbuf)
+        char *rhsbuf;
 {
-	register char *lp, *sp, *rp;
+	char *lp, *sp, *rp;
 	int c;
 
 	lp = linebuf;
@@ -362,7 +377,7 @@ char	*rhsbuf;
 	rp = rhsbuf;
 	while (lp < loc1)
 		*sp++ = *lp++;
-	while(c = *rp++) {
+	while ((c = *rp++)) {
 		if (c == '&') {
 			sp = place(sp, loc1, loc2);
 			continue;
@@ -376,19 +391,20 @@ char	*rhsbuf;
 	}
 	lp = loc2;
 	loc2 = sp - genbuf + linebuf;
-	while (*sp++ = *lp++)
+	while ((*sp++ = *lp++))
 		if (sp >= &genbuf[LBSIZE]) {
 			fprintf(stderr, "Output line too long.\n");
 		}
 	lp = linebuf;
 	sp = genbuf;
-	while (*lp++ = *sp++);
+	while ((*lp++ = *sp++));
 	spend = lp-1;
 }
-char	*place(asp, al1, al2)
-char	*asp, *al1, *al2;
+
+char *place(asp, al1, al2)
+        char *asp, *al1, *al2;
 {
-	register char *sp, *l1, *l2;
+	char *sp, *l1, *l2;
 
 	sp = asp;
 	l1 = al1;
@@ -401,19 +417,19 @@ char	*asp, *al1, *al2;
 	return(sp);
 }
 
-command(ipc)
-union reptr	*ipc;
+void command(ipc)
+        union reptr *ipc;
 {
-	register int	i;
-	register char	*p1, *p2, *p3;
+	int	i;
+	char	*p1, *p2, *p3;
 	char	*execp;
 
 
-	switch(ipc->A.command) {
+	switch (ipc->A.command) {
 
 		case ACOM:
 			*aptr++ = ipc;
-			if(aptr >= &abuf[ABUFSIZE]) {
+			if (aptr >= &abuf[ABUFSIZE]) {
 				fprintf(stderr, "Too many appends after line %ld\n",
 					lnum);
 			}
@@ -422,8 +438,8 @@ union reptr	*ipc;
 
 		case CCOM:
 			delflag = 1;
-			if(!ipc->A.inar || dolflag) {
-				for(p1 = ipc->A.re1; *p1; )
+			if (!ipc->A.inar || dolflag) {
+				for (p1 = ipc->A.re1; *p1; )
 					putc(*p1++, stdout);
 				putc('\n', stdout);
 			}
@@ -434,15 +450,15 @@ union reptr	*ipc;
 		case CDCOM:
 			p1 = p2 = linebuf;
 
-			while(*p1 != '\n') {
-				if(*p1++ == 0) {
+			while (*p1 != '\n') {
+				if (*p1++ == 0) {
 					delflag++;
 					return;
 				}
 			}
 
 			p1++;
-			while(*p2++ = *p1++);
+			while ((*p2++ = *p1++));
 			spend = p2-1;
 			jflag++;
 			break;
@@ -454,7 +470,7 @@ union reptr	*ipc;
 		case GCOM:
 			p1 = linebuf;
 			p2 = holdsp;
-			while(*p1++ = *p2++);
+			while ((*p1++ = *p2++));
 			spend = p1-1;
 			break;
 
@@ -462,8 +478,8 @@ union reptr	*ipc;
 			*spend++ = '\n';
 			p1 = spend;
 			p2 = holdsp;
-			while(*p1++ = *p2++)
-				if(p1 >= lbend)
+			while ((*p1++ = *p2++))
+				if (p1 >= lbend)
 					break;
 			spend = p1-1;
 			break;
@@ -471,7 +487,7 @@ union reptr	*ipc;
 		case HCOM:
 			p1 = holdsp;
 			p2 = linebuf;
-			while(*p1++ = *p2++);
+			while ((*p1++ = *p2++));
 			hspend = p1-1;
 			break;
 
@@ -479,14 +495,14 @@ union reptr	*ipc;
 			*hspend++ = '\n';
 			p1 = hspend;
 			p2 = linebuf;
-			while(*p1++ = *p2++)
-				if(p1 >= hend)
+			while ((*p1++ = *p2++))
+				if (p1 >= hend)
 					break;
 			hspend = p1-1;
 			break;
 
 		case ICOM:
-			for(p1 = ipc->A.re1; *p1; )
+			for (p1 = ipc->A.re1; *p1; )
 				putc(*p1++, stdout);
 			putc('\n', stdout);
 			break;
@@ -499,12 +515,12 @@ union reptr	*ipc;
 			p1 = linebuf;
 			p2 = genbuf;
 			genbuf[72] = 0;
-			while(*p1)
-				if(*p1 >= 040) {
-					if(*p1 == 0177) {
+			while (*p1)
+				if (*p1 >= 040) {
+					if (*p1 == 0177) {
 						p3 = rub;
-						while(*p2++ = *p3++)
-							if(p2 >= lcomend) {
+						while ((*p2++ = *p3++))
+							if (p2 >= lcomend) {
 								*p2 = '\\';
 								fprintf(stdout, "%s\n", genbuf);
 								p2 = genbuf;
@@ -514,15 +530,15 @@ union reptr	*ipc;
 						continue;
 					}
 					*p2++ = *p1++;
-					if(p2 >= lcomend) {
+					if (p2 >= lcomend) {
 						*p2 = '\\';
 						fprintf(stdout, "%s\n", genbuf);
 						p2 = genbuf;
 					}
 				} else {
 					p3 = trans[*p1-1];
-					while(*p2++ = *p3++)
-						if(p2 >= lcomend) {
+					while ((*p2++ = *p3++))
+						if (p2 >= lcomend) {
 							*p2 = '\\';
 							fprintf(stdout, "%s\n", genbuf);
 							p2 = genbuf;
@@ -535,15 +551,15 @@ union reptr	*ipc;
 			break;
 
 		case NCOM:
-			if(!nflag) {
-				for(p1 = linebuf; p1 < spend; p1++)
+			if (!nflag) {
+				for (p1 = linebuf; p1 < spend; p1++)
 					putc(*p1, stdout);
 				putc('\n', stdout);
 			}
 
-			if(aptr > abuf)
+			if (aptr > abuf)
 				arout();
-			if((execp = gline(linebuf)) == badp) {
+			if ((execp = gline(linebuf)) == badp) {
 				pending = ipc;
 				delflag = 1;
 				break;
@@ -552,10 +568,10 @@ union reptr	*ipc;
 
 			break;
 		case CNCOM:
-			if(aptr > abuf)
+			if (aptr > abuf)
 				arout();
 			*spend++ = '\n';
-			if((execp = gline(spend)) == badp) {
+			if ((execp = gline(spend)) == badp) {
 				pending = ipc;
 				delflag = 1;
 				break;
@@ -564,30 +580,30 @@ union reptr	*ipc;
 			break;
 
 		case PCOM:
-			for(p1 = linebuf; p1 < spend; p1++)
+			for (p1 = linebuf; p1 < spend; p1++)
 				putc(*p1, stdout);
 			putc('\n', stdout);
 			break;
 		case CPCOM:
 	cpcom:
-			for(p1 = linebuf; *p1 != '\n' && *p1 != '\0'; )
+			for (p1 = linebuf; *p1 != '\n' && *p1 != '\0'; )
 				putc(*p1++, stdout);
 			putc('\n', stdout);
 			break;
 
 		case QCOM:
-			if(!nflag) {
-				for(p1 = linebuf; p1 < spend; p1++)
+			if (!nflag) {
+				for (p1 = linebuf; p1 < spend; p1++)
 					putc(*p1, stdout);
 				putc('\n', stdout);
 			}
-			if(aptr > abuf)	arout();
+			if (aptr > abuf)	arout();
 			fclose(stdout);
 			exit(0);
 		case RCOM:
 
 			*aptr++ = ipc;
-			if(aptr >= &abuf[ABUFSIZE])
+			if (aptr >= &abuf[ABUFSIZE])
 				fprintf(stderr, "Too many reads after line%ld\n",
 					lnum);
 
@@ -597,20 +613,21 @@ union reptr	*ipc;
 
 		case SCOM:
 			i = substitute(ipc);
-			if(ipc->A.pfl && i)
-				if(ipc->A.pfl == 1) {
-					for(p1 = linebuf; p1 < spend; p1++)
+			if (ipc->A.pfl && i) {
+				if (ipc->A.pfl == 1) {
+					for (p1 = linebuf; p1 < spend; p1++)
 						putc(*p1, stdout);
 					putc('\n', stdout);
 				}
 				else
 					goto cpcom;
-			if(i && ipc->A.fcode)
+                        }
+			if (i && ipc->A.fcode)
 				goto wcom;
 			break;
 
 		case TCOM:
-			if(sflag == 0)	break;
+			if (sflag == 0)	break;
 			sflag = 0;
 			jflag = 1;
 			break;
@@ -623,32 +640,32 @@ union reptr	*ipc;
 		case XCOM:
 			p1 = linebuf;
 			p2 = genbuf;
-			while(*p2++ = *p1++);
+			while ((*p2++ = *p1++));
 			p1 = holdsp;
 			p2 = linebuf;
-			while(*p2++ = *p1++);
+			while ((*p2++ = *p1++));
 			spend = p2 - 1;
 			p1 = genbuf;
 			p2 = holdsp;
-			while(*p2++ = *p1++);
+			while ((*p2++ = *p1++));
 			hspend = p2 - 1;
 			break;
 
 		case YCOM:
 			p1 = linebuf;
 			p2 = ipc->A.re1;
-			while(*p1 = p2[*p1])	p1++;
+			while ((*p1 = p2[*p1]))
+                                p1++;
 			break;
 	}
 
 }
 
-char	*
-gline(addr)
-char	*addr;
+char *gline(addr)
+        char *addr;
 {
-	register char	*p1, *p2;
-	register	c;
+	char	*p1, *p2;
+	int	c;
 	p1 = addr;
 	p2 = cbp;
 	for (;;) {
@@ -660,10 +677,10 @@ char	*addr;
 			ebp = ibuf+c;
 		}
 		if ((c = *p2++) == '\n') {
-			if(p2 >=  ebp) {
-				if((c = read(f, ibuf, BUFSIZ)) <= 0) {
+			if (p2 >=  ebp) {
+				if ((c = read(f, ibuf, BUFSIZ)) <= 0) {
 					close(f);
-					if(eargc == 0)
+					if (eargc == 0)
 							dolflag = 1;
 				}
 
@@ -672,8 +689,8 @@ char	*addr;
 			}
 			break;
 		}
-		if(c)
-		if(p1 < lbend)
+		if (c)
+		if (p1 < lbend)
 			*p1++ = c;
 	}
 	lnum++;
@@ -682,31 +699,32 @@ char	*addr;
 
 	return(p1);
 }
-ecmp(a, b, count)
-char	*a, *b;
+
+int ecmp(a, b, count)
+        char *a, *b;
 {
-	while(count--)
-		if(*a++ != *b++)	return(0);
+	while (count--)
+		if (*a++ != *b++)	return(0);
 	return(1);
 }
 
-arout()
+void arout()
 {
-	register char	*p1;
+	char	*p1;
 	FILE	*fi;
 	char	c;
 	int	t;
 
 	aptr = abuf - 1;
-	while(*++aptr) {
-		if((*aptr)->A.command == ACOM) {
-			for(p1 = (*aptr)->A.re1; *p1; )
+	while (*++aptr) {
+		if ((*aptr)->A.command == ACOM) {
+			for (p1 = (*aptr)->A.re1; *p1; )
 				putc(*p1++, stdout);
 			putc('\n', stdout);
 		} else {
-			if((fi = fopen((*aptr)->A.re1, "r")) == NULL)
+			if ((fi = fopen((*aptr)->A.re1, "r")) == NULL)
 				continue;
-			while((t = getc(fi)) != EOF) {
+			while ((t = getc(fi)) != EOF) {
 				c = t;
 				putc(c, stdout);
 			}

@@ -19,8 +19,75 @@ char	bittab[]  = {
 		128
 	};
 
-main(argc, argv)
-char	*argv[];
+FILE	*fin;
+union reptr	*abuf[ABUFSIZE];
+union reptr **aptr;
+char	*lastre;
+char	ibuf[BUFSIZ];
+char	*cbp;
+char	*ebp;
+char	genbuf[LBSIZE];
+char	*loc1;
+char	*loc2;
+char	*locs;
+char	seof;
+char	*reend;
+char	*lbend;
+char	*hend;
+char	*lcomend;
+union reptr	*ptrend;
+int	eflag;
+int	dolflag;
+int	sflag;
+int	jflag;
+int	numbra;
+int	delflag;
+long	lnum;
+char	linebuf[LBSIZE+1];
+char	holdsp[LBSIZE+1];
+char	*spend;
+char	*hspend;
+int	nflag;
+int	gflag;
+char	*braelist[NBRA];
+char	*braslist[NBRA];
+long	tlno[NLINES];
+int	nlno;
+char	fname[12][40];
+FILE	*fcode[12];
+int	nfiles;
+char	*cp;
+char	*reend;
+char	*lbend;
+union reptr	ptrspace[PTRSIZE], *rep;
+char	respace[RESIZE];
+struct label	ltab[LABSIZE];
+struct label	*lab;
+struct label	*labend;
+int	f;
+int	depth;
+int	eargc;
+char	**eargv;
+char	bittab[];
+union reptr	**cmpend[DEPTH];
+int	depth;
+union reptr	*pending;
+char	*badp;
+char	bad;
+char	compfl;
+
+void fcomp(void);
+void dechain(void);
+int rline(char *lbuf);
+struct label *search(struct label *ptr);
+char *text(char *textbuf);
+char *compile(char *expbuf);
+char *compsub(char *rhsbuf);
+int cmp(char *a, char *b);
+char *ycomp(char *expbuf);
+
+int main(argc, argv)
+        char *argv[];
 {
 
 	eargc = argc;
@@ -45,7 +112,7 @@ char	*argv[];
 	fcode[0] = stdout;
 	nfiles = 1;
 
-	if(eargc == 1)
+	if (eargc == 1)
 		exit(0);
 
 
@@ -57,9 +124,9 @@ char	*argv[];
 			continue;
 
 		case 'f':
-			if(eargc-- <= 0)	exit(2);
+			if (eargc-- <= 0)	exit(2);
 
-			if((fin = fopen(*++eargv, "r")) == NULL) {
+			if ((fin = fopen(*++eargv, "r")) == NULL) {
 				fprintf(stderr, "Cannot open pattern-file: %s\n", *eargv);
 				exit(2);
 			}
@@ -84,7 +151,7 @@ char	*argv[];
 		}
 
 
-	if(compfl == 0) {
+	if (compfl == 0) {
 		eargv--;
 		eargc++;
 		eflag++;
@@ -94,7 +161,7 @@ char	*argv[];
 		eflag = 0;
 	}
 
-	if(depth) {
+	if (depth) {
 		fprintf(stderr, "Too many {'s");
 		exit(2);
 	}
@@ -103,20 +170,20 @@ char	*argv[];
 
 	dechain();
 
-/*	abort();	/*DEBUG*/
+        /*abort();*/	/*DEBUG*/
 
-	if(eargc <= 0)
+	if (eargc <= 0)
 		execute((char *)NULL);
-	else while(--eargc >= 0) {
+	else while (--eargc >= 0) {
 		execute(*eargv++);
 	}
 	fclose(stdout);
 	exit(0);
 }
-fcomp()
-{
 
-	register char	*p, *op, *tp;
+void fcomp()
+{
+	char	*p, *op, *tp;
 	char	*address();
 	union reptr	*pt, *pt1;
 	int	i;
@@ -125,9 +192,9 @@ fcomp()
 	compfl = 1;
 	op = lastre;
 
-	if(rline(linebuf) < 0)	return;
-	if(*linebuf == '#') {
-		if(linebuf[1] == 'n')
+	if (rline(linebuf) < 0)	return;
+	if (*linebuf == '#') {
+		if (linebuf[1] == 'n')
 			nflag = 1;
 	}
 	else {
@@ -135,50 +202,50 @@ fcomp()
 		goto comploop;
 	}
 
-	for(;;) {
-		if(rline(linebuf) < 0)	break;
+	for (;;) {
+		if (rline(linebuf) < 0)	break;
 
 		cp = linebuf;
 
 comploop:
-/*	fprintf(stdout, "cp: %s\n", cp);	/*DEBUG*/
-		while(*cp == ' ' || *cp == '\t')	cp++;
-		if(*cp == '\0' || *cp == '#')		continue;
-		if(*cp == ';') {
+	/*fprintf(stdout, "cp: %s\n", cp);*/	/*DEBUG*/
+		while (*cp == ' ' || *cp == '\t')	cp++;
+		if (*cp == '\0' || *cp == '#')		continue;
+		if (*cp == ';') {
 			cp++;
 			goto comploop;
 		}
 
 		p = address(rep->A.ad1);
-		if(p == badp) {
+		if (p == badp) {
 			fprintf(stderr, CGMES, linebuf);
 			exit(2);
 		}
 
-		if(p == rep->A.ad1) {
-			if(op)
+		if (p == rep->A.ad1) {
+			if (op)
 				rep->A.ad1 = op;
 			else {
 				fprintf(stderr, "First RE may not be null\n");
 				exit(2);
 			}
-		} else if(p == 0) {
+		} else if (p == 0) {
 			p = rep->A.ad1;
 			rep->A.ad1 = 0;
 		} else {
 			op = rep->A.ad1;
-			if(*cp == ',' || *cp == ';') {
+			if (*cp == ',' || *cp == ';') {
 				cp++;
-				if((rep->A.ad2 = p) > reend) {
+				if ((rep->A.ad2 = p) > reend) {
 					fprintf(stderr, TMMES, linebuf);
 					exit(2);
 				}
 				p = address(rep->A.ad2);
-				if(p == badp || p == 0) {
+				if (p == badp || p == 0) {
 					fprintf(stderr, CGMES, linebuf);
 					exit(2);
 				}
-				if(p == rep->A.ad2)
+				if (p == rep->A.ad2)
 					rep->A.ad2 = op;
 				else
 					op = rep->A.ad2;
@@ -187,15 +254,15 @@ comploop:
 				rep->A.ad2 = 0;
 		}
 
-		if(p > reend) {
+		if (p > reend) {
 			fprintf(stderr, "Too much text: %s\n", linebuf);
 			exit(2);
 		}
 
-		while(*cp == ' ' || *cp == '\t')	cp++;
+		while (*cp == ' ' || *cp == '\t')	cp++;
 
 swit:
-		switch(*cp++) {
+		switch (*cp++) {
 
 			default:
 				fprintf(stderr, "Unrecognized command: %s\n", linebuf);
@@ -209,22 +276,22 @@ swit:
 				rep->A.command = BCOM;
 				rep->A.negfl = !(rep->A.negfl);
 				cmpend[depth++] = &rep->B.lb1;
-				if(++rep >= ptrend) {
+				if (++rep >= ptrend) {
 					fprintf(stderr, "Too many commands: %s\n", linebuf);
 					exit(2);
 				}
 				rep->A.ad1 = p;
-				if(*cp == '\0')	continue;
+				if (*cp == '\0')	continue;
 
 				goto comploop;
 
 			case '}':
-				if(rep->A.ad1) {
+				if (rep->A.ad1) {
 					fprintf(stderr, AD0MES, linebuf);
 					exit(2);
 				}
 
-				if(--depth < 0) {
+				if (--depth < 0) {
 					fprintf(stderr, "Too many }'s\n");
 					exit(2);
 				}
@@ -235,39 +302,39 @@ swit:
 
 			case '=':
 				rep->A.command = EQCOM;
-				if(rep->A.ad2) {
+				if (rep->A.ad2) {
 					fprintf(stderr, AD1MES, linebuf);
 					exit(2);
 				}
 				break;
 
 			case ':':
-				if(rep->A.ad1) {
+				if (rep->A.ad1) {
 					fprintf(stderr, AD0MES, linebuf);
 					exit(2);
 				}
 
-				while(*cp++ == ' ');
+				while (*cp++ == ' ');
 				cp--;
 
 
 				tp = lab->asc;
-				while((*tp++ = *cp++))
-					if(tp >= &(lab->asc[8])) {
+				while ((*tp++ = *cp++))
+					if (tp >= &(lab->asc[8])) {
 						fprintf(stderr, LTL, linebuf);
 						exit(2);
 					}
 				*--tp = '\0';
 
-				if(lpt = search(lab)) {
-					if(lpt->address) {
+				if ((lpt = search(lab))) {
+					if (lpt->address) {
 						fprintf(stderr, "Duplicate labels: %s\n", linebuf);
 						exit(2);
 					}
 				} else {
 					lab->chain = 0;
 					lpt = lab;
-					if(++lab >= labend) {
+					if (++lab >= labend) {
 						fprintf(stderr, "Too many labels: %s\n", linebuf);
 						exit(2);
 					}
@@ -279,12 +346,12 @@ swit:
 
 			case 'a':
 				rep->A.command = ACOM;
-				if(rep->A.ad2) {
+				if (rep->A.ad2) {
 					fprintf(stderr, AD1MES, linebuf);
 					exit(2);
 				}
-				if(*cp == '\\')	cp++;
-				if(*cp++ != '\n') {
+				if (*cp == '\\')	cp++;
+				if (*cp++ != '\n') {
 					fprintf(stderr, CGMES, linebuf);
 					exit(2);
 				}
@@ -293,8 +360,8 @@ swit:
 				break;
 			case 'c':
 				rep->A.command = CCOM;
-				if(*cp == '\\')	cp++;
-				if(*cp++ != ('\n')) {
+				if (*cp == '\\')	cp++;
+				if (*cp++ != ('\n')) {
 					fprintf(stderr, CGMES, linebuf);
 					exit(2);
 				}
@@ -303,12 +370,12 @@ swit:
 				break;
 			case 'i':
 				rep->A.command = ICOM;
-				if(rep->A.ad2) {
+				if (rep->A.ad2) {
 					fprintf(stderr, AD1MES, linebuf);
 					exit(2);
 				}
-				if(*cp == '\\')	cp++;
-				if(*cp++ != ('\n')) {
+				if (*cp == '\\')	cp++;
+				if (*cp++ != ('\n')) {
 					fprintf(stderr, CGMES, linebuf);
 					exit(2);
 				}
@@ -339,12 +406,12 @@ swit:
 			case 'b':
 				rep->A.command = BCOM;
 jtcommon:
-				while(*cp++ == ' ');
+				while (*cp++ == ' ');
 				cp--;
 
-				if(*cp == '\0') {
-					if(pt = labtab->chain) {
-						while(pt1 = pt->B.lb1)
+				if (*cp == '\0') {
+					if ((pt = labtab->chain)) {
+						while ((pt1 = pt->B.lb1))
 							pt = pt1;
 						pt->B.lb1 = rep;
 					} else
@@ -352,27 +419,27 @@ jtcommon:
 					break;
 				}
 				tp = lab->asc;
-				while((*tp++ = *cp++))
-					if(tp >= &(lab->asc[8])) {
+				while ((*tp++ = *cp++))
+					if (tp >= &(lab->asc[8])) {
 						fprintf(stderr, LTL, linebuf);
 						exit(2);
 					}
 				cp--;
 				*--tp = '\0';
 
-				if(lpt = search(lab)) {
-					if(lpt->address) {
+				if ((lpt = search(lab))) {
+					if (lpt->address) {
 						rep->B.lb1 = lpt->address;
 					} else {
 						pt = lpt->chain;
-						while(pt1 = pt->B.lb1)
+						while ((pt1 = pt->B.lb1))
 							pt = pt1;
 						pt->B.lb1 = rep;
 					}
 				} else {
 					lab->chain = rep;
 					lab->address = 0;
-					if(++lab >= labend) {
+					if (++lab >= labend) {
 						fprintf(stderr, "Too many labels: %s\n", linebuf);
 						exit(2);
 					}
@@ -397,11 +464,11 @@ jtcommon:
 
 			case 'r':
 				rep->A.command = RCOM;
-				if(rep->A.ad2) {
+				if (rep->A.ad2) {
 					fprintf(stderr, AD1MES, linebuf);
 					exit(2);
 				}
-				if(*cp++ != ' ') {
+				if (*cp++ != ' ') {
 					fprintf(stderr, CGMES, linebuf);
 					exit(2);
 				}
@@ -420,7 +487,7 @@ jtcommon:
 
 			case 'q':
 				rep->A.command = QCOM;
-				if(rep->A.ad2) {
+				if (rep->A.ad2) {
 					fprintf(stderr, AD1MES, linebuf);
 					exit(2);
 				}
@@ -435,12 +502,12 @@ jtcommon:
 				seof = *cp++;
 				rep->A.re1 = p;
 				p = compile(rep->A.re1);
-				if(p == badp) {
+				if (p == badp) {
 					fprintf(stderr, CGMES, linebuf);
 					exit(2);
 				}
-				if(p == rep->A.re1) {
-					if(op)
+				if (p == rep->A.re1) {
+					if (op)
 					    rep->A.re1 = op;
 					else {
 					    fprintf(stderr,
@@ -451,49 +518,49 @@ jtcommon:
 					op = rep->A.re1;
 				}
 
-				if((rep->A.rhs = p) > reend) {
+				if ((rep->A.rhs = p) > reend) {
 					fprintf(stderr, TMMES, linebuf);
 					exit(2);
 				}
 
-				if((p = compsub(rep->A.rhs)) == badp) {
+				if ((p = compsub(rep->A.rhs)) == badp) {
 					fprintf(stderr, CGMES, linebuf);
 					exit(2);
 				}
-				if(*cp == 'g') {
+				if (*cp == 'g') {
 					cp++;
 					rep->A.gfl++;
-				} else if(gflag)
+				} else if (gflag)
 					rep->A.gfl++;
 
-				if(*cp == 'p') {
+				if (*cp == 'p') {
 					cp++;
 					rep->A.pfl = 1;
 				}
 
-				if(*cp == 'P') {
+				if (*cp == 'P') {
 					cp++;
 					rep->A.pfl = 2;
 				}
 
-				if(*cp == 'w') {
+				if (*cp == 'w') {
 					cp++;
-					if(*cp++ !=  ' ') {
+					if (*cp++ !=  ' ') {
 						fprintf(stderr, CGMES, linebuf);
 						exit(2);
 					}
-					if(nfiles >= 10) {
+					if (nfiles >= 10) {
 						fprintf(stderr, "Too many files in w commands\n");
 						exit(2);
 					}
 
 					text(fname[nfiles]);
-					for(i = nfiles - 1; i >= 0; i--)
-						if(cmp(fname[nfiles],fname[i]) == 0) {
+					for (i = nfiles - 1; i >= 0; i--)
+						if (cmp(fname[nfiles],fname[i]) == 0) {
 							rep->A.fcode = fcode[i];
 							goto done;
 						}
-					if((rep->A.fcode = fopen(fname[nfiles], "w")) == NULL) {
+					if ((rep->A.fcode = fopen(fname[nfiles], "w")) == NULL) {
 						fprintf(stderr, "cannot open %s\n", fname[nfiles]);
 						exit(2);
 					}
@@ -503,23 +570,23 @@ jtcommon:
 
 			case 'w':
 				rep->A.command = WCOM;
-				if(*cp++ != ' ') {
+				if (*cp++ != ' ') {
 					fprintf(stderr, CGMES, linebuf);
 					exit(2);
 				}
-				if(nfiles >= 10){
+				if (nfiles >= 10){
 					fprintf(stderr, "Too many files in w commands\n");
 					exit(2);
 				}
 
 				text(fname[nfiles]);
-				for(i = nfiles - 1; i >= 0; i--)
-					if(cmp(fname[nfiles], fname[i]) == 0) {
+				for (i = nfiles - 1; i >= 0; i--)
+					if (cmp(fname[nfiles], fname[i]) == 0) {
 						rep->A.fcode = fcode[i];
 						goto done;
 					}
 
-				if((rep->A.fcode = fopen(fname[nfiles], "w")) == NULL) {
+				if ((rep->A.fcode = fopen(fname[nfiles], "w")) == NULL) {
 					fprintf(stderr, "Cannot create %s\n", fname[nfiles]);
 					exit(2);
 				}
@@ -535,11 +602,11 @@ jtcommon:
 				seof = *cp++;
 				rep->A.re1 = p;
 				p = ycomp(rep->A.re1);
-				if(p == badp) {
+				if (p == badp) {
 					fprintf(stderr, CGMES, linebuf);
 					exit(2);
 				}
-				if(p > reend) {
+				if (p > reend) {
 					fprintf(stderr, TMMES, linebuf);
 					exit(2);
 				}
@@ -547,15 +614,15 @@ jtcommon:
 
 		}
 done:
-		if(++rep >= ptrend) {
+		if (++rep >= ptrend) {
 			fprintf(stderr, "Too many commands, last: %s\n", linebuf);
 			exit(2);
 		}
 
 		rep->A.ad1 = p;
 
-		if(*cp++ != '\0') {
-			if(cp[-1] == ';')
+		if (*cp++ != '\0') {
+			if (cp[-1] == ';')
 				goto comploop;
 			fprintf(stderr, CGMES, linebuf);
 			exit(2);
@@ -565,27 +632,28 @@ done:
 	rep->A.command = 0;
 	lastre = op;
 }
-char	*compsub(rhsbuf)
-char	*rhsbuf;
+
+char *compsub(rhsbuf)
+        char *rhsbuf;
 {
-	register char	*p, *q;
+	char	*p, *q;
 
 	p = rhsbuf;
 	q = cp;
-	for(;;) {
-		if((*p = *q++) == '\\') {
+	for (;;) {
+		if ((*p = *q++) == '\\') {
 			*p = *q++;
-			if(*p > numbra + '0' && *p <= '9')
+			if (*p > numbra + '0' && *p <= '9')
 				return(badp);
 			*p++ |= 0200;
 			continue;
 		}
-		if(*p == seof) {
+		if (*p == seof) {
 			*p++ = '\0';
 			cp = q;
 			return(p);
 		}
-		if(*p++ == '\0') {
+		if (*p++ == '\0') {
 			return(badp);
 		}
 
@@ -593,17 +661,17 @@ char	*rhsbuf;
 }
 
 char *compile(expbuf)
-char	*expbuf;
+        char *expbuf;
 {
-	register c;
-	register char *ep, *sp;
+	int	c;
+	char	*ep, *sp;
 	char	neg;
 	char *lastep, *cstart;
 	int cclcnt;
 	int	closed;
 	char	bracket[NBRA], *bracketp;
 
-	if(*cp == seof) {
+	if (*cp == seof) {
 		cp++;
 		return(expbuf);
 	}
@@ -624,8 +692,8 @@ char	*expbuf;
 			cp = sp;
 			return(badp);
 		}
-		if((c = *sp++) == seof) {
-			if(bracketp != bracket) {
+		if ((c = *sp++) == seof) {
+			if (bracketp != bracket) {
 				cp = sp;
 				return(badp);
 			}
@@ -633,13 +701,13 @@ char	*expbuf;
 			*ep++ = CEOF;
 			return(ep);
 		}
-		if(c != '*')
+		if (c != '*')
 			lastep = ep;
 		switch (c) {
 
 		case '\\':
-			if((c = *sp++) == '(') {
-				if(numbra >= NBRA) {
+			if ((c = *sp++) == '(') {
+				if (numbra >= NBRA) {
 					cp = sp;
 					return(badp);
 				}
@@ -648,8 +716,8 @@ char	*expbuf;
 				*ep++ = numbra++;
 				continue;
 			}
-			if(c == ')') {
-				if(bracketp <= bracket) {
+			if (c == ')') {
+				if (bracketp <= bracket) {
 					cp = sp;
 					return(badp);
 				}
@@ -659,19 +727,19 @@ char	*expbuf;
 				continue;
 			}
 
-			if(c >= '1' && c <= '9') {
-				if((c -= '1') >= closed)
+			if (c >= '1' && c <= '9') {
+				if ((c -= '1') >= closed)
 					return(badp);
 
 				*ep++ = CBACK;
 				*ep++ = c;
 				continue;
 			}
-			if(c == '\n') {
+			if (c == '\n') {
 				cp = sp;
 				return(badp);
 			}
-			if(c == 'n') {
+			if (c == 'n') {
 				c = '\n';
 			}
 			goto defchar;
@@ -689,7 +757,7 @@ char	*expbuf;
 		case '*':
 			if (lastep == 0)
 				goto defchar;
-			if(*lastep == CKET) {
+			if (*lastep == CKET) {
 				cp = sp;
 				return(badp);
 			}
@@ -703,7 +771,7 @@ char	*expbuf;
 			continue;
 
 		case '[':
-			if(&ep[17] >= &expbuf[ESIZE]) {
+			if (&ep[17] >= &expbuf[ESIZE]) {
 				fprintf(stderr, "RE too long: %s\n", linebuf);
 				exit(2);
 			}
@@ -711,14 +779,14 @@ char	*expbuf;
 			*ep++ = CCL;
 
 			neg = 0;
-			if((c = *sp++) == '^') {
+			if ((c = *sp++) == '^') {
 				neg = 1;
 				c = *sp++;
 			}
 
 			cstart = sp;
 			do {
-				if(c == '\0') {
+				if (c == '\0') {
 					fprintf(stderr, CGMES, linebuf);
 					exit(2);
 				}
@@ -726,8 +794,8 @@ char	*expbuf;
 					for (c = sp[-2]; c<*sp; c++)
 						ep[c>>3] |= bittab[c&07];
 				}
-				if(c == '\\') {
-					switch(c = *sp++) {
+				if (c == '\\') {
+					switch (c = *sp++) {
 						case 'n':
 							c = '\n';
 							break;
@@ -735,10 +803,10 @@ char	*expbuf;
 				}
 
 				ep[c >> 3] |= bittab[c & 07];
-			} while((c = *sp++) != ']');
+			} while ((c = *sp++) != ']');
 
-			if(neg)
-				for(cclcnt = 0; cclcnt < 16; cclcnt++)
+			if (neg)
+				for (cclcnt = 0; cclcnt < 16; cclcnt++)
 					ep[cclcnt] ^= -1;
 			ep[0] &= 0376;
 
@@ -753,30 +821,31 @@ char	*expbuf;
 		}
 	}
 }
-rline(lbuf)
-char	*lbuf;
+
+int rline(lbuf)
+        char *lbuf;
 {
-	register char	*p, *q;
-	register	t;
+	char	*p, *q;
+	int	t;
 	static char	*saveq;
 
 	p = lbuf - 1;
 
-	if(eflag) {
-		if(eflag > 0) {
+	if (eflag) {
+		if (eflag > 0) {
 			eflag = -1;
-			if(eargc-- <= 0)
+			if (eargc-- <= 0)
 				exit(2);
 			q = *++eargv;
-			while(*++p = *q++) {
-				if(*p == '\\') {
-					if((*++p = *q++) == '\0') {
+			while ((*++p = *q++)) {
+				if (*p == '\\') {
+					if ((*++p = *q++) == '\0') {
 						saveq = 0;
 						return(-1);
 					} else
 						continue;
 				}
-				if(*p == '\n') {
+				if (*p == '\n') {
 					*p = '\0';
 					saveq = q;
 					return(1);
@@ -785,17 +854,17 @@ char	*lbuf;
 			saveq = 0;
 			return(1);
 		}
-		if((q = saveq) == 0)	return(-1);
+		if ((q = saveq) == 0)	return(-1);
 
-		while(*++p = *q++) {
-			if(*p == '\\') {
-				if((*++p = *q++) == '0') {
+		while ((*++p = *q++)) {
+			if (*p == '\\') {
+				if ((*++p = *q++) == '0') {
 					saveq = 0;
 					return(-1);
 				} else
 					continue;
 			}
-			if(*p == '\n') {
+			if (*p == '\n') {
 				*p = '\0';
 				saveq = q;
 				return(1);
@@ -805,13 +874,13 @@ char	*lbuf;
 		return(1);
 	}
 
-	while((t = getc(fin)) != EOF) {
+	while ((t = getc(fin)) != EOF) {
 		*++p = t;
-		if(*p == '\\') {
+		if (*p == '\\') {
 			t = getc(fin);
 			*++p = t;
 		}
-		else if(*p == '\n') {
+		else if (*p == '\n') {
 			*p = '\0';
 			return(1);
 		}
@@ -820,20 +889,20 @@ char	*lbuf;
 	return(-1);
 }
 
-char	*address(expbuf)
-char	*expbuf;
+char *address(expbuf)
+        char *expbuf;
 {
-	register char	*rcp;
+	char	*rcp;
 	long	lno;
 
-	if(*cp == '$') {
+	if (*cp == '$') {
 		cp++;
 		*expbuf++ = CEND;
 		*expbuf++ = CEOF;
 		return(expbuf);
 	}
 
-	if(*cp == '/') {
+	if (*cp == '/') {
 		seof = '/';
 		cp++;
 		return(compile(expbuf));
@@ -842,14 +911,14 @@ char	*expbuf;
 	rcp = cp;
 	lno = 0;
 
-	while(*rcp >= '0' && *rcp <= '9')
+	while (*rcp >= '0' && *rcp <= '9')
 		lno = lno*10 + *rcp++ - '0';
 
-	if(rcp > cp) {
+	if (rcp > cp) {
 		*expbuf++ = CLNUM;
 		*expbuf++ = nlno;
 		tlno[nlno++] = lno;
-		if(nlno >= NLINES) {
+		if (nlno >= NLINES) {
 			fprintf(stderr, "Too many line numbers\n");
 			exit(2);
 		}
@@ -859,51 +928,51 @@ char	*expbuf;
 	}
 	return(0);
 }
-cmp(a, b)
-char	*a,*b;
+
+int cmp(a, b)
+        char *a,*b;
 {
-	register char	*ra, *rb;
+	char	*ra, *rb;
 
 	ra = a - 1;
 	rb = b - 1;
 
-	while(*++ra == *++rb)
-		if(*ra == '\0')	return(0);
+	while (*++ra == *++rb)
+		if (*ra == '\0')	return(0);
 	return(1);
 }
 
-char	*text(textbuf)
-char	*textbuf;
+char *text(textbuf)
+        char *textbuf;
 {
-	register char	*p, *q;
+	char	*p, *q;
 
 	p = textbuf;
 	q = cp;
-	while(*q == '\t' || *q == ' ')	q++;
-	for(;;) {
+	while (*q == '\t' || *q == ' ')	q++;
+	for (;;) {
 
-		if((*p = *q++) == '\\')
+		if ((*p = *q++) == '\\')
 			*p = *q++;
-		if(*p == '\0') {
+		if (*p == '\0') {
 			cp = --q;
 			return(++p);
 		}
-		if(*p == '\n') {
-			while(*q == '\t' || *q == ' ')	q++;
+		if (*p == '\n') {
+			while (*q == '\t' || *q == ' ')	q++;
 		}
 		p++;
 	}
 }
 
-
-struct label	*search(ptr)
-struct label	*ptr;
+struct label *search(ptr)
+        struct label *ptr;
 {
 	struct label	*rp;
 
 	rp = labtab;
-	while(rp < ptr) {
-		if(cmp(rp->asc, ptr->asc) == 0)
+	while (rp < ptr) {
+		if (cmp(rp->asc, ptr->asc) == 0)
 			return(rp);
 		rp++;
 	}
@@ -911,22 +980,21 @@ struct label	*ptr;
 	return(0);
 }
 
-
-dechain()
+void dechain()
 {
 	struct label	*lptr;
 	union reptr	*rptr, *trptr;
 
-	for(lptr = labtab; lptr < lab; lptr++) {
+	for (lptr = labtab; lptr < lab; lptr++) {
 
-		if(lptr->address == 0) {
+		if (lptr->address == 0) {
 			fprintf(stderr, "Undefined label: %s\n", lptr->asc);
 			exit(2);
 		}
 
-		if(lptr->chain) {
+		if (lptr->chain) {
 			rptr = lptr->chain;
-			while(trptr = rptr->B.lb1) {
+			while ((trptr = rptr->B.lb1)) {
 				rptr->B.lb1 = lptr->address;
 				rptr = trptr;
 			}
@@ -936,39 +1004,39 @@ dechain()
 }
 
 char *ycomp(expbuf)
-char	*expbuf;
+        char *expbuf;
 {
-	register char	c, *ep, *tsp;
+	char	c, *ep, *tsp;
 	char	*sp;
 
 	ep = expbuf;
 	sp = cp;
-	for(tsp = cp; *tsp != seof; tsp++) {
-		if(*tsp == '\\')
+	for (tsp = cp; *tsp != seof; tsp++) {
+		if (*tsp == '\\')
 			tsp++;
-		if(*tsp == '\n')
+		if (*tsp == '\n')
 			return(badp);
 	}
 	tsp++;
 
-	while((c = *sp++ & 0177) != seof) {
-		if(c == '\\' && *sp == 'n') {
+	while ((c = *sp++ & 0177) != seof) {
+		if (c == '\\' && *sp == 'n') {
 			sp++;
 			c = '\n';
 		}
-		if((ep[c] = *tsp++) == '\\' && *tsp == 'n') {
+		if ((ep[c] = *tsp++) == '\\' && *tsp == 'n') {
 			ep[c] = '\n';
 			tsp++;
 		}
-		if(ep[c] == seof || ep[c] == '\0')
+		if (ep[c] == seof || ep[c] == '\0')
 			return(badp);
 	}
-	if(*tsp != seof)
+	if (*tsp != seof)
 		return(badp);
 	cp = ++tsp;
 
-	for(c = 0; !(c & 0200); c++)
-		if(ep[c] == 0)
+	for (c = 0; !(c & 0200); c++)
+		if (ep[c] == 0)
 			ep[c] = c;
 
 	return(ep + 0200);

@@ -6,7 +6,7 @@
 #include "defs.h"
 
 /* ========     error handling  ======== */
-
+void
 failed(s1, s2)
 char    *s1, *s2;
 {
@@ -21,12 +21,14 @@ char    *s1, *s2;
 	exitsh(ERROR);
 }
 
+void
 error(s)
 char    *s;
 {
 	failed(s, NIL);
 }
 
+void
 exitsh(xno)
 int     xno;
 {
@@ -75,6 +77,7 @@ done()
 	exit(exitval);
 }
 
+void
 rmtemp(base)
 struct ionod    *base;
 {
@@ -86,6 +89,7 @@ struct ionod    *base;
 	}
 }
 
+void
 rmfunctmp()
 {
 	while (fiotemp)

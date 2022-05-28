@@ -54,12 +54,13 @@ alloc(nbytes)
 	}
 }
 
+void
 addblok(reqd)
 	unsigned reqd;
 {
 	if (stakbot == NIL)
 	{
-                extern end;
+                extern int end;
 		brkbegin = setbrk(BRKINCR * 5);
 		bloktop = (struct blk *) &end;
 	}
@@ -94,6 +95,7 @@ addblok(reqd)
 	}
 }
 
+void
 free(ap)
 	struct blk *ap;
 {
@@ -109,9 +111,8 @@ free(ap)
 	}
 }
 
-
 #ifdef DEBUG
-
+void
 chkbptr(ptr)
 	struct blk *ptr;
 {
@@ -147,7 +148,7 @@ chkbptr(ptr)
 		abort(1);
 }
 
-
+void
 chkmem()
 {
 	register struct blk *p = (struct blk *)brkbegin;
@@ -182,6 +183,5 @@ chkmem()
 	blank();
 	prn((char *)bloktop - brkbegin - (un + us));
 	newline();
-
 }
 #endif

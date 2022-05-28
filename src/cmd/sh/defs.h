@@ -93,36 +93,14 @@
 #include "name.h"
 #include <signal.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 /*      error catching */
 extern int              errno;
 
 /* result type declarations */
 
-#define free                             afree
-extern char                             *allat();
-extern char                             *make();
-extern char             *alloc();
-extern char                             *movstr();
-extern char                             *movstrn();
-extern struct trenod    *cmd();
-extern struct trenod    *makefork();
-extern struct namnod    *lookup();
-extern struct namnod    *findnam();
-extern struct dolnod    *useargs();
-extern float                    expr();
-extern char                             *catpath();
-extern char                             *getpath();
-extern char                             *nextpath();
-extern char                             **scan();
-extern char                             *mactrim();
-extern char                             *macro();
-extern int                              exname();
-extern int                              printnam();
-extern int                              printro();
-extern int                              printexp();
-extern char                             **setenvv();
-extern long                             time();
+#define free            afree
 
 #define attrib(n,f)             (n->namflg |= f)
 #define round(a,b)              (((int)(((char *)(a)+b)-1))&~((b)-1))
@@ -272,8 +250,6 @@ extern unsigned                 brkincr;
 #define SIGMOD          8
 #define SIGCAUGHT	16
 
-extern void                             done();
-extern void				fault();
 extern BOOL				trapnote;
 extern char				*trapcom[];
 extern BOOL				trapflg[];
@@ -340,7 +316,7 @@ extern char				badop[];
 #include "ctype.h"
 
 extern int				wasintr;	/* used to tell if break or delete is hit
-		   					 *  while executing a wait */
+							 *  while executing a wait */
 extern int				eflag;
 
 
@@ -356,3 +332,10 @@ extern int				eflag;
 #define exitset()	retval = exitval
 
 #define ENDPATH 27      /* see msg.c/defpath */
+
+void addblok(unsigned reqd);
+char *movstr(char *a, char *b);
+char *setbrk(int incr);
+void error(char *s);
+void free(struct blk *ap);
+void rmtemp(struct ionod *base);

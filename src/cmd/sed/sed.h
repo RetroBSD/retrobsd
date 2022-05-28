@@ -28,43 +28,43 @@
 #define	LABSIZE	50
 #define NBRA	9
 
-FILE	*fin;
-union reptr	*abuf[ABUFSIZE];
-union reptr **aptr;
-char	*lastre;
-char	ibuf[BUFSIZ];
-char	*cbp;
-char	*ebp;
-char	genbuf[LBSIZE];
-char	*loc1;
-char	*loc2;
-char	*locs;
-char	seof;
-char	*reend;
-char	*lbend;
-char	*hend;
-char	*lcomend;
-union reptr	*ptrend;
-int	eflag;
-int	dolflag;
-int	sflag;
-int	jflag;
-int	numbra;
-int	delflag;
-long	lnum;
-char	linebuf[LBSIZE+1];
-char	holdsp[LBSIZE+1];
-char	*spend;
-char	*hspend;
-int	nflag;
-int	gflag;
-char	*braelist[NBRA];
-char	*braslist[NBRA];
-long	tlno[NLINES];
-int	nlno;
-char	fname[12][40];
-FILE	*fcode[12];
-int	nfiles;
+extern FILE	*fin;
+extern union reptr	*abuf[ABUFSIZE];
+extern union reptr **aptr;
+extern char	*lastre;
+extern char	ibuf[BUFSIZ];
+extern char	*cbp;
+extern char	*ebp;
+extern char	genbuf[LBSIZE];
+extern char	*loc1;
+extern char	*loc2;
+extern char	*locs;
+extern char	seof;
+extern char	*reend;
+extern char	*lbend;
+extern char	*hend;
+extern char	*lcomend;
+extern union reptr	*ptrend;
+extern int	eflag;
+extern int	dolflag;
+extern int	sflag;
+extern int	jflag;
+extern int	numbra;
+extern int	delflag;
+extern long	lnum;
+extern char	linebuf[LBSIZE+1];
+extern char	holdsp[LBSIZE+1];
+extern char	*spend;
+extern char	*hspend;
+extern int	nflag;
+extern int	gflag;
+extern char	*braelist[NBRA];
+extern char	*braslist[NBRA];
+extern long	tlno[NLINES];
+extern int	nlno;
+extern char	fname[12][40];
+extern FILE	*fcode[12];
+extern int	nfiles;
 
 #define ACOM	01
 #define BCOM	020
@@ -94,9 +94,9 @@ int	nfiles;
 #define	YCOM	026
 #define XCOM	033
 
-char	*cp;
-char	*reend;
-char	*lbend;
+extern char	*cp;
+extern char	*reend;
+extern char	*lbend;
 
 union	reptr {
 	struct reptr1 {
@@ -123,39 +123,34 @@ union	reptr {
 		char	inar;
 		char	negfl;
 	} B;
-} ptrspace[PTRSIZE], *rep;
+};
+extern union reptr	ptrspace[PTRSIZE], *rep;
 
-
-char	respace[RESIZE];
+extern char	respace[RESIZE];
 
 struct label {
 	char	asc[9];
 	union reptr	*chain;
 	union reptr	*address;
-} ltab[LABSIZE];
+};
+extern struct label	ltab[LABSIZE];
 
-struct label	*lab;
-struct label	*labend;
+extern struct label	*lab;
+extern struct label	*labend;
 
-int	f;
-int	depth;
+extern int	f;
+extern int	depth;
 
-int	eargc;
-char	**eargv;
+extern int	eargc;
+extern char	**eargv;
 
-extern	char	bittab[];
+extern char	bittab[];
 
-union reptr	**cmpend[DEPTH];
-int	depth;
-union reptr	*pending;
-char	*badp;
-char	bad;
-char	*compile();
-char	*ycomp();
-char	*address();
-char	*text();
-char	*compsub();
-struct label	*search();
-char	*gline();
-char	*place();
-char	compfl;
+extern union reptr	**cmpend[DEPTH];
+extern int	depth;
+extern union reptr	*pending;
+extern char	*badp;
+extern char	bad;
+extern char	compfl;
+
+void execute(char *file);

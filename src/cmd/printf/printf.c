@@ -35,6 +35,8 @@
 #include <strings.h>
 #include <errno.h>
 #include <sys/types.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 #define PF(f, func) { \
 	if (fieldwidth) \
@@ -232,7 +234,7 @@ escape(fmt)
 	register int value;
 	int c;
 
-	for (store = fmt; c = *fmt; ++fmt, ++store) {
+	for (store = fmt; (c = *fmt); ++fmt, ++store) {
 		if (c != '\\') {
 			*store = c;
 			continue;

@@ -9,12 +9,35 @@
 #include <stdlib.h>
 #include <pwd.h>
 #include <errno.h>
+#include <string.h>
+
+int
+donice(which, who, prio)
+	int which, who, prio;
+{
+	int oldprio;
+
+	errno = 0, oldprio = getpriority(which, who);
+	if (oldprio == -1 && errno) {
+		fprintf(stderr, "renice: %d: ", who);
+		perror("getpriority");
+		return (1);
+	}
+	if (setpriority(which, who, prio) < 0) {
+		fprintf(stderr, "renice: %d: ", who);
+		perror("setpriority");
+		return (1);
+	}
+	printf("%d: old priority %d, new priority %d\n", who, oldprio, prio);
+	return (0);
+}
 
 /*
  * Change the priority (nice) of processes
  * or groups of processes which are already
  * running.
  */
+int
 main(argc, argv)
 	char **argv;
 {
@@ -66,24 +89,4 @@ main(argc, argv)
 		errs += donice(which, who, prio);
 	}
 	exit(errs != 0);
-}
-
-donice(which, who, prio)
-	int which, who, prio;
-{
-	int oldprio;
-
-	errno = 0, oldprio = getpriority(which, who);
-	if (oldprio == -1 && errno) {
-		fprintf(stderr, "renice: %d: ", who);
-		perror("getpriority");
-		return (1);
-	}
-	if (setpriority(which, who, prio) < 0) {
-		fprintf(stderr, "renice: %d: ", who);
-		perror("setpriority");
-		return (1);
-	}
-	printf("%d: old priority %d, new priority %d\n", who, oldprio, prio);
-	return (0);
 }

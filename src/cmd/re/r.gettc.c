@@ -6,6 +6,22 @@
  */
 #include "r.defs.h"
 
+int NCOLS, NLINES;      /* size of the screen */
+char intrflag;          /* INTR signal occured */
+int tempfile;           /* Temporary file */
+off_t tempseek;         /* Offset in temporary file */
+char *tmpname;          /* name of file, for do command */
+
+workspace_t *curwksp, *pickwksp;
+clipboard_t *pickbuf, *deletebuf;
+
+window_t *curwin;       /* Current window */
+window_t wholescreen;   /* The whole screen */
+window_t paramwin;      /* Window to enter arguments */
+
+window_t *winlist[MAXWINLIST];
+int nwinlist;
+
 /*
  * Output codes
  */

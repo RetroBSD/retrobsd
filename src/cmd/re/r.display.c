@@ -7,6 +7,21 @@
 #include "r.defs.h"
 
 /*
+ * Global variables for param().
+ * param_len    - length of the parameter;
+ * param_str    - string value of the parameter,
+ * param_type - type of the parameter,
+ * param_c0, param_r0, param_c1,
+ * param_r1   - coordinates of cursor-defined area
+ */
+int param_len;
+char *param_str, param_type;
+int param_c0, param_r0, param_c1, param_r1;
+
+int highlight_position;     /* Highlight the current cursor position */
+int message_displayed;      /* Arg area contains an error message */
+
+/*
  * Draw lines from lo to lf.
  * In case lo is negative:
  * - draw only line lf;

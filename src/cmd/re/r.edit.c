@@ -22,6 +22,9 @@ static int buf_count;           /* Number of valid bytes in read_buf */
 static int buf_next;            /* Next unread index in read_buf */
 static int cline_read_offset;   /* Offset of next unread symbol */
 
+file_t file[MAXFILES];          /* Table of files */
+int curfile;
+
 /*
  * Setup for a cline_read routine to read a given file starting
  * from a given offset.

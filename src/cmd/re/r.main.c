@@ -29,14 +29,21 @@ char deffile[] = "/share/re.help";  /* Help file    */
 
 /* Initial values. */
 int cline_max  = 0;
-int cline_incr = 20; /* Increment for line expand */
+int cline_incr = 20;                /* Increment for line expand */
 int clineno = -1;
 char cline_modified = 0;
+char *cline;                        /* allocated array */
+int cline_len;                      /* used length */
 
 int journal  = -1;                  /* File descriptor for a journal */
 int inputfile = 0;                  /* Journal or stdin */
 
 int oldttmode;                      /* Saved access mode of /dev/tty */
+
+int userid, groupid;
+
+int cursorline;                     /* physical position of */
+int cursorcol;                      /* cursor from (0,0)=ulhc of text in window */
 
 static char *ttynm, *jname, *rfile;
 static clipboard_t pb, db;

@@ -104,8 +104,8 @@ typedef struct {
     int nlines;             /* Number of non-empty lines in file */
 } file_t;
 
-file_t file[MAXFILES];     /* Table of files */
-int curfile;
+extern file_t file[MAXFILES]; /* Table of files */
+extern int curfile;
 
 /*
  * Workspace describes a generic file under edit.
@@ -121,7 +121,7 @@ typedef struct {
     int cursorrow;          /* Saved cursorline, when not active */
 } workspace_t;
 
-workspace_t *curwksp, *pickwksp;
+extern workspace_t *curwksp, *pickwksp;
 
 /*
  * Window - a region on the display.
@@ -146,12 +146,12 @@ typedef struct {
     char *rightbar;         /* Symbols on right edge */
 } window_t;
 
-window_t *winlist[MAXWINLIST];
-int nwinlist;
+extern window_t *winlist[MAXWINLIST];
+extern int nwinlist;
 
-window_t *curwin;           /* Current window */
-window_t wholescreen;       /* The whole screen */
-window_t paramwin;          /* Window to enter arguments */
+extern window_t *curwin;    /* Current window */
+extern window_t wholescreen; /* The whole screen */
+extern window_t paramwin;   /* Window to enter arguments */
 
 /*
  * Copy-and-paste clipboard.
@@ -162,7 +162,7 @@ typedef struct {
     int ncolumns;           /* Number of columns */
 } clipboard_t;
 
-clipboard_t *pickbuf, *deletebuf;
+extern clipboard_t *pickbuf, *deletebuf;
 
 /*
  * Control codes.
@@ -200,19 +200,19 @@ clipboard_t *pickbuf, *deletebuf;
 #define CCQUIT      0177    /* terminate session    ^X ^C           */
 #define CCINTRUP    0237    /* interrupt (journal) */
 
-int cursorline;             /* physical position of */
-int cursorcol;              /* cursor from (0,0)=ulhc of text in window */
+extern int cursorline;      /* physical position of */
+extern int cursorcol;       /* cursor from (0,0)=ulhc of text in window */
 
-int NCOLS, NLINES;          /* size of the screen */
+extern int NCOLS, NLINES;   /* size of the screen */
 
 extern char *curspos, *cvtout[];
 extern char cntlmotions[];
 extern const char in0tab[]; /* input control codes */
 
-extern int keysym;          /* Current input symbol, -1 - need more */
-char intrflag;              /* INTR signal occured */
-int highlight_position;     /* Highlight the current cursor position */
-int message_displayed;      /* Arg area contains an error message */
+extern int keysym;              /* Current input symbol, -1 - need more */
+extern char intrflag;           /* INTR signal occured */
+extern int highlight_position;  /* Highlight the current cursor position */
+extern int message_displayed;   /* Arg area contains an error message */
 
 /* Defaults. */
 extern int defloffset, defroffset;
@@ -226,33 +226,31 @@ extern char deffile[];
  * param_c0, param_r0, param_c1,
  * param_r1   - coordinates of cursor-defined area
  */
-int param_len;
-char *param_str, param_type;
-int param_c0, param_r0, param_c1, param_r1;
+extern int param_len;
+extern char *param_str, param_type;
+extern int param_c0, param_r0, param_c1, param_r1;
 
 /*
  * Current line.
  */
-char *cline;                /* allocated array */
-int cline_max;              /* allocated length */
-int cline_len;              /* used length */
-int cline_incr;             /* increment for reallocation */
-char cline_modified;        /* line was modified */
-int clineno;                /* line number in file */
+extern char *cline;         /* allocated array */
+extern int cline_max;       /* allocated length */
+extern int cline_len;       /* used length */
+extern int cline_incr;      /* increment for reallocation */
+extern char cline_modified; /* line was modified */
+extern int clineno;         /* line number in file */
 
 /*
  * File descriptors:
  */
-int tempfile;               /* Temporary file */
-off_t tempseek;             /* Offset in temporary file */
-int journal;                /* Journaling file */
-int inputfile;              /* Input file (stdin or journal) */
+extern int tempfile;        /* Temporary file */
+extern off_t tempseek;      /* Offset in temporary file */
+extern int journal;         /* Journaling file */
+extern int inputfile;       /* Input file (stdin or journal) */
 
-char *searchkey;
+extern int userid, groupid;
 
-int userid, groupid;
-
-char *tmpname;              /* name of file, for do command */
+extern char *tmpname;       /* name of file, for do command */
 
 /*
  * Translation of control codes to escape sequences.

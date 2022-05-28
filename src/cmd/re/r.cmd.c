@@ -7,6 +7,8 @@
 #include "r.defs.h"
 #include <sys/wait.h>
 
+static char *searchkey;
+
 static int insert_mode = 1;     /* Insert mode */
 static int clr_arg_area;        /* Need to erase the arg area */
 static int fname_cvt_flag;      /* Disable filename conversion on "re -" */

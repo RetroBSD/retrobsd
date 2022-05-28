@@ -21,7 +21,6 @@ SECTIONS
   /* Read-only sections, merged into text segment: */
   PROVIDE (__executable_start = 0x7f008000); . = 0x7f008000;
   .interp         : { *(.interp) }
-  /*.reginfo        : { *(.reginfo) }*/
   .note.gnu.build-id : { *(.note.gnu.build-id) }
   .dynamic        : { *(.dynamic) }
   .hash           : { *(.hash) }
@@ -77,6 +76,7 @@ SECTIONS
     /* .gnu.warning sections are handled specially by elf32.em.  */
     *(.gnu.warning)
     *(.mips16.fn.*) *(.mips16.call.*)
+    . = ALIGN(32*2 / 8);
   } =0
   .fini           :
   {
@@ -163,10 +163,8 @@ SECTIONS
     SORT(CONSTRUCTORS)
   }
   .data1          : { *(.data1) }
-  .got.plt        : { *(.got.plt) }
   . = .;
   _gp = ALIGN(16) + 0x7ff0;
-  .got            : { *(.got) }
   /* We want the small data sections together, so single-instruction offsets
      can access them all, and initialized data all before uninitialized, so
      we can shorten the on-disk segment size.  */

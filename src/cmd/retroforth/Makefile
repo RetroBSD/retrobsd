@@ -11,7 +11,8 @@ LIBS            += -ltermcap
 all:            $(BIN)
 
 $(BIN):         ${SRCS}
-		${LD} ${LDFLAGS} -o $(BIN).elf $(SRCS) ${LIBS}
+		${CC} ${CFLAGS} -c -o $(OBJS) $(SRCS)
+		${LD} ${LDFLAGS} -o $(BIN).elf $(OBJS) ${LIBS}
 		${SIZE} $(BIN).elf
 		${OBJDUMP} -S $(BIN).elf > $(BIN).dis
 		${ELF2AOUT} $(BIN).elf $@ && rm $(BIN).elf

@@ -2,7 +2,7 @@ TOPSRC		= $(shell cd ../../..; pwd)
 include $(TOPSRC)/target.mk
 #include $(TOPSRC)/cross.mk
 
-CFLAGS		+= -Os -Wall -Werror
+CFLAGS		+= -Os -Wall -Werror -DNDEBUG
 
 OBJS            = scm.o func.o
 TESTS           = tests/*.scm

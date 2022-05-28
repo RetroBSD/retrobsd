@@ -143,6 +143,9 @@ int     getopt (int argc, char * const argv[], const char *optstring);
 extern  char    *optarg;                /* getopt(3) external variables */
 extern  int     opterr, optind, optopt;
 
+int     gethostname(char *name, int namelen);
+int     sethostname(char *name, int namelen);
+
 #ifndef _VA_LIST_
 # ifdef __GNUC__
 #  define va_list   __builtin_va_list   /* For Gnu C */

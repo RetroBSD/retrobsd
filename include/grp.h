@@ -13,3 +13,4 @@ struct group *getgrgid(gid_t gid);
 void setgrent(void);
 void endgrent(void);
 int setgroups(size_t size, const gid_t *list);
+int getgrouplist(char *uname, gid_t agroup, gid_t *groups, int *grpcnt);

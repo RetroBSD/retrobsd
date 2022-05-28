@@ -159,16 +159,18 @@ pretty(pw)
 		else
 			(void)printf("uid\t%u\n", rid);
 
-		if ((eid = geteuid()) != rid)
-			if (pw = getpwuid(eid))
+		if ((eid = geteuid()) != rid) {
+			if ((pw = getpwuid(eid)))
 				(void)printf("euid\t%s", pw->pw_name);
 			else
 				(void)printf("euid\t%u", eid);
-		if ((rid = getgid()) != (eid = getegid()))
-			if (gr = getgrgid(rid))
+                }
+		if ((rid = getgid()) != (eid = getegid())) {
+			if ((gr = getgrgid(rid)))
 				(void)printf("rgid\t%s\n", gr->gr_name);
 			else
 				(void)printf("rgid\t%u\n", rid);
+                }
 		(void)printf("groups\t");
 		group(NULL, 1);
 	}
@@ -185,20 +187,20 @@ current()
 
 	id = getuid();
 	(void)printf("uid=%u", id);
-	if (pw = getpwuid(id))
+	if ((pw = getpwuid(id)))
 		(void)printf("(%s)", pw->pw_name);
 	if ((eid = geteuid()) != id) {
 		(void)printf(" euid=%u", eid);
-		if (pw = getpwuid(eid))
+		if ((pw = getpwuid(eid)))
 			(void)printf("(%s)", pw->pw_name);
 	}
 	id = getgid();
 	(void)printf(" gid=%u", id);
-	if (gr = getgrgid(id))
+	if ((gr = getgrgid(id)))
 		(void)printf("(%s)", gr->gr_name);
 	if ((eid = getegid()) != id) {
 		(void)printf(" egid=%u", eid);
-		if (gr = getgrgid(eid))
+		if ((gr = getgrgid(eid)))
 			(void)printf("(%s)", gr->gr_name);
 	}
 	ngroups = getgroups(NGROUPS, groups);
@@ -209,7 +211,7 @@ current()
 			if (lastid == id)
 				continue;
 			(void)printf(fmt, id);
-			if (gr = getgrgid(id))
+			if ((gr = getgrgid(id)))
 				(void)printf("(%s)", gr->gr_name);
 		}
 	(void)printf("\n");
@@ -237,7 +239,7 @@ user(pw)
 			continue;
 		(void)printf(fmt, id);
 		fmt = " %u";
-		if (gr = getgrgid(id))
+		if ((gr = getgrgid(id)))
 			(void)printf("(%s)", gr->gr_name);
 		lastid = id;
 	}
@@ -266,7 +268,7 @@ group(pw, nflag)
 		if (lastid == (id = groups[cnt]))
 			continue;
 		if (nflag) {
-			if (gr = getgrgid(id))
+			if ((gr = getgrgid(id)))
 				(void)printf(fmt, gr->gr_name);
 			else
 				(void)printf(*fmt == ' ' ? " %u" : "%u",
@@ -293,12 +295,13 @@ who(u)
 	 * Translate user argument into a pw pointer.  First, try to
 	 * get it as specified.  If that fails, try it as a number.
 	 */
-	if (pw = getpwnam(u))
+	if ((pw = getpwnam(u)))
 		return(pw);
 	id = strtol(u, &ep, 10);
 	if (*u && !*ep && (pw = getpwuid(id)))
 		return(pw);
 	errx(1, "%s: No such user", u);
+	return 0;
 }
 
 void

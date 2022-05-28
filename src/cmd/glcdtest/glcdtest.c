@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <glcd.h>
 #include <string.h>
+#include <unistd.h>
 
 int glcd;
 
@@ -267,7 +268,7 @@ int main()
     banner("Bouncy Lines");
     sleep(1);
     bouncy_lines(500);
-    sleep(1); 
+    sleep(1);
 
     cls();
     banner("Stretchy Box");

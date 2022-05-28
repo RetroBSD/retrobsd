@@ -51,3 +51,8 @@ sqrt(arg)
 		temp = 0.5*(temp + arg/temp);
 	return(temp);
 }
+
+float sqrtf(float arg)
+{
+        return sqrt(arg);
+}

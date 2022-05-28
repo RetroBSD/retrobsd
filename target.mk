@@ -38,10 +38,10 @@ ifeq ($(LLVMBIN),)
     $(error Unable to find any CLANG toolchain!)
 endif
 
-CC		= $(LLVMBIN)clang -target mipsel -mcpu=mips32r2 -mabi=o32 -mfloat-abi=soft \
+CC		= $(LLVMBIN)clang -target mipsel -mcpu=mips32r2 -mabi=o32 -msoft-float \
                   -fomit-frame-pointer -finline-hint-functions -I$(TOPSRC)/include \
                   -Wno-builtin-requires-header
-CXX             = $(LLVMBIN)clang++ -target mipsel -mcpu=mips32r2 -mabi=o32 -mfloat-abi=soft \
+CXX             = $(LLVMBIN)clang++ -target mipsel -mcpu=mips32r2 -mabi=o32 -msoft-float \
                   -fomit-frame-pointer -finline-hint-functions -I$(TOPSRC)/include
 LD		= $(LLVMBIN)ld.lld -m elf32ltsmip
 AR		= $(LLVMBIN)llvm-ar

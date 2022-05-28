@@ -36,9 +36,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #define	DEFLINEWIDTH	80
 
+void fold(int width);
+
+int
 main(argc, argv)
 	int argc;
 	char **argv;
@@ -91,6 +95,7 @@ main(argc, argv)
 	exit(0);
 }
 
+void
 fold(width)
 	register int width;
 {

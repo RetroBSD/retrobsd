@@ -65,6 +65,7 @@ gid_t   getegid();
 uid_t   geteuid();
 gid_t   getgid();
 char    *getlogin();
+int     setlogin(const char *name);
 pid_t   getpgrp();
 pid_t   getpid();
 pid_t   getppid();

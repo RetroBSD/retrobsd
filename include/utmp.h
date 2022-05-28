@@ -25,3 +25,5 @@ struct utmp {
     char    ut_host[UT_HOSTSIZE];
     long    ut_time;
 };
+
+void login(struct utmp *ut);

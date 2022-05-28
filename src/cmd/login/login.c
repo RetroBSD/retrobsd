@@ -24,7 +24,6 @@
 #include <sys/resource.h>
 #include <sys/file.h>
 #include <sgtty.h>
-
 #include <utmp.h>
 #include <signal.h>
 #include <errno.h>
@@ -41,6 +40,7 @@
 #include <tzfile.h>
 #include <lastlog.h>
 #include <paths.h>
+#include <fcntl.h>
 
 #ifdef	KERBEROS
 #include <kerberos/krb.h>
@@ -73,6 +73,15 @@ char *months[] =
 	{ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
 	  "Sep", "Oct", "Nov", "Dec" };
 
+void getloginname(void);
+void badlogin(char *name);
+void checknologin(void);
+int rootterm(char *ttyn);
+void sleepexit(int eval);
+void dolastlog(int quiet);
+char *stypeof(char *ttyid);
+void motd(void);
+
 void timedout(sig)
         int sig;
 {
@@ -80,7 +89,7 @@ void timedout(sig)
 	exit(0);
 }
 
-main(argc, argv)
+int main(argc, argv)
 	int argc;
 	char **argv;
 {
@@ -95,9 +104,6 @@ main(argc, argv)
 	int quietlog, passwd_req, ioctlval;
 	char *domain, *salt, *envinit[1], *ttyn, *pp;
 	char tbuf[MAXPATHLEN + 2], tname[sizeof(_PATH_TTY) + 10];
-	char *ctime(), *ttyname(), *stypeof(), *crypt(), *getpass();
-	time_t time();
-	off_t lseek();
 
 	(void)signal(SIGALRM, timedout);
 	(void)alarm((u_int) timeout);
@@ -109,7 +115,7 @@ main(argc, argv)
 #endif
 	/*
 	 * -p is used by getty to tell login not to destroy the environment
- 	 * -f is used to skip a second login authentication
+	 * -f is used to skip a second login authentication
 	 * -h is used by other servers to pass the name of the remote
 	 *    host to login so that it may be placed in utmp and wtmp
 	 */
@@ -171,7 +177,7 @@ main(argc, argv)
 		(void)sprintf(tname, "%s??", _PATH_TTY);
 		ttyn = tname;
 	}
-	if (tty = rindex(ttyn, '/'))
+	if ((tty = rindex(ttyn, '/')))
 		++tty;
 	else
 		tty = ttyn;
@@ -198,7 +204,7 @@ main(argc, argv)
 			failures = 0;
 		}
 		(void)strcpy(tbuf, username);
-		if (pwd = getpwnam(username)) {
+		if ((pwd = getpwnam(username))) {
 			salt = pwd->pw_passwd;
 //printf("getpwnam returned username='%s' password='%s'\n", pwd->pw_name, pwd->pw_passwd);
 		} else {
@@ -385,12 +391,13 @@ nouser:
 
 	if (tty[sizeof("tty")-1] == 'd')
 		syslog(LOG_INFO, "DIALUP %s, %s", tty, pwd->pw_name);
-	if (pwd->pw_uid == 0)
+	if (pwd->pw_uid == 0) {
 		if (hostname)
 			syslog(LOG_NOTICE, "ROOT LOGIN ON %s FROM %s",
 			    tty, hostname);
 		else
 			syslog(LOG_NOTICE, "ROOT LOGIN ON %s", tty);
+        }
 
 	if (!quietlog) {
 		struct stat st;
@@ -422,7 +429,7 @@ nouser:
 	exit(0);
 }
 
-getloginname()
+void getloginname()
 {
 	register int ch;
 	register char *p;
@@ -438,7 +445,7 @@ getloginname()
 			if (p < nbuf + UT_NAMESIZE)
 				*p++ = ch;
 		}
-		if (p > nbuf)
+		if (p > nbuf) {
 			if (nbuf[0] == '-')
 				(void)fprintf(stderr,
 				    "login names may not start with '-'.\n");
@@ -447,10 +454,11 @@ getloginname()
 				username = nbuf;
 				break;
 			}
+                }
 	}
 }
 
-rootterm(ttyn)
+int rootterm(ttyn)
 	char *ttyn;
 {
 	struct ttyent *t;
@@ -466,7 +474,7 @@ void sigint(sig)
 	longjmp(motdinterrupt, 1);
 }
 
-motd()
+void motd()
 {
 	register int fd, nchars;
 	sig_t oldint;
@@ -482,7 +490,7 @@ motd()
 	(void)close(fd);
 }
 
-checknologin()
+void checknologin()
 {
 	register int fd, nchars;
 	char tbuf[BUFSIZ];
@@ -494,12 +502,11 @@ checknologin()
 	}
 }
 
-dolastlog(quiet)
+void dolastlog(quiet)
 	int quiet;
 {
 	struct lastlog ll;
 	int fd;
-	char *ctime();
 
 	if ((fd = open(_PATH_LASTLOG, O_RDWR, 0)) >= 0) {
 		(void)lseek(fd, (off_t)pwd->pw_uid * sizeof(ll), L_SET);
@@ -527,7 +534,7 @@ dolastlog(quiet)
 	}
 }
 
-badlogin(name)
+void badlogin(name)
 	char *name;
 {
 	if (failures == 0)
@@ -543,8 +550,7 @@ badlogin(name)
 #undef	UNKNOWN
 #define	UNKNOWN	"su"
 
-char *
-stypeof(ttyid)
+char *stypeof(ttyid)
 	char *ttyid;
 {
 	struct ttyent *t;
@@ -552,7 +558,7 @@ stypeof(ttyid)
 	return(ttyid && (t = getttynam(ttyid)) ? t->ty_type : UNKNOWN);
 }
 
-getstr(buf, cnt, err)
+void getstr(buf, cnt, err)
 	char *buf, *err;
 	int cnt;
 {
@@ -569,7 +575,7 @@ getstr(buf, cnt, err)
 	} while (ch);
 }
 
-sleepexit(eval)
+void sleepexit(eval)
 	int eval;
 {
 	sleep((u_int)5);

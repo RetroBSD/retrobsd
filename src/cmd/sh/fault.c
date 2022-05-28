@@ -35,6 +35,61 @@ BOOL    trapflg[MAXTRAP] =
 	0,      /* 23 tint */
 };
 
+/* ========     fault handling routines    ======== */
+
+void
+fault(sig)
+register int    sig;
+{
+	register int    flag;
+
+	signal(sig, fault);
+	if (sig == SIGSEGV)
+	{
+		if (setbrk(brkincr) == (char*)-1)
+			error(nospace);
+	}
+	else if (sig == SIGALRM)
+	{
+		if (flags & waiting)
+			done();
+	}
+	else
+	{
+		flag = (trapcom[sig] ? TRAPSET : SIGSET);
+		trapnote |= flag;
+		trapflg[sig] |= flag;
+		if (sig == SIGINT)
+			wasintr++;
+	}
+}
+
+int
+ignsig(n)
+{
+	register int    s, i;
+
+	if ((i = n) == SIGSEGV)
+	{
+		clrsig(i);
+		failed(badtrap, "cannot trap 11");
+	}
+	else if ((s = (signal(i, SIG_IGN) == SIG_IGN)) == 0)
+	{
+		trapflg[i] |= SIGMOD;
+	}
+	return(s);
+}
+
+void
+getsig(n)
+{
+	register int    i;
+
+	if (trapflg[i = n] & SIGMOD || ignsig(i) == 0)
+		signal(i, fault);
+}
+
 void (*sigval[])() = {
 	0,
 	done,
@@ -62,35 +117,16 @@ void (*sigval[])() = {
 	SIG_DFL,
 };
 
-/* ========     fault handling routines    ======== */
-
 void
-fault(sig)
-register int    sig;
+setsig(n)
 {
-	register int    flag;
+	register int    i;
 
-	signal(sig, fault);
-	if (sig == SIGSEGV)
-	{
-		if (setbrk(brkincr) == -1)
-			error(nospace);
-	}
-	else if (sig == SIGALRM)
-	{
-		if (flags & waiting)
-			done();
-	}
-	else
-	{
-		flag = (trapcom[sig] ? TRAPSET : SIGSET);
-		trapnote |= flag;
-		trapflg[sig] |= flag;
-		if (sig == SIGINT)
-			wasintr++;
-	}
+	if (ignsig(i = n) == 0)
+		signal(i, sigval[i]);
 }
 
+void
 stdsigs()
 {
 	setsig(SIGHUP);
@@ -115,39 +151,7 @@ stdsigs()
 #endif
 }
 
-ignsig(n)
-{
-	register int    s, i;
-
-	if ((i = n) == SIGSEGV)
-	{
-		clrsig(i);
-		failed(badtrap, "cannot trap 11");
-	}
-	else if ((s = (signal(i, SIG_IGN) == SIG_IGN)) == 0)
-	{
-		trapflg[i] |= SIGMOD;
-	}
-	return(s);
-}
-
-getsig(n)
-{
-	register int    i;
-
-	if (trapflg[i = n] & SIGMOD || ignsig(i) == 0)
-		signal(i, fault);
-}
-
-
-setsig(n)
-{
-	register int    i;
-
-	if (ignsig(i = n) == 0)
-		signal(i, sigval[i]);
-}
-
+void
 oldsigs()
 {
 	register int    i;
@@ -164,6 +168,7 @@ oldsigs()
 	trapnote = 0;
 }
 
+void
 clrsig(i)
 int     i;
 {
@@ -179,6 +184,7 @@ int     i;
 /*
  * check for traps
  */
+void
 chktrap()
 {
 	register int    i = MAXTRAP;
@@ -190,7 +196,7 @@ chktrap()
 		if (trapflg[i] & TRAPSET)
 		{
 			trapflg[i] &= ~TRAPSET;
-			if (t = trapcom[i])
+			if ((t = trapcom[i]))
 			{
 				int     savxit = exitval;
 

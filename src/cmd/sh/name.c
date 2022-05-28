@@ -5,8 +5,6 @@
  */
 #include "defs.h"
 
-extern BOOL	chkid();
-extern char	*simple();
 extern int	mailchk;
 
 struct namnod ps2nod =
@@ -70,11 +68,13 @@ struct namnod mailpnod =
 	mailpname
 };
 
-
 struct namnod *namep = &mchknod;
 
-/* ========	variable and string handling	======== */
+void setname(char *argi, int xp);
+BOOL chkid(char *nam);
 
+/* ========	variable and string handling	======== */
+int
 syslook(w, syswds, n)
 	register char *w;
 	register struct sysnod syswds[];
@@ -105,6 +105,7 @@ syslook(w, syswds, n)
 	return(0);
 }
 
+void
 setlist(arg, xp)
 register struct argnod *arg;
 int	xp;
@@ -128,7 +129,7 @@ int	xp;
 	}
 }
 
-
+void
 setname(argi, xp)	/* does parameter assignments */
 char	*argi;
 int	xp;
@@ -158,6 +159,7 @@ int	xp;
 	failed(argi, notid);
 }
 
+void
 replace(a, v)
 register char	**a;
 char	*v;
@@ -166,6 +168,7 @@ char	*v;
 	*a = make(v);
 }
 
+void
 dfault(n, v)
 struct namnod *n;
 char	*v;
@@ -174,6 +177,7 @@ char	*v;
 		assign(n, v);
 }
 
+void
 assign(n, v)
 struct namnod *n;
 char	*v;
@@ -222,6 +226,7 @@ char	*v;
 	}
 }
 
+int
 readvar(names)
 char	**names;
 {
@@ -298,6 +303,7 @@ char	**names;
 	return(rc);
 }
 
+void
 assnum(p, i)
 char	**p;
 int	i;
@@ -320,7 +326,6 @@ char	*v;
 	else
 		return(NIL);
 }
-
 
 struct namnod *
 lookup(nam)
@@ -375,9 +380,9 @@ char	*nam;
 	return(TRUE);
 }
 
-static int (*namfn)();
+static void (*namfn)(struct namnod *);
 
-static int
+static void
 namwalk(np)
 register struct namnod *np;
 {
@@ -389,13 +394,15 @@ register struct namnod *np;
 	}
 }
 
+void
 namscan(fn)
-	int	(*fn)();
+        void (*fn)(struct namnod *);
 {
 	namfn = fn;
 	namwalk(namep);
 }
 
+void
 printnam(n)
 struct namnod *n;
 {
@@ -407,10 +414,10 @@ struct namnod *n;
 	{
 		prs_buff(n->namid);
 		prs_buff("(){\n");
-		prf(n->namenv);
+		prf((struct trenod *) n->namenv);
 		prs_buff("\n}\n");
 	}
-	else if (s = n->namval)
+	else if ((s = n->namval))
 	{
 		prs_buff(n->namid);
 		prc_buff('=');
@@ -433,6 +440,7 @@ register struct namnod *n;
 
 static int namec;
 
+void
 exname(n)
 	register struct namnod *n;
 {
@@ -462,6 +470,7 @@ exname(n)
 
 }
 
+void
 printro(n)
 register struct namnod *n;
 {
@@ -474,6 +483,7 @@ register struct namnod *n;
 	}
 }
 
+void
 printexp(n)
 register struct namnod *n;
 {
@@ -486,6 +496,7 @@ register struct namnod *n;
 	}
 }
 
+void
 setup_env()
 {
 	register char **e = environ;
@@ -494,9 +505,9 @@ setup_env()
 		setname(*e++, N_ENVNAM);
 }
 
-
 static char **argnam;
 
+void
 pushnam(n)
 struct namnod *n;
 {
@@ -539,13 +550,13 @@ findnam(nam)
 	return(NIL);
 }
 
-
+void
 unset_name(name)
 	register char 	*name;
 {
 	register struct namnod	*n;
 
-	if (n = findnam(name))
+	if ((n = findnam(name)))
 	{
 		if (n->namflg & N_RDONLY)
 			failed(name, wtfailed);

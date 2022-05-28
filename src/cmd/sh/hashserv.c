@@ -16,6 +16,10 @@ static int	dotpath;
 static int	multrel;
 static struct entry     *relcmd = NIL;
 
+static int findpath(char *name, int oldpath);
+static void pr_path(char *name, int count);
+static int chk_access(char *name);
+
 static int
 argpath(arg)
 	register struct argnod	*arg;
@@ -110,7 +114,7 @@ pathlook(com, flg, arg)
 		h->cost = 0;
 	}
 
-	if (i = syslook(name, commands, no_commands))
+	if ((i = syslook(name, commands, no_commands)))
 	{
 		hentry.data = (BUILTIN | i);
 		count = 1;
@@ -155,7 +159,6 @@ pathsrch:
 	}
 }
 
-
 static void
 zapentry(h)
 	ENTRY *h;
@@ -179,7 +182,6 @@ zapcd()
 		relcmd = relcmd->next;
 	}
 }
-
 
 static void
 hashout(h)
@@ -214,7 +216,7 @@ hashpr()
 	hscan(hashout);
 }
 
-
+void
 set_dotpath()
 {
 	register char	*path;
@@ -244,7 +246,7 @@ set_dotpath()
 	multrel = 0;
 }
 
-
+void
 hash_func(name)
 	char *name;
 {
@@ -265,7 +267,7 @@ hash_func(name)
 	{
 		int i;
 
-		if (i = syslook(name, commands, no_commands))
+		if ((i = syslook(name, commands, no_commands)))
 			hentry.data = (BUILTIN | i);
 		else
 			hentry.data = FUNCTION;
@@ -278,6 +280,7 @@ hash_func(name)
 	}
 }
 
+void
 func_unhash(name)
 	char *name;
 {
@@ -288,7 +291,6 @@ func_unhash(name)
 	if (h && (h->data & FUNCTION))
 		h->data = NOTFOUND;
 }
-
 
 short
 hash_cmd(name)
@@ -312,7 +314,7 @@ hash_cmd(name)
 	return(pathlook(name, 0, NIL));
 }
 
-
+void
 what_is_path(name)
 	register char *name;
 {
@@ -340,7 +342,7 @@ what_is_path(name)
 				prs_buff(" is a function\n");
 				prs_buff(name);
 				prs_buff("(){\n");
-				prf(n->namenv);
+				prf((struct trenod *) n->namenv);
 				prs_buff("\n}\n");
 				return;
 			}
@@ -386,7 +388,7 @@ what_is_path(name)
 		prs_buff(" not found\n");
 }
 
-
+static int
 findpath(name, oldpath)
 	register char *name;
 	int oldpath;
@@ -439,7 +441,7 @@ findpath(name, oldpath)
 	return(ok ? -e_code : count);
 }
 
-
+static int
 chk_access(name)
 	register char	*name;
 {
@@ -450,7 +452,7 @@ chk_access(name)
 	return(errno == EACCES ? 3 : 1);
 }
 
-
+static void
 pr_path(name, count)
 	register char	*name;
 	int count;
@@ -460,7 +462,7 @@ pr_path(name, count)
 	path = getpath(name);
 
 	while (--count && path)
-		path = nextpath(path, name);
+		path = nextpath(path);
 
 	catpath(path, name);
 	prs_buff(curstak());

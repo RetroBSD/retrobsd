@@ -6,8 +6,6 @@
 #include "defs.h"
 #include <sys/param.h>
 
-extern char *getenv();
-
 #define BUFLEN  256
 
 int hz = (-1);
@@ -16,15 +14,10 @@ static char     buffer[BUFLEN];
 static int      index = 0;
 char            numbuf[12];
 
-extern void     prc_buff();
-extern void     prs_buff();
-extern void     prn_buff();
-extern void     prs_cntl();
-extern void     prn_buff();
-
 /*
  * printing and io conversion
  */
+void
 prp()
 {
 	if ((flags & prompt) == 0 && cmdadr)
@@ -34,30 +27,33 @@ prp()
 	}
 }
 
+void
 prs(as)
 char    *as;
 {
 	register char   *s;
 
-	if (s = as)
+	if ((s = as))
 		write(output, s, length(s) - 1);
 }
 
 /* print a prompt */
 /* it's a subject for future expansion @@@ */
+void
 prprompt(as)
 char *as;
 {
 	prs(as);
 }
 
-prc(c)
-char    c;
+void
+prc(char c)
 {
 	if (c)
 		write(output, &c, 1);
 }
 
+void
 prt(t)
 long    t;
 {
@@ -66,8 +62,10 @@ long    t;
 
 	if( hz < 0 ){
 		s = getenv( "HZ" );
-		if( s ) hz = atoi( s );
-		else    hz = HZ;
+		if (s)
+                        hz = atoi( s );
+		else
+                        hz = HZ;
 	}
 
 	t += hz / 2;
@@ -76,7 +74,7 @@ long    t;
 	t /= HZ;
 	min = t % hz;
 
-	if (hr = t / hz)
+	if ((hr = t / hz))
 	{
 		prn_buff(hr);
 		prc_buff('h');
@@ -88,6 +86,7 @@ long    t;
 	prc_buff('s');
 }
 
+void
 prn(n)
 	int     n;
 {
@@ -96,6 +95,7 @@ prn(n)
 	prs(numbuf);
 }
 
+void
 itos(n)
 {
 	register char *abuf;
@@ -116,6 +116,7 @@ itos(n)
 	*abuf++ = 0;
 }
 
+int
 stoi(icp)
 char    *icp;
 {
@@ -130,10 +131,10 @@ char    *icp;
 	}
 	if (r < 0 || cp == icp)
 		failed(icp, badnum);
-	else
-		return(r);
+	return(r);
 }
 
+void
 prl(n)
 long n;
 {
@@ -161,8 +162,7 @@ flushb()
 }
 
 void
-prc_buff(c)
-	char c;
+prc_buff(char c)
 {
 	if (c)
 	{
@@ -196,12 +196,11 @@ prs_buff(s)
 	}
 }
 
-
+void
 clear_buff()
 {
 	index = 0;
 }
-
 
 void
 prs_cntl(s)
@@ -238,7 +237,6 @@ prs_cntl(s)
 	*ptr = '\0';
 	prs(buffer);
 }
-
 
 void
 prn_buff(n)

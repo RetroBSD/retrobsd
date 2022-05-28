@@ -97,7 +97,7 @@ addblok(reqd)
 
 void
 free(ap)
-	struct blk *ap;
+        void *ap;
 {
 	register struct blk *p;
 

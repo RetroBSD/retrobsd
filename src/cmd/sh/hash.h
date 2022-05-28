@@ -19,7 +19,6 @@
 #define hashtype(x)	(x & 0x1F00)
 #define hashdata(x)	(x & 0x00FF)
 
-
 typedef struct entry
 {
 	char	*key;
@@ -29,6 +28,6 @@ typedef struct entry
 	struct entry	*next;
 } ENTRY;
 
-extern ENTRY	*hfind();
-extern ENTRY	*henter();
-extern int	hcreate();
+ENTRY	*hfind();
+ENTRY	*henter();
+void	hcreate(void);

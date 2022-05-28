@@ -5,6 +5,8 @@
  */
 #include "defs.h"
 
+void rmfunctmp(void);
+
 /* ========     error handling  ======== */
 void
 failed(s1, s2)
@@ -59,7 +61,7 @@ done()
 {
 	register char   *t;
 
-	if (t = trapcom[0])
+	if ((t = trapcom[0]))
 	{
 		trapcom[0] = NIL;
 		execexp(t, 0);

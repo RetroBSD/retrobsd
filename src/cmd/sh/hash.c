@@ -30,6 +30,7 @@ static unsigned int     shift;
 
 static unsigned int crunch();
 
+void
 hcreate()
 {
 #ifdef NOTDEF
@@ -58,8 +59,8 @@ hcreate()
 	shift = (bitsper * sizeof(int)) - LOG2LEN;
 }
 
-
-void hscan(uscan)
+void
+hscan(uscan)
 	void    (*uscan)();
 {
 	struct node             *p, *nxt;
@@ -76,8 +77,6 @@ void hscan(uscan)
 		}
 	}
 }
-
-
 
 ENTRY *
 hfind(str)
@@ -128,7 +127,6 @@ henter(item)
 	p->Next = next;
 	return(&(p->item));
 }
-
 
 static unsigned int
 crunch(key)

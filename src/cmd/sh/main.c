@@ -9,7 +9,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include "dup.h"
-#include <sys/fcntl.h>
+#include <fcntl.h>
 #include <sys/param.h>
 
 #ifdef RES
@@ -30,9 +30,10 @@ static long     *mod_time = (long *)NIL;
 #include <sgtty.h>
 #endif
 
-extern char     *simple();
+void Ldup(int fa, int fb);
+void chkmail(void);
 
-static int
+static void
 exfile(prof)
 BOOL    prof;
 {
@@ -50,7 +51,8 @@ BOOL    prof;
 	}
 
 	userid = geteuid();
-	if( userid ) defpath[ENDPATH] = '\0';   /* no /etc */
+	if (userid)
+                defpath[ENDPATH] = '\0';   /* no /etc */
 
 	/*
 	 * decide whether interactive
@@ -135,11 +137,12 @@ BOOL    prof;
 
 		flags &= ~waiting;
 
-		execute(cmd(NL, MTFLG), 0, eflag);
+		execute(cmd(NL, MTFLG), 0, eflag, NULL, NULL);
 		eof |= (flags & oneflg);
 	}
 }
 
+int
 main(c, v, e)
 int     c;
 char    **v;
@@ -169,7 +172,7 @@ char    **e;
 	 *  set in environment and contains an'r' in
 	 *  the simple file part of the value.
 	 */
-	if (n = findnam("SHELL"))
+	if ((n = findnam("SHELL")))
 	{
 		if (any('r', simple(n->namval)))
 			rsflag = 0;
@@ -285,12 +288,14 @@ char    **e;
 	done();
 }
 
+void
 chkpr()
 {
 	if ((flags & prompt) && standin->fstak == NIL)
 		prs(ps2nod.namval);
 }
 
+void
 settmp()
 {
 	itos(getpid());
@@ -298,6 +303,7 @@ settmp()
 	tmpnam = movstr(numbuf, &tmpout[TMPNAM]);
 }
 
+void
 Ldup(fa, fb)
 register int    fa, fb;
 {
@@ -316,7 +322,7 @@ register int    fa, fb;
 #endif
 }
 
-
+void
 chkmail()
 {
 	register char   *s = mailp;
@@ -380,6 +386,7 @@ chkmail()
 	}
 }
 
+void
 setmail(mailpath)
 	char *mailpath;
 {
@@ -389,7 +396,7 @@ setmail(mailpath)
 	long    *ptr;
 
 	free(mod_time);
-	if (mailp = mailpath)
+	if ((mailp = mailpath))
 	{
 		while (*s)
 		{

@@ -84,7 +84,7 @@ extern char _ctype2[];
 #define astchar(c)      (((c)&QUOTE)==0 && _ctype2[c]&(T_AST))
 
 extern char _ctype3[];
-char    cj;
+extern char cj;
 
 #define qmask(c)  (cj=(c),(  (cj&0200) ||(_ctype3[cj]) ==0)? cj : _ctype3[cj])
 #define smask(c)  (cj=(c),cj=QST(cj),((!(cj&0200))||(_ctype3[cii(cj)]) ==0)? cj : _ctype3[cii(cj)])

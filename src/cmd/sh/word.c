@@ -6,8 +6,12 @@
 #include "defs.h"
 #include "sym.h"
 
-/* ========     character handling for command lines    ========*/
+char cj;
 
+int readb(void);
+
+/* ========     character handling for command lines    ========*/
+int
 word()
 {
 	register char   c, d;
@@ -122,6 +126,7 @@ word()
 	return(wdval);
 }
 
+int
 skipc()
 {
 	register char c;
@@ -131,8 +136,8 @@ skipc()
 	return(c);
 }
 
-nextc(quote)
-char    quote;
+int
+nextc(char quote)
 {
 	register char   c, d;
 
@@ -153,6 +158,7 @@ retry:
 	return(d);
 }
 
+int
 readc()
 {
 	register char   c;
@@ -211,6 +217,7 @@ retry:
 	return(c);
 }
 
+int
 readb()
 {
 	register struct fileblk *f = standin;

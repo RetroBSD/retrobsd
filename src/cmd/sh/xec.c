@@ -5,13 +5,17 @@
  */
 #include "defs.h"
 #include <errno.h>
+#include <sys/times.h>
+#include <sys/stat.h>
 #include "sym.h"
 #include "hash.h"
 
 static int      parent;
 
-/* ========     command execution       ========*/
+static void execprint(char **com);
 
+/* ========     command execution       ========*/
+int
 execute(argt, exec_link, errorflg, pf1, pf2)
 struct trenod   *argt;
 int     *pf1, *pf2;
@@ -85,7 +89,7 @@ int     *pf1, *pf2;
 				exitval = 0;
 
 				gchain = NIL;
-				argn = getarg(t);
+				argn = getarg((struct comnod *) t);
 				com = scan(argn);
 				a1 = com[1];
 				gchain = schain;
@@ -142,18 +146,18 @@ int     *pf1, *pf2;
 								if ((f = pathopen(getpath(a1), a1)) < 0)
 									failed(a1, notfound);
 								else
-									execexp(NIL, f);
+									execexp(NIL, (void *) f);
 							}
 							break;
 
 						case SYSTIMES:
 							{
-								long int t[4];
+								struct tms t;
 
-								times(t);
-								prt(t[2]);
+								times(&t);
+								prt(t.tms_cutime); /* user time, children */
 								prc_buff(SP);
-								prt(t[3]);
+								prt(t.tms_cstime); /* system time, children */
 								prc_buff(NL);
 							}
 							break;
@@ -842,9 +846,10 @@ int     *pf1, *pf2;
 	return(exitval);
 }
 
+void
 execexp(s, f)
-char    *s;
-int     f;
+    char *s;
+    void *f;
 {
 	struct fileblk  fb;
 
@@ -852,14 +857,15 @@ int     f;
 	if (s)
 	{
 		estabf(s);
-		fb.feval = (char **)(f);
+		fb.feval = (char **) f;
 	}
 	else if (f >= 0)
-		initf(f);
-	execute(cmd(NL, NLFLG | MTFLG), 0, (int)(flags & errflg));
+		initf((int) f);
+	execute(cmd(NL, NLFLG | MTFLG), 0, (int)(flags & errflg), NULL, NULL);
 	pop();
 }
 
+static void
 execprint(com)
 	char **com;
 {

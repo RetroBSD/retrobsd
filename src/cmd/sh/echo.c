@@ -9,6 +9,7 @@
 
 extern int exitval;
 
+int
 echo(argc, argv)
 char **argv;
 {

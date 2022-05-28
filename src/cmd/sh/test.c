@@ -9,6 +9,17 @@
 int	ap, ac;
 char	**av;
 
+int exp0(void);
+int e1(void);
+int e2(void);
+int e3(void);
+int tio(char *a, int f);
+int filtyp(char *f, int field);
+int ftype(char *f, int field);
+int fsizep(char *f);
+void bfailed(char *s1, char *s2, char *s3);
+
+int
 test(argn, com)
 char	*com[];
 int	argn;
@@ -42,6 +53,7 @@ nxtarg(mt)
 	return(av[ap++]);
 }
 
+int
 exp0()
 {
 	int	p1;
@@ -61,6 +73,7 @@ exp0()
 	return(p1);
 }
 
+int
 e1()
 {
 	int	p1;
@@ -75,6 +88,7 @@ e1()
 	return(p1);
 }
 
+int
 e2()
 {
 	if (eq(nxtarg(0), "!"))
@@ -83,6 +97,7 @@ e2()
 	return(e3());
 }
 
+int
 e3()
 {
 	int	p1;
@@ -125,7 +140,7 @@ e3()
 			return(ftype(nxtarg(0), S_ISVTX));
 		if (eq(a, "-p"))
 			return(filtyp(nxtarg(0),S_IFIFO));
-   		if (eq(a, "-s"))
+		if (eq(a, "-s"))
 			return(fsizep(nxtarg(0)));
 		if (eq(a, "-t"))
 		{
@@ -173,9 +188,11 @@ e3()
 		return(int1 <= int2);
 
 	bfailed(btest, badop, p2);
-/* NOTREACHED */
+        /* NOTREACHED */
+        return 0;
 }
 
+int
 tio(a, f)
 char	*a;
 int	f;
@@ -186,6 +203,7 @@ int	f;
 		return(0);
 }
 
+int
 ftype(f, field)
 char	*f;
 int	field;
@@ -199,6 +217,7 @@ int	field;
 	return(0);
 }
 
+int
 filtyp(f,field)
 char	*f;
 int field;
@@ -213,8 +232,7 @@ int field;
 		return(0);
 }
 
-
-
+int
 fsizep(f)
 char	*f;
 {
@@ -229,6 +247,7 @@ char	*f;
  * fake diagnostics to continue to look like original
  * test(1) diagnostics
  */
+void
 bfailed(s1, s2, s3)
 char	*s1;
 char	*s2;

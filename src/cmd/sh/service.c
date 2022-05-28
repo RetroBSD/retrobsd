@@ -6,16 +6,19 @@
 #include "defs.h"
 #include <errno.h>
 #include <sys/wait.h>
+#include <fcntl.h>
 
 #define ARGMK   01
 
 extern char     *sysmsg[];
 extern short topfd;
 
+void gocsh(char **t, char *cp, char **xecenv);
 
 /*
  * service routines for `execute'
  */
+int
 initio(iop, save)
 	struct ionod    *iop;
 	int             save;
@@ -106,12 +109,12 @@ getpath(s)
 {
 	register char   *path;
 
-	if (any('/', s) || any(('/' | QUOTE), s))
+	if (any('/', s) || any(('/' | (char)QUOTE), s))
 	{
-		if (flags & rshflg)
+		if (flags & rshflg) {
 			failed(s, restricted);
-		else
-			return(nullstr);
+                }
+		return(nullstr);
 	}
 	else if ((path = pathnod.namval) == NIL)
 		return(defpath);
@@ -119,6 +122,7 @@ getpath(s)
 		return(cpystak(path));
 }
 
+int
 pathopen(path, name)
 register char *path, *name;
 {
@@ -204,12 +208,12 @@ register char   *t[];
 			 * else sh
 			 */
 			char s[2];
-			if( !isatty(input)){
+			if (!isatty(input)) {
 				s[1] = 0; s[0] = 0;
-				read ( input, s, 2 );
-				if( s[0] == '#' && s[1] != '!' )
-					gocsh( t, p, xecenv );
-				lseek( input, (long)0, 0 );
+				read(input, s, 2);
+				if (s[0] == '#' && s[1] != '!')
+					gocsh(t, p, xecenv);
+				lseek(input, (long)0, 0);
 			}
 		}
 
@@ -240,9 +244,8 @@ register char   *t[];
 	}
 }
 
-int     execa(at, pos)
-	char    *at[];
-	short pos;
+void
+execa(char *at[], short pos)
 {
 	register char   *path;
 	register char   **t = at;
@@ -265,25 +268,26 @@ int     execa(at, pos)
 			execs(path, t);
 			path = getpath(*t);
 		}
-		while (path = execs(path,t))
+		while ((path = execs(path,t)))
 			;
 		failed(*t, xecmsg);
 	}
 }
 
-gocsh( t, cp, xecenv )
+void
+gocsh(t, cp, xecenv)
 	register char **t, *cp, **xecenv;
 {
 	char *newt[ 1000 ];
 	register char **p;
 	register int i;
 
-	for( i=0; t[i] ; i++ )
-		newt[ i+1 ] = t[ i ];
-	newt[ i+1 ] = NIL;
-	newt[ 0 ] = "/bin/csh";
-	newt[ 1 ] = cp;
-	execve( "/bin/csh", newt, xecenv );
+	for (i=0; t[i]; i++)
+		newt[i+1] = t[i];
+	newt[i+1] = NIL;
+	newt[0] = "/bin/csh";
+	newt[1] = cp;
+	execve("/bin/csh", newt, xecenv);
 	exit(33);
 }
 
@@ -294,6 +298,7 @@ gocsh( t, cp, xecenv )
 static int      pwlist[MAXP];
 static int      pwc;
 
+void
 postclr()
 {
 	register int    *pw = pwlist;
@@ -303,6 +308,7 @@ postclr()
 	pwc = 0;
 }
 
+void
 post(pcsid)
 int     pcsid;
 {
@@ -320,6 +326,7 @@ int     pcsid;
 	}
 }
 
+void
 await(i, bckg)
 int     i, bckg;
 {
@@ -376,7 +383,7 @@ int     i, bckg;
 			continue;
 		}
 		w_hi = w.w_retcode;
-		if (sig = w.w_termsig)
+		if ((sig = w.w_termsig))
 		{
 			if (sig == 0177)        /* ptrace! return */
 			{
@@ -414,6 +421,7 @@ int     i, bckg;
 
 BOOL            nosubst;
 
+void
 trim(at)
 char    *at;
 {
@@ -422,13 +430,13 @@ char    *at;
 	register char   c;
 	register char   q = 0;
 
-	if (p = at)
+	if ((p = at))
 	{
 		ptr = p;
-		while (c = *p++)
+		while ((c = *p++))
 		{
 			/* @@@ if (*ptr = c & STRIP) */
-			if( *ptr = smask(c))
+			if ((*ptr = smask(c)))
 				++ptr;
 			q |= c;
 		}
@@ -449,7 +457,7 @@ char    *s;
 	return(t);
 }
 
-static int
+static void
 gsort(from, to)
 char    *from[], *to[];
 {
@@ -553,7 +561,7 @@ register char   *s;
 			count += c;
 		else
 		{
-			makearg(argp);
+			makearg((struct argnod *) argp);
 			count++;
 		}
 		gchain = (struct argnod *)((int)gchain | ARGMK);
@@ -563,6 +571,7 @@ register char   *s;
 /*
  * Argument list generation
  */
+int
 getarg(ac)
 struct comnod   *ac;
 {
@@ -570,7 +579,7 @@ struct comnod   *ac;
 	register int            count = 0;
 	register struct comnod  *c;
 
-	if (c = ac)
+	if ((c = ac))
 	{
 		argp = c->comarg;
 		while (argp)
@@ -590,7 +599,6 @@ struct comnod   *ac;
 
 struct acct sabuf;
 struct tms buffer;
-extern long times();
 static long before;
 static int shaccton;    /* 0 implies do not write record on exit
 			   1 implies write acct record on exit
@@ -600,12 +608,13 @@ static int shaccton;    /* 0 implies do not write record on exit
 /*
  *      suspend accounting until turned on by preacct()
  */
-
+void
 suspacct()
 {
 	shaccton = 0;
 }
 
+void
 preacct(cmdadr)
 	char *cmdadr;
 {
@@ -622,8 +631,8 @@ preacct(cmdadr)
 	}
 }
 
-#include        <fcntl.h>
-
+#include <fcntl.h>
+void
 doacct()
 {
 	int fd;
@@ -648,7 +657,7 @@ doacct()
  *      Produce a pseudo-floating point representation
  *      with 3 bits base-8 exponent, 13 bits fraction
  */
-
+int
 compress(t)
 	register time_t t;
 {

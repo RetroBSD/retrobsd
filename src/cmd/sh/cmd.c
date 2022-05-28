@@ -34,7 +34,7 @@ makefork(flgs, i)
 	return((struct trenod *)t);
 }
 
-static int
+static void
 prsym(sym)
 {
 	if (sym & SYMFLG)
@@ -58,7 +58,7 @@ prsym(sym)
 	}
 }
 
-static int
+static void
 synbad()
 {
 	prp();
@@ -107,7 +107,7 @@ skipnl()
 	return(wdval);
 }
 
-static int
+static void
 chksym(sym)
 {
 	register int	x = sym & wdval;
@@ -159,7 +159,7 @@ register int	esym;
 	}
 }
 
-static int
+static void
 chkword()
 {
 	if (word())
@@ -344,7 +344,7 @@ item(flag)
 			p = (struct parnod *)getstor(sizeof(struct parnod));
 			p->partre = cmd(')', NLFLG);
 			p->partyp = TPAR;
-			r = makefork(0, p);
+			r = makefork(0, (struct trenod *) p);
 			break;
 		}
 
@@ -453,8 +453,7 @@ item(flag)
 	}
 	reserv++;
 	word();
-	if (io = inout(io))
-	{
+	if ((io = inout(io))) {
 		r = makefork(0,r);
 		r->treio = io;
 	}
@@ -542,7 +541,7 @@ cmd(sym, flg)
 			synbad();
 
 	case ';':
-		if (e = cmd(sym, flg | MTFLG))
+		if ((e = cmd(sym, flg | MTFLG)))
 			i = makelist(TLST, i, e);
 		else if (i == NIL)
 			synbad();

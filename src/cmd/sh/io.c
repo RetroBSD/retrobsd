@@ -5,13 +5,13 @@
  */
 #include "defs.h"
 #include "dup.h"
-#include <sys/fcntl.h>
+#include <fcntl.h>
 #include <sys/param.h>
 
 short topfd;
 
 /* ========     input output and file copying ======== */
-
+void
 initf(fd)
 int     fd;
 {
@@ -25,6 +25,7 @@ int     fd;
 	f->feof = FALSE;
 }
 
+int
 estabf(s)
 register char *s;
 {
@@ -36,6 +37,7 @@ register char *s;
 	return(f->feof = (s == NIL));
 }
 
+void
 push(af)
 struct fileblk *af;
 {
@@ -47,6 +49,7 @@ struct fileblk *af;
 	standin = f;
 }
 
+int
 pop()
 {
 	register struct fileblk *f;
@@ -64,6 +67,7 @@ pop()
 
 struct tempblk *tmpfptr;
 
+void
 pushtemp(fd,tb)
 	int fd;
 	struct tempblk *tb;
@@ -73,6 +77,7 @@ pushtemp(fd,tb)
 	tmpfptr = tb;
 }
 
+int
 poptemp()
 {
 	if (tmpfptr)
@@ -85,6 +90,7 @@ poptemp()
 		return(FALSE);
 }
 
+void
 chkpipe(pv)
 int     *pv;
 {
@@ -92,6 +98,7 @@ int     *pv;
 		error(piperr);
 }
 
+int
 chkopen(idf)
 char *idf;
 {
@@ -99,27 +106,16 @@ char *idf;
 
 	if ((rc = open(idf, 0)) < 0)
 		failed(idf, badopen);
-	else
-		return(rc);
+	return(rc);
 }
 
+void
 rename(f1, f2)
 register int    f1, f2;
 {
-#if defined(RES) || defined(pdp11)
 	if (f1 != f2)
 	{
-		dup(f1 | DUPFLG, f2);
-		close(f1);
-		if (f2 == 0)
-			ioset |= 1;
-	}
-#else
-	int     fs;
-
-	if (f1 != f2)
-	{
-		fs = fcntl(f2, F_GETFD, 0);
+                int fs = fcntl(f2, F_GETFD, 0);
 		close(f2);
 		fcntl(f1, F_DUPFD, f2);
 		close(f1);
@@ -128,9 +124,9 @@ register int    f1, f2;
 		if (f2 == 0)
 			ioset |= 1;
 	}
-#endif
 }
 
+int
 create(s)
 char *s;
 {
@@ -138,10 +134,10 @@ char *s;
 
 	if ((rc = creat(s, 0666)) < 0)
 		failed(s, badcreate);
-	else
-		return(rc);
+	return(rc);
 }
 
+int
 tmpfil(tb)
 	struct tempblk *tb;
 {
@@ -158,8 +154,9 @@ tmpfil(tb)
  * set by trim
  */
 extern BOOL             nosubst;
-#define                 CPYSIZ          512
+#define CPYSIZ          512
 
+void
 copy(ioparg)
 struct ionod    *ioparg;
 {
@@ -173,8 +170,7 @@ struct ionod    *ioparg;
 	int             i;
 	int             stripflg;
 
-
-	if (iop = ioparg)
+	if ((iop = ioparg))
 	{
 		struct tempblk tb;
 
@@ -254,7 +250,7 @@ struct ionod    *ioparg;
 	}
 }
 
-
+void
 link_iodocs(i)
 	struct ionod    *i;
 {
@@ -271,7 +267,7 @@ link_iodocs(i)
 	}
 }
 
-
+void
 swap_iodoc_nm(i)
 	struct ionod    *i;
 {
@@ -285,7 +281,7 @@ swap_iodoc_nm(i)
 	}
 }
 
-
+int
 savefd(fd)
 	int fd;
 {
@@ -295,7 +291,7 @@ savefd(fd)
 	return(f);
 }
 
-
+void
 restore(last)
 	register int    last;
 {

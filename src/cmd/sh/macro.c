@@ -11,7 +11,7 @@ static char     quoted; /* used locally */
 
 static int      getch();
 
-static char *
+static void
 copyto(endch)
 register char   endch;
 {
@@ -24,7 +24,7 @@ register char   endch;
 		error(badsub);
 }
 
-static
+static void
 skipto(endch)
 register char   endch;
 {
@@ -54,7 +54,7 @@ register char   endch;
 		error(badsub);
 }
 
-static
+static void
 comsubst()
 {
 	/*
@@ -89,7 +89,7 @@ comsubst()
 	}
 	tdystak(savptr);
 	staktop = movstr(savptr, stakbot);
-	while (d = readc())
+	while ((d = readc()))
 		/* @@@ pushstak(d | quote); */
 		pushstak( quote ? qmask(d) : d );
 
@@ -130,7 +130,7 @@ retry:
 			char            idb[2];
 			char            *id = idb;
 
-			if (bra = (c == BRACE))
+			if ((bra = (c == BRACE)))
 				c = cii(readc());   /* @@@ */
 			if (letter(c))
 			{
@@ -221,7 +221,7 @@ retry:
 							pushstak(QUOTE);
 						else
 						{
-							while (c = *v++)
+							while ((c = *v++))
 								/* @@@ pushstak(c | quote); */
 								pushstak( quote ? qmask(c) : c );
 						}
@@ -286,7 +286,7 @@ char    *as;
 	register char   savq = quote;
 	struct filehdr  fb;
 
-	push(&fb);
+	push((struct fileblk *) &fb);
 	estabf(as);
 	usestak();
 	quote = 0;
@@ -303,7 +303,7 @@ char    *as;
 	return(fixstak());
 }
 
-static
+static void
 flush(ot)
 {
 	write(ot, stakbot, staktop - stakbot);
@@ -314,6 +314,7 @@ flush(ot)
 
 #define CPYSIZ  512
 
+void
 subst(in, ot)
 int     in, ot;
 {
@@ -326,7 +327,7 @@ int     in, ot;
 	/*
 	 * DQUOTE used to stop it from quoting
 	 */
-	while (c = /* @@@ (getch(DQUOTE) & STRIP)*/ smask(getch(DQUOTE))  )
+	while ((c = /* @@@ (getch(DQUOTE) & STRIP)*/ smask(getch(DQUOTE))))
 	{
 		pushstak(c);
 		if (--count == 0)

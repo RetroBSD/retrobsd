@@ -5,13 +5,21 @@
  */
 #include "defs.h"
 
+static void freetree(struct trenod *t);
+static void freeio(struct ionod *iop);
+static void free_arg(struct argnod *argp);
+static void freereg(struct regnod *regp);
+static void prarg(struct argnod *argp);
+static void prio(struct ionod *iop);
+
+void
 freefunc(n)
 	struct namnod 	*n;
 {
 	freetree((struct trenod *)(n->namenv));
 }
 
-
+static void
 freetree(t)
 	register struct trenod *t;
 {
@@ -94,6 +102,7 @@ freetree(t)
 	}
 }
 
+static void
 free_arg(argp)
 	register struct argnod 	*argp;
 {
@@ -107,7 +116,7 @@ free_arg(argp)
 	}
 }
 
-
+static void
 freeio(iop)
 	register struct ionod *iop;
 {
@@ -146,7 +155,7 @@ freeio(iop)
 	}
 }
 
-
+static void
 freereg(regp)
 	register struct regnod 	*regp;
 {
@@ -162,7 +171,7 @@ freereg(regp)
 	}
 }
 
-
+void
 prf(t)
 	register struct trenod	*t;
 {
@@ -328,6 +337,7 @@ prf(t)
 	sigchk();
 }
 
+static void
 prarg(argp)
 	register struct argnod	*argp;
 {
@@ -339,7 +349,7 @@ prarg(argp)
 	}
 }
 
-
+static void
 prio(iop)
 	register struct ionod	*iop;
 {

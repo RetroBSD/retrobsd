@@ -5,6 +5,7 @@
  */
 #include "mac.h"
 #include "defs.h"
+#include <fcntl.h>
 
 #define DOT     '.'
 #define NULL    0
@@ -19,7 +20,7 @@ static int didpwd = FALSE;
 /*
  * This routine will remove repeated slashes from string.
  */
-static
+static void
 rmslash(string)
 	char *string;
 {
@@ -48,6 +49,7 @@ rmslash(string)
 	return;
 }
 
+void
 cwd(dir)
 	register char *dir;
 {
@@ -157,10 +159,7 @@ cwd(dir)
 static char dotdots[] =
 "../../../../../../../../../../../../../../../../../../../../../../../..";
 
-extern struct direct	*getdir();
-extern char		*movstrn();
-
-static
+static void
 pwd()
 {
 	struct stat		cdir;	/* current directory status */
@@ -270,6 +269,7 @@ pwd()
 /*
  * Print the current working directory.
  */
+void
 prcwd()
 {
 	if (didpwd == FALSE)
@@ -277,6 +277,7 @@ prcwd()
 	prs_buff(cwdname);
 }
 
+void
 cwdprint()
 {
 	prcwd();

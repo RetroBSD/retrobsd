@@ -5,7 +5,7 @@
 #include "defs.h"
 #include "data.h"
 
-addloop (loop_t *ptr)
+void addloop (loop_t *ptr)
 {
     if (loop_table_index == WSTABSZ) {
         error ("too many active loops");
@@ -14,7 +14,7 @@ addloop (loop_t *ptr)
     loopstack[loop_table_index++] = *ptr;
 }
 
-delloop ()
+void delloop ()
 {
     if (readloop ()) {
         loop_table_index--;
@@ -46,7 +46,7 @@ loop_t *readswitch ()
 {
     loop_t *ptr;
 
-    if (ptr = readloop ()) {
+    if ((ptr = readloop ())) {
         if (ptr->type == WSSWITCH) {
             return ptr;
         }
@@ -54,7 +54,7 @@ loop_t *readswitch ()
     return 0;
 }
 
-addcase (int val)
+void addcase (int val)
 {
     int     lab;
 

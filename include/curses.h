@@ -111,7 +111,7 @@ int __void__;
 /*
  * mv functions
  */
-#define mvwaddch(win,y,x,ch)    VOID(wmove(win,y,x)==ERR?ERR:waddch(win,ch))
+#define mvwaddch(win,y,x,ch)    (wmove(win,y,x) == ERR ? ERR : waddch(win,ch))
 #define mvwgetch(win,y,x)       VOID(wmove(win,y,x)==ERR?ERR:wgetch(win))
 #define mvwaddstr(win,y,x,str)  VOID(wmove(win,y,x)==ERR?ERR:waddstr(win,str))
 #define mvwgetstr(win,y,x,str)  VOID(wmove(win,y,x)==ERR?ERR:wgetstr(win,str))

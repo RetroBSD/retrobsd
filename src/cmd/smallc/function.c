@@ -10,13 +10,17 @@ int argtop;
 
 #define ARGOFFSET 20        /* for MIPS32 */
 
+static int doAnsiArguments(void);
+static void doLocalAnsiArgument(int type);
+static void getarg(int t);
+
 /**
  * begin a function
  * called from "parse", this routine tries to make a function out
  * of what follows
  * modified version.  p.l. woods
  */
-newfunc() {
+void newfunc() {
     char n[NAMESIZE];
     int idx, type;
     fexitlab = getlabel();
@@ -26,7 +30,7 @@ newfunc() {
         kill();
         return;
     }
-    if (idx = findglb(n)) {
+    if ((idx = findglb(n))) {
         if (symbol_table[idx].identity != FUNCTION)
             multidef(n);
         else if (symbol_table[idx].offset == FUNCTION)
@@ -71,7 +75,7 @@ newfunc() {
         stkp = 0;
         argtop = argstk;
         while (argstk) {
-            if (type = get_type()) {
+            if ((type = get_type())) {
                 getarg(type);
                 need_semicolon();
             } else {
@@ -99,7 +103,7 @@ newfunc() {
  * @param t argument type (char, int)
  * @return
  */
-getarg(int t) {
+void getarg(int t) {
     int j, legalname, argptr;
     char n[NAMESIZE];
 
@@ -122,7 +126,7 @@ getarg(int t) {
                 j = POINTER;
         }
         if (legalname) {
-            if (argptr = findloc(n)) {
+            if ((argptr = findloc(n))) {
                 symbol_table[argptr].identity = j;
                 symbol_table[argptr].type = t;
             } else
@@ -136,7 +140,7 @@ getarg(int t) {
     }
 }
 
-doAnsiArguments() {
+int doAnsiArguments() {
     int type;
     type = get_type();
     if (type == 0) {
@@ -160,9 +164,10 @@ doAnsiArguments() {
         }
     }
     argtop = argstk;
+    return 1;
 }
 
-doLocalAnsiArgument(int type) {
+void doLocalAnsiArgument(int type) {
     char symbol_name[NAMESIZE];
     int identity, argptr, ptr;
 

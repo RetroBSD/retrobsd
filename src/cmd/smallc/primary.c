@@ -5,7 +5,10 @@
 #include "defs.h"
 #include "data.h"
 
-primary (lvalue_t *lval)
+static int constant(int val[]);
+static int spechar(void);
+
+int primary (lvalue_t *lval)
 {
         char    sname[NAMESIZE];
         int     num[1], k, symbol_table_idx, offset, reg;
@@ -47,7 +50,7 @@ primary (lvalue_t *lval)
                 return(0);
         }
         if (symname (sname)) {
-                if (symbol_table_idx = findloc (sname)) {
+                if ((symbol_table_idx = findloc (sname))) {
                         symbol = &symbol_table[symbol_table_idx];
                         reg = gen_get_location (symbol);
                         lval->symbol = symbol;
@@ -63,7 +66,7 @@ primary (lvalue_t *lval)
                         }
                         return reg;
                 }
-                if (symbol_table_idx = findglb (sname)) {
+                if ((symbol_table_idx = findglb (sname))) {
                         symbol = &symbol_table[symbol_table_idx];
                         lval->symbol = symbol;
                         switch (symbol->identity) {
@@ -112,7 +115,7 @@ primary (lvalue_t *lval)
  * @param val2
  * @return
  */
-dbltest (lvalue_t *val1, lvalue_t *val2)
+int dbltest (lvalue_t *val1, lvalue_t *val2)
 {
         if (val1 == NULL)
                 return (FALSE);
@@ -129,7 +132,7 @@ dbltest (lvalue_t *val1, lvalue_t *val2)
  * @param lval2
  * @return
  */
-result (lvalue_t *lval, lvalue_t *lval2)
+void result (lvalue_t *lval, lvalue_t *lval2)
 {
         if (lval->ptr_type && lval2->ptr_type)
                 lval->ptr_type = 0;
@@ -140,7 +143,7 @@ result (lvalue_t *lval, lvalue_t *lval2)
         }
 }
 
-constant (val)
+int constant (val)
         int     val[];
 {
         if (number (val))
@@ -159,7 +162,7 @@ constant (val)
 
 }
 
-number (val)
+int number (val)
         int     val[];
 {
         int     k, minus, base;
@@ -207,7 +210,7 @@ number (val)
  * @param value returns the char found
  * @return 1 if we have, 0 otherwise
  */
-quoted_char (int *value)
+int quoted_char (int *value)
 {
         int     k;
         char    c;
@@ -229,7 +232,7 @@ quoted_char (int *value)
  * @param position returns beginning of the string
  * @return 1 if such string found, 0 otherwise
  */
-quoted_string (int *position)
+int quoted_string (int *position)
 {
         char    c;
 
@@ -257,7 +260,7 @@ quoted_string (int *position)
 /**
  * decode special characters (preceeded by back slashes)
  */
-spechar()
+int spechar()
 {
         char c;
         c = ch();
@@ -326,7 +329,7 @@ void callfunction (ptr)
         stkp = gen_modify_stack (stkp + nargs);
 }
 
-needlval ()
+void needlval ()
 {
         error ("must be lvalue");
 }

@@ -12,7 +12,7 @@
  * @param c
  * @return
  */
-alpha(char c) {
+int alpha(char c) {
     if (c > 127)
             return 0;
     return (((c >= 'a') && (c <= 'z')) ||
@@ -25,7 +25,7 @@ alpha(char c) {
  * @param c
  * @return
  */
-numeric(char c) {
+int numeric(char c) {
     if (c > 127)
             return 0;
     return ((c >= '0') && (c <= '9'));
@@ -36,7 +36,7 @@ numeric(char c) {
  * @param c
  * @return
  */
-alphanumeric(char c) {
+int alphanumeric(char c) {
     return ((alpha (c)) || (numeric (c)));
 }
 
@@ -44,12 +44,12 @@ alphanumeric(char c) {
  * semicolon enforcer
  * called whenever syntax requires a semicolon
  */
-need_semicolon() {
+void need_semicolon() {
     if (!match (";"))
         error ("missing semicolon");
 }
 
-junk() {
+void junk() {
     if (alphanumeric (inbyte ()))
         while (alphanumeric (ch ()))
             gch ();
@@ -62,7 +62,7 @@ junk() {
     blanks ();
 }
 
-endst() {
+int endst() {
     blanks ();
     return ((streq (line + lptr, ";") | (ch () == 0)));
 }
@@ -72,7 +72,7 @@ endst() {
  * @param str
  * @return
  */
-needbrack(char *str) {
+void needbrack(char *str) {
     if (!match (str)) {
         error ("missing bracket");
         gen_comment ();
@@ -86,7 +86,7 @@ needbrack(char *str) {
  * @param str1
  * @return
  */
-sstreq(str1) char *str1; {
+int sstreq(str1) char *str1; {
     return (streq(line + lptr, str1));
 }
 
@@ -100,7 +100,7 @@ sstreq(str1) char *str1; {
  * @param str2 address2
  * @return
  */
-streq(char str1[], char str2[]) {
+int streq(char str1[], char str2[]) {
     int k;
     k = 0;
     while (str2[k]) {
@@ -119,7 +119,7 @@ streq(char str1[], char str2[]) {
  * @param len
  * @return
  */
-astreq (char str1[], char str2[], int len) {
+int astreq (char str1[], char str2[], int len) {
     int k;
     k = 0;
     while (k < len) {
@@ -146,10 +146,10 @@ astreq (char str1[], char str2[], int len) {
  * @param lit
  * @return
  */
-match (char *lit) {
+int match (char *lit) {
     int k;
     blanks();
-    if (k = streq (line + lptr, lit)) {
+    if ((k = streq (line + lptr, lit))) {
         lptr = lptr + k;
         return (1);
     }
@@ -166,11 +166,11 @@ match (char *lit) {
  * @param len
  * @return
  */
-amatch(char *lit, int len) {
+int amatch(char *lit, int len) {
     int k;
 
     blanks();
-    if (k = astreq (line + lptr, lit, len)) {
+    if ((k = astreq (line + lptr, lit, len))) {
         lptr = lptr + k;
         while (alphanumeric (ch ()))
             inbyte ();
@@ -179,7 +179,7 @@ amatch(char *lit, int len) {
     return (0);
 }
 
-blanks() {
+void blanks() {
     for (;;) {
         while (ch () == 0) {
             readline ();

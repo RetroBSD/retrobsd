@@ -2,25 +2,14 @@
 /*% cc -O -c %
  *
  */
-
 #include <stdio.h>
 #include "defs.h"
 #include "data.h"
 
-error (ptr)
-char    ptr[];
+void
+doerror(ptr)
+        char *ptr;
 {
-        FILE *tempfile;
-
-        tempfile = output;
-        output = stdout;
-        doerror(ptr);
-        output = tempfile;
-        doerror(ptr);
-        errcnt++;
-}
-
-doerror(ptr) char *ptr; {
         int k;
         gen_comment ();
         output_string (line);
@@ -43,3 +32,16 @@ doerror(ptr) char *ptr; {
         newline ();
 }
 
+void
+error(ptr)
+        char ptr[];
+{
+        FILE *tempfile;
+
+        tempfile = output;
+        output = stdout;
+        doerror(ptr);
+        output = tempfile;
+        doerror(ptr);
+        errcnt++;
+}

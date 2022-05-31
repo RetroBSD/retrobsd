@@ -8,13 +8,13 @@
 #include "defs.h"
 #include "data.h"
 
-kill ()
+void kill ()
 {
         lptr = 0;
         line[lptr] = 0;
 }
 
-readline ()
+void readline ()
 {
         int     k;
 
@@ -40,7 +40,7 @@ readline ()
         }
 }
 
-inbyte ()
+int inbyte ()
 {
         while (ch () == 0) {
                 if (feof (input))
@@ -50,7 +50,7 @@ inbyte ()
         return (gch ());
 }
 
-inchar ()
+int inchar ()
 {
         if (ch () == 0)
                 readline ();
@@ -63,7 +63,7 @@ inchar ()
  * gets current char from input line and moves to the next one
  * @return current char
  */
-gch ()
+int gch ()
 {
         int c = line[lptr];
         if (c == 0)
@@ -76,7 +76,7 @@ gch ()
  * returns next char
  * @return next char
  */
-nch ()
+int nch ()
 {
         int c = line[lptr];
         if (c == 0)
@@ -88,7 +88,7 @@ nch ()
  * returns current char
  * @return current char
  */
-ch ()
+int ch ()
 {
         return line[lptr];
 }

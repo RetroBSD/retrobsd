@@ -6,6 +6,22 @@
 #include "defs.h"
 #include "data.h"
 
+static void do_compound(int func);
+static void do_statement(void);
+static int do_local_declares(int stclass);
+static void doif(void);
+static void dowhile(void);
+static void doswitch(void);
+static void dodo(void);
+static void dofor(void);
+static void doreturn(void);
+static void dobreak(void);
+static void dobreak(void);
+static void docont(void);
+static void docase(void);
+static void dodefault(void);
+static void dumpsw(loop_t *loop);
+
 /**
  * statement parser
  * called whenever syntax requires a statement.  this routine
@@ -15,16 +31,18 @@
  * "declaration_list" is omitted)
  * @return statement type
  */
-statement (int func) {
+int statement (int func) {
         if ((ch () == 0) & feof (input))
                 return (0);
         lastst = 0;
-        if (func)
+        if (func) {
                 if (match ("{")) {
                         do_compound (YES);
                         return (lastst);
-                } else
+                } else {
                         error ("function requires compound statement");
+                }
+        }
         if (match ("{"))
                 do_compound (NO);
         else
@@ -35,7 +53,7 @@ statement (int func) {
 /**
  * declaration
  */
-statement_declare() {
+int statement_declare() {
         if (amatch("register", 8))
                 do_local_declares(DEFAUTO);
         else if (amatch("auto", 4))
@@ -53,10 +71,10 @@ statement_declare() {
  * @param stclass
  * @return
  */
-do_local_declares(int stclass) {
+int do_local_declares(int stclass) {
         int type = 0;
         blanks();
-        if (type = get_type()) {
+        if ((type = get_type())) {
             declare_local(type, stclass);
         } else if (stclass == LSTATIC || stclass == DEFAUTO) {
             declare_local(CINT, stclass);
@@ -70,7 +88,7 @@ do_local_declares(int stclass) {
 /**
  * non-declaration statement
  */
-do_statement () {
+void do_statement () {
         if (amatch ("if", 2)) {
                 doif ();
                 lastst = STIF;
@@ -132,7 +150,7 @@ do_statement () {
  * 'func' is true if we are in a "function_statement", which
  * must contain "statement_list"
  */
-do_compound(int func) {
+void do_compound(int func) {
         int     decls;
 
         decls = YES;
@@ -152,7 +170,7 @@ do_compound(int func) {
 /**
  * "if" statement
  */
-doif() {
+void doif() {
         int     fstkp, flab1, flab2;
         int     flev;
 
@@ -178,7 +196,7 @@ doif() {
 /**
  * "while" statement
  */
-dowhile() {
+void dowhile() {
         loop_t loop;
 
         loop.symbol_idx = local_table_index;
@@ -200,7 +218,7 @@ dowhile() {
 /**
  * "do" statement
  */
-dodo() {
+void dodo() {
         loop_t loop;
 
         loop.symbol_idx = local_table_index;
@@ -227,7 +245,7 @@ dodo() {
 /**
  * "for" statement
  */
-dofor() {
+void dofor() {
         loop_t loop;
         loop_t *p;
 
@@ -272,7 +290,7 @@ dofor() {
 /**
  * "switch" statement
  */
-doswitch() {
+void doswitch() {
         loop_t loop;
         loop_t *ptr;
 
@@ -286,7 +304,7 @@ doswitch() {
         gen_immediate_a ();
         print_label (loop.body_label);
         newline ();
-        gen_push ();
+        gen_push (0);
         needbrack ("(");
         expression (YES);
         needbrack (")");
@@ -306,7 +324,7 @@ doswitch() {
 /**
  * "case" label
  */
-docase() {
+void docase() {
         int     val;
 
         val = 0;
@@ -324,11 +342,11 @@ docase() {
 /**
  * "default" label
  */
-dodefault() {
+void dodefault() {
         loop_t *ptr;
         int        lab;
 
-        if (ptr = readswitch ()) {
+        if ((ptr = readswitch ())) {
                 ptr->cont_label = lab = getlabel ();
                 generate_label (lab);
                 if (!match (":"))
@@ -340,7 +358,7 @@ dodefault() {
 /**
  * "return" statement
  */
-doreturn() {
+void doreturn() {
         if (endst () == 0)
                 expression (YES);
         gen_jump(fexitlab);
@@ -349,7 +367,7 @@ doreturn() {
 /**
  * "break" statement
  */
-dobreak() {
+void dobreak() {
         loop_t *ptr;
 
         if ((ptr = readloop ()) == 0)
@@ -361,7 +379,7 @@ dobreak() {
 /**
  * "continue" statement
  */
-docont() {
+void docont() {
         loop_t *ptr;
 
         if ((ptr = findloop ()) == 0)
@@ -376,7 +394,7 @@ docont() {
 /**
  * dump switch table
  */
-dumpsw(loop_t *loop) {
+void dumpsw(loop_t *loop) {
         int     i,j;
 
         data_segment_gdata ();

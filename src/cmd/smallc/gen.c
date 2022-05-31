@@ -11,7 +11,7 @@
  *      return next available internal label number
  *
  */
-getlabel ()
+int getlabel ()
 {
         return (nxtlab++);
 
@@ -21,7 +21,7 @@ getlabel ()
  * print specified number as label
  * @param label
  */
-print_label (label)
+void print_label (label)
 int     label;
 {
         output_label_prefix ();
@@ -33,7 +33,7 @@ int     label;
  * not used ?
  * @param lab label number
  */
-glabel (lab)
+void glabel (lab)
 char    *lab;
 {
         output_string (lab);
@@ -46,7 +46,7 @@ char    *lab;
  * @param nlab label number
  * @return
  */
-generate_label (nlab)
+void generate_label (nlab)
 int     nlab;
 {
         print_label (nlab);
@@ -59,8 +59,7 @@ int     nlab;
  * @param c
  * @return
  */
-output_byte (c)
-char    c;
+int output_byte (char c)
 {
         if (c == 0)
                 return (0);
@@ -73,6 +72,7 @@ char    c;
  * @param ptr the string
  * @return
  */
+void
 output_string (ptr)
 char    ptr[];
 {
@@ -85,6 +85,7 @@ char    ptr[];
  * outputs a tab
  * @return
  */
+void
 print_tab ()
 {
         output_byte ('\t');
@@ -95,7 +96,7 @@ print_tab ()
  * @param ptr
  * @return
  */
-output_line (ptr)
+void output_line (ptr)
 char    ptr[];
 {
         output_with_tab (ptr);
@@ -107,7 +108,7 @@ char    ptr[];
  * @param ptr
  * @return
  */
-output_with_tab (ptr)
+void output_with_tab (ptr)
 char    ptr[];
 {
         print_tab ();
@@ -119,7 +120,7 @@ char    ptr[];
  * @param number
  * @return
  */
-output_decimal (int number)
+void output_decimal (int number)
 {
     fprintf(output, "%d", number);
 }
@@ -129,7 +130,7 @@ output_decimal (int number)
  * @param lval TODO
  * @return
  */
-store (lvalue_t *lval)
+void store (lvalue_t *lval)
 {
     if (lval->indirect == 0)
         gen_put_memory (lval->symbol);
@@ -137,7 +138,7 @@ store (lvalue_t *lval)
         gen_put_indirect (lval->indirect);
 }
 
-rvalue (lvalue_t *lval, int reg)
+int rvalue (lvalue_t *lval, int reg)
 {
     if ((lval->symbol != 0) & (lval->indirect == 0))
         gen_get_memory (lval->symbol);
@@ -152,7 +153,7 @@ rvalue (lvalue_t *lval, int reg)
  * @param ft
  * @return
  */
-test (label, ft)
+void test (label, ft)
 int     label,
         ft;
 {

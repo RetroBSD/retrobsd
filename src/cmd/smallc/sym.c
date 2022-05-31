@@ -8,13 +8,17 @@
 
 #define LOCALOFFSET 16      /* for MIPS32 */
 
+static int needsub(void);
+static int initials(char *symbol_name, int size, int identity, int dim);
+static int init(char *symbol_name, int size, int ident, int *dim);
+
 /**
  * declare a static variable
  * @param type
  * @param storage
  * @return
  */
-declare_global(int type, int storage) {
+void declare_global(int type, int storage) {
         int     k, j, count;
         char    sname[NAMESIZE];
 
@@ -56,7 +60,7 @@ declare_global(int type, int storage) {
  * @param typ
  * @param stclass
  */
-declare_local (typ, stclass)
+void declare_local (typ, stclass)
 int     typ, stclass;
 {
         int     k, j, count;
@@ -150,7 +154,7 @@ int initials(char *symbol_name, int size, int identity, int dim) {
  * @param dim
  * @return
  */
-init(char *symbol_name, int size, int ident, int *dim) {
+int init(char *symbol_name, int size, int ident, int *dim) {
     int value, number_of_chars;
     if(ident == POINTER) {
         error("cannot assign to pointer");
@@ -180,7 +184,7 @@ init(char *symbol_name, int size, int ident, int *dim) {
  * get required array size. [xx]
  * @return array size
  */
-needsub () {
+int needsub () {
         int     num[1];
 
         if (match ("]"))
@@ -281,7 +285,7 @@ int add_local (char *sname, int identity, int type, int offset, int storage_clas
         char *buffer_ptr;
 //printf("local - symbol: %s offset: %d count: %d\n", sname, offset, count);
 
-        if (current_symbol_table_idx = findloc (sname)) {
+        if ((current_symbol_table_idx = findloc (sname))) {
                 return (current_symbol_table_idx);
         }
         if (local_table_index >= NUMBER_OF_GLOBALS + NUMBER_OF_LOCALS) {
@@ -315,7 +319,7 @@ int add_local (char *sname, int identity, int type, int offset, int storage_clas
  *      test if next input string is legal symbol name
  *
  */
-symname(char *sname) {
+int symname(char *sname) {
     int k;
 
     blanks();
@@ -328,7 +332,7 @@ symname(char *sname) {
     return (1);
 }
 
-illname() {
+void illname() {
     error ("illegal symbol name");
 }
 
@@ -337,7 +341,7 @@ illname() {
  * @param symbol_name
  * @return
  */
-multidef (char *symbol_name) {
+void multidef (char *symbol_name) {
     error ("already defined");
     gen_comment ();
     output_string (symbol_name);

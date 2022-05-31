@@ -5,10 +5,19 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include "defs.h"
 #include "data.h"
 
-main(int argc, char *argv[])
+static void usage(void);
+static void compile(char *infile, char *outfile);
+static void parse(void);
+static void dumplits(void);
+static void dumpglbs(void);
+static void errorsummary(void);
+static int dodcls(int stclass);
+
+int main(int argc, char *argv[])
 {
     char *param = NULL;
     char *infile = NULL;
@@ -52,7 +61,7 @@ main(int argc, char *argv[])
  * @param file filename
  * @return
  */
-compile(char *infile, char *outfile)
+void compile(char *infile, char *outfile)
 {
     global_table_index = 1;
     local_table_index = NUMBER_OF_GLOBALS;
@@ -112,7 +121,7 @@ compile(char *infile, char *outfile)
     errs = errs || errfile;
 }
 
-frontend_version()
+void frontend_version()
 {
     output_string("\tFront End (2.7,84/11/28)");
 }
@@ -121,7 +130,7 @@ frontend_version()
  * prints usage
  * @return exits the execution
  */
-usage()
+void usage()
 {
     fputs("Usage:\n", stderr);
     fputs("  smallc [-t] [infile [outfile]]\n", stderr);
@@ -136,7 +145,7 @@ usage()
  * enters mode where assembly language statements are passed
  * intact through parser
  */
-doasm ()
+void doasm ()
 {
         cmode = 0;
         for (;;) {
@@ -157,7 +166,7 @@ doasm ()
  * at this level, only static declarations, defines, includes,
  * and function definitions are legal.
  */
-parse()
+void parse()
 {
     while (!feof(input)) {
         if (amatch("extern", 6)) {
@@ -182,11 +191,11 @@ parse()
  * @param stclass
  * @return
  */
-dodcls(int stclass)
+int dodcls(int stclass)
 {
     int type;
     blanks();
-    if (type = get_type()) {
+    if ((type = get_type())) {
         declare_global(type, stclass);
     } else if (stclass == PUBLIC) {
         return (0);
@@ -200,7 +209,7 @@ dodcls(int stclass)
 /**
  * dump the literal pool
  */
-dumplits()
+void dumplits()
 {
     int j, k;
 
@@ -226,7 +235,7 @@ dumplits()
 /**
  * dump all static variables
  */
-dumpglbs()
+void dumpglbs()
 {
     int dim, i, list_size, line_count, value;
 
@@ -289,7 +298,7 @@ dumpglbs()
 /*
  * report errors
  */
-errorsummary()
+void errorsummary()
 {
     if (ncmp)
         error("missing closing bracket");

@@ -34,6 +34,7 @@
 #include <stdlib.h>
 #include <sys/param.h>
 #include <sys/sysctl.h>
+#include <unistd.h>
 
 extern	int	optind;
 

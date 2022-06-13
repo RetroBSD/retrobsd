@@ -1,7 +1,7 @@
 #define VERSION "sz 3.07 2-02-90"
 #define PUBDIR "/usr/spool/uucppublic"
 
-/*% cc -compat -M2 -Ox -K -i -DTXBSIZE=16384  -DNFGVMIN -DREADCHECK sz.c -lx -o sz; size sz
+// % cc -compat -M2 -Ox -K -i -DTXBSIZE=16384  -DNFGVMIN -DREADCHECK sz.c -lx -o sz; size sz
 
 /*% cc -Zi -DXX -DNFGVMIN -DREADCHECK sz.c -lx -o xsz; size xsz
 <-xtx-*> cc -Osal -DTXBSIZE=32768  -DSV sz.c -lx -o $B/sz; size $B/sz
@@ -94,8 +94,6 @@
 long Thisflen;
 #endif
 
-char *substr(), *getenv();
-
 #define LOGFILE "/tmp/szlog"
 #define SS_NORMAL 0
 #include <stdio.h>
@@ -106,10 +104,11 @@ char *substr(), *getenv();
 #include <setjmp.h>
 #include <ctype.h>
 #include <errno.h>
-extern int errno;
+#include <stdarg.h>
+
 #define STATIC
 
-#define sendline(c) putchar(c & 0377)
+#define sendline(c) putchar((unsigned char)(c))
 #define xsendline(c) putchar(c)
 
 #define PATHLEN 256
@@ -248,6 +247,25 @@ STATIC int Beenhereb4;		/* How many times we've been ZRPOS'd same place */
 STATIC jmp_buf tohere;		/* For the interrupt on RX timeout */
 STATIC jmp_buf intrjmp;	/* For the interrupt on RX CAN */
 
+static void canit(void);
+static void chartest(int m);
+static void countem(int argc, char **argv);
+static int getzrxinit(void);
+static int zsendcmd(char *buf, int blen);
+static int wcsend(int argc, char *argp[]);
+static int wcs(char *oname);
+static int getnak(void);
+static void saybibi(void);
+static int wctxpn(char *name);
+static int wctx(long flen);
+static int zsendfile(char *buf, int blen);
+static int wcputsec(char *buf, int sectnum, int cseclen);
+static int filbuf(char *buf, int count);
+static void purgeline(void);
+static int sendzsinit(void);
+static int zsendfdata(void);
+static int getinsync(int flag);
+
 #ifdef XARGSFILE
 char *
 mystrsave(s)
@@ -314,11 +332,12 @@ STATIC int Zrwindow = 1400;	/* RX window size (controls garbage count) */
 char *xargv[XARGSMAX+1];
 #endif
 
+int
 main(argc, argv)
 char *argv[];
 {
 	register char *cp;
-	register npats;
+	int npats;
 	int dm;
 	char **patts;
 	static char xXbuf[BUFSIZ];
@@ -555,10 +574,11 @@ char *argv[];
 	/*NOTREACHED*/
 }
 
+int
 wcsend(argc, argp)
 char *argp[];
 {
-	register n;
+	int n;
 
 	Crcflg=FALSE;
 	firstsec=TRUE;
@@ -597,10 +617,11 @@ char *argp[];
 	return OK;
 }
 
+int
 wcs(oname)
 char *oname;
 {
-	register c;
+	int c;
 	register char *p, *q;
 #ifdef STAT
 	struct stat f;
@@ -706,6 +727,7 @@ char *oname;
  *  as provided by the Unix fstat call.
  *  N.B.: modifies the passed name, may extend it!
  */
+int
 wctxpn(name)
 char *name;
 {
@@ -800,9 +822,10 @@ char *name;
 	return OK;
 }
 
+int
 getnak()
 {
-	register firstch;
+	int firstch;
 
 	Lastrx = 0;
 	for (;;) {
@@ -835,7 +858,7 @@ getnak()
 	}
 }
 
-
+int
 wctx(flen)
 long flen;
 {
@@ -861,7 +884,7 @@ long flen;
 	for (;;) {
 		if (flen <= (charssent + 896L))
 			thisblklen = 128;
-		if ( !filbuf(txbuf, thisblklen))
+		if (!filbuf(txbuf, thisblklen))
 			break;
 		if (wcputsec(txbuf, ++sectnum, thisblklen)==ERROR)
 			return ERROR;
@@ -884,12 +907,13 @@ long flen;
 		return OK;
 }
 
+int
 wcputsec(buf, sectnum, cseclen)
 char *buf;
 int sectnum;
 int cseclen;	/* data length of this sector to send */
 {
-	register checksum, wcj;
+	int checksum, wcj;
 	register char *cp;
 	unsigned oldcrc;
 	int firstch;
@@ -964,10 +988,11 @@ cancan:
 }
 
 /* fill buf with count chars padding with ^Z for CPM */
+int
 filbuf(buf, count)
 register char *buf;
 {
-	register c, m;
+	int c, m;
 
 	if ( !Ascii) {
 		m = read(fileno(in), buf, count);
@@ -1001,6 +1026,7 @@ register char *buf;
 }
 
 /* Fill buffer with blklen chars */
+int
 zfilbuf()
 {
 	int n;
@@ -1044,6 +1070,7 @@ zfilbuf()
 
 #ifdef TXBSIZE
 /* Replacement for brain damaged fseek function.  Returns 0==success */
+int
 fooseek(fptr, pos, whence)
 FILE *fptr;
 long pos;
@@ -1134,14 +1161,14 @@ long pos;
 #define fseek fooseek
 #endif
 
-
 /* VARARGS1 */
-vfile(f, a, b, c, d)
-char *f;
-long a, b, c, d;
+void
+vfile(char *f, ...)
 {
 	if (Verbose > 2) {
-		fprintf(stderr, f, a, b, c, d);
+		va_list args;
+		va_start(args, f);
+		vfprintf(stderr, f, args);
 		fprintf(stderr, "\n");
 	}
 }
@@ -1158,7 +1185,9 @@ alrm(sig)
  * readline(timeout) reads character(s) from file descriptor 0
  * timeout is in tenths of seconds
  */
+int
 readline(timeout)
+unsigned timeout;
 {
 	register int c;
 	static char byt[1];
@@ -1184,12 +1213,13 @@ readline(timeout)
 	return (byt[0]&0377);
 }
 
+void
 flushmo()
 {
 	fflush(stdout);
 }
 
-
+void
 purgeline()
 {
 #ifdef USG
@@ -1202,6 +1232,7 @@ purgeline()
 #endif
 
 /* send cancel string to get the other end to shut up */
+void
 canit()
 {
 	static char canistr[] = {
@@ -1212,7 +1243,7 @@ canit()
 	raw_wbuf(strlen(canistr), canistr);
 	purgeline();
 #else
-	printf(canistr);
+	fputs(canistr, stdout);
 	fflush(stdout);
 #endif
 }
@@ -1222,13 +1253,16 @@ canit()
  * Log an error
  */
 /*VARARGS1*/
-zperr(s,p,u)
-char *s, *p, *u;
+void
+zperr(char *s, ...)
 {
 	if (Verbose <= 0)
 		return;
+
+	va_list args;
+	va_start(args, s);
 	fprintf(stderr, "Retry %d: ", errors);
-	fprintf(stderr, s, p, u);
+	fprintf(stderr, s, args);
 	fprintf(stderr, "\n");
 }
 
@@ -1307,6 +1341,7 @@ char *babble[] = {
 	""
 };
 
+void
 usage()
 {
 	char **pp;
@@ -1323,9 +1358,10 @@ usage()
 /*
  * Get the receiver's init parameters
  */
+int
 getzrxinit()
 {
-	register n;
+	int n;
 #ifdef STAT
 	struct stat f;
 #endif
@@ -1462,9 +1498,10 @@ getzrxinit()
 }
 
 /* Send send-init information */
+int
 sendzsinit()
 {
-	register c;
+	int c;
 
 	if (Myattn[0] == '\0' && (!Zctlesc || (Rxflags & TESCCTL)))
 		return OK;
@@ -1495,10 +1532,11 @@ sendzsinit()
 }
 
 /* Send file name and related info */
+int
 zsendfile(buf, blen)
 char *buf;
 {
-	register c;
+	int c;
 	register UNSL long crc;
 	long lastcrcrq = -1;
 	char *p;
@@ -1585,10 +1623,11 @@ again:
 }
 
 /* Send the data in the file */
+int
 zsendfdata()
 {
-	register c, e, n;
-	register newcnt;
+	int c, e, n;
+	int newcnt;
 	register long tcount = 0;
 	int junkcount;		/* Counts garbage chars received by TX */
 	static int tleft = 6;	/* Counter for test mode */
@@ -1656,7 +1695,7 @@ gotack:
 	if (Test) {
 		if ( --tleft)
 			while (tcount < 20000) {
-				printf(qbf); fflush(stdout);
+				fputs(qbf, stdout); fflush(stdout);
 				tcount += strlen(qbf);
 #ifdef READCHECK
 				while (rdchk(0)) {
@@ -1787,9 +1826,10 @@ gotack:
 /*
  * Respond to receiver's complaint, get back in sync with receiver
  */
+int
 getinsync(flag)
 {
-	register c;
+	int c;
 
 	for (;;) {
 		if (Test) {
@@ -1839,8 +1879,8 @@ getinsync(flag)
 	}
 }
 
-
 /* Say "bibi" to the receiver, try to do it cleanly */
+void
 saybibi()
 {
 	for (;;) {
@@ -1857,6 +1897,7 @@ saybibi()
 }
 
 /* Local screen character display function */
+void
 bttyout(c)
 {
 	if (Verbose)
@@ -1864,10 +1905,11 @@ bttyout(c)
 }
 
 /* Send command and related info */
+int
 zsendcmd(buf, blen)
 char *buf;
 {
-	register c;
+	int c;
 	long cmdnum;
 
 #ifdef GENIE
@@ -1925,6 +1967,7 @@ listen:
 /*
  * If called as sb use YMODEM protocol
  */
+void
 chkinvok(s)
 char *s;
 {
@@ -1949,10 +1992,11 @@ char *s;
 }
 
 #ifdef STAT
+void
 countem(argc, argv)
 register char **argv;
 {
-	register c;
+	int c;
 	struct stat f;
 
 	for (Totalleft = 0, Filesleft = 0; --argc >=0; ++argv) {
@@ -1975,10 +2019,11 @@ register char **argv;
 		  Filesleft, Totalleft);
 }
 #else
+void
 countem(argc, argv)
 register char **argv;
 {
-	register c;
+	int c;
 	register char *p;
 	long size;
 
@@ -2015,9 +2060,10 @@ register char **argv;
 }
 #endif
 
+void
 chartest(m)
 {
-	register n;
+	int n;
 
 	mode(m);
 	printf("\r\n\nCharacter Transparency Test Mode %d\r\n", m);

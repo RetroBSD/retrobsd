@@ -1,0 +1,18 @@
+void bibi (int);
+void vfile(char *f, ...);
+void flushmo(void);
+void zsendline(int c);
+void zsdar32(char *buf, int length, int frameend);
+int zrdatr32(char *buf, int length);
+int zdlread(void);
+void zperr(char *s, ...);
+int readline(unsigned timeout);
+void bttyout(int c);
+char *substr(char *s, char *t);
+void chkinvok(char *s);
+void usage(void);
+int wcrxpn(char *rpn);
+int procheader(char *name);
+int wcrx(void);
+int wcgetsec(char *rxbuf, int maxtime);
+int putsec(char *buf, int n);

@@ -160,6 +160,11 @@ struct	special {
 char	*arg;
 char	*Nfmt = "%-8s";
 
+static void prmodes(int all);
+static void pit(struct special *sp);
+static int eq(char *string);
+
+int
 main(argc, argv)
 	int	argc;
 	register char	**argv;
@@ -328,6 +333,7 @@ done:
 	}
 }
 
+int
 eq(string)
 char *string;
 {
@@ -344,10 +350,11 @@ char *string;
 		fprintf(stderr, str + ((lmode & what) != 0)); any++; \
 	}
 
+void
 prmodes(all)
 	int	all;		/* 0 for short display, !0 for long display */
 {
-	register m;
+	int m;
 	int any, i;
 	register struct special *sp;
 
@@ -455,6 +462,7 @@ prmodes(all)
 	}
 }
 
+void
 pit(sp)
 	struct special *sp;
 {

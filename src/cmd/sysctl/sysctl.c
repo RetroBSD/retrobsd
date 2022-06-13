@@ -51,6 +51,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <unistd.h>
 
 struct ctlname topname[] = CTL_NAMES;
 struct ctlname kernname[] = CTL_KERN_NAMES;
@@ -96,6 +97,12 @@ extern int optind, errno;
 #define	CLOCK		0x0001
 #define	BOOTTIME	0x0002
 #define	CONSDEV		0x0004
+
+static void usage(void);
+static void debuginit(void);
+static void listall(char *prefix, struct list *lp);
+static void parse(char *string, int flags);
+static int findname(char *string, char *level, char **bufp, struct list *namelist);
 
 int
 main(argc, argv)
@@ -146,6 +153,7 @@ main(argc, argv)
 /*
  * List all variables known to the system.
  */
+void
 listall(prefix, lp)
 	char *prefix;
 	struct list *lp;
@@ -171,11 +179,13 @@ listall(prefix, lp)
  * Lookup and print out the MIB entry if it exists.
  * Set a new value if requested.
  */
+void
 parse(string, flags)
 	char *string;
 	int flags;
 {
-	int indx, type, state, size, len;
+	int indx, type, state, len;
+	size_t size;
 	int special = 0;
 	void *newval = (void *)0;
 	int intval, newsize = 0;
@@ -430,9 +440,11 @@ doit:
 /*
  * Initialize the set of debugging names
  */
+void
 debuginit()
 {
-	int mib[3], size, loc, i;
+	int mib[3], loc, i;
+	size_t size;
 
 	if (secondlevel[CTL_DEBUG].list != 0)
 		return;
@@ -480,6 +492,7 @@ struct list inetvars[] = {
 /*
  * handle internet requests
  */
+int
 sysctl_inet(string, bufpp, mib, flags, typep)
 	char *string;
 	char **bufpp;
@@ -521,6 +534,7 @@ sysctl_inet(string, bufpp, mib, flags, typep)
 /*
  * Scan a list of names searching for a particular name.
  */
+int
 findname(string, level, bufp, namelist)
 	char *string;
 	char *level;
@@ -546,9 +560,9 @@ findname(string, level, bufp, namelist)
 	return (i);
 }
 
+void
 usage()
 {
-
 	(void)fprintf(stderr, "usage:\t%s\n\t%s\n\t%s\n\t%s\n",
 	    "sysctl [-n] variable ...", "sysctl [-n] -w variable=value ...",
 	    "sysctl [-n] -a", "sysctl [-n] -A");

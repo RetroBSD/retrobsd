@@ -42,6 +42,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "operators.h"
 
@@ -84,7 +85,11 @@ extern char binary_op[][4];
 extern char andor_op[][4];
 extern int op_priority[];
 extern int op_argflag[];
-extern long atol();
+
+static int expr_is_false(struct value *val);
+static int posix_unary_op(char **argv);
+static int posix_binary_op(char **argv);
+static int lookup_op(char *name, char table[][4]);
 
 /*
  * Execute an operator.  Op is the operator.  Sp is the stack pointer;
@@ -279,6 +284,7 @@ overflow()
 	err(2, "expression is too complex");
 }
 
+int
 main(argc, argv)
 	int argc;
 	char *argv[];
@@ -423,7 +429,7 @@ main(argc, argv)
 						    valsp->u.num);
 #else
 						(void)sprintf(p,
-						    "%d", valsp->u.num);
+						    "%ld", valsp->u.num);
 #endif
 						valsp->u.string = p;
 					} else if (valsp->type == BOOLEAN) {
@@ -492,18 +498,16 @@ expr_is_false(val)
 int
 lookup_op(name, table)
 	char *name;
-	char *table;
+	char table[][4];
 {
-	char *tp;
 	char c;
 	int  i;
 
 	c = name[1];
-	tp = table;
-	for(i = 0; strcmp((char *)(tp + i),"ZZZ") ; i=i+4){
-		if ((char)(tp + i)[1] == c && !strcmp((char *)(tp + i), name))
-			return (i/4);
-		}
+	for (i = 0; strcmp(table[i], "ZZZ"); i++) {
+		if (table[i][1] == c && strcmp(table[i], name) == 0)
+			return i;
+	}
 	return (-1);
 }
 

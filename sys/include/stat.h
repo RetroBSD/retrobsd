@@ -96,9 +96,10 @@ struct  stat
 #define IMMUTABLE       (UF_IMMUTABLE | SF_IMMUTABLE)
 #else
 
-int     chmod (const char *path, mode_t mode);
-int     fchmod (int fd, mode_t mode);
-mode_t  umask (mode_t cmask);
+int     chmod(const char *path, mode_t mode);
+int     fchmod(int fd, mode_t mode);
+mode_t  umask(mode_t cmask);
+int     mkdir(const char *path, mode_t mode);
 
 #endif
 

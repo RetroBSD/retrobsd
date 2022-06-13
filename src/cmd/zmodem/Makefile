@@ -9,19 +9,19 @@ CFLAGS		+= -Werror -DV7 -DMD=2 -DTXBSIZE=4096  -DNFGVMIN -DSEGMENTS=2
 
 SRCS		= rz.c sz.c
 OBJS		= rz.o sz.o
-MAN		    = rz.0 sz.0
+MAN		= rz.0 sz.0
 MANSRC		= rz.1 sz.1
 
 all:            rz sz $(MAN)
 
 rz:             rz.o
-		$(CC) $(LDFLAGS) -o rz.elf $< $(LIBS)
+		$(LD) $(LDFLAGS) -o rz.elf $< $(LIBS)
 		$(OBJDUMP) -S rz.elf > rz.dis
 		$(SIZE) rz.elf
 		$(ELF2AOUT) rz.elf $@ && rm rz.elf
 
 sz:             sz.o
-		$(CC) $(LDFLAGS) -o sz.elf $< $(LIBS)
+		$(LD) $(LDFLAGS) -o sz.elf $< $(LIBS)
 		$(OBJDUMP) -S sz.elf > sz.dis
 		$(SIZE) sz.elf
 		$(ELF2AOUT) sz.elf $@ && rm sz.elf

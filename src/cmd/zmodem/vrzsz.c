@@ -129,7 +129,7 @@ char *Rxcdq = Rxlbuf;	/* pointer for removing chars from Rxlbuf */
  *
  * timeout is in tenths of seconds
  */
-
+int
 readline(timeout)
 int timeout;
 {
@@ -224,7 +224,7 @@ flushmoc()
 /*
  *  Wait for the modem line outbuffer to drain
  */
-flushmo()
+void flushmo()
 {
 	fflush(stdout);
 	flushmoc();

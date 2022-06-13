@@ -102,6 +102,7 @@
 #include <setjmp.h>
 #include <ctype.h>
 #include <errno.h>
+#include <stdarg.h>
 
 #define OK 0
 #define FALSE 0
@@ -117,7 +118,7 @@
 #define HOWMANY 133
 #endif
 
-// PITO: 
+// PITO:
 #define readline_timeout 1
 
 /* Ward Christensen / CP/M parameters - Don't change these! */
@@ -152,7 +153,6 @@ unsigned Effbaud = 2400;
 #endif
 #include "crctab.c"
 
-char *substr();
 FILE *fout;
 
 /*
@@ -206,7 +206,6 @@ char secbuf[1025];
 
 char linbuf[HOWMANY];
 int Lleft=0;		/* number of characters in linbuf */
-time_t timep[2];
 char Lzmanag;		/* Local file management request */
 char zconv;		/* ZMODEM file conversion request */
 char zmanag;		/* ZMODEM file management request */
@@ -216,6 +215,23 @@ int Zctlesc;		/* Encode control characters */
 int Zrwindow = 1400;	/* RX window size (controls garbage count) */
 
 jmp_buf tohere;		/* For the interrupt on RX timeout */
+
+static void zmputs(char *s);
+static void canit(void);
+static int wcreceive(int argc, char **argp);
+static int tryz(void);
+static int rzfiles(void);
+static void checkpath(char *name);
+static void report(int sct);
+static int closeit(void);
+static int IsAnyLower(char *s);
+static void uncaps(char *s);
+static int make_dirs(char *pathname);
+static int sys2(char *s);
+static void ackbibi(void);
+static void exec2(char *s);
+static int rzfile(void);
+static void sendline(int c);
 
 #define xsendline(c) sendline(c)
 
@@ -243,13 +259,13 @@ bibi(n)
 	exit(128+n);
 }
 
+int
 main(argc, argv)
 char *argv[];
 {
 	register char *cp;
-	register npats;
+	int npats;
 	char *virgin, **patts;
-	char *getenv();
 	int exitcode;
 
 	Rxtimeout = 100;
@@ -358,7 +374,7 @@ char *argv[];
 	exit(exitcode ? exitcode:SS_NORMAL);
 }
 
-
+void
 usage()
 {
 	cucheck();
@@ -371,30 +387,32 @@ usage()
 #ifndef vax11c
 	fprintf(stderr,"	  -c Use 16 bit CRC	(XMODEM)\n");
 #endif
-    fprintf(stderr,"	  -D Output file to /dev/null\n");
+	fprintf(stderr,"	  -D Output file to /dev/null\n");
 	fprintf(stderr,"	  -e Escape control characters	(ZMODEM)\n");
-    fprintf(stderr,"	  -p Skip file if destination exists\n");
-    fprintf(stderr,"	  -q Quiet suppresses verbosity\n");
-    fprintf(stderr,"	  -t tim Change Rxtimeout to tim tenths of seconds (10-1000)\n");
+	fprintf(stderr,"	  -p Skip file if destination exists\n");
+	fprintf(stderr,"	  -q Quiet suppresses verbosity\n");
+	fprintf(stderr,"	  -t tim Change Rxtimeout to tim tenths of seconds (10-1000)\n");
 	fprintf(stderr,"	  -u Do not make file pathnames lower case \n");
 	fprintf(stderr,"	  -w n Rx window size to n bytes (ZMODEM)\n");
 	fprintf(stderr,"	  -v Verbose more v's give more info\n");
 	fprintf(stderr,"	  -y Yes, clobber existing file if any\n");
 	fprintf(stderr,"%s %s for %s by Chuck Forsberg, Omen Technology INC\n",
-	  Progname, VERSION, OS);
+		Progname, VERSION, OS);
 	fprintf(stderr, "\t\t\042The High Reliability Software\042\n");
 	exit(SS_NORMAL);
 }
+
 /*
  *  Debugging information output interface routine
  */
 /* VARARGS1 */
-vfile(f, a, b, c, d)
-char *f;
-long a, b, c, d;
+void
+vfile(char *f, ...)
 {
 	if (Verbose > 2) {
-		fprintf(stderr, f, a, b, c, d);
+		va_list args;
+		va_start(args, f);
+		vfprintf(stderr, f, args);
 		fprintf(stderr, "\n");
 	}
 }
@@ -406,16 +424,17 @@ long a, b, c, d;
 char *rbmsg =
 "%s ready. To begin transfer, type \"%s file ...\" to your modem program\r\n\n";
 
+int
 wcreceive(argc, argp)
 char **argp;
 {
-	register c;
+	int c;
 
 	if (Batch || argc==0) {
 		Crcflg=1;
 		if ( !Quiet)
 			fprintf(stderr, rbmsg, Progname, Nozmodem?"sb":"sz");
-		if (c=tryz()) {
+		if ((c = tryz())) {
 			if (c == ZCOMPL)
 				return OK;
 			if (c == ERROR)
@@ -471,10 +490,11 @@ fubar:
  * Length is indeterminate as long as less than Blklen
  * A null string represents no more files (YMODEM)
  */
+int
 wcrxpn(rpn)
 char *rpn;	/* receive a pathname */
 {
-	register c;
+	int c;
 
 #ifdef NFGVMIN
 	readline(readline_timeout);
@@ -504,7 +524,7 @@ et_tu:
  * Adapted from CMODEM13.C, written by
  * Jack M. Wierda and Roderick W. Hart
  */
-
+int
 wcrx()
 {
 	register int sectnum, sectcurr;
@@ -518,14 +538,14 @@ wcrx()
 	for (;;) {
 		sendline(sendchar);	/* send it now, we're ready! */
 		Lleft=0;	/* Do read next time ... */
-		sectcurr=wcgetsec(secbuf, (sectnum&0177)?50:130);  
+		sectcurr=wcgetsec(secbuf, (sectnum&0177)?50:130);
 		report(sectcurr);
 		if (sectcurr==(sectnum+1 &0377)) {
 			sectnum++;
 			cblklen = Bytesleft>Blklen ? Blklen:Bytesleft;
 			if (putsec(secbuf, cblklen)==ERROR)
 				return ERROR;
-			if ((Bytesleft-=cblklen) < 0)
+			if ((Bytesleft -= cblklen) < 0)
 				Bytesleft = 0;
 			sendchar=ACK;
 		}
@@ -558,12 +578,12 @@ wcrx()
  ***************** NO ACK IS SENT IF SECTOR IS RECEIVED OK **************
  *    (Caller must do that when he is good and ready to get next sector)
  */
-
+int
 wcgetsec(rxbuf, maxtime)
 char *rxbuf;
 int maxtime;
 {
-	register checksum, wcj, firstch;
+	int checksum, wcj, firstch;
 	register unsigned short oldcrc;
 	register char *p;
 	int sectcurr;
@@ -643,7 +663,7 @@ humbug:
 			sendline(Crcflg?WANTCRC:NAK);
 			Lleft=0;	/* Do read next time ... */
 		} else {
-			maxtime=40; sendline(NAK);  
+			maxtime=40; sendline(NAK);
 			Lleft=0;	/* Do read next time ... */
 		}
 	}
@@ -660,13 +680,14 @@ humbug:
  *
  * timeout is in tenths of seconds
  */
+int
 readline(timeout)
 unsigned int timeout;
 {
 	unsigned int n;
-    register char *p;
+	register char *p;
 	static char *cdq;	/* pointer for removing chars from linbuf */
-    int c;
+	int c;
 
 	if (--Lleft >= 0) {
 		if (Verbose > 8) {
@@ -719,11 +740,10 @@ unsigned int timeout;
 	return (*cdq++ & 0377);
 }
 
-
-
 /*
  * Purge the modem input queue of all characters
  */
+void
 purgeline()
 {
 	Lleft = 0;
@@ -735,10 +755,10 @@ purgeline()
 }
 #endif
 
-
 /*
  * Process incoming file information header
  */
+int
 procheader(name)
 char *name;
 {
@@ -853,6 +873,7 @@ char *name;
  * it's because some required directory was not present, and if
  * so, create all required dirs.
  */
+int
 make_dirs(pathname)
 register char *pathname;
 {
@@ -948,9 +969,10 @@ int dmode;
  *  If not in binary mode, carriage returns, and all characters
  *  starting with CPMEOF are discarded.
  */
+int
 putsec(buf, n)
 char *buf;
-register n;
+int n;
 {
 	register char *p;
 
@@ -979,6 +1001,7 @@ register n;
 /*
  *  Send a character to modem.  Small is beautiful.
  */
+void
 sendline(c)
 {
 	char d;
@@ -989,14 +1012,11 @@ sendline(c)
 	write(1, &d, 1);
 }
 
-flushmo() {}
+void flushmo() {}
 #endif
 
-
-
-
-
 /* make string s lower case */
+void
 uncaps(s)
 register char *s;
 {
@@ -1004,9 +1024,11 @@ register char *s;
 		if (isupper(*s))
 			*s = tolower(*s);
 }
+
 /*
  * IsAnyLower returns TRUE if string s has lower case letters.
  */
+int
 IsAnyLower(s)
 register char *s;
 {
@@ -1042,17 +1064,20 @@ register char *s,*t;
  * Log an error
  */
 /*VARARGS1*/
-zperr(s,p,u)
-char *s, *p, *u;
+void zperr(char *s, ...)
 {
 	if (Verbose <= 0)
 		return;
+
+	va_list args;
+	va_start(args, s);
 	fprintf(stderr, "Retry %d: ", errors);
-	fprintf(stderr, s, p, u);
+	vfprintf(stderr, s, args);
 	fprintf(stderr, "\n");
 }
 
 /* send cancel string to get the other end to shut up */
+void
 canit()
 {
 	static char canistr[] = {
@@ -1063,13 +1088,13 @@ canit()
 	raw_wbuf(strlen(canistr), canistr);
 	purgeline();
 #else
-	printf(canistr);
+	fputs(canistr, stdout);
 	Lleft=0;	/* Do read next time ... */
 	fflush(stdout);
 #endif
 }
 
-
+void
 report(sct)
 int sct;
 {
@@ -1082,6 +1107,7 @@ int sct;
  * If called as [-][dir/../]rzCOMMAND set the pipe flag
  * If called as rb use YMODEM protocol
  */
+void
 chkinvok(s)
 char *s;
 {
@@ -1110,6 +1136,7 @@ char *s;
 /*
  * Totalitarian Communist pathname processing
  */
+void
 checkpath(name)
 char *name;
 {
@@ -1135,10 +1162,11 @@ char *name;
  *  Return ZFILE if Zmodem filename received, -1 on error,
  *   ZCOMPL if transaction finished,  else 0
  */
+int
 tryz()
 {
-	register c, n;
-	register cmdzack1flg;
+	int c, n;
+	int cmdzack1flg;
 
 	if (Nozmodem)		/* Check for "rb" program name */
 		return 0;
@@ -1238,9 +1266,10 @@ again:
 /*
  * Receive 1 or more files with ZMODEM protocol
  */
+int
 rzfiles()
 {
-	register c;
+	int c;
 
 	for (;;) {
 		switch (c = rzfile()) {
@@ -1265,11 +1294,12 @@ rzfiles()
 
 /*
  * Receive a file with ZMODEM protocol
- *  Assumes file name frame is in secbuf
+ * Assumes file name frame is in secbuf
  */
+int
 rzfile()
 {
-	register c, n;
+	int c, n;
 	long rxbytes;
 
 	Eofseen=FALSE;
@@ -1448,10 +1478,11 @@ moredata:
  * Send a string to the modem, processing for \336 (sleep 1 sec)
  *   and \335 (break signal)
  */
+void
 zmputs(s)
 char *s;
 {
-	register c;
+	int c;
 
 	while (*s) {
 		switch (c = *s++) {
@@ -1468,10 +1499,9 @@ char *s;
 /*
  * Close the receive dataset, return OK or ERROR
  */
+int
 closeit()
 {
-	time_t time();
-
 #ifndef vax11c
 	if (Topipe) {
 		if (pclose(fout)) {
@@ -1486,9 +1516,14 @@ closeit()
 	}
 #ifndef vax11c
 	if (Modtime) {
-		timep[0] = time(NULL);
-		timep[1] = Modtime;
-		utime(Pathname, timep);
+		struct timeval tv[2];
+
+		tv[0].tv_sec = time(NULL);
+		tv[0].tv_usec = 0;
+		tv[1].tv_sec = Modtime;
+		tv[1].tv_usec = 0;
+
+		utimes(Pathname, tv);
 	}
 #endif
 	if ((Filemode&S_IFMT) == S_IFREG)
@@ -1499,9 +1534,10 @@ closeit()
 /*
  * Ack a ZFIN packet, let byegones be byegones
  */
+void
 ackbibi()
 {
-	register n;
+	int n;
 
 	vfile("ackbibi:");
 	Readnum = 1;
@@ -1523,11 +1559,10 @@ ackbibi()
 	}
 }
 
-
-
 /*
  * Local console output simulation
  */
+void
 bttyout(c)
 {
 	if (Verbose || Fromcu)
@@ -1538,6 +1573,7 @@ bttyout(c)
 /*
  * Strip leading ! if present, do shell escape.
  */
+int
 sys2(s)
 register char *s;
 {
@@ -1545,9 +1581,11 @@ register char *s;
 		++s;
 	return system(s);
 }
+
 /*
  * Strip leading ! if present, do exec.
  */
+void
 exec2(s)
 register char *s;
 {

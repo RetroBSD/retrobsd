@@ -11,13 +11,13 @@
  *	zrdata(buf, len) receive data
  *	stohdr(pos) store position data in Txhdr
  *	long rclhdr(hdr) recover position offset from header
- * 
+ *
  *
  *	This version implements numerous enhancements including ZMODEM
  *	Run Length Encoding and variable length headers.  These
  *	features were not funded by the original Telenet development
  *	contract.
- * 
+ *
  * This software may be freely used for non commercial and
  * educational (didactic only) purposes.  This software may also
  * be freely used to support file transfer operations to or from
@@ -25,7 +25,7 @@
  * part or all of this software must be provided in source form
  * with this notice intact except by written permission from Omen
  * Technology Incorporated.
- * 
+ *
  * Use of this software for commercial or administrative purposes
  * except when exclusively limited to interfacing Omen Technology
  * products requires a per port license payment of $20.00 US per
@@ -75,8 +75,8 @@ int Znulls;		/* Number of nulls to send at beginning of ZDATA hdr */
 char Attn[ZATTNLEN+1];	/* Attention string rx sends to tx on err */
 char *Altcan;		/* Alternate canit string */
 
-static lastsent;	/* Last char we sent */
-static Not8bit;		/* Seven bits seen on header */
+static int lastsent;	/* Last char we sent */
+static int Not8bit;	/* Seven bits seen on header */
 
 static char *frametypes[] = {
 	"No Response to Error Correction Request",	/* -4 */
@@ -111,7 +111,20 @@ static char *frametypes[] = {
 
 static char badcrc[] = "Bad CRC";
 
+static void zsbh32(int len, char *hdr, int type, int flavour);
+static void zputhex(int c);
+static void zsda32(char *buf, int length, int frameend);
+static int zrdat32(char *buf, int length);
+static void garbitch(void);
+static int noxrd7(void);
+static int zrbhd32(char *hdr);
+static int zrbhdr(char *hdr);
+static int zgethex(void);
+static int zrhhdr(char *hdr);
+static int zgeth1(void);
+
 /* Send ZMODEM binary header hdr of type type */
+void
 zsbhdr(len, type, hdr)
 register char *hdr;
 {
@@ -156,16 +169,16 @@ register char *hdr;
 		flushmo();
 }
 
-
 /* Send ZMODEM binary header hdr of type type */
+void
 zsbh32(len, hdr, type, flavour)
 register char *hdr;
 {
 	register int n;
 	register UNSL long crc;
 
-	xsendline(flavour); 
-	if (Usevhdrs) 
+	xsendline(flavour);
+	if (Usevhdrs)
 		zsendline(len);
 	zsendline(type);
 	crc = 0xFFFFFFFFL; crc = UPDC32(type, crc);
@@ -182,6 +195,7 @@ register char *hdr;
 }
 
 /* Send ZMODEM HEX header hdr of type type */
+void
 zshhdr(len, type, hdr)
 register char *hdr;
 {
@@ -223,6 +237,8 @@ register char *hdr;
  * Send binary array buf of length length, with ending ZDLE sequence frameend
  */
 static char *Zendnames[] = { "ZCRCE", "ZCRCG", "ZCRCQ", "ZCRCW"};
+
+void
 zsdata(buf, length, frameend)
 register char *buf;
 {
@@ -252,6 +268,7 @@ register char *buf;
 	}
 }
 
+void
 zsda32(buf, length, frameend)
 register char *buf;
 {
@@ -281,6 +298,7 @@ register char *buf;
  *  and CRC.  Returns the ending character or error code.
  *  NB: On errors may store length+1 bytes!
  */
+int
 zrdata(buf, length)
 register char *buf;
 {
@@ -336,13 +354,14 @@ crcfoo:
 		crc = updcrc(c, crc);
 	}
 #ifdef DSZ
-	garbitch(); 
+	garbitch();
 #else
 	zperr("Data subpacket too long");
 #endif
 	return ERROR;
 }
 
+int
 zrdat32(buf, length)
 register char *buf;
 {
@@ -401,6 +420,7 @@ crcfoo:
 	return ERROR;
 }
 
+void
 garbitch()
 {
 	zperr("Garbled data subpacket");
@@ -418,6 +438,7 @@ garbitch()
  *   Otherwise return negative on error.
  *   Return ERROR instantly if ZCRCW sequence, for fast error recovery.
  */
+int
 zgethdr(hdr, eflag)
 char *hdr;
 {
@@ -583,6 +604,7 @@ fifi:
 }
 
 /* Receive a binary style header (type and position) */
+int
 zrbhdr(hdr)
 register char *hdr;
 {
@@ -618,6 +640,7 @@ register char *hdr;
 }
 
 /* Receive a binary style header (type and position) with 32 bit FCS */
+int
 zrbhd32(hdr)
 register char *hdr;
 {
@@ -660,8 +683,8 @@ register char *hdr;
 	return Rxtype;
 }
 
-
 /* Receive a hex style header (type and position) */
+int
 zrhhdr(hdr)
 char *hdr;
 {
@@ -694,7 +717,7 @@ char *hdr;
 		Not8bit = c;
 		/* **** FALL THRU TO **** */
 	case 015:
-	 	/* Throw away possible cr/lf */
+		/* Throw away possible cr/lf */
 		switch (c = readline(2)) {
 		case 012:
 			Not8bit |= c;
@@ -710,6 +733,7 @@ char *hdr;
 }
 
 /* Send a byte as two hex digits */
+void
 zputhex(c)
 register int c;
 {
@@ -727,6 +751,7 @@ register int c;
  * Send character c with ZMODEM escape sequence encoding.
  *  Escape XON, XOFF. Escape CR following @ (Telenet net escape)
  */
+void
 zsendline(c)
 {
 
@@ -766,6 +791,7 @@ zsendline(c)
 }
 
 /* Decode two lower case hex digits into an 8 bit byte value */
+int
 zgethex()
 {
 	register int c;
@@ -777,6 +803,8 @@ zgethex()
 #endif
 	return c;
 }
+
+int
 zgeth1()
 {
 	register int c, n;
@@ -803,6 +831,7 @@ zgeth1()
  * Read a byte, checking for ZMODEM escape encoding
  *  including CAN*5 which represents a quick abort
  */
+int
 zdlread()
 {
 	register int c;
@@ -868,6 +897,7 @@ again2:
  * Read a character from the modem line with timeout.
  *  Eat parity, XON and XOFF characters.
  */
+int
 noxrd7()
 {
 	register int c;
@@ -891,6 +921,7 @@ noxrd7()
 }
 
 /* Store long integer pos in Txhdr */
+void
 stohdr(pos)
 long pos;
 {

@@ -52,7 +52,7 @@ int Locbit = LLITOUT|LDECCTQ;	/* Bit SUPPOSED to disable output
 Howmany must be 255 or less
 #endif
 
-extern void bibi (int);
+#include "decl.h"
 
 /*
  * return 1 iff stdout and stderr are different devices
@@ -60,20 +60,20 @@ extern void bibi (int);
  *  different line
  */
 int Fromcu;		/* Were called from cu or yam */
-from_cu()
+
+void from_cu()
 {
 	struct stat a, b;
 
 	fstat(1, &a); fstat(2, &b);
 	Fromcu = a.st_rdev != b.st_rdev;
-	return;
 }
-cucheck()
+
+void cucheck()
 {
 	if (Fromcu)
 		fprintf(stderr,"Please read the manual page BUGS chapter!\r\n");
 }
-
 
 struct {
 	unsigned baudr;
@@ -111,7 +111,7 @@ int Twostop;		/* Use two stop bits */
 /*
  *  Return non 0 iff something to read from io descriptor f
  */
-rdchk(f)
+int rdchk(f)
 {
 	static long lf;
 
@@ -126,13 +126,15 @@ rdchk(f)
 #include <fcntl.h>
 
 int checked = 0;
+
 /*
  * Nonblocking I/O is a bit different in System V, Release 2
  *  Note: this rdchk vsn throws away a byte, OK for ZMODEM
  *  sender because protocol design anticipates this problem.
  */
 #define EATSIT
-rdchk(f)
+
+int rdchk(f)
 {
 	int lf, savestat;
 	static char bchecked;
@@ -148,19 +150,16 @@ rdchk(f)
 #endif
 #endif
 
-
 static unsigned
 getspeed(code)
 {
-	register n;
+	int n;
 
 	for (n=0; speeds[n].baudr; ++n)
 		if (speeds[n].speedcode == code)
 			return speeds[n].baudr;
 	return 38400;	/* Assume fifo if ioctl failed */
 }
-
-
 
 #ifdef ICANON
 struct termio oldtty, tty;
@@ -176,9 +175,9 @@ struct tchars oldtch, tch;
  *  1: save old tty stat, set raw mode
  *  0: restore original tty mode
  */
-mode(n)
+int mode(n)
 {
-	static did0 = FALSE;
+	static int did0 = FALSE;
 
 	vfile("mode:%d", n);
 	switch(n) {
@@ -320,7 +319,7 @@ mode(n)
 	}
 }
 
-sendbrk()
+void sendbrk()
 {
 #ifdef V7
 #ifdef TIOCSBRK

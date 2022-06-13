@@ -3,11 +3,11 @@
  * Copyright 1988, 1989 Omen Technology Inc All Rights Reserved
  *
  *
- * 
+ *
  * This module implements ZMODEM Run Length Encoding, an
  * extension that was not funded by the original Telenet
  * development contract.
- * 
+ *
  * This software may be freely used for non commercial and
  * educational (didactic only) purposes.  This software may also
  * be freely used to support file transfer operations to or from
@@ -15,7 +15,7 @@
  * part or all of this software must be provided in source form
  * with this notice intact except by written permission from Omen
  * Technology Incorporated.
- * 
+ *
  * Use of this software for commercial or administrative purposes
  * except when exclusively limited to interfacing Omen Technology
  * products requires a per port license payment of $20.00 US per
@@ -38,6 +38,7 @@
  */
 
 /* Send data subpacket RLE encoded with 32 bit FCS */
+void
 zsdar32(buf, length, frameend)
 char *buf;
 {
@@ -95,8 +96,8 @@ char *buf;
 	}
 }
 
-
 /* Receive data subpacket RLE encoded with 32 bit FCS */
+int
 zrdatr32(buf, length)
 register char *buf;
 {
@@ -182,4 +183,3 @@ badpkt:
 	zperr("Data subpacket too long");
 	return ERROR;
 }
-

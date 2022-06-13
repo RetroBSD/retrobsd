@@ -124,15 +124,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 void exit(int);
 int atoi(char*);
 
-size_t strlen(char*);
-char* strcpy(char*, char*);
-char* strchr(char*, int);
-int strcmp(char*, char*);
-int strncmp(char*, char*, size_t);
-void* memmove(void*, void*, size_t);
-void* memcpy(void*, void*, size_t);
+size_t strlen(const char*);
+char* strcpy(char*, const char*);
+char* strchr(const char*, int);
+int strcmp(const char*, const char*);
+int strncmp(const char*, const char*, size_t);
+void* memmove(void*, const void*, size_t);
+void* memcpy(void*, const void*, size_t);
 void* memset(void*, int, size_t);
-int memcmp(void*, void*, size_t);
+int memcmp(const void*, const void*, size_t);
 
 int isspace(int);
 int isdigit(int);
@@ -148,13 +148,13 @@ int fputc(int, FILE*);
 int fgetc(FILE*);
 int puts(char*);
 int fputs(char*, FILE*);
-int sprintf(char*, char*, ...);
+int sprintf(char*, const char*, ...);
 //int vsprintf(char*, char*, va_list);
-int vsprintf(char*, char*, void*);
-int printf(char*, ...);
-int fprintf(FILE*, char*, ...);
+int vsprintf(char*, const char*, void*);
+int printf(const char*, ...);
+int fprintf(FILE*, const char*, ...);
 //int vprintf(char*, va_list);
-int vprintf(char*, void*);
+int vprintf(const char*, void*);
 //int vfprintf(FILE*, char*, va_list);
 int vfprintf(FILE*, char*, void*);
 struct fpos_t_
@@ -8938,7 +8938,7 @@ int ParseStatement(int tok, int BrkCntTarget[2], int casesIdx)
         UndoNonLabelIdents(undoIdents); // remove all identifier names, except those of labels
         SyntaxStackCnt = undoSymbolsPtr; // remove all params and locals
         CurFxnLocalOfs = undoLocalOfs; // destroy on-stack local variables
-      } 
+      }
 #endif
     }
     else if (tok == tokBreak)
@@ -9470,4 +9470,3 @@ int main(int argc, char** argv)
 
   return 0;
 }
-

@@ -152,10 +152,10 @@ int atoi(char* s)
   return r;
 }
 
-unsigned strlen(char* str)
+unsigned strlen(const char* str)
 {
 #ifndef __SMALLER_C_16__
-  char* s;
+  const char* s;
 
   if (str == NULL)
     return 0;
@@ -175,7 +175,7 @@ unsigned strlen(char* str)
 #endif
 }
 
-char* strcpy(char* dst, char* src)
+char* strcpy(char* dst, const char* src)
 {
 #ifndef __SMALLER_C_16__
   char* p = dst;
@@ -196,7 +196,7 @@ char* strcpy(char* dst, char* src)
   return dst;
 }
 
-char* strchr(char* s, int c)
+char* strchr(const char* s, int c)
 {
 #ifndef __SMALLER_C_16__
   char ch = c;
@@ -204,12 +204,12 @@ char* strchr(char* s, int c)
   while (*s)
   {
     if (*s == ch)
-      return s;
+      return (char*)s;
     ++s;
   }
 
   if (!ch)
-    return s;
+    return (char*)s;
 
   return NULL;
 #else
@@ -230,7 +230,7 @@ char* strchr(char* s, int c)
 #endif
 }
 
-int strcmp(char* s1, char* s2)
+int strcmp(const char* s1, const char* s2)
 {
 #ifndef __SMALLER_C_16__
   while (*s1 == *s2)
@@ -259,7 +259,7 @@ int strcmp(char* s1, char* s2)
 #endif
 }
 
-int strncmp(char* s1, char* s2, unsigned n)
+int strncmp(const char* s1, const char* s2, unsigned n)
 {
 #ifndef __SMALLER_C_16__
   if (!n)
@@ -294,11 +294,11 @@ int strncmp(char* s1, char* s2, unsigned n)
 #endif
 }
 
-void* memmove(void* dst, void* src, unsigned n)
+void* memmove(void* dst, const void* src, unsigned n)
 {
 #ifndef __SMALLER_C_16__
   char* d = dst;
-  char* s = src;
+  const char* s = src;
 
   if (s < d)
   {
@@ -337,11 +337,11 @@ void* memmove(void* dst, void* src, unsigned n)
   return dst;
 }
 
-void* memcpy(void* dst, void* src, unsigned n)
+void* memcpy(void* dst, const void* src, unsigned n)
 {
 #ifndef __SMALLER_C_16__
   char* p1 = dst;
-  char* p2 = src;
+  const char* p2 = src;
 
   while (n--)
     *p1++ = *p2++;
@@ -380,11 +380,11 @@ void* memset(void* s, int c, unsigned n)
 }
 
 #ifdef __SMALLER_C_32__
-int memcmp(void* s1, void* s2, unsigned n)
+int memcmp(const void* s1, const void* s2, unsigned n)
 {
   if (n)
   {
-    unsigned char *p1 = s1, *p2 = s2;
+    unsigned const char *p1 = s1, *p2 = s2;
     do
     {
       if (*p1++ != *p2++)
@@ -591,23 +591,23 @@ int __vsprintf__(char** buf, FILE* stream, char* fmt, void* vl)
   return cnt;
 }
 
-int vprintf(char* fmt, void* vl)
+int vprintf(const char* fmt, void* vl)
 {
-  return __vsprintf__(NULL, NULL, fmt, vl);
+  return __vsprintf__(NULL, NULL, (char*)fmt, vl);
 }
 
-int printf(char* fmt, ...)
+int printf(const char* fmt, ...)
 {
   void** pp = (void**)&fmt;
   return vprintf(fmt, pp + 1);
 }
 
-int vsprintf(char* buf, char* fmt, void* vl)
+int vsprintf(char* buf, const char* fmt, void* vl)
 {
-  return __vsprintf__(&buf, NULL, fmt, vl);
+  return __vsprintf__(&buf, NULL, (char*)fmt, vl);
 }
 
-int sprintf(char* buf, char* fmt, ...)
+int sprintf(char* buf, const char* fmt, ...)
 {
   void** pp = (void**)&fmt;
   return vsprintf(buf, fmt, pp + 1);
@@ -1755,4 +1755,3 @@ float __gesf2(float a, float b)
 #endif
 
 #endif /*__APPLE__*/
-

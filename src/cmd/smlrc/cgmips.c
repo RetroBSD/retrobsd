@@ -1210,7 +1210,7 @@ void GenPrep(int* idx)
         xor = '<' ^ '>'; break;
       case tokLEQ:
       case tokGEQ:
-        xor = tokLEQ ^ tokGEQ; break;
+        xor = (int)tokLEQ ^ tokGEQ; break;
       case tokULess:
       case tokUGreater:
         xor = tokULess ^ tokUGreater; break;
@@ -2261,4 +2261,3 @@ void GenFin(void)
   }
 #endif
 }
-

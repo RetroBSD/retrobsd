@@ -29,6 +29,7 @@ OBJS            = adddf3.o \
                   extendsfdf2.o \
                   fixdfsi.o \
                   fixsfsi.o \
+                  fixunssfsi.o \
                   floatsidf.o \
                   floatsisf.o \
                   floatunsisf.o \

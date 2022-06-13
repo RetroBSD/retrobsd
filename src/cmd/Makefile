@@ -24,7 +24,7 @@ SUBDIR         += chown chroot disktool fsck getty init \
                   mkfs mknod mkpasswd mount pstat \
                   reboot shutdown umount update vipw virus
 
-# TODO: ccom lex m4 yacc reloc sre pforth
+# TODO: ccom lex m4 reloc sre pforth
 
 # Shell scripts that need only be installed and are never removed.
 #
@@ -73,7 +73,8 @@ FRC:
 
 # $(STD) $(SETUID) $(KMEM) $(OPERATOR) $(TTY) strip
 %: %.c
-		$(CC) $(CFLAGS) $(LDFLAGS) -o $@.elf $< $(LIBS)
+		$(CC) $(CFLAGS) -c $<
+		$(LD) $(LDFLAGS) -o $@.elf $@.o $(LIBS)
 		$(OBJDUMP) -S $@.elf > $@.dis
 		$(SIZE) $@.elf
 		$(ELF2AOUT) $@.elf $@ && /bin/rm $@.elf

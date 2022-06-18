@@ -20,7 +20,7 @@
 
 int bauds[] = {
     0, 50, 75, 150, 200, 300, 600,
-    1200, 1800, 2400, 4800, 9600, 19200, 
+    1200, 1800, 2400, 4800, 9600, 19200,
     38400, 57600, 115200, 230400, 460800,
     500000, 576000, 921600, 1000000, 1152000,
     1500000, 2000000, 2500000, 3000000,
@@ -28,11 +28,72 @@ int bauds[] = {
 };
 
 int disc = 0; // OTTYDISC;      /* tip normally runs this way */
-void intprompt(int i);
-void    timeout(int i);
-void    cleanup(int i);
-char    *sname();
 char    PNbuf[256];         /* This limits the size of a number */
+
+char *DV;        /* UNIX device(s) to open */
+char *EL;        /* chars marking an EOL */
+char *CM;        /* initial connection message */
+char *IE;        /* EOT to expect on input */
+char *OE;        /* EOT to send to complete FT */
+char *CU;        /* call unit if making a phone call */
+char *AT;        /* acu type */
+char *PN;        /* phone number(s) */
+char *DI;        /* disconnect string */
+char *PA;        /* parity to be generated */
+char *PH;        /* phone number file */
+char *HO;        /* host name */
+int BR;          /* line speed for conversation */
+int FS;          /* frame size for transfers */
+char DU;         /* this host is dialed up */
+char HW;         /* this device is hardwired, see hunt.c */
+char *ES;        /* escape character */
+char *EX;        /* exceptions */
+char *FO;        /* force (literal next) char*/
+char *RC;        /* raise character */
+char *RE;        /* script record file */
+char *PR;        /* remote prompt */
+int DL;          /* line delay for file transfers to remote */
+int CL;          /* char delay for file transfers to remote */
+int ET;          /* echocheck timeout */
+char HD;         /* this host is half duplex - do local echo */
+
+int      vflag;      /* verbose during reading of .tiprc file */
+
+struct sgttyb   arg;        /* current mode of local terminal */
+struct sgttyb   defarg;     /* initial mode of local terminal */
+struct tchars   tchars;     /* current state of terminal */
+struct tchars   defchars;   /* initial state of terminal */
+struct ltchars  ltchars;    /* current local characters of terminal */
+struct ltchars  deflchars;  /* initial local characters of terminal */
+
+FILE    *fscript;    /* FILE for scripting */
+int fildes[2];       /* file transfer synchronization channel */
+int repdes[2];       /* read process sychronization channel */
+int FD;              /* open file descriptor to remote host */
+int AC;              /* open file descriptor to dialer (v831 only) */
+int vflag;           /* print .tiprc initialization sequence */
+int sfd;             /* for ~< operation */
+int pid;             /* pid of tipout */
+uid_t uid, euid;     /* real and effective user id's */
+gid_t gid, egid;     /* real and effective group id's */
+int stop;            /* stop transfer session flag */
+int quit;            /* same; but on other end */
+int intflag;         /* recognized interrupt */
+int stoprompt;       /* for interrupting a prompt session */
+int timedout;        /* ~> transfer timedout */
+int cumode;          /* simulating the "cu" program */
+char fname[80];      /* file name buffer for ~< */
+char copyname[80];   /* file name buffer for ~> */
+char ccc;            /* synchronization character */
+char ch;             /* for tipout */
+char *uucplock;      /* name of lock file for uucp's */
+int odisc;           /* initial tty line discipline */
+int disc;            /* current tty discpline */
+
+void intprompt(int i);
+void timeout(int i);
+void cleanup(int i);
+char *sname();
 
 /*
  * ****TIPIN   TIPIN****

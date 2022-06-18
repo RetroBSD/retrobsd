@@ -155,7 +155,7 @@ acutype(s)
     register acu_t *p;
     extern acu_t acutable[];
 
-    for (p = acutable; p->acu_name != '\0'; p++)
+    for (p = acutable; p->acu_name != NULL; p++)
         if (!strcmp(s, p->acu_name))
             return (p);
     return (NOACU);

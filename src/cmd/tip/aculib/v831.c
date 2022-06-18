@@ -210,17 +210,19 @@ int v831_dialer(num, acu)
 
 void v831_abort()
 {
-
 #ifdef DEBUG
     printf("[abort: AC=%d]\n", AC);
 #endif
     sleep(2);
-    if (child > 0)
+    if (child > 0) {
         kill(child, SIGKILL);
-    if (AC > 0)
+    }
+    if (AC > 0) {
         ioctl(FD, TIOCNXCL, (struct sgttyb *)NULL);
         close(AC);
-    if (FD > 0)
+    }
+    if (FD > 0) {
         ioctl(FD, TIOCCDTR, 0);
+    }
     close(FD);
 }

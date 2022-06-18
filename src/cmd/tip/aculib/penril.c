@@ -141,9 +141,7 @@ sigALRM(int i)
 }
 
 static int
-gobble(match, response)
-    register char match;
-    char response[];
+gobble(char match, char response[])
 {
     register char *cp = response;
     char c;

@@ -14,11 +14,6 @@
  * I'll try to keep a version up to date.  I can be reached as follows:
  * Paul Vixie          <paul@vix.com>          uunet!decwrl!vixie!paul
  */
-
-#if !defined(lint) && defined(DOSCCS)
-static char sccsid[] = "@(#)cron.c 2.11.1 (2.11BSD) 1999/08/05";
-#endif
-
 #define	MAIN_PROGRAM
 
 #include "cron.h"
@@ -138,7 +133,7 @@ static void
 cron_tick(db)
 	cron_db	*db;
 {
- 	register struct tm	*tm = localtime(&TargetTime);
+	register struct tm	*tm = localtime(&TargetTime);
 	register int		minute, hour, dom, month, dow;
 	register user		*u;
 	register entry		*e;
@@ -191,7 +186,7 @@ cron_tick(db)
  */
 static void
 cron_sync() {
- 	register struct tm	*tm;
+	register struct tm	*tm;
 
 	TargetTime = time((time_t*)0);
 	tm = localtime(&TargetTime);

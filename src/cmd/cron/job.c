@@ -14,14 +14,7 @@
  * I'll try to keep a version up to date.  I can be reached as follows:
  * Paul Vixie          <paul@vix.com>          uunet!decwrl!vixie!paul
  */
-
-#if !defined(lint) && !defined(LINT)
-static char rcsid[] = "$Id: job.c,v 1.6 1994/01/15 20:43:43 vixie Exp $";
-#endif
-
-
 #include "cron.h"
-
 
 typedef	struct _job {
 	struct _job	*next;

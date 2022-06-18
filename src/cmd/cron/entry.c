@@ -15,10 +15,6 @@
  * Paul Vixie          <paul@vix.com>          uunet!decwrl!vixie!paul
  */
 
-#if !defined(lint) && defined(DOSCCS)
-static char sccsid[] = "@(#)entry.c 2.12.2 (2.11BSD) 1999/08/05";
-#endif
-
 /* vix 26jan87 [RCS'd; rest of log is in RCS file]
  * vix 01jan87 [added line-level error recovery]
  * vix 31dec86 [added /step to the from-to range, per bob@acornrc]
@@ -26,6 +22,7 @@ static char sccsid[] = "@(#)entry.c 2.12.2 (2.11BSD) 1999/08/05";
  */
 
 #include "cron.h"
+#include <strings.h>
 
 typedef	enum ecode {
 	e_none, e_minute, e_hour, e_dom, e_month, e_dow,
@@ -269,7 +266,7 @@ load_entry(file, error_func, pw, envp)
 	 * too bad we don't know in advance how long it will be, since we
 	 * need to malloc a string for it... so, we limit it to MAX_COMMAND.
 	 * XXX - should use realloc().
-	 */ 
+	 */
 	ch = get_string(cmd, MAX_COMMAND, file, "\n");
 
 	/* a file without a \n before the EOF is rude, so we'll complain...
@@ -319,7 +316,7 @@ get_list(bits, low, high, names, ch, file)
 
 	/* list = range {"," range}
 	 */
-	
+
 	/* clear the bit string, since the default is 'off'.  DONT add an
 	 * extra bit here, that's done in the macro!
 	 */

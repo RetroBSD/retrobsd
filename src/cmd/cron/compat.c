@@ -15,15 +15,9 @@
  * Paul Vixie          <paul@vix.com>          uunet!decwrl!vixie!paul
  */
 
-#if !defined(lint) && !defined(LINT)
-static char rcsid[] = "$Id: compat.c,v 1.6 1994/01/15 20:43:43 vixie Exp $";
-#endif
-
 /* vix 30dec93 [broke this out of misc.c - see RCS log for history]
  * vix 15jan87 [added TIOCNOTTY, thanks csg@pyramid]
  */
-
-
 #include "cron.h"
 
 #include <stdio.h>
@@ -40,19 +34,18 @@ setsid()
 	int	newpgrp;
 	register int	fd;
 
-	newpgrp = setpgrp(0, getpid());
-	if	((fd = open(_PATH_TTY, 2)) >= 0)
-		{
+	newpgrp = setpgrp();
+
+	if ((fd = open(_PATH_TTY, 2)) >= 0) {
 		(void) ioctl(fd, TIOCNOTTY, (char*)0);
 		(void) close(fd);
-		}
-	if	((fd = open(_PATH_DEVNULL, O_RDWR, 0)) != -1)
-		{
+	}
+	if ((fd = open(_PATH_DEVNULL, O_RDWR, 0)) != -1) {
 		(void)dup2(fd, 0);
 		(void)dup2(fd, 1);
 		(void)dup2(fd, 2);
-		if	(fd > 2)
+		if (fd > 2)
 			(void)close(fd);
-		}
+	}
 	return newpgrp;
 }

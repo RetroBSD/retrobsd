@@ -61,6 +61,7 @@ void    _exit(int);
 int     access();
 unsigned int alarm();
 pid_t   fork();
+pid_t   setsid(void);
 gid_t   getegid();
 uid_t   geteuid();
 gid_t   getgid();

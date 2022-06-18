@@ -15,15 +15,9 @@
  * Paul Vixie          <paul@vix.com>          uunet!decwrl!vixie!paul
  */
 
-#if !defined(lint) && !defined(LINT)
-static char rcsid[] = "$Id: misc.c,v 2.9 1994/01/15 20:43:43 vixie Exp $";
-#endif
-
 /* vix 26jan87 [RCS has the rest of the log]
  * vix 30dec86 [written]
  */
-
-
 #include "cron.h"
 #include <sys/time.h>
 #include <sys/file.h>
@@ -622,7 +616,7 @@ arpadate(clock)
 	time_t t = clock ?*clock :time(0L);
 	struct tm *tm = localtime(&t);
 	static char ret[30];	/* zone name might be >3 chars */
-	
+
 	(void) sprintf(ret, "%s, %2d %s %2d %02d:%02d:%02d %s",
 		       DowNames[tm->tm_wday],
 		       tm->tm_mday,

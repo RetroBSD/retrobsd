@@ -145,12 +145,12 @@
 
 typedef	struct _entry {
 	struct _entry	*next;
-	uid_t		uid;	
+	uid_t		uid;
 	gid_t		gid;
 	char		**envp;
 	char		*cmd;
 	bitstr_t	bit_decl(minute, MINUTE_COUNT);
-	bitstr_t	bit_decl(hour,   HOUR_COUNT);
+	bitstr_t	bit_decl(hour,   HOUR_COUNT+1);
 	bitstr_t	bit_decl(dom,    DOM_COUNT);
 	bitstr_t	bit_decl(month,  MONTH_COUNT);
 	bitstr_t	bit_decl(dow,    DOW_COUNT);
@@ -273,3 +273,5 @@ extern	int	DebugFlags;
 extern	char	*DebugFlagNames[];
 # endif /* DEBUGGING */
 #endif /*MAIN_PROGRAM*/
+
+int swap_uids_back(void);

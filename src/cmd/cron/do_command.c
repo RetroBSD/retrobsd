@@ -14,13 +14,9 @@
  * I'll try to keep a version up to date.  I can be reached as follows:
  * Paul Vixie          <paul@vix.com>          uunet!decwrl!vixie!paul
  */
-
-#if !defined(lint) && !defined(LINT)
-static char rcsid[] = "$Id: do_command.c,v 2.12 1994/01/15 20:43:43 vixie Exp $";
-#endif
-
 #include "cron.h"
 #include <sys/signal.h>
+#include <grp.h>
 #if defined(SYSLOG)
 # include <syslog.h>
 #endif
@@ -77,7 +73,7 @@ child_process(e, u)
 	/* mark ourselves as different to PS command watchers by upshifting
 	 * our program name.  This has no effect on some kernels.
 	 */
-	for (input_data = ProgramName;  ch = *input_data;  input_data++)
+	for (input_data = ProgramName; (ch = *input_data); input_data++)
 		*input_data = (islower(ch) ? toupper(ch) : ch);
 
 	/* discover some useful and important environment settings
@@ -96,7 +92,7 @@ child_process(e, u)
 	 */
 	pipe(stdin_pipe);	/* child's stdin */
 	pipe(stdout_pipe);	/* child's stdout */
-	
+
 	/* since we are a forked process, we can diddle the command string
 	 * we were passed -- nobody else is going to use it again, right?
 	 *
@@ -106,7 +102,7 @@ child_process(e, u)
 	 * but that happens later.
 	 */
 	escaped = FALSE;
-	for (input_data = e->cmd;  ch = *input_data;  input_data++) {
+	for (input_data = e->cmd; (ch = *input_data); input_data++) {
 		if (escaped) {
 			escaped = FALSE;
 			continue;
@@ -251,7 +247,7 @@ child_process(e, u)
 		 *	%  -> \n
 		 *	\x -> \x	for all x != %
 		 */
-		while (ch = *input_data++) {
+		while ((ch = *input_data++)) {
 			if (escaped) {
 				if (ch != '%')
 					putc('\\', out);
@@ -324,7 +320,7 @@ child_process(e, u)
 				 */
 				mailto = usernm;
 			}
-		
+
 			/* if we are supposed to be mailing, MAILTO will
 			 * be non-NULL.  only in this case should we set
 			 * up the mail command and subjects and stuff...

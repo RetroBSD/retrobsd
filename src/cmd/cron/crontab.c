@@ -21,7 +21,6 @@ static char sccsid[] = "@(#) crontab.c 2.13.1 (2.11BSD) 1999/8/9";
  * vix 02may87 [RCS has the rest of the log]
  * vix 26jan87 [original]
  */
-
 #define	MAIN_PROGRAM
 
 #include "cron.h"
@@ -96,6 +95,7 @@ main(argc, argv)
 	}
 	exitstatus = OK_EXIT;
 	switch (Option) {
+        case opt_unknown:       break;
 	case opt_list:		list_cmd();
 				break;
 	case opt_delete:	delete_cmd();
@@ -109,7 +109,7 @@ main(argc, argv)
 	exit(0);
 	/*NOTREACHED*/
 }
-	
+
 
 static void
 parse_args(argc, argv)
@@ -459,7 +459,7 @@ edit_cmd() {
  done:
 	log_it(RealUser, Pid, "END EDIT", User);
 }
-	
+
 
 /* returns	0	on success
  *		-1	on syntax error

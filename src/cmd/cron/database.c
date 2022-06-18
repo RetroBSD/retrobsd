@@ -15,14 +15,8 @@
  * Paul Vixie          <paul@vix.com>          uunet!decwrl!vixie!paul
  */
 
-#if !defined(lint) && !defined(LINT)
-static char rcsid[] = "$Id: database.c,v 2.8 1994/01/15 20:43:43 vixie Exp $";
-#endif
-
 /* vix 26jan87 [RCS has the log]
  */
-
-
 #include "cron.h"
 #include <fcntl.h>
 #include <sys/stat.h>

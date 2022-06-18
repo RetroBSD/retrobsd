@@ -14,14 +14,7 @@
  * I'll try to keep a version up to date.  I can be reached as follows:
  * Paul Vixie          <paul@vix.com>          uunet!decwrl!vixie!paul
  */
-
-#if !defined(lint) && !defined(LINT)
-static char rcsid[] = "$Id: env.c,v 2.7 1994/01/26 02:25:50 vixie Exp vixie $";
-#endif
-
-
 #include "cron.h"
-
 
 char **
 env_init()
@@ -168,7 +161,7 @@ env_get(name, envp)
 	register int	len = strlen(name);
 	register char	*p, *q;
 
-	while (p = *envp++) {
+	while ((p = *envp++)) {
 		if (!(q = strchr(p, '=')))
 			continue;
 		if ((q - p) == len && !strncmp(p, name, len))

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <sys/time.h>
 
-void main()
+int main()
 {
 	while(1)
 	{

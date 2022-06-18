@@ -15,13 +15,9 @@
  * Paul Vixie          <paul@vix.com>          uunet!decwrl!vixie!paul
  */
 
-/*
- * $Id: compat.h,v 1.8 1994/01/15 20:43:43 vixie Exp $
- */
-
 #ifndef __P
 #define __P(x) ()
-#define const
+//#define const
 #endif
 
 /*****************************************************************/

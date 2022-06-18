@@ -22,11 +22,6 @@
 /* this came out of the ftpd sources; it's been modified to avoid the
  * globbing stuff since we don't need it.  also execvp instead of execv.
  */
-
-#if	!defined(lint) && defined(DOSCCS)
-static char sccsid[] = "@(#)popen.c	5.7.2 (2.11BSD) 1999/08/05";
-#endif
-
 #include "cron.h"
 #include <errno.h>
 #include <sys/signal.h>

@@ -14,15 +14,9 @@
  * I'll try to keep a version up to date.  I can be reached as follows:
  * Paul Vixie          <paul@vix.com>          uunet!decwrl!vixie!paul
  */
-
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
 #include <sys/dir.h>
 
 #define DIR_T struct direct
-//#define	WEXITSTATUS(x)	((x).w_retcode)
-//#define	WTERMSIG(x)	((x).w_termsig)
-//#define	WCOREDUMP(x)	((x).w_coredump)
-
-extern	int		setsid __P((void));

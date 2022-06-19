@@ -1,7 +1,3 @@
-#ifndef lint
-static char sccsid[] = "@(#)uucp.c	5.5 (Berkeley) 10/9/85";
-#endif
-
 #include "uucp.h"
 #include <sys/stat.h>
 #include <strings.h>
@@ -16,11 +12,11 @@ char Path[100], Optns[10], Ename[MAXBASENAME+1];
 char Grade = 'n';
 #ifdef DONTCOPY
 int Copy = 0;
-#else 
+#else
 int Copy = 1;
 #endif
 char Nuser[32];
-struct timeb Now;
+struct timeval Now;
 
 /* variables used to check if talking to more than one system. */
 int	xsflag = -1;
@@ -30,7 +26,12 @@ long Nbytes = 0;
 #define MAXBYTES 50000	/* maximun number of bytes of data per C. file */
 #define MAXCOUNT 15	/* maximun number of files per C. file */
 
-main(argc, argv)
+static int copy(char *s1, char *f1, char *s2, char *f2);
+static void clscfile(void);
+static void chsys(char *s1);
+static void xuux(char *ename, char *s1, char *f1, char *s2, char *f2, char *opts);
+
+int main(argc, argv)
 char *argv[];
 {
 	int ret;
@@ -100,7 +101,7 @@ char *argv[];
 	DEBUG(4, "\n\n** %s **\n", "START");
 	if (!avoidgwd) {
 		cp = getwd(Wrkdir);
-		ASSERT(cp != 0, "GETWD FAILED", Wrkdir, cp);
+		ASSERT(cp != 0, "GETWD FAILED", Wrkdir, 0);
 	}
 	ret = subchdir(Spool);
 	ASSERT(ret >= 0, "CHDIR FAILED", Spool, ret);
@@ -183,7 +184,7 @@ char *argv[];
 	cleanup(0);
 }
 
-cleanup(code)
+void cleanup(code)
 int code;
 {
 	logcls();
@@ -193,14 +194,12 @@ int code;
 	exit(code);
 }
 
-
 /*
  *	generate copy files
  *
  *	return codes 0  |  FAIL
  */
-
-copy(s1, f1, s2, f2)
+int copy(s1, f1, s2, f2)
 register char *s1, *f1, *s2, *f2;
 {
 	int type, statret;
@@ -369,8 +368,7 @@ register char *s1, *f1, *s2, *f2;
  *
  *	return code - none
  */
-
-xuux(ename, s1, f1, s2, f2, opts)
+void xuux(ename, s1, f1, s2, f2, opts)
 char *ename, *s1, *s2, *f1, *f2, *opts;
 {
 	char cmd[200];
@@ -396,7 +394,6 @@ char Cfile[NAMESIZE];
  *
  *	return an open file descriptor
  */
-
 FILE *
 gtcfile(sys)
 register char *sys;
@@ -416,7 +413,7 @@ register char *sys;
 		gename(CMDPRE, sys, Grade, Cfile);
 #ifdef VMS
 		savemask = umask(~0600); /* vms must have read permission */
-#else 
+#else
 		savemask = umask(~0200);
 #endif
 		Cfp = fopen(subfile(Cfile), "w");
@@ -432,8 +429,7 @@ register char *sys;
  *
  *	return code - none
  */
-
-clscfile()
+void clscfile()
 {
 	if (Cfp == NULL)
 		return;
@@ -447,7 +443,7 @@ clscfile()
 /*
  * compile a list of all systems we are referencing
  */
-chsys(s1)
+void chsys(s1)
 register char *s1;
 {
 	if (xsflag < 0)

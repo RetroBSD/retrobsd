@@ -1,7 +1,3 @@
-#if	!defined(lint) && defined(DOSCCS)
-static char sccsid[] = "@(#)uuxqt.c	5.8.1 (2.11BSD) 1997/10/2";
-#endif
-
 #include "uucp.h"
 #include <sys/stat.h>
 #include <strings.h>
@@ -11,6 +7,7 @@ static char sccsid[] = "@(#)uuxqt.c	5.8.1 (2.11BSD) 1997/10/2";
 #include <sys/dir.h>
 #endif
 #include <signal.h>
+#include <sys/wait.h>
 
 #define BADCHARS	"&^|(`\\<>;\"{}\n'"
 #define RECHECKTIME	60*10	/* 10 minutes */
@@ -37,7 +34,7 @@ int TransferSucceeded = 1;
 int notiok = 1;
 int nonzero = 0;
 
-struct timeb Now;
+struct timeval Now;
 
 char PATH[MAXFULLNAME] = "PATH=/bin:/usr/bin:/usr/ucb";
 char Shell[MAXFULLNAME];
@@ -51,13 +48,22 @@ char *nenv[] = {
 	0
 };
 
+static int gtxfile(char *file);
+static int argok(char *xc, char *cmd);
+static void notify(char *user, char *rmt, char *cmd, char *str);
+static void mvxfiles(char *xfile);
+static int shio(char *cmd, char *fi, char *fo);
+static int chknotify(char *cmd);
+static void rmxfiles(char *xfile);
+static int gotfiles(char *file);
+
 /*  to remove restrictions from uuxqt
  *  define ALLOK 1
  *
  *  to add allowable commands, add to the file CMDFILE
  *  A line of form "PATH=..." changes the search path
  */
-main(argc, argv)
+int main(argc, argv)
 char *argv[];
 {
 	char xcmd[MAXFULLNAME];
@@ -73,7 +79,6 @@ char *argv[];
 	char path[MAXFULLNAME];
 	char cmd[BUFSIZ];
 	char *cmdp, prm[1000], *ptr;
-	char *getprm(), *lastpart();
 	int uid, ret, ret2, badfiles;
 	register int i;
 	int stcico = 0;
@@ -379,8 +384,7 @@ doprocess:
 	cleanup(0);
 }
 
-
-cleanup(code)
+void cleanup(code)
 int code;
 {
 	logcls();
@@ -396,14 +400,12 @@ int code;
 	exit(code);
 }
 
-
 /*
  *	get a file to execute
  *
  *	return codes:  0 - no file  |  1 - file to execute
  */
-
-gtxfile(file)
+int gtxfile(file)
 register char *file;
 {
 	char pre[3];
@@ -460,8 +462,7 @@ retry:
  *
  *	return codes:  0 - not ready  |  1 - all files ready
  */
-
-gotfiles(file)
+int gotfiles(file)
 register char *file;
 {
 	struct stat stbuf;
@@ -488,12 +489,10 @@ register char *file;
 	return 1;
 }
 
-
 /*
  *	remove execute files to x-directory
  */
-
-rmxfiles(xfile)
+void rmxfiles(xfile)
 register char *xfile;
 {
 	register FILE *fp;
@@ -515,12 +514,10 @@ register char *xfile;
 	return;
 }
 
-
 /*
  *	move execute files to x-directory
  */
-
-mvxfiles(xfile)
+void mvxfiles(xfile)
 char *xfile;
 {
 	register FILE *fp;
@@ -546,13 +543,12 @@ char *xfile;
 }
 
 /*
- *	check for valid command/argument	
+ *	check for valid command/argument
  *	*NOTE - side effect is to set xc to the	command to be executed.
  *
  *	return 0 - ok | 1 nok
  */
-
-argok(xc, cmd)
+int argok(xc, cmd)
 register char *xc, *cmd;
 {
 	register char **ptr;
@@ -587,7 +583,6 @@ register char *xc, *cmd;
 	return SUCCESS;
 }
 
-
 /*
  *	if notification should be sent for successful execution of cmd
  *
@@ -595,8 +590,7 @@ register char *xc, *cmd;
  *	       NT_ERR - do notification if exit status != 0
  *	       NT_NO  - don't do notification ever
  */
-
-chknotify(cmd)
+int chknotify(cmd)
 char *cmd;
 {
 	register char **ptr;
@@ -613,13 +607,10 @@ char *cmd;
 	return NT_YES;		/* "shouldn't happen" */
 }
 
-
-
 /*
  *	send mail to user giving execution results
  */
-
-notify(user, rmt, cmd, str)
+void notify(user, rmt, cmd, str)
 char *user, *rmt, *cmd, *str;
 {
 	char text[MAXFULLNAME];
@@ -643,7 +634,7 @@ char *user, *rmt, *cmd, *str;
  *	return mail to sender
  *
  */
-retosndr(user, rmt, file)
+void retosndr(user, rmt, file)
 char *user, *rmt, *file;
 {
 	char ruser[MAXFULLNAME];
@@ -669,8 +660,7 @@ char *user, *rmt, *file;
 /*
  *	execute shell of command with fi and fo as standard input/output
  */
-
-shio(cmd, fi, fo)
+int shio(cmd, fi, fo)
 char *cmd, *fi, *fo;
 {
 	int status, f;

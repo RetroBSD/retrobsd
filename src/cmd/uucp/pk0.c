@@ -1,7 +1,3 @@
-#if	!defined(lint) && defined(DOSCCS)
-static char sccsid[] = "@(#)pk0.c	5.7.1 (2.11BSD) 1997/10/2";
-#endif
-
 #include "uucp.h"
 #include "pk.h"
 
@@ -20,15 +16,18 @@ int Reacks;
 #define PKWTIME 4
 #define PKRSKEW 3
 #define PKWSKEW 2
+
 extern int pktimeout, pktimeskew, Ntimeout;
+
+static int pksize(int n);
 
 /*
  * receive control messages
  */
-pkcntl(c, pk)
+void pkcntl(c, pk)
 register struct pack *pk;
 {
-	register cntl, val;
+	register int cntl, val;
 
 	val = c & MOD8;
 	cntl = (c>>3) & MOD8;
@@ -109,10 +108,10 @@ register struct pack *pk;
 		pkoutput(pk);
 }
 
-pkaccept(pk)
+int pkaccept(pk)
 register struct pack *pk;
 {
-	register x, seq;
+	register int x, seq;
 	char m, cntl, *p, imask, **bp;
 	int bad, accept, skip, t,  cc;
 	unsigned short sum;
@@ -230,12 +229,12 @@ free:
 }
 
 /*ARGSUSED*/
-pkread(pk, ibuf, icount)
+int pkread(pk, ibuf, icount)
 register struct pack *pk;
 char *ibuf;
 int icount;
 {
-	register x;
+	register int x;
 	int is, cc, xfr, count;
 	char *cp, **bp;
 
@@ -293,17 +292,17 @@ int icount;
 }
 
 /*ARGSUSED*/
-pkwrite(pk, ibuf, icount)
+int pkwrite(pk, ibuf, icount)
 register struct pack *pk;
 char *ibuf;
 int icount;
 {
-	register x;
+	register int x;
 	int partial;
 	caddr_t cp;
 	int cc, fc, count;
 
-	if (pk->p_state&DOWN || !pk->p_state&LIVE) {
+	if ((pk->p_state & DOWN) || !(pk->p_state & LIVE)) {
 		return -1;
 	}
 
@@ -349,10 +348,10 @@ int icount;
 	return count;
 }
 
-pksack(pk)
+int pksack(pk)
 register struct pack *pk;
 {
-	register x, i;
+	register int x, i;
 
 	i = 0;
 	for(x=pk->p_ps; x!=pk->p_rpr; ) {
@@ -369,10 +368,10 @@ register struct pack *pk;
 	return i;
 }
 
-pkoutput(pk)
+void pkoutput(pk)
 register struct pack *pk;
 {
-	register x;
+	register int x;
 	int i;
 	char bstate;
 
@@ -476,10 +475,10 @@ out:
  *	releasing space and turning off line discipline
  */
 /*ARGSUSED*/
-pkclose(pk)
+void pkclose(pk)
 register struct pack *pk;
 {
-	register i;
+	register int i;
 	char **bp;
 	int rcheck = 0;
 
@@ -543,28 +542,27 @@ register struct pack *pk;
 	free((char *)pk);
 }
 
-pkreset(pk)
+void pkreset(pk)
 register struct pack *pk;
 {
-
 	pk->p_ps = pk->p_pr =  pk->p_rpr = 0;
 	pk->p_nxtps = 1;
 }
 
 #ifndef BSD4_2
-bzero(s,n)
+void bzero(s,n)
 register char *s;
-register n;
+register int n;
 {
 	while (n--)
 		*s++ = 0;
 }
 #endif
 
-pksize(n)
-register n;
+int pksize(n)
+register int n;
 {
-	register k;
+	register int k;
 
 	n >>= 5;
 	for(k=0; n >>= 1; k++)

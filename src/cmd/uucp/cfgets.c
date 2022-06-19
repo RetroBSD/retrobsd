@@ -1,9 +1,5 @@
-#ifndef lint
-static char sccsid[] = "@(#)cfgets.c	5.3 (Berkeley) 6/19/85";
-#endif
-
 /*
- * get nonblank, non-comment, (possibly continued) line. Alan S. Watt 
+ * get nonblank, non-comment, (possibly continued) line. Alan S. Watt
  */
 
 #include <stdio.h>
@@ -22,10 +18,10 @@ int siz;
 FILE *fil;
 {
 	register char *s;
-	register i, c, len;
+	register int i, c, len;
 	char *fgets();
 
-	for (i=0,s=buf; i = (fgets(s, siz-i, fil) != NULL); i = s - buf) {
+	for (i = 0, s = buf; (i = (fgets(s, siz-i, fil) != NULL)); i = s - buf) {
 
 		/* get last character of line */
 		c = s[len = (strlen(s) - 1)];
@@ -46,7 +42,7 @@ FILE *fil;
 				break;
 		}
 	}
-	
+
 	return i ? buf : NULL;
 }
 

@@ -1,7 +1,3 @@
-#ifndef lint
-static char sccsid[] = "@(#)uuclean.c	5.6 (Berkeley) 10/9/85";
-#endif
-
 #include <signal.h>
 #include "uucp.h"
 #include <pwd.h>
@@ -11,6 +7,11 @@ static char sccsid[] = "@(#)uuclean.c	5.6 (Berkeley) 10/9/85";
 #else
 #include <sys/dir.h>
 #endif
+
+static void stpre(char *p);
+static int chkpre(char *file);
+static void notfyuser(char *file);
+static void sdmail(char *file, int uid);
 
 /*
  *
@@ -34,9 +35,9 @@ static char sccsid[] = "@(#)uuclean.c	5.6 (Berkeley) 10/9/85";
 #define NOMTIME 72	/* hours to age files before deletion */
 
 int checkprefix = 0;
-struct timeb Now;
+struct timeval Now;
 
-main(argc, argv)
+int main(argc, argv)
 char *argv[];
 {
 	DIR *dirp;
@@ -62,7 +63,7 @@ char *argv[];
 			break;
 		case 'p':
 			checkprefix = 1;
-			if (&argv[1][2] != '\0')
+			if (argv[1][2] != '\0')
 				stpre(&argv[1][2]);
 			break;
 		case 'x':
@@ -115,10 +116,10 @@ char *argv[];
 	exit(0);
 }
 
-
 #define MAXPRE 10
 char Pre[MAXPRE][NAMESIZE];
 int Npre = 0;
+
 /***
  *	chkpre(file)	check for prefix
  *	char *file;
@@ -127,8 +128,7 @@ int Npre = 0;
  *		0  -  not prefix
  *		1  -  is prefix
  */
-
-chkpre(file)
+int chkpre(file)
 char *file;
 {
 	int i;
@@ -146,8 +146,7 @@ char *file;
  *
  *	return codes:  none
  */
-
-stpre(p)
+void stpre(p)
 char *p;
 {
 	if (Npre < MAXPRE - 2)
@@ -160,8 +159,7 @@ char *p;
  *
  *	return code - none
  */
-
-notfyuser(file)
+void notfyuser(file)
 char *file;
 {
 	FILE *fp;
@@ -195,7 +193,6 @@ char *file;
 	mailst(args[3], msg, CNULL);
 }
 
-
 /***
  *	sdmail(file, uid)
  *
@@ -205,8 +202,7 @@ char *file;
  *	This is only implemented for local system
  *	mail at this time.
  */
-
-sdmail(file, uid)
+void sdmail(file, uid)
 char *file;
 {
 	static struct passwd *pwd;
@@ -224,7 +220,7 @@ char *file;
 		mailst(pwd->pw_name, mstr, CNULL);
 }
 
-cleanup(code)
+void cleanup(code)
 int code;
 {
 	exit(code);

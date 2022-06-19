@@ -1,7 +1,3 @@
-#ifndef lint
-static char sccsid[] = "@(#)uupoll.c	5.5 (Berkeley) 10/9/85";
-#endif
-
 /*
  * Poll named system(s).
  *
@@ -15,9 +11,9 @@ static char sccsid[] = "@(#)uupoll.c	5.5 (Berkeley) 10/9/85";
 #include "uucp.h"
 
 int TransferSucceeded = 1;
-struct timeb Now;
+struct timeval Now;
 
-main(argc, argv)
+int main(argc, argv)
 register int argc;
 register char **argv;
 {
@@ -72,7 +68,7 @@ register char **argv;
 	cleanup(0);
 }
 
-cleanup(code)
+void cleanup(code)
 int code;
 {
 	exit(code);

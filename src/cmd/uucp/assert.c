@@ -1,9 +1,6 @@
-#ifndef lint
-static char sccsid[] = "@(#)assert.c	5.5 (Berkeley) 6/19/85";
-#endif
-
 #include "uucp.h"
 #include <sys/time.h>
+#include <sys/stat.h>
 #include <errno.h>
 
 /*LINTLIBRARY*/
@@ -11,8 +8,7 @@ static char sccsid[] = "@(#)assert.c	5.5 (Berkeley) 6/19/85";
 /*
  *	print out assetion error
  */
-
-assert(s1, s2, i1)
+void assert(s1, s2, i1)
 char *s1, *s2;
 {
 	register FILE *errlog;

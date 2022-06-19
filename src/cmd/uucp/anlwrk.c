@@ -1,7 +1,3 @@
-#if	!defined(lint) && defined(DOSCCS)
-static char sccsid[] = "@(#)anlwrk.c	5.5.1 (2.11BSD) 1997/10/2";
-#endif
-
 #include "uucp.h"
 #include <sys/stat.h>
 #include <strings.h>
@@ -19,6 +15,10 @@ static char sccsid[] = "@(#)anlwrk.c	5.5.1 (2.11BSD) 1997/10/2";
 int Nfiles = 0;
 char Filent[LLEN][NAMESIZE];
 extern int TransferSucceeded;
+
+static void entflst(char *file);
+static int pcompar(char *p1, char *p2);
+static int newspool(time_t limit);
 
 /*LINTLIBRARY*/
 
@@ -50,7 +50,7 @@ register char *file, **wvec;
 		return 0;
 	}
 	if (fp == NULL) {
-		if (strncmp(file, lastfile, MAXFULLNAME) == 0) { 
+		if (strncmp(file, lastfile, MAXFULLNAME) == 0) {
 			DEBUG(5,"Workfilename repeated: %s\n", file);
 			return 0;
 		}
@@ -113,7 +113,7 @@ char *reqst;
 register char *dir, *pre;
 {
 	static DIR  *dirp = NULL;
-	register nfound;
+	register int nfound;
 	char filename[NAMESIZE];
 	int plen = strlen (pre);
 	int flen;
@@ -160,7 +160,7 @@ register char *dir, *pre;
  */
 
 /* LOCAL only */
-int
+void
 entflst(file)
 register char *file;
 {
@@ -183,7 +183,7 @@ register char *file;
 }
 
 /*
-  Compare priority of filenames p1 and p2.  Return:
+ * Compare priority of filenames p1 and p2.  Return:
  *	< 0	if p1 "has lower priority than" p2.
  *	= 0	if p1 "has priority equal to" p2.
  *	> 0	if p1 "has greater priority than" p2.
@@ -202,15 +202,20 @@ register char *p1, *p2;
 	/* assert: strlen(p1) and strlen(p2) are >= 5 */
 	p1 += strlen(p1)-5;
 	p2 += strlen(p2)-5;
+
 	/* check 'grade' */
-	if (rc = *p2++ - *p1++)
+	if ((rc = *p2++ - *p1++))
 		return rc;
+
 	/* check for  sequence wrap-around */
-	if (rc = *p2++ - *p1++)
-		if (rc < -10 || rc > 10)
+	if ((rc = *p2++ - *p1++)) {
+		if (rc < -10 || rc > 10) {
 			return -rc;
-		else
+		} else {
 			return rc;
+                }
+        }
+
 	/* check remaining digits */
 	return strcmp(p2, p1);
 }
@@ -226,7 +231,7 @@ register char *p1, *p2;
  */
 
 /* LOCAL only */
-gtwrkf(dir, file)
+int gtwrkf(dir, file)
 char *file, *dir;
 {
 	register int i;
@@ -284,7 +289,7 @@ iswrk(file, reqst, dir, pre)
 register char *file, *reqst, *dir, *pre;
 {
 	static char *lastpre = 0;
-	register ret;
+	register int ret;
 
 	/* Starting new system; re-init */
 	if (lastpre == 0 || strcmp(lastpre,pre) != 0) {

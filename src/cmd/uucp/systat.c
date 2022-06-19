@@ -1,7 +1,3 @@
-#ifndef lint
-static char sccsid[] = "@(#)systat.c	5.4 (Berkeley) 6/23/85";
-#endif
-
 #include "uucp.h"
 
 #define STATNAME(f, n) sprintf(f, "%s/%s/%s", Spool, "STST", n)
@@ -13,7 +9,7 @@ static char sccsid[] = "@(#)systat.c	5.4 (Berkeley) 6/23/85";
  *	make system status entry
  *	return codes:  none
  */
-systat(name, type, text)
+void systat(name, type, text)
 char *name, *text;
 int type;
 {
@@ -71,8 +67,7 @@ int type;
  *
  *	return codes:  none
  */
-
-rmstat(name)
+void rmstat(name)
 char *name;
 {
 	char filename[MAXFULLNAME];
@@ -86,8 +81,7 @@ char *name;
  *
  *	return codes  0 - ok | >0 system status
  */
-
-callok(name)
+int callok(name)
 char *name;
 {
 	char filename[MAXFULLNAME], line[S_SIZE];

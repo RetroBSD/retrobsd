@@ -1,9 +1,6 @@
-#ifndef lint
-static char sccsid[] = "@(#)uux.c	5.6 (Berkeley) 1/24/86";
-#endif
-
 #include "uucp.h"
 #include <strings.h>
+#include <sys/stat.h>
 
 #define NOSYSPART 0
 #define HASSYSPART 1
@@ -25,9 +22,12 @@ register char *p; for (p = d; *p != '\0';)\
 	fprintf(f, "S %s %s %s -%s %s 0666\n", a, b, c, d, e); }
 #define GENRCV(f, a, b, c) {fprintf(f, "R %s %s %s - \n", a, b, c);}
 
-struct timeb Now;
+struct timeval Now;
 
-main(argc, argv)
+static FILE *ufopen(char *file, char *mode);
+static int split(char *name, char *sys, char *rest);
+
+int main(argc, argv)
 char *argv[];
 {
 	char cfile[NAMESIZE];	/* send commands for files from here */
@@ -57,8 +57,6 @@ char *argv[];
 	char Xsys[MAXBASENAME+1], local[MAXBASENAME+1];
 	char *xsys = Xsys;
 	FILE *fprx, *fpc, *fpd, *fp;
-	extern char *getprm(), *lastpart();
-	extern FILE *ufopen();
 	int uid, ret;
 	char redir = '\0';
 	int nonoti = 0;
@@ -316,8 +314,7 @@ char *argv[];
 				fprintf(fprx, "%c %s\n", X_RQDFILE, dfile);
 			} else {
 				APPCMD(lastpart(rest));
-				fprintf(fprx, "%c %s %s\n", X_RQDFILE,
-				 dfile, lastpart(rest));
+				fprintf(fprx, "%c %s %s\n", X_RQDFILE, dfile, lastpart(rest));
 			}
 			redir = '\0';
 			continue;
@@ -342,8 +339,7 @@ char *argv[];
 				fprintf(fprx, "%c %s\n", X_RQDFILE, dfile);
 				fprintf(fprx, "%c %s\n", X_STDIN, dfile);
 			} else {
-				fprintf(fprx, "%c %s %s\n", X_RQDFILE, dfile,
-				  lastpart(rest));
+				fprintf(fprx, "%c %s %s\n", X_RQDFILE, dfile, lastpart(rest));
 				APPCMD(lastpart(rest));
 			}
 
@@ -367,8 +363,7 @@ char *argv[];
 				fprintf(fprx, "%c %s\n", X_RQDFILE, t2file);
 				fprintf(fprx, "%c %s\n", X_STDIN, t2file);
 			} else {
-				fprintf(fprx, "%c %s %s\n", X_RQDFILE, t2file,
-				  lastpart(rest));
+				fprintf(fprx, "%c %s %s\n", X_RQDFILE, t2file, lastpart(rest));
 				APPCMD(lastpart(rest));
 			}
 			redir = '\0';
@@ -412,11 +407,13 @@ char *argv[];
 	if (strcmp(xsys, local) == SAME) {
 		/* rti!trt: xmv() works across filesystems, link(II) doesnt */
 		xmv(rxfile, tfile);
-		if (startjob)
-			if (rflag)
+		if (startjob) {
+			if (rflag) {
 				xuucico(xsys);
-			else
+			} else {
 				xuuxqt();
+                        }
+                }
 	}
 	else {
 		GENSEND(fpc, rxfile, tfile, User, "", rxfile);
@@ -448,8 +445,7 @@ int Fnamect = 0;
  *
  *	return - none - do exit()
  */
-
-cleanup(code)
+void cleanup(code)
 int code;
 {
 	int i;
@@ -470,7 +466,6 @@ int code;
  *
  *	return file pointer.
  */
-
 FILE *ufopen(file, mode)
 char *file, *mode;
 {
@@ -480,6 +475,7 @@ char *file, *mode;
 		logent("Fname", "TABLE OVERFLOW");
 	return fopen(subfile(file), mode);
 }
+
 #ifdef	VMS
 /*
  * EUNICE bug:
@@ -487,7 +483,7 @@ char *file, *mode;
  *	Note if we are running under Unix shell we don't
  *	do the right thing.
  */
-arg_fix(argc, argv)
+void arg_fix(argc, argv)
 char **argv;
 {
 	register char *cp, *tp;
@@ -514,8 +510,7 @@ char **argv;
  *		NOSYSPART
  *		HASSYSPART
  */
-
-split(name, sys, rest)
+int split(name, sys, rest)
 register char *name, *rest;
 char *sys;
 {

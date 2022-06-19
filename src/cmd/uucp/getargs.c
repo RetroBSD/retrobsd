@@ -1,7 +1,3 @@
-#ifndef lint
-static char sccsid[] = "@(#)getargs.c	5.3 (Berkeley) 6/19/85";
-#endif
-
 #include "uucp.h"
 
 /*LINTLIBRARY*/
@@ -22,8 +18,7 @@ static char sccsid[] = "@(#)getargs.c	5.3 (Berkeley) 6/19/85";
  *
  *	return - the number of subfields, or -1 if >= maxargs.
  */
-
-getargs(s, arps, maxargs)
+int getargs(s, arps, maxargs)
 register char *s;
 char *arps[];
 int maxargs;

@@ -1,9 +1,5 @@
-#if	defined(DOSCCS) && !defined(lint)
-static char sccsid[] = "@(#)acucntrl.c	5.8.2 (2.11BSD GTE) 1996/3/22";
-#endif
-
 /*  acucntrl - turn around tty line between dialin and dialout
- * 
+ *
  * Usage:	acucntrl {enable,disable} /dev/ttydX
  *
  * History:
@@ -354,7 +350,7 @@ char *device, *name;
 		fprintf(stderr, "on write in %s: %s", Etcutmp,
 			strerror(errno));
 }
-	
+
 /* poke process 1 and wait for it to do its thing */
 pokeinit(device, uname, enable)
 char *uname, *device; int enable;
@@ -395,7 +391,7 @@ char *uname, *device; int enable;
 opnttys(device)
 char *device;
 {
-	register int  ndevice; 
+	register int  ndevice;
 	register char *p;
 	char *index();
 	char linebuf[BUFSIZ];
@@ -438,7 +434,7 @@ char *device;
 				Etcttys, strerror(errno));
 			exit(1);
 		}
-		
+
 	}
 	fprintf(stderr, "%s not found in %s\n", device, Etcttys);
 	exit(1);
@@ -508,7 +504,7 @@ int enable;
 			exit(1);
 		}
 	}
-		
+
 	if (enable^resettty)
 		(void) unlink(NEtcttys);
 	else {
@@ -531,7 +527,7 @@ opnttys(device)
 char *device;
 {
 	register FILE *ttysfile;
-	register int  ndevice, lnsiz; 
+	register int  ndevice, lnsiz;
 	register char *p;
 	char *index();
 	char linebuf[BUFSIZ];

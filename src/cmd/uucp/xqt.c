@@ -1,7 +1,3 @@
-#ifndef lint
-static char sccsid[] = "@(#)xqt.c	5.3 (Berkeley) 6/23/85";
-#endif
-
 #include <signal.h>
 #include "uucp.h"
 
@@ -19,7 +15,7 @@ int LocalOnly = 0;
 #define	fork	vfork
 #endif
 
-xuucico(rmtname)
+void xuucico(rmtname)
 char *rmtname;
 {
 	if (fork() == 0) {
@@ -60,14 +56,12 @@ char *rmtname;
 	return;
 }
 
-
 /*
  *	start up uuxqt
  *
  *	return codes:  none
  */
-
-xuuxqt()
+void xuuxqt()
 {
 	if (fork() == 0) {
 		/*  start uuxqt  */
@@ -87,7 +81,7 @@ xuuxqt()
 	return;
 }
 
-xuucp(str)
+void xuucp(str)
 char *str;
 {
 	char text[300];

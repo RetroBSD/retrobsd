@@ -1,7 +1,3 @@
-#ifndef lint
-static char sccsid[] = "@(#)imsg.c	5.3 (Berkeley) 1/6/86";
-#endif
-
 #include "uucp.h"
 #include <ctype.h>
 
@@ -9,7 +5,7 @@ char Msync[2] = "\020";
 
 /* to talk to both eunice and x.25 without also screwing up tcp/ip
  * we must adaptively  choose what character to end the msg with
- * 
+ *
  * The idea is that initially we send ....\000\n
  * Then, after they have sent us a message, we use the first character
  * they send.
@@ -26,8 +22,7 @@ char Mend = '\0';
  *		FAIL - no more messages
  *		SUCCESS - message returned
  */
-
-imsg(amsg, fn)
+int imsg(amsg, fn)
 char *amsg;
 register int fn;
 {
@@ -42,7 +37,7 @@ register int fn;
 		c &= 0177;
 		if (c == '\n' || c == '\r')
 			DEBUG(5, "%c", c);
-		else 
+		else
 			DEBUG(5, (isprint(c) || isspace(c)) ? "%c" : "\\%o",
 				c & 0377);
 		if (c == Msync[0]) {
@@ -68,18 +63,13 @@ register int fn;
 	return foundsync;
 }
 
-
 /*
  *	this is the initial write message routine -
  *	used before a protocol is agreed upon.
  *
  *	return code:  always 0
  */
-
-omsg(type, msg, fn)
-register char *msg;
-char type;
-int fn;
+int omsg(char type, char *msg, int fn)
 {
 	char buf[MAXFULLNAME];
 	register char *c;
@@ -92,7 +82,7 @@ int fn;
 		*c++ = *msg++;
 	*c++ = '\0';
 	DEBUG(5, "omsg <%s>\n", buf);
-	if (seenend) 
+	if (seenend)
 		c[-1] = Mend;
 	else
 		*c++ = '\n';

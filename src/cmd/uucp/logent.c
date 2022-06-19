@@ -1,7 +1,3 @@
-#ifndef lint
-static char sccsid[] = "@(#)logent.c	5.6 (Berkeley) 10/9/85";
-#endif
-
 #include "uucp.h"
 #ifdef BSD4_2
 #include <sys/time.h>
@@ -11,18 +7,21 @@ static char sccsid[] = "@(#)logent.c	5.6 (Berkeley) 10/9/85";
 #if defined(USG) || defined(BSD4_2)
 #include <fcntl.h>
 #endif
+#include <sys/stat.h>
 
 static FILE *Lp = NULL;
 static FILE *Sp = NULL;
-static Ltried = 0;
-static Stried = 0;
+static int Ltried = 0;
+static int Stried = 0;
+
+static void mlogent(FILE *fp, char *status, char *text);
 
 /*LINTLIBRARY*/
 
 /*
  *	make log entry
  */
-logent(text, status)
+void logent(text, status)
 char *text, *status;
 {
 #ifdef LOGBYSITE
@@ -73,12 +72,11 @@ char *text, *status;
 /*
  *	make a log entry
  */
-
-mlogent(fp, status, text)
+void mlogent(fp, status, text)
 char *text, *status;
 register FILE *fp;
 {
-	static pid = 0;
+	static int pid = 0;
 	register struct tm *tp;
 	extern struct tm *localtime();
 
@@ -88,13 +86,10 @@ register FILE *fp;
 		status = "";
 	if (!pid)
 		pid = getpid();
-#ifdef USG
-	time(&Now.time);
-	Now.millitm = 0;
-#else
-	ftime(&Now);
-#endif
-	tp = localtime(&Now.time);
+
+	gettimeofday(&Now, NULL);
+
+	tp = localtime(&Now.tv_sec);
 #ifdef USG
 	fprintf(fp, "%s %s (%d/%d-%2.2d:%2.2d-%d) ",
 #else
@@ -125,7 +120,7 @@ register FILE *fp;
 /*
  *	close log file
  */
-logcls()
+void logcls()
 {
 	if (Lp != NULL)
 		fclose(Lp);
@@ -138,11 +133,10 @@ logcls()
 	Stried = 0;
 }
 
-
 /*
  *	make system log entry
  */
-syslog(text)
+void syslog(text)
 char *text;
 {
 	register struct tm *tp;
@@ -185,23 +179,19 @@ char *text;
 		fioclex(fileno(Sp));
 	}
 
-#ifdef USG
-	time(&Now.time);
-	Now.millitm = 0;
-#else
-	ftime(&Now);
-#endif
-	tp = localtime(&Now.time);
+	gettimeofday(&Now, NULL);
+
+	tp = localtime(&Now.tv_sec);
 
 	fprintf(Sp, "%s %s ", User, Rmtname);
 #ifdef USG
 	fprintf(Sp, "(%d/%d-%2.2d:%2.2d) ", tp->tm_mon + 1,
 		tp->tm_mday, tp->tm_hour, tp->tm_min);
-	fprintf(Sp, "(%ld) %s\n", Now.time, text);
+	fprintf(Sp, "(%ld) %s\n", Now.tv_sec, text);
 #else
 	fprintf(Sp, "(%d/%d-%02d:%02d) ", tp->tm_mon + 1,
 		tp->tm_mday, tp->tm_hour, tp->tm_min);
-	fprintf(Sp, "(%ld.%02u) %s\n", Now.time, Now.millitm/10, text);
+	fprintf(Sp, "(%ld.%02u) %s\n", Now.tv_sec, Now.tv_usec/10000, text);
 #endif
 
 	/* Position at end and flush */
@@ -220,7 +210,7 @@ char *text;
 #include <sgtty.h>
 #endif
 
-fioclex(fd)
+void fioclex(fd)
 int fd;
 {
 	register int ret;
@@ -230,6 +220,7 @@ int fd;
 #else
 	ret = ioctl(fd, FIOCLEX, STBNULL);
 #endif
-	if (ret)
+	if (ret) {
 		DEBUG(2, "CAN'T FIOCLEX %d\n", fd);
+        }
 }

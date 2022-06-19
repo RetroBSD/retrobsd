@@ -1,7 +1,3 @@
-#if	!defined(lint) && defined(DOSCCS)
-static char sccsid[] = "@(#)uucpdefs.c	5.5.1 (2.11BSD) 1996/11/27";
-#endif
-
 #include "uucp.h"
 
 char Progname[64];

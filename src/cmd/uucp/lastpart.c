@@ -1,7 +1,3 @@
-#ifndef lint
-static char sccsid[] = "@(#)lastpart.c	5.4 (Berkeley) 6/20/85";
-#endif
-
 #include <strings.h>
 #include "uucp.h"
 
@@ -12,7 +8,6 @@ static char sccsid[] = "@(#)lastpart.c	5.4 (Berkeley) 6/20/85";
  *
  *	return - pointer to last part
  */
-
 char *
 lastpart(file)
 register char *file;

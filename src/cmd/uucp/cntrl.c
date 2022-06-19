@@ -1,42 +1,27 @@
-#ifndef lint
-static char sccsid[] = "@(#)cntrl.c	5.8 (Berkeley) 1/24/86";
-#endif
-
 #include "uucp.h"
 #include <sys/stat.h>
 #include <strings.h>
+#include <sys/wait.h>
+#include <errno.h>
 #include "uust.h"
 
-extern int errno;
 extern int turntime;
 int willturn;
 int HaveSentHup = 0;
 
+static int nullf(void);
+
 struct Proto {
 	char P_id;
-	int (*P_turnon)();
-	int (*P_rdmsg)();
-	int (*P_wrmsg)();
-	int (*P_rddata)();
-	int (*P_wrdata)();
-	int (*P_turnoff)();
+	int (*P_turnon)(void);
+	int (*P_rdmsg)(char *amsg, int fn);
+	int (*P_wrmsg)(char type, char *msg, int fn);
+	int (*P_rddata)(int fn, FILE *fp);
+	int (*P_wrdata)(FILE *fp, int fn);
+	int (*P_turnoff)(void);
 };
 
-extern int gturnon(), gturnoff();
-extern int grdmsg(), grddata();
-extern int gwrmsg(), gwrdata();
-extern int imsg(), omsg(), nullf();
-#ifdef TCPIP
-extern int twrmsg(), trdmsg();
-extern int twrdata(), trddata();
-#endif
-#ifdef PAD
-extern int fturnon(), fturnoff();
-extern int frdmsg(), frddata();
-extern int fwrmsg(), fwrdata();
-#endif
-
-struct Proto Ptbl[]={
+struct Proto Ptbl[] = {
 #ifdef TCPIP
 	't', nullf, trdmsg, twrmsg, trddata, twrdata, nullf,
 #endif
@@ -47,13 +32,17 @@ struct Proto Ptbl[]={
 	'\0'
 };
 
-int (*Imsg)() = imsg, (*Omsg)() = omsg;
+int (*Imsg)(char *amsg, int fn) = imsg;
+int (*Omsg)(char type, char *msg, int fn) = omsg;
 
-int (*Rdmsg)()=imsg, (*Rddata)();
-int (*Wrmsg)()=omsg, (*Wrdata)();
-int (*Turnon)()=nullf, (*Turnoff)() = nullf;
+int (*Rdmsg)(char *amsg, int fn) = imsg;
+int (*Rddata)(int fn, FILE *fp);
+int (*Wrmsg)(char type, char *msg, int fn) = omsg;
+int (*Wrdata)(FILE *fp, int fn);
+int (*Turnon)(void) = nullf;
+int (*Turnoff)(void) = nullf;
 
-struct timeb Now, LastTurned, LastCheckedNoLogin;
+struct timeval Now, LastTurned, LastCheckedNoLogin;
 
 static char *YES = "Y";
 static char *NO = "N";
@@ -78,7 +67,6 @@ char *Em_msg[] = {
 	"can't copy to file/directory - file left in PUBDIR/user/file",
 	"can't copy to file/directory on local system  - file left in PUBDIR/user/file"
 };
-
 
 #define XUUCP 'X'	/* execute uucp (string) */
 #define SLTPTCL 'P'	/* select protocol  (string)  */
@@ -113,6 +101,17 @@ static int nXfiles = 0;	/* number of X files since last uuxqt start */
 static char send_or_receive;
 struct stat stbuf;
 
+static int wmesg(char m, char *s);
+static int rmesg(char c, char *msg, int n);
+static void unlinkdf(char *file);
+static void lnotify(char *user, char *file, char *mesg);
+static void notify(int mailopt, char *user, char *file, char *sys, char *msgcode);
+static void arrived(int opt, char *file, char *nuser, char *rmtsys, char *rmtuser);
+static int putinpub(char *file, char *tmp, char *user);
+static char fptcl(char *str);
+static int stptcl(char *c);
+static char *blptcl(char *str);
+
 /*
  *	cntrl  -  this routine will execute the conversation
  *	between the two machines after both programs are
@@ -122,8 +121,7 @@ struct stat stbuf;
  *		SUCCESS - ok
  *		FAIL - failed
  */
-
-cntrl(role, wkpre)
+int cntrl(role, wkpre)
 int role;
 char *wkpre;
 {
@@ -131,8 +129,6 @@ char *wkpre;
 	register FILE *fp;
 	int filemode;
 	char filename[MAXFULLNAME], wrktype, *wrkvec[20];
-	extern (*Rdmsg)(), (*Wrmsg)();
-	extern char *index(), *lastpart();
 	int status = 1;
 	register int i, narg;
 	int mailopt, ntfyopt;
@@ -144,12 +140,8 @@ char *wkpre;
 	Wfile[0] = '\0';
 	willturn = turntime > 0;
 remaster:
-#ifdef USG
-	time(&LastTurned.time);
-	LastTurned.millitm = 0;
-#else
-	ftime(&LastTurned);
-#endif
+	gettimeofday(&LastTurned, NULL);
+
 	send_or_receive = RESET;
 	HaveSentHup = 0;
 top:
@@ -157,7 +149,7 @@ top:
 		wrkvec[i] = 0;
 	DEBUG(4, "*** TOP ***  -  role=%s\n", role ? "MASTER" : "SLAVE");
 	setupline(RESET);
-	if (Now.time > (LastCheckedNoLogin.time+60)) {
+	if (Now.tv_sec > (LastCheckedNoLogin.tv_sec+60)) {
 		LastCheckedNoLogin = Now;
 		if (access(NOLOGIN, 0) == 0) {
 			logent(NOLOGIN, "UUCICO SHUTDOWN");
@@ -281,7 +273,7 @@ sendmsg:
 	RAMESG(msg, 1);
 	if (willturn < 0)
 		willturn = msg[0] == HUP;
-			
+
 process:
 	DEBUG(4, "PROCESS: msg - %s\n", msg);
 	switch (msg[0]) {
@@ -308,12 +300,7 @@ process:
 			WMESG(HUP, "");
 			RMESG(HUP, msg, 1);
 			logent(Rmtname, "TURNAROUND");
-#ifdef USG
-				time(&LastTurned.time);
-				LastTurned.millitm = 0;
-#else
-				ftime(&LastTurned);
-#endif
+			gettimeofday(&LastTurned, NULL);
 			Nfiles = 0; /* force rescan of queue for work */
 			goto process;
 		}
@@ -323,8 +310,9 @@ process:
 		DEBUG(4, "HUP:\n", CNULL);
 		HaveSentHup = 1;
 		if (msg[1] == 'Y') {
-			if (role == MASTER)
+			if (role == MASTER) {
 				WMESG(HUP, YES);
+                        }
 			(*Turnoff)();
 			Rdmsg = Imsg;
 			Wrmsg = Omsg;
@@ -497,7 +485,7 @@ process:
 		fflush(fp);
 		if (ferror(fp) || fclose(fp))
 			ret = FAIL;
-		
+
 		if (ret != SUCCESS) {
 			(void) unlinkdf(Dfile);
 			(*Turnoff)();
@@ -507,7 +495,7 @@ process:
 		ntfyopt = index(W_OPTNS, 'n') != NULL;
 		status = xmv(Dfile, filename);
 
-		if (willturn && Now.time > (LastTurned.time+turntime)
+		if (willturn && Now.tv_sec > (LastTurned.tv_sec + turntime)
 			&& iswrk(Wfile, "chk", Spool, wkpre)) {
 				WMESG(RQSTCMPT, status ? EM_RMTCP : "YM");
 				willturn = -1;
@@ -571,7 +559,7 @@ process:
 				strcat(filename, lastpart(W_FILE1));
 			}
 			status = xmv(Dfile, filename);
-			if (willturn && Now.time > (LastTurned.time+turntime)
+			if (willturn && Now.tv_sec > (LastTurned.tv_sec + turntime)
 				&& iswrk(Wfile, "chk", Spool, wkpre)) {
 					WMESG(RQSTCMPT, status ? EM_RMTCP : "YM");
 					willturn = -1;
@@ -656,15 +644,12 @@ process:
 	return FAIL;
 }
 
-
 /*
  *	read message 'c'. try 'n' times
  *
  *	return code:  SUCCESS  |  FAIL
  */
-rmesg(c, msg, n)
-register char *msg, c;
-register int n;
+int rmesg(char c, char *msg, int n)
 {
 	char str[MAXFULLNAME];
 
@@ -693,14 +678,12 @@ register int n;
 	return SUCCESS;
 }
 
-
 /*
  *	write a message (type m)
  *
  *	return codes: SUCCESS - ok | FAIL - ng
  */
-wmesg(m, s)
-register char *s, m;
+int wmesg(char m, char *s)
 {
 	DEBUG(4, "wmesg '%c' ", m);
 	DEBUG(4, "%s\n", s);
@@ -712,7 +695,7 @@ register char *s, m;
  *
  *	return codes:  none
  */
-notify(mailopt, user, file, sys, msgcode)
+void notify(mailopt, user, file, sys, msgcode)
 char *user, *file, *sys, *msgcode;
 {
 	char str[BUFSIZ];
@@ -740,7 +723,7 @@ char *user, *file, *sys, *msgcode;
  *
  *	return code - none
  */
-lnotify(user, file, mesg)
+void lnotify(user, file, mesg)
 char *user, *file, *mesg;
 {
 	char mbuf[200];
@@ -757,11 +740,9 @@ char *user, *file, *mesg;
  *		SUCCESS - successful protocol selection
  *		FAIL - can't find common or open failed
  */
-startup(role)
+int startup(role)
 int role;
 {
-	extern (*Rdmsg)(), (*Wrmsg)();
-	extern char *blptcl(), fptcl();
 	char msg[BUFSIZ], str[MAXFULLNAME];
 
 	Rdmsg = Imsg;
@@ -828,7 +809,7 @@ register char *str;
 }
 
 /*
- *	build a string of the letters of the available protocols 
+ *	build a string of the letters of the available protocols
  */
 char *
 blptcl(str)
@@ -853,7 +834,7 @@ register char *str;
  *		FAIL - no find or failed to open
  *
  */
-stptcl(c)
+int stptcl(c)
 register char *c;
 {
 	register struct Proto *p;
@@ -882,12 +863,10 @@ register char *c;
  *
  *	return code  SUCCESS | FAIL
  */
-
-putinpub(file, tmp, user)
+int putinpub(file, tmp, user)
 register char *file, *tmp, *user;
 {
 	char fullname[MAXFULLNAME];
-	char *lastpart();
 	int status;
 
 	sprintf(fullname, "%s/%s/", PUBDIR, user);
@@ -910,8 +889,7 @@ register char *file, *tmp, *user;
  *
  *	return code - none
  */
-
-unlinkdf(file)
+void unlinkdf(file)
 register char *file;
 {
 	if (strlen(file) > 6)
@@ -924,7 +902,7 @@ register char *file;
  *
  *	return code - none
  */
-arrived(opt, file, nuser, rmtsys, rmtuser)
+void arrived(opt, file, nuser, rmtsys, rmtuser)
 char *file, *nuser, *rmtsys, *rmtuser;
 {
 	char mbuf[200];
@@ -936,7 +914,7 @@ char *file, *nuser, *rmtsys, *rmtuser;
 	return;
 }
 
-nullf()
+static int nullf()
 {
 	return SUCCESS;
 }

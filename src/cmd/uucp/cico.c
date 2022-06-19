@@ -1,7 +1,3 @@
-#if	!defined(lint) && defined(DOSCCS)
-static char sccsid[] = "@(#)cico.c	5.14.1 (2.11BSD) 1997/10/2";
-#endif
-
 #include <signal.h>
 #include "uucp.h"
 #include <setjmp.h>
@@ -78,11 +74,17 @@ struct termio Savettyb;
 struct sgttyb Savettyb;
 #endif
 
+static void onintr(int inter);
+static void dbg_signal(int inter);
+static void setdebug(int parm);
+static void timeout(int);
+static char *pskip(char *p);
+
 /*
  *	this program is used  to place a call to a
  *	remote machine, login, and copy files between the two machines.
  */
-main(argc, argv)
+int main(argc, argv)
 int argc;
 register char *argv[];
 {
@@ -91,8 +93,6 @@ register char *argv[];
 	char wkpre[NAMESIZE], file[NAMESIZE];
 	char msg[MAXFULLNAME], *q;
 	register char *p;
-	extern onintr(), timeout(), dbg_signal();
-	extern char *pskip();
 	char rflags[MAXFULLNAME];
 #ifdef NOGETPEER
 	u_long Hostnumber = 0;
@@ -187,11 +187,9 @@ register char *argv[];
 		close(ret);
 	}
 #endif
-#ifdef BSD4_2
 	if (getpgrp(0) == 0) { /* We have no controlling terminal */
-		setpgrp(0, getpid());
+		setpgrp();
 	}
-#endif
 
 	ret = subchdir(Spool);
 	ASSERT(ret >= 0, "CHDIR FAILED", Spool, ret);
@@ -597,7 +595,7 @@ loop:
 	ttyn = ttyname(Ifn);
 
 	alarm(MAXMSGTIME);
-	if (ret=setjmp(Sjbuf))
+	if ((ret = setjmp(Sjbuf)))
 		goto Failure;
 	ret = startup(Role);
 	alarm(0);
@@ -612,7 +610,7 @@ Failure:
 		if (ttyn != NULL) {
 			char startupmsg[BUFSIZ];
 			extern int linebaudrate;
-			sprintf(startupmsg, "startup %s %d baud", &ttyn[5], 
+			sprintf(startupmsg, "startup %s %d baud", &ttyn[5],
 				linebaudrate);
 			logent(startupmsg, "OK");
 		} else
@@ -664,7 +662,7 @@ struct sgttyb Hupvec;
 /*
  *	cleanup and exit with "code" status
  */
-cleanup(code)
+void cleanup(code)
 register int code;
 {
 	signal(SIGINT, SIG_IGN);
@@ -720,8 +718,7 @@ register int code;
 /*
  *	on interrupt - remove locks and exit
  */
-
-onintr(inter)
+void onintr(inter)
 register int inter;
 {
 	char str[30];
@@ -741,14 +738,13 @@ register int inter;
  * (SIGFPE, ugh), and toggle debugging between 0 and 30.
  * Handy for looking in on long running uucicos.
  */
-dbg_signal()
+void dbg_signal()
 {
 	Debug = (Debug == 0) ? 30 : 0;
 	setdebug(DBG_PERM);
 	if (Debug > 0)
 		logent("Signal Enabled", "DEBUG");
 }
-
 
 /*
  * Check debugging requests, and open RMTDEBUG audit file if necessary. If an
@@ -763,7 +759,7 @@ dbg_signal()
  * Each call creates a new file; if an old one of the same name exists it will
  * be overwritten.
  */
-setdebug(parm)
+void setdebug(parm)
 int parm;
 {
 	char buf[BUFSIZ];		/* Buffer for building filenames     */
@@ -833,7 +829,7 @@ int parm;
 	/*
 	 * We need RMTDEBUG directory to do auditing. If the file doesn't exist,
 	 * then we forget about debugging; if it exists but has improper owner-
-	 * ship or modes, we gripe about it in ERRLOG. 
+	 * ship or modes, we gripe about it in ERRLOG.
 	 */
 	if (stat(RMTDEBUG, &stbuf) != SUCCESS) {
 		Debug = 0;
@@ -871,7 +867,7 @@ int parm;
 /*
  *	catch SIGALRM routine
  */
-timeout()
+void timeout()
 {
 	extern int HaveSentHup;
 	if (!HaveSentHup) {
@@ -884,7 +880,7 @@ timeout()
 	longjmp(Sjbuf, 1);
 }
 
-char *
+static char *
 pskip(p)
 register char *p;
 {

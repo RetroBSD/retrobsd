@@ -1,11 +1,7 @@
-#ifndef lint
-static char sccsid[] = "@(#)chksum.c	4.2 (Berkeley) 6/19/85";
-#endif
-
 #ifndef pdp11
-chksum (s, n)
+int chksum(s, n)
 register char *s;
-register n;
+register int n;
 {
 	register long sum, x, t;
 
@@ -26,12 +22,12 @@ register n;
 	return (long) (short) sum;
 }
 #else
-chksum(s,n)
+int chksum(s, n)
 register char *s;
-register n;
+register int n;
 {
 	register unsigned sum, t;
-	register x;
+	register int x;
 
 	sum = -1;
 	x = 0;

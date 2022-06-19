@@ -1,10 +1,7 @@
-#if	!defined(lint) && defined(DOSCCS)
-static char sccsid[] = "@(#)ulockf.c	5.5.1 (2.11BSD) 1997/10/2";
-#endif
-
 #include "uucp.h"
 #include <sys/stat.h>
 #include <errno.h>
+#include <signal.h>
 
 #define	LCKMODE	0444	/* File mode for lock files */
 #define MAXLOCKS 16	/* Maximum number of lock files */
@@ -12,6 +9,8 @@ static char sccsid[] = "@(#)ulockf.c	5.5.1 (2.11BSD) 1997/10/2";
 char *Lockfile[MAXLOCKS];
 char *LockDirectory = LOCKDIR;
 int Nlocks = 0;
+
+static int onelock(int pid, char *tempfile, char *name);
 
 /*LINTLIBRARY*/
 
@@ -21,7 +20,7 @@ int Nlocks = 0;
  *
  *	return codes:  SUCCESS  |  FAIL
  */
-ulockf(hfile, atime)
+int ulockf(hfile, atime)
 char *hfile;
 time_t atime;
 {
@@ -85,7 +84,7 @@ time_t atime;
 /*
  *	remove all lock files in list or name
  */
-rmlock(name)
+void rmlock(name)
 register char *name;
 {
 	register int i;
@@ -110,7 +109,7 @@ register char *name;
  *	makes lock a name on behalf of pid. Tempfile must be in the same
  *	file system as name.
  */
-onelock(pid, tempfile, name)
+int onelock(pid, tempfile, name)
 int pid;
 char *tempfile, *name;
 {

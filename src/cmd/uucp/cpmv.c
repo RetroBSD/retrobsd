@@ -1,7 +1,3 @@
-#ifndef lint
-static char sccsid[] = "@(#)cpmv.c	5.5 (Berkeley) 10/9/85";
-#endif
-
 #include "uucp.h"
 #include <sys/stat.h>
 
@@ -12,13 +8,12 @@ static char sccsid[] = "@(#)cpmv.c	5.5 (Berkeley) 10/9/85";
  *
  *	return - SUCCESS | FAIL
  */
-xcp(f1, f2)
+int xcp(f1, f2)
 char *f1, *f2;
 {
 	char buf[BUFSIZ];
 	register int len;
 	register int fp1, fp2;
-	char *lastpart();
 	char full[MAXFULLNAME];
 	struct stat s;
 
@@ -48,13 +43,12 @@ char *f1, *f2;
 	return len < 0 ? FAIL: SUCCESS;
 }
 
-
 /*
  *	move f1 to f2
  *
  *	return  0 ok  |  FAIL failed
  */
-xmv(f1, f2)
+int xmv(f1, f2)
 register char *f1, *f2;
 {
 	register int ret;

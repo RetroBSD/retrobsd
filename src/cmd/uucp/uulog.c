@@ -1,14 +1,10 @@
-#ifndef lint
-static char sccsid[] = "@(#)uulog.c	5.4 (Berkeley) 6/23/85";
-#endif
-
 #include "uucp.h"
 
 #ifndef	SYSBUF
 static char SYSBUF[BUFSIZ];
 #endif
 
-main(argc, argv)
+int main(argc, argv)
 char *argv[];
 {
 	FILE *plogf;
@@ -87,7 +83,7 @@ char *argv[];
 	exit(0);
 }
 
-cleanup(code)
+void cleanup(code)
 int code;
 {
 	exit(code);

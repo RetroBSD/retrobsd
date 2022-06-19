@@ -1,7 +1,3 @@
-#ifndef lint
-static char sccsid[] = "@(#)uudecode.c	5.3 (Berkeley) 4/10/85";
-#endif
-
 /*
  * uudecode [input]
  *
@@ -19,7 +15,10 @@ static char sccsid[] = "@(#)uudecode.c	5.3 (Berkeley) 4/10/85";
 /* single character decode */
 #define DEC(c)	(((c) - ' ') & 077)
 
-main(argc, argv)
+static void decode(FILE *in, FILE *out);
+static void outdec(char *p, FILE *f, int n);
+
+int main(argc, argv)
 char **argv;
 {
 	FILE *in, *out;
@@ -98,7 +97,7 @@ char **argv;
 /*
  * copy from in to out, decoding as you go along.
  */
-decode(in, out)
+void decode(in, out)
 FILE *in;
 FILE *out;
 {
@@ -131,7 +130,7 @@ FILE *out;
  * be output to file f.  n is used to tell us not to
  * output all of them at the end of the file.
  */
-outdec(p, f, n)
+void outdec(p, f, n)
 char *p;
 FILE *f;
 {
@@ -166,10 +165,3 @@ int cnt;
 	}
 	return (cnt);
 }
-
-/*
- * Return the ptr in sp at which the character c appears;
- * NULL if not found
- */
-
-#define	NULL	0

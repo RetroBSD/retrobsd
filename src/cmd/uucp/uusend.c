@@ -1,7 +1,3 @@
-#if	!defined(lint) && defined(DOSCCS)
-static char sccsid[] = "@(#)uusend.c	5.2.1 (2.11BSD) 1996/10/24";
-#endif
-
 /*
  * uusend: primitive operation to allow uucp like copy of binary files
  * but handle indirection over systems.
@@ -26,6 +22,7 @@ static char sccsid[] = "@(#)uusend.c	5.2.1 (2.11BSD) 1996/10/24";
 #include <pwd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -39,7 +36,7 @@ static char sccsid[] = "@(#)uusend.c	5.2.1 (2.11BSD) 1996/10/24";
  * which they certainly should to avoid security holes
  */
 #define	RECOVER
-/*#define	DEBUG	"/usr/spool/uucp/uusend.log"/**/
+//#define	DEBUG	"/usr/spool/uucp/uusend.log"/**/
 
 FILE	*in, *out;
 FILE	*dout;
@@ -76,7 +73,7 @@ char	f[100];		/* name of default output file */
 char	*f	= "";	/* so we waste a little space */
 #endif
 
-main(argc, argv)
+int main(argc, argv)
 int	argc;
 char	**argv;
 {
@@ -327,7 +324,7 @@ register char *p;
 }
 
 #ifndef BSD4_2
-makedir(dirname, mode)
+int makedir(dirname, mode)
 char *dirname;
 int mode;
 {

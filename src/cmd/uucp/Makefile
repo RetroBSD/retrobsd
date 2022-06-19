@@ -17,7 +17,7 @@ LIBOBJ  = logent.o ulockf.o uucpdefs.o subdir.o gename.o assert.o expfile.o \
           mailst.o systat.o cntrl.o imsg.o gio.o sysacct.o pk0.o pk1.o \
           conn.o condevs.o chksum.o setline.o gnsys.o
 
-CC      = $(GCCPREFIX)gcc -EL -msoft-float -nostdinc -fshort-double -I$(TOPSRC)/include $(INCLUDES)
+#CC      = $(GCCPREFIX)gcc -EL -msoft-float -nostdinc -fshort-double -I$(TOPSRC)/include $(INCLUDES)
 #CC      += -mips16
 
 

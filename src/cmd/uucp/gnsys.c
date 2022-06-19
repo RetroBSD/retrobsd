@@ -1,7 +1,3 @@
-#if	!defined(lint) && defined(DOSCCS)
-static char sccsid[] = "@(#)gnsys.c	5.4.1 (2.11BSD) 1997/10/31";
-#endif
-
 #include "uucp.h"
 #include <strings.h>
 #ifdef	NDIR
@@ -12,6 +8,8 @@ static char sccsid[] = "@(#)gnsys.c	5.4.1 (2.11BSD) 1997/10/31";
 
 #define LSIZE 128	/* number of systems to store */
 #define WSUFSIZE 6	/* work file name suffix size */
+
+static int srchst(char *name, char **list, int n);
 
 /*LINTLIBRARY*/
 
@@ -26,9 +24,7 @@ static char sccsid[] = "@(#)gnsys.c	5.4.1 (2.11BSD) 1997/10/31";
  *		SUCCESS  -  no more names
  *		FAIL  -  bad directory
  */
-
-gnsys(sname, dir, pre)
-char *sname, *dir, pre;
+int gnsys(char *sname, char *dir, char pre)
 {
 	register char *s, *p1, *p2;
 	char px[3];
@@ -114,8 +110,7 @@ retry:
  *	return codes:
  *		n - the number of items in the list
  */
-
-srchst(name, list, n)
+int srchst(name, list, n)
 char *name;
 register char **list;
 int n;

@@ -1,7 +1,3 @@
-#ifndef lint
-static char sccsid[] = "@(#)setline.c	5.3 (Berkeley) 6/20/85";
-#endif
-
 #include "uucp.h"
 #ifdef	USG
 #include <termio.h>
@@ -20,8 +16,7 @@ static char sccsid[] = "@(#)setline.c	5.3 (Berkeley) 6/20/85";
  *	return code - none
  */
 /*ARGSUSED*/
-setupline(type)
-char type;
+void setupline(char type)
 {
 #ifdef	USG
 	static struct termio tbuf, sbuf;

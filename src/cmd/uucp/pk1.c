@@ -1,7 +1,3 @@
-#if	!defined(lint) && defined(DOSCCS)
-static char sccsid[] = "@(#)pk1.c	5.9.2 (2.11BSD) 1997/10/2";
-#endif
-
 #include <signal.h>
 #include <strings.h>
 #include "uucp.h"
@@ -32,6 +28,7 @@ int Connodata = 0;
 int Ntimeout = 0;
 int pktimeout = 4;
 int pktimeskew = 2;
+
 /*
  * packet driver support routines
  *
@@ -39,10 +36,12 @@ int pktimeskew = 2;
 
 extern struct pack *pklines[];
 
+static int pkcget(int fn, char *b, int n);
+static void pkdata(char c, unsigned short sum, struct pack *pk, char **bp);
+
 /*
  * start initial synchronization.
  */
-
 struct pack *
 pkopen(ifn, ofn)
 int ifn, ofn;
@@ -120,11 +119,11 @@ int pksizes[] = {
 };
 
 #define GETRIES 10
+
 /*
  * Pseudo-dma byte collection.
  */
-
-pkgetpack(pk)
+void pkgetpack(pk)
 register struct pack *pk;
 {
 	int k, tries, noise;
@@ -217,13 +216,9 @@ register struct pack *pk;
 	}
 }
 
-pkdata(c, sum, pk, bp)
-char c;
-unsigned short sum;
-register struct pack *pk;
-char **bp;
+void pkdata(char c, unsigned short sum, register struct pack *pk, char **bp)
 {
-	register x;
+	register int x;
 	int t;
 	char m;
 
@@ -254,6 +249,7 @@ slot:
  * setup input transfers
  */
 #define PKMAXBUF 128
+
 /*
  * Start transmission on output device associated with pk.
  * For asynch devices (t_line==1) framing is
@@ -261,10 +257,7 @@ slot:
  * in the driver (t_line==2) the transfer is
  * passed on to the driver.
  */
-pkxstart(pk, cntl, x)
-register struct pack *pk;
-char cntl;
-register x;
+void pkxstart(register struct pack *pk, char cntl, register int x)
 {
 	register char *p;
 	short checkword;
@@ -319,8 +312,7 @@ register x;
 		pkoutput(pk);
 }
 
-
-pkmove(p1, p2, count, flag)
+void pkmove(p1, p2, count, flag)
 char *p1, *p2;
 int count, flag;
 {
@@ -338,7 +330,6 @@ int count, flag;
 		*d++ = *s++;
 }
 
-
 /*
  *	get n characters from input
  *
@@ -348,12 +339,13 @@ int count, flag;
  */
 
 jmp_buf Getjbuf;
-cgalarm()
+
+void cgalarm()
 {
 	longjmp(Getjbuf, 1);
 }
 
-pkcget(fn, b, n)
+int pkcget(fn, b, n)
 int fn;
 register char *b;
 register int n;
@@ -423,7 +415,7 @@ register int n;
 			logent(strerror(errno),"FAILED pkcget Read");
 			longjmp(Sjbuf, 6);
 		}
- 		b += ret;
+		b += ret;
 		n -= ret;
 	}
 	alarm(0);

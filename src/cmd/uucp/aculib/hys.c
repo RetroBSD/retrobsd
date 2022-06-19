@@ -1,7 +1,3 @@
-#ifndef lint
-static char sccsid[] = "@(#)hys.c	4.6 (Berkeley) 2/12/86";
-#endif
-
 #include "../condevs.h"
 
 #ifdef HAYES
@@ -15,38 +11,13 @@ static char sccsid[] = "@(#)hys.c	4.6 (Berkeley) 2/12/86";
  */
 #endif
 
-/*
- *	hyspopn(telno, flds, dev) connect to hayes smartmodem (pulse call)
- *	hystopn(telno, flds, dev) connect to hayes smartmodem (tone call)
- *	char *flds[], *dev[];
- *
- *	return codes:
- *		>0  -  file number  -  ok
- *		CF_DIAL,CF_DEVICE  -  failed
- */
-
-hyspopn(telno, flds, dev)
-char *telno, *flds[];
-struct Devices *dev;
-{
-	return hysopn(telno, flds, dev, 0);
-}
-
-hystopn(telno, flds, dev)
-char *telno, *flds[];
-struct Devices *dev;
-{
-	return hysopn(telno, flds, dev, 1);
-}
-
 /* ARGSUSED */
-hysopn(telno, flds, dev, toneflag)
+int hysopn(telno, flds, dev, toneflag)
 char *telno;
 char *flds[];
 struct Devices *dev;
 int toneflag;
 {
-	extern errno;
 	char dcname[20];
 	char cbuf[MAXPH];
 	register char *cp;
@@ -130,7 +101,7 @@ int toneflag;
 			return CF_DIAL;
 		}
 		i = atoi(&cbuf[8]);
-		if (i > 0 && i != dev->D_speed) {	
+		if (i > 0 && i != dev->D_speed) {
 			DEBUG(4,"Baudrate reset to %d\n", i);
 			fixline(dh, i);
 		}
@@ -144,14 +115,37 @@ int toneflag;
 	return dh;
 }
 
-hyscls(fd)
+/*
+ *	hyspopn(telno, flds, dev) connect to hayes smartmodem (pulse call)
+ *	hystopn(telno, flds, dev) connect to hayes smartmodem (tone call)
+ *	char *flds[], *dev[];
+ *
+ *	return codes:
+ *		>0  -  file number  -  ok
+ *		CF_DIAL,CF_DEVICE  -  failed
+ */
+
+int hyspopn(telno, flds, dev)
+char *telno, *flds[];
+struct Devices *dev;
+{
+	return hysopn(telno, flds, dev, 0);
+}
+
+int hystopn(telno, flds, dev)
+char *telno, *flds[];
+struct Devices *dev;
+{
+	return hysopn(telno, flds, dev, 1);
+}
+
+int hyscls(fd)
 int fd;
 {
 	char dcname[20];
 #ifdef DROPDTR
 	struct sgttyb hup, sav;
 #endif
-
 	if (fd > 0) {
 		sprintf(dcname, "/dev/%s", devSel);
 		DEBUG(4, "Hanging up fd = %d\n", fd);
@@ -187,5 +181,6 @@ int fd;
 		close(fd);
 		delock(devSel);
 	}
+	return 0;
 }
 #endif

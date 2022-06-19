@@ -1,13 +1,4 @@
-#ifndef lint
-static char sccsid[] = "@(#)gnamef.c	5.4 (Berkeley) 6/20/85";
-#endif
-
 #include "uucp.h"
-#ifdef	NDIR
-#include "ndir.h"
-#else
-#include <sys/dir.h>
-#endif
 
 /*LINTLIBRARY*/
 
@@ -18,8 +9,7 @@ static char sccsid[] = "@(#)gnamef.c	5.4 (Berkeley) 6/20/85";
  *		0  -  end of directory read
  *		1  -  returned name
  */
-
-gnamef(dirp, filename)
+int gnamef(dirp, filename)
 register DIR *dirp;
 register char *filename;
 {

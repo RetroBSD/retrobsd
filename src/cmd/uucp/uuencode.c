@@ -1,7 +1,3 @@
-#ifndef lint
-static char sccsid[] = "@(#)uuencode.c	5.3 (Berkeley) 1/22/85";
-#endif
-
 /*
  * uuencode [input] output
  *
@@ -11,11 +7,16 @@ static char sccsid[] = "@(#)uuencode.c	5.3 (Berkeley) 1/22/85";
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 /* ENC is the basic 1 character encoding function to make a char printing */
 #define ENC(c) ((c) ? ((c) & 077) + ' ': '`')
 
-main(argc, argv)
+static void encode(FILE *in, FILE *out);
+static int fr(FILE *fd, char *buf, int cnt);
+static void outdec(char *p, FILE *f);
+
+int main(argc, argv)
 char **argv;
 {
 	FILE *in;
@@ -51,7 +52,7 @@ char **argv;
 /*
  * copy from in to out, encoding as you go along.
  */
-encode(in, out)
+void encode(in, out)
 FILE *in;
 FILE *out;
 {
@@ -75,7 +76,7 @@ FILE *out;
 /*
  * output one group of 3 bytes, pointed at by p, on file f.
  */
-outdec(p, f)
+void outdec(p, f)
 char *p;
 FILE *f;
 {

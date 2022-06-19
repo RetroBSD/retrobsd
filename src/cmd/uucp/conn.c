@@ -1,7 +1,3 @@
-#if	!defined(lint) && defined(DOSCCS)
-static char sccsid[] = "@(#)conn.c	5.10.2 (2.11BSD) 1997/10/2";
-#endif
-
 #include <signal.h>
 #include <strings.h>
 #include "uucp.h"
@@ -37,10 +33,22 @@ int	linebaudrate;	/* used for the sleep test in pk1.c */
 int next_fd = -1;	/* predicted fd to close interrupted opens */
 
 char *PCP = "PCP";	/* PC Pursuit device type */
+
+static int finds(FILE *fsys, char *sysnam, char info[], char *flds[]);
+static int getto(char *flds[]);
+static int login(int nf, char *flds[], int fn);
+static char *fdig(char *cp);
+static int ifdate(char *p);
+static void sendthem(char *str, int fn);
+static int notin(char *sh, char *lg);
+static void bld_partab(int type);
+static void p_chwrite(int fd, char c);
+static int ifadate(char *string);
+
 /*
  *	catch alarm routine for "expect".
  */
-alarmtr()
+void alarmtr(int sig)
 {
 	signal(SIGALRM, (sig_t)alarmtr);
 	if (next_fd >= 0) {
@@ -51,7 +59,7 @@ alarmtr()
 	longjmp(Sjbuf, 1);
 }
 
-/* This template is for seismo to call ihnp4 
+/* This template is for seismo to call ihnp4
  * the 3 lines marked ---> will be overwritten for the appropriate city
  */
 #define PCP_BAUD	3
@@ -100,7 +108,7 @@ char *Flds[MAXC/10];
 char LineType[10];
 extern int LocalOnly;
 
-conn(system)
+int conn(system)
 char *system;
 {
 	int nf;
@@ -166,9 +174,9 @@ keeplooking:
 			}
 			Flds[F_CLASS] = dev.D_class;
 			Flds[F_PHONE] = dev.D_line;
-			
+
 		} /* end PC Pursuit */
-		if ((fcode = getto(Flds)) > 0) 
+		if ((fcode = getto(Flds)) > 0)
 			break;
 	}
 
@@ -213,12 +221,10 @@ keeplooking:
  *		>0  -  file number - ok
  *		FAIL  -  failed
  */
-
-getto(flds)
+int getto(flds)
 register char *flds[];
 {
 	register struct condev *cd;
-	int nulldev(), diropn();
 	char *line;
 
 	DEBUG(4, "getto: call no. %s ", flds[F_PHONE]);
@@ -253,15 +259,14 @@ register char *flds[];
 	return diropn(flds);	/* search failed, so use direct */
 }
 
+int (*CU_end)() = nulldev;
+
 /*
  *	close call unit
  *
  *	return codes:  none
  */
-
-int nulldev();
-int (*CU_end)() = nulldev;
-clsacu()
+void clsacu()
 {
 	/* make *sure* Dcf is no longer exclusive.
 	 * Otherwise dual call-in/call-out modems could get stuck.
@@ -270,8 +275,9 @@ clsacu()
 	 * Hopefully everyone honors the LCK protocol, of course
 	 */
 #ifdef	TIOCNXCL
-	if (!IsTcpIp && Dcf >= 0 && ioctl(Dcf, TIOCNXCL, STBNULL) < 0)
+	if (!IsTcpIp && Dcf >= 0 && ioctl(Dcf, TIOCNXCL, STBNULL) < 0) {
 		DEBUG(5, "clsacu ioctl %s\n", strerror(errno));
+        }
 #endif
 	if  (setjmp(Sjbuf))
 		logent(Rmtname, "CLOSE TIMEOUT");
@@ -292,8 +298,7 @@ clsacu()
 /*
  *	expand phone number for given prefix and number
  */
-
-exphone(in, out)
+void exphone(in, out)
 register char *in, *out;
 {
 	FILE *fn;
@@ -340,8 +345,7 @@ register char *in, *out;
  *
  *	return code - FAIL at end-of file; 0 otherwise
  */
-
-rddev(fp, dev)
+int rddev(fp, dev)
 register struct Devices *dev;
 FILE *fp;
 {
@@ -368,8 +372,7 @@ FILE *fp;
  *		CF_SYSTEM  -  system name not found
  *		CF_TIME  -  wrong time to call
  */
-
-finds(fsys, sysnam, info, flds)
+int finds(fsys, sysnam, info, flds)
 char *sysnam, info[], *flds[];
 FILE *fsys;
 {
@@ -401,8 +404,7 @@ FILE *fsys;
  *
  *	return codes:  SUCCESS  |  FAIL
  */
-
-login(nf, flds, fn)
+int login(nf, flds, fn)
 register char *flds[];
 int nf, fn;
 {
@@ -513,8 +515,7 @@ struct sg_spds {int sp_val, sp_name;} spds[] = {
  *
  *	return codes:  none
  */
-
-fixline(tty, spwant)
+int fixline(tty, spwant)
 int tty, spwant;
 {
 #ifdef	USG
@@ -570,8 +571,7 @@ int tty, spwant;
  *		FAIL  -  lost line or too many characters read
  *		some character  -  timed out
  */
-
-expect(str, fn)
+int expect(str, fn)
 register char *str;
 int fn;
 {
@@ -651,7 +651,7 @@ int fn;
  * It is a UNIX kernel problem, but it has to be handled.
  * unc!smb (Steve Bellovin) probably first discovered it.
  */
-getnextfd()
+void getnextfd()
 {
 	close(next_fd = open("/", 0));
 }
@@ -661,7 +661,7 @@ getnextfd()
  *
  *	return codes:  none
  */
-sendthem(str, fn)
+void sendthem(str, fn)
 register char *str;
 int fn;
 {
@@ -801,9 +801,7 @@ int fn;
 	return;
 }
 
-p_chwrite(fd, c)
-int fd;
-char c;
+void p_chwrite(int fd, char c)
 {
 	c = par_tab[c&0177];
 	if (write(fd, &c, 1) != 1) {
@@ -815,7 +813,7 @@ char c;
 /*
  * generate parity table for use by p_chwrite.
  */
-bld_partab(type)
+void bld_partab(type)
 int type;
 {
 	register int i, j, n;
@@ -839,7 +837,7 @@ int type;
  *		0  -  found the string
  *		1  -  not in the string
  */
-notin(sh, lg)
+int notin(sh, lg)
 register char *sh, *lg;
 {
 	while (*lg != '\0') {
@@ -854,7 +852,7 @@ register char *sh, *lg;
 /*
  *	Allow multiple date specifications separated by ','.
  */
-ifdate(p)
+int ifdate(p)
 register char *p;
 {
 	register char *np;
@@ -904,8 +902,7 @@ register char *p;
  *		0  -  not within limits
  *		1  -  within limits
  */
-
-ifadate(string)
+int ifadate(string)
 char *string;
 {
 	static char *days[]={
@@ -962,13 +959,13 @@ char *string;
 	if (dayok == 0 && s != string)
 		return FAIL;
 	i = sscanf(s, "%d-%d", &tl, &th);
-  	if (i < 2)
-  		return MGrade;
+	if (i < 2)
+		return MGrade;
 	tn = tp->tm_hour * 100 + tp->tm_min;
-  	if (th < tl) { 		/* crosses midnight */
-  		if (tl <= tn || tn < th)
-  			return MGrade;
-  	} else {
+	if (th < tl) { 		/* crosses midnight */
+		if (tl <= tn || tn < th)
+			return MGrade;
+	} else {
 		if (tl <= tn && tn < th)
 			return MGrade;
 	}
@@ -996,7 +993,7 @@ register char *cp;
  * Compare strings:  s1>s2: >0  s1==s2: 0  s1<s2: <0
  * Strings are compared as if they contain all capital letters.
  */
-snccmp(s1, s2)
+int snccmp(s1, s2)
 register char *s1, *s2;
 {
 	char c1, c2;
@@ -1030,7 +1027,7 @@ register char *s1, *s2;
  * Compare strings:  s1>s2: >0  s1==s2: 0  s1<s2: <0
  * Strings are compared as if they contain all capital letters.
  */
-sncncmp(s1, s2, n)
+int sncncmp(s1, s2, n)
 register char *s1, *s2;
 register int n;
 {
@@ -1060,12 +1057,13 @@ register int n;
 	}
 	return n<0 ? 0 : (c1 - c2);
 }
+
 /*
  * do chat script
  * occurs after local port is opened,
  * before 'dialing' the other machine.
  */
-dochat(dev, flds, fd)
+int dochat(dev, flds, fd)
 register struct Devices *dev;
 char *flds[];
 int fd;
@@ -1103,7 +1101,7 @@ int fd;
  *
  *	return codes:  none
  */
-fixmode(tty)
+void fixmode(tty)
 register int tty;
 {
 #ifdef	USG
@@ -1140,4 +1138,3 @@ register int tty;
 		}
 	ASSERT(linebaudrate >= 0, "BAD SPEED", CNULL, speed);
 }
-

@@ -1,7 +1,3 @@
-#ifndef lint
-static char sccsid[] = "@(#)anyread.c	5.4 (Berkeley) 6/19/85";
-#endif
-
 #include "uucp.h"
 #include <sys/stat.h>
 
@@ -11,7 +7,7 @@ static char sccsid[] = "@(#)anyread.c	5.4 (Berkeley) 6/19/85";
  *	anyread		check if anybody can read
  *	return SUCCESS ok: FAIL not ok
  */
-anyread(file)
+int anyread(file)
 char *file;
 {
 	struct stat s;

@@ -1,7 +1,3 @@
-#ifndef lint
-static char sccsid[] = "@(#)getprm.c	5.4 (Berkeley) 10/9/85";
-#endif
-
 #include "uucp.h"
 #include <strings.h>
 
@@ -15,7 +11,6 @@ static char sccsid[] = "@(#)getprm.c	5.4 (Berkeley) 10/9/85";
  *
  *	return - pointer to next character in s
  */
-
 char *
 getprm(s, prm)
 register char *s, *prm;

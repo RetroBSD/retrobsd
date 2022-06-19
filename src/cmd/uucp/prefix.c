@@ -1,17 +1,12 @@
-#ifndef lint
-static char sccsid[] = "@(#)prefix.c	5.3 (Berkeley) 6/20/85";
-#endif
-
 /*LINTLIBRARY*/
 
 /*
  *	check s2 for prefix s1
  *
  *	return 0 - !=
- *	return 1 - == 
+ *	return 1 - ==
  */
-
-prefix(s1, s2)
+int prefix(s1, s2)
 register char *s1, *s2;
 {
 	register char c;
@@ -26,9 +21,9 @@ register char *s1, *s2;
  *	check s2 for prefix s1 with a wildcard character ?
  *
  *	return 0 - !=
- *	return 1 - == 
+ *	return 1 - ==
  */
-
+int
 wprefix(s1, s2)
 register char *s1, *s2;
 {

@@ -1,7 +1,3 @@
-#ifndef lint
-static char sccsid[] = "@(#)uusnap.c	5.7 (Berkeley) 10/9/85";
-#endif
-
 /*
  *	Uusnap - displays a snapshot of the uucp system.
  *	originally by	RJKing WECo-MG6565 May 83
@@ -46,7 +42,10 @@ int	sndx;					/* Number of systems */
 struct	scnt	sys[NSYSTEM];			/* Systems queued */
 int xqtisrunning = 0;
 
-main()
+static void scandir(char *dnam, char *prfx, int flen, char fchr, int type);
+static void getstst(char *sdir);
+
+int main()
 {	register int i, j, nlen = 0;
 	time_t	curtime, t;
 
@@ -125,8 +124,7 @@ main()
 	exit(0);
 }
 
-scandir(dnam, prfx, flen, fchr, type)
-char *dnam, *prfx, fchr;
+void scandir(char *dnam, char *prfx, int flen, char fchr, int type)
 {
 	register struct direct *dentp;
 	register DIR *dirp;
@@ -189,7 +187,7 @@ char *dnam, *prfx, fchr;
 	closedir(dirp);
 }
 
-getstst(sdir)
+void getstst(sdir)
 char *sdir;
 {
 	register int i, csys;
@@ -263,7 +261,7 @@ char *sdir;
 		buff[0] = '\0';
 		fgets(buff, sizeof(buff), st);
 		fclose(st);
-		if(tp = rindex(buff, ' '))
+		if ((tp = rindex(buff, ' ')))
 			*tp = NULL;		/* drop system name */
 		else
 			continue;

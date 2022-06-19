@@ -126,3 +126,15 @@ struct	piocb {
 };
 
 extern int pksizes[];
+
+void pkclose(struct pack *pk);
+int pkread(struct pack *pk, char *ibuf, int icount);
+int pkwrite(struct pack *pk, char *ibuf, int icount);
+int pksack(struct pack *pk);
+void pkoutput(struct pack *pk);
+void pkgetpack(struct pack *pk);
+void pkmove(char *p1, char *p2, int count, int flag);
+void pkxstart(struct pack *pk, char cntl, int x);
+void pkreset(struct pack *pk);
+void pkfail(void);
+void pkcntl(int c, struct pack *pk);

@@ -1,7 +1,3 @@
-#ifndef lint
-static char sccsid[] = "@(#)gnxseq.c	5.4 (Berkeley) 6/20/85";
-#endif
-
 #include "uucp.h"
 #ifdef BSD4_2
 #include <sys/time.h>

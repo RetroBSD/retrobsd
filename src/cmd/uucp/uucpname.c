@@ -1,7 +1,3 @@
-#ifndef lint
-static char sccsid[] = "@(#)uucpname.c	5.5 (Berkeley) 10/9/85";
-#endif
-
 #include "uucp.h"
 #include <sys/stat.h>
 #include <strings.h>
@@ -28,7 +24,7 @@ char Myfullname[64];
  *
  *	return code - none
  */
-uucpname(name)
+void uucpname(name)
 register char *name;
 {
 	register char *s;
@@ -119,7 +115,7 @@ register char *name;
 			p = index(s, '\n');
 			if (p)
 				*p = '\0';
-  		}
+		}
 		if (uucpf != NULL)
 			fclose(uucpf);
 	}
@@ -190,11 +186,11 @@ int len;
 	register char *p, *q, *nptr;
 	int i;
 	register FILE *fd;
-	
+
 	fd = fopen(HDRFILE, "r");
 	if (fd == NULL)
 		return(-1);
-	
+
 	hname[0] = 0;
 	nname[0] = 0;
 	nptr = nname;

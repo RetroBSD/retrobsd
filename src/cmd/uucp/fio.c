@@ -1,7 +1,3 @@
-#ifndef lint
-static char sccsid[] = "@(#)fio.c	5.3 (Berkeley) 10/9/85";
-#endif
-
 /*
  * flow control protocol.
  *
@@ -20,7 +16,7 @@ static char sccsid[] = "@(#)fio.c	5.3 (Berkeley) 10/9/85";
  * PAD X.28 command mode, be sure to disable that access
  * (PAD par 1). Also make sure both flow control pars
  * (5 and 12) are set. The CR used in this proto is meant
- * to trigger packet transmission, hence par 3 should be 
+ * to trigger packet transmission, hence par 3 should be
  * set to 2; a good value for the Idle Timer (par 4) is 10.
  * All other pars should be set to 0.
  *
@@ -58,7 +54,7 @@ static char sccsid[] = "@(#)fio.c	5.3 (Berkeley) 10/9/85";
 
 #define FOBUFSIZ	256	/* for X.25 interfaces: set equal to packet size;
 				 * otherwise make as large as feasible to reduce
-				 * number of write system calls 
+				 * number of write system calls
 				 */
 
 #ifndef MAXMSGLEN
@@ -83,7 +79,7 @@ static int (*fsig)();
 #define termio	sgttyb
 #endif USG
 
-fturnon()
+int fturnon()
 {
 	int ret;
 	struct termio ttbuf;
@@ -109,7 +105,7 @@ fturnon()
 	return SUCCESS;
 }
 
-fturnoff()
+int fturnoff()
 {
 	(void) signal(SIGALRM, fsig);
 	return SUCCESS;
@@ -174,7 +170,7 @@ int fn;
 	char ack, ibuf[MAXMSGLEN];
 	int flen, mil, retries = 0;
 	long abytes, fbytes;
-	struct timeb t1, t2;
+	struct timeval t1, t2;
 
 	ret = FAIL;
 retry:
@@ -248,7 +244,7 @@ register FILE *fp2;
 	char ibuf[FIBUFSIZ];
 	int ret, mil, retries = 0;
 	long alen, abytes, fbytes;
-	struct timeb t1, t2;
+	struct timeval t1, t2;
 
 	ret = FAIL;
 retry:
@@ -288,7 +284,7 @@ acct:
 	}
 	sprintf(ibuf, "received data %ld bytes %ld.%02d secs",
 		fbytes, (long)t2.time, mil/10);
-	if (retries > 0) 
+	if (retries > 0)
 		sprintf(&ibuf[strlen(ibuf)]," %d retries", retries);
 	sysacct(abytes, t2.time);
 	DEBUG(1, "%s\n", ibuf);
@@ -546,4 +542,3 @@ dcorr:
 	}
 	return FAIL;
 }
-

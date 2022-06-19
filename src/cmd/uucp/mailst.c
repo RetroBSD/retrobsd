@@ -1,12 +1,12 @@
-#if	!defined(lint) && defined(DOSCCS)
-static char sccsid[] = "@(#)mailst.c	5.6.1 (2.11BSD GTE) 6/11/94";
-#endif
-
 #include <signal.h>
 #include "uucp.h"
 #ifdef USG
 #include <fcntl.h>
 #endif
+#include <sys/wait.h>
+
+static FILE *rpopen(char *cmd, char *mode);
+static int rpclose(FILE *ptr);
 
 /*LINTLIBRARY*/
 
@@ -16,8 +16,7 @@ static char sccsid[] = "@(#)mailst.c	5.6.1 (2.11BSD GTE) 6/11/94";
  *	If file is non-null, the file is also sent.
  *	(this is used for mail returned to sender.)
  */
-
-mailst(user, str, file)
+void mailst(user, str, file)
 char *user, *str, *file;
 {
 	register FILE *fp, *fi;
@@ -53,7 +52,7 @@ char	*cmd;
 char	*mode;
 {
 	int p[2];
-	register myside, hisside, pid;
+	register int myside, hisside, pid;
 
 	if(pipe(p) < 0)
 		return NULL;
@@ -82,10 +81,10 @@ char	*mode;
 	return(fdopen(myside, mode));
 }
 
-rpclose(ptr)
+int rpclose(ptr)
 FILE *ptr;
 {
-	register f, r;
+	register int f, r;
         register sig_t hstat, istat, qstat;
 	int status;
 

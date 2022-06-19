@@ -1,7 +1,3 @@
-#if	!defined(lint) && defined(DOSCCS)
-static char sccsid[] = "@(#)uuq.c	4.6.1 (2.11BSD) 1997/10/2";
-#endif
-
 /*
  * uuq - looks at uucp queues
  *
@@ -65,12 +61,15 @@ float baudrate = 1200.;
 char Username[BUFSIZ];
 char Filename[BUFSIZ];
 int Maxulen = 0;
-struct timeb Now;
+struct timeval Now;
 
-main(argc, argv)
+static void gather(void);
+static int analjob(char *filename);
+
+int main(argc, argv)
 char **argv;
 {
-	register i;
+	register int i;
 	register struct sys *sp;
 	register struct job *jp;
 	struct job **sortjob;
@@ -172,7 +171,7 @@ char **argv;
 	exit(0);
 }
 
-jcompare(j1, j2)
+int jcompare(j1, j2)
 struct job **j1, **j2;
 {
 	int delta;
@@ -186,7 +185,7 @@ struct job **j1, **j2;
 /*
  * Get all the command file names
  */
-gather()
+void gather()
 {
 	struct direct *d;
 	DIR *df;
@@ -215,7 +214,7 @@ gather()
 /*
  * analjob does the grunge work of verifying jobs
  */
-analjob(filename)
+int analjob(filename)
 char *filename;
 {
 	struct job *jp;

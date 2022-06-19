@@ -1,7 +1,3 @@
-#if	!defined(lint) && defined(DOSCCS)
-static char sccsid[] = "@(#)chkpth.c	5.4.1 (2.11BSD) 1997/10/2";
-#endif
-
 #include "uucp.h"
 #include <sys/stat.h>
 #include <strings.h>
@@ -13,9 +9,12 @@ struct userpath {
 	char **us_path;
 	struct userpath *unext;
 };
+
 struct userpath *Uhead = NULL;
 struct userpath *Mchdef = NULL, *Logdef = NULL;
 int Uptfirst = 1;
+
+static void rdpth(void);
 
 /*LINTLIBRARY*/
 
@@ -26,12 +25,10 @@ int Uptfirst = 1;
  *
  *	return codes:  0  |  FAIL
  */
-
-chkpth(logname, mchname, path)
+int chkpth(logname, mchname, path)
 char *path, *logname, *mchname;
 {
 	register struct userpath *u;
-	extern char *lastpart();
 	register char **p, *s;
 
 	/* Allow only rooted pathnames.  Security wish.  rti!trt */
@@ -79,7 +76,6 @@ char *path, *logname, *mchname;
 	return FAIL;
 }
 
-
 /***
  *	rdpth()
  *
@@ -87,8 +83,7 @@ char *path, *logname, *mchname;
  *	construct the userpath structure pointed to by (u);
  *
  */
-
-rdpth()
+void rdpth()
 {
 	char buf[100 + 1], *pbuf[50 + 1];
 	register struct userpath *u;
@@ -167,8 +162,7 @@ rdpth()
  *		0  -  no call back
  *		1  -  call back
  */
-
-callback(name)
+int callback(name)
 register char *name;
 {
 	register struct userpath *u;
@@ -190,7 +184,6 @@ register char *name;
 	return 0;
 }
 
-
 /***
  *	chkperm(file, mopt)	check write permission of file
  *	char *mopt;		none NULL - create directories
@@ -202,14 +195,12 @@ register char *name;
  *
  *	return SUCCESS | FAIL
  */
-
-chkperm(file, mopt)
+int chkperm(file, mopt)
 char *file, *mopt;
 {
 	struct stat s;
 	int ret;
 	char dir[MAXFULLNAME];
-	extern char *lastpart();
 
 	if (stat(subfile(file), &s) == 0) {
 		if ((s.st_mode & ANYWRITE) == 0) {
@@ -240,7 +231,7 @@ char *file, *mopt;
 /*
  * Check for sufficient privilege to request debugging.
  */
-chkdebug()
+void chkdebug()
 {
 	if (access(SYSFILE, 04) < 0) {
 		fprintf(stderr, "Sorry, you must be able to read L.sys for debugging\n");

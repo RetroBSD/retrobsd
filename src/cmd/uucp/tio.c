@@ -1,14 +1,9 @@
-#ifndef lint
-static char sccsid[] = "@(#)tio.c	4.6 (Berkeley) 1/24/86";
-#endif
-
 #include <signal.h>
 #include "uucp.h"
 #include <setjmp.h>
 #include <sys/stat.h>
 #include <netinet/in.h>
 
-extern int pkfail();
 #define TPACKSIZE	512
 #define TBUFSIZE	1024
 #define	LBUFSIZE	128
@@ -95,7 +90,7 @@ FILE *fp1;
 	struct tbuf bufr;
 	register int len;
 	int ret, mil;
-	struct timeb t1, t2;
+	struct timeval t1, t2;
 	long bytes;
 	char text[LBUFSIZE];
 
@@ -159,7 +154,7 @@ FILE *fp2;
 {
 	register int len, nread;
 	char bufr[TBUFSIZE];
-	struct timeb t1, t2;
+	struct timeval t1, t2;
 	int mil;
 	long bytes, Nbytes;
 

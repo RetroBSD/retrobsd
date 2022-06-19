@@ -1,7 +1,3 @@
-#if	!defined(lint) && defined(DOSCCS)
-static char sccsid[] = "@(#)versys.c	5.5.1 (2.11BSD) 1997/10/2";
-#endif
-
 #include "uucp.h"
 #include <stdio.h>
 #include <ctype.h>
@@ -9,6 +5,8 @@ static char sccsid[] = "@(#)versys.c	5.5.1 (2.11BSD) 1997/10/2";
 /*LINTLIBRARY*/
 
 char PhoneNumber[MAXPH];
+
+static int uualias(char **hostptr);
 
 /*
  *	verify system names n1 and n2
@@ -20,7 +18,7 @@ char PhoneNumber[MAXPH];
  *	See accompanying changes in uucp.c and uux.c
  *		-- Ray Essick, April 27, 1984
  */
-versys(nameptr)
+int versys(nameptr)
 register char **nameptr;
 {
 	register FILE *fp;
@@ -64,8 +62,7 @@ register char **nameptr;
  *		FAIL		No L.aliases file
  *		SUCCESS		Anything else
  */
-
-uualias(hostptr)
+int uualias(hostptr)
 char  **hostptr;			  /* we change it */
 {
 	FILE *Aliases;			  /* list of aliases */

@@ -5,6 +5,7 @@
 #include <setjmp.h>
 #include <signal.h>
 #include <sgtty.h>
+#include <fcntl.h>
 #ifdef VMSDTR	/* Modem control on vms(works dtr) */
 #include <eunice/eunice.h>
 #define TT$M_MODEM	0x00200000 /* These should be in a '.h' somewhere */
@@ -16,8 +17,6 @@
 extern char devSel[];	/* name to pass to delock() in close */
 extern int next_fd;
 extern jmp_buf Sjbuf;
-extern int alarmtr();
-int nulldev(), nodev(), Acuopn(), diropn(), dircls();
 
 #ifdef DATAKIT
 int dkopn();
@@ -28,7 +27,8 @@ int dnopn(), dncls();
 #endif
 
 #ifdef HAYES
-int hyspopn(), hystopn(), hyscls();
+int hyspopn(), hystopn();
+int hyscls(int fd);
 #endif
 
 #ifdef HAYES2400
@@ -111,4 +111,3 @@ int sykopn(), sykcls();
 #ifdef ATT2224
 int attopn(), attcls();
 #endif
-

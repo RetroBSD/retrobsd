@@ -1,7 +1,3 @@
-#if	defined(DOSCCS) && !defined(lint)
-static char sccsid[] = "@(#)uucpd.c	5.4.1 (2.11BSD GTE) 1/1/94";
-#endif
-
 /*
  * 4.2BSD or 2.9BSD TCP/IP server for uucico
  * uucico's TCP channel causes this server to be run at the remote end.
@@ -98,7 +94,7 @@ char **argv;
 	for(;;) {
 		s = accept(tcp_socket, &hisctladdr, &hisaddrlen);
 		if (s < 0){
-			if (errno == EINTR) 
+			if (errno == EINTR)
 				continue;
 			perror("uucpd: accept");
 			exit(1);

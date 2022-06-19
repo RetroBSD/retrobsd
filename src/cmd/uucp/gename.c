@@ -1,7 +1,3 @@
-#ifndef lint
-static char sccsid[] = "@(#)gename.c	5.6 (Berkeley) 10/9/85";
-#endif
-
 #include "uucp.h"
 #include <strings.h>
 
@@ -23,8 +19,7 @@ static char alphabet[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqr
 /*
  *	generate file name
  */
-gename(pre, sys, grade, file)
-char pre, *sys, grade, *file;
+void gename(char pre, char *sys, char grade, char *file)
 {
 	register int i, fd;
 	static char snum[5];

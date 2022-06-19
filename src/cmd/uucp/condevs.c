@@ -1,7 +1,3 @@
-#if	!defined(lint) && defined(DOSCCS)
-static char sccsid[] = "@(#)condevs.c	5.15.2 (2.11BSD) 1997/10/2";
-#endif
-
 /*
  * Here are various dialers to establish the machine-machine connection.
  * conn.c/condevs.c was glued together by Mike Mitchell.
@@ -26,22 +22,26 @@ static char sccsid[] = "@(#)condevs.c	5.15.2 (2.11BSD) 1997/10/2";
 
 #include "condevs.h"
 
+static int dircls(int fd);
+static int nullopn(char *telno, char *flds[], struct Devices *dev);
+static int Acuopn(char *flds[]);
+
 struct condev condevs[] = {
-	{ "DIR", "direct", diropn, nulldev, dircls },
+	{ "DIR", "direct", diropn, nullopn, dircls },
 #ifdef DATAKIT
-	{ "DK", "datakit", dkopn, nulldev, nulldev },
+	{ "DK", "datakit", dkopn, nullopn, nulldev },
 #endif
 #ifdef PNET
-	{ "PNET", "pnet", pnetopn, nulldev, nulldev },
+	{ "PNET", "pnet", pnetopn, nullopn, nulldev },
 #endif
 #ifdef	UNETTCP
-	{ "TCP", "TCP", unetopn, nulldev, unetcls },
+	{ "TCP", "TCP", unetopn, nullopn, unetcls },
 #endif
 #ifdef BSDTCP
-	{ "TCP", "TCP", bsdtcpopn, nulldev, bsdtcpcls },
+	{ "TCP", "TCP", bsdtcpopn, nullopn, bsdtcpcls },
 #endif
 #ifdef MICOM
-	{ "MICOM", "micom", micopn, nulldev, miccls },
+	{ "MICOM", "micom", micopn, nullopn, miccls },
 #endif
 #ifdef DN11
 	{ "ACU", "dn11", Acuopn, dnopn, dncls },
@@ -101,7 +101,7 @@ struct condev condevs[] = {
 	{ "ACU", "vmacs", Acuopn, vmacsopn, vmacscls },
 #endif
 #ifdef SYTEK
-	{ "SYTEK", "sytek", sykopn, nulldev, sykcls },
+	{ "SYTEK", "sytek", sykopn, nullopn, sykcls },
 #endif
 #ifdef ATT2224
 	{ "ACU", "att", Acuopn, attopn, attcls },
@@ -113,9 +113,17 @@ struct condev condevs[] = {
 };
 
 /*
+ *	nullopn		a null device (returns CF_DIAL)
+ */
+int nullopn(char *telno, char *flds[], struct Devices *dev)
+{
+	return CF_DIAL;
+}
+
+/*
  *	nulldev		a null device (returns CF_DIAL)
  */
-nulldev()
+int nulldev()
 {
 	return CF_DIAL;
 }
@@ -123,7 +131,7 @@ nulldev()
 /*
  *	nodev		a null device (returns CF_NODEV)
  */
-nodev()
+int nodev()
 {
 	return CF_NODEV;
 }
@@ -142,7 +150,7 @@ nodev()
  *		> 0  -  file number  -  ok
  *		FAIL  -  failed
  */
-diropn(flds)
+int diropn(flds)
 register char *flds[];
 {
 	register int dcr, status;
@@ -170,7 +178,7 @@ register char *flds[];
 				continue;
 		/*
 		 * Modem control on vms(works dtr) Take anything in MOD class.
-	  	 * It probably should work differently anyway so we can have
+		 * It probably should work differently anyway so we can have
 		 *  multiple hardwired lines.
 		 */
 		if (!modem_control&&strcmp(flds[F_PHONE], dev.D_line) != SAME)
@@ -242,13 +250,14 @@ register char *flds[];
 	return dcr;
 }
 
-dircls(fd)
+int dircls(fd)
 register int fd;
 {
 	if (fd > 0) {
 		close(fd);
 		delock(devSel);
 	}
+        return 0;
 }
 
 /*
@@ -260,7 +269,7 @@ register int fd;
  */
 char devSel[20];	/* used for later unlock() */
 
-Acuopn(flds)
+int Acuopn(flds)
 register char *flds[];
 {
 	char phone[MAXPH+1];
@@ -359,10 +368,10 @@ register char *flds[];
 /*
  * intervaldelay:  delay execution for numerator/denominator seconds.
  */
-
 #ifdef INTERVALTIMER
 #define uucpdelay(num,denom) intervaldelay(num,denom)
-intervaldelay(num,denom)
+
+void intervaldelay(num,denom)
 int num, denom;
 {
 	struct timeval tv;
@@ -372,10 +381,13 @@ int num, denom;
 }
 #endif
 
+/*
+ * Sleep in increments of 60ths of second.
+ */
 #ifdef FASTTIMER
 #define uucpdelay(num,denom) nap(60*num/denom)
-/*	Sleep in increments of 60ths of second.	*/
-nap (time)
+
+void nap (time)
 register int time;
 {
 	static int fd;
@@ -389,9 +401,10 @@ register int time;
 
 #ifdef FTIME
 #define uucpdelay(num,denom) ftimedelay(1000*num/denom)
-ftimedelay(n)
+
+void ftimedelay(n)
 {
-	static struct timeb loctime;
+	static struct timeval loctime;
 	register i = loctime.millitm;
 
 	ftime(&loctime);
@@ -404,13 +417,14 @@ ftimedelay(n)
 #define uucpdelay(num,denom) busyloop(CPUSPEED*num/denom)
 #define CPUSPEED 1000000	/* VAX 780 is 1MIPS */
 #define	DELAY(n)	{ register long N = (n); while (--N > 0); }
-busyloop(n)
+
+void busyloop(n)
 {
 	DELAY(n);
 }
 #endif
 
-slowrite(fd, str)
+void slowrite(fd, str)
 register char *str;
 {
 	DEBUG(6, "slowrite ", CNULL);
@@ -428,32 +442,37 @@ register char *str;
 /*
  *	send a break
  */
-genbrk(fn, bnulls)
+void genbrk(fn, bnulls)
 register int fn, bnulls;
 {
 #ifdef	USG
-	if (ioctl(fn, TCSBRK, STBNULL) < 0)
+	if (ioctl(fn, TCSBRK, STBNULL) < 0) {
 		DEBUG(5, "break TCSBRK %s\n", strerror(errno));
+        }
 #else
 # ifdef	TIOCSBRK
-	if (ioctl(fn, TIOCSBRK, STBNULL) < 0)
+	if (ioctl(fn, TIOCSBRK, STBNULL) < 0) {
 		DEBUG(5, "break TIOCSBRK %s\n", strerror(errno));
+        }
 # ifdef	TIOCCBRK
 	uucpdelay(bnulls, 10);
-	if (ioctl(fn, TIOCCBRK, STBNULL) < 0)
+	if (ioctl(fn, TIOCCBRK, STBNULL) < 0) {
 		DEBUG(5, "break TIOCCBRK %s\n", strerror(errno));
+        }
 # endif
 	DEBUG(4, "ioctl %f second break\n", (float) bnulls/10 );
 # else
 	struct sgttyb ttbuf;
 	register int sospeed;
 
-	if (ioctl(fn, TIOCGETP, &ttbuf) < 0)
+	if (ioctl(fn, TIOCGETP, &ttbuf) < 0) {
 		DEBUG(5, "break TIOCGETP %s\n", strerror(errno));
+        }
 	sospeed = ttbuf.sg_ospeed;
 	ttbuf.sg_ospeed = BSPEED;
-	if (ioctl(fn, TIOCSETP, &ttbuf) < 0)
+	if (ioctl(fn, TIOCSETP, &ttbuf) < 0) {
 		DEBUG(5, "break TIOCSETP %s\n", strerror(errno));
+        }
 	if (write(fn, "\0\0\0\0\0\0\0\0\0\0\0\0", bnulls) != bnulls) {
 badbreak:
 		logent(strerror(errno), "BAD WRITE genbrk");
@@ -461,8 +480,9 @@ badbreak:
 		longjmp(Sjbuf, 3);
 	}
 	ttbuf.sg_ospeed = sospeed;
-	if (ioctl(fn, TIOCSETP, &ttbuf) < 0)
+	if (ioctl(fn, TIOCSETP, &ttbuf) < 0) {
 		DEBUG(5, "break ioctl %s\n", strerror(errno));
+        }
 	if (write(fn, "@", 1) != 1)
 		goto badbreak;
 	DEBUG(4, "sent BREAK nulls - %d\n", bnulls);
@@ -477,10 +497,9 @@ badbreak:
  * disable and reenable:  allow a single line to be use for dialin/dialout
  *
  */
-
 char enbdev[16];
 
-disable(dev)
+int disable(dev)
 register char *dev;
 {
 	register char *rdev;
@@ -506,7 +525,7 @@ register char *dev;
 	return SUCCESS;
 }
 
-reenable()
+void reenable()
 {
 	if (enbdev[0] == '\0')
 		return;
@@ -515,7 +534,7 @@ reenable()
 	enbdev[0] = '\0';
 }
 
-enbcall(type, dev)
+int enbcall(type, dev)
 char *type, *dev;
 {
 	int pid;

@@ -1,7 +1,3 @@
-#ifndef lint
-static char sccsid[] = "@(#)gio.c	5.6 (Berkeley) 10/9/85";
-#endif
-
 #include "uucp.h"
 #include "pk.h"
 #include <setjmp.h>
@@ -11,12 +7,15 @@ jmp_buf Failbuf;
 int Retries = 0;
 struct pack *Pk;
 
-pkfail()
+static int gwrblk(char *blk, int len, int fn);
+static int grdblk(char *blk, int len, int fn);
+
+void pkfail()
 {
 	longjmp(Failbuf, 1);
 }
 
-gturnon()
+int gturnon()
 {
 	struct pack *pkopen();
 
@@ -28,7 +27,7 @@ gturnon()
 	return SUCCESS;
 }
 
-gturnoff()
+int gturnoff()
 {
 	if(setjmp(Failbuf))
 		return(FAIL);
@@ -36,10 +35,7 @@ gturnoff()
 	return SUCCESS;
 }
 
-
-gwrmsg(type, str, fn)
-char type;
-register char *str;
+int gwrmsg(char type, char *str, int fn)
 {
 	char bufr[BUFSIZ];
 	register char *s;
@@ -64,7 +60,7 @@ register char *str;
 }
 
 /*ARGSUSED*/
-grdmsg(str, fn)
+int grdmsg(str, fn)
 register char *str;
 {
 	unsigned len;
@@ -82,14 +78,13 @@ register char *str;
 	return SUCCESS;
 }
 
-
-gwrdata(fp1, fn)
+int gwrdata(fp1, fn)
 FILE *fp1;
 {
 	char bufr[BUFSIZ];
 	register int len;
 	int ret, mil;
-	struct timeb t1, t2;
+	struct timeval t1, t2;
 	long bytes;
 	char text[BUFSIZ];
 
@@ -97,12 +92,8 @@ FILE *fp1;
 		return FAIL;
 	bytes = 0L;
 	Retries = 0;
-#ifdef USG
-	time(&t1.time);
-	t1.millitm = 0;
-#else
-	ftime(&t1);
-#endif
+	gettimeofday(&t1, NULL);
+
 	while ((len = read(fileno(fp1), bufr, BUFSIZ)) > 0) {
 		bytes += len;
 		ret = gwrblk(bufr, len, fn);
@@ -113,35 +104,31 @@ FILE *fp1;
 			break;
 	}
 	ret = gwrblk(bufr, 0, fn);
-#ifdef USG
-	time(&t2.time);
-	t2.millitm = 0;
-#else
-	ftime(&t2);
-#endif
+
+        gettimeofday(&t2, NULL);
 	Now = t2;
-	t2.time -= t1.time;
-	mil = t2.millitm - t1.millitm;
+	t2.tv_sec -= t1.tv_sec;
+	mil = (t2.tv_usec - t1.tv_usec) / 1000;
 	if (mil < 0) {
-		--t2.time;
+		--t2.tv_sec;
 		mil += 1000;
 	}
 	sprintf(text, "sent data %ld bytes %ld.%02d secs",
-				bytes, (long)t2.time, mil/10);
-	sysacct(bytes, t2.time);
-	if (Retries > 0) 
+				bytes, (long)t2.tv_sec, mil/10);
+	sysacct(bytes, t2.tv_sec);
+	if (Retries > 0)
 		sprintf((char *)text+strlen(text)," %d retries", Retries);
 	DEBUG(1, "%s\n", text);
 	syslog(text);
 	return SUCCESS;
 }
 
-grddata(fn, fp2)
+int grddata(fn, fp2)
 FILE *fp2;
 {
 	register int len;
 	char bufr[BUFSIZ];
-	struct timeb t1, t2;
+	struct timeval t1, t2;
 	int mil;
 	long bytes;
 	char text[BUFSIZ];
@@ -150,12 +137,8 @@ FILE *fp2;
 		return FAIL;
 	bytes = 0L;
 	Retries = 0;
-#ifdef USG
-	time(&t1.time);
-	t1.millitm = 0;
-#else
-	ftime(&t1);
-#endif
+	gettimeofday(&t1, NULL);
+
 	for (;;) {
 		len = grdblk(bufr, BUFSIZ, fn);
 		if (len < 0) {
@@ -167,23 +150,18 @@ FILE *fp2;
 		if (len < BUFSIZ)
 			break;
 	}
-#ifdef USG
-	time(&t2.time);
-	t2.millitm = 0;
-#else
-	ftime(&t2);
-#endif
+	gettimeofday(&t2, NULL);
 	Now = t2;
-	t2.time -= t1.time;
-	mil = t2.millitm - t1.millitm;
+	t2.tv_sec -= t1.tv_sec;
+	mil = (t2.tv_usec - t1.tv_usec) / 1000;
 	if (mil < 0) {
-		--t2.time;
+		--t2.tv_sec;
 		mil += 1000;
 	}
 	sprintf(text, "received data %ld bytes %ld.%02d secs",
-				bytes, (long)t2.time, mil/10);
-	sysacct(bytes, t2.time);
-	if (Retries > 0) 
+				bytes, (long)t2.tv_sec, mil/10);
+	sysacct(bytes, t2.tv_sec);
+	if (Retries > 0)
 		sprintf((char *)text+strlen(text)," %d retries", Retries);
 	DEBUG(1, "%s\n", text);
 	syslog(text);
@@ -197,7 +175,7 @@ static	int tc = TC;
 #endif
 
 /*ARGSUSED*/
-grdblk(blk, len,  fn)
+int grdblk(blk, len,  fn)
 register int len;
 char *blk;
 {
@@ -222,7 +200,7 @@ char *blk;
 }
 
 /*ARGSUSED*/
-gwrblk(blk, len, fn)
+int gwrblk(blk, len, fn)
 register char *blk;
 {
 #if !defined(BSD4_2) && !defined(USG)
@@ -232,5 +210,5 @@ register char *blk;
 		ultouch();
 	}
 #endif
-	return  pkwrite(Pk, blk, len);
+	return pkwrite(Pk, blk, len);
 }

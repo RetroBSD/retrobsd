@@ -1,7 +1,3 @@
-#ifndef lint
-static char sccsid[] = "@(#)expfile.c	5.5 (Berkeley) 6/19/85";
-#endif
-
 #include "uucp.h"
 #include <sys/stat.h>
 #include <strings.h>
@@ -15,8 +11,7 @@ static char sccsid[] = "@(#)expfile.c	5.5 (Berkeley) 6/19/85";
  *		      1 - Other normal file
  *		      FAIL - no Wrkdir name available
  */
-
-expfile(file)
+int expfile(file)
 char *file;
 {
 	register char *fpart, *p;
@@ -35,7 +30,7 @@ char *file;
 		if (!*user || gninfo(user, &uid, full) != 0) {
 			strcpy(full, PUBDIR);
 		}
-	
+
 		strcat(full, fpart);
 		strcpy(file, full);
 		return 1;
@@ -59,8 +54,7 @@ char *file;
  *
  *	return codes:  0 - not directory  |  1 - is directory
  */
-
-isdir(name)
+int isdir(name)
 char *name;
 {
 	register int ret;
@@ -74,14 +68,12 @@ char *name;
 	return 0;
 }
 
-
 /*
  *	make all necessary directories
  *
  *	return SUCCESS  |  FAIL
  */
-
-mkdirs(name)
+int mkdirs(name)
 char *name;
 {
 	int ret, mask;
@@ -112,8 +104,7 @@ char *name;
  *
  *	return code - SUCCESS - ok; FAIL if expfile failed
  */
-
-ckexpf(file)
+int ckexpf(file)
 register char *file;
 {
 

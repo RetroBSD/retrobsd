@@ -1,7 +1,3 @@
-#if	!defined(lint) && defined(DOSCCS)
-static char sccsid[] = "@(#)getpwinfo.c	5.3.1 (2.11BSD) 1997/10/2";
-#endif
-
 #include "uucp.h"
 #include <pwd.h>
 
@@ -13,8 +9,7 @@ static char sccsid[] = "@(#)getpwinfo.c	5.3.1 (2.11BSD) 1997/10/2";
  *	return codes:  SUCCESS  |  FAIL
  *
  */
-
-guinfo(uid, name, path)
+int guinfo(uid, name, path)
 int uid;
 register char *path, *name;
 {
@@ -42,14 +37,12 @@ register char *path, *name;
 	return SUCCESS;
 }
 
-
 /*
  *	get passwd file info for name
  *
  *	return codes:  SUCCESS  |  FAIL
  */
-
-gninfo(name, uid, path)
+int gninfo(name, uid, path)
 char *path, *name;
 int *uid;
 {

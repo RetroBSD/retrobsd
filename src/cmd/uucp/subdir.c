@@ -1,7 +1,3 @@
-#ifndef lint
-static char sccsid[] = "@(#)subdir.c	5.4 (Berkeley) 6/23/85";
-#endif
-
 #include "uucp.h"
 
 /*LINTLIBRARY*/
@@ -85,7 +81,7 @@ char *as;
 /*
  * save away filename
  */
-subchdir(s)
+int subchdir(s)
 register char *s;
 {
 	inspool = (strcmp(s, Spool) == 0);
@@ -99,10 +95,12 @@ char *
 subdir(d, pre)
 register char *d, pre;
 {
-	if (strcmp(d, Spool) == 0)
-		if (pre == CMDPRE)
+	if (strcmp(d, Spool) == 0) {
+		if (pre == CMDPRE) {
 			return CMDSDIR;
-		else if (pre == XQTPRE)
+		} else if (pre == XQTPRE) {
 			return XEQTDIR;
+                }
+        }
 	return d;
 }

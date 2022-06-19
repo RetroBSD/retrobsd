@@ -1,26 +1,23 @@
-#ifndef lint
-static char sccsid[] = "@(#)uuname.c	5.3 (Berkeley) 10/9/85";
-#endif
-
 #include "uucp.h"
 #include <signal.h>
 
 /*
- *      return list of all remote systems 
+ *      return list of all remote systems
  *	recognized by uucp, or  (with -l) the local  uucp name.
  *
  *      return codes: 0 | 1  (can't read)
  */
 
-struct timeb Now;
- 
-main(argc,argv)
+struct timeval Now;
+
+static void intrEXIT(int inter);
+
+int main(argc,argv)
 char *argv[];
 int argc;
 {
 	int ret;
 	int i;
-	int intrEXIT();
 	FILE *np;
 /* Increase buffers for s and prev.  cornell!pavel */
 	char prev[1000];
@@ -52,7 +49,7 @@ int argc;
 		printf("%s (name file) protected\n",SYSFILE);
 		exit(1);
 	}
-	while ( cfgets(s,sizeof(s),np) != NULL ) {
+	while (cfgets(s,sizeof(s),np) != NULL ) {
 		for(i=0; s[i]!=' ' && s[i]!='\t'; i++)
 			;
 		s[i]='\0';
@@ -63,15 +60,16 @@ int argc;
 		printf("%s\n",s);
 		strcpy(prev, s);
 	}
- 
+
 	exit(0);
 }
-intrEXIT(inter)
+
+void intrEXIT(inter)
 {
 	exit(inter);
 }
 
-cleanup(code)
+void cleanup(code)
 int code;
 {
 	exit(code);

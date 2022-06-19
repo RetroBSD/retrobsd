@@ -6,14 +6,13 @@
 #include <string.h>
 #include <sys/time.h>
 #include <unistd.h>
+#include <fcntl.h>
 
-
-struct timeb {
-        time_t  time;
-        u_short millitm;
-        short   timezone;
-        short   dstflag;
-};
+#ifdef	NDIR
+#include "ndir.h"
+#else
+#include <sys/dir.h>
+#endif
 
 /*
  * Determine local uucp name of this machine.
@@ -48,11 +47,11 @@ struct timeb {
  * If everything fails, it uses "unknown" for the system name.
  */
 #define	GETHOSTNAME	/**/
-/* #define UNAME	/**/
-/* #define WHOAMI	/**/
-/* #define CCWHOAMI	/**/
-/* #define UUNAME	/**/
-/* #define GETMYHNAME	/**/
+// #define UNAME	/**/
+// #define WHOAMI	/**/
+// #define CCWHOAMI	/**/
+// #define UUNAME	/**/
+// #define GETMYHNAME	/**/
 /* If the above fails ... */
 #define	MYNAME	"wlonex"
 
@@ -62,38 +61,38 @@ struct timeb {
  * Otherwise, define EX_NOHOST, EX_CANTCREAT, and EX_NOINPUT.
  */
 #include <sysexits.h>
-/*#define EX_NOINPUT	66	/**/
-/*#define EX_NOHOST	68	/**/
-/*#define EX_CANTCREAT	73	/**/
+//#define EX_NOINPUT	66	/**/
+//#define EX_NOHOST	68	/**/
+//#define EX_CANTCREAT	73	/**/
 
 /*
  * Define the various kinds of connections to include.
  * The complete list is in the condevs array in condevs.c
  */
-/* #define ATT2224		/* AT&T 2224 */
+// #define ATT2224		/* AT&T 2224 */
 //#define BSDTCP		/* 4.2bsd or 2.9bsd TCP/IP */
-/* #define CDS224		/* Concord Data Systems 2400 */
-/* #define DATAKIT	/* ATT's datakit */
-/* #define DF02		/* Dec's DF02/DF03 */
-/* #define DF112		/* Dec's DF112 */
-/* #define DN11		/* "standard" DEC dialer */
+// #define CDS224		/* Concord Data Systems 2400 */
+// #define DATAKIT	/* ATT's datakit */
+// #define DF02		/* Dec's DF02/DF03 */
+// #define DF112		/* Dec's DF112 */
+// #define DN11		/* "standard" DEC dialer */
 #define HAYES		/* Hayes' Smartmodem */
-/* #define HAYES2400	/* Hayes' 2400 baud Smartmodem */
-/* #define MICOM	/* Micom Mux port */
-/* #define NOVATION	/* Novation modem */
-/* #define PAD		/* X.25 PAD */
-/* #define PENRIL		/* PENRIL Dialer */
-/* #define PNET		/* Purdue network */
-/* #define RVMACS		/* Racal-Vadic MACS  820 dialer, 831 adaptor */
-/* #define SYTEK	/* Sytek Local Area Net */
-/* #define UNETTCP	/* 3Com's UNET */
-/* #define USR2400		/* USRobotics Courier 2400 */
-/* #define VA212		/* Racal-Vadic 212 */
-/* #define VA811S		/* Racal-Vadic 811S dialer, 831 adaptor */
-/* #define VA820		/* Racal-Vadic 820 dialer, 831 adaptor */
-/* #define VADIC		/* Racal-Vadic 345x */
-/* #define VENTEL		/* Ventel Dialer */
-/* #define VMACS		/* Racal-Vadic MACS  811 dialer, 831 adaptor */
+// #define HAYES2400	/* Hayes' 2400 baud Smartmodem */
+// #define MICOM	/* Micom Mux port */
+// #define NOVATION	/* Novation modem */
+// #define PAD		/* X.25 PAD */
+// #define PENRIL		/* PENRIL Dialer */
+// #define PNET		/* Purdue network */
+// #define RVMACS		/* Racal-Vadic MACS  820 dialer, 831 adaptor */
+// #define SYTEK	/* Sytek Local Area Net */
+// #define UNETTCP	/* 3Com's UNET */
+// #define USR2400		/* USRobotics Courier 2400 */
+// #define VA212		/* Racal-Vadic 212 */
+// #define VA811S		/* Racal-Vadic 811S dialer, 831 adaptor */
+// #define VA820		/* Racal-Vadic 820 dialer, 831 adaptor */
+// #define VADIC		/* Racal-Vadic 345x */
+// #define VENTEL		/* Ventel Dialer */
+// #define VMACS		/* Racal-Vadic MACS  811 dialer, 831 adaptor */
 
 #if defined(USR2400) && !defined(HAYES)
 #define HAYES
@@ -114,9 +113,9 @@ struct timeb {
  * Look at uucpdelay() in condevs.c for details.
  */
 #define INTERVALTIMER /**/
-/*#define FASTTIMER /**/
-/*#define FTIME /**/
-/*#define BUSYLOOP /**/
+//#define FASTTIMER /**/
+//#define FTIME /**/
+//#define BUSYLOOP /**/
 
 /*
  * If your site is using "ndir.h" to retrofit the Berkeley
@@ -124,12 +123,12 @@ struct timeb {
  * You will probably also have to set LIBNDIR in Makefile.
  * Otherwise, <dir.h> is assumed to have the Berkeley directory definitions.
  */
-/*#define	NDIR	/**/
+//#define	NDIR	/**/
 
 /*
  * If yours is a BTL system III, IV, V or so-on site, define USG.
  */
-/*#define	USG	/**/
+//#define	USG	/**/
 
 /*
  * If you are running 4.3bsd, define BSD4_3 and BSD4_2
@@ -139,7 +138,7 @@ struct timeb {
  */
 #define BSD4_3 	/**/
 #define BSD4_2 	/**/
-/*#define BRL4_2 /**/
+//#define BRL4_2 /**/
 
 #if defined(BRL4_2) && !defined(BSD4_2)
 #define BSD4_2
@@ -149,12 +148,12 @@ struct timeb {
 /*
  * If you are running 2.9bsd define BSD2_9
  */
-/*#define BSD2_9 	/**/
+//#define BSD2_9 	/**/
 
 /*
  * If you are using 'inetd' with 4.2bsd, define BSDINETD
  */
-/* #define BSDINETD	/**/
+// #define BSDINETD	/**/
 
 /*
  * If you are running 4.3bsd, 2.11bsd or BRL 4.2, you are running 'inetd'
@@ -164,18 +163,19 @@ struct timeb {
 #define BSDINETD
 #endif
 
-/*#define VMSDTR	/* Turn on modem control on vms(works DTR) for
+//#define VMSDTR
+                        /* Turn on modem control on vms(works DTR) for
 			   develcon and gandalf ports to gain access */
 /*
  *	If you want to use the same modem for dialing in and out define
  *	DIALINOUT to be the localtion of the acucntrl program
  */
-/* #define DIALINOUT	"/usr/libexec/acucntrl" /**/
+// #define DIALINOUT	"/usr/libexec/acucntrl" /**/
 
 /*
  *	If you want all ACU lines to be DIALINOUT, define ALLACUINOUT
  */
-/* #define ALLACUINOUT	/**/
+// #define ALLACUINOUT	/**/
 
 /* define the value of WFMASK - for umask call - used for all uucp work files */
 #define WFMASK 0137
@@ -205,7 +205,7 @@ struct timeb {
  * know where the LCK files are kept, and you have to change your /etc/rc
  * if your rc cleans out the lock files (as it should).
  */
-/*#define	LOCKDIR	"LCK"	/**/
+//#define	LOCKDIR	"LCK"	/**/
 #define LOCKDIR	"." /**/
 
 /*
@@ -221,14 +221,14 @@ struct timeb {
  * If you are not going to use it (hint: you are not),
  * do not define GNXSEQ.  This saves precious room on PDP11s.
  */
-/*#define	GNXSEQ	/* comment this out to save space */
+//#define	GNXSEQ	/* comment this out to save space */
 
 /*
  * If you want the logfile stored in a file for each site instead
  * of one file
  * define LOGBYSITE as the directory to put the files in
  */
-/*#define LOGBYSITE	"/usr/spool/uucp/LOG" /**/
+//#define LOGBYSITE	"/usr/spool/uucp/LOG" /**/
 
 #define XQTDIR		"/usr/spool/uucp/XTMP"
 #define SQFILE		"/etc/uucp/SQFILE"
@@ -314,15 +314,6 @@ struct timeb {
 
 #define MAXPH		60	/* maximum length of a phone number */
 
-	/* This structure tells how to get to a device */
-struct condev {
-	char *CU_meth;		/* method, such as 'ACU' or 'DIR' */
-	char *CU_brand;		/* brand, such as 'Hayes' or 'Vadic' */
-	int (*CU_gen)();	/* what to call to search for brands */
-	int (*CU_open)();	/* what to call to open brand */
-	int (*CU_clos)();	/* what to call to close brand */
-};
-
 	/* This structure tells about a device */
 struct Devices {
 #define	D_type		D_arg[0]
@@ -335,6 +326,16 @@ struct Devices {
 	int  D_speed;
 	char *D_arg[20];
 	char D_argbfr[100];
+};
+
+	/* This structure tells how to get to a device */
+struct condev {
+	char *CU_meth;			/* method, such as 'ACU' or 'DIR' */
+	char *CU_brand;			/* brand, such as 'Hayes' or 'Vadic' */
+	int (*CU_gen)(char *flds[]);	/* what to call to search for brands */
+	int (*CU_open)(char *telno, char *flds[], struct Devices *dev);
+					/* what to call to open brand */
+	int (*CU_clos)(int fd);		/* what to call to close brand */
 };
 
 	/*  system status stuff  */
@@ -366,21 +367,11 @@ struct Devices {
 #define WKDSIZE		100	/*  size of work dir name  */
 
 #include <sys/types.h>
-#ifndef USG
-//#include <sys/timeb.h>
-#else 
-struct timeb
-{
-	time_t	time;
-	unsigned short millitm;
-	short	timezone;
-	short	dstflag;
-};
+
 #define rindex strrchr
 #define index strchr
-#endif
 
-extern struct timeb Now;
+extern struct timeval Now;
 
 extern int Ifn, Ofn;
 extern char *Rmtname;
@@ -400,11 +391,7 @@ extern int (*CU_end)();
 extern struct condev condevs[];
 extern char NOLOGIN[];
 
-extern	char DLocal[], DLocalX[], *subfile(), *subdir();
-
-/* Commonly called routines which return non-int value */
-extern	char *fdig(), *cfgets();
-extern	FILE *rpopen();
+extern	char DLocal[], DLocalX[];
 
 extern char _FAILED[], CANTOPEN[], DEVNULL[];
 
@@ -422,3 +409,76 @@ extern int main();
 #endif
 #define DEBUG(a,b,c)
 #endif
+
+void logent(char *text, char *status);
+void getnextfd(void);
+int fixline(int tty, int spwant);
+int dochat(struct Devices *dev, char *flds[], int fd);
+int expect(char *str, int fn);
+void rmlock(char *name);
+int guinfo(int uid, char *name, char *path);
+void uucpname(char *name);
+void assert(char *s1, char *s2, int i1);
+void chkdebug(void);
+int subchdir(char *s);
+void fixmode(int tty);
+int omsg(char type, char *msg, int fn);
+int imsg(char *amsg, int fn);
+int versys(char **nameptr);
+int ulockf(char *hfile, time_t atime);
+int callback(char *name);
+void systat(char *name, int type, char *text);
+void gename(char pre, char *sys, char grade, char *file);
+char *subfile(char *as);
+void xuucico(char *rmtname);
+int callok(char *name);
+void clsacu(void);
+int gnsys(char *sname, char *dir, char pre);
+int conn(char *system);
+int startup(int role);
+int cntrl(int role, char *wkpre);
+void rmstat(char *name);
+void logcls(void);
+void xuuxqt(void);
+void fioclex(int fd);
+void cleanup(int code);
+int gninfo(char *name, int *uid, char *path);
+int prefix(char *s1, char *s2);
+int wprefix(char *s1, char *s2);
+char *cfgets(char *buf, int siz, FILE *fil);
+int getargs(char *s, char *arps[], int maxargs);
+int mkdirs(char *name);
+int xmv(char *f1, char *f2);
+char *subdir(char *d, char pre);
+int gnamef(DIR *dirp, char *filename);
+int iswrk(char *file, char *reqst, char *dir, char *pre);
+int gturnon(void);
+int gturnoff(void);
+int grdmsg(char *str, int fn);
+int gwrmsg(char type, char *str, int fn);
+int grddata(int fn, FILE *fp);
+int gwrdata(FILE *fp, int fn);
+void setupline(char type);
+int gtwvec(char *file, char *dir, char *wkpre, char **wrkvec);
+int expfile(char *file);
+int chkpth(char *logname, char *mchname, char *path);
+int chkperm(char *file, char *mopt);
+void xuucp(char *str);
+int isdir(char *name);
+char *lastpart(char *file);
+int anyread(char *file);
+void mailst(char *user, char *str, char *file);
+void sysacct(long bytes, time_t time);
+void syslog(char *text);
+int chksum(char *s, int n);
+int snccmp(char *s1, char *s2);
+int rddev(FILE *fp, struct Devices *dev);
+void alarmtr(int sig);
+int nulldev(void);
+int diropn(char *flds[]);
+void genbrk(int fn, int bnulls);
+void exphone(char *in, char *out);
+int ckexpf(char *file);
+int xcp(char *f1, char *f2);
+char *getprm(char *s, char *prm);
+int gtwrkf(char *dir, char *file);

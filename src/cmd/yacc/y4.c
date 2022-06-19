@@ -1,4 +1,5 @@
 #include "dextern.h"
+#include <unistd.h>
 
 #define a amem
 #define mem mem0
@@ -20,9 +21,17 @@ int *maxa;
 int nxdb = 0;
 int adb = 0;
 
-callopt()
+static int gtnm(void);
+static int nxti(void);
+static void stin(int i);
+static void gin(int i);
+static void aoutput(void);
+static void osummary(void);
+static void arout(char *s, int *v, int n);
+
+void callopt()
 {
-    register i, *p, j, k, *q;
+    register int i, *p, j, k, *q;
 
     /* read the arrays from tempfile and set parameters */
 
@@ -79,9 +88,10 @@ callopt()
             if (*p < k)
                 k = *p;
         }
-        if (k <= j) { /* nontrivial situation */
-            /* temporarily, kill this for compatibility
-            j -= k;  /* j is now the range */
+        if (k <= j) {
+            /* nontrivial situation */
+            /* temporarily, kill this for compatibility */
+            // j -= k;  /* j is now the range */
             if (k > maxoff)
                 maxoff = k;
         }
@@ -126,7 +136,8 @@ callopt()
             gin(-i);
     }
 
-    if (adb > 2) { /* print a array */
+    if (adb > 2) {
+        /* print a array */
         for (p = a; p <= maxa; p += 10) {
             fprintf(ftable, "%4d  ", p - a);
             for (i = 0; i < 10; ++i)
@@ -142,9 +153,9 @@ callopt()
     ZAPFILE(TEMPNAME);
 }
 
-gin(i)
+void gin(i)
 {
-    register *p, *r, *s, *q1, *q2;
+    register int *p, *r, *s, *q1, *q2;
 
     /* enter gotos on nonterminal i into array a */
 
@@ -192,9 +203,9 @@ gin(i)
 nextgi:;
 }
 
-stin(i)
+void stin(i)
 {
-    register *r, *s, n, flag, j, *q1, *q2;
+    register int *r, *s, n, flag, j, *q1, *q2;
 
     greed[i] = 0;
 
@@ -252,9 +263,12 @@ stin(i)
     error("Error; failure to place state %d\n", i);
 }
 
-nxti()
-{ /* finds the next i */
-    register i, max, maxi;
+/*
+ * finds the next i
+ */
+int nxti()
+{
+    register int i, max, maxi;
 
     max = 0;
 
@@ -278,11 +292,11 @@ nxti()
         return (maxi);
 }
 
-osummary()
+void osummary()
 {
     /* write summary */
 
-    register i, *p;
+    register int i, *p;
 
     if (foutput == NULL)
         return;
@@ -298,11 +312,12 @@ osummary()
     fprintf(foutput, "maximum spread: %d, maximum offset: %d\n", maxspr, maxoff);
 }
 
-aoutput()
-{ /* this version is for C */
-
-    /* write out the optimized parser */
-
+/*
+ * this version is for C
+ * write out the optimized parser
+ */
+void aoutput()
+{
     fprintf(ftable, "# define YYLAST %d\n", maxa - a + 1);
 
     arout("yyact", a, (maxa - a) + 1);
@@ -310,10 +325,10 @@ aoutput()
     arout("yypgo", pgo, nnonter + 1);
 }
 
-arout(s, v, n) char *s;
+void arout(s, v, n) char *s;
 int *v, n;
 {
-    register i;
+    register int i;
 
     fprintf(ftable, "short %s[]={\n", s);
     for (i = 0; i < n;) {
@@ -327,9 +342,9 @@ int *v, n;
     }
 }
 
-gtnm()
+int gtnm()
 {
-    register s, val, c;
+    register int s, val, c;
 
     /* read and convert an integer from the standard input */
     /* return the terminating character */

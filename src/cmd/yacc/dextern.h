@@ -3,6 +3,7 @@
  */
 #include <ctype.h>
 #include <stdio.h>
+#include <stdarg.h>
 
 #include "files.h"
 
@@ -276,3 +277,16 @@ extern char *writem();
 #ifndef ZAPFILE
 #define ZAPFILE(x) unlink(x)
 #endif
+
+void setup(int argc, char *argv[]);
+void output(void);
+void go2out(void);
+void hideprod(void);
+void callopt(void);
+void error(char *fmt, ...);
+void warray(char *s, int *v, int n);
+void aryfil(int *v, int n, int c);
+void closure(int i);
+int apack(int *p, int n);
+void putitem(int *ptr, struct looksets *lptr);
+int state(int c);

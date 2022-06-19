@@ -1,4 +1,5 @@
 #include "dextern.h"
+#include <string.h>
 
 #define IDENTIFIER 257
 #define MARK 258
@@ -62,7 +63,17 @@ int nprod = 1;      /* number of productions */
 int *prdptr[NPROD]; /* pointers to descriptions of productions */
 int levprd[NPROD];  /* precedence levels for the productions */
 
-setup(argc, argv) int argc;
+static int defin(int t, char *s);
+static int gettok(void);
+static int chfind(int t, char *s);
+static void cpyunion(void);
+static void defout(void);
+static void cpycode(void);
+static void cpyact(int offset);
+static void finact(void);
+static int skipcom(void);
+
+void setup(argc, argv) int argc;
 char *argv[];
 {
     int i, lev, ty;
@@ -195,7 +206,8 @@ char *argv[];
             /* get identifiers so defined */
 
             t = gettok();
-            if (t == TYPENAME) { /* there is a type defined */
+            if (t == TYPENAME) {
+                /* there is a type defined */
                 ty = numbval;
                 t = gettok();
             }
@@ -370,7 +382,7 @@ char *argv[];
 
         if (ntypes && !(levprd[nprod] & ACTFLAG) && nontrst[*prdptr[nprod] - NTBASE].tvalue) {
             /* no explicit action, LHS has value */
-            register tempty;
+            register int tempty;
             tempty = prdptr[nprod][1];
             if (tempty < 0)
                 error("must return a value, since LHS has a type");
@@ -400,7 +412,7 @@ char *argv[];
     fclose(finput);
 }
 
-finact()
+void finact()
 {
     /* finish action routine */
 
@@ -409,12 +421,13 @@ finact()
     fprintf(ftable, "# define YYERRCODE %d\n", tokset[2].value);
 }
 
-defin(t, s) register char *s;
+/*
+ * define s to be a terminal if t=0
+ *          or a nonterminal if t=1
+ */
+int defin(t, s) register char *s;
 {
-    /*	define s to be a terminal if t=0
-            or a nonterminal if t=1		*/
-
-    register val;
+    register int val;
 
     if (t) {
         if (++nnonter >= NNONTERM)
@@ -431,7 +444,8 @@ defin(t, s) register char *s;
 
     if (s[0] == ' ' && s[2] == '\0') /* single character literal */
         val = s[1];
-    else if (s[0] == ' ' && s[1] == '\\') { /* escape sequence */
+    else if (s[0] == ' ' && s[1] == '\\') {
+        /* escape sequence */
         if (s[3] == '\0') {                 /* single character escape sequence */
             switch (s[2]) {
                 /* character which is escaped */
@@ -462,7 +476,8 @@ defin(t, s) register char *s;
             default:
                 error("invalid escape");
             }
-        } else if (s[2] <= '7' && s[2] >= '0') { /* \nnn sequence */
+        } else if (s[2] <= '7' && s[2] >= '0') {
+            /* \nnn sequence */
             if (s[3] < '0' || s[3] > '7' || s[4] < '0' || s[4] > '7' || s[5] != '\0')
                 error("illegal \\nnn construction");
             val = 64 * s[2] + 8 * s[3] + s[4] - 73 * '0';
@@ -477,8 +492,11 @@ defin(t, s) register char *s;
     return (ntokens);
 }
 
-defout()
-{ /* write out the defines (at the end of the declaration section) */
+/*
+ * write out the defines (at the end of the declaration section)
+ */
+void defout()
+{
 
     register int i, c;
     register char *cp;
@@ -520,11 +538,11 @@ register char *s;
     return (temp);
 }
 
-gettok()
+int gettok()
 {
-    register i, base;
+    register int i, base;
     static int peekline; /* number of '\n' seen in lookahead */
-    register c, match, reserve;
+    register int c, match, reserve;
 
 begin:
     reserve = 0;
@@ -536,7 +554,8 @@ begin:
             ++lineno;
         c = getc(finput);
     }
-    if (c == '/') { /* skip comment */
+    if (c == '/') {
+        /* skip comment */
         lineno += skipcom();
         goto begin;
     }
@@ -613,7 +632,8 @@ begin:
 
     default:
 
-        if (isdigit(c)) { /* number */
+        if (isdigit(c)) {
+            /* number */
             numbval = c - '0';
             base = (c == '0') ? 8 : 10;
             for (c = getc(finput); isdigit(c); c = getc(finput)) {
@@ -639,7 +659,8 @@ begin:
 
     tokname[i] = '\0';
 
-    if (reserve) { /* find a reserved word */
+    if (reserve) {
+        /* find a reserved word */
         if (!strcmp(tokname, "term"))
             return (TERM);
         if (!strcmp(tokname, "token"))
@@ -669,7 +690,8 @@ begin:
     while (c == ' ' || c == '\t' || c == '\n' || c == '\f' || c == '/') {
         if (c == '\n')
             ++peekline;
-        else if (c == '/') { /* look for comments */
+        else if (c == '/') {
+            /* look for comments */
             peekline += skipcom();
         }
         c = getc(finput);
@@ -680,9 +702,12 @@ begin:
     return (IDENTIFIER);
 }
 
-fdtype(t)
-{ /* determine the type of a symbol */
-    register v;
+/*
+ * determine the type of a symbol
+ */
+int fdtype(t)
+{
+    register int v;
 
     if (t >= NTBASE)
         v = nontrst[t - NTBASE].tvalue;
@@ -694,7 +719,7 @@ fdtype(t)
     return (v);
 }
 
-chfind(t, s) register char *s;
+int chfind(t, s) register char *s;
 {
     int i;
 
@@ -718,10 +743,11 @@ chfind(t, s) register char *s;
     return (defin(t, s));
 }
 
-cpyunion()
+/*
+ * copy the union declaration to the output, and the define file if present
+ */
+void cpyunion()
 {
-    /* copy the union declaration to the output, and the define file if present */
-
     int level, c;
     fprintf(ftable, "\n# line %d \"%s\"\n", lineno, infile);
     fprintf(ftable, "typedef union ");
@@ -747,7 +773,8 @@ cpyunion()
 
         case '}':
             --level;
-            if (level == 0) { /* we are finished copying */
+            if (level == 0) {
+                /* we are finished copying */
                 fprintf(ftable, " YYSTYPE;\n");
                 if (fdefine)
                     fprintf(fdefine, " YYSTYPE;\nextern YYSTYPE yylval;\n");
@@ -757,8 +784,11 @@ cpyunion()
     }
 }
 
-cpycode()
-{ /* copies code between \{ and \} */
+/*
+ * copies code between \{ and \}
+ */
+void cpycode()
+{
     register int c;
 
     c = getc(finput);
@@ -768,16 +798,16 @@ cpycode()
     }
     fprintf(ftable, "\n# line %d \"%s\"\n", lineno, infile);
     while (c >= 0) {
-        if (c == '\\')
+        if (c == '\\') {
             if ((c = getc(finput)) == '}')
                 return;
-            else
-                putc('\\', ftable);
-        if (c == '%')
+            putc('\\', ftable);
+        }
+        if (c == '%') {
             if ((c = getc(finput)) == '}')
                 return;
-            else
-                putc('%', ftable);
+            putc('%', ftable);
+        }
         putc(c, ftable);
         if (c == '\n')
             ++lineno;
@@ -786,30 +816,38 @@ cpycode()
     error("eof before %%}");
 }
 
-skipcom()
-{                          /* skip over comments */
+/*
+ * skip over comments
+ */
+int skipcom()
+{
     register int c, i = 0; /* i is the number of lines skipped */
 
     /* skipcom is called after reading a / */
 
     if (getc(finput) != '*')
         error("illegal comment");
-    c = getc(finput);
-    while (c != EOF) {
+
+    for (;;) {
+        c = getc(finput);
+        if (c == EOF)
+            error("EOF inside comment");
+
         while (c == '*') {
             if ((c = getc(finput)) == '/')
                 return (i);
         }
         if (c == '\n')
             ++i;
-        c = getc(finput);
     }
-    error("EOF inside comment");
     /* NOTREACHED */
 }
 
-cpyact(offset)
-{ /* copy C action to the next ; or closing } */
+/*
+ * copy C action to the next ; or closing }
+ */
+void cpyact(offset)
+{
     register int c;
     int brac, match, j, s, tok;
 
@@ -836,7 +874,8 @@ swt:
         s = 1;
         tok = -1;
         c = getc(finput);
-        if (c == '<') { /* type description */
+        if (c == '<') {
+            /* type description */
             ungetc(c, finput);
             if (gettok() != TYPENAME)
                 error("bad syntax on $<ident> clause");
@@ -845,7 +884,8 @@ swt:
         }
         if (c == '$') {
             fprintf(faction, "yyval");
-            if (ntypes) { /* put out the proper tag... */
+            if (ntypes) {
+                /* put out the proper tag... */
                 if (tok < 0)
                     tok = fdtype(*prdptr[nprod]);
                 fprintf(faction, ".%s", typeset[tok]);
@@ -869,7 +909,8 @@ swt:
             }
 
             fprintf(faction, "yypvt[-%d]", -j);
-            if (ntypes) { /* put out the proper tag */
+            if (ntypes) {
+                /* put out the proper tag */
                 if (j + offset <= 0 && tok < 0)
                     error("must specify type of $%d", j + offset);
                 if (tok < 0)
@@ -922,7 +963,7 @@ swt:
     string:
 
         putc(c, faction);
-        while (c = getc(finput)) {
+        while ((c = getc(finput))) {
             if (c == '\\') {
                 putc(c, faction);
                 c = getc(finput);

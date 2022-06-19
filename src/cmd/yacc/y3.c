@@ -4,28 +4,34 @@
 int lastred;         /* the number of the last reduction of a state */
 int defact[NSTATES]; /* the default actions of states */
 
-output()
-{ /* print the output for the states */
+static void precftn(int r, int t, int s);
+static void wract(int i);
+static void wdef(char *s, int n);
+static void go2gen(int c);
+static void wrstate(int i);
 
+/*
+ * print the output for the states
+ */
+void output()
+{
     int i, k;
     register int c;
     register struct wset *u, *v;
 
     fprintf(ftable, "short yyexca[] ={\n");
 
-    SLOOP(i)
-    { /* output the stuff for state i */
+    SLOOP(i) {
+        /* output the stuff for state i */
         nolook = !(tystate[i] == MUSTLOOKAHEAD);
         closure(i);
         /* output actions */
         nolook = 1;
         aryfil(temp1, ntokens + nnonter + 1, 0);
-        WSLOOP(wsets, u)
-        {
+        WSLOOP(wsets, u) {
             c = *(u->pitem);
             if (c > 1 && c < NTBASE && temp1[c] == 0) {
-                WSLOOP(u, v)
-                {
+                WSLOOP(u, v) {
                     if (c == *(v->pitem))
                         putitem(v->pitem + 1, (struct looksets *)0);
                 }
@@ -41,17 +47,17 @@ output()
         /* now, we have the shifts; look at the reductions */
 
         lastred = 0;
-        WSLOOP(wsets, u)
-        {
+        WSLOOP(wsets, u) {
             c = *(u->pitem);
-            if (c <= 0) { /* reduction */
+            if (c <= 0) {
+                /* reduction */
                 lastred = -c;
-                TLOOP(k)
-                {
+                TLOOP(k) {
                     if (BIT(u->ws.lset, k)) {
                         if (temp1[k] == 0)
                             temp1[k] = c;
-                        else if (temp1[k] < 0) { /* reduce/reduce conflict */
+                        else if (temp1[k] < 0) {
+                            /* reduce/reduce conflict */
                             if (foutput != NULL)
                                 fprintf(foutput,
                                         "\n%d: reduce/reduce conflict (red'ns %d and %d ) on %s", i,
@@ -59,7 +65,8 @@ output()
                             if (-temp1[k] > lastred)
                                 temp1[k] = -lastred;
                             ++zzrrconf;
-                        } else { /* potential shift/reduce conflict */
+                        } else {
+                            /* potential shift/reduce conflict */
                             precftn(lastred, k, i);
                         }
                     }
@@ -75,10 +82,14 @@ output()
 }
 
 int pkdebug = 0;
-apack(p, n) int *p;
-{ /* pack state i from temp1 into amem */
+
+/*
+ * pack state i from temp1 into amem
+ */
+int apack(p, n) int *p;
+{
     int off;
-    register *pp, *qq, *rr;
+    register int *pp, *qq, *rr;
     int *q, *r;
 
     /* we don't need to worry about checking because we
@@ -96,7 +107,8 @@ apack(p, n) int *p;
     /* now, find a place for the elements from p to q, inclusive */
 
     r = &amem[ACTSIZE - 1];
-    for (rr = amem; rr <= r; ++rr, ++off) { /* try rr */
+    for (rr = amem; rr <= r; ++rr, ++off) {
+        /* try rr */
         for (qq = rr, pp = p; pp <= q; ++pp, ++qq) {
             if (*pp != 0) {
                 if (*pp != *qq && *qq != 0)
@@ -132,10 +144,14 @@ apack(p, n) int *p;
     }
     error("no space in action table");
     /* NOTREACHED */
+    return 0;
 }
 
-go2out()
-{ /* output the gotos for the nontermninals */
+/*
+ * output the gotos for the nontermninals
+ */
+void go2out()
+{
     register int i, j, k;
     int best, count, cbest, times;
 
@@ -149,7 +165,8 @@ go2out()
         best = -1;
         times = 0;
 
-        for (j = 0; j <= nstate; ++j) { /* is j the most frequent */
+        for (j = 0; j <= nstate; ++j) {
+            /* is j the most frequent */
             if (tystate[j] == 0)
                 continue;
             if (tystate[j] == best)
@@ -188,9 +205,12 @@ go2out()
 }
 
 int g2debug = 0;
-go2gen(c)
-{ /* output the gotos for nonterminal c */
 
+/*
+ * output the gotos for nonterminal c
+ */
+void go2gen(c)
+{
     register int i, cc;
     int work;
     struct item *p, *q;
@@ -203,9 +223,9 @@ go2gen(c)
     work = 1;
     while (work) {
         work = 0;
-        PLOOP(0, i)
-        {
-            if ((cc = prdptr[i][1] - NTBASE) >= 0) { /* cc is a nonterminal */
+        PLOOP(0, i) {
+            if ((cc = prdptr[i][1] - NTBASE) >= 0) {
+                /* cc is a nonterminal */
                 if (temp1[cc] != 0) {                /* cc has a goto on c */
                     cc = *prdptr[i] - NTBASE; /* thus, the left side of production i does too */
                     if (temp1[cc] == 0) {
@@ -221,19 +241,21 @@ go2gen(c)
 
     if (g2debug && foutput != NULL) {
         fprintf(foutput, "%s: gotos on ", nontrst[c].name);
-        NTLOOP(i) if (temp1[i]) fprintf(foutput, "%s ", nontrst[i].name);
+        NTLOOP(i) {
+            if (temp1[i])
+                fprintf(foutput, "%s ", nontrst[i].name);
+        }
         fprintf(foutput, "\n");
     }
 
     /* now, go through and put gotos into tystate */
 
     aryfil(tystate, nstate, 0);
-    SLOOP(i)
-    {
-        ITMLOOP(i, p, q)
-        {
+    SLOOP(i) {
+        ITMLOOP(i, p, q) {
             if ((cc = *p->pitem) >= NTBASE) {
-                if (temp1[cc -= NTBASE]) { /* goto on c is possible */
+                if (temp1[cc -= NTBASE]) {
+                    /* goto on c is possible */
                     tystate[i] = amem[indgo[i] + c];
                     break;
                 }
@@ -242,12 +264,14 @@ go2gen(c)
     }
 }
 
-precftn(r, t, s) register int t;
-{ /* decide a shift/reduce conflict by precedence.
-/* r is a rule number, t a token number */
-    /* the conflict is in state s */
-    /* temp1[t] is changed to reflect the action */
-
+/*
+ * decide a shift/reduce conflict by precedence.
+ * r is a rule number, t a token number
+ * the conflict is in state s
+ * temp1[t] is changed to reflect the action
+ */
+void precftn(r, t, s) register int t;
+{
     int lp, lt, action;
 
     lp = levprd[r];
@@ -278,8 +302,11 @@ precftn(r, t, s) register int t;
     }
 }
 
-wract(i) register int i;
-{ /* output state i */
+/*
+ * output state i
+ */
+void wract(i) register int i;
+{
     /* temp1 has the actions, lastred the default */
     int p, p0, p1;
     int ntimes, tred, count;
@@ -290,8 +317,7 @@ wract(i) register int i;
 
     lastred = 0;
     ntimes = 0;
-    TLOOP(j)
-    {
+    TLOOP(j) {
         if (temp1[j] >= 0)
             continue;
         if (temp1[j] + lastred == 0)
@@ -300,8 +326,7 @@ wract(i) register int i;
         count = 0;
         tred = -temp1[j];
         levprd[tred] |= REDFLAG;
-        TLOOP(p)
-        {
+        TLOOP(p) {
             if (temp1[p] + tred == 0)
                 ++count;
         }
@@ -312,19 +337,21 @@ wract(i) register int i;
     }
 
     /* for error recovery, arrange that, if there is a shift on the
-    /* error recovery token, `error', that the default be the error action */
+     * error recovery token, `error', that the default be the error action */
     if (temp1[1] > 0)
         lastred = 0;
 
     /* clear out entries in temp1 which equal lastred */
-    TLOOP(p) if (temp1[p] + lastred == 0) temp1[p] = 0;
+    TLOOP(p) {
+        if (temp1[p] + lastred == 0)
+            temp1[p] = 0;
+    }
 
     wrstate(i);
     defact[i] = lastred;
 
     flag = 0;
-    TLOOP(p0)
-    {
+    TLOOP(p0) {
         if ((p1 = temp1[p0]) != 0) {
             if (p1 < 0) {
                 p1 = -p1;
@@ -354,20 +381,24 @@ wract(i) register int i;
     return;
 }
 
-wrstate(i)
-{ /* writes state i */
-    register j0, j1;
+/*
+ * writes state i
+ */
+void wrstate(i)
+{
+    register int j0, j1;
     register struct item *pp, *qq;
     register struct wset *u;
 
     if (foutput == NULL)
         return;
     fprintf(foutput, "\nstate %d\n", i);
-    ITMLOOP(i, pp, qq) fprintf(foutput, "\t%s\n", writem(pp->pitem));
+    ITMLOOP(i, pp, qq) {
+        fprintf(foutput, "\t%s\n", writem(pp->pitem));
+    }
     if (tystate[i] == MUSTLOOKAHEAD) {
         /* print out empty productions in closure */
-        WSLOOP(wsets + (pstate[i + 1] - pstate[i]), u)
-        {
+        WSLOOP(wsets + (pstate[i + 1] - pstate[i]), u) {
             if (*(u->pitem) < 0)
                 fprintf(foutput, "\t%s\n", writem(u->pitem));
         }
@@ -375,18 +406,20 @@ wrstate(i)
 
     /* check for state equal to another */
 
-    TLOOP(j0) if ((j1 = temp1[j0]) != 0)
-    {
-        fprintf(foutput, "\n\t%s  ", symnam(j0));
-        if (j1 > 0) { /* shift, error, or accept */
-            if (j1 == ACCEPTCODE)
-                fprintf(foutput, "accept");
-            else if (j1 == ERRCODE)
-                fprintf(foutput, "error");
-            else
-                fprintf(foutput, "shift %d", j1);
-        } else
-            fprintf(foutput, "reduce %d", -j1);
+    TLOOP(j0) {
+        if ((j1 = temp1[j0]) != 0) {
+            fprintf(foutput, "\n\t%s  ", symnam(j0));
+            if (j1 > 0) {
+                /* shift, error, or accept */
+                if (j1 == ACCEPTCODE)
+                    fprintf(foutput, "accept");
+                else if (j1 == ERRCODE)
+                    fprintf(foutput, "error");
+                else
+                    fprintf(foutput, "shift %d", j1);
+            } else
+                fprintf(foutput, "reduce %d", -j1);
+        }
     }
 
     /* output the final production */
@@ -405,15 +438,19 @@ wrstate(i)
     }
 }
 
-wdef(s, n) char *s;
-{ /* output a definition of s to the value n */
+/*
+ * output a definition of s to the value n
+ */
+void wdef(s, n) char *s;
+{
     fprintf(ftable, "# define %s %d\n", s, n);
 }
 
-warray(s, v, n) char *s;
+void warray(s, v, n)
+char *s;
 int *v, n;
 {
-    register i;
+    register int i;
 
     fprintf(ftable, "short %s[]={\n", s);
     for (i = 0; i < n;) {
@@ -427,20 +464,19 @@ int *v, n;
     }
 }
 
-hideprod()
+void hideprod()
 {
     /* in order to free up the mem and amem arrays for the optimizer,
-    /* and still be able to output yyr1, etc., after the sizes of
-    /* the action array is known, we hide the nonterminals
-    /* derived by productions in levprd.
-    */
+     * and still be able to output yyr1, etc., after the sizes of
+     * the action array is known, we hide the nonterminals
+     * derived by productions in levprd.
+     */
 
-    register i, j;
+    register int i, j;
 
     j = 0;
     levprd[0] = 0;
-    PLOOP(1, i)
-    {
+    PLOOP(1, i) {
         if (!(levprd[i] & REDFLAG)) {
             ++j;
             if (foutput != NULL) {

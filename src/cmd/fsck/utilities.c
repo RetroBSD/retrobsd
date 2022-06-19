@@ -530,9 +530,7 @@ domap(blk, flg)
 }
 
 int
-dolncnt(ino, flg, val)
-    ino_t ino;
-    short val, flg;
+dolncnt(ino_t ino, short flg, short val)
 {
     register short *sp;
     register BUFAREA *bp;

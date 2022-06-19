@@ -211,9 +211,7 @@ direrr(ino, s)
 }
 
 void
-adjust(idesc, lcnt)
-    register struct inodesc *idesc;
-    short lcnt;
+adjust(register struct inodesc *idesc, short lcnt)
 {
     register DINODE *dp;
 

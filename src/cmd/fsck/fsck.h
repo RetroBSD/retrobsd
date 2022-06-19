@@ -59,10 +59,10 @@ struct bufarea {
 
 typedef struct bufarea BUFAREA;
 
-BUFAREA inoblk;         /* inode blocks */
-BUFAREA fileblk;        /* other blks in filesys */
-BUFAREA sblk;           /* file system superblock */
-BUFAREA *poolhead;      /* ptr to first buffer in pool */
+extern BUFAREA inoblk;         /* inode blocks */
+extern BUFAREA fileblk;        /* other blks in filesys */
+extern BUFAREA sblk;           /* file system superblock */
+extern BUFAREA *poolhead;      /* ptr to first buffer in pool */
 
 #define initbarea(x)    (x)->b_dirty = 0;(x)->b_bno = (daddr_t)-1
 #define dirty(x)        (x)->b_dirty = 1
@@ -79,7 +79,8 @@ struct filecntl {
     int     wfdes;
     int     mod;
     off_t   offset;
-} dfile, sfile;         /* file descriptors for filesys/scratch files */
+};
+extern struct filecntl dfile, sfile;    /* file descriptors for filesys/scratch files */
 
 enum fixstate {DONTKNOW, NOFIX, FIX};
 
@@ -125,9 +126,9 @@ struct inodesc {
 
 #define DUPTBLSIZE  100
 
-daddr_t duplist[DUPTBLSIZE];    /* head of dup list */
-daddr_t *enddup;                /* next entry in dup table */
-daddr_t *muldup;                /* multiple dups part of table */
+extern daddr_t duplist[DUPTBLSIZE];    /* head of dup list */
+extern daddr_t *enddup;                /* next entry in dup table */
+extern daddr_t *muldup;                /* multiple dups part of table */
 
 /*
  * List of inodes with zero link counts.
@@ -135,57 +136,57 @@ daddr_t *muldup;                /* multiple dups part of table */
 
 #define MAXLNCNT    50
 
-ino_t   zlnlist[MAXLNCNT];      /* zero link count table */
-ino_t   *zlnp;
+extern ino_t   zlnlist[MAXLNCNT];      /* zero link count table */
+extern ino_t   *zlnp;
 
 #define NINOBLK     4           /* number of blocks of inodes to read at once */
 
-char    inobuf[NINOBLK*INOPB*sizeof (struct dinode)];   /* allocate now */
-daddr_t startib;
+extern char    inobuf[NINOBLK*INOPB*sizeof (struct dinode)];   /* allocate now */
+extern daddr_t startib;
 
-unsigned int memsize;
-char    *devnam;
-char    nflag;                  /* assume a no response */
-char    yflag;                  /* assume a yes response */
-char    sflag;                  /* rebuild free list */
-int     debug;                  /* output debugging info */
-char    preen;                  /* just fix normal inconsistencies */
-char    hotroot;                /* checking root device */
-char    fixfree;                /* force rebuild of freelist */
-char    *membase;               /* base of memory we get */
+extern unsigned int memsize;
+extern char    *devnam;
+extern char    nflag;                  /* assume a no response */
+extern char    yflag;                  /* assume a yes response */
+extern char    sflag;                  /* rebuild free list */
+extern int     debug;                  /* output debugging info */
+extern char    preen;                  /* just fix normal inconsistencies */
+extern char    hotroot;                /* checking root device */
+extern char    fixfree;                /* force rebuild of freelist */
+extern char    *membase;               /* base of memory we get */
 
-char    *blockmap;              /* ptr to primary blk allocation map */
-char    *freemap;               /* ptr to secondary blk allocation map */
-char    *statemap;              /* ptr to inode state table */
-short   *lncntp;                /* ptr to link count table */
+extern char    *blockmap;              /* ptr to primary blk allocation map */
+extern char    *freemap;               /* ptr to secondary blk allocation map */
+extern char    *statemap;              /* ptr to inode state table */
+extern short   *lncntp;                /* ptr to link count table */
 
-char    pathname[MAXPATHLEN];   /* current pathname */
-char    scrfile[80];            /* scratchfile name */
-char    *pathp;                 /* pointer to pathname position */
-char    *endpathname;
+extern char    pathname[MAXPATHLEN];   /* current pathname */
+extern char    scrfile[80];            /* scratchfile name */
+extern char    *pathp;                 /* pointer to pathname position */
+extern char    *endpathname;
 
-daddr_t fsmin;                  /* block number of the first data block */
-daddr_t fsmax;                  /* number of blocks in the volume */
-ino_t   imax;                   /* number of inodes */
-ino_t   lastino;                /* hiwater mark of inodes */
-ino_t   lfdir;                  /* lost & found directory inode number */
-char    *lfname;                /* lost & found directory name */
+extern daddr_t fsmin;                  /* block number of the first data block */
+extern daddr_t fsmax;                  /* number of blocks in the volume */
+extern ino_t   imax;                   /* number of inodes */
+extern ino_t   lastino;                /* hiwater mark of inodes */
+extern ino_t   lfdir;                  /* lost & found directory inode number */
+extern char    *lfname;                /* lost & found directory name */
 
-off_t   bmapsz;                 /* num chars in blockmap */
-daddr_t bmapblk;                /* starting blk of block map */
-daddr_t smapblk;                /* starting blk of state map */
-daddr_t lncntblk;               /* starting blk of link cnt table */
-daddr_t fmapblk;                /* starting blk of free map */
+extern off_t   bmapsz;                 /* num chars in blockmap */
+extern daddr_t bmapblk;                /* starting blk of block map */
+extern daddr_t smapblk;                /* starting blk of state map */
+extern daddr_t lncntblk;               /* starting blk of link cnt table */
+extern daddr_t fmapblk;                /* starting blk of free map */
 
-daddr_t n_blks;                 /* number of blocks used */
-daddr_t n_files;                /* number of files seen */
-daddr_t n_free;                 /* number of free blocks */
-int badblk, dupblk;
+extern daddr_t n_blks;                 /* number of blocks used */
+extern daddr_t n_files;                /* number of files seen */
+extern daddr_t n_free;                 /* number of free blocks */
+extern int badblk, dupblk;
 
 #define outrange(x)     (x < fsmin || x >= fsmax)
 #define zapino(x)       bzero(x, sizeof *x)
 
-struct  dinode  zino;
+extern struct  dinode  zino;
 
 #define setlncnt(x,n)   dolncnt(x,0,n)
 #define getlncnt(x)     dolncnt(x,1,0)

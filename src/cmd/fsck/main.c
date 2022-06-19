@@ -26,6 +26,51 @@ extern  int returntosingle;
 
 static char memdata[16 * sizeof(BUFAREA)];
 
+BUFAREA inoblk;         /* inode blocks */
+BUFAREA fileblk;        /* other blks in filesys */
+BUFAREA sblk;           /* file system superblock */
+BUFAREA *poolhead;      /* ptr to first buffer in pool */
+struct filecntl dfile, sfile;    /* file descriptors for filesys/scratch files */
+daddr_t duplist[DUPTBLSIZE];    /* head of dup list */
+daddr_t *enddup;                /* next entry in dup table */
+daddr_t *muldup;                /* multiple dups part of table */
+ino_t   zlnlist[MAXLNCNT];      /* zero link count table */
+ino_t   *zlnp;
+char    inobuf[NINOBLK*INOPB*sizeof (struct dinode)];   /* allocate now */
+daddr_t startib;
+unsigned int memsize;
+char    *devnam;
+char    nflag;                  /* assume a no response */
+char    yflag;                  /* assume a yes response */
+char    sflag;                  /* rebuild free list */
+int     debug;                  /* output debugging info */
+char    preen;                  /* just fix normal inconsistencies */
+char    hotroot;                /* checking root device */
+char    fixfree;                /* force rebuild of freelist */
+char    *membase;               /* base of memory we get */
+char    *blockmap;              /* ptr to primary blk allocation map */
+char    *freemap;               /* ptr to secondary blk allocation map */
+char    *statemap;              /* ptr to inode state table */
+short   *lncntp;                /* ptr to link count table */
+char    pathname[MAXPATHLEN];   /* current pathname */
+char    scrfile[80];            /* scratchfile name */
+char    *pathp;                 /* pointer to pathname position */
+daddr_t fsmin;                  /* block number of the first data block */
+daddr_t fsmax;                  /* number of blocks in the volume */
+ino_t   imax;                   /* number of inodes */
+ino_t   lastino;                /* hiwater mark of inodes */
+ino_t   lfdir;                  /* lost & found directory inode number */
+off_t   bmapsz;                 /* num chars in blockmap */
+daddr_t bmapblk;                /* starting blk of block map */
+daddr_t smapblk;                /* starting blk of state map */
+daddr_t lncntblk;               /* starting blk of link cnt table */
+daddr_t fmapblk;                /* starting blk of free map */
+daddr_t n_blks;                 /* number of blocks used */
+daddr_t n_files;                /* number of files seen */
+daddr_t n_free;                 /* number of free blocks */
+int badblk, dupblk;
+struct  dinode  zino;
+
 char *
 unrawname(cp)
     char *cp;

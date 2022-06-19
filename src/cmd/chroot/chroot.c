@@ -18,8 +18,18 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <paths.h>
+#include <string.h>
 
-main(argc, argv)
+void fatal(msg)
+	char *msg;
+{
+	extern int errno;
+
+	fprintf(stderr, "chroot: %s: %s\n", msg, strerror(errno));
+	exit(1);
+}
+
+int main(argc, argv)
 	int argc;
 	char **argv;
 {
@@ -42,13 +52,4 @@ main(argc, argv)
 		fatal(shell);
 	}
 	/* NOTREACHED */
-}
-
-fatal(msg)
-	char *msg;
-{
-	extern int errno;
-
-	fprintf(stderr, "chroot: %s: %s\n", msg, strerror(errno));
-	exit(1);
 }

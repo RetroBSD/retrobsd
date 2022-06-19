@@ -25,7 +25,7 @@ clean:
 install:        all
 		install yacc $(DESTDIR)/bin/
 
-y1.o: y1.c dextern
-y2.o: y2.c dextern
-y3.o: y3.c dextern
-y4.o: y4.c dextern
+y1.o: y1.c dextern.h
+y2.o: y2.c dextern.h
+y3.o: y3.c dextern.h
+y4.o: y4.c dextern.h

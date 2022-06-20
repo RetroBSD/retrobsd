@@ -5,19 +5,24 @@
  */
 #include <string.h>
 #include <ctype.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include "gettytab.h"
 
 #define	TABBUFSIZ	512
 
 static	char *tbuf;
 int	hopcount;	/* detect infinite loops in termcap, init 0 */
-char	*getstr();
+
+static int namatch(char *np);
+static int nchktc(void);
 
 /*
  * Get an entry for terminal name in buffer bp,
  * from the termcap file.  Parse is very rudimentary;
  * we just notice escaped newlines.
  */
-getent(bp, name)
+int getent(bp, name)
 	char *bp, *name;
 {
 	register char *cp;
@@ -76,7 +81,8 @@ getent(bp, name)
  * Note that this works because of the left to right scan.
  */
 #define	MAXHOP	32
-nchktc()
+
+int nchktc()
 {
 	register char *p, *q;
 	char tcname[16];	/* name of similar terminal */
@@ -123,7 +129,7 @@ nchktc()
  * against each such name.  The normal : terminator after the last
  * name (before the first field) stops us.
  */
-namatch(np)
+int namatch(np)
 	char *np;
 {
 	register char *Np, *Bp;
@@ -203,7 +209,7 @@ getnum(id)
  * of the buffer.  Return 1 if we find the option, or 0 if it is
  * not given.
  */
-getflag(id)
+int getflag(id)
 	char *id;
 {
 	register char *bp = tbuf;

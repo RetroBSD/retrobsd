@@ -108,3 +108,13 @@ extern	struct gettyflags gettyflags[];
 extern	struct gettynums gettynums[];
 extern	struct gettystrs gettystrs[];
 extern	int hopcount;
+
+void gettable(char *name, char *buf, char *area);
+void gendefaults(void);
+void setdefaults(void);
+int speed(long val);
+void setchars(void);
+char *portselector(void);
+void edithost(char *pat);
+void makeenv(char *env[]);
+void get_date(char *datebuffer);

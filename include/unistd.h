@@ -153,6 +153,7 @@ int     chroot(const char *path);
 int     fsync(int fd);
 int     getpagesize(void);
 int     symlink(const char *target, const char *linkpath);
+int     vhangup(void);
 
 #ifndef _VA_LIST_
 # ifdef __GNUC__

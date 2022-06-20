@@ -5,6 +5,7 @@
  */
 #include <stdio.h>
 #include <sys/time.h>
+#include "gettytab.h"
 
 static char *days[] = {
 	"Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat"
@@ -18,7 +19,7 @@ static char *months[] = {
 #define AM "am"
 #define PM "pm"
 
-get_date(datebuffer)
+void get_date(datebuffer)
 	char *datebuffer;
 {
 	register struct tm *tmp;

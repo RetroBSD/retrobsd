@@ -15,7 +15,10 @@
 #include <ctype.h>
 #include <setjmp.h>
 #include <syslog.h>
+#include <fcntl.h>
+#include <unistd.h>
 #include <sys/file.h>
+#include <sys/stat.h>
 #include "gettytab.h"
 
 extern	char **environ;
@@ -42,8 +45,6 @@ char	name[16];
 char	dev[] = "/dev/";
 char	ctty[] = "/dev/console";
 char	ttyn[32];
-char	*portselector();
-char	*ttyname();
 
 #define	OBUFSIZ		128
 #define	TABBUFSIZ	512
@@ -78,6 +79,13 @@ char partab[] = {
 #define	KILL	tmode.sg_kill
 #define	EOT	tc.t_eofc
 
+static void putpad(char *s);
+static void putf(char *cp);
+static int getname(void);
+static void oflush(void);
+static void putchr(int cc);
+static void prompt(void);
+
 jmp_buf timeout;
 
 void dingdong(sig)
@@ -97,7 +105,7 @@ void interrupt(sig)
 	longjmp(intrupt, 1);
 }
 
-main(argc, argv)
+int main(argc, argv)
 	char *argv[];
 {
 	register char *tname;
@@ -155,7 +163,7 @@ main(argc, argv)
 	tname = "default";
 	if (argc > 1)
 		tname = argv[1];
-    ioctl(0, TIOCGETP, &tmode);
+	ioctl(0, TIOCGETP, &tmode);
 	for (;;) {
 		int ldisp = NTTYDISC;
 
@@ -241,10 +249,10 @@ void putstr(s)
 		putchr(*s++);
 }
 
-getname()
+int getname()
 {
 	register char *np;
-	register c;
+	register int c;
 	char cs;
 
 	/*
@@ -325,11 +333,11 @@ short	tmspc10[] = {
 	0, 2000, 1333, 909, 743, 666, 500, 333, 166, 83, 55, 41, 20, 10, 5, 15
 };
 
-putpad(s)
+void putpad(s)
 	register char *s;
 {
-	register pad = 0;
-	register mspc10;
+	register int pad = 0;
+	register int mspc10;
 
 	if (isdigit(*s)) {
 		while (isdigit(*s)) {
@@ -370,7 +378,7 @@ putpad(s)
 char	outbuf[OBUFSIZ];
 int	obufcnt = 0;
 
-putchr(cc)
+void putchr(cc)
 {
 	char c;
 
@@ -387,22 +395,21 @@ putchr(cc)
 		write(1, &c, 1);
 }
 
-oflush()
+void oflush()
 {
 	if (obufcnt)
 		write(1, outbuf, obufcnt);
 	obufcnt = 0;
 }
 
-prompt()
+void prompt()
 {
-
 	putf(LM);
 	if (CO)
 		putchr('\n');
 }
 
-putf(cp)
+void putf(cp)
 	register char *cp;
 {
 	char *ttyn, *slash;

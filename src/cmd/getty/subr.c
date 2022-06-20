@@ -6,7 +6,9 @@
  * specifies the terms and conditions for redistribution.
  */
 #include <string.h>
+#include <strings.h>
 #include <sgtty.h>
+#include <unistd.h>
 #include "gettytab.h"
 
 extern	struct sgttyb tmode;
@@ -16,13 +18,13 @@ extern	struct ltchars ltc;
 /*
  * Get a table entry.
  */
-gettable(name, buf, area)
+void gettable(name, buf, area)
 	char *name, *buf, *area;
 {
 	register struct gettystrs *sp;
 	register struct gettynums *np;
 	register struct gettyflags *fp;
-	register n;
+	register int n;
 
 	hopcount = 0;		/* new lookup, start fresh */
 	if (getent(buf, name) != 1)
@@ -50,7 +52,7 @@ gettable(name, buf, area)
 	}
 }
 
-gendefaults()
+void gendefaults()
 {
 	register struct gettystrs *sp;
 	register struct gettynums *np;
@@ -69,7 +71,7 @@ gendefaults()
 			fp->defalt = fp->invrt;
 }
 
-setdefaults()
+void setdefaults()
 {
 	register struct gettystrs *sp;
 	register struct gettynums *np;
@@ -101,7 +103,7 @@ charvars[] = {
 	&ltc.t_werasc, &ltc.t_lnextc, 0
 };
 
-setchars()
+void setchars()
 {
 	register int i;
 	register char *p;
@@ -179,7 +181,7 @@ setflags(n)
 
 char	editedhost[32];
 
-edithost(pat)
+void edithost(pat)
 	register char *pat;
 {
 	register char *host = HN;
@@ -253,7 +255,7 @@ struct speedtab {
 	0
 };
 
-speed(val)
+int speed(val)
 	long val;
 {
 	register struct speedtab *sp;
@@ -268,22 +270,21 @@ speed(val)
 	return (B300);		/* default in impossible cases */
 }
 
-makeenv(env)
+void makeenv(env)
 	char *env[];
 {
 	static char termbuf[128] = "TERM=";
 	register char *p, *q;
 	register char **ep;
-	char *index();
 
 	ep = env;
 	if (TT && *TT) {
 		strcat(termbuf, TT);
 		*ep++ = termbuf;
 	}
-	if (p = EV) {
+	if ((p = EV)) {
 		q = p;
-		while (q = index(q, ',')) {
+		while ((q = index(q, ','))) {
 			*q++ = '\0';
 			*ep++ = p;
 			p = q;

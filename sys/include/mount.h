@@ -96,6 +96,9 @@ struct  mount mount[NMOUNT];
 
 #else
 
-int getfsstat (struct statfs *buf, int bufsize, unsigned flags);
+int getfsstat(struct statfs *buf, int bufsize, unsigned flags);
+int getmntinfo(struct statfs **mntbufp, int flags);
+int statfs(const char *path, struct statfs *buf);
+int mount(const char *source, const char *target, int mountflags);
 
 #endif

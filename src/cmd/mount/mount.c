@@ -42,21 +42,9 @@
 #include <string.h>
 #include <unistd.h>
 #include <paths.h>
+#include "mntopts.h"
 
 int debug, verbose, skipvfs, mountrw;
-
-int	badvfsname();
-int	badvfstype();
-char   *catopt();
-struct statfs *getmntpt();
-char **makevfslist();
-void	mangle();
-int	mountfs();
-void	prmount();
-void	usage();
-
-/* From mount_ufs.c. */
-int	mount_ufs();
 
 /* Map from mount otions to printable formats. */
 static struct opt {
@@ -73,6 +61,16 @@ static struct opt {
 	{ MNT_SYNCHRONOUS,	"synchronous" },
 	{ NULL }
 };
+
+static char *catopt(char *s0, char *s1);
+static char **makevfslist(char *fslist);
+static void usage(void);
+static int badvfsname(char *vfsname, char **vfslist);
+static int mountfs(char *vfstype, char *spec, char *name, int flags, char *options, char *mntopts);
+static int badvfstype(int vfstype, register char **vfslist);
+static void prmount(char *spec, char *name, int flags);
+static struct statfs *getmntpt(char *name);
+static void mangle(char *options, int *argcp, char **argv);
 
 int
 main(argc, argv)
@@ -385,7 +383,7 @@ badvfstype(vfstype, vfslist)
 	int vfstype;
 	register char **vfslist;
 {
-static char *vfsnames[] = INITMOUNTNAMES;
+	static char *vfsnames[] = INITMOUNTNAMES;
 
 	if ((vfstype < 0) || (vfstype > MOUNT_MAXTYPE))
 		return (0);
@@ -457,8 +455,8 @@ mangle(options, argcp, argv)
 	register int argc;
 
 	argc = *argcp;
-	for (s = options; (p = strsep(&s, ",")) != NULL;)
-		if (*p != '\0')
+	for (s = options; (p = strsep(&s, ",")) != NULL;) {
+		if (*p != '\0') {
 			if (*p == '-') {
 				argv[argc++] = p;
 				p = strchr(p, '=');
@@ -470,6 +468,8 @@ mangle(options, argcp, argv)
 				argv[argc++] = "-o";
 				argv[argc++] = p;
 			}
+                }
+        }
 
 	*argcp = argc;
 }

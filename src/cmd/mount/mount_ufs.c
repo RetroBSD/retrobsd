@@ -41,8 +41,6 @@
 
 #include "mntopts.h"
 
-void	ufs_usage();
-
 static struct mntopt mopts[] = {
 	MOPT_STDOPTS,
 	MOPT_ASYNC,
@@ -50,6 +48,13 @@ static struct mntopt mopts[] = {
 	MOPT_UPDATE,
 	{ NULL }
 };
+
+void
+ufs_usage()
+{
+	(void)fprintf(stderr, "usage: mount_ufs [-o options] special node\n");
+	exit(1);
+}
 
 int
 mount_ufs(argc, argv)
@@ -98,11 +103,4 @@ mount_ufs(argc, argv)
 		return (1);
 	}
 	return (0);
-}
-
-void
-ufs_usage()
-{
-	(void)fprintf(stderr, "usage: mount_ufs [-o options] special node\n");
-	exit(1);
 }

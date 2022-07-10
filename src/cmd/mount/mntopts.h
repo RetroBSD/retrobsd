@@ -78,4 +78,5 @@ struct mntopt {
 	MOPT_NOSUID,							\
 	MOPT_RDONLY
 
-void getmntopts();
+int mount_ufs(int argc, char *argv[]);
+void getmntopts(char *options, struct mntopt *m0, int *flagp);

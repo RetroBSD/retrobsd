@@ -16,6 +16,9 @@
 #include <sys/stat.h>
 #include <grp.h>
 #include <pwd.h>
+#include <stdarg.h>
+#include <unistd.h>
+#include <fcntl.h>
 #include <sys/dir.h>
 
 struct  group *gr;
@@ -27,12 +30,18 @@ int status;
 int fflag, rflag;
 static  char    *fchdirmsg = "Can't fchdir() back to starting directory";
 
-main(argc, argv)
+static void fatal(int status, char *fmt, ...);
+static int isnumber(char *s);
+static int Perror(char *s);
+static int error(char *fmt, ...);
+static int chownr(char *dir, uid_t uid, gid_t gid, int savedir);
+
+int main(argc, argv)
     int argc;
     char *argv[];
 {
-    register c, i;
-    register char *cp;
+    int c, i;
+    char *cp;
     int fcurdir;
 
     argc--, argv++;
@@ -107,25 +116,25 @@ ok:
     exit(status);
 }
 
-isnumber(s)
+int isnumber(s)
     char *s;
 {
-    register int c;
+    int c;
 
-    while (c = *s++)
+    while ((c = *s++))
         if (!isdigit(c))
             return (0);
     return (1);
 }
 
-chownr(dir, uid, gid, savedir)
+int chownr(dir, uid, gid, savedir)
     char *dir;
     uid_t   uid;
     gid_t   gid;
     int savedir;
 {
-    register DIR *dirp;
-    register struct direct *dp;
+    DIR *dirp;
+    struct direct *dp;
     struct stat st;
     int ecode;
 
@@ -173,33 +182,37 @@ chownr(dir, uid, gid, savedir)
     return (ecode);
 }
 
-error(fmt, a)
-    char *fmt, *a;
+int verror(char *fmt, va_list args)
 {
-
     if (!fflag) {
         fprintf(stderr, "chgrp: ");
-        fprintf(stderr, fmt, a);
+        vfprintf(stderr, fmt, args);
         putc('\n', stderr);
     }
     return (!fflag);
 }
 
-/* VARARGS */
-fatal(status, fmt, a)
-    int status;
-    char *fmt, *a;
+int error(char *fmt, ...)
 {
+    va_list args;
+    va_start(args, fmt);
+    int status = verror(fmt, args);
+    va_end(args);
+    return status;
+}
 
+void fatal(int status, char *fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
     fflag = 0;
-    (void) error(fmt, a);
+    verror(fmt, args);
+    va_end(args);
     exit(status);
 }
 
-Perror(s)
-    char *s;
+int Perror(char *s)
 {
-
     if (!fflag) {
         fprintf(stderr, "chgrp: ");
         perror(s);

@@ -12,6 +12,9 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <stdarg.h>
 #include <sys/types.h>
 #include <sys/file.h>
 #include <sys/stat.h>
@@ -24,11 +27,21 @@ int status;
 int fflag;
 int rflag;
 
-main(argc, argv)
+static void fatal(int status, char *fmt, ...);
+static int Perror(char *s);
+static int error(char *fmt, ...);
+static int newmode(unsigned nm);
+static int chmodr(char *dir, int mode, int savedir);
+static int abss(void);
+static int who(void);
+static int what(void);
+static int where(int om);
+
+int main(argc, argv)
     char *argv[];
 {
-    register char *p, *flags;
-    register int i;
+    char *p, *flags;
+    int i;
     struct stat st;
     int fcurdir;
 
@@ -89,13 +102,13 @@ done:
     exit(status);
 }
 
-chmodr(dir, mode, savedir)
+int chmodr(dir, mode, savedir)
     char *dir;
     int mode;
     int savedir;
 {
-    register DIR *dirp;
-    register struct direct *dp;
+    DIR *dirp;
+    struct direct *dp;
     struct stat st;
     int ecode;
 
@@ -140,32 +153,37 @@ chmodr(dir, mode, savedir)
     return (ecode);
 }
 
-error(fmt, a)
-    char *fmt, *a;
+int verror(char *fmt, va_list args)
 {
-
     if (!fflag) {
         fprintf(stderr, "chmod: ");
-        fprintf(stderr, fmt, a);
+        vfprintf(stderr, fmt, args);
         putc('\n', stderr);
     }
     return (!fflag);
 }
 
-fatal(status, fmt, a)
-    int status;
-    char *fmt, *a;
+int error(char *fmt, ...)
 {
+    va_list args;
+    va_start(args, fmt);
+    int status = verror(fmt, args);
+    va_end(args);
+    return status;
+}
 
+void fatal(int status, char *fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
     fflag = 0;
-    (void) error(fmt, a);
+    verror(fmt, args);
+    va_end(args);
     exit(status);
 }
 
-Perror(s)
-    char *s;
+int Perror(char *s)
 {
-
     if (!fflag) {
         fprintf(stderr, "chmod: ");
         perror(s);
@@ -173,10 +191,10 @@ Perror(s)
     return (!fflag);
 }
 
-newmode(nm)
+int newmode(nm)
     unsigned nm;
 {
-    register o, m, b;
+    int o, m, b;
     int savem;
 
     ms = modestring;
@@ -186,7 +204,7 @@ newmode(nm)
         return (m);
     do {
         m = who();
-        while (o = what()) {
+        while ((o = what())) {
             b = where(nm);
             switch (o) {
             case '+':
@@ -207,9 +225,9 @@ newmode(nm)
     return (nm);
 }
 
-abss()
+int abss()
 {
-    register c, i;
+    int c, i;
 
     i = 0;
     while ((c = *ms++) >= '0' && c <= '7')
@@ -229,9 +247,9 @@ abss()
 #define SETID   06000   /* set[ug]id */
 #define STICKY  01000   /* sticky bit */
 
-who()
+int who()
 {
-    register m;
+    int m;
 
     m = 0;
     for (;;) switch (*ms++) {
@@ -255,7 +273,7 @@ who()
     }
 }
 
-what()
+int what()
 {
 
     switch (*ms) {
@@ -267,10 +285,10 @@ what()
     return (0);
 }
 
-where(om)
-    register om;
+int where(om)
+    int om;
 {
-    register m;
+    int m;
 
     m = 0;
     switch (*ms) {

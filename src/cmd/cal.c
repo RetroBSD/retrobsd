@@ -11,11 +11,15 @@ char    *smon[]= {
 };
 char    string[432];
 
-main(argc, argv)
+static int number(char *str);
+static void cal(int m, int y, char *p, int w);
+static void pstr(char *str, int n);
+static int jan1(int yr);
+
+int main(argc, argv)
 char *argv[];
 {
-    register y, i, j;
-    int m;
+    int y, i, j, m;
 
     if(argc < 2) {
         printf("usage: cal [month] year\n");
@@ -24,10 +28,9 @@ char *argv[];
     if(argc == 2)
         goto xlong;
 
-/*
- *  print out just month
- */
-
+    /*
+     *  print out just month
+     */
     m = number(argv[1]);
     if(m<1 || m>12)
         goto badarg;
@@ -41,10 +44,9 @@ char *argv[];
         pstr(string+i, 24);
     exit(0);
 
-/*
- *  print out complete year
- */
-
+    /*
+     *  print out complete year
+     */
 xlong:
     y = number(argv[1]);
     if(y<1 || y>9999)
@@ -72,15 +74,15 @@ badarg:
     printf("Bad argument\n");
 }
 
-number(str)
+int number(str)
 char *str;
 {
-    register n, c;
-    register char *s;
+    int n, c;
+    char *s;
 
     n = 0;
     s = str;
-    while(c = *s++) {
+    while ((c = *s++)) {
         if(c<'0' || c>'9')
             return(0);
         n = n*10 + c-'0';
@@ -88,11 +90,11 @@ char *str;
     return(n);
 }
 
-pstr(str, n)
+void pstr(str, n)
 char *str;
 {
-    register i;
-    register char *s;
+    int i;
+    char *s;
 
     s = str;
     i = n;
@@ -114,11 +116,11 @@ char    mon[] = {
     30, 31, 30, 31,
 };
 
-cal(m, y, p, w)
+void cal(m, y, p, w)
 char *p;
 {
-    register d, i;
-    register char *s;
+    int d, i;
+    char *s;
 
     s = p;
     d = jan1(y);
@@ -173,36 +175,32 @@ char *p;
  *  return day of the week
  *  of jan 1 of given year
  */
-
-jan1(yr)
+int jan1(yr)
 {
-    register y, d;
+    int y, d;
 
-/*
- *  normal gregorian calendar
- *  one extra day per four years
- */
-
+    /*
+     *  normal gregorian calendar
+     *  one extra day per four years
+     */
     y = yr;
     d = 4+y+(y+3)/4;
 
-/*
- *  julian calendar
- *  regular gregorian
- *  less three days per 400
- */
-
-    if(y > 1800) {
+    /*
+     *  julian calendar
+     *  regular gregorian
+     *  less three days per 400
+     */
+    if (y > 1800) {
         d -= (y-1701)/100;
         d += (y-1601)/400;
     }
 
-/*
- *  great calendar changeover instant
- */
-
-    if(y > 1752)
+    /*
+     *  great calendar changeover instant
+     */
+    if (y > 1752)
         d += 3;
 
-    return(d%7);
+    return d % 7;
 }

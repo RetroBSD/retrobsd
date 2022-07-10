@@ -9,34 +9,36 @@
  * software without specific written prior permission. This software
  * is provided ``as is'' without express or implied warranty.
  */
-#include <sys/param.h>
-#include <sys/file.h>
-#include <sys/stat.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <ctype.h>
 #include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <strings.h>
+#include <fcntl.h>
+#include <sys/file.h>
+#include <sys/param.h>
+#include <sys/stat.h>
 
-#define DIFF    1           /* found differences */
-#define ERR 2           /* error during run */
-#define NO  0           /* no/false */
-#define OK  0           /* didn't find differences */
-#define YES 1           /* yes/true */
+#define DIFF 1 /* found differences */
+#define ERR 2  /* error during run */
+#define NO 0   /* no/false */
+#define OK 0   /* didn't find differences */
+#define YES 1  /* yes/true */
 
-static int  fd1, fd2,       /* file descriptors */
-        silent = NO;        /* if silent run */
-static short    all = NO;       /* if report all differences */
-static u_char   buf1[MAXBSIZE],     /* read buffers */
-        buf2[MAXBSIZE];
-static char *file1, *file2;     /* file names */
+static int fd1, fd2,          /* file descriptors */
+    silent = NO;              /* if silent run */
+static short all = NO;        /* if report all differences */
+static u_char buf1[MAXBSIZE], /* read buffers */
+    buf2[MAXBSIZE];
+static char *file1, *file2; /* file names */
 
 /*
  * error --
  *  print I/O error message and die
  */
-static
-error(filename)
-    char *filename;
+static void error(char *filename)
 {
     extern int errno;
     int sverrno;
@@ -54,9 +56,7 @@ error(filename)
  * endoffile --
  *  print end-of-file message and exit indicating the files were different
  */
-static
-endoffile(filename)
-    char *filename;
+static void endoffile(char *filename)
 {
     /* 32V put this message on stdout, S5 does it on stderr. */
     if (!silent)
@@ -68,14 +68,13 @@ endoffile(filename)
  * skip --
  *  skip first part of file
  */
-static
-skip(dist, fd, fname)
-    register u_long dist;       /* length in bytes, to skip */
-    register int    fd;     /* file descriptor */
-    char    *fname;         /* file name for error */
+static void skip(
+    u_long dist,    /* length in bytes, to skip */
+    int fd,         /* file descriptor */
+    char *fname)    /* file name for error */
 {
-    register int    rlen;       /* read length */
-    register int    nread;
+    register int rlen; /* read length */
+    register int nread;
 
     for (; dist; dist -= rlen) {
         rlen = MIN(dist, sizeof(buf1));
@@ -88,18 +87,17 @@ skip(dist, fd, fname)
     }
 }
 
-static
-cmp()
+static void cmp()
 {
-    register u_char *C1, *C2;   /* traveling pointers */
-    register int    cnt,        /* counter */
-            len1, len2; /* read lengths */
-    register long   byte,       /* byte count */
-            line;       /* line count */
-    short   dfound = NO;        /* if difference found */
+    register u_char *C1, *C2; /* traveling pointers */
+    register int cnt,         /* counter */
+        len1, len2;           /* read lengths */
+    register long byte,       /* byte count */
+        line;                 /* line count */
+    short dfound = NO;        /* if difference found */
 
     for (byte = 0, line = 1;;) {
-        switch(len1 = read(fd1, buf1, MAXBSIZE)) {
+        switch (len1 = read(fd1, buf1, MAXBSIZE)) {
         case -1:
             error(file1);
         case 0:
@@ -107,13 +105,13 @@ cmp()
              * read of file 1 just failed, find out
              * if there's anything left in file 2
              */
-            switch(read(fd2, buf2, 1)) {
-                case -1:
-                    error(file2);
-                case 0:
-                    exit(dfound ? DIFF : OK);
-                default:
-                    endoffile(file1);
+            switch (read(fd2, buf2, 1)) {
+            case -1:
+                error(file2);
+            case 0:
+                exit(dfound ? DIFF : OK);
+            default:
+                endoffile(file1);
             }
         }
         /*
@@ -133,18 +131,17 @@ cmp()
                     if (*C1 != *C2)
                         printf("%6ld %3o %3o\n", byte, *C1, *C2);
                 }
-            }
-            else for (C1 = buf1, C2 = buf2;; ++C1, ++C2) {
-                ++byte;
-                if (*C1 != *C2) {
-                    printf("%s %s differ: char %ld, line %ld\n", file1, file2, byte, line);
-                    exit(DIFF);
+            } else
+                for (C1 = buf1, C2 = buf2;; ++C1, ++C2) {
+                    ++byte;
+                    if (*C1 != *C2) {
+                        printf("%s %s differ: char %ld, line %ld\n", file1, file2, byte, line);
+                        exit(DIFF);
+                    }
+                    if (*C1 == '\n')
+                        ++line;
                 }
-                if (*C1 == '\n')
-                    ++line;
-            }
-        }
-        else {
+        } else {
             byte += len2;
             /*
              * here's the real performance problem, we've got to
@@ -171,44 +168,37 @@ cmp()
  * otoi --
  *  octal/decimal string to u_long
  */
-static u_long
-otoi(C)
-    register char   *C;     /* argument string */
+static u_long otoi(char *C)
 {
-    register u_long val;        /* return value */
-    register int    base;       /* number base */
+    register u_long val; /* return value */
+    register int base;   /* number base */
 
     base = (*C == '0') ? 8 : 10;
     for (val = 0; isdigit(*C); ++C)
         val = val * base + *C - '0';
-    return(val);
+    return (val);
 }
 
 /*
  * usage --
  *  print usage and die
  */
-static
-usage()
+static void usage()
 {
     fputs("usage: cmp [-ls] file1 file2 [skip1] [skip2]\n", stderr);
     exit(ERR);
 }
 
-main(argc, argv)
-    int argc;
-    char    **argv;
+int main(int argc, char **argv)
 {
-    extern char *optarg;
-    extern int  optind;
     int ch;
 
     while ((ch = getopt(argc, argv, "ls")) != EOF)
-        switch(ch) {
-        case 'l':       /* print all differences */
+        switch (ch) {
+        case 'l': /* print all differences */
             all = YES;
             break;
-        case 's':       /* silent run */
+        case 's': /* silent run */
             silent = YES;
             break;
         case '?':

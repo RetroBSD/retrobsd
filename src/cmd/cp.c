@@ -11,6 +11,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
+#include <unistd.h>
+#include <fcntl.h>
 #include <sys/param.h>
 #include <sys/stat.h>
 #include <sys/dir.h>
@@ -20,7 +22,12 @@ int iflag;
 int rflag;
 int pflag;
 
-main(argc, argv)
+static void Perror(char *s);
+static int copy(char *from, char *to);
+static int rcopy(char *from, char *to);
+static int setimes(char *path, struct stat *statp);
+
+int main(argc, argv)
     int argc;
     char **argv;
 {
@@ -67,7 +74,7 @@ usage:
     exit(1);
 }
 
-copy(from, to)
+int copy(from, to)
     char *from, *to;
 {
     int fold, fnew, n, exists;
@@ -172,7 +179,7 @@ copy(from, to)
     return (0);
 }
 
-rcopy(from, to)
+int rcopy(from, to)
     char *from, *to;
 {
     DIR *fold = opendir(from);
@@ -225,7 +232,7 @@ setimes(path, statp)
     return (0);
 }
 
-Perror(s)
+void Perror(s)
     char *s;
 {
     fprintf(stderr, "cp: ");

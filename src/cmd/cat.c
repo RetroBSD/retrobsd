@@ -9,20 +9,24 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
-/* #define OPTSIZE BUFSIZ   /* define this only if not 4.2 BSD or beyond */
+// #define OPTSIZE BUFSIZ   /* define this only if not 4.2 BSD or beyond */
 
 int bflg, eflg, nflg, sflg, tflg, uflg, vflg;
 int spaced, col, lno, inlin, ibsize, obsize;
 
-main(argc, argv)
+static void copyopt(FILE *f);
+static int fastcat(int fd);
+
+int main(argc, argv)
 char **argv;
 {
     int fflg = 0;
-    register FILE *fi;
-    register c;
+    FILE *fi;
+    int c;
     int dev, ino = -1;
     struct stat statb;
     int retval = 0;
@@ -121,10 +125,10 @@ char **argv;
     exit(retval);
 }
 
-copyopt(f)
-    register FILE *f;
+void copyopt(f)
+    FILE *f;
 {
-    register int c;
+    int c;
 
 top:
     c = getc(f);
@@ -168,11 +172,11 @@ top:
     goto top;
 }
 
-fastcat(fd)
-register int fd;
+int fastcat(fd)
+int fd;
 {
-    register int    buffsize, n, nwritten, offset;
-    register char   *buff;
+    int    buffsize, n, nwritten, offset;
+    char   *buff;
     struct stat statbuff;
 
 #ifndef OPTSIZE

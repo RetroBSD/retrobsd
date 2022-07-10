@@ -18,23 +18,27 @@ int cp, lp;
 int ll, llh, mustwr;
 int pcp = 0;
 char *pgmname;
-char    *strcpy();
 
-main (argc, argv)
+static void incr(void);
+static void decr(void);
+static void outc(char c);
+static void emit(char *s, int lineno);
+
+int main(argc, argv)
     int argc; char **argv;
 {
     int i;
     int greek;
-    register int c;
+    int c;
 
     pgmname = argv[0];
 
     for (i = 1; i < argc; i++) {
-        register char *p;
+        char *p;
         if (*argv[i] != '-') {
-            fprintf (stderr, "%s: bad option %s\n",
+            fprintf(stderr, "%s: bad option %s\n",
                 pgmname, argv[i]);
-            exit (2);
+            exit(2);
         }
         for (p = argv[i]+1; *p; p++) {
             switch (*p) {
@@ -51,9 +55,9 @@ main (argc, argv)
                 break;
 
             default:
-                fprintf (stderr, "%s: bad option letter %c\n",
+                fprintf(stderr, "%s: bad option letter %c\n",
                     pgmname, *p);
-                exit (2);
+                exit(2);
             }
         }
     }
@@ -154,13 +158,12 @@ main (argc, argv)
 
     for (i=0; i<PL; i++)
         if (page[(mustwr+i)%PL] != 0)
-            emit (page[(mustwr+i) % PL], mustwr+i-PL);
-    emit (" ", (llh + 1) & -2);
+            emit(page[(mustwr+i) % PL], mustwr+i-PL);
+    emit(" ", (llh + 1) & -2);
     exit(0);
 }
 
-outc (c)
-    register char c;
+void outc(char c)
 {
     if (lp > cp) {
         line = lbuff;
@@ -189,7 +192,7 @@ outc (c)
     if (bflag || *line == '\0' || *line == ' ')
         *line = c;
     else {
-        register char c1, c2, c3;
+        char c1, c2, c3;
         c1 = *++line;
         *line++ = '\b';
         c2 = *line;
@@ -205,22 +208,22 @@ outc (c)
     }
 }
 
-store (lno)
+void store(lno)
 {
     lno %= PL;
     if (page[lno] != 0)
-        free (page[lno]);
+        free(page[lno]);
     page[lno] = malloc((unsigned)strlen(lbuff) + 2);
     if (page[lno] == 0) {
-        fprintf (stderr, "%s: no storage\n", pgmname);
-        exit (2);
+        fprintf(stderr, "%s: no storage\n", pgmname);
+        exit(2);
     }
-    strcpy (page[lno],lbuff);
+    strcpy(page[lno],lbuff);
 }
 
-fetch(lno)
+void fetch(lno)
 {
-    register char *p;
+    char *p;
 
     lno %= PL;
     p = lbuff;
@@ -229,30 +232,31 @@ fetch(lno)
     line = lbuff;
     lp = 0;
     if (page[lno])
-        strcpy (line, page[lno]);
+        strcpy(line, page[lno]);
 }
-emit (s, lineno)
+
+void emit(s, lineno)
     char *s;
     int lineno;
 {
     static int cline = 0;
-    register int ncp;
-    register char *p;
+    int ncp;
+    char *p;
     static int gflag = 0;
 
     if (*s) {
         while (cline < lineno - 1) {
-            putchar ('\n');
+            putchar('\n');
             pcp = 0;
             cline += 2;
         }
         if (cline != lineno) {
-            putchar (ESC);
-            putchar ('9');
+            putchar(ESC);
+            putchar('9');
             cline++;
         }
         if (pcp)
-            putchar ('\r');
+            putchar('\r');
         pcp = 0;
         p = s;
         while (*p) {
@@ -260,23 +264,23 @@ emit (s, lineno)
             while (*p++ == ' ') {
                 if ((++ncp & 7) == 0 && hflag) {
                     pcp = ncp;
-                    putchar ('\t');
+                    putchar('\t');
                 }
             }
             if (!*--p)
                 break;
             while (pcp < ncp) {
-                putchar (' ');
+                putchar(' ');
                 pcp++;
             }
             if (gflag != (*p & GREEK) && *p != '\b') {
                 if (gflag)
-                    putchar (SI);
+                    putchar(SI);
                 else
-                    putchar (SO);
+                    putchar(SO);
                 gflag ^= GREEK;
             }
-            putchar (*p & ~GREEK);
+            putchar(*p & ~GREEK);
             if (*p++ == '\b')
                 pcp--;
             else
@@ -285,24 +289,24 @@ emit (s, lineno)
     }
 }
 
-incr()
+void incr()
 {
-    store (ll++);
+    store(ll++);
     if (ll > llh)
         llh = ll;
     if (ll >= mustwr && page[ll%PL]) {
-        emit (page[ll%PL], ll - PL);
+        emit(page[ll%PL], ll - PL);
         mustwr++;
-        free (page[ll%PL]);
+        free(page[ll%PL]);
         page[ll%PL] = 0;
     }
-    fetch (ll);
+    fetch(ll);
 }
 
-decr()
+void decr()
 {
     if (ll > mustwr - PL) {
-        store (ll--);
-        fetch (ll);
+        store(ll--);
+        fetch(ll);
     }
 }

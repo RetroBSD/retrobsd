@@ -34,12 +34,17 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
-main()
+void mysync()
+{
+	(void)sync();
+}
+
+int main()
 {
 	struct itimerval value;
 	sigset_t set;
-	void mysync();
 
 	daemon(0, 0);
 
@@ -57,10 +62,4 @@ main()
 	for (;;)
 		sigsuspend(&set);
 	/* NOTREACHED */
-}
-
-void
-mysync()
-{
-	(void)sync();
 }

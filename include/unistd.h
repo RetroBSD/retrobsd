@@ -93,7 +93,7 @@ char    *re_comp();
 void    *sbrk(int incr);
 int     sethostid();
 void    setusershell();
-void    sync();
+void    sync(void);
 unsigned int    ualarm();
 void    usleep();
 int     pause(void);
@@ -155,6 +155,7 @@ int     getpagesize(void);
 int     symlink(const char *target, const char *linkpath);
 int     vhangup(void);
 int     mknod(const char *, mode_t, dev_t);
+int     reboot(int howto);
 
 #ifndef _VA_LIST_
 # ifdef __GNUC__

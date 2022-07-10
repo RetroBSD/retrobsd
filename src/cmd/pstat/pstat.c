@@ -20,6 +20,8 @@
 #include <nlist.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 char	*fcore	= "/dev/kmem";
 char	*fmem	= "/dev/mem";
@@ -54,7 +56,18 @@ int	totflg;
 int	allflg;
 int	kflg;
 
-main(argc, argv)
+static void usage(void);
+static void dofile(void);
+static void doinode(void);
+static void doproc(void);
+static void dotty(void);
+static void dousr(void);
+static void doswap(void);
+static void putf(long v, char n);
+static void dottytype(char *name, int type);
+static void ttyprt(struct tty *atp, int line);
+
+int main(argc, argv)
 char **argv;
 {
 	register char *argp;
@@ -147,12 +160,12 @@ char **argv;
 		doswap();
 }
 
-usage()
+void usage()
 {
 	printf("usage: pstat -[aikptfsT] [-u [ubase]] [core]\n");
 }
 
-doinode()
+void doinode()
 {
 	register struct inode *ip;
 	struct inode *xinode;
@@ -207,7 +220,7 @@ doinode()
 			printf("%6d,%3d", major(ip->i_rdev), minor(ip->i_rdev));
 		else
 			printf("%10ld", ip->i_size);
-		printf(" %08x", ip->i_fs);
+		printf(" %p", ip->i_fs);
 		printf("\n");
 	}
 	free(xinode);
@@ -225,9 +238,7 @@ getuint(loc)
 	return (word);
 }
 
-putf(v, n)
-	long	v;
-	char	n;
+void putf(long v, char n)
 {
 	if (v)
 		printf("%c", n);
@@ -235,12 +246,12 @@ putf(v, n)
 		printf(" ");
 }
 
-doproc()
+void doproc()
 {
 	struct proc *xproc;
 	u_int nproc, aproc;
 	register struct proc *pp;
-	register loc, np;
+	register int loc, np;
 
 	nproc = getuint((off_t)nl[SNPROC].n_value);
 	xproc = (struct proc *)calloc(nproc, sizeof (struct proc));
@@ -286,8 +297,8 @@ doproc()
 		printf(" %8x", pp->p_saddr);
 		printf(" %8x", pp->p_daddr);
 		printf(" %6x", pp->p_dsize+pp->p_ssize);
-		printf(" %8x", pp->p_wchan);
-		printf(" %8x", pp->p_link);
+		printf(" %p", pp->p_wchan);
+		printf(" %p", pp->p_link);
 		printf(" %8.1lx", pp->p_sigmask);
 		printf("\n");
 	}
@@ -297,7 +308,7 @@ doproc()
 static int ttyspace = 64;
 static struct tty *tty;
 
-dotty()
+void dotty()
 {
 	if ((tty = (struct tty *)malloc(ttyspace * sizeof(*tty))) == 0) {
 		printf("pstat: out of memory\n");
@@ -306,7 +317,7 @@ dotty()
 	dottytype("cn", SKL);
 }
 
-dottytype(name, type)
+void dottytype(name, type)
 char *name;
 {
 	register struct tty *tp;
@@ -318,7 +329,7 @@ char *name;
 	ttyprt(tty, 0);
 }
 
-ttyprt(atp, line)
+void ttyprt(atp, line)
 struct tty *atp;
 {
 	register struct tty *tp;
@@ -327,7 +338,7 @@ struct tty *atp;
 	tp = atp;
 
 	printf("%4d%4d", tp->t_rawq.c_cc, tp->t_canq.c_cc);
-	printf("%4d %12.1lo %8x %4d %4d ", tp->t_outq.c_cc, tp->t_flags,
+	printf("%4d %12.1lo %p %4d %4d ", tp->t_outq.c_cc, tp->t_flags,
 		tp->t_addr, tp->t_delct, tp->t_col);
 	putf(tp->t_state&TS_TIMEOUT, 'T');
 	putf(tp->t_state&TS_WOPEN, 'W');
@@ -346,24 +357,24 @@ struct tty *atp;
 	printf("%6d\n", tp->t_pgrp);
 }
 
-dousr()
+void dousr()
 {
 	struct user U;
 	long	*ip;
-	register i, j;
+	register int i, j;
 
 	lseek(fm, ubase, 0);
 	read(fm, &U, sizeof(U));
 	printf("procp\t%p\n", U.u_procp);
 	printf("frame\t%p\n", U.u_frame);
 	printf("comm\t%s\n", U.u_comm);
-	printf("arg\t%p %p %p %p %p %p\n", U.u_arg[0], U.u_arg[1],
+	printf("arg\t%08x %08x %08x %08x %08x %08x\n", U.u_arg[0], U.u_arg[1],
 		U.u_arg[2], U.u_arg[3], U.u_arg[4], U.u_arg[5]);
 	printf("qsave\t");
 	for (i = 0; i < sizeof (label_t) / sizeof (int); i++)
-		printf("%p ", U.u_qsave.val[i]);
+		printf("%08x ", U.u_qsave.val[i]);
 	printf("\n");
-	printf("rval\t%p\n", U.u_rval);
+	printf("rval\t%08x\n", U.u_rval);
 	printf("error\t%d\n", U.u_error);
 	printf("uids\t%d,%d,%d,%d,%d\n", U.u_uid, U.u_svuid, U.u_ruid,
 		U.u_svgid, U.u_rgid);
@@ -388,7 +399,7 @@ dousr()
 	printf("signal");
 	for (i = 0; i < NSIG; i++) {
 		if (i%8 == 0) printf("\t");
-		printf("%.1x ", U.u_signal[i]);
+		printf("%p ", U.u_signal[i]);
 		if (i%8 == 7) printf("\n");
 	}
 	if (i%8) printf("\n");
@@ -404,13 +415,13 @@ dousr()
 	printf("oldmask\t%.1lx\n", U.u_oldmask);
 	printf("code\t%08x\n", U.u_code);
 	printf("psflags\t%d\n", U.u_psflags);
-	printf("ss_base\t%.1x ss_size %.1x ss_flags %.1x\n",
+	printf("ss_base\t%p ss_size %.1x ss_flags %.1x\n",
 		U.u_sigstk.ss_base, U.u_sigstk.ss_size, U.u_sigstk.ss_flags);
 	printf("ofile");
 	for	(i = 0; i < NOFILE; i++)
 		{
 		if	(i%8 == 0) printf("\t");
-		printf("%.1x ", U.u_ofile[i]);
+		printf("%p ", U.u_ofile[i]);
 		if	(i%8 == 7) printf("\n");
 		}
 	if	(i%8) printf("\n");
@@ -423,9 +434,9 @@ dousr()
 		}
 	if	(i%8) printf("\n");
 	printf("lastfile\t%d\n", U.u_lastfile);
-	printf("cdir\t%.1x\n", U.u_cdir);
-	printf("rdir\t%.1x\n", U.u_rdir);
-	printf("ttyp\t%.1x\n", U.u_ttyp);
+	printf("cdir\t%p\n", U.u_cdir);
+	printf("rdir\t%p\n", U.u_rdir);
+	printf("ttyp\t%p\n", U.u_ttyp);
 	printf("ttyd\t%d,%d\n", major(U.u_ttyd), minor(U.u_ttyd));
 	printf("cmask\t%.1x\n", U.u_cmask);
 	printf("ru\t");
@@ -441,8 +452,8 @@ dousr()
 	printf("timer\t%ld %ld %ld %ld\n", U.u_timer[0].it_interval,
 		U.u_timer[0].it_value, U.u_timer[1].it_interval,
 		U.u_timer[1].it_value);
-	printf("start\t%08x\n", U.u_start);
-	printf("prof\t%.1x %u %u %u\n", U.u_prof.pr_base, U.u_prof.pr_size,
+	printf("start\t%08lx\n", U.u_start);
+	printf("prof\t%p %u %u %u\n", U.u_prof.pr_base, U.u_prof.pr_size,
 		U.u_prof.pr_off, U.u_prof.pr_scale);
 	printf("rlimit cur\t");
 	for	(i = 0; i < RLIM_NLIMITS; i++)
@@ -467,10 +478,10 @@ dousr()
 		minor(U.u_ncache.nc_dev));
 }
 
-oatoi(s)
+int oatoi(s)
 char *s;
 {
-	register v;
+	int v;
 
 	v = 0;
 	while (*s)
@@ -478,11 +489,11 @@ char *s;
 	return(v);
 }
 
-dofile()
+void dofile()
 {
 	struct file *xfile;
 	register struct file *fp;
-	register nf;
+	register int nf;
 	u_int loc, afile;
 	static char *dtypes[] = { "???", "inode", "socket", "pipe" };
 
@@ -513,7 +524,7 @@ dofile()
 		if (fp->f_type <= DTYPE_PIPE)
 			printf("%-8.8s", dtypes[fp->f_type]);
 		else
-			printf("8d", fp->f_type);
+			printf("%8d", fp->f_type);
 		putf((long)fp->f_flag&FREAD, 'R');
 		putf((long)fp->f_flag&FWRITE, 'W');
 		putf((long)fp->f_flag&FAPPEND, 'A');
@@ -525,7 +536,7 @@ dofile()
 		putf((long)fp->f_flag&FDEFER, 'd');
 		printf("  %3d", fp->f_count);
 		printf("  %3d", fp->f_msgcount);
-		printf("  %08x", fp->f_data);
+		printf("  %p", fp->f_data);
 		if (fp->f_offset < 0)
 			printf("  0x%lx\n", fp->f_offset);
 		else
@@ -534,7 +545,7 @@ dofile()
 	free(xfile);
 }
 
-doswap()
+void doswap()
 {
 	u_int	nswap, used;
 	int	i, num;

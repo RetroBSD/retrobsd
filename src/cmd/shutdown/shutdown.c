@@ -20,6 +20,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <sys/param.h>
@@ -36,8 +37,6 @@
 #define IGNOREUSER	"sleeper"
 
 char	hostname[MAXHOSTNAMELEN];
-
-time_t	getsdt();
 
 struct	utmp utmp;
 int	sint;
@@ -82,6 +81,10 @@ struct interval {
 
 char *shutter;
 
+static time_t getsdt(char *s);
+static void nolog(time_t sdt);
+static void doitfast(void);
+
 void finish(sig)
         int sig;
 {
@@ -96,13 +99,13 @@ void timeout(sig)
 	longjmp(alarmbuf, 1);
 }
 
-warning(term, sdt, now, type)
+void warning(term, sdt, now, type)
 	FILE *term;
 	time_t sdt, now;
 	char *type;
 {
 	char *ts;
-	register delay = sdt - now;
+	register int delay = sdt - now;
 
 	if (delay > 8)
 		while (delay % 5)
@@ -125,11 +128,11 @@ warning(term, sdt, now, type)
 		fprintf(term, "System going down IMMEDIATELY\r\n");
 }
 
-main(argc,argv)
+int main(argc,argv)
 	int argc;
 	char **argv;
 {
-	register i, ufd;
+	register int i, ufd;
 	register char *f;
 	char *ts;
 	time_t sdt;
@@ -147,7 +150,7 @@ main(argc,argv)
 	openlog("shutdown", 0, LOG_AUTH);
 	argc--, argv++;
 	while (argc > 0 && (f = argv[0], *f++ == '-')) {
-		while (i = *f++) switch (i) {
+		while ((i = *f++)) switch (i) {
 		case 'k':
 			killflg = 0;
 			continue;
@@ -209,7 +212,7 @@ main(argc,argv)
 	(void) setpriority(PRIO_PROCESS, 0, PRIO_MIN);
 	(void) fflush(stdout);
 #ifndef DEBUG
-	if (i = fork()) {
+	if ((i = fork())) {
 		printf("[pid %d]\n", i);
 		exit(0);
 	}
@@ -365,9 +368,10 @@ badform:
 	printf("Bad time format\n");
 	finish(0);
 	/*NOTREACHED*/
+	return 0;
 }
 
-doitfast()
+void doitfast()
 {
 	register FILE *fastd;
 
@@ -377,7 +381,7 @@ doitfast()
 	}
 }
 
-nolog(sdt)
+void nolog(sdt)
 	time_t sdt;
 {
 	register FILE *nologf;

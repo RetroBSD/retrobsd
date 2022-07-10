@@ -13,6 +13,8 @@
 #include <pwd.h>
 #include <sysexits.h>
 #include <unistd.h>
+#include <fcntl.h>
+#include <time.h>
 #include <sys/syslog.h>
 #include <sys/file.h>
 #include <sys/reboot.h>
@@ -20,7 +22,9 @@
 
 #define	OPTS	"lqnhdarsfRD"
 
-main(argc, argv)
+static void markdown(void);
+
+int main(argc, argv)
 	int argc;
 	char **argv;
 {
@@ -30,12 +34,12 @@ main(argc, argv)
 	char *myname;		/* name we were invoked as */
 	char args[20], *ap;	/* collected arguments for syslog */
 	int i;
-	char *rindex();
 
-	if (myname = rindex(argv[0], '/'))
+	if ((myname = rindex(argv[0], '/')))
 		myname++;
 	else
 		myname = argv[0];
+
 	if (strcmp(myname, "halt") == 0)
 		howto = RB_HALT;
 	else if (strcmp(myname, "fasthalt") == 0)
@@ -44,8 +48,8 @@ main(argc, argv)
 		howto = RB_NOFSCK;
 	else if (strcmp(myname, "poweroff") == 0)
 		howto = RB_HALT|RB_POWEROFF;
-    else if (strcmp(myname, "bootloader") == 0)
-        howto = RB_HALT|RB_BOOTLOADER;
+	else if (strcmp(myname, "bootloader") == 0)
+		howto = RB_HALT|RB_BOOTLOADER;
 	else
 		howto = 0;
 
@@ -96,7 +100,7 @@ main(argc, argv)
 			user = "root";
 		openlog(myname, 0, LOG_AUTH);
 		syslog(LOG_CRIT, "%s; %s by %s",
- 			args, (howto&RB_HALT)?"halted":"rebooted", user);
+			args, (howto&RB_HALT)?"halted":"rebooted", user);
 	}
         /*
          * Do a sync early on so disks start transfers while we're killing
@@ -155,7 +159,6 @@ main(argc, argv)
 	exit(EX_OSERR);
 }
 
-
 /*
  * Make shutdown entry in /usr/adm/utmp.
  */
@@ -164,7 +167,7 @@ main(argc, argv)
 
 #define	SCPYN(a, b)	strncpy(a, b, sizeof(a))
 
-markdown()
+void markdown()
 {
 	struct utmp wtmp;
 	register int f = open(_PATH_WTMP, O_WRONLY|O_APPEND);

@@ -3,8 +3,8 @@ include $(TOPSRC)/target.mk
 
 CFLAGS          += -Wall -Werror -Os
 
-virus:          virus.c
-		$(CC) $(LDFLAGS) -o virus.elf virus.c $(LIBS) -ltermcap
+virus:          virus.o
+		$(LD) $(LDFLAGS) -o virus.elf virus.o $(LIBS) -ltermcap
 		$(SIZE) virus.elf
 		$(ELF2AOUT) virus.elf $@
 

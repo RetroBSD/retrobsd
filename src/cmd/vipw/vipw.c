@@ -20,6 +20,7 @@
 #include <sys/file.h>
 #include <sys/time.h>
 #include <sys/resource.h>
+#include <sys/wait.h>
 #include <errno.h>
 #include <pwd.h>
 #include <stdio.h>
@@ -29,10 +30,17 @@
 #include <unistd.h>
 #include <limits.h>
 #include <paths.h>
+#include <fcntl.h>
 
 char *passwd, *temp;
 
-main()
+static void stop(int val);
+static int edit(void);
+static int check(FILE *tfp);
+static int prompt(void);
+static int makedb(char *file);
+
+int main()
 {
 	register int n, fd_passwd, fd;
 	struct rlimit rlim;
@@ -143,7 +151,7 @@ syserr:		(void)fprintf(stderr, "vipw: %s: %s; ",
 	exit(0);
 }
 
-check(tfp)
+int check(tfp)
 	FILE *tfp;
 {
 	long id;
@@ -190,7 +198,7 @@ check(tfp)
 		if (!(p = strsep(&bp, ":")))	/* shell */
 			goto general;
 		if (root && *p)				/* empty == /bin/sh */
-			for (setusershell();;)
+			for (setusershell();;) {
 				if (!(sh = getusershell())) {
 					(void)fprintf(stderr,
 					    "vipw: warning, unknown root shell.\n");
@@ -198,6 +206,7 @@ check(tfp)
 				}
 				else if (!strcmp(p, sh))
 					break;
+                        }
 		if (strsep(&bp, ":")) {	/* too many */
 general:		(void)fprintf(stderr, "vipw: corrupted entry");
 bad:			(void)fprintf(stderr, "; line #%d.\n", lcnt);
@@ -208,7 +217,7 @@ bad:			(void)fprintf(stderr, "; line #%d.\n", lcnt);
 	return(0);
 }
 
-makedb(file)
+int makedb(file)
 	char *file;
 {
 	int status, pid, w;
@@ -221,13 +230,13 @@ makedb(file)
 	return(w == -1 || status);
 }
 
-edit()
+int edit()
 {
 	int status, pid, w;
 	char *p, *editor;
 
-	if (editor = getenv("EDITOR")) {
-		if (p = rindex(editor, '/'))
+	if ((editor = getenv("EDITOR"))) {
+		if ((p = rindex(editor, '/')))
 			++p;
 		else
 			p = editor;
@@ -244,7 +253,7 @@ edit()
 	return(w == -1 || status);
 }
 
-prompt()
+int prompt()
 {
 	register int c;
 
@@ -259,7 +268,7 @@ prompt()
 	/* NOTREACHED */
 }
 
-stop(val)
+void stop(val)
 	int val;
 {
 	(void)fprintf(stderr, "%s unchanged.\n", passwd);

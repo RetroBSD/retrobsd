@@ -156,6 +156,7 @@ int     symlink(const char *target, const char *linkpath);
 int     vhangup(void);
 int     mknod(const char *, mode_t, dev_t);
 int     reboot(int howto);
+int     ttyslot(void);
 
 #ifndef _VA_LIST_
 # ifdef __GNUC__

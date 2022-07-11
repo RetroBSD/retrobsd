@@ -3,41 +3,39 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-#include <stdio.h>
-#include <string.h>
-#include <pwd.h>
-#include <syslog.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <paths.h>
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <grp.h>
+#include <paths.h>
+#include <pwd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <syslog.h>
+#include <unistd.h>
 
-char    userbuf[64] = "USER=";
-char    homebuf[128]    = "HOME=";
-char    shellbuf[128]   = "SHELL=";
-char    pathbuf[128]    = "PATH=" _PATH_STDPATH;
-char    *cleanenv[]     = { userbuf, homebuf, shellbuf, pathbuf, 0, 0 };
-char    *user           = "root";
-char    *shell          = _PATH_BSHELL;
+char userbuf[64] = "USER=";
+char homebuf[128] = "HOME=";
+char shellbuf[128] = "SHELL=";
+char pathbuf[128] = "PATH=" _PATH_STDPATH;
+char *cleanenv[] = { userbuf, homebuf, shellbuf, pathbuf, 0, 0 };
+char *user = "root";
+char *shell = _PATH_BSHELL;
 int fulllogin;
 int fastlogin;
 
-extern char **environ;
-struct  passwd *pwd;
+struct passwd *pwd;
 
-setenvv(ename, eval, buf)
-    char *ename, *eval, *buf;
+void setenvv(char *ename, char *eval, char *buf)
 {
-    register char *cp, *dp;
-    register char **ep = environ;
+    char *cp, *dp;
+    char **ep = environ;
 
     /*
      * this assumes an environment variable "ename" already exists
      */
-    while (dp = *ep++) {
+    while ((dp = *ep++)) {
         for (cp = ename; *cp == *dp && *cp; cp++, dp++)
             continue;
         if (*cp == 0 && (*dp == '=' || *dp == 0)) {
@@ -48,14 +46,12 @@ setenvv(ename, eval, buf)
     }
 }
 
-char *
-getenvv(ename)
-    char *ename;
+char *getenvv(char *ename)
 {
-    register char *cp, *dp;
-    register char **ep = environ;
+    char *cp, *dp;
+    char **ep = environ;
 
-    while (dp = *ep++) {
+    while ((dp = *ep++)) {
         for (cp = ename; *cp == *dp && *cp; cp++, dp++)
             continue;
         if (*cp == 0 && (*dp == '=' || *dp == 0))
@@ -64,14 +60,12 @@ getenvv(ename)
     return ((char *)0);
 }
 
-main(argc,argv)
-    int argc;
-    char *argv[];
+int main(int argc, char *argv[])
 {
     char *password;
     char buf[1000];
     FILE *fp;
-    register char *p;
+    char *p;
 
     openlog("su", LOG_ODELAY, LOG_AUTH);
 
@@ -103,30 +97,28 @@ again:
      * Only allow those in group zero to su to root.
      */
     if (pwd->pw_uid == 0) {
-        struct  group *gr;
+        struct group *gr;
         int i;
 
         if ((gr = getgrgid(0)) != NULL) {
             for (i = 0; gr->gr_mem[i] != NULL; i++)
                 if (strcmp(buf, gr->gr_mem[i]) == 0)
                     goto userok;
-            fprintf(stderr, "You do not have permission to su %s\n",
-                user);
+            fprintf(stderr, "You do not have permission to su %s\n", user);
             exit(1);
         }
     userok:
         setpriority(PRIO_PROCESS, 0, -2);
     }
 
-#define Getlogin()  (((p = getlogin()) && *p) ? p : buf)
+#define Getlogin() (((p = getlogin()) && *p) ? p : buf)
     if (pwd->pw_passwd[0] == '\0' || getuid() == 0)
         goto ok;
     password = getpass("Password:");
     if (strcmp(pwd->pw_passwd, crypt(password, pwd->pw_passwd)) != 0) {
         fprintf(stderr, "Sorry\n");
         if (pwd->pw_uid == 0) {
-            syslog(LOG_CRIT, "BAD SU %s on %s",
-                    Getlogin(), ttyname(2));
+            syslog(LOG_CRIT, "BAD SU %s on %s", Getlogin(), ttyname(2));
         }
         exit(2);
     }

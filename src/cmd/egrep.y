@@ -15,6 +15,8 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -24,6 +26,7 @@
 #define NCHARS 128
 #define NSTATES 128
 #define FINAL -1
+
 char gotofn[NSTATES][NCHARS];
 int state[NSTATES];
 char out[NSTATES];
@@ -62,6 +65,16 @@ int nsucc;
 
 int f;
 char    *fname;
+
+int nextch(void);
+void synerror(void);
+void overflo(void);
+void follow(int v);
+void add(int *array, int n);
+int cstate(int v);
+int member(int symb, int set, int torf);
+int notin(int n);
+void execute(char *file);
 %}
 
 %%
@@ -109,15 +122,18 @@ r:  r OR r
     ;
 
 %%
-yyerror(s) {
+void yyerror(char *s)
+{
     fprintf(stderr, "egrep: %s\n", s);
     exit(2);
 }
 
-yylex() {
+int yylex()
+{
     extern int yylval;
     int cclcnt, x;
-    register char c, d;
+    char c, d;
+
     switch(c = nextch()) {
         case '$':
         case '^': c = '\n';
@@ -140,32 +156,39 @@ yylex() {
                 c = nextch();
             }
             do {
-                if (c == '\0') synerror();
+                if (c == '\0')
+                    synerror();
                 if (c == '-' && cclcnt > 0 && chars[nxtchar-1] != 0) {
                     if ((d = nextch()) != 0) {
                         c = chars[nxtchar-1];
                         while (c < d) {
-                            if (nxtchar >= MAXLIN) overflo();
+                            if (nxtchar >= MAXLIN)
+                                overflo();
                             chars[nxtchar++] = ++c;
                             cclcnt++;
                         }
                         continue;
                     }
                 }
-                if (nxtchar >= MAXLIN) overflo();
+                if (nxtchar >= MAXLIN)
+                    overflo();
                 chars[nxtchar++] = c;
                 cclcnt++;
             } while ((c = nextch()) != ']');
             chars[count] = cclcnt;
             return (x);
         case '\\':
-            if ((c = nextch()) == '\0') synerror();
+            if ((c = nextch()) == '\0')
+                synerror();
         defchar:
         default: yylval = c; return (CHAR);
     }
 }
-nextch() {
-    register char c;
+
+int nextch()
+{
+    char c;
+
     if (fflag) {
         if ((c = getc(exprfile)) == EOF) {
             fclose(exprfile);
@@ -176,28 +199,35 @@ nextch() {
     return(c);
 }
 
-synerror() {
+void synerror()
+{
     fprintf(stderr, "egrep: syntax error\n");
     exit(2);
 }
 
-enter(x) int x; {
-    if(line >= MAXLIN) overflo();
+int enter(int x)
+{
+    if(line >= MAXLIN)
+        overflo();
     name[line] = x;
     left[line] = 0;
     right[line] = 0;
     return(line++);
 }
 
-cclenter(x) int x; {
-    register linno;
+int cclenter(int x)
+{
+    int linno;
+
     linno = enter(x);
     right[linno] = count;
     return (linno);
 }
 
-node(x, l, r) {
-    if(line >= MAXLIN) overflo();
+int node(int x, int l, int r)
+{
+    if(line >= MAXLIN)
+        overflo();
     name[line] = x;
     left[line] = l;
     right[line] = r;
@@ -206,21 +236,27 @@ node(x, l, r) {
     return(line++);
 }
 
-unary(x, d) {
-    if(line >= MAXLIN) overflo();
+int unary(int x, int d)
+{
+    if(line >= MAXLIN)
+        overflo();
     name[line] = x;
     left[line] = d;
     right[line] = 0;
     parent[d] = line;
     return(line++);
 }
-overflo() {
+
+void overflo()
+{
     fprintf(stderr, "egrep: regular expression too long\n");
     exit(2);
 }
 
-cfoll(v) {
-    register i;
+void cfoll(int v)
+{
+    int i;
+
     if (left[v] == 0) {
         count = 0;
         for (i=1; i<=line; i++) tmpstat[i] = 0;
@@ -233,8 +269,10 @@ cfoll(v) {
         cfoll(right[v]);
     }
 }
-cgotofn() {
-    register c, i, k;
+
+void cgotofn()
+{
+    int c, i, k;
     int n, s;
     char symbol[NCHARS];
     int j, nc, pc, pos;
@@ -242,7 +280,7 @@ cgotofn() {
     int number, newpos;
     count = 0;
     for (n=3; n<=line; n++) tmpstat[n] = 0;
-    if (cstate(line-1)==0) {
+    if (cstate(line-1) == 0) {
         tmpstat[line] = 1;
         count++;
         out[0] = 1;
@@ -327,8 +365,10 @@ cgotofn() {
     }
 }
 
-cstate(v) {
-    register b;
+int cstate(int v)
+{
+    int b;
+
     if (left[v] == 0) {
         if (tmpstat[v] != 1) {
             tmpstat[v] = 1;
@@ -352,9 +392,10 @@ cstate(v) {
     }
 }
 
+int member(int symb, int set, int torf)
+{
+    int i, num, pos;
 
-member(symb, set, torf) {
-    register i, num, pos;
     num = chars[set];
     pos = set + 1;
     for (i=0; i<num; i++)
@@ -362,8 +403,10 @@ member(symb, set, torf) {
     return (!torf);
 }
 
-notin(n) {
-    register i, j, pos;
+int notin(int n)
+{
+    int i, j, pos;
+
     for (i=0; i<=n; i++) {
         if (positions[state[i]] == count) {
             pos = state[i] + 1;
@@ -377,9 +420,12 @@ notin(n) {
     return (1);
 }
 
-add(array, n) int *array; {
-    register i;
-    if (nxtpos + count > MAXPOS) overflo();
+void add(int *array, int n)
+{
+    int i;
+
+    if (nxtpos + count > MAXPOS)
+        overflo();
     array[n] = nxtpos;
     positions[nxtpos++] = count;
     for (i=3; i <= line; i++) {
@@ -389,7 +435,8 @@ add(array, n) int *array; {
     }
 }
 
-follow(v) int v; {
+void follow(int v)
+{
     int p;
     if (v == line) return;
     p = parent[v];
@@ -419,9 +466,7 @@ follow(v) int v; {
     }
 }
 
-
-main(argc, argv)
-char **argv;
+int main(int argc, char **argv)
 {
     while (--argc > 0 && (++argv)[0][0]=='-')
         switch (argv[0][1]) {
@@ -498,12 +543,11 @@ out:
     exit(retcode != 0 ? retcode : nsucc == 0);
 }
 
-execute(file)
-char *file;
+void execute(char *file)
 {
-    register char *p;
-    register cstat;
-    register ccount;
+    char *p;
+    int cstat;
+    int ccount;
     static char *buf;
     static int blksize;
     struct stat stb;
@@ -541,7 +585,8 @@ char *file;
     for (;;) {
         cstat = gotofn[cstat][*p&0377]; /* all input chars made positive */
         if (out[cstat]) {
-        found:  for(;;) {
+found:
+            for(;;) {
                 if (*p++ == '\n') {
                     if (vflag == 0) {
                 succeed:    nsucc = 1;
@@ -592,7 +637,7 @@ char *file;
                 if (out[(cstat=istat)]) goto cfound;
             }
         }
-        brk2:
+brk2:
         if (--ccount <= 0) {
             if (p <= &buf[blksize]) {
                 if ((ccount = read(f, p, blksize)) <= 0) break;
@@ -607,7 +652,8 @@ char *file;
             blkno += ccount / 512;
         }
     }
-done:   close(f);
+done:
+    close(f);
     if (cflag) {
         if (nfile > 1)
             printf("%s:", file);

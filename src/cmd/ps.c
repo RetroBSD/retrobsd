@@ -133,11 +133,9 @@ struct psout *outargs;  /* info for first npr processes */
  * know that r(hp|up|mt) are unlikely as are different mem's,
  * floppy, null, tty, etc.
  */
-void
-maybetty(cp)
-    register char *cp;
+void maybetty(char *cp)
 {
-    register struct ttys *dp;
+    struct ttys *dp;
     struct stat stb;
 
     /* Allow only terminal devices. */
@@ -167,11 +165,10 @@ maybetty(cp)
         dp->ttyd = -1;
 }
 
-void
-getdev()
+void getdev()
 {
-    register DIR *df;
-    register struct direct *dbuf;
+    DIR *df;
+    struct direct *dbuf;
 
     if (chdir("/dev") < 0) {
         perror("/dev");
@@ -186,11 +183,10 @@ getdev()
     closedir(df);
 }
 
-char *
-gettty()
+char *gettty()
 {
-    register int tty_step;
-    register char *p;
+    int tty_step;
+    char *p;
 
     if (u.u_ttyp) {
         for (tty_step = 0; tty_step < nttys; ++tty_step) {
@@ -205,9 +201,7 @@ gettty()
     return("?");
 }
 
-unsigned
-getptr(adr)
-    off_t adr;
+unsigned getptr(off_t adr)
 {
     unsigned ptr = 0;
 
@@ -217,21 +211,16 @@ getptr(adr)
     return ptr;
 }
 
-int
-getbyte(adr)
-    register char *adr;
+int getbyte(off_t adr)
 {
     char    b;
 
-    if (lseek(file, (off_t) adr, 0) == (off_t) -1 || read (file, &b, 1) < 1)
+    if (lseek(file, adr, 0) == (off_t) -1 || read (file, &b, 1) < 1)
         return(0);
     return((unsigned) b);
 }
 
-int
-getcmd(a, addr)
-    off_t addr;
-    register struct psout *a;
+int getcmd(struct psout *a, off_t addr)
 {
     /* amount of top of stack to examine for args */
 #define ARGLIST (DEV_BSIZE * 2)
@@ -337,16 +326,14 @@ getcmd(a, addr)
  * Save command data to outargs[].
  * Return 1 on success.
  */
-int
-savcom(puid)
-    int puid;
+int savcom(int puid)
 {
     char    *tp;
     off_t   addr;
     off_t   daddr, saddr;
-    register struct psout   *a;
-    register struct proc    *procp  = mproc;
-    register struct user    *up = &u;
+    struct psout   *a;
+    struct proc    *procp  = mproc;
+    struct user    *up = &u;
     long    txtsiz, datsiz, stksiz;
 
     if (procp->p_flag & SLOAD) {
@@ -409,11 +396,11 @@ savcom(puid)
         return getcmd(a, saddr);
 }
 
-int
-pscomp(x1, x2)
-    register struct psout *x1, *x2;
+int pscomp(const void *a1, const void *a2)
 {
-    register int c;
+    const struct psout *x1 = a1;
+    const struct psout *x2 = a2;
+    int c;
 
     c = (x1)->o_ttyd - (x2)->o_ttyd;
     if (c == 0)
@@ -424,12 +411,10 @@ pscomp(x1, x2)
 /*
  * fixup figures out everybodys name and sorts into a nice order.
  */
-void
-fixup(np)
-    register int np;
+void fixup(int np)
 {
-    register int i;
-    register struct passwd  *pw;
+    int i;
+    struct passwd  *pw;
 
     if (uflg) {
         setpwent();
@@ -451,10 +436,11 @@ fixup(np)
     qsort(outargs, np, sizeof (outargs[0]), pscomp);
 }
 
-int
-wchancomp(x1, x2)
-    register WCHAN *x1, *x2;
+int wchancomp(const void *a1, const void *a2)
 {
+    const WCHAN *x1 = a1;
+    const WCHAN *x2 = a2;
+
     if (x1->caddr > x2->caddr)
         return(1);
     else if (x1->caddr == x2->caddr)
@@ -463,13 +449,10 @@ wchancomp(x1, x2)
         return(-1);
 }
 
-void
-addchan(name, caddr)
-    char *name;
-    unsigned caddr;
+void addchan(char *name, unsigned caddr)
 {
     static  int left = 0;
-    register WCHAN  *wp;
+    WCHAN  *wp;
 
     if (left == 0) {
         if (wchand) {
@@ -493,17 +476,15 @@ addchan(name, caddr)
     wp->caddr = caddr;
 }
 
-char *
-getchan(chan)
-    register unsigned int chan;
+char *getchan(caddr_t chan)
 {
-    register int    i;
-    register char   *prevsym;
+    int    i;
+    char   *prevsym;
 
     prevsym = "";
     if (chan) {
         for (i = 0; i < nchans; i++) {
-            if (wchand[i].caddr > chan)
+            if (wchand[i].caddr > (unsigned) chan)
                 return (prevsym);
             prevsym = wchand[i].cname;
         }
@@ -511,17 +492,13 @@ getchan(chan)
     return(prevsym);
 }
 
-void
-perrexit(msg)
-    char *msg;
+void perrexit(char *msg)
 {
     perror(msg);
     exit(1);
 }
 
-void
-openfiles(argc, argv)
-    char **argv;
+void openfiles(int argc, char **argv)
 {
     if (kflg)
         kmemf = argc > 1 ?  argv[1] : _PATH_CORE;
@@ -541,10 +518,7 @@ openfiles(argc, argv)
         perrexit(swapf);
 }
 
-void
-getkvars(argc,argv)
-    int argc;
-    char **argv;
+void getkvars(int argc, char **argv)
 {
     knlist(nl);
     if (! nflg) {
@@ -581,9 +555,7 @@ getkvars(argc,argv)
     read(kmem, (char *)&hz, sizeof(hz));
 }
 
-void
-ptime(a)
-    struct psout *a;
+void ptime(struct psout *a)
 {
     time_t  tm;
 
@@ -595,9 +567,7 @@ ptime(a)
 
 char *uhdr = "USER       PID NICE SZ TTY  TIME";
 
-void
-upr(a)
-    register struct psout *a;
+void upr(struct psout *a)
 {
     printf("%-8.8s%6u%4d%4d %-3.3s",a->o_uname,a->o_pid,a->o_nice,a->o_size,a->o_tty);
     ptime(a);
@@ -605,9 +575,7 @@ upr(a)
 
 char *shdr = "   PID TTY  TIME";
 
-void
-spr (a)
-    register struct psout *a;
+void spr(struct psout *a)
 {
     printf("%6u %-3.3s",a->o_pid,a->o_tty);
     ptime(a);
@@ -615,9 +583,7 @@ spr (a)
 
 char *lhdr = "  F S   UID   PID  PPID CPU PRI NICE  ADDR  SZ WCHAN    TTY  TIME";
 
-void
-lpr(a)
-    register struct psout *a;
+void lpr(struct psout *a)
 {
     static char clist[] = "0SWRIZT";
 
@@ -636,10 +602,9 @@ lpr(a)
     ptime(a);
 }
 
-void
-printhdr()
+void printhdr()
 {
-    register char   *hdr, *cmdstr   = " COMMAND";
+    char *hdr, *cmdstr = " COMMAND";
 
     if (rflg)
         return;
@@ -656,14 +621,12 @@ printhdr()
     fflush(stdout);
 }
 
-int
-main (argc, argv)
-    char **argv;
+int main(int argc, char **argv)
 {
     int     uid, euid, puid, nread;
-    register int i, j;
+    int     i, j;
     char    *ap;
-    register struct proc    *procp;
+    struct proc    *procp;
 
     if ((ioctl(fileno(stdout), TIOCGWINSZ, &ws) != -1 &&
          ioctl(fileno(stderr), TIOCGWINSZ, &ws) != -1 &&
@@ -803,8 +766,8 @@ main (argc, argv)
     }
     fixup(npr);
     for (i = 0; i < npr; i++) {
-        register int    cmdwidth = twidth - cmdstart - 2;
-        register struct psout *a = &outargs[i];
+        int    cmdwidth = twidth - cmdstart - 2;
+        struct psout *a = &outargs[i];
 
         if (rflg) {
             if (write(1, (char *) a, sizeof (*a)) != sizeof (*a))

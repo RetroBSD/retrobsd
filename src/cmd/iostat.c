@@ -1,44 +1,43 @@
 /*
  * iostat
  */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <ctype.h>
 #include <nlist.h>
 #include <signal.h>
-
-#include <sys/types.h>
-#include <sys/file.h>
-#include <sys/buf.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
 #include <sys/dk.h>
+#include <sys/file.h>
 
 struct nlist nl[] = {
     { "_dk_busy" },
-#define X_DK_BUSY   0
+#define X_DK_BUSY 0
     { "_dk_xfer" },
-#define X_DK_XFER   1
+#define X_DK_XFER 1
     { "_dk_bytes" },
-#define X_DK_BYTES  2
+#define X_DK_BYTES 2
     { "_tk_nin" },
-#define X_TK_NIN    3
+#define X_TK_NIN 3
     { "_tk_nout" },
-#define X_TK_NOUT   4
+#define X_TK_NOUT 4
     { "_cp_time" },
-#define X_CP_TIME   5
+#define X_CP_TIME 5
     { "_hz" },
-#define X_HZ        6
+#define X_HZ 6
     { "_dk_ndrive" },
 #define X_DK_NDRIVE 7
     { "_dk_name" },
-#define X_DK_NAME   8
+#define X_DK_NAME 8
     { "_dk_unit" },
-#define X_DK_UNIT   9
+#define X_DK_UNIT 9
     { 0 },
 };
 
-char    **dr_name;
-char    **dk_name;
+char **dr_name;
+char **dk_name;
 int *dr_select;
 int *dk_unit;
 int dk_ndrive;
@@ -46,22 +45,25 @@ int ndrives = 0;
 
 struct {
     int dk_busy;
-    long    cp_time[CPUSTATES];
-    long    *dk_bytes;
-    long    *dk_xfer;
-    long    tk_nin;
-    long    tk_nout;
+    long cp_time[CPUSTATES];
+    long *dk_bytes;
+    long *dk_xfer;
+    long tk_nin;
+    long tk_nout;
 } s, s1;
 
 int mf;
 int hz;
-double  etime;
+double etime;
 int tohdr = 1;
 
-void printhdr(sig)
-    int sig;
+static void read_names(void);
+static void stats(int dn);
+static void stat1(int o);
+
+void printhdr(int sig)
 {
-    register int i;
+    int i;
 
     printf("---tty---");
     for (i = 0; i < dk_ndrive; i++)
@@ -77,23 +79,21 @@ void printhdr(sig)
     tohdr = 19;
 }
 
-main(argc, argv)
-    char *argv[];
+int main(int argc, char *argv[])
 {
-    extern char *ctime();
-    register  i;
+    int i;
     int iter;
     double f1, f2;
     long t;
     char *arg, **cp, name[6], buf[BUFSIZ];
 
     knlist(nl);
-    if(nl[X_DK_BUSY].n_value == 0) {
+    if (nl[X_DK_BUSY].n_value == 0) {
         printf("dk_busy not found in /vmunix namelist\n");
         exit(1);
     }
     mf = open("/dev/kmem", 0);
-    if(mf < 0) {
+    if (mf < 0) {
         printf("cannot open /dev/kmem\n");
         exit(1);
     }
@@ -105,19 +105,19 @@ main(argc, argv)
         exit(1);
     }
     lseek(mf, (long)nl[X_DK_NDRIVE].n_value, L_SET);
-    read(mf, &dk_ndrive, sizeof (dk_ndrive));
+    read(mf, &dk_ndrive, sizeof(dk_ndrive));
     if (dk_ndrive <= 0) {
         printf("dk_ndrive %d\n", dk_ndrive);
         exit(1);
     }
-    dr_select = (int *)calloc(dk_ndrive, sizeof (int));
-    dr_name = (char **)calloc(dk_ndrive, sizeof (char *));
-    dk_name = (char **)calloc(dk_ndrive, sizeof (char *));
-    dk_unit = (int *)calloc(dk_ndrive, sizeof (int));
-    s.dk_bytes = (long *)calloc(dk_ndrive, sizeof (long));
-    s1.dk_bytes = (long *)calloc(dk_ndrive, sizeof (long));
-    s.dk_xfer = (long *)calloc(dk_ndrive, sizeof (long));
-    s1.dk_xfer = (long *)calloc(dk_ndrive, sizeof (long));
+    dr_select = (int *)calloc(dk_ndrive, sizeof(int));
+    dr_name = (char **)calloc(dk_ndrive, sizeof(char *));
+    dk_name = (char **)calloc(dk_ndrive, sizeof(char *));
+    dk_unit = (int *)calloc(dk_ndrive, sizeof(int));
+    s.dk_bytes = (long *)calloc(dk_ndrive, sizeof(long));
+    s1.dk_bytes = (long *)calloc(dk_ndrive, sizeof(long));
+    s.dk_xfer = (long *)calloc(dk_ndrive, sizeof(long));
+    s1.dk_xfer = (long *)calloc(dk_ndrive, sizeof(long));
     for (arg = buf, i = 0; i < dk_ndrive; i++) {
         dr_name[i] = arg;
         sprintf(dr_name[i], "dk%d", i);
@@ -155,15 +155,15 @@ main(argc, argv)
     signal(SIGCONT, printhdr);
 loop:
     if (--tohdr == 0)
-        printhdr();
+        printhdr(0);
     lseek(mf, (long)nl[X_DK_BUSY].n_value, L_SET);
     read(mf, &s.dk_busy, sizeof s.dk_busy);
 
     lseek(mf, (long)nl[X_DK_XFER].n_value, L_SET);
-    read(mf, s.dk_xfer, dk_ndrive*sizeof (long));
+    read(mf, s.dk_xfer, dk_ndrive * sizeof(long));
 
     lseek(mf, (long)nl[X_DK_BYTES].n_value, L_SET);
-    read(mf, s.dk_bytes, dk_ndrive*sizeof (long));
+    read(mf, s.dk_bytes, dk_ndrive * sizeof(long));
 
     lseek(mf, (long)nl[X_TK_NIN].n_value, L_SET);
     read(mf, &s.tk_nin, sizeof s.tk_nin);
@@ -175,26 +175,34 @@ loop:
     read(mf, s.cp_time, sizeof s.cp_time);
 
     for (i = 0; i < dk_ndrive; i++) {
-        if (! dr_select[i])
+        if (!dr_select[i])
             continue;
-#define X(fld)  t = s.fld[i]; s.fld[i] -= s1.fld[i]; s1.fld[i] = t
-        X(dk_xfer); X(dk_bytes);
+#define X(fld)             \
+    t = s.fld[i];          \
+    s.fld[i] -= s1.fld[i]; \
+    s1.fld[i] = t
+        X(dk_xfer);
+        X(dk_bytes);
     }
-    t = s.tk_nin; s.tk_nin -= s1.tk_nin; s1.tk_nin = t;
-    t = s.tk_nout; s.tk_nout -= s1.tk_nout; s1.tk_nout = t;
+    t = s.tk_nin;
+    s.tk_nin -= s1.tk_nin;
+    s1.tk_nin = t;
+    t = s.tk_nout;
+    s.tk_nout -= s1.tk_nout;
+    s1.tk_nout = t;
     etime = 0;
-    for(i=0; i<CPUSTATES; i++) {
+    for (i = 0; i < CPUSTATES; i++) {
         X(cp_time);
         etime += s.cp_time[i];
     }
     if (etime == 0.0)
         etime = 1.0;
-    etime /= (float) hz;
-    printf("%4.0f%5.0f", s.tk_nin/etime, s.tk_nout/etime);
-    for (i=0; i<dk_ndrive; i++)
+    etime /= (float)hz;
+    printf("%4.0f%5.0f", s.tk_nin / etime, s.tk_nout / etime);
+    for (i = 0; i < dk_ndrive; i++)
         if (dr_select[i])
             stats(i);
-    for (i=0; i<CPUSTATES; i++)
+    for (i = 0; i < CPUSTATES; i++)
         stat1(i);
     printf("\n");
     fflush(stdout);
@@ -205,42 +213,41 @@ contin:
     }
 }
 
-stats(dn)
+void stats(int dn)
 {
     /* number of bytes transferred */
-    printf("%5.0f", (double) s.dk_bytes[dn] / 1024 / etime);
+    printf("%5.0f", (double)s.dk_bytes[dn] / 1024 / etime);
 
     /* number of transfers */
-    printf("%4.0f", (double) s.dk_xfer[dn] / etime);
+    printf("%4.0f", (double)s.dk_xfer[dn] / etime);
 }
 
-stat1(o)
+void stat1(int o)
 {
-    register i;
+    int i;
     double time;
 
     time = 0;
-    for(i=0; i<CPUSTATES; i++)
+    for (i = 0; i < CPUSTATES; i++)
         time += s.cp_time[i];
     if (time == 0.0)
         time = 1.0;
     printf(" %3.0f", 100.0 * s.cp_time[o] / time);
 }
 
-read_names()
+void read_names()
 {
     char name[2];
-    register int i;
+    int i;
 
     lseek(mf, (long)nl[X_DK_NAME].n_value, L_SET);
-    read(mf, dk_name, dk_ndrive * sizeof (char *));
+    read(mf, dk_name, dk_ndrive * sizeof(char *));
     lseek(mf, (long)nl[X_DK_UNIT].n_value, L_SET);
-    read(mf, dk_unit, dk_ndrive * sizeof (int));
+    read(mf, dk_unit, dk_ndrive * sizeof(int));
 
-    for(i = 0; dk_name[i]; i++) {
+    for (i = 0; dk_name[i]; i++) {
         lseek(mf, (long)dk_name[i], L_SET);
         read(mf, name, sizeof name);
-        sprintf(dr_name[i], "%c%c%d", name[0], name[1],
-            dk_unit[i]);
+        sprintf(dr_name[i], "%c%c%d", name[0], name[1], dk_unit[i]);
     }
 }

@@ -1,5 +1,8 @@
 %{
-    int *getout();
+    int *getout(void);
+    int getch(void);
+    int cpeek(int c, int yes, int no);
+    void yyerror(char *s);
 %}
 %right '='
 %left '+' '-'
@@ -39,12 +42,12 @@ int *pre, *post;
 %%
 start   :
     |  start stat tail
-        = output( $2 );
+        = output( (int*) $2 );
     |  start def dargs ')' '{' dlist slist '}'
-        ={  bundle( 6,pre, $7, post ,"0",numb[lev],"Q");
-            conout( $$, $2 );
+        ={  bundle(6, pre, $7, post, "0", numb[lev], "Q");
+            conout( (int*) $$, (char*) $2 );
             rcrs = crs;
-            output( "" );
+            output( (int*) "" );
             lev = bindx = 0;
             }
     ;
@@ -62,11 +65,11 @@ stat    :  e
     |  LETTER '=' e
         ={ bundle(3, $3, "s", $1 ); }
     |  LETTER '[' e ']' '=' e
-        ={ bundle(4, $6, $3, ":", geta($1)); }
+        ={ bundle(4, $6, $3, ":", geta((char*) $1)); }
     |  LETTER EQOP e
         ={ bundle(6, "l", $1, $3, $2, "s", $1 ); }
     |  LETTER '[' e ']' EQOP e
-        ={ bundle(8,$3, ";", geta($1), $6, $5, $3, ":", geta($1));}
+        ={ bundle(8,$3, ";", geta((char*) $1), $6, $5, $3, ":", geta((char*) $1));}
     |  _BREAK
         ={ bundle(2, numb[lev-bstack[bindx-1]], "Q" ); }
     |  _RETURN '(' e ')'
@@ -94,17 +97,17 @@ stat    :  e
     |  error
         ={ bundle(1,"c"); }
     |  _IF CRS BLEV '(' re ')' stat
-        ={  conout( $7, $2 );
+        ={  conout( (int*) $7, (char*) $2 );
             bundle(3, $5, $2, " " );
             }
     |  _WHILE CRS '(' re ')' stat BLEV
         ={  bundle(3, $6, $4, $2 );
-            conout( $$, $2 );
+            conout( (int*) $$, (char*) $2 );
             bundle(3, $4, $2, " " );
             }
     |  fprefix CRS re ';' e ')' stat BLEV
         ={  bundle(5, $7, $5, "s.", $3, $2 );
-            conout( $$, $2 );
+            conout( (int*) $$, (char*) $2 );
             bundle(5, $1, "s.", $3, $2, " " );
             }
     |  '~' LETTER '=' e
@@ -174,7 +177,7 @@ e   :  e '+' e
     |  e '^' e
         = bundle(3, $1, $3, "^" );
     |  LETTER '[' e ']'
-        ={ bundle(3,$3, ";", geta($1)); }
+        ={ bundle(3,$3, ";", geta((char*) $1)); }
     |  LETTER INCR
         = bundle(4, "l", $1, "d1+s", $1 );
     |  INCR LETTER
@@ -184,13 +187,13 @@ e   :  e '+' e
     |  LETTER DECR
         = bundle(4, "l", $1, "d1-s", $1 );
     | LETTER '[' e ']' INCR
-        = bundle(7,$3,";",geta($1),"d1+",$3,":",geta($1));
+        = bundle(7,$3,";",geta((char*) $1),"d1+",$3,":",geta((char*) $1));
     | INCR LETTER '[' e ']'
-        = bundle(7,$4,";",geta($2),"1+d",$4,":",geta($2));
+        = bundle(7,$4,";",geta((char*) $2),"1+d",$4,":",geta((char*) $2));
     | LETTER '[' e ']' DECR
-        = bundle(7,$3,";",geta($1),"d1-",$3,":",geta($1));
+        = bundle(7,$3,";",geta((char*) $1),"d1-",$3,":",geta((char*) $1));
     | DECR LETTER '[' e ']'
-        = bundle(7,$4,";",geta($2),"1-d",$4,":",geta($2));
+        = bundle(7,$4,";",geta((char*) $2),"1-d",$4,":",geta((char*) $2));
     | SCALE INCR
         = bundle(1,"Kd1+k");
     | INCR SCALE
@@ -216,9 +219,9 @@ e   :  e '+' e
     | DECR OBASE
         = bundle(1,"O1-do");
     |  LETTER '(' cargs ')'
-        = bundle(4, $3, "l", getf($1), "x" );
+        = bundle(4, $3, "l", getf((char*) $1), "x" );
     |  LETTER '(' ')'
-        = bundle(3, "l", getf($1), "x" );
+        = bundle(3, "l", getf((char*) $1), "x" );
     |  cons
         ={ bundle(2, " ", $1 ); }
     |  DOT cons
@@ -236,9 +239,9 @@ e   :  e '+' e
     |  LETTER EQOP e    %prec '='
         ={ bundle(6, "l", $1, $3, $2, "ds", $1 ); }
     | LETTER '[' e ']' '=' e
-        = { bundle(5,$6,"d",$3,":",geta($1)); }
+        = { bundle(5,$6,"d",$3,":",geta((char*) $1)); }
     | LETTER '[' e ']' EQOP e
-        = { bundle(9,$3,";",geta($1),$6,$5,"d",$3,":",geta($1)); }
+        = { bundle(9,$3,";",geta((char*) $1),$6,$5,"d",$3,":",geta((char*) $1)); }
     | LENGTH '(' e ')'
         = bundle(2,$3,"Z");
     | SCALE '(' e ')'
@@ -277,7 +280,7 @@ cargs   :  eora
     ;
 eora:     e
     | LETTER '[' ']'
-        =bundle(2,"l",geta($1));
+        =bundle(2,"l",geta((char*) $1));
     ;
 
 cons    :  constant
@@ -303,7 +306,7 @@ CRS :
     ;
 
 def :  _DEFINE LETTER '('
-        ={  $$ = (int) getf($2);
+        ={  $$ = (int) getf((char*) $2);
             pre = (int*) "";
             post = (int*) "";
             lev = 1;
@@ -313,19 +316,19 @@ def :  _DEFINE LETTER '('
 
 dargs   :
     |  lora
-        ={ pp( $1 ); }
+        ={ pp((char*) $1); }
     |  dargs ',' lora
-        ={ pp( $3 ); }
+        ={ pp((char*) $3); }
     ;
 
 dlets   :  lora
-        ={ tp($1); }
+        ={ tp((char*) $1); }
     |  dlets ',' lora
-        ={ tp($3); }
+        ={ tp((char*) $3); }
     ;
 lora    :  LETTER
     |  LETTER '[' ']'
-        ={ $$ = (int) geta($1); }
+        ={ $$ = (int) geta((char*) $1); }
     ;
 
 %%
@@ -348,7 +351,9 @@ char *letr[26] = {
   "k","l","m","n","o","p","q","r","s","t",
   "u","v","w","x","y","z" } ;
 char *dot = { "." };
-yylex(){
+
+int yylex()
+{
     int c, ch;
 restart:
     c = getch();
@@ -445,7 +450,8 @@ restart:
     }
 }
 
-cpeek( c, yes, no ){
+int cpeek(int c, int yes, int no)
+{
     if( (peekc=getch()) != c ) return( no );
     else {
         peekc = -1;
@@ -453,7 +459,8 @@ cpeek( c, yes, no ){
     }
 }
 
-getch(){
+int getch()
+{
     int ch;
 loop:
     ch = (peekc < 0) ? getc(in) : peekc;
@@ -472,13 +479,18 @@ loop:
         goto loop;
     }
     yyerror("cannot open input file");
+    return EOF;
 }
+
 # define b_sp_max 3000
+
 int b_space [ b_sp_max ];
 int * b_sp_nxt = { b_space };
 
 int bdebug = 0;
-bundle(a){
+
+int bundle(int a, ...)
+{
     int i, *p, *q;
 
     p = &a;
@@ -494,16 +506,18 @@ bundle(a){
     return( (int) q );
 }
 
-routput(p) int *p; {
+void routput(int *p)
+{
     if( bdebug ) printf("routput(%p)\n", p );
     if( p >= &b_space[0] && p < &b_space[b_sp_max]){
         /* part of a bundle */
-        while( *p != 0 ) routput( *p++ );
+        while( *p != 0 ) routput( (int*) *p++ );
     }
     else printf( "%s", (char*) p );  /* character string */
 }
 
-output( p ) int *p; {
+void output(int *p)
+{
     routput( p );
     b_sp_nxt = & b_space[0];
     printf( "\n" );
@@ -512,7 +526,8 @@ output( p ) int *p; {
     crs = rcrs;
 }
 
-conout( p, s ) int *p; char *s; {
+void conout(int *p, char *s)
+{
     printf("[");
     routput( p );
     printf("]s%s\n", s );
@@ -520,7 +535,8 @@ conout( p, s ) int *p; char *s; {
     lev--;
 }
 
-yyerror( s ) char *s; {
+void yyerror(char *s)
+{
     if(ifile > sargc)ss="teletype";
     printf("c[%s on line %d, %s]pc\n", s ,ln+1,ss);
     fflush(stdout);
@@ -531,7 +547,8 @@ yyerror( s ) char *s; {
     b_sp_nxt = &b_space[0];
 }
 
-pp( s ) char *s; {
+void pp(char *s)
+{
     /* puts the relevant stuff on pre and post for the letter s */
 
     bundle(3, "S", s, pre );
@@ -540,14 +557,17 @@ pp( s ) char *s; {
     post = (int*) yyval;
 }
 
-tp( s ) char *s; { /* same as pp, but for temps */
+/* same as pp, but for temps */
+void tp(char *s)
+{
     bundle(3, "0S", s, pre );
     pre = (int*) yyval;
     bundle(4, post, "L", s, "s." );
     post = (int*) yyval;
 }
 
-yyinit(argc,argv) int argc; char *argv[];{
+void yyinit(int argc, char *argv[])
+{
     signal( 2, SIG_IGN );   /* ignore all interrupts */
     sargv=argv;
     sargc= -- argc;
@@ -560,24 +580,25 @@ yyinit(argc,argv) int argc; char *argv[];{
     ln = 0;
     ss = sargv[1];
 }
-int *getout(){
+
+int *getout()
+{
     printf("q");
     fflush(stdout);
     exit(0);
 }
 
-int *
-getf(p) char *p;{
+int *getf(char *p)
+{
     return (int*) &funtab[2 * (*p - 0141)];
 }
 
-int *
-geta(p) char *p;{
+int *geta(char *p)
+{
     return (int*) &atab[2 * (*p - 0141)];
 }
 
-main(argc, argv)
-char **argv;
+int main(int argc, char **argv)
 {
     int p[2];
 

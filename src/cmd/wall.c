@@ -8,62 +8,55 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
+#include <errno.h>
+#include <fcntl.h>
+#include <paths.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <utmp.h>
-#include <paths.h>
-#include <errno.h>
-#include <signal.h>
-#include <sys/time.h>
-#include <fcntl.h>
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
+#include <utmp.h>
+#include <unistd.h>
 
-#define IGNOREUSER  "sleeper"
+#define IGNOREUSER "sleeper"
 
-char    hostname[32];
-char    mesg[3000];
-int msize,sline;
-struct  utmp *utmp;
-char    who[UT_NAMESIZE + 1] = "???";
-long    clock;
+char hostname[32];
+char mesg[3000];
+int msize, sline;
+struct utmp *utmp;
+char who[UT_NAMESIZE + 1] = "???";
+long clock;
 struct tm *localclock;
 
-extern  errno;
+static void sendmes(char *tty);
 
-main(argc, argv)
-char *argv[];
+int main(int argc, char *argv[])
 {
-    register int i, c;
-    register struct utmp *p;
+    int i, c;
+    struct utmp *p;
     int f;
     struct stat statb;
 
-    (void) gethostname(hostname, sizeof (hostname));
+    (void)gethostname(hostname, sizeof(hostname));
     if ((f = open(_PATH_UTMP, O_RDONLY, 0)) < 0) {
         fprintf(stderr, "Cannot open %s\n", _PATH_UTMP);
         exit(1);
     }
-    clock = time( 0 );
-    localclock = localtime( &clock );
-    sline = ttyslot();  /* 'utmp' slot no. of sender */
-    (void) fstat(f, &statb);
+    clock = time(0);
+    localclock = localtime(&clock);
+    sline = ttyslot(); /* 'utmp' slot no. of sender */
+    (void)fstat(f, &statb);
     utmp = (struct utmp *)malloc((unsigned)statb.st_size);
     c = read(f, (char *)utmp, (int)statb.st_size);
-    (void) close(f);
+    (void)close(f);
     c /= sizeof(struct utmp);
     if (sline)
         strncpy(who, utmp[sline].ut_name, sizeof(utmp[sline].ut_name));
-    sprintf(mesg,
-        "\n\007\007Broadcast Message from %s@%s (%.*s) at %d:%02d ...\r\n\n"
-        , who
-        , hostname
-        , sizeof(utmp[sline].ut_line)
-        , utmp[sline].ut_line
-        , localclock -> tm_hour
-        , localclock -> tm_min
-    );
+    sprintf(mesg, "\n\007\007Broadcast Message from %s@%s (%.*s) at %d:%02d ...\r\n\n", who,
+            hostname, sizeof(utmp[sline].ut_line), utmp[sline].ut_line, localclock->tm_hour,
+            localclock->tm_min);
     msize = strlen(mesg);
     if (argc >= 2) {
         /* take message from unix file instead of standard input */
@@ -82,26 +75,24 @@ char *argv[];
         mesg[msize++] = i;
     }
     fclose(stdin);
-    for (i=0; i<c; i++) {
+    for (i = 0; i < c; i++) {
         p = &utmp[i];
-        if (p->ut_name[0] == 0 ||
-            strncmp(p->ut_name, IGNOREUSER, sizeof(p->ut_name)) == 0)
+        if (p->ut_name[0] == 0 || strncmp(p->ut_name, IGNOREUSER, sizeof(p->ut_name)) == 0)
             continue;
         sendmes(p->ut_line);
     }
     exit(0);
 }
 
-sendmes(tty)
-char *tty;
+void sendmes(char *tty)
 {
-    register f, flags;
+    int f, flags;
     static char t[50] = "/dev/";
     int e, i;
 
     strcpy(t + 5, tty);
 
-    if ((f = open(t, O_WRONLY|O_NDELAY)) < 0) {
+    if ((f = open(t, O_WRONLY | O_NDELAY)) < 0) {
         if (errno != EWOULDBLOCK)
             perror(t);
         return;
@@ -114,15 +105,15 @@ char *tty;
         goto oldway;
     i = write(f, mesg, msize);
     e = errno;
-    (void) fcntl(f, F_SETFL, flags);
+    (void)fcntl(f, F_SETFL, flags);
     if (i == msize) {
-        (void) close(f);
+        (void)close(f);
         return;
     }
     if (e != EWOULDBLOCK) {
         errno = e;
         perror(t);
-        (void) close(f);
+        (void)close(f);
         return;
     }
 oldway:
@@ -132,10 +123,10 @@ oldway:
             return;
         }
     if (i) {
-        (void) close(f);
+        (void)close(f);
         return;
     }
 
-    (void) write(f, mesg, msize);
+    (void)write(f, mesg, msize);
     exit(0);
 }

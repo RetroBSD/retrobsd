@@ -3,23 +3,24 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-#include <sys/types.h>
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
 #include <string.h>
 #include <strings.h>
+#include <sys/types.h>
 #include <unistd.h>
-#if HAVE_NET
-#include <netdb.h>
 #include <arpa/inet.h>
-#endif
 
-main(argc, argv)
-    int argc;
-    char **argv;
+void usage()
 {
-    register char *id;
+    errx(1, "usage: [hexnum or internet name/address]");
+    /* NOTREACHED */
+}
+
+int main(int argc, char **argv)
+{
+    char *id;
     u_long addr;
     long hostid;
     struct hostent *hp;
@@ -36,7 +37,7 @@ main(argc, argv)
         hostid = addr;
     } else
 #endif
-    if (index(id, '.')) {
+        if (index(id, '.')) {
         if ((hostid = inet_addr(id)) == -1L)
             usage();
     } else {
@@ -49,10 +50,4 @@ main(argc, argv)
     if (sethostid(hostid) < 0)
         err(1, "sethostid");
     exit(0);
-}
-
-usage()
-{
-    errx (1,"usage: [hexnum or internet name/address]");
-/* NOTREACHED */
 }

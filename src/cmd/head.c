@@ -9,18 +9,18 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
-int linecnt = 10;
-int argc;
+static int getnum(char *cp);
+static void copyout(int cnt);
 
-main(Argc, argv)
-    int Argc;
-    char *argv[];
+int main(int Argc, char *argv[])
 {
-    register int argc;
+    int argc;
     char *name;
-    register char *argp;
-    static int around;
+    char *argp;
+    int linecnt = 10;
+    int around = 0;
 
     Argc--, argv++;
     argc = Argc;
@@ -51,10 +51,9 @@ main(Argc, argv)
     } while (argc > 0);
 }
 
-copyout(cnt)
-    register int cnt;
+void copyout(int cnt)
 {
-    register int c;
+    int c;
     char lbuf[BUFSIZ];
 
     while (cnt > 0 && fgets(lbuf, sizeof lbuf, stdin) != 0) {
@@ -64,10 +63,9 @@ copyout(cnt)
     }
 }
 
-getnum(cp)
-    register char *cp;
+int getnum(char *cp)
 {
-    register int i;
+    int i;
 
     for (i = 0; *cp >= '0' && *cp <= '9'; cp++)
         i *= 10, i += *cp - '0';

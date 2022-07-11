@@ -2,29 +2,29 @@
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
+#include <unistd.h>
+#include <sys/dir.h>
 #include <sys/param.h>
 #include <sys/stat.h>
-#include <sys/dir.h>
+#include <sys/wait.h>
 
-char    path[BUFSIZ], name[BUFSIZ];
+char path[BUFSIZ], name[BUFSIZ];
 int aflg;
 int sflg;
-char    *dot = ".";
+char *dot = ".";
 
-#define ML  1000
+#define ML 1000
 struct {
     int dev;
-    ino_t   ino;
+    ino_t ino;
 } ml[ML];
 int mlx;
 
-long    descend();
+long descend();
 
-#define kb(n)   (howmany(n * DEV_BSIZE, 1024))
+#define kb(n) (howmany(n * DEV_BSIZE, 1024))
 
-main(argc, argv)
-    int argc;
-    char **argv;
+int main(int argc, char **argv)
 {
     long blocks = 0;
     register char *np;
@@ -57,9 +57,9 @@ again:
                 wait((int *)0);
         }
         if (argc == 1 || pid == 0) {
-            (void) strcpy(path, *argv);
-            (void) strcpy(name, *argv);
-            if (np = rindex(name, '/')) {
+            (void)strcpy(path, *argv);
+            (void)strcpy(name, *argv);
+            if ((np = rindex(name, '/'))) {
                 *np++ = '\0';
                 if (chdir(*name ? name : "/") < 0) {
                     perror(*name ? name : "/");
@@ -80,9 +80,7 @@ again:
 
 DIR *dirp = NULL;
 
-long
-descend(base, name)
-    char *base, *name;
+long descend(char *base, char *name)
 {
     char *ebase0, *ebase;
     struct stat stb;
@@ -99,7 +97,7 @@ descend(base, name)
         *ebase0 = 0;
         return (0);
     }
-    if (stb.st_nlink > 1 && (stb.st_mode&S_IFMT) != S_IFDIR) {
+    if (stb.st_nlink > 1 && (stb.st_mode & S_IFMT) != S_IFDIR) {
         for (i = 0; i <= mlx; i++)
             if (ml[i].ino == stb.st_ino && ml[i].dev == stb.st_dev)
                 return (0);
@@ -110,7 +108,7 @@ descend(base, name)
         }
     }
     blocks = stb.st_blocks;
-    if ((stb.st_mode&S_IFMT) != S_IFDIR) {
+    if ((stb.st_mode & S_IFMT) != S_IFDIR) {
         if (aflg)
             printf("%ld\t%s\n", kb(blocks), base);
         return (blocks);
@@ -130,12 +128,12 @@ descend(base, name)
         dirp = NULL;
         return (0);
     }
-    while (dp = readdir(dirp)) {
+    while ((dp = readdir(dirp))) {
         if (!strcmp(dp->d_name, ".") || !strcmp(dp->d_name, ".."))
             continue;
-        (void) sprintf(ebase, "/%s", dp->d_name);
+        (void)sprintf(ebase, "/%s", dp->d_name);
         curoff = telldir(dirp);
-        blocks += descend(base, ebase+1);
+        blocks += descend(base, ebase + 1);
         *ebase = 0;
         if (dirp == NULL) {
             dirp = opendir(".");
@@ -151,7 +149,7 @@ descend(base, name)
     if (sflg == 0)
         printf("%ld\t%s\n", kb(blocks), base);
     if (chdir("..") < 0) {
-        (void) sprintf(index(base, 0), "/..");
+        (void)sprintf(index(base, 0), "/..");
         perror(base);
         exit(1);
     }

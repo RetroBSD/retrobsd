@@ -4,21 +4,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <sys/dir.h>
 #include <sys/param.h>
 #include <sys/stat.h>
-#include <sys/dir.h>
-#include <sys/file.h>
 
-int fflg;       /* -f force - supress error messages */
-int iflg;       /* -i interrogate user on each file */
-int rflg;       /* -r recurse */
+int fflg; /* -f force - supress error messages */
+int iflg; /* -i interrogate user on each file */
+int rflg; /* -r recurse */
 
-int errcode;    /* true if errors occured */
+int errcode; /* true if errors occured */
 
-main(argc, argv)
-    char *argv[];
+static int rm(char arg[], int level);
+static int dotname(char *s);
+static int yes(void);
+static void append(char *name);
+
+int main(int argc, char *argv[])
 {
-    register char *arg;
+    char *arg;
 
     fflg = !isatty(0);
     iflg = 0;
@@ -34,7 +38,7 @@ main(argc, argv)
             break;
 
         while (*++arg != '\0')
-            switch(*arg) {
+            switch (*arg) {
             case 'f':
                 fflg++;
                 break;
@@ -60,26 +64,25 @@ main(argc, argv)
     }
 
     while (--argc > 0)
-        (void) rm(*++argv, 0);
+        (void)rm(*++argv, 0);
 
     exit(errcode != 0);
 }
 
-char    *path;      /* pointer to malloc'ed buffer for path */
-char    *pathp;     /* current pointer to end of path */
-int pathsz;     /* size of path */
+char *path;  /* pointer to malloc'ed buffer for path */
+char *pathp; /* current pointer to end of path */
+int pathsz;  /* size of path */
 
 /*
  * Return TRUE if sucessful. Recursive with -r (rflg)
  */
-rm(arg, level)
-    char arg[];
+int rm(char arg[], int level)
 {
-    int ok;             /* true if recursive rm succeeded */
-    struct stat buf;        /* for finding out what a file is */
-    struct direct *dp;      /* for reading a directory */
-    DIR *dirp;          /* for reading a directory */
-    char prevname[MAXNAMLEN + 1];   /* previous name for -r */
+    int ok;                       /* true if recursive rm succeeded */
+    struct stat buf;              /* for finding out what a file is */
+    struct direct *dp;            /* for reading a directory */
+    DIR *dirp;                    /* for reading a directory */
+    char prevname[MAXNAMLEN + 1]; /* previous name for -r */
     char *cp;
 
     if (dotname(arg)) {
@@ -91,9 +94,9 @@ rm(arg, level)
             fprintf(stderr, "rm: %s nonexistent\n", arg);
             errcode++;
         }
-        return (0);     /* error */
+        return (0); /* error */
     }
-    if ((buf.st_mode&S_IFMT) == S_IFDIR) {
+    if ((buf.st_mode & S_IFMT) == S_IFDIR) {
         if (!rflg) {
             if (!fflg) {
                 fprintf(stderr, "rm: %s directory\n", arg);
@@ -106,14 +109,14 @@ rm(arg, level)
             if (!yes())
                 return (0); /* didn't remove everything */
         }
-        if (access(arg, R_OK|W_OK|X_OK) != 0) {
+        if (access(arg, R_OK | W_OK | X_OK) != 0) {
             if (rmdir(arg) == 0)
                 return (1); /* salvaged: removed empty dir */
             if (!fflg) {
                 fprintf(stderr, "rm: %s not changed\n", arg);
                 errcode++;
             }
-            return (0);     /* error */
+            return (0); /* error */
         }
         if ((dirp = opendir(arg)) == NULL) {
             if (!fflg) {
@@ -133,7 +136,7 @@ rm(arg, level)
             append(dp->d_name);
             closedir(dirp);
             ok = rm(path, level + 1);
-            for (cp = pathp; *--cp != '/' && cp > path; )
+            for (cp = pathp; *--cp != '/' && cp > path;)
                 ;
             pathp = cp;
             *cp++ = '\0';
@@ -146,17 +149,15 @@ rm(arg, level)
             }
             /* pick up where we left off */
             if (prevname[0] != '\0') {
-                while ((dp = readdir(dirp)) != NULL &&
-                    strcmp(prevname, dp->d_name) != 0)
+                while ((dp = readdir(dirp)) != NULL && strcmp(prevname, dp->d_name) != 0)
                     ;
             }
             /* skip the one we just failed to delete */
             if (!ok) {
                 dp = readdir(dirp);
                 if (dp != NULL && strcmp(cp, dp->d_name)) {
-                    fprintf(stderr,
-            "rm: internal synchronization error: %s, %s, %s\n",
-                        arg, cp, dp->d_name);
+                    fprintf(stderr, "rm: internal synchronization error: %s, %s, %s\n", arg, cp,
+                            dp->d_name);
                 }
                 strcpy(prevname, dp->d_name);
             }
@@ -186,9 +187,8 @@ rm(arg, level)
         if (!yes())
             return (0);
     } else if (!fflg) {
-        if ((buf.st_mode&S_IFMT) != S_IFLNK && access(arg, W_OK) < 0) {
-            printf("rm: override protection %o for %s? ",
-                buf.st_mode&0777, arg);
+        if ((buf.st_mode & S_IFMT) != S_IFLNK && access(arg, W_OK) < 0) {
+            printf("rm: override protection %o for %s? ", buf.st_mode & 0777, arg);
             if (!yes())
                 return (0);
         }
@@ -206,24 +206,25 @@ rm(arg, level)
 /*
  * boolean: is it "." or ".." ?
  */
-dotname(s)
-    char *s;
+int dotname(char *s)
 {
-    if (s[0] == '.')
-        if (s[1] == '.')
+    if (s[0] == '.') {
+        if (s[1] == '.') {
             if (s[2] == '\0')
                 return (1);
             else
                 return (0);
-        else if (s[1] == '\0')
+        } else if (s[1] == '\0') {
             return (1);
+        }
+    }
     return (0);
 }
 
 /*
  * Get a yes/no answer from the user.
  */
-yes()
+int yes()
 {
     int i, b;
 
@@ -236,10 +237,9 @@ yes()
 /*
  * Append 'name' to 'path'.
  */
-append(name)
-    char *name;
+void append(char *name)
 {
-    register int n;
+    int n;
 
     n = strlen(name);
     if (path == NULL) {

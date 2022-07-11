@@ -30,25 +30,24 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
-extern int errno;
+static void usage(void);
+static int build(char *path);
 
-main(argc, argv)
-    int argc;
-    char **argv;
+int main(int argc, char **argv)
 {
-    extern int optind;
     int ch, exitval, pflag;
 
     pflag = 0;
     while ((ch = getopt(argc, argv, "p")) != EOF)
-        switch(ch) {
+        switch (ch) {
         case 'p':
             pflag = 1;
             break;
@@ -64,29 +63,26 @@ main(argc, argv)
         if (pflag)
             exitval |= build(*argv);
         else if (mkdir(*argv, 0777) < 0) {
-            (void)fprintf(stderr, "mkdir: %s: %s\n",
-                *argv, strerror(errno));
+            (void)fprintf(stderr, "mkdir: %s: %s\n", *argv, strerror(errno));
             exitval = 1;
         }
     exit(exitval);
 }
 
-build(path)
-    char *path;
+int build(char *path)
 {
     register char *p;
     struct stat sb;
     int create, ch;
 
     for (create = 0, p = path;; ++p)
-        if (!*p || *p  == '/') {
+        if (!*p || *p == '/') {
             ch = *p;
             *p = '\0';
             if (stat(path, &sb)) {
                 if (errno != ENOENT || mkdir(path, 0777) < 0) {
-                    (void)fprintf(stderr, "mkdir: %s: %s\n",
-                        path, strerror(errno));
-                    return(1);
+                    (void)fprintf(stderr, "mkdir: %s: %s\n", path, strerror(errno));
+                    return (1);
                 }
                 create = 1;
             }
@@ -94,14 +90,13 @@ build(path)
                 break;
         }
     if (!create) {
-        (void)fprintf(stderr, "mkdir: %s: %s\n", path,
-            strerror(EEXIST));
-        return(1);
+        (void)fprintf(stderr, "mkdir: %s: %s\n", path, strerror(EEXIST));
+        return (1);
     }
-    return(0);
+    return (0);
 }
 
-usage()
+void usage()
 {
     (void)fprintf(stderr, "usage: mkdir [-p] dirname ...\n");
     exit(1);

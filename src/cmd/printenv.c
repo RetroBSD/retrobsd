@@ -12,8 +12,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-int prefix(cp, dp)
-    char *cp, *dp;
+int prefix(char *cp, char *dp)
 {
     while (*cp && *dp && *cp == *dp)
         cp++, dp++;
@@ -22,20 +21,18 @@ int prefix(cp, dp)
     return 0;
 }
 
-int main(argc, argv)
-    int argc;
-    char *argv[];
+int main(int argc, char *argv[])
 {
-    register char **ep;
+    char **ep;
     int found = 0;
 
-    if (! environ)
+    if (!environ)
         return 1;
 
     argc--, argv++;
     for (ep = environ; *ep; ep++) {
         if (argc == 0 || prefix(argv[0], *ep)) {
-            register char *cp = *ep;
+            char *cp = *ep;
 
             found++;
             if (argc) {

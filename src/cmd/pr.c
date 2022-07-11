@@ -2,110 +2,118 @@
  *   print file with headings
  *  2+head+2+page[56]+5
  */
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <signal.h>
-#include <unistd.h>
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 /* Making putcp a macro sped things up by 14%. */
-#define putcp(c)  if (page >= fpage) putchar(c)
+#define putcp(c)       \
+    if (page >= fpage) \
+    putchar(c)
 
-int ncol    = 1;
-char    *header;
+int ncol = 1;
+char *header;
 int col;
 int icol;
-FILE    *file;
-char    *bufp;
-#define BUFS    9000    /* at least 66 * 132 */
-char    buffer[BUFS];   /* for multi-column output */
-char    obuf[BUFSIZ];
-#define FF  014
+FILE *file;
+char *bufp;
+#define BUFS 9000  /* at least 66 * 132 */
+char buffer[BUFS]; /* for multi-column output */
+char obuf[BUFSIZ];
+#define FF 014
 int line;
-char    *colp[72];
+char *colp[72];
 int nofile;
-char    isclosed[10];
-FILE    *ifile[10];
-char    **lastarg;
+char isclosed[10];
+FILE *ifile[10];
+char **lastarg;
 int peekc;
 int fpage;
 int page;
 int colw;
 int nspace;
-int width   = 72;
-int length  = 66;
+int width = 72;
+int length = 66;
 int plength = 61;
-int margin  = 10;
+int margin = 10;
 int ntflg;
 int fflg;
 int mflg;
 int tabc;
-char    *tty;
+char *tty;
 int mode;
-char    *ttyname();
-char    *ctime();
 
-void
-onintr (sig)
-    int sig;
+static void fixtty(void);
+static int numeric(char *str);
+static void print(char *fp, char **argp);
+static void done(void);
+static void mopen(char **ap);
+static void nexbuf(void);
+static int tpgetc(int ai);
+static void put(int ac);
+static void putpage(void);
+static int pgetc(int i);
+
+void onintr(int sig)
 {
     if (tty)
         chmod(tty, mode);
     _exit(1);
 }
 
-main(argc, argv)
-char **argv;
+int main(int argc, char **argv)
 {
     int nfdone;
 
     setbuf(stdout, obuf);
     if (signal(SIGINT, SIG_IGN) != SIG_IGN)
         signal(SIGINT, onintr);
-    lastarg = &argv[argc-1];
+    lastarg = &argv[argc - 1];
     fixtty();
-    for (nfdone=0; argc>1; argc--) {
+    for (nfdone = 0; argc > 1; argc--) {
         argv++;
         if (**argv == '-') {
             switch (*++*argv) {
-            case 'h':       /* define page header */
-                if (argc>=2) {
+            case 'h': /* define page header */
+                if (argc >= 2) {
                     header = *++argv;
                     argc--;
                 }
                 continue;
 
-            case 't':       /* don't print page headers */
+            case 't': /* don't print page headers */
                 ntflg++;
                 continue;
 
-            case 'f':       /* use form feeds */
+            case 'f': /* use form feeds */
                 fflg++;
                 plength = 60;
                 continue;
 
-            case 'l':       /* length of page */
+            case 'l': /* length of page */
                 length = atoi(++*argv);
                 continue;
 
-            case 'w':       /* width of page */
+            case 'w': /* width of page */
                 width = atoi(++*argv);
                 continue;
 
-            case 's':       /* col separator */
+            case 's': /* col separator */
                 if (*++*argv)
                     tabc = **argv;
                 else
                     tabc = '\t';
                 continue;
 
-            case 'm':       /* all files at once */
+            case 'm': /* all files at once */
                 mflg++;
                 continue;
 
             default:
-                if (numeric(*argv)) {   /* # of cols */
+                if (numeric(*argv)) { /* # of cols */
                     if ((ncol = atoi(*argv)) == 0) {
                         fprintf(stderr, "can't print 0 cols, using 1 instead.\n");
                         ncol = 1;
@@ -125,32 +133,30 @@ char **argv;
                 break;
         }
     }
-    if (nfdone==0)
+    if (nfdone == 0)
         print((char *)0, (char **)0);
     done();
 }
 
-done()
+void done()
 {
-
     if (tty)
         chmod(tty, mode);
     exit(0);
 }
 
 /* numeric -- returns 1 if str is numeric, elsewise 0 */
-numeric(str)
-    char    *str;
+int numeric(char *str)
 {
-    for (; *str ; str++) {
+    for (; *str; str++) {
         if (*str > '9' || *str < '0') {
-            return(0);
+            return (0);
         }
     }
-    return(1);
+    return (1);
 }
 
-fixtty()
+void fixtty()
 {
     struct stat sbuf;
 
@@ -158,19 +164,17 @@ fixtty()
     if (tty == 0)
         return;
     stat(tty, &sbuf);
-    mode = sbuf.st_mode&0777;
+    mode = sbuf.st_mode & 0777;
     chmod(tty, 0600);
 }
 
 /* print -- print file */
-print(fp, argp)
-char *fp;
-char **argp;
+void print(char *fp, char **argp)
 {
     struct stat sbuf;
-    register sncol;
-    register char *sheader;
-    register char *cbuf;
+    int sncol;
+    char *sheader;
+    char *cbuf;
     char linebuf[150], *cp;
 
     if (ntflg)
@@ -181,7 +185,7 @@ char **argp;
         length = 66;
     if (width <= 0)
         width = 72;
-    if (ncol>72 || ncol>width) {
+    if (ncol > 72 || ncol > width) {
         fprintf(stderr, "pr: No room for columns.\n");
         done();
     }
@@ -189,19 +193,19 @@ char **argp;
         mopen(argp);
         ncol = nofile;
     }
-    colw = width/(ncol==0? 1 : ncol);
+    colw = width / (ncol == 0 ? 1 : ncol);
     sncol = ncol;
     sheader = header;
-    plength = length-5;
+    plength = length - 5;
     if (ntflg)
         plength = length;
-    if (--ncol<0)
+    if (--ncol < 0)
         ncol = 0;
     if (mflg)
         fp = 0;
     if (fp) {
-        if((file=fopen(fp, "r"))==NULL) {
-            if (tty==NULL)
+        if ((file = fopen(fp, "r")) == NULL) {
+            if (tty == NULL)
                 perror(fp);
             ncol = sncol;
             header = sheader;
@@ -213,40 +217,39 @@ char **argp;
         time(&sbuf.st_mtime);
     }
     if (header == 0)
-        header = fp?fp:"";
+        header = fp ? fp : "";
     cbuf = ctime(&sbuf.st_mtime);
     cbuf[16] = '\0';
     cbuf[24] = '\0';
     page = 1;
     icol = 0;
     colp[ncol] = bufp = buffer;
-    if (mflg==0)
+    if (mflg == 0)
         nexbuf();
-    while (mflg&&nofile || (!mflg)&&tpgetc(ncol)>0) {
-        if (mflg==0) {
+    while (mflg && nofile || (!mflg) && tpgetc(ncol) > 0) {
+        if (mflg == 0) {
             colp[ncol]--;
             if (colp[ncol] < buffer)
                 colp[ncol] = &buffer[BUFS];
         }
         line = 0;
-        if (ntflg==0) {
+        if (ntflg == 0) {
             if (fflg) {
                 /* Assume a ff takes two blank lines at the
                    top of the page. */
                 line = 2;
-                sprintf(linebuf, "%s %s  %s Page %d\n\n\n",
-                    cbuf+4, cbuf+20, header, page);
+                sprintf(linebuf, "%s %s  %s Page %d\n\n\n", cbuf + 4, cbuf + 20, header, page);
             } else
-                sprintf(linebuf, "\n\n%s %s  %s Page %d\n\n\n",
-                    cbuf+4, cbuf+20, header, page);
-            for(cp=linebuf;*cp;) put(*cp++);
+                sprintf(linebuf, "\n\n%s %s  %s Page %d\n\n\n", cbuf + 4, cbuf + 20, header, page);
+            for (cp = linebuf; *cp;)
+                put(*cp++);
         }
         putpage();
-        if (ntflg==0) {
+        if (ntflg == 0) {
             if (fflg)
                 put('\f');
             else
-                while(line<length)
+                while (line < length)
                     put('\n');
         }
         page++;
@@ -256,85 +259,85 @@ char **argp;
     header = sheader;
 }
 
-mopen(ap)
-char **ap;
+void mopen(char **ap)
 {
-    register char **p, *p1;
+    char **p, *p1;
 
     p = ap;
-    while((p1 = *p) && p++ <= lastarg) {
-        if((ifile[nofile]=fopen(p1, "r")) == NULL){
+    while ((p1 = *p) && p++ <= lastarg) {
+        if ((ifile[nofile] = fopen(p1, "r")) == NULL) {
             isclosed[nofile] = 1;
             nofile--;
-        }
-        else
+        } else
             isclosed[nofile] = 0;
-        if(++nofile>=10) {
+        if (++nofile >= 10) {
             fprintf(stderr, "pr: Too many args\n");
             done();
         }
     }
 }
 
-putpage()
+void putpage()
 {
-    register int lastcol, i, c;
+    int lastcol, i, c;
     int j;
 
-    if (ncol==0) {
-        while (line<plength) {
-            while((c = tpgetc(0)) && c!='\n' && c!=FF)
+    if (ncol == 0) {
+        while (line < plength) {
+            while ((c = tpgetc(0)) && c != '\n' && c != FF)
                 putcp(c);
-            if (c==0) break;
+            if (c == 0)
+                break;
             putcp('\n');
             line++;
-            if (c==FF)
+            if (c == FF)
                 break;
         }
         return;
     }
     colp[0] = colp[ncol];
-    if (mflg==0) for (i=1; i<=ncol; i++) {
-        colp[i] = colp[i-1];
-        for (j = margin; j<length; j++)
-            while((c=tpgetc(i))!='\n')
-                if (c==0)
-                    break;
-    }
-    while (line<plength) {
+    if (mflg == 0)
+        for (i = 1; i <= ncol; i++) {
+            colp[i] = colp[i - 1];
+            for (j = margin; j < length; j++)
+                while ((c = tpgetc(i)) != '\n')
+                    if (c == 0)
+                        break;
+        }
+    while (line < plength) {
         lastcol = colw;
-        for (i=0; i<ncol; i++) {
-            while ((c=pgetc(i)) && c!='\n')
-                if (col<lastcol || tabc!=0)
+        for (i = 0; i < ncol; i++) {
+            while ((c = pgetc(i)) && c != '\n')
+                if (col < lastcol || tabc != 0)
                     put(c);
-            if (c==0)
+            if (c == 0)
                 continue;
             if (tabc)
                 put(tabc);
-            else while (col<lastcol)
-                put(' ');
+            else
+                while (col < lastcol)
+                    put(' ');
             lastcol += colw;
         }
-        while ((c = pgetc(ncol)) && c!='\n')
+        while ((c = pgetc(ncol)) && c != '\n')
             put(c);
         put('\n');
     }
 }
 
-nexbuf()
+void nexbuf()
 {
-    register int n;
-    register char *rbufp;
+    int n;
+    char *rbufp;
 
     rbufp = bufp;
     n = &buffer[BUFS] - rbufp;
-    if (n>512)
+    if (n > 512)
         n = 512;
-    if((n=fread(rbufp,1,n,file)) <= 0){
+    if ((n = fread(rbufp, 1, n, file)) <= 0) {
         fclose(file);
         *rbufp = 0376;
-    }
-    else {
+    } else {
         rbufp += n;
         if (rbufp >= &buffer[BUFS])
             rbufp = buffer;
@@ -343,24 +346,24 @@ nexbuf()
     bufp = rbufp;
 }
 
-tpgetc(ai)
+int tpgetc(int ai)
 {
-    register char **p;
-    register int c, i;
+    char **p;
+    int c, i;
 
     i = ai;
     if (mflg) {
-        if((c=getc(ifile[i])) == EOF) {
-            if (isclosed[i]==0) {
+        if ((c = getc(ifile[i])) == EOF) {
+            if (isclosed[i] == 0) {
                 isclosed[i] = 1;
                 if (--nofile <= 0)
-                    return(0);
+                    return (0);
             }
-            return('\n');
+            return ('\n');
         }
-        if (c==FF && ncol>0)
+        if (c == FF && ncol > 0)
             c = '\n';
-        return(c);
+        return (c);
     }
 loop:
     c = **(p = &colp[i]) & 0377;
@@ -369,18 +372,18 @@ loop:
         c = **p & 0377;
     }
     if (c == 0376)
-        return(0);
+        return (0);
     (*p)++;
     if (*p >= &buffer[BUFS])
         *p = buffer;
-    if (c==0)
+    if (c == 0)
         goto loop;
-    return(c);
+    return (c);
 }
 
-pgetc(i)
+int pgetc(int i)
 {
-    register int c;
+    int c;
 
     if (peekc) {
         c = peekc;
@@ -388,14 +391,13 @@ pgetc(i)
     } else
         c = tpgetc(i);
     if (tabc)
-        return(c);
+        return (c);
     switch (c) {
-
     case '\t':
         icol++;
-        if ((icol&07) != 0)
+        if ((icol & 07) != 0)
             peekc = '\t';
-        return(' ');
+        return (' ');
 
     case '\n':
         icol = 0;
@@ -408,21 +410,21 @@ pgetc(i)
     }
     if (c >= ' ')
         icol++;
-    return(c);
+    return (c);
 }
-put(ac)
+
+void put(int ac)
 {
-    register int ns, c;
+    int ns, c;
 
     c = ac;
     if (tabc) {
         putcp(c);
-        if (c=='\n')
+        if (c == '\n')
             line++;
         return;
     }
     switch (c) {
-
     case ' ':
         nspace++;
         col++;
@@ -436,15 +438,14 @@ put(ac)
 
     case 010:
     case 033:
-        if (--col<0)
+        if (--col < 0)
             col = 0;
-        if (--nspace<0)
+        if (--nspace < 0)
             nspace = 0;
-
     }
-    while(nspace) {
-        if (nspace>2 && col > (ns=((col-nspace)|07))) {
-            nspace = col-ns-1;
+    while (nspace) {
+        if (nspace > 2 && col > (ns = ((col - nspace) | 07))) {
+            nspace = col - ns - 1;
             putcp('\t');
         } else {
             nspace--;

@@ -7,37 +7,42 @@
 /*
  * mv file1 file2
  */
+#include <errno.h>
+#include <signal.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/dir.h>
 #include <sys/param.h>
 #include <sys/stat.h>
 #include <sys/time.h>
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdarg.h>
-#include <sys/dir.h>
-#include <errno.h>
-#include <signal.h>
-
-#define DELIM   '/'
+#define DELIM '/'
 #define MODEBITS 07777
 
-#define ISDIR(st)   (((st).st_mode&S_IFMT) == S_IFDIR)
-#define ISLNK(st)   (((st).st_mode&S_IFMT) == S_IFLNK)
-#define ISREG(st)   (((st).st_mode&S_IFMT) == S_IFREG)
-#define ISDEV(st) \
-    (((st).st_mode&S_IFMT) == S_IFCHR || ((st).st_mode&S_IFMT) == S_IFBLK)
+#define ISDIR(st) (((st).st_mode & S_IFMT) == S_IFDIR)
+#define ISLNK(st) (((st).st_mode & S_IFMT) == S_IFLNK)
+#define ISREG(st) (((st).st_mode & S_IFMT) == S_IFREG)
+#define ISDEV(st) (((st).st_mode & S_IFMT) == S_IFCHR || ((st).st_mode & S_IFMT) == S_IFBLK)
 
-char    *dname();
-struct  stat s1, s2;
-int iflag = 0;  /* interactive mode */
-int fflag = 0;  /* force overwriting */
+struct stat s1, s2;
+int iflag = 0; /* interactive mode */
+int fflag = 0; /* force overwriting */
 
-main(argc, argv)
-    register char *argv[];
+static int movewithshortname(char *src, char *dest);
+static int move(char *source, char *target);
+static char *dname(char *name);
+static void error(char *fmt, ...);
+static void Perror(char *s);
+static void Perror2(char *s1, char *s2);
+
+int main(int argc, char *argv[])
 {
-    register i, r;
-    register char *arg;
+    int i, r;
+    char *arg;
     char *dest;
 
     if (argc < 2)
@@ -50,28 +55,28 @@ main(argc, argv)
          * all files following a null option
          * are considered file names
          */
-        if (*(arg+1) == '\0')
+        if (*(arg + 1) == '\0')
             break;
-        while (*++arg != '\0') switch (*arg) {
+        while (*++arg != '\0')
+            switch (*arg) {
+            case 'i':
+                iflag++;
+                break;
 
-        case 'i':
-            iflag++;
-            break;
+            case 'f':
+                fflag++;
+                break;
 
-        case 'f':
-            fflag++;
-            break;
-
-        default:
-            goto usage;
-        }
+            default:
+                goto usage;
+            }
     }
     if (argc < 3)
         goto usage;
-    dest = argv[argc-1];
+    dest = argv[argc - 1];
     if (stat(dest, &s2) >= 0 && ISDIR(s2)) {
         r = 0;
-        for (i = 1; i < argc-1; i++)
+        for (i = 1; i < argc - 1; i++)
             r |= movewithshortname(argv[i], dest);
         exit(r);
     }
@@ -82,43 +87,39 @@ main(argc, argv)
     /*NOTREACHED*/
 usage:
     fprintf(stderr,
-"usage: mv [-if] f1 f2 or mv [-if] f1 ... fn d1 (`fn' is a file or directory)\n");
+            "usage: mv [-if] f1 f2 or mv [-if] f1 ... fn d1 (`fn' is a file or directory)\n");
     return (1);
 }
 
-movewithshortname(src, dest)
-    char *src, *dest;
+int movewithshortname(char *src, char *dest)
 {
-    register char *shortname;
+    char *shortname;
     char target[MAXPATHLEN + 1];
 
     shortname = dname(src);
     if (strlen(dest) + strlen(shortname) > MAXPATHLEN - 1) {
-        error("%s/%s: pathname too long", dest,
-            shortname);
+        error("%s/%s: pathname too long", dest, shortname);
         return (1);
     }
     sprintf(target, "%s/%s", dest, shortname);
     return (move(src, target));
 }
 
-int
-query (char *prompt, ...)
+int query(char *prompt, ...)
 {
     va_list args;
-    register int i, c;
+    int i, c;
 
-    va_start (args, prompt);
+    va_start(args, prompt);
     vfprintf(stderr, prompt, args);
-    va_end (args);
+    va_end(args);
     i = c = getchar();
     while (c != '\n' && c != EOF)
         c = getchar();
     return (i == 'y');
 }
 
-move(source, target)
-    char *source, *target;
+int move(char *source, char *target)
 {
     int targetexists;
 
@@ -138,20 +139,17 @@ move(source, target)
             error("%s and %s are identical", source, target);
             return (1);
         }
-        if (iflag && !fflag && isatty(fileno(stdin)) &&
-            query("remove %s? ", target) == 0)
+        if (iflag && !fflag && isatty(fileno(stdin)) && query("remove %s? ", target) == 0)
             return (1);
         if (access(target, 2) < 0 && !fflag && isatty(fileno(stdin))) {
-            if (query("override protection %o for %s? ",
-              s2.st_mode & MODEBITS, target) == 0)
+            if (query("override protection %o for %s? ", s2.st_mode & MODEBITS, target) == 0)
                 return (1);
         }
     }
     if (rename(source, target) >= 0)
         return (0);
     if (errno != EXDEV) {
-        Perror2(errno == ENOENT && targetexists == 0 ? target : source,
-            "rename");
+        Perror2(errno == ENOENT && targetexists == 0 ? target : source, "rename");
         return (1);
     }
     if (ISDIR(s1)) {
@@ -168,10 +166,10 @@ move(source, target)
      * between file systems.
      */
     if (ISLNK(s1)) {
-        register m;
+        int m;
         char symln[MAXPATHLEN + 1];
 
-        m = readlink(source, symln, sizeof (symln) - 1);
+        m = readlink(source, symln, sizeof(symln) - 1);
         if (m < 0) {
             Perror(source);
             return (1);
@@ -183,7 +181,7 @@ move(source, target)
             Perror(target);
             return (1);
         }
-        (void) umask(m);
+        (void)umask(m);
         goto cleanup;
     }
     if (ISDEV(s1)) {
@@ -198,11 +196,11 @@ move(source, target)
         tv[0].tv_usec = 0;
         tv[1].tv_sec = s1.st_mtime;
         tv[1].tv_usec = 0;
-        (void) utimes(target, tv);
+        (void)utimes(target, tv);
         goto cleanup;
     }
     if (ISREG(s1)) {
-        register int fi, fo, n;
+        int fi, fo, n;
         struct timeval tv[2];
         char buf[MAXBSIZE];
 
@@ -243,7 +241,7 @@ move(source, target)
         tv[0].tv_usec = 0;
         tv[1].tv_sec = s1.st_mtime;
         tv[1].tv_usec = 0;
-        (void) utimes(target, tv);
+        (void)utimes(target, tv);
         goto cleanup;
     }
     error("%s: unknown file type %o", source, s1.st_mode);
@@ -257,11 +255,9 @@ cleanup:
     return (0);
 }
 
-char *
-dname(name)
-    register char *name;
+char *dname(char *name)
 {
-    register char *p;
+    char *p;
 
     p = name;
     while (*p)
@@ -270,18 +266,17 @@ dname(name)
     return name;
 }
 
-/*VARARGS*/
-error(fmt, a1, a2)
-    char *fmt;
+void error(char *fmt, ...)
 {
-
+    va_list args;
+    va_start(args, fmt);
     fprintf(stderr, "mv: ");
-    fprintf(stderr, fmt, a1, a2);
+    vfprintf(stderr, fmt, args);
     fprintf(stderr, "\n");
+    va_end(args);
 }
 
-Perror(s)
-    char *s;
+void Perror(char *s)
 {
     char buf[MAXPATHLEN + 10];
 
@@ -289,8 +284,7 @@ Perror(s)
     perror(buf);
 }
 
-Perror2(s1, s2)
-    char *s1, *s2;
+void Perror2(char *s1, char *s2)
 {
     char buf[MAXPATHLEN + 20];
 

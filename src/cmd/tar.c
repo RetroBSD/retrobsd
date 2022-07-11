@@ -7,27 +7,28 @@
 /*
  * Tape Archival Program
  */
+#include <errno.h>
+#include <fcntl.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
-#include <sys/param.h>
-#include <sys/stat.h>
+#include <unistd.h>
 #include <sys/dir.h>
 #include <sys/ioctl.h>
 #include <sys/mtio.h>
+#include <sys/param.h>
+#include <sys/stat.h>
 #include <sys/time.h>
-#include <signal.h>
-#include <errno.h>
-#include <fcntl.h>
 
-#define TBLOCK  512
-#define NBLOCK  20
-#define NAMSIZ  100
+#define TBLOCK 512
+#define NBLOCK 20
+#define NAMSIZ 100
 
-#define writetape(b)    writetbuf(b, 1)
-#define min(a,b)  ((a) < (b) ? (a) : (b))
-#define max(a,b)  ((a) > (b) ? (a) : (b))
+#define writetape(b) writetbuf(b, 1)
+#define min(a, b) ((a) < (b) ? (a) : (b))
+#define max(a, b) ((a) > (b) ? (a) : (b))
 
 union hblock {
     char dummy[TBLOCK];
@@ -45,17 +46,17 @@ union hblock {
 };
 
 struct linkbuf {
-    ino_t   inum;
-    dev_t   devnum;
+    ino_t inum;
+    dev_t devnum;
     int count;
-    char    pathname[NAMSIZ];
-    struct  linkbuf *nextp;
+    char pathname[NAMSIZ];
+    struct linkbuf *nextp;
 };
 
-union   hblock dblock;
-union   hblock *tbuf;
-struct  linkbuf *ihead;
-struct  stat stbuf;
+union hblock dblock;
+union hblock *tbuf;
+struct linkbuf *ihead;
+struct stat stbuf;
 
 int rflag;
 int xflag;
@@ -85,49 +86,74 @@ daddr_t low;
 daddr_t high;
 daddr_t bsrch();
 
-FILE    *vfile = stdout;
-FILE    *tfile;
-char    tname[] = "/tmp/tarXXXXXX";
-char    *usefile;
-char    magtape[] = "/dev/rmt8";
+FILE *vfile = stdout;
+FILE *tfile;
+char tname[] = "/tmp/tarXXXXXX";
+char *usefile;
+char magtape[] = "/dev/rmt8";
 
-void
-onintr (sig)
-    int sig;
+static void usage(void);
+static void done(int n);
+static int openmt(char *tape, int writing);
+static void dorep(char *argv[]);
+static void doxtract(char *argv[]);
+static void dotable(char *argv[]);
+static void getdir(void);
+static void passtape(void);
+static int endtape(void);
+static void backtape(void);
+static void putfile(char *longname, char *shortname, char *parent);
+static void putempty(void);
+static void flushtape(void);
+static int readtape(char *buffer);
+static int checksum(void);
+static int readtbuf(char **bufpp, int size);
+static int checkupdate(char *arg);
+static int checkw(int c, char *name);
+static int checkf(char *name, int mode, int howmuch);
+static void tomodes(struct stat *sp);
+static int writetbuf(char *buffer, int n);
+static int wantit(char *argv[]);
+static int checkdir(char *name);
+static void dodirtimes(union hblock *hp);
+static void setimes(char *path, time_t mt);
+static void longt(struct stat *st);
+static void pmode(struct stat *st);
+static void selectbits(int *pairp, struct stat *st);
+static int response(void);
+static int prefix(char *s1, char *s2);
+static int cmp(char *b, char *s, int n);
+static void getbuf(void);
+static int bread(int fd, char *buf, int size);
+static void mterr(char *operation, int i, int exitcode);
+
+void onintr(int sig)
 {
-    (void) signal(SIGINT, SIG_IGN);
+    (void)signal(SIGINT, SIG_IGN);
     term++;
 }
 
-void
-onquit (sig)
-    int sig;
+void onquit(int sig)
 {
-    (void) signal(SIGQUIT, SIG_IGN);
+    (void)signal(SIGQUIT, SIG_IGN);
     term++;
 }
 
-void
-onhup (sig)
-    int sig;
+void onhup(int sig)
 {
-    (void) signal(SIGHUP, SIG_IGN);
+    (void)signal(SIGHUP, SIG_IGN);
     term++;
 }
 
 #ifdef notdef
-void
-onterm (sig)
-    int sig;
+void onterm(int sig)
 {
-    (void) signal(SIGTERM, SIG_IGN);
+    (void)signal(SIGTERM, SIG_IGN);
     term++;
 }
 #endif
 
-main(argc, argv)
-int argc;
-char    *argv[];
+int main(int argc, char *argv[])
 {
     char *cp;
 
@@ -135,16 +161,14 @@ char    *argv[];
         usage();
 
     tfile = NULL;
-    usefile =  magtape;
+    usefile = magtape;
     argv[argc] = 0;
     argv++;
     for (cp = *argv++; *cp; cp++)
-        switch(*cp) {
-
+        switch (*cp) {
         case 'f':
             if (*argv == 0) {
-                fprintf(stderr,
-            "tar: tapefile must be specified with 'f' option\n");
+                fprintf(stderr, "tar: tapefile must be specified with 'f' option\n");
                 usage();
             }
             usefile = *argv++;
@@ -167,9 +191,7 @@ char    *argv[];
         case 'u':
             mktemp(tname);
             if ((tfile = fopen(tname, "w")) == NULL) {
-                fprintf(stderr,
-                 "tar: cannot create temporary file (%s)\n",
-                 tname);
+                fprintf(stderr, "tar: cannot create temporary file (%s)\n", tname);
                 done(1);
             }
             fprintf(tfile, "!!!!!/!/!/!/!/!/!/! 000\n");
@@ -214,14 +236,12 @@ char    *argv[];
 
         case 'b':
             if (*argv == 0) {
-                fprintf(stderr,
-            "tar: blocksize must be specified with 'b' option\n");
+                fprintf(stderr, "tar: blocksize must be specified with 'b' option\n");
                 usage();
             }
             nblock = atoi(*argv);
             if (nblock <= 0) {
-                fprintf(stderr,
-                    "tar: invalid blocksize \"%s\"\n", *argv);
+                fprintf(stderr, "tar: invalid blocksize \"%s\"\n", *argv);
                 done(1);
             }
             argv++;
@@ -258,14 +278,14 @@ char    *argv[];
         if (cflag && tfile != NULL)
             usage();
         if (signal(SIGINT, SIG_IGN) != SIG_IGN)
-            (void) signal(SIGINT, onintr);
+            (void)signal(SIGINT, onintr);
         if (signal(SIGHUP, SIG_IGN) != SIG_IGN)
-            (void) signal(SIGHUP, onhup);
+            (void)signal(SIGHUP, onhup);
         if (signal(SIGQUIT, SIG_IGN) != SIG_IGN)
-            (void) signal(SIGQUIT, onquit);
+            (void)signal(SIGQUIT, onquit);
 #ifdef notdef
         if (signal(SIGTERM, SIG_IGN) != SIG_IGN)
-            (void) signal(SIGTERM, onterm);
+            (void)signal(SIGTERM, onterm);
 #endif
         mt = openmt(usefile, 1);
         dorep(argv);
@@ -279,27 +299,22 @@ char    *argv[];
     done(0);
 }
 
-usage()
+void usage()
 {
     fprintf(stderr,
-"tar: usage: tar -{txru}[cvfblmhopwBi] [tapefile] [blocksize] file1 file2...\n");
+            "tar: usage: tar -{txru}[cvfblmhopwBi] [tapefile] [blocksize] file1 file2...\n");
     done(1);
 }
 
-int
-openmt(tape, writing)
-    char *tape;
-    int writing;
+int openmt(char *tape, int writing)
 {
-
     if (strcmp(tape, "-") == 0) {
         /*
          * Read from standard input or write to standard output.
          */
         if (writing) {
             if (cflag == 0) {
-                fprintf(stderr,
-             "tar: can only create standard output archives\n");
+                fprintf(stderr, "tar: can only create standard output archives\n");
                 done(1);
             }
             vfile = stderr;
@@ -315,7 +330,7 @@ openmt(tape, writing)
          */
         if (writing) {
             if (cflag)
-                mt = open(tape, O_RDWR|O_CREAT|O_TRUNC, 0666);
+                mt = open(tape, O_RDWR | O_CREAT | O_TRUNC, 0666);
             else
                 mt = open(tape, O_RDWR);
         } else
@@ -326,12 +341,10 @@ openmt(tape, writing)
             done(1);
         }
     }
-    return(mt);
+    return (mt);
 }
 
-char *
-getcwd(buf)
-    char *buf;
+char *getcwd(char *buf)
 {
     if (getwd(buf) == NULL) {
         fprintf(stderr, "tar: %s\n", buf);
@@ -340,10 +353,9 @@ getcwd(buf)
     return (buf);
 }
 
-dorep(argv)
-    char *argv[];
+void dorep(char *argv[])
 {
-    register char *cp, *cp2;
+    char *cp, *cp2;
     char wdir[MAXPATHLEN], tempdir[MAXPATHLEN], *parent;
 
     if (!cflag) {
@@ -358,8 +370,9 @@ dorep(argv)
         if (tfile != NULL) {
             char buf[200];
 
-            sprintf(buf,
-"sort +0 -1 +1nr %s -o %s; awk '$1 != prev {print; prev=$1}' %s >%sX; mv %sX %s",
+            sprintf(
+                buf,
+                "sort +0 -1 +1nr %s -o %s; awk '$1 != prev {print; prev=$1}' %s >%sX; mv %sX %s",
                 tname, tname, tname, tname, tname, tname);
             fflush(tfile);
             system(buf);
@@ -369,8 +382,8 @@ dorep(argv)
         }
     }
 
-    (void) getcwd(wdir);
-    while (*argv && ! term) {
+    (void)getcwd(wdir);
+    while (*argv && !term) {
         cp2 = *argv;
         if (!strcmp(cp2, "-C") && argv[1]) {
             argv++;
@@ -378,12 +391,12 @@ dorep(argv)
                 fprintf(stderr, "tar: can't change directories to ");
                 perror(*argv);
             } else
-                (void) getcwd(wdir);
+                (void)getcwd(wdir);
             argv++;
             continue;
         }
 
-        if (*argv[0] == '/'){
+        if (*argv[0] == '/') {
             parent = "";
         } else {
             parent = wdir;
@@ -421,14 +434,14 @@ dorep(argv)
     }
 }
 
-endtape()
+int endtape()
 {
     return (dblock.dbuf.name[0] == '\0');
 }
 
-getdir()
+void getdir()
 {
-    register struct stat *sp;
+    struct stat *sp;
     int i;
 top:
     readtape((char *)&dblock);
@@ -445,8 +458,7 @@ top:
     sscanf(dblock.dbuf.mtime, "%lo", &sp->st_mtime);
     sscanf(dblock.dbuf.chksum, "%o", &chksum);
     if (chksum != (i = checksum())) {
-        fprintf(stderr, "tar: directory checksum error (%d != %d)\n",
-            chksum, i);
+        fprintf(stderr, "tar: directory checksum error (%d != %d)\n", chksum, i);
         if (iflag)
             goto top;
         done(2);
@@ -455,7 +467,7 @@ top:
         fprintf(tfile, "%s %s\n", dblock.dbuf.name, dblock.dbuf.mtime);
 }
 
-passtape()
+void passtape()
 {
     long blocks;
     char *bufp;
@@ -463,44 +475,39 @@ passtape()
     if (dblock.dbuf.linkflag == '1')
         return;
     blocks = stbuf.st_size;
-    blocks += TBLOCK-1;
+    blocks += TBLOCK - 1;
     blocks /= TBLOCK;
 
     while (blocks-- > 0)
-        (void) readtbuf(&bufp, TBLOCK);
+        (void)readtbuf(&bufp, TBLOCK);
 }
 
-char *
-getmem(size)
+char *getmem(int size)
 {
-    char *p = malloc((unsigned) size);
+    char *p = malloc((unsigned)size);
 
     if (p == NULL && freemem) {
-        fprintf(stderr,
-            "tar: out of memory, link and directory modtime info lost\n");
+        fprintf(stderr, "tar: out of memory, link and directory modtime info lost\n");
         freemem = 0;
     }
     return (p);
 }
 
-putfile(longname, shortname, parent)
-    char *longname;
-    char *shortname;
-    char *parent;
+void putfile(char *longname, char *shortname, char *parent)
 {
     int infile = 0;
     long blocks;
     char buf[TBLOCK];
     char *bigbuf;
-    register char *cp;
+    char *cp;
     struct direct *dp;
     DIR *dirp;
-    register int i;
+    int i;
     long l;
-    char newparent[NAMSIZ+64];
+    char newparent[NAMSIZ + 64];
     extern int errno;
     int maxread;
-    int hint;       /* amount to write to get "in sync" */
+    int hint; /* amount to write to get "in sync" */
 
     if (!hflag)
         i = lstat(shortname, &stbuf);
@@ -520,21 +527,20 @@ putfile(longname, shortname, parent)
 
     switch (stbuf.st_mode & S_IFMT) {
     case S_IFDIR:
-        for (i = 0, cp = buf; *cp++ = longname[i++];)
+        for (i = 0, cp = buf; (*cp++ = longname[i++]);)
             ;
         *--cp = '/';
-        *++cp = 0  ;
+        *++cp = 0;
         if (!oflag) {
             if ((cp - buf) >= NAMSIZ) {
-                fprintf(stderr, "tar: %s: file name too long\n",
-                    longname);
+                fprintf(stderr, "tar: %s: file name too long\n", longname);
                 return;
             }
             stbuf.st_size = 0;
             tomodes(&stbuf);
-            strcpy(dblock.dbuf.name,buf);
+            strcpy(dblock.dbuf.name, buf);
             sprintf(dblock.dbuf.chksum, "%6o", checksum());
-            (void) writetape((char *)&dblock);
+            (void)writetape((char *)&dblock);
         }
         sprintf(newparent, "%s/%s", parent, shortname);
         if (chdir(shortname) < 0) {
@@ -542,8 +548,7 @@ putfile(longname, shortname, parent)
             return;
         }
         if ((dirp = opendir(".")) == NULL) {
-            fprintf(stderr, "tar: %s: directory read error\n",
-                longname);
+            fprintf(stderr, "tar: %s: directory read error\n", longname);
             if (chdir(parent) < 0) {
                 fprintf(stderr, "tar: cannot change back?: ");
                 perror(parent);
@@ -553,8 +558,7 @@ putfile(longname, shortname, parent)
         while ((dp = readdir(dirp)) != NULL && !term) {
             if (dp->d_ino == 0)
                 continue;
-            if (!strcmp(".", dp->d_name) ||
-                !strcmp("..", dp->d_name))
+            if (!strcmp(".", dp->d_name) || !strcmp("..", dp->d_name))
                 continue;
             strcpy(cp, dp->d_name);
             l = telldir(dirp);
@@ -573,14 +577,12 @@ putfile(longname, shortname, parent)
     case S_IFLNK:
         tomodes(&stbuf);
         if (strlen(longname) >= NAMSIZ) {
-            fprintf(stderr, "tar: %s: file name too long\n",
-                longname);
+            fprintf(stderr, "tar: %s: file name too long\n", longname);
             return;
         }
         strcpy(dblock.dbuf.name, longname);
         if (stbuf.st_size + 1 >= NAMSIZ) {
-            fprintf(stderr, "tar: %s: symbolic link too long\n",
-                longname);
+            fprintf(stderr, "tar: %s: symbolic link too long\n", longname);
             return;
         }
         i = readlink(shortname, dblock.dbuf.linkname, NAMSIZ - 1);
@@ -592,11 +594,10 @@ putfile(longname, shortname, parent)
         dblock.dbuf.linkname[i] = '\0';
         dblock.dbuf.linkflag = '2';
         if (vflag)
-            fprintf(vfile, "a %s symbolic link to %s\n",
-                longname, dblock.dbuf.linkname);
+            fprintf(vfile, "a %s symbolic link to %s\n", longname, dblock.dbuf.linkname);
         sprintf(dblock.dbuf.size, "%11lo", 0L);
         sprintf(dblock.dbuf.chksum, "%6o", checksum());
-        (void) writetape((char *)&dblock);
+        (void)writetape((char *)&dblock);
         break;
 
     case S_IFREG:
@@ -607,8 +608,7 @@ putfile(longname, shortname, parent)
         }
         tomodes(&stbuf);
         if (strlen(longname) >= NAMSIZ) {
-            fprintf(stderr, "tar: %s: file name too long\n",
-                longname);
+            fprintf(stderr, "tar: %s: file name too long\n", longname);
             close(infile);
             return;
         }
@@ -618,8 +618,7 @@ putfile(longname, shortname, parent)
             int found = 0;
 
             for (lp = ihead; lp != NULL; lp = lp->nextp)
-                if (lp->inum == stbuf.st_ino &&
-                    lp->devnum == stbuf.st_dev) {
+                if (lp->inum == stbuf.st_ino && lp->devnum == stbuf.st_dev) {
                     found++;
                     break;
                 }
@@ -627,15 +626,14 @@ putfile(longname, shortname, parent)
                 strcpy(dblock.dbuf.linkname, lp->pathname);
                 dblock.dbuf.linkflag = '1';
                 sprintf(dblock.dbuf.chksum, "%6o", checksum());
-                (void) writetape( (char *) &dblock);
+                (void)writetape((char *)&dblock);
                 if (vflag)
-                    fprintf(vfile, "a %s link to %s\n",
-                        longname, lp->pathname);
+                    fprintf(vfile, "a %s link to %s\n", longname, lp->pathname);
                 lp->count--;
                 close(infile);
                 return;
             }
-            lp = (struct linkbuf *) getmem(sizeof(*lp));
+            lp = (struct linkbuf *)getmem(sizeof(*lp));
             if (lp != NULL) {
                 lp->nextp = ihead;
                 ihead = lp;
@@ -645,7 +643,7 @@ putfile(longname, shortname, parent)
                 strcpy(lp->pathname, longname);
             }
         }
-        blocks = (stbuf.st_size + (TBLOCK-1)) / TBLOCK;
+        blocks = (stbuf.st_size + (TBLOCK - 1)) / TBLOCK;
         if (vflag)
             fprintf(vfile, "a %s %ld blocks\n", longname, blocks);
         sprintf(dblock.dbuf.chksum, "%6o", checksum());
@@ -656,11 +654,10 @@ putfile(longname, shortname, parent)
             bigbuf = buf;
         }
 
-        while ((i = read(infile, bigbuf, min((hint*TBLOCK), maxread))) > 0
-          && blocks > 0) {
-            register int nblks;
+        while ((i = read(infile, bigbuf, min((hint * TBLOCK), maxread))) > 0 && blocks > 0) {
+            int nblks;
 
-            nblks = ((i-1)/TBLOCK)+1;
+            nblks = ((i - 1) / TBLOCK) + 1;
             if (nblks > blocks)
                 nblks = blocks;
             hint = writetbuf(bigbuf, nblks);
@@ -673,31 +670,27 @@ putfile(longname, shortname, parent)
             fprintf(stderr, "tar: Read error on ");
             perror(longname);
         } else if (blocks != 0 || i != 0)
-            fprintf(stderr, "tar: %s: file changed size\n",
-                longname);
-        while (--blocks >=  0)
+            fprintf(stderr, "tar: %s: file changed size\n", longname);
+        while (--blocks >= 0)
             putempty();
         break;
 
     default:
-        fprintf(stderr, "tar: %s is not a file. Not dumped\n",
-            longname);
+        fprintf(stderr, "tar: %s is not a file. Not dumped\n", longname);
         break;
     }
 }
 
-doxtract(argv)
-    char *argv[];
+void doxtract(char *argv[])
 {
     long blocks, bytes;
     int ofile, i;
-    extern int errno;
 
     for (;;) {
         if ((i = wantit(argv)) == 0)
             continue;
         if (i == -1)
-            break;      /* end of tape */
+            break; /* end of tape */
         if (checkw('x', dblock.dbuf.name) == 0) {
             passtape();
             continue;
@@ -714,12 +707,12 @@ doxtract(argv)
                 continue;
             }
         }
-        if (checkdir(dblock.dbuf.name)) {   /* have a directory */
+        if (checkdir(dblock.dbuf.name)) { /* have a directory */
             if (mflag == 0)
                 dodirtimes(&dblock);
             continue;
         }
-        if (dblock.dbuf.linkflag == '2') {  /* symlink */
+        if (dblock.dbuf.linkflag == '2') { /* symlink */
             /*
              * only unlink non directories or empty
              * directories
@@ -728,15 +721,14 @@ doxtract(argv)
                 if (errno == ENOTDIR)
                     unlink(dblock.dbuf.name);
             }
-            if (symlink(dblock.dbuf.linkname, dblock.dbuf.name)<0) {
-                fprintf(stderr, "tar: %s: symbolic link failed: ",
-                    dblock.dbuf.name);
+            if (symlink(dblock.dbuf.linkname, dblock.dbuf.name) < 0) {
+                fprintf(stderr, "tar: %s: symbolic link failed: ", dblock.dbuf.name);
                 perror("");
                 continue;
             }
             if (vflag)
-                fprintf(vfile, "x %s symbolic link to %s\n",
-                    dblock.dbuf.name, dblock.dbuf.linkname);
+                fprintf(vfile, "x %s symbolic link to %s\n", dblock.dbuf.name,
+                        dblock.dbuf.linkname);
 #ifdef notdef
             /* ignore alien orders */
             chown(dblock.dbuf.name, stbuf.st_uid, stbuf.st_gid);
@@ -747,7 +739,7 @@ doxtract(argv)
 #endif
             continue;
         }
-        if (dblock.dbuf.linkflag == '1') {  /* regular link */
+        if (dblock.dbuf.linkflag == '1') { /* regular link */
             /*
              * only unlink non directories or empty
              * directories
@@ -757,46 +749,41 @@ doxtract(argv)
                     unlink(dblock.dbuf.name);
             }
             if (link(dblock.dbuf.linkname, dblock.dbuf.name) < 0) {
-                fprintf(stderr, "tar: can't link %s to %s: ",
-                    dblock.dbuf.name, dblock.dbuf.linkname);
+                fprintf(stderr, "tar: can't link %s to %s: ", dblock.dbuf.name,
+                        dblock.dbuf.linkname);
                 perror("");
                 continue;
             }
             if (vflag)
-                fprintf(vfile, "%s linked to %s\n",
-                    dblock.dbuf.name, dblock.dbuf.linkname);
+                fprintf(vfile, "%s linked to %s\n", dblock.dbuf.name, dblock.dbuf.linkname);
             continue;
         }
-        if ((ofile = creat(dblock.dbuf.name,stbuf.st_mode&0xfff)) < 0) {
-            fprintf(stderr, "tar: can't create %s: ",
-                dblock.dbuf.name);
+        if ((ofile = creat(dblock.dbuf.name, stbuf.st_mode & 0xfff)) < 0) {
+            fprintf(stderr, "tar: can't create %s: ", dblock.dbuf.name);
             perror("");
             passtape();
             continue;
         }
         chown(dblock.dbuf.name, stbuf.st_uid, stbuf.st_gid);
-        blocks = ((bytes = stbuf.st_size) + TBLOCK-1)/TBLOCK;
+        blocks = ((bytes = stbuf.st_size) + TBLOCK - 1) / TBLOCK;
         if (vflag)
-            fprintf(vfile, "x %s, %ld bytes, %ld tape blocks\n",
-                dblock.dbuf.name, bytes, blocks);
+            fprintf(vfile, "x %s, %ld bytes, %ld tape blocks\n", dblock.dbuf.name, bytes, blocks);
         for (; blocks > 0;) {
-            register int nread;
-            char    *bufp;
-            register int nwant;
+            int nread;
+            char *bufp;
+            int nwant;
 
-            nwant = NBLOCK*TBLOCK;
-            if (nwant > (blocks*TBLOCK))
-                nwant = (blocks*TBLOCK);
+            nwant = NBLOCK * TBLOCK;
+            if (nwant > (blocks * TBLOCK))
+                nwant = (blocks * TBLOCK);
             nread = readtbuf(&bufp, nwant);
             if (write(ofile, bufp, (int)min(nread, bytes)) < 0) {
-                fprintf(stderr,
-                    "tar: %s: HELP - extract write error",
-                    dblock.dbuf.name);
+                fprintf(stderr, "tar: %s: HELP - extract write error", dblock.dbuf.name);
                 perror("");
                 done(2);
             }
             bytes -= nread;
-            blocks -= (((nread-1)/TBLOCK)+1);
+            blocks -= (((nread - 1) / TBLOCK) + 1);
         }
         close(ofile);
         if (mflag == 0)
@@ -810,16 +797,15 @@ doxtract(argv)
     }
 }
 
-dotable(argv)
-    char *argv[];
+void dotable(char *argv[])
 {
-    register int i;
+    int i;
 
     for (;;) {
         if ((i = wantit(argv)) == 0)
             continue;
         if (i == -1)
-            break;      /* end of tape */
+            break; /* end of tape */
         if (vflag)
             longt(&stbuf);
         printf("%s", dblock.dbuf.name);
@@ -832,39 +818,38 @@ dotable(argv)
     }
 }
 
-putempty()
+void putempty()
 {
     char buf[TBLOCK];
 
-    bzero(buf, sizeof (buf));
-    (void) writetape(buf);
+    bzero(buf, sizeof(buf));
+    (void)writetape(buf);
 }
 
-longt(st)
-    register struct stat *st;
+void longt(struct stat *st)
 {
-    register char *cp;
-    char *ctime();
+    char *cp;
 
     pmode(st);
     printf("%3d/%1d", st->st_uid, st->st_gid);
     printf("%7ld", st->st_size);
     cp = ctime(&st->st_mtime);
-    printf(" %-12.12s %-4.4s ", cp+4, cp+20);
+    printf(" %-12.12s %-4.4s ", cp + 4, cp + 20);
 }
 
-#define SUID    04000
-#define SGID    02000
-#define ROWN    0400
-#define WOWN    0200
-#define XOWN    0100
-#define RGRP    040
-#define WGRP    020
-#define XGRP    010
-#define ROTH    04
-#define WOTH    02
-#define XOTH    01
-#define STXT    01000
+#define SUID 04000
+#define SGID 02000
+#define ROWN 0400
+#define WOWN 0200
+#define XOWN 0100
+#define RGRP 040
+#define WGRP 020
+#define XGRP 010
+#define ROTH 04
+#define WOTH 02
+#define XOTH 01
+#define STXT 01000
+
 int m1[] = { 1, ROWN, 'r', '-' };
 int m2[] = { 1, WOWN, 'w', '-' };
 int m3[] = { 2, SUID, 's', XOWN, 'x', '-' };
@@ -875,26 +860,23 @@ int m7[] = { 1, ROTH, 'r', '-' };
 int m8[] = { 1, WOTH, 'w', '-' };
 int m9[] = { 2, STXT, 't', XOTH, 'x', '-' };
 
-int *m[] = { m1, m2, m3, m4, m5, m6, m7, m8, m9};
+int *m[] = { m1, m2, m3, m4, m5, m6, m7, m8, m9 };
 
-pmode(st)
-    register struct stat *st;
+void pmode(struct stat *st)
 {
-    register int **mp;
+    int **mp;
 
     for (mp = &m[0]; mp < &m[9];)
         selectbits(*mp++, st);
 }
 
-selectbits(pairp, st)
-    int *pairp;
-    struct stat *st;
+void selectbits(int *pairp, struct stat *st)
 {
-    register int n, *ap;
+    int n, *ap;
 
     ap = pairp;
     n = *ap++;
-    while (--n>=0 && (st->st_mode&*ap++)==0)
+    while (--n >= 0 && (st->st_mode & *ap++) == 0)
         ap++;
     putchar(*ap);
 }
@@ -904,10 +886,9 @@ selectbits(pairp, st)
  * a directory on the tar tape (indicated by a trailing '/'),
  * return 1; else 0.
  */
-checkdir(name)
-    register char *name;
+int checkdir(char *name)
 {
-    register char *cp;
+    char *cp;
 
     /*
      * Quick check for existence of directory.
@@ -940,13 +921,12 @@ checkdir(name)
         }
         *cp = '/';
     }
-    return (cp[-1]=='/');
+    return (cp[-1] == '/');
 }
 
-tomodes(sp)
-register struct stat *sp;
+void tomodes(struct stat *sp)
 {
-    register char *cp;
+    char *cp;
 
     for (cp = dblock.dummy; cp < &dblock.dummy[TBLOCK]; cp++)
         *cp = '\0';
@@ -957,13 +937,12 @@ register struct stat *sp;
     sprintf(dblock.dbuf.mtime, "%11lo ", sp->st_mtime);
 }
 
-checksum()
+int checksum()
 {
-    register i;
-    register char *cp;
+    int i;
+    char *cp;
 
-    for (cp = dblock.dbuf.chksum;
-         cp < &dblock.dbuf.chksum[sizeof(dblock.dbuf.chksum)]; cp++)
+    for (cp = dblock.dbuf.chksum; cp < &dblock.dbuf.chksum[sizeof(dblock.dbuf.chksum)]; cp++)
         *cp = ' ';
     i = 0;
     for (cp = dblock.dummy; cp < &dblock.dummy[TBLOCK]; cp++)
@@ -971,8 +950,7 @@ checksum()
     return (i);
 }
 
-checkw(c, name)
-    char *name;
+int checkw(int c, char *name)
 {
     if (!wflag)
         return (1);
@@ -983,7 +961,7 @@ checkw(c, name)
     return (response() == 'y');
 }
 
-response()
+int response()
 {
     char c;
 
@@ -996,23 +974,20 @@ response()
     return (c);
 }
 
-checkf(name, mode, howmuch)
-    char *name;
-    int mode, howmuch;
+int checkf(char *name, int mode, int howmuch)
 {
     int l;
 
-    if ((mode & S_IFMT) == S_IFDIR){
-        if ((strcmp(name, "SCCS")==0) || (strcmp(name, "RCS")==0))
-            return(0);
-        return(1);
+    if ((mode & S_IFMT) == S_IFDIR) {
+        if ((strcmp(name, "SCCS") == 0) || (strcmp(name, "RCS") == 0))
+            return (0);
+        return (1);
     }
     if ((l = strlen(name)) < 3)
         return (1);
-    if (howmuch > 1 && name[l-2] == '.' && name[l-1] == 'o')
+    if (howmuch > 1 && name[l - 2] == '.' && name[l - 1] == 'o')
         return (0);
-    if (strcmp(name, "core") == 0 ||
-        strcmp(name, "errs") == 0 ||
+    if (strcmp(name, "core") == 0 || strcmp(name, "errs") == 0 ||
         (howmuch > 1 && strcmp(name, "a.out") == 0))
         return (0);
     /* SHOULD CHECK IF IT IS EXECUTABLE */
@@ -1020,8 +995,7 @@ checkf(name, mode, howmuch)
 }
 
 /* Is the current file a new file, or the newest one of the same name? */
-checkupdate(arg)
-    char *arg;
+int checkupdate(char *arg)
 {
     char name[100];
     long mtime;
@@ -1038,7 +1012,7 @@ checkupdate(arg)
     }
 }
 
-done(n)
+void done(int n)
 {
     unlink(tname);
     exit(n);
@@ -1048,10 +1022,9 @@ done(n)
  * Do we want the next entry on the tape, i.e. is it selected?  If
  * not, skip over the entire entry.  Return -1 if reached end of tape.
  */
-wantit(argv)
-    char *argv[];
+int wantit(char *argv[])
 {
-    register char **cp;
+    char **cp;
 
     getdir();
     if (endtape())
@@ -1068,8 +1041,7 @@ wantit(argv)
 /*
  * Does s2 begin with the string s1, on a directory boundary?
  */
-prefix(s1, s2)
-    register char *s1, *s2;
+int prefix(char *s1, char *s2)
 {
     while (*s1)
         if (*s1++ != *s2++)
@@ -1079,29 +1051,24 @@ prefix(s1, s2)
     return (1);
 }
 
-#define N   200
+#define N 200
 int njab;
 
-daddr_t
-lookup(s)
-    char *s;
+daddr_t lookup(char *s)
 {
-    register i;
+    int i;
     daddr_t a;
 
-    for(i=0; s[i]; i++)
+    for (i = 0; s[i]; i++)
         if (s[i] == ' ')
             break;
     a = bsrch(s, i, low, high);
     return (a);
 }
 
-daddr_t
-bsrch(s, n, l, h)
-    daddr_t l, h;
-    char *s;
+daddr_t bsrch(char *s, int n, daddr_t l, daddr_t h)
 {
-    register i, j;
+    int i, j;
     char b[N];
     daddr_t m, m1;
 
@@ -1109,28 +1076,28 @@ bsrch(s, n, l, h)
 
 loop:
     if (l >= h)
-        return ((daddr_t) -1);
-    m = l + (h-l)/2 - N/2;
+        return ((daddr_t)-1);
+    m = l + (h - l) / 2 - N / 2;
     if (m < l)
         m = l;
     fseek(tfile, m, 0);
     fread(b, 1, N, tfile);
     njab++;
-    for(i=0; i<N; i++) {
+    for (i = 0; i < N; i++) {
         if (b[i] == '\n')
             break;
         m++;
     }
     if (m >= h)
-        return ((daddr_t) -1);
+        return ((daddr_t)-1);
     m1 = m;
     j = i;
-    for(i++; i<N; i++) {
+    for (i++; i < N; i++) {
         m1++;
         if (b[i] == '\n')
             break;
     }
-    i = cmp(b+j, s, n);
+    i = cmp(b + j, s, n);
     if (i < 0) {
         h = m;
         goto loop;
@@ -1142,42 +1109,38 @@ loop:
     return (m);
 }
 
-cmp(b, s, n)
-    char *b, *s;
+int cmp(char *b, char *s, int n)
 {
-    register i;
+    int i;
 
     if (b[0] != '\n')
         exit(2);
-    for(i=0; i<n; i++) {
-        if (b[i+1] > s[i])
+    for (i = 0; i < n; i++) {
+        if (b[i + 1] > s[i])
             return (-1);
-        if (b[i+1] < s[i])
+        if (b[i + 1] < s[i])
             return (1);
     }
-    return (b[i+1] == ' '? 0 : -1);
+    return (b[i + 1] == ' ' ? 0 : -1);
 }
 
-readtape(buffer)
-    char *buffer;
+int readtape(char *buffer)
 {
     char *bufp;
 
     if (first == 0)
         getbuf();
-    (void) readtbuf(&bufp, TBLOCK);
+    (void)readtbuf(&bufp, TBLOCK);
     bcopy(bufp, buffer, TBLOCK);
-    return(TBLOCK);
+    return (TBLOCK);
 }
 
-readtbuf(bufpp, size)
-    char **bufpp;
-    int size;
+int readtbuf(char **bufpp, int size)
 {
-    register int i;
+    int i;
 
     if (recno >= nblock || first == 0) {
-        if ((i = bread(mt, (char *)tbuf, TBLOCK*nblock)) < 0)
+        if ((i = bread(mt, (char *)tbuf, TBLOCK * nblock)) < 0)
             mterr("read", i, 3);
         if (first == 0) {
             if ((i % TBLOCK) != 0) {
@@ -1193,16 +1156,14 @@ readtbuf(bufpp, size)
         }
         recno = 0;
     }
-    if (size > ((nblock-recno)*TBLOCK))
-        size = (nblock-recno)*TBLOCK;
+    if (size > ((nblock - recno) * TBLOCK))
+        size = (nblock - recno) * TBLOCK;
     *bufpp = (char *)&tbuf[recno];
-    recno += (size/TBLOCK);
+    recno += (size / TBLOCK);
     return (size);
 }
 
-writetbuf(buffer, n)
-    register char *buffer;
-    register int n;
+int writetbuf(char *buffer, int n)
 {
     int i;
 
@@ -1211,8 +1172,8 @@ writetbuf(buffer, n)
         first = 1;
     }
     if (recno >= nblock) {
-        i = write(mt, (char *)tbuf, TBLOCK*nblock);
-        if (i != TBLOCK*nblock)
+        i = write(mt, (char *)tbuf, TBLOCK * nblock);
+        if (i != TBLOCK * nblock)
             mterr("write", i, 2);
         recno = 0;
     }
@@ -1224,8 +1185,8 @@ writetbuf(buffer, n)
      *  residual to the tape buffer.
      */
     while (recno == 0 && n >= nblock) {
-        i = write(mt, buffer, TBLOCK*nblock);
-        if (i != TBLOCK*nblock)
+        i = write(mt, buffer, TBLOCK * nblock);
+        if (i != TBLOCK * nblock)
             mterr("write", i, 2);
         n -= nblock;
         buffer += (nblock * TBLOCK);
@@ -1235,8 +1196,8 @@ writetbuf(buffer, n)
         bcopy(buffer, (char *)&tbuf[recno++], TBLOCK);
         buffer += TBLOCK;
         if (recno >= nblock) {
-            i = write(mt, (char *)tbuf, TBLOCK*nblock);
-            if (i != TBLOCK*nblock)
+            i = write(mt, (char *)tbuf, TBLOCK * nblock);
+            if (i != TBLOCK * nblock)
                 mterr("write", i, 2);
             recno = 0;
         }
@@ -1246,10 +1207,10 @@ writetbuf(buffer, n)
     return (nblock - recno);
 }
 
-backtape()
+void backtape()
 {
     static int mtdev = 1;
-    static struct mtop mtop = {MTBSR, 1};
+    static struct mtop mtop = { MTBSR, 1 };
     struct mtget mtget;
 
     if (mtdev == 1)
@@ -1261,22 +1222,20 @@ backtape()
             done(4);
         }
     } else
-        lseek(mt, (daddr_t) -TBLOCK*nblock, 1);
+        lseek(mt, (daddr_t)-TBLOCK * nblock, 1);
     recno--;
 }
 
-flushtape()
+void flushtape()
 {
     int i;
 
-    i = write(mt, (char *)tbuf, TBLOCK*nblock);
-    if (i != TBLOCK*nblock)
+    i = write(mt, (char *)tbuf, TBLOCK * nblock);
+    if (i != TBLOCK * nblock)
         mterr("write", i, 2);
 }
 
-mterr(operation, i, exitcode)
-    char *operation;
-    int i;
+void mterr(char *operation, int i, int exitcode)
 {
     fprintf(stderr, "tar: tape %s error: ", operation);
     if (i < 0)
@@ -1286,10 +1245,7 @@ mterr(operation, i, exitcode)
     done(exitcode);
 }
 
-bread(fd, buf, size)
-    int fd;
-    char *buf;
-    int size;
+int bread(int fd, char *buf, int size)
 {
     int count;
     static int lastread = 0;
@@ -1309,9 +1265,8 @@ bread(fd, buf, size)
     return (count);
 }
 
-getbuf()
+void getbuf()
 {
-
     if (nblock == 0) {
         fstat(mt, &stbuf);
         if ((stbuf.st_mode & S_IFMT) == S_IFCHR)
@@ -1322,10 +1277,9 @@ getbuf()
                 nblock = NBLOCK;
         }
     }
-    tbuf = (union hblock *)malloc((unsigned)nblock*TBLOCK);
+    tbuf = (union hblock *)malloc((unsigned)nblock * TBLOCK);
     if (tbuf == NULL) {
-        fprintf(stderr, "tar: blocksize %d too big, can't get memory\n",
-            nblock);
+        fprintf(stderr, "tar: blocksize %d too big, can't get memory\n", nblock);
         done(1);
     }
 }
@@ -1348,15 +1302,14 @@ getbuf()
  * the tape and setting all the times at the end.
  */
 char dirstack[NAMSIZ];
-#define NTIM (NAMSIZ/2+1)       /* a/b/c/d/... */
+#define NTIM (NAMSIZ / 2 + 1) /* a/b/c/d/... */
 time_t mtime[NTIM];
 
-dodirtimes(hp)
-    union hblock *hp;
+void dodirtimes(union hblock *hp)
 {
-    register char *p = dirstack;
-    register char *q = hp->dbuf.name;
-    register int ndir = 0;
+    char *p = dirstack;
+    char *q = hp->dbuf.name;
+    int ndir = 0;
     char *savp;
     int savndir;
 
@@ -1376,7 +1329,7 @@ dodirtimes(hp)
          */
         if (*p++ == '/')
             if (mtime[++ndir] >= 0) {
-                *--p = '\0';    /* zap the slash */
+                *--p = '\0'; /* zap the slash */
                 setimes(dirstack, mtime[ndir]);
                 *p++ = '/';
             }
@@ -1385,19 +1338,17 @@ dodirtimes(hp)
     ndir = savndir;
 
     /* Push this one on the "stack" */
-    while (*p = *q++)   /* append the rest of the new dir */
+    while ((*p = *q++)) /* append the rest of the new dir */
         if (*p++ == '/')
             mtime[++ndir] = -1;
-    mtime[ndir] = stbuf.st_mtime;   /* overwrite the last one */
+    mtime[ndir] = stbuf.st_mtime; /* overwrite the last one */
 }
 
-setimes(path, mt)
-    char *path;
-    time_t mt;
+void setimes(char *path, time_t mt)
 {
     struct timeval tv[2];
 
-    tv[0].tv_sec = time((time_t *) 0);
+    tv[0].tv_sec = time((time_t *)0);
     tv[1].tv_sec = mt;
     tv[0].tv_usec = tv[1].tv_usec = 0;
     if (utimes(path, tv) < 0) {

@@ -1,23 +1,27 @@
 /*
  * time
  */
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <signal.h>
-#include <sys/types.h>
+#include <unistd.h>
 #include <sys/time.h>
-#include <sys/resource.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
-main(argc, argv)
-    int argc;
-    char **argv;
+void printt(char *s, struct timeval *tv)
+{
+    fprintf(stderr, "%9ld.%01ld %s ", tv->tv_sec, tv->tv_usec / 100000, s);
+}
+
+int main(int argc, char **argv)
 {
     int status;
-    register int p;
+    int p;
     struct timeval before, after;
     struct rusage ru;
 
-    if (argc<=1)
+    if (argc <= 1)
         exit(0);
     gettimeofday(&before, 0);
     p = fork();
@@ -35,7 +39,7 @@ main(argc, argv)
     while (wait3(&status, 0, &ru) != p)
         ;
     gettimeofday(&after, 0);
-    if ((status&0377) != 0)
+    if ((status & 0377) != 0)
         fprintf(stderr, "Command terminated abnormally.\n");
     after.tv_sec -= before.tv_sec;
     after.tv_usec -= before.tv_usec;
@@ -45,13 +49,5 @@ main(argc, argv)
     printt("user", &ru.ru_utime);
     printt("sys ", &ru.ru_stime);
     fprintf(stderr, "\n");
-    exit (status>>8);
-}
-
-printt(s, tv)
-    char *s;
-    struct timeval *tv;
-{
-
-    fprintf(stderr, "%9ld.%01ld %s ", tv->tv_sec, tv->tv_usec/100000, s);
+    exit(status >> 8);
 }

@@ -3,14 +3,15 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-#include <sys/param.h>
-#include <sys/dir.h>
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
+#include <sys/types.h>
+#include <sys/dir.h>
 
 static char *bindirs[] = {
+    // clang-format off
     "/etc",
     "/bin",
     "/sbin",
@@ -20,8 +21,10 @@ static char *bindirs[] = {
     "/local/bin",
     "/new",
     0
+    // clang-format on
 };
 static char *mandirs[] = {
+    // clang-format off
     "/man/man1",
     "/man/man2",
     "/man/man3",
@@ -34,8 +37,10 @@ static char *mandirs[] = {
     "/man/mann",
     "/man/mano",
     0
+    // clang-format on
 };
-static char *srcdirs[]  = {
+static char *srcdirs[] = {
+    // clang-format off
     "/src/bin",
     "/src/sbin",
     "/src/etc",
@@ -51,88 +56,96 @@ static char *srcdirs[]  = {
     "/src/lib/libc/net/inet",
     "/src/lib/libc/net/misc",
     0
+    // clang-format on
 };
 
-char    sflag = 1;
-char    bflag = 1;
-char    mflag = 1;
-char    **Sflag;
+char sflag = 1;
+char bflag = 1;
+char mflag = 1;
+char **Sflag;
 int Scnt;
-char    **Bflag;
+char **Bflag;
 int Bcnt;
-char    **Mflag;
+char **Mflag;
 int Mcnt;
-char    uflag;
+char uflag;
+
+static void getlist(int *argcp, char ***argvp, char ***flagp, int *cntp);
+static void zerof(void);
+static void lookup(char *cp);
+static void looksrc(char *cp);
+static void lookbin(char *cp);
+static void lookman(char *cp);
+static void find(char **dirs, char *cp);
+static void findv(char **dirv, int dirc, char *cp);
+static void findin(char *dir, char *cp);
+static int itsit(char *cp, char *dp);
+
 /*
  * whereis name
  * look for source, documentation and binaries
  */
-main(argc, argv)
-    int argc;
-    char *argv[];
+int main(int argc, char *argv[])
 {
-
     argc--, argv++;
     if (argc == 0) {
 usage:
         fprintf(stderr, "whereis [ -sbmu ] [ -SBM dir ... -f ] name...\n");
         exit(1);
     }
-    do
+    do {
         if (argv[0][0] == '-') {
-            register char *cp = argv[0] + 1;
-            while (*cp) switch (*cp++) {
+            char *cp = argv[0] + 1;
 
-            case 'f':
-                break;
+            while (*cp) {
+                switch (*cp++) {
+                case 'f':
+                    break;
 
-            case 'S':
-                getlist(&argc, &argv, &Sflag, &Scnt);
-                break;
+                case 'S':
+                    getlist(&argc, &argv, &Sflag, &Scnt);
+                    break;
 
-            case 'B':
-                getlist(&argc, &argv, &Bflag, &Bcnt);
-                break;
+                case 'B':
+                    getlist(&argc, &argv, &Bflag, &Bcnt);
+                    break;
 
-            case 'M':
-                getlist(&argc, &argv, &Mflag, &Mcnt);
-                break;
+                case 'M':
+                    getlist(&argc, &argv, &Mflag, &Mcnt);
+                    break;
 
-            case 's':
-                zerof();
-                sflag++;
-                continue;
+                case 's':
+                    zerof();
+                    sflag++;
+                    continue;
 
-            case 'u':
-                uflag++;
-                continue;
+                case 'u':
+                    uflag++;
+                    continue;
 
-            case 'b':
-                zerof();
-                bflag++;
-                continue;
+                case 'b':
+                    zerof();
+                    bflag++;
+                    continue;
 
-            case 'm':
-                zerof();
-                mflag++;
-                continue;
+                case 'm':
+                    zerof();
+                    mflag++;
+                    continue;
 
-            default:
-                goto usage;
+                default:
+                    goto usage;
+                }
             }
             argv++;
-        } else
+        } else {
             lookup(*argv++);
-    while (--argc > 0);
+        }
+    } while (--argc > 0);
 }
 
-getlist(argcp, argvp, flagp, cntp)
-    char ***argvp;
-    int *argcp;
-    char ***flagp;
-    int *cntp;
+void getlist(int *argcp, char ***argvp, char ***flagp, int *cntp)
 {
-
     (*argvp)++;
     *flagp = *argvp;
     *cntp = 0;
@@ -142,21 +155,18 @@ getlist(argcp, argvp, flagp, cntp)
     (*argvp)--;
 }
 
-
-zerof()
+void zerof()
 {
-
     if (sflag && bflag && mflag)
         sflag = bflag = mflag = 0;
 }
+
 int count;
 int print;
 
-
-lookup(cp)
-    register char *cp;
+void lookup(char *cp)
 {
-    register char *dp;
+    char *dp;
 
     for (dp = cp; *dp; dp++)
         continue;
@@ -204,8 +214,7 @@ again:
         printf("\n");
 }
 
-looksrc(cp)
-    char *cp;
+void looksrc(char *cp)
 {
     if (Sflag == 0) {
         find(srcdirs, cp);
@@ -213,8 +222,7 @@ looksrc(cp)
         findv(Sflag, Scnt, cp);
 }
 
-lookbin(cp)
-    char *cp;
+void lookbin(char *cp)
 {
     if (Bflag == 0)
         find(bindirs, cp);
@@ -222,8 +230,7 @@ lookbin(cp)
         findv(Bflag, Bcnt, cp);
 }
 
-lookman(cp)
-    char *cp;
+void lookman(char *cp)
 {
     if (Mflag == 0) {
         find(mandirs, cp);
@@ -231,27 +238,19 @@ lookman(cp)
         findv(Mflag, Mcnt, cp);
 }
 
-findv(dirv, dirc, cp)
-    char **dirv;
-    int dirc;
-    char *cp;
+void findv(char **dirv, int dirc, char *cp)
 {
-
     while (dirc > 0)
         findin(*dirv++, cp), dirc--;
 }
 
-find(dirs, cp)
-    char **dirs;
-    char *cp;
+void find(char **dirs, char *cp)
 {
-
     while (*dirs)
         findin(*dirs++, cp);
 }
 
-findin(dir, cp)
-    char *dir, *cp;
+void findin(char *dir, char *cp)
 {
     DIR *dirp;
     struct direct *dp;
@@ -269,12 +268,11 @@ findin(dir, cp)
     closedir(dirp);
 }
 
-itsit(cp, dp)
-    register char *cp, *dp;
+int itsit(char *cp, char *dp)
 {
-    register int i = strlen(dp);
+    int i = strlen(dp);
 
-    if (dp[0] == 's' && dp[1] == '.' && itsit(cp, dp+2))
+    if (dp[0] == 's' && dp[1] == '.' && itsit(cp, dp + 2))
         return (1);
     while (*cp && *dp && *cp == *dp)
         cp++, dp++, i--;

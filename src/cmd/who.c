@@ -3,41 +3,41 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
-#include <stdio.h>
-#include <utmp.h>
+#include <ctype.h>
 #include <paths.h>
 #include <pwd.h>
-#include <ctype.h>
-#include <sys/param.h>  /* for MAXHOSTNAMELEN */
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <strings.h>
+#include <sys/param.h> /* for MAXHOSTNAMELEN */
 #include <time.h>
-#include <stdlib.h>
 #include <unistd.h>
+#include <utmp.h>
 
 #define NMAX sizeof(utmp.ut_name)
 #define LMAX sizeof(utmp.ut_line)
 #define HMAX sizeof(utmp.ut_host)
 
-struct  utmp utmp;
-struct  passwd *pw;
-char    hostname[MAXHOSTNAMELEN];
+struct utmp utmp;
+struct passwd *pw;
+char hostname[MAXHOSTNAMELEN];
 
-main(argc, argv)
-    int argc;
-    char **argv;
+static void putline(void);
+
+int main(int argc, char **argv)
 {
-    register char *tp, *s;
-    register FILE *fi;
+    char *tp, *s;
+    FILE *fi;
 
     s = _PATH_UTMP;
-    if(argc == 2)
+    if (argc == 2)
         s = argv[1];
     if (argc == 3) {
         tp = ttyname(0);
         if (tp)
             tp = rindex(tp, '/') + 1;
-        else {  /* no tty - use best guess from passwd file */
+        else { /* no tty - use best guess from passwd file */
             pw = getpwuid(getuid());
             strncpy(utmp.ut_name, pw ? pw->pw_name : "?", NMAX);
             strcpy(utmp.ut_line, "tty??");
@@ -52,7 +52,7 @@ main(argc, argv)
     }
     while (fread((char *)&utmp, sizeof(utmp), 1, fi) == 1) {
         if (argc == 3) {
-            gethostname(hostname, sizeof (hostname));
+            gethostname(hostname, sizeof(hostname));
             if (strcmp(utmp.ut_line, tp))
                 continue;
             printf("%s!", hostname);
@@ -65,15 +65,13 @@ main(argc, argv)
     }
 }
 
-putline()
+void putline()
 {
-    register char *cbuf;
+    char *cbuf;
 
-    printf("%-*.*s %-*.*s",
-        NMAX, NMAX, utmp.ut_name,
-        LMAX, LMAX, utmp.ut_line);
+    printf("%-*.*s %-*.*s", NMAX, NMAX, utmp.ut_name, LMAX, LMAX, utmp.ut_line);
     cbuf = ctime(&utmp.ut_time);
-    printf("%.12s", cbuf+4);
+    printf("%.12s", cbuf + 4);
     if (utmp.ut_host[0])
         printf("\t(%.*s)", HMAX, utmp.ut_host);
     putchar('\n');

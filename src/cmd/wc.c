@@ -8,22 +8,26 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-long    linect, wordct, charct, pagect;
-long    tlinect, twordct, tcharct, tpagect;
-char    *wd = "lwc";
+long linect, wordct, charct, pagect;
+long tlinect, twordct, tcharct, tpagect;
+char *wd = "lwc";
 
-main(argc, argv)
-char **argv;
+static void wcp(char *wd, long charct, long wordct, long linect);
+static void ipr(long num);
+
+int main(int argc, char **argv)
 {
     int i, token;
-    register FILE *fp;
-    register int c;
+    FILE *fp;
+    int c;
     char *p;
 
     while (argc > 1 && *argv[1] == '-') {
         switch (argv[1][1]) {
-        case 'l': case 'w': case 'c':
-            wd = argv[1]+1;
+        case 'l':
+        case 'w':
+        case 'c':
+            wd = argv[1] + 1;
             break;
         default:
         usage:
@@ -37,7 +41,7 @@ char **argv;
     i = 1;
     fp = stdin;
     do {
-        if(argc>1 && (fp=fopen(argv[i], "r")) == NULL) {
+        if (argc > 1 && (fp = fopen(argv[i], "r")) == NULL) {
             perror(argv[i]);
             continue;
         }
@@ -45,28 +49,27 @@ char **argv;
         wordct = 0;
         charct = 0;
         token = 0;
-        for(;;) {
+        for (;;) {
             c = getc(fp);
             if (c == EOF)
                 break;
             charct++;
-            if(' '<c&&c<0177) {
-                if(!token) {
+            if (' ' < c && c < 0177) {
+                if (!token) {
                     wordct++;
                     token++;
                 }
                 continue;
             }
-            if(c=='\n') {
+            if (c == '\n') {
                 linect++;
-            }
-            else if(c!=' '&&c!='\t')
+            } else if (c != ' ' && c != '\t')
                 continue;
             token = 0;
         }
         /* print lines, words, chars */
         wcp(wd, charct, wordct, linect);
-        if(argc>1) {
+        if (argc > 1) {
             printf(" %s\n", argv[i]);
         } else
             printf("\n");
@@ -74,36 +77,34 @@ char **argv;
         tlinect += linect;
         twordct += wordct;
         tcharct += charct;
-    } while(++i<argc);
-    if(argc > 2) {
+    } while (++i < argc);
+    if (argc > 2) {
         wcp(wd, tcharct, twordct, tlinect);
         printf(" total\n");
     }
     exit(0);
 }
 
-wcp(wd, charct, wordct, linect)
-register char *wd;
-long charct; long wordct; long linect;
+void wcp(char *wd, long charct, long wordct, long linect)
 {
-    while (*wd) switch (*wd++) {
-    case 'l':
-        ipr(linect);
-        break;
+    while (*wd) {
+        switch (*wd++) {
+        case 'l':
+            ipr(linect);
+            break;
 
-    case 'w':
-        ipr(wordct);
-        break;
+        case 'w':
+            ipr(wordct);
+            break;
 
-    case 'c':
-        ipr(charct);
-        break;
-
+        case 'c':
+            ipr(charct);
+            break;
+        }
     }
 }
 
-ipr(num)
-long num;
+void ipr(long num)
 {
     printf(" %7ld", num);
 }

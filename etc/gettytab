@@ -16,7 +16,7 @@
 # entries, and in cases where getty is called with no table name
 #
 default:\
-	:ap:im=\r\n\r\n2.11 BSD UNIX (%h) (%t)\r\n\r\r\n\r:sp#1200:
+	:ap:im=\r\n\r\nRetroBSD (%h) (%t)\r\n\r\r\n\r:sp#1200:
 
 #
 # Fixed speed entries

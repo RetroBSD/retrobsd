@@ -38,6 +38,7 @@
 
 #include <unistd.h>
 #include <ctype.h>
+#include <sys/sysmacros.h>
 
 void swapconf()
 {

@@ -36,10 +36,14 @@
 /*
  * Config.
  */
-#include <sys/types.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#ifdef __linux__
+#include <sys/sysmacros.h>
+#else
+#include <sys/types.h>
+#endif
 
 #define NODEV   ((dev_t)-1)
 

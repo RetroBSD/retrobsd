@@ -32,6 +32,11 @@ char    *panicstr;
 int bootopt = RB_HALT | RB_DUMP;
 
 /*
+ * The panic level - needed by xcmn_err()
+ */
+static int panic_level = 0;
+
+/*
  * Print a character on console or users terminal.
  * If destination is console then the last MSGBUFS characters
  * are saved in msgbuf for inspection later.

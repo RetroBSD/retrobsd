@@ -2,7 +2,7 @@ TOPSRC          = $(shell cd ..; pwd)
 SUBDIR		= startup libc libm libcurses libtermlib libwiznet libreadline libgpanel
 PROG		= ar as aout ld nm ranlib size strip
 
-CFLAGS          = -Os -std=gnu89 -fno-builtin -g -Werror -Wall -DCROSS -I. \
+CFLAGS          = -m32 -Os -std=gnu89 -fno-builtin -g -Wall -DCROSS -I. \
                    -idirafter $(TOPSRC)/include \
                    -idirafter $(TOPSRC)/src/cmd/ar \
                    -idirafter $(TOPSRC)/src/cmd/as
@@ -26,28 +26,28 @@ clean:
 		for i in $(SUBDIR); do $(MAKE) -C $$i $(MFLAGS) clean; done
 
 ar:             $(AR_OBJS)
-		$(CC) $(LDFLAGS) -o $@ $(AR_OBJS) $(LIBS)
+		$(CC) -m32 $(LDFLAGS) -o $@ $(AR_OBJS) $(LIBS)
 
 as:             as.o
-		$(CC) $(LDFLAGS) -o $@ $< $(LIBS)
+		$(CC) -m32 $(LDFLAGS) -o $@ $< $(LIBS)
 
 aout:           $(AOUT_OBJS)
-		$(CC) $(LDFLAGS) -o $@ $(AOUT_OBJS) $(LIBS)
+		$(CC) -m32 $(LDFLAGS) -o $@ $(AOUT_OBJS) $(LIBS)
 
 ld:             ld.o
-		$(CC) $(LDFLAGS) -o $@ $< $(LIBS)
+		$(CC) -m32 $(LDFLAGS) -o $@ $< $(LIBS)
 
 nm:             nm.o
-		$(CC) $(LDFLAGS) -o $@ $< $(LIBS)
+		$(CC) -m32 $(LDFLAGS) -o $@ $< $(LIBS)
 
 ranlib:         $(RANLIB_OBJS)
-		$(CC) $(LDFLAGS) -o $@ $(RANLIB_OBJS) $(LIBS)
+		$(CC) -m32 $(LDFLAGS) -o $@ $(RANLIB_OBJS) $(LIBS)
 
 size:           size.o
-		$(CC) $(LDFLAGS) -o $@ $< $(LIBS)
+		$(CC) -m32 $(LDFLAGS) -o $@ $< $(LIBS)
 
 strip:          strip.o
-		$(CC) $(LDFLAGS) -o $@ $< $(LIBS)
+		$(CC) -m32 $(LDFLAGS) -o $@ $< $(LIBS)
 
 $(HEADERS):
 		-ln -s -f ../include/a.out.h .

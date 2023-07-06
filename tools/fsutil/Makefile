@@ -1,5 +1,5 @@
 CC		= gcc -g
-CFLAGS		= -O -Wall
+CFLAGS		= -O -Wall -m32
 DESTDIR		= /usr/local
 OBJS		= fsutil.o superblock.o block.c inode.o create.o check.o \
                   file.o mount.o manifest.o
@@ -29,7 +29,7 @@ clean:
 		rm -rf *~ *.o *.lst *.dis $(PROG) $(PROG).dSYM
 
 $(PROG):	$(OBJS)
-		$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
+		$(CC) -m32 $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
 
 root.bin:       $(PROG)
 		./$(PROG) -n16384 -s2048 $@

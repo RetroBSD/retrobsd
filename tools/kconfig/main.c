@@ -38,6 +38,9 @@
 #include "y.tab.h"
 #include "config.h"
 
+struct  file_list *conf_list;
+int     debugging;
+
 /*
  * Config builds a set of files for building a UNIX
  * system given a description of the desired system.
@@ -72,7 +75,7 @@ usage:  fputs("usage: kconfig [-gp] sysname\n", stderr);
 
     dtab = NULL;
     confp = &conf_list;
-    compp = &comp_list;
+    //compp = &comp_list;
     if (yyparse())
         exit(3);
 

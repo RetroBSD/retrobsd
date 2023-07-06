@@ -99,14 +99,35 @@
  *  @(#)config.y    8.1 (Berkeley) 6/6/93
  */
 
+#include <sys/sysmacros.h> //definition for major(), minor() and makedev()
+
 #include "config.h"
 #include <ctype.h>
 #include <stdio.h>
+#include <sys/stat.h>
 
 struct  device cur;
 struct  device *curp = 0;
+struct  device *dtab;
+struct  file_list **confp;
+struct  opt *opt, *mkopt;
+struct  signal *siglist;
+struct  cputype *cputype;
+
 char    *temp_id;
 char    *val_id;
+char	*archname;
+char 	errbuf[80];
+char	*board;
+char    *ldscript;
+
+int arch;
+int do_trace;
+int maxusers;
+int yyline;
+int dst;
+int hadtz;
+int zone;
 
 int yylex(void);
 int finddev(dev_t dev);

@@ -1,5 +1,5 @@
 CC		= ${HOSTCC}gcc -g
-CFLAGS		= -O -Wall
+CFLAGS		= -O -Wall -m32
 DESTDIR		= /usr/local
 OBJS		= elf2aout.o
 PROG		= elf2aout
@@ -15,7 +15,7 @@ clean:
 		rm -f *~ *.o *.lst *.dis $(PROG)
 
 $(PROG):	$(OBJS)
-		$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
+		$(CC) -m32 $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
 
 $(PROG).exe:	$(OBJS)
 		$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)

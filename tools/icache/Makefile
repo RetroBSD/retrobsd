@@ -1,4 +1,4 @@
-CC		= gcc -g
+CC		= gcc -g -m32
 CFLAGS		= -O -Wall
 DESTDIR		= /usr/local
 OBJS		= ice2aout.o

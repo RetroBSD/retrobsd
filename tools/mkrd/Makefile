@@ -1,11 +1,11 @@
 OBJS    = mkrd.o
 BIN     = mkrd
-CFLAGS  = -Wall -Werror -O
+CFLAGS  = -m32 -Wall -Werror -O 
 
 all: $(BIN)
 
 $(BIN): $(OBJS)
-	$(CC) -o $@ $< $(LIBS) $(LDFLAGS)
+	$(CC) -m32 -o $@ $< $(LIBS) $(LDFLAGS)
 
 clean:
 	@rm -f $(BIN) $(OBJS)

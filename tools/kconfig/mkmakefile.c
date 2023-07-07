@@ -40,6 +40,8 @@
 #include "y.tab.h"
 #include "config.h"
 
+struct  file_list *ftab;
+
 #define next_word(fp, wd) \
     { register char *word = get_word(fp); \
       if (word == (char *)EOF) \
@@ -425,7 +427,7 @@ void makefile()
 
     read_files();
     strcpy(line, "../Makefile.kconf");
-    //strcat(line, archname);
+    strcat(line, archname);
     ifp = fopen(line, "r");
     if (ifp == 0) {
         perror(line);

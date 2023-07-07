@@ -1,0 +1,91 @@
+#
+# Makefile for RetroBSD, pic32 target
+#
+# DEBUG is set to -g by kconfig if debugging is requested (kconfig -g).
+#
+include ../gcc-config.mk
+
+AS              = ${MIPS_GCC_PREFIX}as ${DEBUG} -mips32r2 -EL
+CC              = ${MIPS_GCC_PREFIX}gcc ${DEBUG} -mips32r2 -EL -nostdinc -fno-builtin -Werror -Wall
+CPP             = ${MIPS_GCC_PREFIX}cpp
+LD              = ${MIPS_GCC_PREFIX}gcc -mips32r2 -EL
+LDFLAGS         = -nostdlib -T ../${LDSCRIPT} -Wl,-Map=$(basename $@).map
+SIZE            = ${MIPS_GCC_PREFIX}size
+OBJCOPY         = ${MIPS_GCC_PREFIX}objcopy
+OBJDUMP         = ${MIPS_GCC_PREFIX}objdump
+
+ifneq (${MIPS_GCC_FORMAT},)
+    LDFLAGS     += -Wl,--oformat=${MIPS_GCC_FORMAT}
+endif
+
+# sources are located via $S relative to the compilation directory
+S               = ../..
+
+DEPFLAGS	= -MT $@ -MP -MD -MF .deps/$*.dep
+DEFS            = -I. ${PARAM} -DKERNEL $(DEPFLAGS)
+CFLAGS          = -O ${DEFS}
+
+# compile rules: rules are named COMPILE_${SUFFIX}
+# SUFFIX is the file suffix, capitalized (e.g. C for a .c file).
+
+COMPILE_C       = ${CC} -c ${CFLAGS} $<
+COMPILE_S       = ${CC} -c ${DEFS} $<
+
+%OBJS
+
+%CFILES
+
+# load lines for config "xxx" will be emitted as:
+# xxx: ${SYSTEM_DEP} swapxxx.o
+#	${SYSTEM_LD_HEAD}
+#	${SYSTEM_LD} swapxxx.o
+#	${SYSTEM_LD_TAIL}
+SYSTEM_OBJ      = startup.o ${OBJS} ioconf.o
+ifeq (devcfg.c,$(wildcard devcfg.c))
+    SYSTEM_OBJ  += devcfg.o
+endif
+SYSTEM_DEP      = Makefile ioconf.c machine sys .deps ${SYSTEM_OBJ}
+SYSTEM_LD_HEAD  = sh ../newvers.sh > vers.c; ${CC} $(CFLAGS) -c vers.c; rm -f $@
+SYSTEM_LD       = -@echo ${LD} ${LDFLAGS} '$${SYSTEM_OBJ}' vers.o -o $@; \
+                  ${LD} ${LDFLAGS} ${SYSTEM_OBJ} vers.o -o $@
+SYSTEM_LD_TAIL  = ${SIZE} $@; \
+                  $(OBJCOPY) -O ihex --change-addresses=0x80000000 $@ $(basename $@).hex; \
+                  $(OBJCOPY) -O binary -R .boot -R .config $@ $(basename $@).bin; \
+                  $(OBJDUMP) -d -S $@ > $(basename $@).dis
+
+%LOAD
+
+clean:
+	rm -rf .deps *.elf *.o *.map *.dis *.bin machine sys
+
+clean-all: clean
+	rm -f *.h *.hex ioconf.c swap*.c vers.c
+
+reconfig ioconf.c: Config ../../../tools/kconfig/kconfig
+	../../../tools/kconfig/kconfig Config
+	$(MAKE) clean
+	rm -f *.hex
+
+load:   unix.elf
+	pic32prog unix.hex
+
+machine:
+	ln -s .. $@
+
+sys:
+	ln -s ../../include $@
+
+.deps:
+	mkdir .deps
+
+startup.o: ../startup.S
+	${COMPILE_S}
+
+ioconf.o: ioconf.c
+	${COMPILE_C}
+
+%RULES
+
+ifeq (.deps, $(wildcard .deps))
+-include .deps/*.dep
+endif

@@ -34,6 +34,9 @@
 /*
  * Build a swap configuration file.
  */
+
+#include <sys/sysmacros.h> //definitions for makedev(), major(), minor()
+
 #include "config.h"
 
 #include <unistd.h>

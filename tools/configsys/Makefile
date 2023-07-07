@@ -3,7 +3,7 @@ BIN     = config
 SRCS    = main.cpp config.cpp mapping.cpp device.cpp cluster.cpp util.cpp core.cpp gstore.cpp
 OBJS    = main.o config.o mapping.o device.o cluster.o util.o core.o gstore.o
 CXX     = g++
-CXXFLAGS = -Wall -O
+CXXFLAGS = -Wall -O -m32
 
 all:    .depend $(BIN)
 

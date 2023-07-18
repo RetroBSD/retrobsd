@@ -68,7 +68,7 @@ m_uint8_t nand_status = NAND_STATUS_READY | NAND_STATUS_WP;
 /*Create nand flash file. 1 block 1 file.*/
 static unsigned char *create_nand_flash_file (m_uint32_t block_no)
 {
-    char file_path[64];
+    char file_path[269];
     char page[NAND_FLASH_1G_PAGE_SIZE];
     int i, n;
     int fd;
@@ -373,7 +373,7 @@ static int load_nand_flash_file (nand_flash_1g_data_t * d)
     int i, j = 0;
     struct dirent *ent = NULL;
     DIR *p_dir;
-    char file_path[64];
+    char file_path[269];
     char *file_name;
     char block_number[16];
     int fd;

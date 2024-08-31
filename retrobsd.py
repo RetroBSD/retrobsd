@@ -46,8 +46,14 @@ def mkkernel():
 			includes=includes, defines=defines, bits=32)
 		obs.append(o)
 
-	print(obs)
+	if 'fedora' in os.uname().nodename:
+		cmd = ['riscv64-linux-gnu-ld']
+	else:
+		cmd = ['riscv64-unknown-elf-ld']
 
+	cmd += ['-march=rv32', '-m', 'elf32lriscv', '-o', '/tmp/retrobsd.elf'] + obs
+	print(cmd)
+	subprocess.check_call(cmd)
 
 if __name__=='__main__':
 	mkkernel()

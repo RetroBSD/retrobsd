@@ -27,6 +27,10 @@
 #ifdef PIC32MX7
 #   include "machine/pic32mx.h"
 #endif
+#ifdef __riscv
+    #include "machine/riscv.h"
+#endif
+
 
 /*
  * Offsets of register values in saved context.

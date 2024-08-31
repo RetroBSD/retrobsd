@@ -46,12 +46,20 @@ def mkkernel():
 			includes=includes, defines=defines, bits=32)
 		obs.append(o)
 
+	macho = []
+	for name in 'machdep'.split():
+		o = c2o(
+			'./sys/pic32/%s.c' % name, 
+			out = '/tmp/_riscv_%s.o' % name,
+			includes=includes, defines=defines, bits=32)
+		macho.append(o)
+
 	if 'fedora' in os.uname().nodename:
 		cmd = ['riscv64-linux-gnu-ld']
 	else:
 		cmd = ['riscv64-unknown-elf-ld']
 
-	cmd += ['-march=rv32', '-m', 'elf32lriscv', '-o', '/tmp/retrobsd.elf'] + obs
+	cmd += ['-march=rv32', '-m', 'elf32lriscv', '-o', '/tmp/retrobsd.elf'] + obs + macho
 	print(cmd)
 	subprocess.check_call(cmd)
 

@@ -97,9 +97,15 @@ unsigned ucall (int priority, void *address, int arg1, int arg2);
 static void inline __attribute__ ((always_inline))
 mips_set_stack_pointer (void *x)
 {
+    #ifdef __riscv
+    asm volatile (
+    "mv   sp,a0"
+    : : "r" (x) : "sp");
+    #else
     asm volatile (
     "move   $sp, %0"
     : : "r" (x) : "sp");
+    #endif
 }
 
 /*
@@ -109,10 +115,15 @@ static inline __attribute__ ((always_inline))
 void *mips_get_stack_pointer ()
 {
     void *x;
-
+    #ifdef __riscv
+    asm volatile (
+    "mv   a0,sp"
+    : "=r" (x));
+    #else
     asm volatile (
     "move   %0, $sp"
     : "=r" (x));
+    #endif
     return x;
 }
 
@@ -145,7 +156,14 @@ static int inline __attribute__ ((always_inline))
 mips_intr_disable ()
 {
     int status;
+    #ifdef __riscv
+    asm volatile (
+        "csrr   a0,mstatus\n" 
+        "sfence.vma"
+        : "=r" (status));
+    #else
     asm volatile ("di   %0" : "=r" (status));
+    #endif
     return status;
 }
 
@@ -156,7 +174,11 @@ static void inline __attribute__ ((always_inline))
 mips_intr_restore (int x)
 {
     /* C0_STATUS */
+    #ifdef __riscv
+    asm volatile ("csrw mstatus,a0");
+    #else
     mips_write_c0_register (12, 0, x);
+    #endif
 }
 
 /*
@@ -165,7 +187,11 @@ mips_intr_restore (int x)
 static void inline __attribute__ ((always_inline))
 mips_ehb()
 {
+    #ifdef __riscv
+    asm volatile ("fence");
+    #else
     asm volatile ("ehb");
+    #endif
 }
 
 /*
@@ -175,7 +201,17 @@ static int inline __attribute__ ((always_inline))
 mips_intr_enable ()
 {
     int status;
+    #ifdef __riscv
+    asm volatile (
+        "csrr a0, mstatus\n"
+        "sfence.vma\n"
+        "li a1, 0x0001\n"  // Enable interrupts (SIE bit)
+        "or a0, a0,a1\n"
+        "csrw mstatus, a0"
+        : "=r" (status));
+    #else
     asm volatile ("ei   %0" : "=r" (status));
+    #endif
     return status;
 }
 
@@ -186,9 +222,16 @@ static int inline __attribute__ ((always_inline))
 mips_clz (unsigned x)
 {
     int n;
-
+    #ifdef __riscv
+    if (x != 0) {
+        while ((x & (1 << n)) == 0) {
+          n--;
+        }
+    }
+    #else
     asm volatile ("clz  %0, %1"
         : "=r" (n) : "r" (x));
+    #endif
     return n;
 }
 
@@ -199,11 +242,32 @@ static unsigned inline __attribute__ ((always_inline))
 mips_bswap (unsigned x)
 {
     int n;
+    #ifdef __riscv
+    asm volatile (
+        "li t0, 0xff\n"     // Load immediate with all ones
+        "sll t1, t0, 24\n"  // Move all ones to the most significant byte
+        "srl t2, a0, 24\n"  // Extract the most significant byte
+        "and t3, t1, t2\n"  // Combine all ones with the most significant byte
+        "sra a0, a0, 24\n"  // Shift the remaining bytes right by 24 bits
+        "ins a0, t3, 0, 8\n"// Insert the combined byte into the most significant position
+        "sll t1, t0, 8\n"   // Move all ones to the second byte
+        "srl t2, a0, 16\n"  // Extract the second byte
+        "and t3, t1, t2\n"  // Combine all ones with the second byte
+        "sra a0, a0, 16\n"  // Shift the remaining bytes right by 16 bits
+        "ins a0, t3, 8, 8\n"  // Insert the combined byte into the second position
+        "sll t1, t0, 0\n"     // Move all ones to the least significant byte
+        "srl t2, a0, 8\n"     // Extract the least significant byte
+        "and t3, t1, t2\n"    // Combine all ones with the least significant byte
+        "sra a0, a0, 8\n"     // Shift the remaining byte right by 8 bits
+        "ins a0, t3, 16, 8" // Insert the combined byte into the least significant position
+        : "=r" (n) : "r" (x));
 
+    #else
     asm volatile (
     "wsbh   %0, %1 \n"
     "rotr   %0, 16"
         : "=r" (n) : "r" (x));
+    #endif
     return n;
 }
 #endif /* __ASSEMBLER__ */

@@ -335,7 +335,7 @@ static int scan_directory (fs_inode_t *inode, unsigned blk, void *arg)
 {
     fs_dirent_t direntry;
     unsigned char *dirp;
-    int (*func) () = arg;
+    int (*func) (fs_t *fs, fs_dirent_t *dirp) = arg;
     int n;
 
 /*printf ("scan_directory: I=%d, blk=%d\n", inode->number, blk);*/

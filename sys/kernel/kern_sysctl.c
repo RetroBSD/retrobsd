@@ -194,8 +194,8 @@ kern_sysctl(name, namelen, oldp, oldlenp, newp, newlen)
     case KERN_OSTYPE:
     case KERN_OSRELEASE:
         /* code is cheaper than D space */
-        bsd[0]='2';bsd[1]='.';bsd[2]='1';bsd[3]='1';bsd[4]='B';
-        bsd[5]='S';bsd[6]='D';bsd[7]='\0';
+        bsd[0]='R';bsd[1]='e';bsd[2]='t';bsd[3]='r';bsd[4]='o';
+        bsd[5]='B';bsd[6]='S';bsd[7]='D';
         return (sysctl_rdstring(oldp, oldlenp, newp, bsd));
     case KERN_OSREV:
         return (sysctl_rdlong(oldp, oldlenp, newp, (long)BSD));

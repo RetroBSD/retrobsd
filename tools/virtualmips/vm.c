@@ -179,7 +179,7 @@ vm_instance_t *vm_create (const char *name, int machine_type)
     //vm->log_file_enabled = TRUE;
 
     vm->name = strdup (name);
-    if (!name) {
+    if (!vm->name) {
         fprintf (stderr, "VM %s: unable to store instance name!\n", name);
         goto err_name;
     }

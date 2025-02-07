@@ -255,8 +255,10 @@ restore_regs:
                 lw      $31, (16+FRAME_RA*4) ($sp)
                 lw      $sp, (16+FRAME_SP*4) ($sp)      # Restore stack
 
-                # Return from exception
                 bnez    $k1, debug_request              # single-step request
+                nop
+
+                # Return from exception
                 eret                                    # PC <= EPC; EXL <= 0
 debug_request:
                 sdbbp                                   # enter debug mode

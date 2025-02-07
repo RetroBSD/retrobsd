@@ -48,7 +48,7 @@ SWAP_MBYTES = 2
 To compile the kernel and build a filesystem image, run:
 
 ```shell
-$ make
+$ make -j1
 ```
 
 A resulting root filesystem image is in file `sdcard.img`.

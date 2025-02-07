@@ -35,6 +35,9 @@ ifeq ($(LLVMBIN),)
 endif
 
 ifeq ($(LLVMBIN),)
+    LLVMBIN = $(dir $(wildcard /usr/bin/clang))
+endif
+ifeq ($(LLVMBIN),)
     $(error Unable to find any CLANG toolchain!)
 endif
 

@@ -19,8 +19,7 @@
  * select will return without any delay at all.
  */
 void
-usleep(micros)
-	long micros;
+usleep(long micros)
 {
 	struct timeval s;
 

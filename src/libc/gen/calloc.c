@@ -4,10 +4,10 @@
 #include <sys/types.h>
 #include <stdlib.h>
 #include <strings.h>
+#include <stdlib.h>
 
 void *
-calloc(num, size)
-	size_t num, size;
+calloc(size_t num, size_t size)
 {
 	register char *p;
 

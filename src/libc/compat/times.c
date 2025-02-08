@@ -9,18 +9,15 @@
 #include <sys/times.h>
 
 static long
-scale60(tvp)
-	register struct timeval *tvp;
+scale60(struct timeval *tvp)
 {
 	return (tvp->tv_sec * 60 + tvp->tv_usec / 16667);
 }
 
 int
-times(tmsp)
-	register struct tms *tmsp;
+times(struct tms *tmsp)
 {
 	struct rusage ru;
-	long scale60();
 
 	if (getrusage(RUSAGE_SELF, &ru) < 0)
 		return (-1);

@@ -37,8 +37,7 @@
 #include <unistd.h>
 
 int
-system(command)
-	char *command;
+system(char *command)
 {
 	union wait pstat;
 	register int pid;

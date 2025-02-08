@@ -11,17 +11,13 @@
 static	char shell[] =	"/bin/sh";
 
 int
-execlp(name, argv)
-	const char *name, *argv;
+execlp(const char *name, const char *argv, ...)
 {
 	return execvp (name, (char * const*) &argv);
 }
 
 static char *
-execat(s1, s2, si)
-	register char *s1;
-	const char *s2;
-	char *si;
+execat(char *s1, const char *s2, char *si)
 {
 	register char *s;
 
@@ -37,9 +33,7 @@ execat(s1, s2, si)
 }
 
 int
-execvp(name, argv)
-	const char *name;
-	char *const *argv;
+execvp(const char *name, char *const *argv)
 {
 	char *pathstr;
 	register char *cp;

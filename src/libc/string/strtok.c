@@ -34,9 +34,7 @@
 #include <stdio.h>
 
 char *
-strtok(s, delim)
-	register char *s;
-	register const char *delim;
+strtok(char *s, const char *delim)
 {
 	register char *spanp;
 	int c, sc;

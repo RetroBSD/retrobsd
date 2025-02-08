@@ -7,10 +7,7 @@
 #include <strings.h>
 
 size_t
-fread (vptr, size, count, iop)
-	register void *vptr;
-	size_t size, count;
-	register FILE *iop;
+fread (void *vptr, size_t size, size_t count, FILE *iop)
 {
 	register char *ptr = vptr;
 	register unsigned s;

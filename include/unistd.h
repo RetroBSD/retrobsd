@@ -58,8 +58,8 @@
 #define F_OK            0       /* Test for existence.  */
 
 void    _exit(int);
-int     access();
-unsigned int alarm();
+int     access(const char *pathname, int mode);
+unsigned int alarm(unsigned);
 pid_t   fork();
 pid_t   setsid(void);
 gid_t   getegid();
@@ -71,23 +71,23 @@ pid_t   getpgrp();
 pid_t   getpid();
 pid_t   getppid();
 uid_t   getuid();
-off_t   lseek();
-ssize_t read();
-unsigned int    sleep();
-char    *ttyname();
+off_t   lseek(int fd, off_t offset, int whence);
+ssize_t read(int fd, void *buf, size_t count);
+unsigned int sleep(unsigned int seconds);
+char    *ttyname(int fd);
 ssize_t write(int fd, const void *buf, size_t count);
 int     truncate(const char *path, off_t length);
 int     ftruncate(int fd, off_t length);
 
 void    *brk(const void *addr);
 int     _brk(const void *addr);
-char    *crypt();
+char    *crypt(const char *phrase, const char *setting);
 void    endusershell();
 long    gethostid();
 char    *getpass();
 char    *getusershell();
-char    *getwd();
-void    psignal();
+char    *getwd(char buf[]);
+void    psignal(int sig, const char *s);
 extern  char    *sys_siglist[];
 char    *re_comp();
 void    *sbrk(int incr);

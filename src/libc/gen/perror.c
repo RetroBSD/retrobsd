@@ -38,8 +38,7 @@
 #include <string.h>
 
 void
-perror(s)
-	const char *s;
+perror(const char *s)
 {
 	register struct iovec *v;
 	struct iovec iov[4];

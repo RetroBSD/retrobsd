@@ -3,19 +3,20 @@
  * This file may be freely redistributed provided that this
  * notice remains attached.
  */
-#include "sys/param.h"
-#include "sys/time.h"
-#include "stdio.h"
-#include "string.h"
-#include "unistd.h"
-#include "fcntl.h"
-#include "alloca.h"
-#include "tzfile.h"
-#include "paths.h"
+#include <sys/param.h>
+#include <sys/time.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <alloca.h>
+#include <tzfile.h>
+#include <paths.h>
+#include <time.h>
+#include <stdlib.h>
 
 char *
-ctime(t)
-        const time_t *t;
+ctime(const time_t *t)
 {
 	return asctime(localtime(t));
 }
@@ -25,8 +26,7 @@ ctime(t)
 */
 
 char *
-asctime(timeptr)
-    register const struct tm *timeptr;
+asctime(const struct tm *timeptr)
 {
 	static char	wday_name[DAYS_PER_WEEK][3] = {
 		"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
@@ -46,15 +46,75 @@ asctime(timeptr)
 	return result;
 }
 
+static int	mon_lengths[2][MONS_PER_YEAR] = {
+	{ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 },
+	{ 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 },
+};
+
+static int	year_lengths[2] = {
+	DAYS_PER_NYEAR, DAYS_PER_LYEAR
+};
+
+static struct tm *
+offtime(const time_t *clock, long offset)
+{
+	register struct tm *	tmp;
+	register long		days;
+	register long		rem;
+	register int		y;
+	register int		yleap;
+	register int *		ip;
+	static struct tm	tm;
+
+	tmp = &tm;
+	days = *clock / SECS_PER_DAY;
+	rem = *clock % SECS_PER_DAY;
+	rem += offset;
+	while (rem < 0) {
+		rem += SECS_PER_DAY;
+		--days;
+	}
+	while (rem >= SECS_PER_DAY) {
+		rem -= SECS_PER_DAY;
+		++days;
+	}
+	tmp->tm_hour = (int) (rem / SECS_PER_HOUR);
+	rem = rem % SECS_PER_HOUR;
+	tmp->tm_min = (int) (rem / SECS_PER_MIN);
+	tmp->tm_sec = (int) (rem % SECS_PER_MIN);
+	tmp->tm_wday = (int) ((EPOCH_WDAY + days) % DAYS_PER_WEEK);
+	if (tmp->tm_wday < 0)
+		tmp->tm_wday += DAYS_PER_WEEK;
+	y = EPOCH_YEAR;
+	if (days >= 0)
+		for ( ; ; ) {
+			yleap = isleap(y);
+			if (days < (long) year_lengths[yleap])
+				break;
+			++y;
+			days = days - (long) year_lengths[yleap];
+		}
+	else do {
+		--y;
+		yleap = isleap(y);
+		days = days + (long) year_lengths[yleap];
+	} while (days < 0);
+	tmp->tm_year = y - TM_YEAR_BASE;
+	tmp->tm_yday = (int) days;
+	ip = mon_lengths[yleap];
+	for (tmp->tm_mon = 0; days >= (long) ip[tmp->tm_mon]; ++(tmp->tm_mon))
+		days = days - (long) ip[tmp->tm_mon];
+	tmp->tm_mday = (int) (days + 1);
+	tmp->tm_isdst = 0;
+	tmp->tm_zone = "";
+	tmp->tm_gmtoff = offset;
+	return tmp;
+}
+
 #ifndef TRUE
 #define TRUE		1
 #define FALSE		0
 #endif /* !TRUE */
-
-extern char *		getenv();
-extern char *		strcpy();
-extern char *		strcat();
-struct tm *		offtime();
 
 struct ttinfo {				/* time type information */
 	long		tt_gmtoff;	/* GMT offset in seconds */
@@ -87,8 +147,7 @@ int			daylight = 0;
 #endif /* USG_COMPAT */
 
 static long
-detzcode(codep)
-char *	codep;
+detzcode(char *codep)
 {
 	register long	result;
 	register int	i;
@@ -100,8 +159,7 @@ char *	codep;
 }
 
 static int
-tzload(name)
-register char *	name;
+tzload(char *name)
 {
 	register int	i;
 	register int	fid;
@@ -271,8 +329,7 @@ tzset()
 }
 
 struct tm *
-localtime(timep)
-        const time_t *timep;
+localtime(const time_t *timep)
 {
 	register struct ttinfo *	ttisp;
 	register struct tm *		tmp;
@@ -309,80 +366,12 @@ localtime(timep)
 }
 
 struct tm *
-gmtime(clock)
-        const time_t *clock;
+gmtime(const time_t *clock)
 {
 	register struct tm *	tmp;
 
 	tmp = offtime(clock, 0L);
 	tzname[0] = "GMT";
 	tmp->tm_zone = "GMT";		/* UCT ? */
-	return tmp;
-}
-
-static int	mon_lengths[2][MONS_PER_YEAR] = {
-	{ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 },
-	{ 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 },
-};
-
-static int	year_lengths[2] = {
-	DAYS_PER_NYEAR, DAYS_PER_LYEAR
-};
-
-struct tm *
-offtime(clock, offset)
-time_t *	clock;
-long		offset;
-{
-	register struct tm *	tmp;
-	register long		days;
-	register long		rem;
-	register int		y;
-	register int		yleap;
-	register int *		ip;
-	static struct tm	tm;
-
-	tmp = &tm;
-	days = *clock / SECS_PER_DAY;
-	rem = *clock % SECS_PER_DAY;
-	rem += offset;
-	while (rem < 0) {
-		rem += SECS_PER_DAY;
-		--days;
-	}
-	while (rem >= SECS_PER_DAY) {
-		rem -= SECS_PER_DAY;
-		++days;
-	}
-	tmp->tm_hour = (int) (rem / SECS_PER_HOUR);
-	rem = rem % SECS_PER_HOUR;
-	tmp->tm_min = (int) (rem / SECS_PER_MIN);
-	tmp->tm_sec = (int) (rem % SECS_PER_MIN);
-	tmp->tm_wday = (int) ((EPOCH_WDAY + days) % DAYS_PER_WEEK);
-	if (tmp->tm_wday < 0)
-		tmp->tm_wday += DAYS_PER_WEEK;
-	y = EPOCH_YEAR;
-	if (days >= 0)
-		for ( ; ; ) {
-			yleap = isleap(y);
-			if (days < (long) year_lengths[yleap])
-				break;
-			++y;
-			days = days - (long) year_lengths[yleap];
-		}
-	else do {
-		--y;
-		yleap = isleap(y);
-		days = days + (long) year_lengths[yleap];
-	} while (days < 0);
-	tmp->tm_year = y - TM_YEAR_BASE;
-	tmp->tm_yday = (int) days;
-	ip = mon_lengths[yleap];
-	for (tmp->tm_mon = 0; days >= (long) ip[tmp->tm_mon]; ++(tmp->tm_mon))
-		days = days - (long) ip[tmp->tm_mon];
-	tmp->tm_mday = (int) (days + 1);
-	tmp->tm_isdst = 0;
-	tmp->tm_zone = "";
-	tmp->tm_gmtoff = offset;
 	return tmp;
 }

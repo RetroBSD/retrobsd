@@ -37,10 +37,7 @@
 #include <sys/types.h>
 
 void
-setbuffer(fp, buf, size)
-	register FILE *fp;
-	char *buf;
-	size_t size;
+setbuffer(FILE *fp, char *buf, size_t size)
 {
 	setvbuf(fp, buf, buf ? _IOFBF : _IONBF, size);
 }
@@ -49,9 +46,7 @@ setbuffer(fp, buf, size)
  * set line buffering
  */
 void
-setlinebuf(fp)
-	FILE *fp;
+setlinebuf(FILE *fp)
 {
-
 	setvbuf(fp, (char *)NULL, _IOLBF, (size_t)0);
 }

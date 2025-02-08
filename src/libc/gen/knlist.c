@@ -5,8 +5,7 @@
 #include <machine/cpu.h>
 
 int
-knlist(list)
-	struct nlist *list;
+knlist(struct nlist *list)
 {
 	register struct nlist *p;
 	int  mib[2], entries = 0;

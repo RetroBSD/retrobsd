@@ -35,8 +35,7 @@
 #include <errno.h>
 
 int
-setreuid(ruid, euid)
-	register uid_t ruid, euid;
+setreuid(uid_t ruid, uid_t euid)
 {
 	static uid_t saveduid = -1;
 

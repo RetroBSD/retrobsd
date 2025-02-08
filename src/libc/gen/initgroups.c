@@ -13,9 +13,7 @@
 #include <string.h>
 
 int
-initgroups(uname, agroup)
-	char *uname;
-	int agroup;
+initgroups(char *uname, int agroup)
 {
 	gid_t groups[NGROUPS];
 	register struct group *grp;

@@ -34,9 +34,7 @@
 #include <sys/sysctl.h>
 
 int
-gethostname(name, namelen)
-	char *name;
-	int namelen;
+gethostname(char *name, int namelen)
 {
 	int mib[2];
 	size_t size;

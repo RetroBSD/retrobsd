@@ -11,8 +11,6 @@
 #define	INT	0
 #define	FLOAT	1
 
-static char *_getccl();
-
 static char _sctab[256] = {
 	0,0,0,0,0,0,0,0,
 	0,SPC,SPC,0,0,0,0,0,
@@ -24,11 +22,47 @@ static char _sctab[256] = {
 	0,0,0,0,0,0,0,0,
 };
 
+static char *
+_getccl(const char *s)
+{
+	register int c, t;
+
+	t = 0;
+	if (*s == '^') {
+		t++;
+		s++;
+	}
+	for (c = 0; c < (sizeof _sctab / sizeof _sctab[0]); c++)
+		if (t)
+			_sctab[c] &= ~STP;
+		else
+			_sctab[c] |= STP;
+	if ((c = *s) == ']' || c == '-') {	/* first char is special */
+		if (t)
+			_sctab[c] |= STP;
+		else
+			_sctab[c] &= ~STP;
+		s++;
+	}
+	while ((c = *s++) != ']') {
+		if (c==0)
+			return((char *)--s);
+		else if (c == '-' && *s != ']' && s[-2] < *s) {
+			for (c = s[-2] + 1; c < *s; c++)
+				if (t)
+					_sctab[c] |= STP;
+				else
+					_sctab[c] &= ~STP;
+		} else if (t)
+			_sctab[c] |= STP;
+		else
+			_sctab[c] &= ~STP;
+	}
+	return((char *)s);
+}
+
 static int
-_instr (ptr, type, len, iop, eofptr)
-	register char *ptr;
-	register FILE *iop;
-	int *eofptr;
+_instr (char *ptr, int type, int len, FILE *iop, int *eofptr)
 {
 	register int ch;
 	register char *optr;
@@ -70,9 +104,7 @@ _instr (ptr, type, len, iop, eofptr)
 }
 
 static int
-_innum (ptr, type, len, size, iop, eofptr)
-	int *ptr, *eofptr;
-	FILE *iop;
+_innum (int *ptr, int type, int len, int size, FILE *iop, int *eofptr)
 {
 	register char *np;
 	char numbuf[64];
@@ -148,7 +180,7 @@ _innum (ptr, type, len, size, iop, eofptr)
 		*eofptr = 0;
 	} else
 		*eofptr = 1;
- 	if (ptr==NULL || np==numbuf || (negflg && np==numbuf+1) )/* gene dykes*/
+	if (ptr==NULL || np==numbuf || (negflg && np==numbuf+1) )/* gene dykes*/
 		return(0);
 	*np++ = 0;
 	switch((scale<<4) | size) {
@@ -178,10 +210,7 @@ _innum (ptr, type, len, size, iop, eofptr)
 }
 
 int
-_doscan (iop, fmt, argp)
-	FILE *iop;
-	register const char *fmt;
-	va_list argp;
+_doscan (FILE *iop, const char *fmt, va_list argp)
 {
 	register int ch;
 	int nmatch, len, ch1;
@@ -247,44 +276,4 @@ _doscan (iop, fmt, argp)
 			return(nmatch);
 		}
 	}
-}
-
-static char *
-_getccl(s)
-register unsigned char *s;
-{
-	register int c, t;
-
-	t = 0;
-	if (*s == '^') {
-		t++;
-		s++;
-	}
-	for (c = 0; c < (sizeof _sctab / sizeof _sctab[0]); c++)
-		if (t)
-			_sctab[c] &= ~STP;
-		else
-			_sctab[c] |= STP;
-	if ((c = *s) == ']' || c == '-') {	/* first char is special */
-		if (t)
-			_sctab[c] |= STP;
-		else
-			_sctab[c] &= ~STP;
-		s++;
-	}
-	while ((c = *s++) != ']') {
-		if (c==0)
-			return((char *)--s);
-		else if (c == '-' && *s != ']' && s[-2] < *s) {
-			for (c = s[-2] + 1; c < *s; c++)
-				if (t)
-					_sctab[c] |= STP;
-				else
-					_sctab[c] &= ~STP;
-		} else if (t)
-			_sctab[c] |= STP;
-		else
-			_sctab[c] &= ~STP;
-	}
-	return((char *)s);
 }

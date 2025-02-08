@@ -1,8 +1,7 @@
 #include <stdio.h>
 
 int
-putw(w, iop)
-        register FILE *iop;
+putw(int w, FILE *iop)
 {
 	register char *p;
 	register int i;
@@ -15,9 +14,7 @@ putw(w, iop)
 
 #ifdef pdp11
 int
-putlw(w, iop)
-        long w;
-        register FILE *iop;
+putlw(long w, FILE *iop)
 {
 	register char *p;
 	register int i;

@@ -5,10 +5,7 @@
 #include <string.h>
 
 char *
-strncpy(s1, s2, n)
-	register char *s1;
-	register const char *s2;
-	size_t n;
+strncpy(char *s1, const char *s2, size_t n)
 {
 	size_t i;
 	register char *os1;

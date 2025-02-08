@@ -24,8 +24,7 @@
  * or is interrupted - no errors to be checked for.
  */
 u_int
-sleep(seconds)
-	u_int seconds;
+sleep(u_int seconds)
 {
 	struct timeval f, s;
 

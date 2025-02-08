@@ -7,8 +7,7 @@
 #include <string.h>
 
 struct ttyent *
-getttynam(tty)
-	const char *tty;
+getttynam(const char *tty)
 {
 	register struct ttyent *t;
 

@@ -10,8 +10,7 @@
  * Backwards compatible nice.
  */
 int
-nice(incr)
-	int incr;
+nice(int incr)
 {
 	int prio;
 	extern int errno;

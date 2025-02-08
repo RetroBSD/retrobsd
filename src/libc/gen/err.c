@@ -63,10 +63,7 @@ putprog()
 }
 
 void
-verr (eval, fmt, ap)
-	int eval;
-	const char *fmt;
-	va_list ap;
+verr (int eval, const char *fmt, va_list ap)
 {
 	int sverrno;
 
@@ -82,30 +79,16 @@ verr (eval, fmt, ap)
 }
 
 void
-#ifdef __STDC__
 err (int eval, const char *fmt, ...)
-#else
-err (eval, fmt, va_alist)
-	int eval;
-	const char *fmt;
-	va_dcl
-#endif
 {
 	va_list ap;
-#if __STDC__
 	va_start(ap, fmt);
-#else
-	va_start(ap);
-#endif
 	verr(eval, fmt, ap);
 	va_end(ap);
 }
 
 void
-verrx (eval, fmt, ap)
-	int eval;
-	const char *fmt;
-	va_list ap;
+verrx (int eval, const char *fmt, va_list ap)
 {
 	putprog();
 	if (fmt != NULL)
@@ -115,29 +98,16 @@ verrx (eval, fmt, ap)
 }
 
 void
-#if __STDC__
 errx (int eval, const char *fmt, ...)
-#else
-errx (eval, fmt, va_alist)
-	int eval;
-	const char *fmt;
-	va_dcl
-#endif
 {
 	va_list ap;
-#if __STDC__
 	va_start(ap, fmt);
-#else
-	va_start(ap);
-#endif
 	verrx(eval, fmt, ap);
 	va_end(ap);
 }
 
 void
-vwarn (fmt, ap)
-	const char *fmt;
-	va_list ap;
+vwarn (const char *fmt, va_list ap)
 {
 	int sverrno;
 
@@ -152,28 +122,16 @@ vwarn (fmt, ap)
 }
 
 void
-#if __STDC__
 warn (const char *fmt, ...)
-#else
-warn(fmt, va_alist)
-	const char *fmt;
-	va_dcl
-#endif
 {
 	va_list ap;
-#if __STDC__
 	va_start(ap, fmt);
-#else
-	va_start(ap);
-#endif
 	vwarn(fmt, ap);
 	va_end(ap);
 }
 
 void
-vwarnx (fmt, ap)
-	const char *fmt;
-	va_list ap;
+vwarnx (const char *fmt, va_list ap)
 {
 	putprog();
 	if (fmt != NULL)
@@ -182,20 +140,10 @@ vwarnx (fmt, ap)
 }
 
 void
-#ifdef __STDC__
 warnx (const char *fmt, ...)
-#else
-warnx(fmt, va_alist)
-	char *fmt;
-	va_dcl
-#endif
 {
 	va_list ap;
-#ifdef __STDC__
 	va_start(ap, fmt);
-#else
-	va_start(ap);
-#endif
 	vwarnx(fmt, ap);
 	va_end(ap);
 }

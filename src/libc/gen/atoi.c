@@ -1,6 +1,7 @@
+#include <stdlib.h>
+
 int
-atoi(p)
-	register char *p;
+atoi(const char *p)
 {
 	register int n;
 	register int f;

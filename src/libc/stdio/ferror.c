@@ -7,8 +7,7 @@
 #undef ferror
 
 int
-ferror(fp)
-        register FILE *fp;
+ferror(FILE *fp)
 {
 	return (fp->_flag & _IOERR) != 0;
 }

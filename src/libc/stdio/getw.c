@@ -1,8 +1,7 @@
 #include <stdio.h>
 
 int
-getw(iop)
-        register FILE *iop;
+getw(FILE *iop)
 {
 	register int i;
 	register char *p;
@@ -18,8 +17,7 @@ getw(iop)
 
 #ifdef pdp11
 long
-getlw(iop)
-register FILE *iop;
+getlw(FILE *iop)
 {
 	register int i;
 	register char *p;

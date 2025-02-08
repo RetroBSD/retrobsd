@@ -5,9 +5,7 @@
 #include <unistd.h>
 
 int
-fseek(iop, offset, ptrname)
-	register FILE *iop;
-	long offset;
+fseek(FILE *iop, long offset, int ptrname)
 {
 	register int resync, c;
 	long p = -1;			/* can't happen? */

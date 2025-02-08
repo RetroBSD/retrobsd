@@ -5,9 +5,7 @@
 #include <string.h>
 
 char *
-strcpy(s1, s2)
-	register char *s1;
-	register const char *s2;
+strcpy(char *s1, const char *s2)
 {
 	register char *os1;
 

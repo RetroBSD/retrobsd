@@ -7,9 +7,7 @@
 #include <alloca.h>
 
 int
-fputs(s, iop)
-	register const char *s;
-	register FILE *iop;
+fputs(const char *s, FILE *iop)
 {
 	register int r = 0, c;
 	int unbuffered;

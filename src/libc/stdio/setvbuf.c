@@ -49,11 +49,7 @@
  * a buffer.
  */
 int
-setvbuf(fp, buf, mode, size)
-	register FILE *fp;
-	char *buf;
-	register int mode;
-	size_t size;
+setvbuf(FILE *fp, char *buf, int mode, size_t size)
 {
 	int	ret;
 	register int flags;

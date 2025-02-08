@@ -39,8 +39,7 @@
  * Find the first occurrence of find in s.
  */
 char *
-strstr(s, find)
-	register const char *s, *find;
+strstr(const char *s, const char *find)
 {
 	register char c;
 	char	sc;

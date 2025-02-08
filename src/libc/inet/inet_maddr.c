@@ -12,8 +12,7 @@
  * building addresses stored in the ifnet structure.
  */
 struct in_addr
-inet_makeaddr(net, host)
-	long net, host;
+inet_makeaddr(long net, long host)
 {
 	u_long addr;
 

@@ -6,19 +6,17 @@
 
 #include <sys/param.h>
 #include <sys/dir.h>
+#include <unistd.h>
 
 /*
  * seek to an entry in a directory.
  * Only values returned by "telldir" should be passed to seekdir.
  */
 void
-seekdir(dirp, loc)
-	register DIR *dirp;
-	long loc;
+seekdir(DIR *dirp, long loc)
 {
 	long curloc, base, offset;
 	struct direct *dp;
-	extern long lseek();
 
 	curloc = telldir(dirp);
 	if (loc == curloc)

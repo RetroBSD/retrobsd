@@ -19,10 +19,7 @@
 #include <alloca.h>
 
 int
-vfprintf (iop, fmt, ap)
-	FILE *iop;
-	const char *fmt;
-	va_list ap;
+vfprintf (FILE *iop, const char *fmt, va_list ap)
 {
 	int len;
 

@@ -60,8 +60,6 @@ typedef struct bitcmd {
 #define	CMD2_OBITS	0x08
 #define	CMD2_UBITS	0x10
 
-static BITCMD	*addcmd();
-static int	 compress_mode();
 #ifdef SETMODE_DEBUG
 static void	 dumpmode();
 #endif
@@ -73,9 +71,7 @@ static void	 dumpmode();
  * bits) followed by a '+' (set bits).
  */
 mode_t
-getmode(bbox, omode)
-	void *bbox;
-	mode_t omode;
+getmode(void *bbox, mode_t omode)
 {
 	register BITCMD *set;
 	register mode_t clrval, newmode, value;
@@ -157,9 +153,106 @@ common:			if (set->cmd2 & CMD2_CLR) {
 
 #define	STANDARD_BITS	(S_ISUID|S_ISGID|S_IRWXU|S_IRWXG|S_IRWXO)
 
+static BITCMD *
+addcmd(BITCMD *set, int op, int who, int oparg, u_int mask)
+{
+	switch (op) {
+	case '=':
+		set->cmd = '-';
+		set->bits = who ? who : STANDARD_BITS;
+		set++;
+
+		op = '+';
+		/* FALLTHROUGH */
+	case '+':
+	case '-':
+	case 'X':
+		set->cmd = op;
+		set->bits = (who ? who : mask) & oparg;
+		break;
+
+	case 'u':
+	case 'g':
+	case 'o':
+		set->cmd = op;
+		if (who) {
+			set->cmd2 = ((who & S_IRUSR) ? CMD2_UBITS : 0) |
+				    ((who & S_IRGRP) ? CMD2_GBITS : 0) |
+				    ((who & S_IROTH) ? CMD2_OBITS : 0);
+			set->bits = ~0;
+		} else {
+			set->cmd2 = CMD2_UBITS | CMD2_GBITS | CMD2_OBITS;
+			set->bits = mask;
+		}
+
+		if (oparg == '+')
+			set->cmd2 |= CMD2_SET;
+		else if (oparg == '-')
+			set->cmd2 |= CMD2_CLR;
+		else if (oparg == '=')
+			set->cmd2 |= CMD2_SET|CMD2_CLR;
+		break;
+	}
+	return (set + 1);
+}
+
+/*
+ * Given an array of bitcmd structures, compress by compacting consecutive
+ * '+', '-' and 'X' commands into at most 3 commands, one of each.  The 'u',
+ * 'g' and 'o' commands continue to be separate.  They could probably be
+ * compacted, but it's not worth the effort.
+ */
+static int
+compress_mode(BITCMD *set)
+{
+	register BITCMD *nset;
+	register int setbits, clrbits, Xbits, op;
+
+	for (nset = set;;) {
+		/* Copy over any 'u', 'g' and 'o' commands. */
+		while ((op = nset->cmd) != '+' && op != '-' && op != 'X') {
+			*set++ = *nset++;
+			if (!op)
+				return 0;
+		}
+
+		for (setbits = clrbits = Xbits = 0;; nset++) {
+			if ((op = nset->cmd) == '-') {
+				clrbits |= nset->bits;
+				setbits &= ~nset->bits;
+				Xbits &= ~nset->bits;
+			} else if (op == '+') {
+				setbits |= nset->bits;
+				clrbits &= ~nset->bits;
+				Xbits &= ~nset->bits;
+			} else if (op == 'X')
+				Xbits |= nset->bits & ~setbits;
+			else
+				break;
+		}
+		if (clrbits) {
+			set->cmd = '-';
+			set->cmd2 = 0;
+			set->bits = clrbits;
+			set++;
+		}
+		if (setbits) {
+			set->cmd = '+';
+			set->cmd2 = 0;
+			set->bits = setbits;
+			set++;
+		}
+		if (Xbits) {
+			set->cmd = 'X';
+			set->cmd2 = 0;
+			set->bits = Xbits;
+			set++;
+		}
+	}
+}
+
 void *
-setmode(p)
-	register char *p;
+setmode(char *p)
 {
 	register int perm, who;
 	char op;
@@ -333,57 +426,9 @@ apply:		if (!*p)
 	return ((void *)saveset);
 }
 
-static BITCMD *
-addcmd(set, op, who, oparg, mask)
-	BITCMD *set;
-	register int oparg, who;
-	register int op;
-	u_int mask;
-{
-	switch (op) {
-	case '=':
-		set->cmd = '-';
-		set->bits = who ? who : STANDARD_BITS;
-		set++;
-
-		op = '+';
-		/* FALLTHROUGH */
-	case '+':
-	case '-':
-	case 'X':
-		set->cmd = op;
-		set->bits = (who ? who : mask) & oparg;
-		break;
-
-	case 'u':
-	case 'g':
-	case 'o':
-		set->cmd = op;
-		if (who) {
-			set->cmd2 = ((who & S_IRUSR) ? CMD2_UBITS : 0) |
-				    ((who & S_IRGRP) ? CMD2_GBITS : 0) |
-				    ((who & S_IROTH) ? CMD2_OBITS : 0);
-			set->bits = ~0;
-		} else {
-			set->cmd2 = CMD2_UBITS | CMD2_GBITS | CMD2_OBITS;
-			set->bits = mask;
-		}
-
-		if (oparg == '+')
-			set->cmd2 |= CMD2_SET;
-		else if (oparg == '-')
-			set->cmd2 |= CMD2_CLR;
-		else if (oparg == '=')
-			set->cmd2 |= CMD2_SET|CMD2_CLR;
-		break;
-	}
-	return (set + 1);
-}
-
 #ifdef SETMODE_DEBUG
 static void
-dumpmode(set)
-	register BITCMD *set;
+dumpmode(BITCMD *set)
 {
 	for (; set->cmd; ++set)
 		(void)printf("cmd: '%c' bits %04o%s%s%s%s%s%s\n",
@@ -395,59 +440,3 @@ dumpmode(set)
 		    set->cmd2 & CMD2_OBITS ? " OBITS" : "");
 }
 #endif
-
-/*
- * Given an array of bitcmd structures, compress by compacting consecutive
- * '+', '-' and 'X' commands into at most 3 commands, one of each.  The 'u',
- * 'g' and 'o' commands continue to be separate.  They could probably be
- * compacted, but it's not worth the effort.
- */
-static int
-compress_mode(set)
-	register BITCMD *set;
-{
-	register BITCMD *nset;
-	register int setbits, clrbits, Xbits, op;
-
-	for (nset = set;;) {
-		/* Copy over any 'u', 'g' and 'o' commands. */
-		while ((op = nset->cmd) != '+' && op != '-' && op != 'X') {
-			*set++ = *nset++;
-			if (!op)
-				return 0;
-		}
-
-		for (setbits = clrbits = Xbits = 0;; nset++) {
-			if ((op = nset->cmd) == '-') {
-				clrbits |= nset->bits;
-				setbits &= ~nset->bits;
-				Xbits &= ~nset->bits;
-			} else if (op == '+') {
-				setbits |= nset->bits;
-				clrbits &= ~nset->bits;
-				Xbits &= ~nset->bits;
-			} else if (op == 'X')
-				Xbits |= nset->bits & ~setbits;
-			else
-				break;
-		}
-		if (clrbits) {
-			set->cmd = '-';
-			set->cmd2 = 0;
-			set->bits = clrbits;
-			set++;
-		}
-		if (setbits) {
-			set->cmd = '+';
-			set->cmd2 = 0;
-			set->bits = setbits;
-			set++;
-		}
-		if (Xbits) {
-			set->cmd = 'X';
-			set->cmd2 = 0;
-			set->bits = Xbits;
-			set++;
-		}
-	}
-}

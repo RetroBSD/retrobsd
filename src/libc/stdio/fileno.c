@@ -7,8 +7,7 @@
 #undef fileno
 
 int
-fileno(fp)
-        register FILE *fp;
+fileno(FILE *fp)
 {
 	return fp->_file;
 }

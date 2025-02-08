@@ -33,8 +33,7 @@
 #include <unistd.h>
 
 int
-setruid(ruid)
-	int ruid;
+setruid(int ruid)
 {
 	return (setreuid(ruid, -1));
 }

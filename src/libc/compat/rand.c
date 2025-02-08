@@ -6,8 +6,7 @@
 static	long	randx = 1;
 
 void
-srand(x)
-        unsigned x;
+srand(unsigned x)
 {
 	randx = x;
 }

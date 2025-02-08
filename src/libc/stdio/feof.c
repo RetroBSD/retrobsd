@@ -7,8 +7,7 @@
 #undef feof
 
 int
-feof(fp)
-        register FILE *fp;
+feof(FILE *fp)
 {
 	return (fp->_flag & _IOEOF) != 0;
 }

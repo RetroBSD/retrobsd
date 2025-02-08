@@ -1,8 +1,7 @@
 #include <stdio.h>
 
 char *
-gets(s)
-char *s;
+gets(char *s)
 {
 	register int c;
 	register char *cs;

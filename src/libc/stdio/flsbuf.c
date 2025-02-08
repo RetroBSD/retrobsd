@@ -74,8 +74,7 @@ tryagain:
 }
 
 int
-fflush(iop)
-register FILE *iop;
+fflush(FILE *iop)
 {
 	register char *base;
 	register int n;
@@ -93,8 +92,7 @@ register FILE *iop;
 }
 
 int
-fclose(iop)
-	register FILE *iop;
+fclose(FILE *iop)
 {
 	register int r;
 

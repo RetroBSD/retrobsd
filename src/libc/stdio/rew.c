@@ -2,8 +2,7 @@
 #include <unistd.h>
 
 void
-rewind(iop)
-        register FILE *iop;
+rewind(FILE *iop)
 {
 	fflush(iop);
 	lseek(fileno(iop), 0L, 0);

@@ -12,7 +12,7 @@
 static	char	dev[]	= "/dev/";
 
 char *
-ttyname(f)
+ttyname(int f)
 {
 	struct stat fsb;
 	struct stat tsb;

@@ -40,9 +40,7 @@
 #include <unistd.h>
 
 char *
-devname(dev, type)
-	dev_t dev;
-	mode_t type;
+devname(dev_t dev, mode_t type)
 {
         DIR *dir;
         struct direct *entry;

@@ -40,9 +40,7 @@
  * Span the complement of string s2.
  */
 size_t
-strcspn (s1, s2)
-	const char *s1;
-	const char *s2;
+strcspn (const char *s1, const char *s2)
 {
 	register const char *p, *spanp;
 	register char c, sc;

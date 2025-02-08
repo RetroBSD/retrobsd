@@ -45,9 +45,7 @@
 static int *pids;
 
 FILE *
-popen(program, type)
-	const char *program;
-	register const char *type;
+popen(const char *program, const char *type)
 {
 	register FILE *iop;
 	int pdes[2], fds, pid;
@@ -103,8 +101,7 @@ popen(program, type)
 }
 
 int
-pclose(iop)
-	FILE *iop;
+pclose(FILE *iop)
 {
 	register int fdes;
 	sigset_t omask, nmask;

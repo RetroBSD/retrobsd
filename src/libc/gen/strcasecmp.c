@@ -46,8 +46,7 @@ static char charmap[] = {
 };
 
 int
-strcasecmp(s1, s2)
-	register const char *s1, *s2;
+strcasecmp(const char *s1, const char *s2)
 {
 	register char *cm = charmap;
 
@@ -58,9 +57,7 @@ strcasecmp(s1, s2)
 }
 
 int
-strncasecmp(s1, s2, n)
-	register const char *s1, *s2;
-	register size_t n;
+strncasecmp(const char *s1, const char *s2, size_t n)
 {
 	register char *cm = charmap;
 

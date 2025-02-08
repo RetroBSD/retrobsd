@@ -7,6 +7,7 @@
 #include <float.h>
 #include <math.h>
 #include <ctype.h>
+#include <stdlib.h>
 
 /*
  * BIG = 2**(DBL_MANT_DIG+3) defines how many decimal digits
@@ -19,8 +20,7 @@
         (double)(1L << (DBL_MANT_DIG/2 + DBL_MANT_DIG%2)))
 
 double
-atof(p)
-register char *p;
+atof(const char *p)
 {
 	register int c;
 	double fl, flexp, exp5;

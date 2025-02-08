@@ -11,8 +11,7 @@
 #include <sys/time.h>
 
 long
-time(t)
-	time_t *t;
+time(time_t *t)
 {
 	struct timeval tt;
 

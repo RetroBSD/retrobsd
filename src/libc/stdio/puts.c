@@ -1,8 +1,7 @@
 #include <stdio.h>
 
 int
-puts(s)
-	register const char *s;
+puts(const char *s)
 {
 	register int c;
 

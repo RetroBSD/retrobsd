@@ -6,10 +6,7 @@
 #include <string.h>
 
 char *
-strncat(s1, s2, n)
-	register char *s1;
-	register const char *s2;
-	register size_t n;
+strncat(char *s1, const char *s2, size_t n)
 {
 	register char *os1;
 

@@ -10,9 +10,7 @@
 #include <math.h>
 
 double
-frexp(x, i)
-        double x;
-        int *i;
+frexp(double x, int *i)
 {
 	int neg;
 	int j;

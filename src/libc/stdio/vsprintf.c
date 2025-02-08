@@ -18,10 +18,7 @@
 #include <stdarg.h>
 
 int
-vsprintf(str, fmt, ap)
-	char *str;
-	const char *fmt;
-	va_list ap;
+vsprintf(char *str, const char *fmt, va_list ap)
 {
 	FILE f;
 

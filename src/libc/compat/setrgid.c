@@ -33,8 +33,7 @@
 #include <unistd.h>
 
 int
-setrgid(rgid)
-	int rgid;
+setrgid(int rgid)
 {
 	return (setregid(rgid, -1));
 }

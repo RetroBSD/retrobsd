@@ -33,9 +33,7 @@
 #include <fcntl.h>
 
 int
-creat (path, mode)
-	const char *path;
-	mode_t mode;
+creat (const char *path, mode_t mode)
 {
 	return open (path, O_WRONLY | O_CREAT | O_TRUNC, mode);
 }

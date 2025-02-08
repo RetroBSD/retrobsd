@@ -25,9 +25,7 @@
 #define	ISVALID(p)	(p->n_name && p->n_name[0])
 
 int
-nlist(name, list)
-	char *name;
-	struct nlist *list;
+nlist(char *name, struct nlist *list)
 {
 	register struct nlist *p;
 	struct exec ebuf;

@@ -37,11 +37,7 @@
 #include <paths.h>
 
 int
-sysctl(name, namelen, oldp, oldlenp, newp, newlen)
-	int *name;
-	u_int namelen;
-	void *oldp, *newp;
-	size_t *oldlenp, newlen;
+sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp, size_t newlen)
 {
 	if (name[0] != CTL_USER)
 		return (__sysctl(name, namelen, oldp, oldlenp, newp, newlen));

@@ -43,8 +43,16 @@
 static FILE *_fs_fp;
 static struct fstab _fs_fstab;
 
-static void error();
-static int fstabscan();
+static void
+error(int err)
+{
+	register int saverrno;
+
+	saverrno = errno;
+	errno = err;
+	warn("%s", _PATH_FSTAB);
+	errno = saverrno;
+}
 
 static int
 fstabscan()
@@ -153,8 +161,7 @@ getfsent()
 }
 
 struct fstab *
-getfsspec(name)
-	register char *name;
+getfsspec(const char *name)
 {
 	if (setfsent())
 		while (fstabscan())
@@ -164,8 +171,7 @@ getfsspec(name)
 }
 
 struct fstab *
-getfsfile(name)
-	register char *name;
+getfsfile(const char *name)
 {
 	if (setfsent())
 		while (fstabscan())
@@ -195,16 +201,4 @@ endfsent()
 		(void)fclose(_fs_fp);
 		_fs_fp = NULL;
 	}
-}
-
-static void
-error(err)
-	int err;
-{
-	register int saverrno;
-
-	saverrno = errno;
-	errno = err;
-	warn("%s", _PATH_FSTAB);
-	errno = saverrno;
 }

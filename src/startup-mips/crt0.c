@@ -61,10 +61,7 @@ void _start (int, char **, char **);
 
 /* The entry function. */
 void
-_start (argc, argv, env)
-	int argc;
-	char **argv;
-	char **env;
+_start (int argc, char **argv, char **env)
 {
         asm volatile ("la $gp, _gp");
 

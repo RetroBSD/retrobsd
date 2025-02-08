@@ -4,6 +4,7 @@
  *  Data Encryption Standard.
  * See Federal Register, March 17, 1975 (40FR12134)
  */
+#include <unistd.h>
 
 /*
  * Initial permutation,
@@ -109,8 +110,7 @@ static	char	e[] = {
  * Set up the key schedule from the key.
  */
 void
-setkey(key)
-char *key;
+setkey(const char *key)
 {
 	register int i, j, k;
 	int t;
@@ -235,8 +235,7 @@ static	char	preS[48];
  * The payoff: encrypt a block.
  */
 void
-encrypt(block, edflag)
-char *block;
+encrypt(char *block, int edflag)
 {
 	int i, ii;
 	register int t, j, k;
@@ -321,9 +320,7 @@ char *block;
 }
 
 char *
-crypt(pw,salt)
-char *pw;
-char *salt;
+crypt(const char *pw, const char *salt)
 {
 	register int i, j, c;
 	int temp;

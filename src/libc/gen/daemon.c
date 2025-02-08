@@ -36,8 +36,7 @@
 #include <paths.h>
 
 int
-daemon(nochdir, noclose)
-	int nochdir, noclose;
+daemon(int nochdir, int noclose)
 {
 	register int fd;
 

@@ -89,7 +89,6 @@ static void
 getpw()
 {
 	static char pwbuf[50];
-	off_t lseek();
 	long pos;
 	int fd, n;
 	register char *p;
@@ -133,8 +132,7 @@ getpwent()
 }
 
 struct passwd *
-getpwnam(nam)
-	char *nam;
+getpwnam(const char *nam)
 {
 	register int rval;
 
@@ -155,8 +153,7 @@ getpwnam(nam)
 }
 
 struct passwd *
-getpwuid(uid)
-	int uid;
+getpwuid(uid_t uid)
 {
 	register int rval;
 
@@ -183,8 +180,7 @@ setpwent()
 }
 
 int
-setpassent(stayopen)
-	int stayopen;
+setpassent(int stayopen)
 {
 	if (!start_pw())
 		return(0);
@@ -202,8 +198,7 @@ endpwent()
 }
 
 void
-setpwfile(file)
-	char *file;
+setpwfile(char *file)
 {
 	_pw_file = file;
 }

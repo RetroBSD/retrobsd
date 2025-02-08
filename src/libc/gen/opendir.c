@@ -13,8 +13,7 @@
  * open a directory.
  */
 DIR *
-opendir(name)
-	const char *name;
+opendir(const char *name)
 {
 	register DIR *dirp;
 	register int fd;

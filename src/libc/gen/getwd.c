@@ -22,9 +22,7 @@ static int pathsize;			/* pathname length */
  * prepend() tacks a directory name onto the front of a pathname.
  */
 static char *
-prepend(dirname, pathname)
-	register char *dirname;
-	register char *pathname;
+prepend(char *dirname, char *pathname)
 {
 	register int i;			/* directory name size counter */
 
@@ -37,8 +35,7 @@ prepend(dirname, pathname)
 }
 
 char *
-getwd(pathname)
-	char *pathname;
+getwd(char *pathname)
 {
 	char pathbuf[MAXPATHLEN];		/* temporary pathname buffer */
 	char *pnptr = &pathbuf[(sizeof pathbuf)-1]; /* pathname pointer */

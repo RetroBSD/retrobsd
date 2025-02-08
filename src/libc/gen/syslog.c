@@ -63,10 +63,7 @@ extern	int	errno;			/* error number */
  *	No sockets: logfile is used.
  */
 void
-vsyslog(pri, fmt, ap)
-	int pri;
-	register const char *fmt;
-	va_list ap;
+vsyslog(int pri, const char *fmt, va_list ap)
 {
 	int cnt;
 	char ch;
@@ -183,10 +180,7 @@ syslog (int pri, const char *fmt, ...)
 }
 
 void
-openlog(ident, logstat, logfac)
-	const char *ident;
-	int logstat;
-	register int logfac;
+openlog(const char *ident, int logstat, int logfac)
 {
 	if (ident != NULL)
 		LogTag = ident;
@@ -219,8 +213,7 @@ closelog()
 
 /* setlogmask -- set the log mask level */
 int
-setlogmask(pmask)
-	register int pmask;
+setlogmask(int pmask)
 {
 	register int omask;
 

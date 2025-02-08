@@ -16,10 +16,7 @@
  *	"value".  If rewrite is set, replace any current value.
  */
 int
-setenv(name, value, rewrite)
-	register const char	*name,
-				*value;
-	int	rewrite;
+setenv(const char *name, const char *value, int rewrite)
 {
 	static int	alloced;		/* if allocated space before */
 	register char	*C;
@@ -74,8 +71,7 @@ setenv(name, value, rewrite)
  *	Delete environmental variable "name".
  */
 int
-unsetenv(name)
-	const char	*name;
+unsetenv(const char *name)
 {
 	register char	**P;
 	int	offset;

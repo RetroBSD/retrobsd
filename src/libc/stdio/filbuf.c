@@ -10,8 +10,7 @@
 #include <sys/stat.h>
 
 int
-_filbuf(iop)
-register FILE *iop;
+_filbuf(FILE *iop)
 {
 	int size;
 	struct stat stbuf;

@@ -5,6 +5,7 @@
  */
 #include <sys/param.h>
 #include <sys/dir.h>
+#include <sys/types.h>
 #include <stdlib.h>
 #include <unistd.h>
 
@@ -12,8 +13,7 @@
  * close a directory.
  */
 void
-closedir(dirp)
-	register DIR *dirp;
+closedir(DIR *dirp)
 {
 	close(dirp->dd_fd);
 	dirp->dd_fd = -1;

@@ -13,8 +13,7 @@
  * number formats.
  */
 u_long
-inet_lnaof(in)
-	struct in_addr in;
+inet_lnaof(struct in_addr in)
 {
 	register u_long i = ntohl(in.s_addr);
 

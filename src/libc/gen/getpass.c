@@ -4,8 +4,7 @@
 #include <fcntl.h>
 
 char *
-getpass(prompt)
-char *prompt;
+getpass(char *prompt)
 {
 	struct sgttyb ttyb;
 	int flags;

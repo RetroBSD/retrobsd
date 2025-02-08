@@ -42,10 +42,7 @@
 char *suboptarg;
 
 int
-getsubopt(optionp, tokens, valuep)
-	register char **optionp;
-	register char **valuep;
-	register char **tokens;
+getsubopt(char **optionp, char **tokens, char **valuep)
 {
 	register int cnt;
 	register char *p;

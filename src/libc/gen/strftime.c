@@ -49,8 +49,7 @@ static size_t gsize;
 static char *pt;
 
 static int
-_add(str)
-	register char *str;
+_add(char *str)
 {
 	for (;; ++pt, --gsize) {
 		if (!gsize)
@@ -61,8 +60,7 @@ _add(str)
 }
 
 static int
-_conv(n, digits, pad)
-	int n, digits, pad;
+_conv(int n, int digits, int pad)
 {
 	static char buf[10];
 	register char *p;
@@ -75,9 +73,7 @@ _conv(n, digits, pad)
 }
 
 static size_t
-_fmt(format, t)
-	register const char *format;
-	register const struct tm *t;
+_fmt(const char *format, const struct tm *t)
 {
 	char	ch, *cp, junk[4];
 
@@ -246,11 +242,7 @@ _fmt(format, t)
 }
 
 size_t
-strftime(s, maxsize, format, t)
-	char *s;
-	size_t maxsize;
-	const char *format;
-	const struct tm *t;
+strftime(char *s, size_t maxsize, const char *format, const struct tm *t)
 {
 
 	pt = s;

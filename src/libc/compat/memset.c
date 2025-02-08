@@ -9,10 +9,7 @@
  * Sys5 compat routine
  */
 void *
-memset (vs, c, n)
-	void *vs;
-	register int c;
-	register size_t n;
+memset (void *vs, int c, size_t n)
 {
 	register char *s = vs;
 

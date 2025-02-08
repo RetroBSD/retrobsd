@@ -99,8 +99,7 @@ f_prealloc()
 }
 
 void
-_fwalk(function)
-	register int (*function)();
+_fwalk(int (*function)(FILE *))
 {
 	register FILE **iov;
 	register FILE *fp;
@@ -118,7 +117,5 @@ _fwalk(function)
 
 void _cleanup()
 {
-	extern int fclose();
-
 	_fwalk(fclose);
 }

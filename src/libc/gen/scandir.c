@@ -18,10 +18,7 @@
 #include <unistd.h>
 
 int
-scandir(dirname, namelist, select, dcomp)
-	char *dirname;
-	struct direct *(*namelist[]);
-	int (*select)(), (*dcomp)();
+scandir(char *dirname, struct direct *(*namelist[]), int (*select)(struct direct *), int (*dcomp)())
 {
 	register struct direct *d, *p, **names;
 	register int nitems;
@@ -85,8 +82,7 @@ scandir(dirname, namelist, select, dcomp)
  * Alphabetic order comparison routine for those who want it.
  */
 int
-alphasort(d1, d2)
-	struct direct **d1, **d2;
+alphasort(struct direct **d1, struct direct **d2)
 {
 	return(strcmp((*d1)->d_name, (*d2)->d_name));
 }

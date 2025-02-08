@@ -25,7 +25,7 @@ FILE *
 tmpfile()
 {
 	FILE *fp;
-	char *f, *tmpnam();
+	char *f;
 
 	if (!(f = tmpnam((char *)NULL)) || !(fp = fopen(f, "w+"))) {
 		fprintf(stderr, "tmpfile: cannot open %s.\n", f);
@@ -36,8 +36,7 @@ tmpfile()
 }
 
 char *
-tmpnam(s)
-	char *s;
+tmpnam(char *s)
 {
 	if (!s && !(s = malloc((u_int)MAXPATHLEN)))
 		return(NULL);
@@ -46,8 +45,7 @@ tmpnam(s)
 }
 
 char *
-tempnam(dir, pfx)
-	char *dir, *pfx;
+tempnam(char *dir, char *pfx)
 {
 	char *f, *name;
 

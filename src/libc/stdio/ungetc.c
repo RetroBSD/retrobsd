@@ -1,8 +1,7 @@
 #include <stdio.h>
 
 int
-ungetc(c, iop)
-	register FILE *iop;
+ungetc(int c, FILE *iop)
 {
 	if (c == EOF || (iop->_flag & (_IOREAD|_IORW)) == 0 ||
 	    iop->_ptr == NULL || iop->_base == NULL)

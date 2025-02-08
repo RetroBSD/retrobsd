@@ -38,9 +38,7 @@
  * Return information about mounted filesystems.
  */
 int
-getmntinfo(mntbufp, flags)
-	register struct statfs **mntbufp;
-	int flags;
+getmntinfo(struct statfs **mntbufp, int flags)
 {
 	static struct statfs *mntbuf;
 	static int mntsize;

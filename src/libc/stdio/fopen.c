@@ -10,9 +10,7 @@
 #include <fcntl.h>
 
 FILE *
-fopen(file, mode)
-	const char *file;
-	register const char *mode;
+fopen(const char *file, const char *mode)
 {
 	register FILE *iop;
 	register int f, rw, oflags;

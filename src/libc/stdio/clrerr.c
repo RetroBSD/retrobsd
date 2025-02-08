@@ -2,8 +2,7 @@
 #undef	clearerr
 
 void
-clearerr(iop)
-	register FILE *iop;
+clearerr(FILE *iop)
 {
 	iop->_flag &= ~(_IOERR|_IOEOF);
 }

@@ -49,8 +49,7 @@ static  long hltab[64]
 };
 
 static long
-dcalchash(item)
-	datum item;
+dcalchash(datum item)
 {
 	register int s, c, j;
 	register char *cp;
@@ -71,8 +70,7 @@ dcalchash(item)
 }
 
 static datum
-makdatum(buf, n)
-	char buf[PBLKSIZ];
+makdatum(char buf[PBLKSIZ], int n)
 {
 	register short *sp;
 	register int t;
@@ -93,9 +91,7 @@ makdatum(buf, n)
 }
 
 DBM *
-dbm_open(file, flags, mode)
-	char *file;
-	int flags, mode;
+dbm_open(const char *file, int flags, int mode)
 {
 	struct stat statb;
 	register DBM *db;
@@ -129,8 +125,7 @@ bad:
 }
 
 void
-dbm_close(db)
-	DBM *db;
+dbm_close(DBM *db)
 {
 
 	(void) close(db->dbm_dirf);
@@ -139,8 +134,7 @@ dbm_close(db)
 }
 
 static int
-getbit(db)
-	register DBM *db;
+getbit(DBM *db)
 {
 	long bn, b;
 	register int i, n;
@@ -161,9 +155,7 @@ getbit(db)
 }
 
 long
-dbm_forder(db, key)
-	register DBM *db;
-	datum key;
+dbm_forder(DBM *db, datum key)
 {
 	long hash;
 
@@ -178,9 +170,7 @@ dbm_forder(db, key)
 }
 
 static void
-dbm_access(db, hash)
-	register DBM *db;
-	long hash;
+dbm_access(DBM *db, long hash)
 {
 
 	for (db->dbm_hmask=0;; db->dbm_hmask=(db->dbm_hmask<<1)+1) {
@@ -202,9 +192,7 @@ dbm_access(db, hash)
 }
 
 static int
-finddatum(buf, item)
-	char buf[PBLKSIZ];
-	datum item;
+finddatum(char buf[PBLKSIZ], datum item)
 {
 	register short *sp;
 	register int i, n, j;
@@ -222,9 +210,7 @@ finddatum(buf, item)
 }
 
 datum
-dbm_fetch(db, key)
-	register DBM *db;
-	datum key;
+dbm_fetch(DBM *db, datum key)
 {
 	register int i;
 	datum item;
@@ -247,8 +233,7 @@ err:
  * Delete pairs of items (n & n+1).
  */
 static int
-delitem(buf, n)
-	char buf[PBLKSIZ];
+delitem(char buf[PBLKSIZ], int n)
 {
 	register short *sp, *sp1;
 	register int i1, i2;
@@ -276,9 +261,7 @@ delitem(buf, n)
 }
 
 int
-dbm_delete(db, key)
-	register DBM *db;
-	datum key;
+dbm_delete(DBM *db, datum key)
 {
 	register int i;
 
@@ -304,8 +287,7 @@ dbm_delete(db, key)
 }
 
 static void
-setbit(db)
-	register DBM *db;
+setbit(DBM *db)
 {
 	long bn, b;
 	register int i, n;
@@ -333,9 +315,7 @@ setbit(db)
  * Add pairs of items (item & item1).
  */
 static int
-additem(buf, item, item1)
-	char buf[PBLKSIZ];
-	datum item, item1;
+additem(char buf[PBLKSIZ], datum item, datum item1)
 {
 	register short *sp;
 	register int i1, i2;
@@ -357,10 +337,7 @@ additem(buf, item, item1)
 }
 
 int
-dbm_store(db, key, dat, replace)
-	register DBM *db;
-	datum key, dat;
-	int replace;
+dbm_store(DBM *db, datum key, datum dat, int replace)
 {
 	register int i;
 	datum item, item1;
@@ -435,8 +412,7 @@ split:
 }
 
 datum
-dbm_firstkey(db)
-	DBM *db;
+dbm_firstkey(DBM *db)
 {
 
 	db->dbm_blkptr = 0L;
@@ -445,8 +421,7 @@ dbm_firstkey(db)
 }
 
 datum
-dbm_nextkey(db)
-	register DBM *db;
+dbm_nextkey(DBM *db)
 {
 	struct stat statb;
 	datum item;
@@ -484,8 +459,7 @@ err:
 
 #ifdef DEBUG
 static
-chkblk(buf)
-	char buf[PBLKSIZ];
+chkblk(char buf[PBLKSIZ])
 {
 	register short *sp;
 	register t, i;

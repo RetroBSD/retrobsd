@@ -7,11 +7,11 @@
 /*
  * Backwards compatible alarm.
  */
+#include <unistd.h>
 #include <sys/time.h>
 
-int
-alarm(secs)
-	int secs;
+unsigned
+alarm(unsigned secs)
 {
 	struct itimerval it, oitv;
 	register struct itimerval *itp = &it;

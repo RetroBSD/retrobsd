@@ -13,8 +13,7 @@
  * ... result is a recursive loop which underflows the stack.
 */
 
-static botch(s)
-char *s;
+static botch(char *s)
 {
 	struct	iovec	iov[3];
 	register struct iovec *v = iov;
@@ -90,8 +89,7 @@ static union store	*alloct;	/* arena top */
 static union store	*allocx;	/* for benefit of realloc */
 
 void *
-malloc(nbytes)
-	size_t nbytes;
+malloc(size_t nbytes)
 {
 	register union store *p, *q;
 	register int nw;
@@ -161,8 +159,7 @@ found:
 /*
  * Freeing strategy tuned for LIFO allocation.
  */
-void free(ap)
-	register void *ap;
+void free(void *ap)
 {
 	register union store *p = (union store *)ap;
 
@@ -182,9 +179,7 @@ void free(ap)
  * returns new location, or 0 on failure.
  */
 void *
-realloc(vp, nbytes)
-	register void *vp;
-	size_t nbytes;
+realloc(void *vp, size_t nbytes)
 {
 	register union store *p = vp;
 	register union store *q;

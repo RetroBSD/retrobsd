@@ -35,8 +35,7 @@
 #include <machine/cpu.h>
 
 char *
-strerror(errnum)
-	register int errnum;
+strerror(int errnum)
 {
         static char msgstr[64];
 	int mib[3];

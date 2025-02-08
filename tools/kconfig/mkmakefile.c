@@ -40,7 +40,7 @@
 #include "y.tab.h"
 #include "config.h"
 
-struct  file_list *ftab;
+struct file_list *ftab;
 
 #define next_word(fp, wd) \
     { register char *word = get_word(fp); \

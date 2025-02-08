@@ -11,8 +11,7 @@
  * get next entry in a directory.
  */
 struct direct *
-readdir(dirp)
-	register DIR *dirp;
+readdir(DIR *dirp)
 {
 	register struct direct *dp;
 

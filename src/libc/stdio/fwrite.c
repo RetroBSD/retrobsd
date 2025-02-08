@@ -7,10 +7,7 @@
 #include <strings.h>
 
 size_t
-fwrite(vptr, size, count, iop)
-	const void *vptr;
-	size_t size, count;
-	register FILE *iop;
+fwrite(const void *vptr, size_t size, size_t count, FILE *iop)
 {
 	register const char *ptr = vptr;
 	register unsigned s;

@@ -46,9 +46,7 @@
  * If *stringp is NULL, strsep returns NULL.
  */
 char *
-strsep(stringp, delim)
-	register char **stringp;
-	const char *delim;
+strsep(char **stringp, const char *delim)
 {
 	register char *s;
 	register const char *spanp;

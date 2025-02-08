@@ -13,13 +13,13 @@
  * The MTHREShold is where we stop finding a better median.
  */
 
-#define		THRESH		4		/* threshold for insertion */
-#define		MTHRESH		6		/* threshold for median */
+#define THRESH	4		/* threshold for insertion */
+#define MTHRESH 6		/* threshold for median */
 
-static  int		(*qcmp)();		/* the comparison routine */
-static  int		qsz;			/* size of each record */
-static  int		thresh;			/* THRESHold in chars */
-static  int		mthresh;		/* MTHRESHold in chars */
+static int (*qcmp)(const void*, const void*);   /* the comparison routine */
+static int qsz;                                 /* size of each record */
+static int thresh;                              /* THRESHold in chars */
+static int mthresh;                             /* MTHRESHold in chars */
 
 /*
  * qst:
@@ -36,8 +36,7 @@ static  int		mthresh;		/* MTHRESHold in chars */
  * (And there are only three places where this is done).
  */
 static void
-qst(base, max)
-	char *base, *max;
+qst(char *base, char *max)
 {
 	register char c, *i, *j, *jj;
 	register int ii;
@@ -141,11 +140,7 @@ qst(base, max)
  * It's not...
  */
 void
-qsort(base, n, size, compar)
-	char	*base;
-	int	n;
-	int	size;
-	int	(*compar)();
+qsort(char *base, int n, int size, int (*compar)(const void*, const void*))
 {
 	register char c, *i, *j, *lo, *hi;
 	char *min, *max;

@@ -12,8 +12,7 @@ struct atexit *__atexit;        /* points to head of LIFO stack */
 extern void _cleanup();
 
 void
-exit (code)
-    int code;
+exit (int code)
 {
     register struct atexit *p;
 
@@ -27,8 +26,7 @@ exit (code)
  * Register a function to be performed at exit.
  */
 int
-atexit(fn)
-    void (*fn)();
+atexit(void (*fn)(void))
 {
     static struct atexit __atexit0; /* one guaranteed table */
     register struct atexit *p;

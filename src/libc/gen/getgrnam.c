@@ -3,8 +3,7 @@
 #include <string.h>
 
 struct group *
-getgrnam(name)
-        register const char *name;
+getgrnam(const char *name)
 {
 	register struct group *p;
 

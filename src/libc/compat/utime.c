@@ -10,9 +10,7 @@
  * Backwards compatible utime.
  */
 int
-utime(name, otv)
-	char *name;
-	time_t otv[];
+utime(char *name, time_t otv[])
 {
 	struct timeval tv[2];
 

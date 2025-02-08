@@ -28,7 +28,12 @@ struct passwd {
     char    *pw_shell;          /* default shell */
 };
 
-struct passwd *getpwent(), *getpwuid(), *getpwnam();
-void endpwent(), setpwfile();
-int setpwent();
-int setpassent (int);
+struct passwd *getpwent(void);
+int setpwent(void);
+void endpwent(void);
+
+struct passwd *getpwnam(const char *name);
+struct passwd *getpwuid(uid_t uid);
+
+void setpwfile(char *file);
+int setpassent(int stayopen);

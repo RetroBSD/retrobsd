@@ -1,6 +1,7 @@
+#include <stdlib.h>
+
 long
-atol(p)
-	register char *p;
+atol(const char *p)
 {
 	long n;
 	register int f;

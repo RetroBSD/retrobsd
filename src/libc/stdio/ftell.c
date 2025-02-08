@@ -5,8 +5,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
-long ftell(iop)
-        register FILE *iop;
+long ftell(FILE *iop)
 {
 	register long tres;
 	register int adjust;

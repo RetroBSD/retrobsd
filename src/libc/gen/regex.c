@@ -96,8 +96,7 @@ static	char	circf;
  * compile the regular expression argument into a dfa
  */
 char *
-re_comp(sp)
-	register const char	*sp;
+re_comp(const char *sp)
 {
 	register int	c;
 	register char	*ep = expbuf;
@@ -217,9 +216,7 @@ re_comp(sp)
 }
 
 static int
-cclass(set, c, af)
-	register char	*set, c;
-	int	af;
+cclass(char *set, char c, int af)
 {
 	register int	n;
 
@@ -233,9 +230,7 @@ cclass(set, c, af)
 }
 
 static int
-backref(i, lp)
-	register int	i;
-	register const char	*lp;
+backref(int i, const char *lp)
 {
 	register const char	*bp;
 
@@ -250,9 +245,7 @@ backref(i, lp)
  * try to match the next thing in the dfa
  */
 static	int
-advance(lp, ep)
-	register const char *lp;
-	register char *ep;
+advance(const char *lp, char *ep)
 {
 	register const char	*curlp;
 	int	ct, i;
@@ -364,8 +357,7 @@ advance(lp, ep)
  * match the argument string against the compiled re
  */
 int
-re_exec(p1)
-	register const char	*p1;
+re_exec(const char *p1)
 {
 	register char	*p2 = expbuf;
 	register int	c;

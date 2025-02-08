@@ -36,8 +36,7 @@
 #include <sys/resource.h>
 
 int
-wait(istat)
-	int *istat;
+wait(int *istat)
 {
 	return (wait4(WAIT_ANY, istat, 0, (struct rusage *)0));
 }

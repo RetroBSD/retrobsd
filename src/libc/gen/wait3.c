@@ -36,10 +36,7 @@
 #include <sys/resource.h>
 
 int
-wait3(istat, options, rup)
-	int *istat;
-	int options;
-	struct rusage *rup;
+wait3(int *istat, int options, struct rusage *rup)
 {
 	return (wait4(WAIT_ANY, istat, options, rup));
 }

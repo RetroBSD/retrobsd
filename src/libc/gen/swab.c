@@ -3,9 +3,7 @@
  * Jeffrey Mogul, Stanford
  */
 void
-swab (from, to, n)
-	register char *from, *to;
-	register int n;
+swab (char *from, char *to, int n)
 {
 #ifdef pdp11
 	register int temp;

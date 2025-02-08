@@ -9,9 +9,7 @@
  * Sys5 compat routine
  */
 int
-memcmp (vs1, vs2, n)
-	const void *vs1, *vs2;
-	register size_t n;
+memcmp (const void *vs1, const void *vs2, size_t n)
 {
 	register const char *s1 = vs1, *s2 = vs2;
 

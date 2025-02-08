@@ -39,11 +39,7 @@
 #include <grp.h>
 
 int
-getgrouplist(uname, agroup, groups, grpcnt)
-	char *uname;
-	gid_t agroup;
-	register gid_t *groups;
-	int *grpcnt;
+getgrouplist(char *uname, gid_t agroup, gid_t *groups, int *grpcnt)
 {
 	register struct group *grp;
 	int i, ngroups, ret, maxgroups;

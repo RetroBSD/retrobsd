@@ -102,4 +102,6 @@ char    *ecvt(double, int, int *, int *);
 char    *fcvt(double, int, int *, int *);
 char    *gcvt(double, int, char *);
 
+void    setkey(const char *key);
+
 #endif /* _STDLIB_H_ */

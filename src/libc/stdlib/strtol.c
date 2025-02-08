@@ -42,10 +42,7 @@
  * alphabets and digits are each contiguous.
  */
 long
-strtol(nptr, endptr, base)
-	const char *nptr;
-	char **endptr;
-	register int base;
+strtol(const char *nptr, char **endptr, int base)
 {
 	register const char *s = nptr;
 	register unsigned long acc;

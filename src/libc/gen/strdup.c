@@ -21,8 +21,7 @@
 #include <strings.h>
 
 char *
-strdup(str)
-	const char *str;
+strdup(const char *str)
 {
 	int len;
 	char *copy;

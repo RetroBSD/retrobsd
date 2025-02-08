@@ -40,8 +40,7 @@ endttyent()
  * and return a pointer to the next field.
  */
 static char *
-skip(p)
-	register char *p;
+skip(char *p)
 {
 	register char *t = p;
 	register int c;
@@ -75,8 +74,7 @@ skip(p)
 }
 
 static char *
-value(p)
-	register char *p;
+value(char *p)
 {
 	if ((p = index(p,'=')) == 0)
 		return(NULL);

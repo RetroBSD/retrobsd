@@ -71,6 +71,7 @@ FILE    *freopen (const char *, const char *, FILE *);
 FILE    *popen (const char *, const char *);
 int     pclose(FILE *stream);
 FILE    *tmpfile (void);
+char    *tmpnam(char *s);
 int     fclose (FILE *);
 long    ftell (FILE *);
 int     fflush (FILE *);

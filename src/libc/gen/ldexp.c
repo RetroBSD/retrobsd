@@ -2,9 +2,7 @@
 #include <math.h>
 
 double
-ldexp(fr, exp)
-        double fr;
-        int exp;
+ldexp(double fr, int exp)
 {
 	int neg;
 	int i;

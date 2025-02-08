@@ -35,8 +35,7 @@
 #include <errno.h>
 
 int
-setregid(rgid, egid)
-	register gid_t rgid, egid;
+setregid(gid_t rgid, gid_t egid)
 {
 	static gid_t savedgid = -1;
 

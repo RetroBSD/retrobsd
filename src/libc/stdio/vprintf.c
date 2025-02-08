@@ -18,9 +18,7 @@
 #include <stdarg.h>
 
 int
-vprintf (fmt, ap)
-	const char *fmt;
-	va_list ap;
+vprintf (const char *fmt, va_list ap)
 {
 	int len;
 

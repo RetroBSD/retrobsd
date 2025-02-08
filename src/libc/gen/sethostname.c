@@ -34,9 +34,7 @@
 #include <sys/sysctl.h>
 
 int
-sethostname(name, namelen)
-	char *name;
-	int namelen;
+sethostname(char *name, int namelen)
 {
 	int mib[2];
 

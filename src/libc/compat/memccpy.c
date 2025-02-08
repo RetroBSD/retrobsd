@@ -9,11 +9,7 @@
  * Sys5 compat routine
  */
 void *
-memccpy(vt, vf, c, n)
-	void *vt;
-	const void *vf;
-	register int c;
-	register size_t n;
+memccpy(void *vt, const void *vf, int c, size_t n)
 {
 	register char *t = vt;
 	register const char *f = vf;

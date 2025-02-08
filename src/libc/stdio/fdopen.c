@@ -15,8 +15,7 @@
 #include <unistd.h>
 
 FILE *
-fdopen(fd, mode)
-	register const char *mode;
+fdopen(int fd, const char *mode)
 {
 	static int nofile = -1;
 	register FILE *iop;

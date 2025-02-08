@@ -63,10 +63,10 @@ struct fstab {
     int     fs_passno;      /* pass number on parallel dump */
 };
 
-struct fstab *getfsent();
-struct fstab *getfsspec();
-struct fstab *getfsfile();
-int setfsent();
-void endfsent();
+int setfsent(void);
+struct fstab *getfsent(void);
+void endfsent(void);
+struct fstab *getfsspec(const char *special_file);
+struct fstab *getfsfile(const char *mount_point);
 
 #endif /* !_FSTAB_H_ */

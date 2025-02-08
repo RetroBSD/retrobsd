@@ -22,9 +22,7 @@
 static char	czone[TZ_MAX_CHARS];		/* space for zone name */
 
 char *
-timezone(zone, dst)
-	int	zone,
-		dst;
+timezone(int zone, int dst)
 {
 	register char	*beg,
 			*end;
@@ -73,9 +71,7 @@ static struct zone {
  *	OF THE STANDARD LIBRARY.
  */
 char *
-tztab(zone,dst)
-	register int	zone;
-	int	dst;
+tztab(int zone, int dst)
 {
 	register struct zone	*zp;
 	register char	sign;

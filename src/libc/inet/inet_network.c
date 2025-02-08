@@ -14,8 +14,7 @@
  * network numbers.
  */
 u_long
-inet_network(cp)
-	register char *cp;
+inet_network(char *cp)
 {
 	register u_long val, base, n;
 	register char c;

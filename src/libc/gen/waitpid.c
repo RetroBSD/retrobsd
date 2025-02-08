@@ -36,10 +36,7 @@
 #include <sys/resource.h>
 
 int
-waitpid(pid, istat, options)
-	int pid;
-	int *istat;
-	int options;
+waitpid(int pid, int *istat, int options)
 {
 	return (wait4(pid, istat, options, (struct rusage *)0));
 }

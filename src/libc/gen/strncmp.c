@@ -4,9 +4,7 @@
 #include <string.h>
 
 int
-strncmp (s1, s2, n)
-	register const char *s1, *s2;
-	register size_t n;
+strncmp (const char *s1, const char *s2, size_t n)
 {
         for (;;) {
                 if (n-- == 0)

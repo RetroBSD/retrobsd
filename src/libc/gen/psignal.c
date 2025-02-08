@@ -15,9 +15,7 @@
 extern	char *sys_siglist[];
 
 void
-psignal(sig, s)
-	unsigned sig;
-	char *s;
+psignal(int sig, const char *s)
 {
 	register char *c;
 	register int n;

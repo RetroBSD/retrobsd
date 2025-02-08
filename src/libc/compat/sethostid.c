@@ -34,8 +34,7 @@
 #include <sys/sysctl.h>
 
 u_long
-sethostid(hostid)
-	u_long hostid;
+sethostid(u_long hostid)
 {
 	int mib[2];
 

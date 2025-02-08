@@ -41,9 +41,7 @@
  * Return number of samples retrieved, or -1 on error.
  */
 int
-getloadavg(loadavg, nelem)
-	unsigned loadavg[];
-	register int nelem;
+getloadavg(unsigned loadavg[], int nelem)
 {
 	struct loadavg loadinfo;
 	register int i;

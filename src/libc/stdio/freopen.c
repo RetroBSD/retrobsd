@@ -10,10 +10,7 @@
 #include <fcntl.h>
 
 FILE *
-freopen(file, mode, iop)
-	const char *file;
-	register const char *mode;
-	register FILE *iop;
+freopen(const char *file, const char *mode, FILE *iop)
 {
 	register int f, rw, oflags;
 

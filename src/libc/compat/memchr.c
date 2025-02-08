@@ -9,10 +9,7 @@
  * Sys5 compat routine
  */
 void *
-memchr(vs, c, n)
-	const void *vs;
-	register int c;
-	register size_t n;
+memchr(const void *vs, int c, size_t n)
 {
 	register const char *s = vs;
 

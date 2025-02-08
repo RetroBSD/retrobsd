@@ -52,11 +52,11 @@ typedef struct {
 #define DBM_INSERT  0
 #define DBM_REPLACE 1
 
-DBM     *dbm_open();
-void    dbm_close();
-datum   dbm_fetch();
-datum   dbm_firstkey();
-datum   dbm_nextkey();
-long    dbm_forder();
-int     dbm_delete();
-int     dbm_store();
+DBM     *dbm_open(const char *file, int flags, int mode);
+void    dbm_close(DBM *);
+datum   dbm_fetch(DBM *, datum);
+datum   dbm_firstkey(DBM *);
+datum   dbm_nextkey(DBM *);
+long    dbm_forder(DBM *, datum);
+int     dbm_delete(DBM *, datum);
+int     dbm_store(DBM *, datum, datum, int);

@@ -2,8 +2,7 @@
 #include <grp.h>
 
 struct group *
-getgrgid(gid)
-        register gid_t gid;
+getgrgid(gid_t gid)
 {
 	register struct group *p;
 

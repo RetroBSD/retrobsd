@@ -37,8 +37,7 @@
  * after an instance of the indicated signal.
  */
 int
-siginterrupt(sig, flag)
-	int sig, flag;
+siginterrupt(int sig, int flag)
 {
 	extern sigset_t _sigintr;
 	struct sigaction sa;

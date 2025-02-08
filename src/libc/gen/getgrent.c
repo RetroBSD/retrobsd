@@ -30,9 +30,7 @@ endgrent()
 }
 
 static char *
-grskip(p,c)
-        register char *p;
-        register int c;
+grskip(char *p, int c)
 {
 	while(*p && *p != c) ++p;
 	if (*p) *p++ = 0;

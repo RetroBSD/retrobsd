@@ -9,8 +9,7 @@
  * This routine erases everything on the window.
  */
 void
-wclrtobot(win)
-        WINDOW	*win;
+wclrtobot(WINDOW *win)
 {
 	int	y;
 	char	*sp, *end, *maxx;

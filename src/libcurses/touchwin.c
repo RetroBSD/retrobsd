@@ -9,8 +9,7 @@
  * make it look like the whole window has been changed.
  *
  */
-int touchwin(win)
-        WINDOW	*win;
+int touchwin(WINDOW *win)
 {
 	int	y, maxy;
 
@@ -26,9 +25,7 @@ int touchwin(win)
 /*
  * touch a given line
  */
-int touchline(win, y, sx, ex)
-        WINDOW	*win;
-        int	y, sx, ex;
+int touchline(WINDOW *win, int y, int sx, int ex)
 {
 # ifdef DEBUG
 	fprintf(outf, "TOUCHLINE(%0.2o, %d, %d, %d)\n", win, y, sx, ex);

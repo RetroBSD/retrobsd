@@ -6,8 +6,7 @@
 #include "curses.ext"
 
 int
-_putchar(c)
-        int	c;
+_putchar(int c)
 {
 	putchar(c);
 #ifdef DEBUG

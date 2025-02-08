@@ -9,7 +9,7 @@
 /*
  * handle stop and start signals
  */
-void tstp(sig)
+void tstp(int sig)
 {
 	SGTTY	tty;
 	sigset_t oset, set;

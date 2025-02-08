@@ -11,8 +11,7 @@
  * enter standout mode
  */
 char *
-wstandout(win)
-        WINDOW	*win;
+wstandout(WINDOW *win)
 {
 	if (!SO && !UC)
 		return FALSE;
@@ -25,8 +24,7 @@ wstandout(win)
  * exit standout mode
  */
 char *
-wstandend(win)
-        WINDOW	*win;
+wstandend(WINDOW *win)
 {
 	if (!SO && !UC)
 		return FALSE;

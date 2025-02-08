@@ -36,7 +36,7 @@ extern WINDOW	*_win;
 static int plodcnt, plodflg;
 
 static int
-plodput(c)
+plodput(int c)
 {
 	if (plodflg) {
 		plodcnt--;
@@ -51,8 +51,7 @@ plodput(c)
  * the case where col > COLS, even if ts does not divide COLS.
  */
 static int
-tabcol(col, ts)
-        int col, ts;
+tabcol(int col, int ts)
 {
 	int offset;
 
@@ -66,7 +65,7 @@ tabcol(col, ts)
 }
 
 static int
-plod(cnt)
+plod(int cnt)
 {
 	register int i, j, k;
 	register int soutcol, soutline;
@@ -377,8 +376,7 @@ fgoto()
 }
 
 void
-mvcur(ly, lx, y, x)
-        int	ly, lx, y, x;
+mvcur(int ly, int lx, int y, int x)
 {
 #ifdef DEBUG
 	fprintf(outf, "MVCUR: moving cursor from (%d,%d) to (%d,%d)\n", ly, lx, y, x);

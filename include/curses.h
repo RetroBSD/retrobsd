@@ -153,8 +153,11 @@ int __void__;
 #define killchar()  (_tty.sg_kill)
 #define baudrate()  (_tty.sg_ospeed)
 
-WINDOW  *initscr(), *newwin(), *subwin();
-char    *longname(), *getcap();
+WINDOW  *initscr(void);
+WINDOW  *newwin(int num_lines, int num_cols, int begy, int begx);
+WINDOW  *subwin(WINDOW *orig, int num_lines, int num_cols, int begy, int begx);
+char    *longname(const char *bp, char *def);
+char    *getcap(char *name);
 
 int     wmove (WINDOW *, int, int);
 int     wrefresh (WINDOW *);

@@ -115,8 +115,7 @@ zap()
 }
 
 int
-setterm(type)
-        char	*type;
+setterm(char *type)
 {
 	int	unknown;
 	static char genbuf[1024];
@@ -191,10 +190,7 @@ setterm(type)
  * return a capability from termcap
  */
 char *
-getcap(name)
-char *name;
+getcap(char *name)
 {
-	char *tgetstr();
-
 	return tgetstr(name, &aoftspace);
 }

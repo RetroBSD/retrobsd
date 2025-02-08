@@ -9,9 +9,7 @@
  * This routine adds a string starting at (_cury,_curx)
  */
 int
-waddstr(win, str)
-        WINDOW	*win;
-        char	*str;
+waddstr(WINDOW *win, char *str)
 {
 # ifdef DEBUG
 	fprintf(outf, "WADDSTR(\"%s\")\n", str);

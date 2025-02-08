@@ -38,8 +38,7 @@ static	int hopcount;	/* detect infinite loops in termcap, init 0 */
  * name (before the first field) stops us.
  */
 static int
-tnamatch(np)
-	char *np;
+tnamatch(char *np)
 {
 	register char *Np, *Bp;
 
@@ -117,8 +116,7 @@ tnchktc()
  * we just notice escaped newlines.
  */
 int
-tgetent(bp, name)
-	char *bp, *name;
+tgetent(char *bp, char *name)
 {
 	register char *cp;
 	register int c;
@@ -200,8 +198,7 @@ tgetent(bp, name)
  * into the termcap file in octal.
  */
 static char *
-tskip(bp)
-	register char *bp;
+tskip(char *bp)
 {
 
 	while (*bp && *bp != ':')
@@ -220,8 +217,7 @@ tskip(bp)
  * Note that we handle octal numbers beginning with 0.
  */
 int
-tgetnum(id)
-	char *id;
+tgetnum(char *id)
 {
 	register int i, base;
 	register char *bp = tbuf;
@@ -254,8 +250,7 @@ tgetnum(id)
  * not given.
  */
 int
-tgetflag(id)
-	char *id;
+tgetflag(char *id)
 {
 	register char *bp = tbuf;
 
@@ -277,9 +272,7 @@ tgetflag(id)
  * string capability escapes.
  */
 static char *
-tdecode(str, area)
-	register char *str;
-	char **area;
+tdecode(char *str, char **area)
 {
 	register char *cp;
 	register int c;
@@ -330,8 +323,7 @@ nextc:
  * No checking on area overflow.
  */
 char *
-tgetstr(id, area)
-	char *id, **area;
+tgetstr(char *id, char **area)
 {
 	register char *bp = tbuf;
 

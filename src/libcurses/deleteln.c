@@ -11,8 +11,7 @@
  * (_cury,_curx) unchanged.
  */
 int
-wdeleteln(win)
-        WINDOW	*win;
+wdeleteln(WINDOW *win)
 {
 	char	*temp;
 	int	y;

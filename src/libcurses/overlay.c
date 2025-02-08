@@ -14,8 +14,7 @@
  * This routine writes win1 on win2 non-destructively.
  */
 void
-overlay(win1, win2)
-        WINDOW	*win1, *win2;
+overlay(WINDOW *win1, WINDOW *win2)
 {
 	char	*sp, *end;
 	int	x, y, endy, endx, starty, startx;

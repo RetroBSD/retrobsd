@@ -10,9 +10,7 @@
  * (_cury,_curx) unchanged.
  */
 int
-winsch(win, c)
-        WINDOW	*win;
-        char	c;
+winsch(WINDOW *win, char c)
 {
 	char	*temp1, *temp2;
 	char	*end;

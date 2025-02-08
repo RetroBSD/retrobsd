@@ -12,8 +12,7 @@
  * Touch, on win2, the part that overlaps with win1.
  */
 void
-touchoverlap(win1, win2)
-        WINDOW	*win1, *win2;
+touchoverlap(WINDOW *win1, WINDOW *win2)
 {
 	int	y, endy, endx, starty, startx;
 

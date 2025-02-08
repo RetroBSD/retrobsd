@@ -9,8 +9,7 @@
  * This routine erases everything on the window.
  */
 void
-werase(win)
-        WINDOW	*win;
+werase(WINDOW *win)
 {
 	int	y;
 	char	*sp, *end, *start, *maxx;

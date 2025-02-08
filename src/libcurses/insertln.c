@@ -11,8 +11,7 @@
  * (_cury,_curx) unchanged.
  */
 void
-winsertln(win)
-        WINDOW	*win;
+winsertln(WINDOW *win)
 {
 	char	*temp = 0;
 	int	y;

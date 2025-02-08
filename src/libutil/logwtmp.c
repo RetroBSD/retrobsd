@@ -22,16 +22,14 @@
 #include <paths.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <string.h>
 
 void
-logwtmp(line, name, host)
-	char *line, *name, *host;
+logwtmp(char *line, char *name, char *host)
 {
 	struct utmp ut;
 	struct stat buf;
 	int fd;
-	time_t time();
-	char *strncpy();
 
 	fd = open(_PATH_WTMP, O_WRONLY|O_APPEND, 0);
 	if (fd < 0)

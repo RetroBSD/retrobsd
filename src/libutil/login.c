@@ -25,12 +25,10 @@
 int ttyslot(void);
 
 void
-login(ut)
-	struct utmp *ut;
+login(struct utmp *ut)
 {
 	register int fd;
 	int tty;
-	off_t lseek();
 
 	tty = ttyslot();
 	if (tty > 0 && (fd = open(_PATH_UTMP, O_WRONLY, 0)) >= 0) {

@@ -10,8 +10,7 @@
  * This routine deletes a window and releases it back to the system.
  */
 int
-delwin(win)
-        WINDOW	*win;
+delwin(WINDOW *win)
 {
 	int	i;
 	WINDOW	*wp, *np;

@@ -8,8 +8,7 @@
 /*
  * This routine clears the window.
  */
-int wclear(win)
-        WINDOW *win;
+int wclear(WINDOW *win)
 {
 	werase(win);
 	win->_clear = TRUE;

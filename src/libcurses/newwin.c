@@ -19,8 +19,7 @@
  * This routine sets up a window buffer and returns a pointer to it.
  */
 static WINDOW *
-makenew(num_lines, num_cols, begy, begx)
-        int	num_lines, num_cols, begy, begx;
+makenew(int num_lines, int num_cols, int begy, int begx)
 {
 	WINDOW	*win;
 	int	by, bx, nl, nc;
@@ -68,8 +67,7 @@ makenew(num_lines, num_cols, begy, begx)
 }
 
 WINDOW *
-newwin(num_lines, num_cols, begy, begx)
-        int	num_lines, num_cols, begy, begx;
+newwin(int num_lines, int num_cols, int begy, int begx)
 {
 	WINDOW	*win;
 	char	*sp;
@@ -124,9 +122,7 @@ newwin(num_lines, num_cols, begy, begx)
 }
 
 WINDOW *
-subwin(orig, num_lines, num_cols, begy, begx)
-        WINDOW	*orig;
-        int	num_lines, num_cols, begy, begx;
+subwin(WINDOW *orig, int num_lines, int num_cols, int begy, int begx)
 {
 	WINDOW	*win;
 	int	by, bx, nl, nc;
@@ -163,8 +159,7 @@ subwin(orig, num_lines, num_cols, begy, begx)
  * this code is shared with mvwin()
  */
 void
-_set_subwin_(orig, win)
-        register WINDOW	*orig, *win;
+_set_subwin_(WINDOW *orig, WINDOW *win)
 {
 	register int	i, j, k;
 
@@ -181,8 +176,7 @@ _set_subwin_(orig, win)
 }
 
 void
-_swflags_(win)
-        register WINDOW	*win;
+_swflags_(WINDOW *win)
 {
 	win->_flags &= ~(_ENDLINE|_FULLLINE|_FULLWIN|_SCROLLWIN);
 	if (win->_begx + win->_maxx == COLS) {

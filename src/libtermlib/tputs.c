@@ -25,10 +25,7 @@ extern char	PC;
  * used to output one character is outc.
  */
 void
-tputs(cp, affcnt, outc)
-	register char *cp;
-	int affcnt;
-	int (*outc)(int);
+tputs(char *cp, int affcnt, int (*outc)(int))
 {
 	register int i = 0;
 	register int mspc10;

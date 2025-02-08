@@ -11,9 +11,7 @@
  *	window.
  */
 void
-idlok(win, bf)
-        WINDOW	*win;
-        bool	bf;
+idlok(WINDOW *win, bool bf)
 {
 	if (bf)
 		win->_flags |= _IDLINE;

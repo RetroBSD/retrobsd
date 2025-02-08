@@ -10,8 +10,7 @@
  *	Re-sync the pointers to _y for all the subwindows.
  */
 void
-_id_subwins(orig)
-        WINDOW	*orig;
+_id_subwins(WINDOW *orig)
 {
 	WINDOW	*win;
 	int	realy;

@@ -10,8 +10,7 @@
  *
  */
 char *
-fullname(bp, def)
-        char	*bp, *def;
+fullname(char *bp, char *def)
 {
 	char	*cp;
 

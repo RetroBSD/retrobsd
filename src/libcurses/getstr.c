@@ -9,9 +9,7 @@
  * This routine gets a string starting at (_cury,_curx)
  */
 int
-wgetstr(win, str)
-        WINDOW	*win;
-        char	*str;
+wgetstr(WINDOW *win, char *str)
 {
 	while ((*str = wgetch(win)) != ERR && *str != '\n')
 		str++;

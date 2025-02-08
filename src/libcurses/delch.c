@@ -10,8 +10,7 @@
  * (_cury,_curx) unchanged.
  */
 int
-wdelch(win)
-        WINDOW	*win;
+wdelch(WINDOW *win)
 {
 	char	*temp1, *temp2;
 	char	*end;

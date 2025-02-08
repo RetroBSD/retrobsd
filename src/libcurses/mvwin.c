@@ -9,9 +9,7 @@
  * relocate the starting position of a window
  */
 int
-mvwin(win, by, bx)
-        WINDOW	*win;
-        int	by, bx;
+mvwin(WINDOW *win, int by, int bx)
 {
 	WINDOW	*orig;
 	int	dy, dx;

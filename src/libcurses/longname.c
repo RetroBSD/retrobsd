@@ -8,8 +8,7 @@
  * This routine fills in "def" with the long name of the terminal.
  */
 char *
-longname(bp, def)
-        char	*bp, *def;
+longname(const char *bp, char *def)
 {
 	char	*cp;
 

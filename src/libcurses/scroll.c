@@ -9,8 +9,7 @@
  * This routine scrolls the window up a line.
  */
 int
-scroll(win)
-        WINDOW *win;
+scroll(WINDOW *win)
 {
 	int	oy, ox;
 

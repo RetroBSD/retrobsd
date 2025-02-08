@@ -10,9 +10,7 @@
  *	Set the first and last change flags for this window.
  */
 static void
-set_ch(win, y, x, ch)
-        WINDOW	*win;
-        int	y, x;
+set_ch(WINDOW *win, int y, int x, int ch)
 {
 # ifdef	FULLDEBUG
 	fprintf(outf, "SET_CH(%0.2o, %d, %d)\n", win, y, x);

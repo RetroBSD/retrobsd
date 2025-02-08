@@ -14,8 +14,7 @@
  * This routine writes win1 on win2 destructively.
  */
 void
-overwrite(win1, win2)
-        WINDOW	*win1, *win2;
+overwrite(WINDOW *win1, WINDOW *win2)
 {
 	int	x, y, endy, endx, starty, startx;
 

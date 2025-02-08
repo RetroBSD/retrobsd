@@ -15,20 +15,16 @@
  *	This routine implements a scanf on the standard screen.
  */
 int
-scanw(fmt, args)
-        char	*fmt;
-        int	args;
+scanw(char *fmt, int args)
 {
 	return _sscans(stdscr, fmt, &args);
 }
+
 /*
  *	This routine implements a scanf on the given window.
  */
 int
-wscanw(win, fmt, args)
-        WINDOW	*win;
-        char	*fmt;
-        int	args;
+wscanw(WINDOW *win, char *fmt, int args)
 {
 	return _sscans(win, fmt, &args);
 }
@@ -43,10 +39,7 @@ wscanw(win, fmt, args)
  * "sscanf" uses.
  */
 int
-_sscans(win, fmt, args)
-        WINDOW	*win;
-        char	*fmt;
-        int	*args;
+_sscans(WINDOW *win, char *fmt, int *args)
 {
 	char	buf[100];
 	FILE	junk;

@@ -10,20 +10,13 @@
  * arguments, they cannot be macros.  Another sigh....
  */
 int
-mvscanw(y, x, fmt, args)
-        int	y, x;
-        char	*fmt;
-        int	args;
+mvscanw(int y, int x, char *fmt, int args)
 {
 	return move(y, x) == OK ? _sscans(stdscr, fmt, &args) : ERR;
 }
 
 int
-mvwscanw(win, y, x, fmt, args)
-        WINDOW	*win;
-        int	y, x;
-        char	*fmt;
-        int	args;
+mvwscanw(WINDOW *win, int y, int x, char *fmt, int args)
 {
 	return wmove(win, y, x) == OK ? _sscans(win, fmt, &args) : ERR;
 }

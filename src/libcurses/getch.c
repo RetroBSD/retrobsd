@@ -8,8 +8,7 @@
 /*
  * This routine reads in a character from the window.
  */
-int wgetch(win)
-        WINDOW	*win;
+int wgetch(WINDOW *win)
 {
 	bool	weset = FALSE;
 	char	inp;

@@ -25,8 +25,7 @@ WINDOW	*_win = NULL;
  * perform a mvcur, leaving standout mode if necessary
  */
 STATIC void
-domvcur(oy, ox, ny, nx)
-        int	oy, ox, ny, nx;
+domvcur(int oy, int ox, int ny, int nx)
 {
 	if (curscr->_flags & _STANDOUT && !MS) {
 		_puts(SE);
@@ -39,9 +38,7 @@ domvcur(oy, ox, ny, nx)
  * make a change on the screen
  */
 STATIC int
-makech(win, wy)
-        WINDOW	*win;
-        short	wy;
+makech(WINDOW *win, short wy)
 {
 	char	*nsp, *csp, *ce;
 	short	wx, lch, y;
@@ -197,8 +194,7 @@ makech(win, wy)
 	return OK;
 }
 
-int wrefresh(win)
-        WINDOW	*win;
+int wrefresh(WINDOW *win)
 {
 	short	wy;
 	int	retval;

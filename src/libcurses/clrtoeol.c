@@ -9,8 +9,7 @@
  * This routine clears up to the end of line
  */
 void
-wclrtoeol(win)
-        WINDOW	*win;
+wclrtoeol(WINDOW *win)
 {
 	char	*sp, *end;
 	int	y, x;

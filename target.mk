@@ -35,11 +35,12 @@ ifeq ($(LLVMBIN),)
     $(error Unable to find any CLANG toolchain!)
 endif
 
+# TODO: remove -Wno-deprecated-non-prototype -Wno-implicit-int
 CC		= $(LLVMBIN)clang -target mipsel -mcpu=mips32r2 -mabi=o32 -msoft-float \
                   -fomit-frame-pointer -finline-hint-functions -I$(TOPSRC)/include \
-                  -Wno-builtin-requires-header
+                  -Wno-builtin-requires-header -Wno-deprecated-non-prototype -Wno-implicit-int
 CXX             = $(LLVMBIN)clang++ -target mipsel -mcpu=mips32r2 -mabi=o32 -msoft-float \
-                  -fomit-frame-pointer -finline-hint-functions -I$(TOPSRC)/include
+                  -fomit-frame-pointer -finline-hint-functions -I$(TOPSRC)/include -Wno-deprecated-non-prototype -Wno-implicit-int
 LD		= $(LLVMBIN)ld.lld -m elf32ltsmip
 AR		= $(LLVMBIN)llvm-ar
 RANLIB          = $(LLVMBIN)llvm-ranlib

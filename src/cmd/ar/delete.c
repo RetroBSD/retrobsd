@@ -62,8 +62,7 @@ extern char *tname;                     /* temporary file "name" */
  *	Deletes named members from the archive.
  */
 int
-delete(argv)
-	register char **argv;
+delete(char **argv)
 {
 	CF cf;
 	off_t size;

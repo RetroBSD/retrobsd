@@ -7,8 +7,7 @@ char    *printptr = printbuf;
 static char *digitptr;
 
 void
-printc(c)
-    int c;
+printc(int c)
 {
     char d;
     char *q;
@@ -69,8 +68,7 @@ flushbuf()
 }
 
 static int
-convert(cp)
-    register char **cp;
+convert(char **cp)
 {
     register char c;
     int     n = 0;
@@ -83,8 +81,7 @@ convert(cp)
 }
 
 static void
-printnum(n, fmat, base)
-    register int n;
+printnum(int n, int fmat, int base)
 {
     register char k;
     register int *dptr;
@@ -109,9 +106,7 @@ printnum(n, fmat, base)
 }
 
 static void
-printoct(o, s)
-    long    o;
-    int     s;
+printoct(long o, int s)
 {
     int     i;
     long    po = o;
@@ -141,9 +136,7 @@ printoct(o, s)
 }
 
 static void
-printlong(lx, fmat, base)
-    long    lx;
-    int     fmat, base;
+printlong(long lx, int fmat, int base)
 {
     int digs[20], *dptr;
     char k;
@@ -172,8 +165,7 @@ printlong(lx, fmat, base)
 }
 
 static void
-printdate(tvec)
-    long    tvec;
+printdate(long tvec)
 {
     register int i;
     register char *timeptr;
@@ -336,7 +328,7 @@ struct {
 int ifiledepth;
 
 void
-iclose(stack, err)
+iclose(int stack, int err)
 {
     if (err) {
         if (infile) {

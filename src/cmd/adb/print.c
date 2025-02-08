@@ -48,9 +48,7 @@ static const REGLIST kregs[] = {    // TODO
 };
 
 static void
-printmap(s, amap)
-    char    *s;
-    MAP     *amap;
+printmap(char *s, MAP *amap)
 {
     int file;
 
@@ -114,7 +112,7 @@ printregs()
  * general printing routines ($)
  */
 void
-printtrace(modif)
+printtrace(int modif)
 {
     int     narg, i, stat, name, limit;
     u_int   dynam;
@@ -387,7 +385,7 @@ printtrace(modif)
 }
 
 int
-getreg(regnam)
+getreg(int regnam)
 {
     register const REGLIST *p;
     register char *regptr;

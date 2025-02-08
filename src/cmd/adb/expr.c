@@ -15,7 +15,7 @@ static char isymbol[MAXSYMLEN + 2];
  * service routines for expression reading
  */
 static int
-symchar(dig)
+symchar(int dig)
 {
     if (lastc == '\\') {
         readchar();
@@ -39,8 +39,7 @@ readsym()
 }
 
 static void
-chkloc(frame)
-    long frame;
+chkloc(long frame)
 {
     readsym();
     do {
@@ -51,8 +50,7 @@ chkloc(frame)
 }
 
 static struct SYMbol *
-lookupsym(symstr)
-    char *symstr;
+lookupsym(char *symstr)
 {
     register struct SYMbol *symp, *sc;
 
@@ -77,8 +75,7 @@ lookupsym(symstr)
 }
 
 static int
-convdig(c)
-    int c;
+convdig(int c)
 {
     if (isdigit(c))
         return c - '0';
@@ -91,7 +88,7 @@ convdig(c)
  * name [ . local ] | number | . | ^ | <var | <register | 'x |
  */
 int
-item(a)
+item(int a)
 {
     int base, d, frpt, regptr;
     char savc, hex;
@@ -227,7 +224,7 @@ item(a)
  * item | monadic item | (expr) |
  */
 int
-term(a)
+term(int a)
 {
     switch (readchar()) {
 
@@ -269,7 +266,7 @@ term(a)
  * term | term dyadic expr |
  */
 int
-expr(a)
+expr(int a)
 {
     int rc;
     long lhs;
@@ -296,7 +293,7 @@ expr(a)
 }
 
 int
-varchk(name)
+varchk(int name)
 {
     if (isdigit(name))
         return name - '0';
@@ -306,9 +303,7 @@ varchk(name)
 }
 
 int
-eqsym(s1, s2, c)
-    register char *s1, *s2;
-    int c;
+eqsym(char *s1, char *s2, int c)
 {
     if (! strcmp(s1, s2))
         return TRUE;

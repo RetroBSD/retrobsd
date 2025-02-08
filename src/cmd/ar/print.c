@@ -57,8 +57,7 @@ extern char *archive;			/* archive name */
  *	print those members, otherwise print all members.
  */
 int
-print(argv)
-	char **argv;
+print(char **argv)
 {
 	CF cf;
 	register int afd, all;

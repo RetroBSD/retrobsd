@@ -1,8 +1,7 @@
 #include "defs.h"
 
 int
-findroutine(cframe)
-    long cframe;
+findroutine(long cframe)
 {
     register int narg, inst;
     int lastpc, back2;

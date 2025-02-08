@@ -33,6 +33,8 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
+#include <sys/stat.h>
+
 #ifdef CROSS
 #   ifdef __linux__
 #       undef O_CREAT
@@ -112,12 +114,12 @@ typedef struct {
 #define	OLDARMAXNAME	15
 #define	HDR3	"%-16.15s%-12ld%-6u%-6u%-8o%-10ld%2s"
 
-void	close_archive();
-void	skip_arobj();
-void	copy_ar();
-int	get_arobj();
-int	open_archive();
-void	put_arobj();
+int	open_archive(int mode);
+void	close_archive(int fd);
+int	get_arobj(int fd);
+void	skip_arobj(int fd);
+void	copy_ar(CF *cfp, off_t size);
+void	put_arobj(CF *cfp, struct stat *sb);
 
 int     delete (register char **argv);
 int     move (register char **argv);

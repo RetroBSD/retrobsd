@@ -27,9 +27,7 @@ static  int     symcnt;
 static  int     symnum;
 
 u_int
-findsym(svalue, type)
-    u_int   svalue;
-    int     type;
+findsym(u_int svalue, int type)
 {
     long    diff, value, symval;
     register struct SYMbol  *sp;
@@ -57,7 +55,7 @@ findsym(svalue, type)
 }
 
 void
-valpr(v, idsp)
+valpr(int v, int idsp)
 {
     u_int   d;
 
@@ -70,8 +68,7 @@ valpr(v, idsp)
 }
 
 int
-localsym(cframe)
-    long cframe;
+localsym(long cframe)
 {
     int symflg;
 
@@ -93,10 +90,7 @@ localsym(cframe)
 }
 
 void
-psymoff(v, type, s)
-    long v;
-    int type;
-    char *s;
+psymoff(long v, int type, char *s)
 {
     u_int w;
 
@@ -132,8 +126,7 @@ symget()
 }
 
 static unsigned int
-fgetword (f)
-    register FILE *f;
+fgetword (FILE *f)
 {
         register unsigned int h;
 
@@ -154,10 +147,7 @@ fgetword (f)
  *  N bytes: name
  */
 static int
-fgetsym (fi, name, value, type)
-        register FILE *fi;
-        register char *name;
-        unsigned *value, *type;
+fgetsym (FILE *fi, char *name, unsigned *value, unsigned *type)
 {
         register int len;
         unsigned nbytes;
@@ -184,8 +174,7 @@ fgetsym (fi, name, value, type)
  * generates *lots* of them and they're useless to us.
  */
 void
-symINI(ex)
-    struct exec *ex;
+symINI(struct exec *ex)
 {
     register struct SYMbol  *sp;
     register FILE   *fp;
@@ -270,8 +259,7 @@ symINI(ex)
  * symbol name.
 */
 char *
-cache_sym(symp)
-    register struct SYMbol *symp;
+cache_sym(struct SYMbol *symp)
 {
     register struct SYMcache *sc = symcache;
     struct  SYMcache *current;
@@ -305,8 +293,7 @@ cache_sym(symp)
  * used again any time soon.
  */
 char *
-no_cache_sym(symp)
-    register struct SYMbol *symp;
+no_cache_sym(struct SYMbol *symp)
 {
     register struct SYMcache *sc = symcache;
 
@@ -328,8 +315,7 @@ no_cache_sym(symp)
  * file offset.
  */
 struct SYMbol *
-cache_by_string(str)
-    char *str;
+cache_by_string(char *str)
 {
     register struct SYMcache *sc;
 

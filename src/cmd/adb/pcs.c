@@ -4,7 +4,7 @@
 #include "defs.h"
 
 void
-subpcs(modif)
+subpcs(int modif)
 {
     register int check;
     int execsig, runmode;

@@ -12,9 +12,7 @@ static long locval;
 static long locmsk;
 
 int
-command(buf, defcom)
-    char    *buf;
-    int     defcom;
+command(char *buf, int defcom)
 {
     int     itype, ptype, modifier, regptr;
     char    longpr, eqcom;

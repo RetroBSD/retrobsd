@@ -9,9 +9,7 @@ char    *corfil  = "core";
 static long bss;
 
 static int
-getfile(filnam, cnt)
-    char    *filnam;
-    int     cnt;
+getfile(char *filnam, int cnt)
 {
     register int f;
 

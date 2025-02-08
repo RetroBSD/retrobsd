@@ -72,8 +72,7 @@ extern char *tname;                     /* temporary file "name" */
  *	is specified, modification dates select for replacement.
  */
 int
-replace(argv)
-	char **argv;
+replace(char **argv)
 {
 	extern char *posarg, *posname;	/* positioning file name */
 	register char *file;

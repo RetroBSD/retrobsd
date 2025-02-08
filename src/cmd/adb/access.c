@@ -5,16 +5,13 @@
 #include <fcntl.h>
 
 static int
-within(adr, lbd, ubd)
-    long adr, lbd, ubd;
+within(long adr, long lbd, long ubd)
 {
     return (adr>=lbd && adr<ubd);
 }
 
 static int
-chkmap(adr, space)
-    register long *adr;
-    register int space;
+chkmap(long *adr, int space)
 {
     register MAPPTR amap;
 
@@ -56,8 +53,7 @@ err:    errflg = (space & DSP) ? BADDAT : BADTXT;
 }
 
 int
-acces(mode, adr, space, value)
-    long    adr;
+acces(int mode, long adr, int space, int value)
 {
     int     w, w1, pmode, rd, file;
     BKPTR   bkptr;
@@ -105,22 +101,19 @@ acces(mode, adr, space, value)
 }
 
 void
-put(adr, space, value)
-    long   adr;
+put(long adr, int space, int value)
 {
     acces(WT, adr, space, value);
 }
 
 u_int
-get(adr, space)
-    long    adr;
+get(long adr, int space)
 {
     return acces(RD, adr, space, 0);
 }
 
 u_int
-chkget(n, space)
-    long n;
+chkget(long n, int space)
 {
     register int w;
 

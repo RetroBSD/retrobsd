@@ -31,11 +31,11 @@
  * SUCH DAMAGE.
  */
 
-void	 badfmt();
-void	 error();
-void	 orphans();
-int	 compare();
-int	 tmp();
-char	*files();
-char	*rname();
-void	strmode();
+void	 badfmt(void);
+void	 error(char *name);
+void	 orphans(char **argv);
+int	 compare(char *dest);
+int	 tmp(void);
+char	*files(char **argv);
+char	*rname(char *path);
+void	strmode(mode_t mode, char *p);

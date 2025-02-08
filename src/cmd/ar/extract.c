@@ -71,8 +71,7 @@ extern char *archive;			/* archive name */
  *	archive.
  */
 int
-extract(argv)
-	char **argv;
+extract(char **argv)
 {
 	register int afd, all, tfd;
 	struct timeval tv[2];

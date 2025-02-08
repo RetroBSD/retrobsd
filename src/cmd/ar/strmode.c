@@ -39,9 +39,7 @@
 #endif
 
 void
-strmode(mode, p)
-	register mode_t mode;
-	register char *p;
+strmode(mode_t mode, char *p)
 {
 	 /* print type */
 	switch (mode & S_IFMT) {

@@ -65,8 +65,7 @@ extern char *tname;                     /* temporary file "name" */
  *	are moved to end of archive.
  */
 int
-move(argv)
-	char **argv;
+move(char **argv)
 {
 	extern char *posarg, *posname;	/* positioning file names */
 	CF cf;

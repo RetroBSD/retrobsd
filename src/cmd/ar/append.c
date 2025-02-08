@@ -67,8 +67,7 @@ extern int errno;
  *	a new archive if named archive does not exist.
  */
 int
-append(argv)
-	char **argv;
+append(char **argv)
 {
 	register int fd, afd;
 	register char *file;

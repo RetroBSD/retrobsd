@@ -39,8 +39,7 @@ int addr;
 extern int print_insn_mips (unsigned memaddr,
     unsigned long int word, FILE *stream);
 
-unsigned int fgetword (f)
-    register FILE *f;
+unsigned int fgetword (FILE *f)
 {
     register unsigned int h;
 
@@ -51,9 +50,7 @@ unsigned int fgetword (f)
     return h;
 }
 
-int fgethdr (text, h)
-    register FILE *text;
-    register struct exec *h;
+int fgethdr (FILE *text, struct exec *h)
 {
     h->a_midmag   = fgetword (text);
     h->a_text    = fgetword (text);
@@ -69,9 +66,7 @@ int fgethdr (text, h)
 /*
  * Read a relocation record: 1 to 6 bytes.
  */
-void fgetrel (f, r)
-    register FILE *f;
-    register struct reloc *r;
+void fgetrel (FILE *f, struct reloc *r)
 {
     r->flags = getc (f);
     if ((r->flags & RSMASK) == REXT) {
@@ -96,11 +91,7 @@ void fgetrel (f, r)
  *  4 bytes: value
  *  N bytes: name
  */
-int fgetsym (text, name, value, type)
-    register FILE *text;
-    register char *name;
-    unsigned *value;
-    unsigned *type;
+int fgetsym (FILE *text, char *name, unsigned *value, unsigned *type)
 {
     register int len;
     unsigned nbytes;
@@ -117,8 +108,7 @@ int fgetsym (text, name, value, type)
     return nbytes;
 }
 
-void prrel (r)
-    register struct reloc *r;
+void prrel (struct reloc *r)
 {
     printf ("<");
     switch (r->flags & RSMASK) {
@@ -143,8 +133,7 @@ void prrel (r)
     printf (">");
 }
 
-void prtext (n)
-    register int n;
+void prtext (int n)
 {
     unsigned opcode;
     struct reloc relinfo;
@@ -169,8 +158,7 @@ void prtext (n)
     }
 }
 
-void prdata (n)
-    register int n;
+void prdata (int n)
 {
     struct reloc relinfo;
 
@@ -188,8 +176,7 @@ void prdata (n)
     }
 }
 
-void prsyms (nbytes)
-    register int nbytes;
+void prsyms (int nbytes)
 {
     register int n, c;
     unsigned value, type;
@@ -222,8 +209,7 @@ void prsyms (nbytes)
     }
 }
 
-void disasm (fname)
-    register char *fname;
+void disasm (char *fname)
 {
     text = fopen (fname, "r");
     if (! text) {
@@ -281,8 +267,7 @@ void disasm (fname)
     printf ("\n");
 }
 
-int main (argc, argv)
-    register char **argv;
+int main (int argc, char **argv)
 {
     int ch;
 

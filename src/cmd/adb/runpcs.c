@@ -8,7 +8,7 @@
 static int userpc = 1;
 
 int
-getsig(sig)
+getsig(int sig)
 {
     return expr(0) ? shorten(expv) : sig;
 }
@@ -75,8 +75,7 @@ readregs()
 }
 
 static void
-execbkpt(bkptr)
-    BKPTR bkptr;
+execbkpt(BKPTR bkptr)
 {
     int bkptloc;
 
@@ -99,7 +98,7 @@ execbkpt(bkptr)
 }
 
 int
-runpcs(runmode, execsig)
+runpcs(int runmode, int execsig)
 {
     int rc = 0;
     register BKPTR bkpt;
@@ -240,7 +239,7 @@ setup()
 }
 
 BKPTR
-scanbkpt(adr)
+scanbkpt(int adr)
 {
     register BKPTR bkptr;
 
@@ -263,8 +262,7 @@ delbp()
 }
 
 void
-del1bp(bkptr)
-    BKPTR bkptr;
+del1bp(BKPTR bkptr)
 {
     ptrace(PT_WRITE_I, pid, (void*) bkptr->loc, bkptr->ins);
 }
@@ -281,8 +279,7 @@ setbp()
 }
 
 void
-set1bp(bkptr)
-    BKPTR bkptr;
+set1bp(BKPTR bkptr)
 {
     register int a;
 

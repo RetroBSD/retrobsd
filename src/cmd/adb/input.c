@@ -8,7 +8,7 @@ int lastc = EOR;
 static char line[LINSIZ];
 
 int
-eol(c)
+eol(int c)
 {
     return (c == EOR || c == ';');
 }
@@ -66,8 +66,7 @@ quotchar()
 }
 
 void
-getformat(deformat)
-    char *deformat;
+getformat(char *deformat)
 {
     register char   *fptr;
     register int    quote;

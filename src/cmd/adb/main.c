@@ -55,8 +55,7 @@ u_int   corhdr [USIZE/sizeof(u_int)];
 off_t   symoff;
 
 long
-roundn(a, b)
-    long a, b;
+roundn(long a, long b)
 {
     long w;
 
@@ -75,8 +74,7 @@ chkerr()
 }
 
 void
-error(msg)
-    const char *msg;
+error(const char *msg)
 {
     errflg = msg;
     iclose(0, 1);
@@ -85,7 +83,7 @@ error(msg)
 }
 
 void
-fault(a)
+fault(int a)
 {
     signal(a, fault);
     lseek(infile, 0L, 2);
@@ -96,9 +94,7 @@ fault(a)
  * set up files and initial address mappings
  */
 int
-main(argc, argv)
-    register char   **argv;
-    int     argc;
+main(int argc, char **argv)
 {
     short   mynamelen;              /* length of program name */
 

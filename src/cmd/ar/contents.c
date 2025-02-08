@@ -63,8 +63,7 @@ extern char *archive;			/* archive name */
  *	skipping member contents.
  */
 int
-contents(argv)
-	register char **argv;
+contents(char **argv)
 {
 	register int afd, all;
 	struct tm *tp;

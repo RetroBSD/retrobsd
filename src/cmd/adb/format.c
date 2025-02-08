@@ -7,9 +7,7 @@
 #endif
 
 void
-scanform(icount, ifp, itype, ptype)
-    long    icount;
-    char    *ifp;
+scanform(long icount, char *ifp, int itype, int ptype)
 {
     char    *fp;
     char    modifier;
@@ -64,7 +62,7 @@ scanform(icount, ifp, itype, ptype)
 }
 
 static void
-printesc(c)
+printesc(int c)
 {
     c &= STRIP;
     if (c < SP || c > '~' || c == '@') {
@@ -75,10 +73,7 @@ printesc(c)
 }
 
 char *
-exform(fcount, ifp, itype, ptype)
-    int     fcount;
-    char    *ifp;
-    int     itype, ptype;
+exform(int fcount, char *ifp, int itype, int ptype)
 {
     /* execute single format item `fcount' times
      * sets `dotinc' and moves `dot'
@@ -306,7 +301,7 @@ unox()
 }
 
 long
-inkdot(incr)
+inkdot(int incr)
 {
     long    newdot;
 

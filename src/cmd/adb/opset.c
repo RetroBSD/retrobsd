@@ -335,8 +335,7 @@ static const char *const regname[32] = {
  * always INSNLEN.
  */
 void
-printins (space, memaddr, word)
-    unsigned memaddr, word;
+printins (int space, unsigned memaddr, unsigned word)
 {
     const struct optable *op;
 

@@ -27,8 +27,7 @@
 int returntosingle;
 
 int
-ftypeok(dp)
-    DINODE *dp;
+ftypeok(DINODE *dp)
 {
     switch (dp->di_mode & IFMT) {
 
@@ -48,8 +47,7 @@ ftypeok(dp)
 }
 
 int
-reply(s)
-    char *s;
+reply(char *s)
 {
     char line[80];
 
@@ -75,9 +73,7 @@ reply(s)
 }
 
 int
-getlin(fp, loc, maxlen)
-    FILE *fp;
-    char *loc;
+getlin(FILE *fp, char *loc, int maxlen)
 {
     register int n;
     register char *p, *lastloc;
@@ -95,8 +91,7 @@ getlin(fp, loc, maxlen)
 }
 
 BUFAREA *
-search(blk)
-    daddr_t blk;
+search(daddr_t blk)
 {
     register BUFAREA *pbp = 0, *bp;
 
@@ -114,9 +109,7 @@ search(blk)
 }
 
 BUFAREA *
-getblk(bp, blk)
-    register BUFAREA *bp;
-    daddr_t blk;
+getblk(BUFAREA *bp, daddr_t blk)
 {
     register struct filecntl *fcp;
 
@@ -136,9 +129,7 @@ getblk(bp, blk)
 }
 
 void
-flush(fcp, bp)
-    struct filecntl *fcp;
-    register BUFAREA *bp;
+flush(struct filecntl *fcp, BUFAREA *bp)
 {
 
     if (!bp->b_dirty)
@@ -154,9 +145,7 @@ flush(fcp, bp)
 }
 
 void
-rwerr(s, blk)
-    char *s;
-    daddr_t blk;
+rwerr(char *s, daddr_t blk)
 {
     if (preen == 0)
         printf("\n");
@@ -190,11 +179,7 @@ ckfini()
 }
 
 int
-bread(fcp, buf, blk, size)
-    register struct filecntl *fcp;
-    char *buf;
-    daddr_t blk;
-    int size;
+bread(struct filecntl *fcp, char *buf, daddr_t blk, int size)
 {
     char *cp;
     register int i, errs;
@@ -225,11 +210,7 @@ bread(fcp, buf, blk, size)
 }
 
 void
-bwrite(fcp, buf, blk, size)
-    register struct filecntl *fcp;
-    char *buf;
-    daddr_t blk;
-    int size;
+bwrite(struct filecntl *fcp, char *buf, daddr_t blk, int size)
 {
     int i;
     char *cp;
@@ -278,9 +259,7 @@ allocblk()
  * Find a pathname
  */
 void
-getpathname(namebuf, curdir, ino)
-    char *namebuf;
-    ino_t curdir, ino;
+getpathname(char *namebuf, ino_t curdir, ino_t ino)
 {
     int len, st;
     register char *cp;
@@ -328,7 +307,7 @@ getpathname(namebuf, curdir, ino)
 }
 
 void
-catch (sig)
+catch (int sig)
 {
     ckfini();
     exit(12);
@@ -340,7 +319,7 @@ catch (sig)
  * so that reboot sequence may be interrupted.
  */
 void
-catchquit (sig)
+catchquit (int sig)
 {
     printf("returning to single-user after filesystem check\n");
     returntosingle = 1;
@@ -352,7 +331,7 @@ catchquit (sig)
  * Used by child processes in preen.
  */
 void
-voidquit (sig)
+voidquit (int sig)
 {
 
     sleep(1);
@@ -364,9 +343,7 @@ voidquit (sig)
  * determine whether an inode should be fixed.
  */
 int
-dofix(idesc, msg)
-    register struct inodesc *idesc;
-    char *msg;
+dofix(struct inodesc *idesc, char *msg)
 {
 
     switch (idesc->id_fix) {
@@ -453,9 +430,7 @@ pwarn(char *fmt, ...)
 }
 
 int
-dostate(ino, s,flg)
-    ino_t ino;
-    int s, flg;
+dostate(ino_t ino, int s, int flg)
 {
     register char *p;
     register unsigned byte, shift;
@@ -486,9 +461,7 @@ dostate(ino, s,flg)
 }
 
 int
-domap(blk, flg)
-    daddr_t blk;
-    int flg;
+domap(daddr_t blk, int flg)
 {
     register char *p;
     register unsigned n;

@@ -38,8 +38,7 @@ static	int	inspool;		/* true iff working dir is Spool */
  * return (possibly) remapped string s
  */
 char *
-subfile(as)
-char *as;
+subfile(char *as)
 {
 	register char *s, **p;
 	register int n;
@@ -81,8 +80,7 @@ char *as;
 /*
  * save away filename
  */
-int subchdir(s)
-register char *s;
+int subchdir(char *s)
 {
 	inspool = (strcmp(s, Spool) == 0);
 	return chdir(s);
@@ -92,8 +90,7 @@ register char *s;
  * return possibly corrected directory for searching
  */
 char *
-subdir(d, pre)
-register char *d, pre;
+subdir(char *d, char pre)
 {
 	if (strcmp(d, Spool) == 0) {
 		if (pre == CMDPRE) {

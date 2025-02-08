@@ -63,8 +63,7 @@ static int gotfiles(char *file);
  *  to add allowable commands, add to the file CMDFILE
  *  A line of form "PATH=..." changes the search path
  */
-int main(argc, argv)
-char *argv[];
+int main(int argc, char *argv[])
 {
 	char xcmd[MAXFULLNAME];
 	int argnok;
@@ -187,7 +186,7 @@ doprocess:
 	while (gtxfile(xfile) > 0) {
 		/* if /etc/nologin exists, exit cleanly */
 #if defined(BSD4_2) || defined(USG)
-		if (access(NOLOGIN) == 0) {
+		if (access(NOLOGIN, 0) == 0) {
 #else
 		ultouch();
 		if (nologinflag) {
@@ -384,8 +383,7 @@ doprocess:
 	cleanup(0);
 }
 
-void cleanup(code)
-int code;
+void cleanup(int code)
 {
 	logcls();
 	rmlock(CNULL);
@@ -405,8 +403,7 @@ int code;
  *
  *	return codes:  0 - no file  |  1 - file to execute
  */
-int gtxfile(file)
-register char *file;
+int gtxfile(char *file)
 {
 	char pre[3];
 	int rechecked;
@@ -462,8 +459,7 @@ retry:
  *
  *	return codes:  0 - not ready  |  1 - all files ready
  */
-int gotfiles(file)
-register char *file;
+int gotfiles(char *file)
 {
 	struct stat stbuf;
 	register FILE *fp;
@@ -492,8 +488,7 @@ register char *file;
 /*
  *	remove execute files to x-directory
  */
-void rmxfiles(xfile)
-register char *xfile;
+void rmxfiles(char *xfile)
 {
 	register FILE *fp;
 	char buf[BUFSIZ], file[NAMESIZE], tfile[NAMESIZE];
@@ -517,8 +512,7 @@ register char *xfile;
 /*
  *	move execute files to x-directory
  */
-void mvxfiles(xfile)
-char *xfile;
+void mvxfiles(char *xfile)
 {
 	register FILE *fp;
 	char buf[BUFSIZ], ffile[MAXFULLNAME], tfile[NAMESIZE];
@@ -548,8 +542,7 @@ char *xfile;
  *
  *	return 0 - ok | 1 nok
  */
-int argok(xc, cmd)
-register char *xc, *cmd;
+int argok(char *xc, char *cmd)
 {
 	register char **ptr;
 
@@ -590,8 +583,7 @@ register char *xc, *cmd;
  *	       NT_ERR - do notification if exit status != 0
  *	       NT_NO  - don't do notification ever
  */
-int chknotify(cmd)
-char *cmd;
+int chknotify(char *cmd)
 {
 	register char **ptr;
 	register int *nptr;
@@ -610,8 +602,7 @@ char *cmd;
 /*
  *	send mail to user giving execution results
  */
-void notify(user, rmt, cmd, str)
-char *user, *rmt, *cmd, *str;
+void notify(char *user, char *rmt, char *cmd, char *str)
 {
 	char text[MAXFULLNAME];
 	char ruser[MAXFULLNAME];
@@ -634,8 +625,7 @@ char *user, *rmt, *cmd, *str;
  *	return mail to sender
  *
  */
-void retosndr(user, rmt, file)
-char *user, *rmt, *file;
+void retosndr(char *user, char *rmt, char *file)
 {
 	char ruser[MAXFULLNAME];
 
@@ -660,8 +650,7 @@ char *user, *rmt, *file;
 /*
  *	execute shell of command with fi and fo as standard input/output
  */
-int shio(cmd, fi, fo)
-char *cmd, *fi, *fo;
+int shio(char *cmd, char *fi, char *fo)
 {
 	int status, f;
 	int uid, pid, ret;

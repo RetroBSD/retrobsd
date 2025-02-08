@@ -84,9 +84,7 @@ static char *pskip(char *p);
  *	this program is used  to place a call to a
  *	remote machine, login, and copy files between the two machines.
  */
-int main(argc, argv)
-int argc;
-register char *argv[];
+int main(int argc, char *argv[])
 {
 	register int ret;
 	int seq;
@@ -662,8 +660,7 @@ struct sgttyb Hupvec;
 /*
  *	cleanup and exit with "code" status
  */
-void cleanup(code)
-register int code;
+void cleanup(int code)
 {
 	signal(SIGINT, SIG_IGN);
 	signal(SIGHUP, SIG_IGN);
@@ -718,8 +715,7 @@ register int code;
 /*
  *	on interrupt - remove locks and exit
  */
-void onintr(inter)
-register int inter;
+void onintr(int inter)
 {
 	char str[30];
 	signal(inter, SIG_IGN);
@@ -738,7 +734,7 @@ register int inter;
  * (SIGFPE, ugh), and toggle debugging between 0 and 30.
  * Handy for looking in on long running uucicos.
  */
-void dbg_signal()
+void dbg_signal(int sig)
 {
 	Debug = (Debug == 0) ? 30 : 0;
 	setdebug(DBG_PERM);
@@ -759,8 +755,7 @@ void dbg_signal()
  * Each call creates a new file; if an old one of the same name exists it will
  * be overwritten.
  */
-void setdebug(parm)
-int parm;
+void setdebug(int parm)
 {
 	char buf[BUFSIZ];		/* Buffer for building filenames     */
 	static char *temp = NULL;	/* Ptr to temporary file name	     */
@@ -867,7 +862,7 @@ int parm;
 /*
  *	catch SIGALRM routine
  */
-void timeout()
+void timeout(int sig)
 {
 	extern int HaveSentHup;
 	if (!HaveSentHup) {
@@ -881,8 +876,7 @@ void timeout()
 }
 
 static char *
-pskip(p)
-register char *p;
+pskip(char *p)
 {
 	while(*p && *p != ' ')
 		++p;

@@ -18,6 +18,18 @@
 #define TOTTY   0x2
 #define TOLOG   0x4
 
+typedef __builtin_va_list va_list;
+
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 202311L
+/* C23 does not require the second parameter for va_start. */
+#define va_start(ap, ...) __builtin_va_start(ap, 0)
+#else
+/* Versions before C23 do require the second parameter. */
+#define va_start(ap, param) __builtin_va_start(ap, param)
+#endif
+#define va_end(ap) __builtin_va_end(ap)
+#define va_arg(ap, type) __builtin_va_arg(ap, type)
+
 /*
  * In case console is off,
  * panicstr contains argument to last
@@ -130,11 +142,10 @@ void puts(char *s, int flags, struct tty *ttyp)
 
 #define HION "\e[1m"
 #define HIOFF "\e[0m"
-static void
-prf (char *fmt, u_int *ap, int flags, struct tty *ttyp)
-{
-#define va_arg(ap,type) *(type*) (void*) (ap++)
 
+static void
+vprf(struct tty *ttyp, int flags, char *fmt, va_list ap)
+{
     char *q, nbuf [sizeof(long) * 8 + 1];
     const char *s;
     int c, padding, base, lflag, ladjust, sharpflag, neg, dot, size;
@@ -435,10 +446,20 @@ number:
 }
 
 static void
+prf(struct tty *ttyp, int flags, char *fmt, ...)
+{
+    va_list ap;
+
+    va_start(ap, fmt);
+    vprf(ttyp, flags, fmt, ap);
+    va_end(ap);
+}
+
+static void
 logpri (int level)
 {
     putchar ('<', TOLOG, (struct tty*) 0);
-    prf ("%u", (u_int *)&level, TOLOG, (struct tty*) 0);
+    prf(NULL, TOLOG, "%u", level);
     putchar ('>', TOLOG, (struct tty*) 0);
 }
 
@@ -463,7 +484,11 @@ logpri (int level)
 void
 printf(char *fmt, ...)
 {
-    prf(fmt, (u_int *)(&fmt + 1), TOCONS | TOLOG, (struct tty *)0);
+    va_list ap;
+
+    va_start(ap, fmt);
+    vprf(NULL, TOCONS | TOLOG, fmt, ap);
+    va_end(ap);
 }
 
 /*
@@ -498,8 +523,13 @@ uprintf (char *fmt, ...)
     if (tp == NULL)
         return;
 
-    if (ttycheckoutq (tp, 1))
-        prf (fmt, (u_int *)(&fmt + 1), TOTTY, tp);
+    if (ttycheckoutq (tp, 1)) {
+        va_list ap;
+
+        va_start(ap, fmt);
+        vprf(tp, TOTTY, fmt, ap);
+        va_end(ap);
+    }
 }
 
 /*
@@ -512,13 +542,17 @@ void
 tprintf (register struct tty *tp, char *fmt, ...)
 {
     int flags = TOTTY | TOLOG;
+    va_list ap;
 
     logpri (LOG_INFO);
     if (tp == (struct tty*) NULL)
         tp = &cnttys[0];
     if (ttycheckoutq (tp, 0) == 0)
         flags = TOLOG;
-    prf (fmt, (u_int *)(&fmt + 1), flags, tp);
+
+    va_start(ap, fmt);
+    vprf(tp, flags, fmt, ap);
+    va_end(ap);
 #ifdef LOG_ENABLED
     logwakeup (logMSG);
 #endif
@@ -534,14 +568,21 @@ void
 log (int level, char *fmt, ...)
 {
     register int s = splhigh();
+    va_list ap;
 
     logpri(level);
-    prf(fmt, (u_int *)(&fmt + 1), TOLOG, (struct tty *)0);
+    va_start(ap, fmt);
+    vprf(NULL, TOLOG, fmt, ap);
+    va_end(ap);
     splx(s);
 #ifdef LOG_ENABLED
     if (! logisopen(logMSG))
 #endif
-        prf(fmt, (u_int *)(&fmt + 1), TOCONS, (struct tty *)0);
+    {
+        va_start(ap, fmt);
+        vprf(NULL, TOCONS, fmt, ap);
+        va_end(ap);
+    }
 #ifdef LOG_ENABLED
     logwakeup(logMSG);
 #endif

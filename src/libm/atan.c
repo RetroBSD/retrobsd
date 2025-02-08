@@ -33,8 +33,7 @@ static double q0	 = .89678597403663861962481162e3;
  * range [-0.414...,+0.414...].
  */
 static double
-xatan(arg)
-double arg;
+xatan(double arg)
 {
 	double argsq;
 	double value;
@@ -50,8 +49,7 @@ double arg;
  * to the range [0,0.414...] and calls xatan.
  */
 static double
-satan(arg)
-double arg;
+satan(double arg)
 {
 	if(arg < sq2m1)
 		return(xatan(arg));
@@ -66,8 +64,7 @@ double arg;
  * calls the inner routine satan.
  */
 double
-atan(arg)
-double arg;
+atan(double arg)
 {
 	if(arg>0)
 		return(satan(arg));
@@ -81,8 +78,7 @@ double arg;
  * is in and calls atan.
  */
 double
-atan2(arg1,arg2)
-double arg1,arg2;
+atan2(double arg1, double arg2)
 {
 	if((arg1+arg2)==arg1)
 		if(arg1 >= 0.) return(pio2);

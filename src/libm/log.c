@@ -21,8 +21,7 @@ static double	q1	= 0.194809660700889731e2;
 static double	q2	= -.891110902798312337e1;
 
 double
-log(arg)
-double arg;
+log(double arg)
 {
 	double x,z, zsq, temp;
 	int exp;
@@ -51,8 +50,7 @@ double arg;
 }
 
 double
-log10(arg)
-double arg;
+log10(double arg)
 {
 
 	return(log(arg)/ln10);

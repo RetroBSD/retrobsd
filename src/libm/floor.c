@@ -5,8 +5,7 @@
 #include <math.h>
 
 double
-floor(d)
-        double d;
+floor(double d)
 {
 	double fract;
 
@@ -22,8 +21,7 @@ floor(d)
 }
 
 double
-ceil(d)
-        double d;
+ceil(double d)
 {
 	return(-floor(-d));
 }

@@ -30,11 +30,11 @@
 #include <errno.h>
 
 double
-jn(n,x) int n; double x;{
+jn(int n, double x)
+{
 	int i;
 	double a, b, temp;
 	double xsq, t;
-	double j0(), j1();
 
 	if(n<0){
 		n = -n;
@@ -72,11 +72,11 @@ recurs:
 }
 
 double
-yn(n,x) int n; double x;{
+yn(int n, double x)
+{
 	int i;
 	int sign;
 	double a, b, temp;
-	double y0(), y1();
 
 	if (x <= 0) {
 		errno = EDOM;

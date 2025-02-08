@@ -8,9 +8,7 @@
 extern char **environ;
 
 int
-execv (name, argv)
-	const char *name;
-	char *const *argv;
+execv (const char *name, char *const *argv)
 {
 	return execve (name, argv, environ);
 }

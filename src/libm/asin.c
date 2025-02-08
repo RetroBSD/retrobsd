@@ -10,8 +10,7 @@
 static double pio2	= 1.570796326794896619;
 
 double
-asin(arg)
-        double arg;
+asin(double arg)
 {
 	double sign, temp;
 
@@ -36,8 +35,7 @@ asin(arg)
 }
 
 double
-acos(arg)
-        double arg;
+acos(double arg)
 {
 	if(arg < 0)
 		arg = -arg;

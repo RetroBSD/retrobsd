@@ -8,8 +8,7 @@
 #include <math.h>
 
 double
-sqrt(arg)
-        double arg;
+sqrt(double arg)
 {
 	double x, temp;
 	int exp;

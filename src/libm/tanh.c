@@ -8,8 +8,7 @@
 #include <math.h>
 
 double
-tanh(arg)
-        double arg;
+tanh(double arg)
 {
 	double sign;
 

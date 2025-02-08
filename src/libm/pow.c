@@ -6,8 +6,7 @@
 #include <math.h>
 
 double
-pow(arg1,arg2)
-        double arg1, arg2;
+pow(double arg1, double arg2)
 {
 	double temp;
 	long l;

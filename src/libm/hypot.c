@@ -5,8 +5,7 @@
 #include <math.h>
 
 double
-hypot(a, b)
-        double a, b;
+hypot(double a, double b)
 {
 	double t;
 

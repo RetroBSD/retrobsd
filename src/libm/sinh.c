@@ -22,8 +22,7 @@ static double q1   = 0.1521517378790019070696485176e+5;
 static double q2  = -0.173678953558233699533450911e+3;
 
 double
-sinh(arg)
-        double arg;
+sinh(double arg)
 {
 	double temp, argsq;
 	register int sign;
@@ -53,8 +52,7 @@ sinh(arg)
 }
 
 double
-cosh(arg)
-        double arg;
+cosh(double arg)
 {
 	if(arg < 0)
 		arg = - arg;

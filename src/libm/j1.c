@@ -126,8 +126,7 @@ static double q4[] = {
 };
 
 static void
-asympt(arg)
-        double arg;
+asympt(double arg)
 {
 	double zsq, n, d;
 	int i;
@@ -145,11 +144,9 @@ asympt(arg)
 }
 
 double
-j1(arg)
-        double arg;
+j1(double arg)
 {
 	double xsq, n, d, x;
-	double sin(), cos(), sqrt();
 	int i;
 
 	x = arg;
@@ -170,11 +167,9 @@ j1(arg)
 }
 
 double
-y1(arg)
-        double arg;
+y1(double arg)
 {
 	double xsq, n, d, x;
-	double sin(), cos(), sqrt(), log(), j1();
 	int i;
 
 	errno = 0;

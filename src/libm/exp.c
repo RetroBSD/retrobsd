@@ -19,8 +19,7 @@ static double	sqrt2	= 1.4142135623730950488016887;
 static double	maxf	= DBL_MAX_10_EXP * 2.5/*>ln(10)*/;
 
 double
-exp(arg)
-double arg;
+exp(double arg)
 {
 	double fract;
 	double temp1, temp2, xsq;

@@ -67,7 +67,8 @@ static double q2[]  = {
 };
 
 double
-erf(arg) double arg;{
+erf(double arg)
+{
 	double erfc();
 	int sign;
 	double argsq;
@@ -94,9 +95,8 @@ erf(arg) double arg;{
 }
 
 double
-erfc(arg) double arg;{
-	double erf();
-	double exp();
+erfc(double arg)
+{
 	double n, d;
 	int i;
 

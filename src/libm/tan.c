@@ -18,10 +18,8 @@ static double q1	  = 0.4765751362916483698926655581e+4;
 static double q2	 = -0.1555033164031709966900124574e+3;
 
 double
-tan(arg)
-        double arg;
+tan(double arg)
 {
-	double modf();
 	double sign, temp, e, x, xsq;
 	int flag, i;
 

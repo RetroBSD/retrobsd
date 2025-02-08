@@ -9,8 +9,7 @@ extern char _end[];
 const char *_curbrk = _end;
 
 void *
-sbrk (incr)
-	int incr;
+sbrk (int incr)
 {
 	void *oldbrk = (void*) _curbrk;
 
@@ -27,8 +26,7 @@ sbrk (incr)
 }
 
 void *
-brk (addr)
-	const void *addr;
+brk (const void *addr)
 {
 	int ret;
 

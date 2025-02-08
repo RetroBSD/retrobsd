@@ -1,41 +1,9 @@
 Build directories:
 
-    32mxsdram/          - 32MXSDRAM custom board with external SDRAM
-                          used as a volatile disk storage (swap).
+    attic/          - Unsupported boards
 
-    baremetal/          - PIC32MX processor on a custom board.
+    explorer16/     - Microchip Explorer 16 board,
+                      with PIC32MX plug-in module
+                      and SD & MMC pictail
 
-    duinomite/          - Olimex Duinomite or Duinomite-Mega board.
-
-    duinomite-emega/    - Olimex Duinomite-eMega board.
-
-    explorer16/         - Microchip Explorer 16 board,
-                          with PIC32MX plug-in module
-                          and SD & MMC pictail.
-
-    fubarino/           - Fubarino SD board.
-
-    max32/              - chipKIT Max32 board.
-
-    maximite/           - Maximite computer.
-
-    maximite-color/     - The Colour Maximite computer.
-
-    mmb-mx7/            - MikroElektronika MultiMedia Board for PIC32MX7.
-
-    picadillo/          - 4D Systems Picadillo-35T board.
-
-    pinguino-micro/     - Olimex Pinguino-Micro board equipped
-                          with pic32mx795 processor.
-
-    sdxl/               - Majenko SDXL board.
-
-    snadpic/            - SnadPIC MX795 board.
-
-    starter-kit/        - Microchip PIC32MX USB or Ethernet Starter Kit,
-                          with I/O Expansion board and SD & MMC pictail.
-
-    ubw32/              - Sparkfun UBW32 board.
-
-    wf32/               - ChipKIT WF32 board with
-                          2.4" LCD TFT display shield.
+    olimex/         - Olimex PIC32-Retrobsd board

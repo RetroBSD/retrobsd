@@ -15,7 +15,7 @@
 architecture    "pic32"
 cpu             "PIC32MX7"                  # Processor variant
 board           "EXPLORER16"                # Board type
-ldscript        "baremetal/script.ld"       # Linker script
+ldscript        "explorer16/baremetal.ld"   # Linker script
 
 # Standard system options
 options         "CPU_KHZ=80000"             # Oscillator frequency of CPU core

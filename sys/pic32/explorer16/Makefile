@@ -22,7 +22,7 @@ PARAM += -DCONS_MAJOR=UART_MAJOR
 PARAM += -DBUS_DIV=1
 PARAM += -DBUS_KHZ=80000
 PARAM += -DCPU_KHZ=80000
-LDSCRIPT = "baremetal/script.ld"
+LDSCRIPT = "explorer16/baremetal.ld"
 #
 # Makefile for RetroBSD, pic32 target
 #
@@ -36,8 +36,8 @@ CC              =  -mabi=o32 -mfloat-abi=soft \
 CC              = $(LLVMBIN)clang -target mipsel -mcpu=mips32r2 -mabi=o32 -mfloat-abi=soft \
                   ${DEBUG} -nostdinc -fno-builtin -Werror -Wall
 CPP             = $(LLVMBIN)clang-cpp
-LD              = /usr/lib/llvm-12/bin/ld.lld -m elf32ltsmip
-LDFLAGS         = -nostdlib -T ../${LDSCRIPT} -Wl,-Map=$(basename $@).map
+LD              = $(LLVMBIN)ld.lld -m elf32ltsmip
+LDFLAGS         = -nostdlib -T ../${LDSCRIPT}
 SIZE            = $(LLVMBIN)llvm-size
 OBJCOPY         = $(LLVMBIN)llvm-objcopy
 OBJDUMP         = $(LLVMBIN)llvm-objdump
@@ -109,7 +109,7 @@ SYSTEM_LD_HEAD  = sh ../newvers.sh > vers.c; ${CC} $(CFLAGS) -c vers.c; rm -f $@
 SYSTEM_LD       = -@echo ${LD} ${LDFLAGS} '$${SYSTEM_OBJ}' vers.o -o $@; \
                   ${LD} ${LDFLAGS} ${SYSTEM_OBJ} vers.o -o $@
 SYSTEM_LD_TAIL  = ${SIZE} $@; \
-                  $(OBJCOPY) -O ihex --change-addresses=0x80000000 $@ $(basename $@).hex; \
+                  $(OBJCOPY) -O ihex $@ $(basename $@).hex; \
                   $(OBJCOPY) -O binary -R .boot -R .config $@ $(basename $@).bin; \
                   $(OBJDUMP) -d -S $@ > $(basename $@).dis
 

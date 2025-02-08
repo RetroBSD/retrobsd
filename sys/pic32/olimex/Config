@@ -16,8 +16,8 @@
 #
 architecture    "pic32"
 cpu             "PIC32MX7"                  # Processor variant
-board           "PINGUINO_MICRO"            # Board type
-ldscript        "maximite/bootloader.ld"    # Linker script
+board           "OLIMEX"                    # Board type
+ldscript        "olimex/bootloader.ld"      # Linker script
 
 # Standard system options
 options         "CPU_KHZ=80000"             # Oscillator frequency of CPU core

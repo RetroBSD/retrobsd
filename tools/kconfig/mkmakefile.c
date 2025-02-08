@@ -427,7 +427,7 @@ void makefile()
 
     read_files();
     strcpy(line, "../Makefile.kconf");
-    strcat(line, archname);
+    //strcat(line, archname);
     ifp = fopen(line, "r");
     if (ifp == 0) {
         perror(line);

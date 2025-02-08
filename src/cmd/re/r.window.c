@@ -9,8 +9,7 @@
 /*
  * Move a current window by nl rows down.
  */
-void wksp_forward(nl)
-    int nl;
+void wksp_forward(int nl)
 {
     register int cc, cl;
 
@@ -42,8 +41,7 @@ void wksp_forward(nl)
 /*
  * Shift a text view by nc columns to right.
  */
-void wksp_offset(nc)
-    int nc;
+void wksp_offset(int nc)
 {
     register int cl, cc;
 
@@ -64,8 +62,7 @@ void wksp_offset(nc)
 /*
  * Go to line by number.
  */
-void gtfcn(number)
-    int number;
+void gtfcn(int number)
 {
     register int i;
 
@@ -83,8 +80,7 @@ void gtfcn(number)
  * slin - line number with a cursor tag, to erase
  * ok_to_move=0 - do not move the window, when possible
  */
-void cgoto(ln, col, slin, ok_to_move)
-    int ln, col, slin, ok_to_move;
+void cgoto(int ln, int col, int slin, int ok_to_move)
 {
     register int lin;
 
@@ -117,8 +113,7 @@ void cgoto(ln, col, slin, ok_to_move)
  * Switch to given window.
  * Compute cursorcol, cursorline for new window.
  */
-void win_switch(ww)
-    window_t *ww;
+void win_switch(window_t *ww)
 {
     register window_t *w = ww;
 
@@ -134,9 +129,7 @@ void win_switch(ww)
  * Create new window.
  * Flag need_borders = 1 when borders enable.
  */
-void win_create(w, col_left, col_right, row_top, row_bottom, need_borders)
-    register window_t *w;
-    int col_left, col_right, row_top, row_bottom, need_borders;
+void win_create(window_t *w, int col_left, int col_right, int row_top, int row_bottom, int need_borders)
 {
     register int i, size;
 
@@ -173,8 +166,7 @@ void win_create(w, col_left, col_right, row_top, row_bottom, need_borders)
 /*
  * Make new window.
  */
-void win_open(file)
-    char *file;
+void win_open(char *file)
 {
     register window_t *oldwin, *win;
     int winnum;
@@ -306,8 +298,7 @@ void win_remove()
  * Switch to another window by number.
  * When number is -1, select a next window after the curwin.
  */
-void win_goto(winnum)
-    int winnum;
+void win_goto(int winnum)
 {
     register window_t *oldwin, *win;
 
@@ -348,9 +339,7 @@ void win_goto(winnum)
  * 3. Line numbers updated in workspaces, containing the tails
  *    of changed files.
  */
-void wksp_redraw(w, fn, from, to, delta)
-    workspace_t *w;
-    int from, to, delta, fn;
+void wksp_redraw(workspace_t *w, int fn, int from, int to, int delta)
 {
     register workspace_t *tw;
     register int i, j;

@@ -26,7 +26,7 @@ static int gobble(register char match, char response[]);
 #define delay(num,denom) busyloop(CPUSPEED*num/denom)
 #define CPUSPEED 1000000    /* VAX 780 is 1MIPS */
 
-void busyloop(n)
+void busyloop(int n)
 {
     while (--n > 0)
         ;
@@ -38,8 +38,7 @@ void pen_disconnect()
 }
 
 static void
-echo(s)
-    register char *s;
+echo(char *s)
 {
     char c;
 
@@ -61,9 +60,7 @@ echo(s)
     }
 }
 
-int pen_dialer(num, acu)
-    register char *num;
-    char *acu;
+int pen_dialer(char *num, char *acu)
 {
     register char *cp;
     register int connected = 0;
@@ -176,7 +173,7 @@ gobble(char match, char response[])
  * there are gory ways to simulate this.
  */
 static int
-pensync(fd)
+pensync(int fd)
 {
     int already = 0, nread;
     long temp;

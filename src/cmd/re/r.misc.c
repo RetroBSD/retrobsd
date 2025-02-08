@@ -12,8 +12,7 @@
  * Allocate zeroed memory.
  * Always succeeds.
  */
-char *salloc(n)
-    int n;
+char *salloc(int n)
 {
     register char *c;
 
@@ -29,8 +28,7 @@ char *salloc(n)
  *        1 - only read;
  *        2 - read and write.
  */
-int checkpriv(fildes)
-    int fildes;
+int checkpriv(int fildes)
 {
     register struct stat *buf;
     struct stat buffer;
@@ -66,8 +64,7 @@ int checkpriv(fildes)
 /*
  * Get file access modes.
  */
-int getpriv(fildes)
-    int fildes;
+int getpriv(int fildes)
 {
     struct stat buffer;
     register struct stat *buf;
@@ -80,8 +77,7 @@ int getpriv(fildes)
 /*
  * Write a string to stdout.
  */
-void puts1(s)
-    char *s;
+void puts1(char *s)
 {
     register int len = strlen (s);
 
@@ -95,8 +91,7 @@ void puts1(s)
  * Append strings.
  * Allocates memory.
  */
-char *append(name, ext)
-    char *name, *ext;
+char *append(char *name, char *ext)
 {
     int lname;
     register char *c, *d, *newname;
@@ -121,9 +116,7 @@ char *append(name, ext)
  * Convert a string to number.  Store result into *i.
  * Return pointer to first symbol after a number, or 0 if none.
  */
-char *s2i(s, i)
-    char *s;
-    int *i;
+char *s2i(char *s, int *i)
 {
     register char lc, c;
     register int val;
@@ -149,8 +142,7 @@ char *s2i(s, i)
 /*
  * Get user id as printable text.
  */
-char *getnm(uid)
-    int uid;
+char *getnm(int uid)
 {
 #define LNAME 8
     static char namewd[LNAME+1];
@@ -168,8 +160,7 @@ char *getnm(uid)
 /*
  * Read word.
  */
-int get1w(fd)
-    int fd;
+int get1w(int fd)
 {
     int i;
 
@@ -181,8 +172,7 @@ int get1w(fd)
 /*
  * Read byte.
  */
-int get1c(fd)
-    int fd;
+int get1c(int fd)
 {
     char c;
 
@@ -194,8 +184,7 @@ int get1c(fd)
 /*
  * Write word.
  */
-void put1w(w, fd)
-    int fd, w;
+void put1w(int w, int fd)
 {
     if (write(fd, &w, sizeof(int)) != sizeof(int))
         /* ignore errors */;
@@ -204,8 +193,7 @@ void put1w(w, fd)
 /*
  * Write byte.
  */
-void put1c(c, fd)
-    int c, fd;
+void put1c(int c, int fd)
 {
     char sym = c;
 

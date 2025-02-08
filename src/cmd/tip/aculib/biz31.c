@@ -21,8 +21,7 @@ void biz31_disconnect()
 }
 
 static void
-echo(s)
-    register char *s;
+echo(char *s)
 {
     char c;
 
@@ -52,8 +51,7 @@ sigALRM(int i)
 }
 
 static void
-flush(s)
-    register char *s;
+flush(char *s)
 {
     char c;
     sig_t f;
@@ -76,8 +74,7 @@ flush(s)
  *  pulse dialing (mod = "w")
  */
 static int
-biz_dialer(num, mod)
-    char *num, *mod;
+biz_dialer(char *num, char *mod)
 {
     register int connected = 0;
 
@@ -125,14 +122,12 @@ biz_dialer(num, mod)
     return (connected);
 }
 
-int biz31w_dialer(num, acu)
-    char *num, *acu;
+int biz31w_dialer(char *num, char *acu)
 {
     return (biz_dialer(num, "w"));
 }
 
-int biz31f_dialer(num, acu)
-    char *num, *acu;
+int biz31f_dialer(char *num, char *acu)
 {
     return (biz_dialer(num, "f"));
 }
@@ -143,8 +138,7 @@ void biz31_abort()
 }
 
 static int
-detect(s)
-    register char *s;
+detect(char *s)
 {
     char c;
     sig_t f;
@@ -173,7 +167,7 @@ detect(s)
  *  call there are gory ways to simulate this.
  */
 static int
-bizsync(fd)
+bizsync(int fd)
 {
 #ifdef FIOCAPACITY
     struct capacity b;

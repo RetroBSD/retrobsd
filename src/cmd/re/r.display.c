@@ -28,8 +28,7 @@ int message_displayed;      /* Arg area contains an error message */
  * - use cline as a source;
  * - draw only from column -lo.
  */
-void drawlines(lo, lf)
-    int lo, lf;
+void drawlines(int lo, int lf)
 {
     register int i, l0;
     int j, k, l1;
@@ -137,8 +136,7 @@ void drawlines(lo, lf)
 /*
  * Position a cursor in a current window.
  */
-void poscursor(col, lin)
-    int col, lin;
+void poscursor(int col, int lin)
 {
     register int scol;
     int slin;
@@ -183,8 +181,7 @@ void poscursor(col, lin)
  *  CCTAB                   - to next tab stop
  *  0                       - no movement, check only
  */
-void movecursor(arg)
-    int arg;
+void movecursor(int arg)
 {
     register int lin, col;
 
@@ -289,8 +286,7 @@ void movecursor(arg)
  * Put a symbol to current position.
  * When flag=1, count it to line size.
  */
-void wputc(j, flg)
-    int j, flg;
+void wputc(int j, int flg)
 {
     if (flg && keysym != ' ') {
         if (curwin->firstcol[cursorline] > cursorcol)
@@ -457,9 +453,7 @@ loop:
  * Draw borders for a window.
  * When vertf, draw a vertical borders.
  */
-void win_borders(win, vertf)
-    register window_t *win;
-    int vertf;
+void win_borders(window_t *win, int vertf)
 {
 #if MULTIWIN
     register int i;
@@ -495,8 +489,7 @@ void win_borders(win, vertf)
 /*
  * Display error message.
  */
-void error(msg)
-    char *msg;
+void error(char *msg)
 {
     putch(COBELL);
     telluser("**** ", 0);
@@ -508,9 +501,7 @@ void error(msg)
  * Display a message from column col.
  * When col=0 - clear the arg area.
  */
-void telluser(msg, col)
-    char *msg;
-    int col;
+void telluser(char *msg, int col)
 {
     window_t *oldwin;
     register int c, l;
@@ -581,9 +572,7 @@ void redisplay()
 /*
  * Put a string, limited by column.
  */
-void wputs(ss, ml)
-    char *ss;
-    int ml;
+void wputs(char *ss, int ml)
 {
     register char *s = ss;
 

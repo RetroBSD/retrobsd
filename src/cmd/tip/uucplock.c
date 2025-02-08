@@ -48,8 +48,7 @@ void finish (void);
  *  return codes:  none
  */
 static void
-stlock(name)
-    char *name;
+stlock(char *name)
 {
     char *p;
     int i;
@@ -79,8 +78,7 @@ stlock(name)
  *  names or none of them
  */
 static int
-onelock(pid, tempfile, name)
-    char *tempfile, *name;
+onelock(int pid, char *tempfile, char *name)
 {
     int fd;
 
@@ -111,9 +109,7 @@ onelock(pid, tempfile, name)
  *  return codes:  0  |  FAIL
  */
 static int
-ulockf(file, atime)
-    char *file;
-    time_t atime;
+ulockf(char *file, time_t atime)
 {
     struct stat stbuf;
     time_t ptime;
@@ -152,8 +148,7 @@ ulockf(file, atime)
  *  return codes: none
  */
 static void
-rmlock(name)
-    char *name;
+rmlock(char *name)
 {
     int i;
 
@@ -175,8 +170,7 @@ rmlock(name)
  *  return codes:  0  |  FAIL
  */
 void
-delock(s)
-    char *s;
+delock(char *s)
 {
     char ln[30];
 
@@ -190,8 +184,7 @@ delock(s)
  *
  *  return codes:  0  |  FAIL
  */
-int mlock(sys)
-    char *sys;
+int mlock(char *sys)
 {
     char lname[30];
     sprintf(lname, "%s.%s", LOCKPRE, sys);

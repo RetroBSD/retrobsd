@@ -139,8 +139,7 @@ static void tipin()
     }
 }
 
-int main(argc, argv)
-    char *argv[];
+int main(int argc, char *argv[])
 {
     char *system = NOSTR;
     register int i;

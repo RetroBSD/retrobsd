@@ -12,8 +12,7 @@
  * knowing about \: escapes or any such.  If necessary, :'s can be put
  * into the termcap file in octal.
  */
-static char *tskip(bp)
-    register char *bp;
+static char *tskip(char *bp)
 {
     while (*bp && *bp != ':')
         bp++;
@@ -30,9 +29,7 @@ static char *tskip(bp)
  * a # character.  If the option is not found we return -1.
  * Note that we handle octal numbers beginning with 0.
  */
-int tgetnum(bp, id)
-    register char *bp;
-    char *id;
+int tgetnum(char *bp, char *id)
 {
     register int i, base;
 
@@ -63,9 +60,7 @@ int tgetnum(bp, id)
  * of the buffer.  Return 1 if we find the option, or 0 if it is
  * not given.
  */
-int tgetflag(bp, id)
-    register char *bp;
-    char *id;
+int tgetflag(char *bp, char *id)
 {
     for (;;) {
         bp = tskip(bp);
@@ -84,9 +79,7 @@ int tgetflag(bp, id)
  * Tdecode does the grung work to decode the
  * string capability escapes.
  */
-static char *tdecode(str, area)
-    register char *str;
-    char **area;
+static char *tdecode(char *str, char **area)
 {
     register char *cp;
     register int c;
@@ -138,9 +131,7 @@ nextc:
  * placed in area, which is a ref parameter which is updated.
  * No checking on area overflow.
  */
-char *tgetstr(bp, id, area)
-    register char *bp;
-    char *id, **area;
+char *tgetstr(char *bp, char *id, char **area)
 {
     for (;;) {
         bp = tskip(bp);
@@ -178,9 +169,7 @@ char *tgetstr(bp, id, area)
  *
  * all other characters are ``self-inserting''.
  */
-char *tgoto(CM, destcol, destline)
-    char *CM;
-    int destcol, destline;
+char *tgoto(char *CM, int destcol, int destline)
 {
     static char result[16];
     static char added[10];

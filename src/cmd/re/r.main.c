@@ -53,8 +53,7 @@ static void checksig(int);
 /*
  * Fatal signal catched.
  */
-void fatalsig(n)
-    int n;
+void fatalsig(int n)
 {
     fatal("Fatal signal");
 }
@@ -62,8 +61,7 @@ void fatalsig(n)
 /*
  * Ignore signals ^C and ^\
  */
-static void ignsig(n)
-    int n;
+static void ignsig(int n)
 {
     signal(SIGQUIT, ignsig);
     signal(SIGINT, checksig);
@@ -73,8 +71,7 @@ static void ignsig(n)
  * On first ^C from a user - set intrflag.
  * On second ^C - abort the editor session.
  */
-static void checksig(n)
-    int n;
+static void checksig(int n)
 {
     signal(SIGINT, ignsig);
     if (intrflag)
@@ -89,8 +86,7 @@ static void checksig(n)
  * 1 - restore a previous session
  * 2 - replay the session from a journal
  */
-static void startup(restart)
-    int restart;
+static void startup(int restart)
 {
     register int i;
     register char *c, *name;
@@ -178,8 +174,7 @@ static void startup(restart)
  * Make or restore window state.
  * '!' - restore, ' ' - make new.
  */
-static void getstate(init_flag)
-    char init_flag;
+static void getstate(char init_flag)
 {
     int nletters, base_col, max_col, base_row, max_row, row, col, winnum, gf;
     register int i, n;
@@ -257,9 +252,7 @@ make:   /* Create initial window state. */
 /*
  * Write a command with arguments to protocol file.
  */
-static void writefile(code1, str, code2)
-    int code1, code2;
-    char *str;
+static void writefile(int code1, char *str, int code2)
 {
     int len;
 
@@ -339,9 +332,7 @@ static void savestate()
 /*
  * Main routine.
  */
-int main(nargs, args)
-    int nargs;
-    char *args[];
+int main(int nargs, char *args[])
 {
     int restart, i;
     char *cp, init_flag = ' ';
@@ -428,8 +419,7 @@ void cleanup()
 /*
  * Print error message and exit.
  */
-void fatal(s)
-    char *s;
+void fatal(char *s)
 {
     putch(COFIN);
     putch(COBELL);

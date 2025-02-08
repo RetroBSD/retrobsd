@@ -130,7 +130,7 @@ nopiperr:
 /*
  * Insert a symbol to current line at a current position.
  */
-static void cline_insert_char(keysym)
+static void cline_insert_char(int keysym)
 {
     int i, c;
 
@@ -770,8 +770,7 @@ nowriterr:
  * Setup a window when needed, and show a found text.
  * Search for "searchkey".
  */
-void search(delta)
-    int delta;
+void search(int delta)
 {
     register char *at, *sk, *fk;
     int ln, lkey, col, lin, slin, i;

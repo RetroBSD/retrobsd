@@ -56,9 +56,7 @@ timeout(int sig)
     timedout = 1;
 }
 
-static void prtime(s, a)
-    char *s;
-    time_t a;
+static void prtime(char *s, time_t a)
 {
     register int i;
     int nums[3];
@@ -79,8 +77,7 @@ static void prtime(s, a)
  * Bulk transfer routine --
  *  used by getfl(), cu_take(), and pipefile()
  */
-static void transfer(buf, fd, eofchars)
-    char *buf, *eofchars;
+static void transfer(char *buf, int fd, char *eofchars)
 {
     register int ct;
     char c, buffer[BUFSIZ];
@@ -146,8 +143,7 @@ static void transfer(buf, fd, eofchars)
  * FTP - remote ==> local
  *  get a file from the remote host
  */
-void getfl(c)
-    int c;
+void getfl(int c)
 {
     char buf[256], *cp, *expand();
 
@@ -173,8 +169,7 @@ void getfl(c)
     transfer(buf, sfd, value(EOFREAD));
 }
 
-static int args(buf, a)
-    char *buf, *a[];
+static int args(char *buf, char *a[])
 {
     register char *p = buf, *start;
     register char **parg = a;
@@ -200,8 +195,7 @@ static int args(buf, a)
 /*
  * Cu-like take command
  */
-void cu_take(cc)
-    char cc;
+void cu_take(char cc)
 {
     int fd, argc;
     char line[BUFSIZ], *expand(), *cp;
@@ -224,8 +218,7 @@ void cu_take(cc)
     transfer(line, fd, "\01");
 }
 
-static void execute(s)
-    char *s;
+static void execute(char *s)
 {
     register char *cp;
 
@@ -287,8 +280,7 @@ void pipefile()
  * FTP - send single character
  *  wait for echo & handle timeout
  */
-static void send(c)
-    int c;
+static void send(int c)
 {
     char cc;
     int retry = 0;
@@ -308,7 +300,7 @@ static void send(c)
     }
 tryagain:
     timedout = 0;
-    alarm(value(ETIMEOUT));
+    alarm(number(value(ETIMEOUT)));
     read(FD, &cc, 1);
     alarm(0);
     if (timedout) {
@@ -324,9 +316,7 @@ tryagain:
  * Bulk transfer routine to remote host --
  *   used by sendfile() and cu_put()
  */
-void transmit(fd, eofchars, command)
-    FILE *fd;
-    char *eofchars, *command;
+void transmit(FILE *fd, char *eofchars, char *command)
 {
     char *pc, lastc;
     int c, ccount, lcount;
@@ -389,7 +379,7 @@ void transmit(fd, eofchars, command)
             printf("\r%d", ++lcount);
         if (boolean(value(ECHOCHECK))) {
             timedout = 0;
-            alarm(value(ETIMEOUT));
+            alarm(number(value(ETIMEOUT)));
             do {    /* wait for prompt */
                 read(FD, (char *)&c, 1);
                 if (timedout || stop) {
@@ -425,8 +415,7 @@ out:
  *  send local file to remote host
  *  terminate transmission with pseudo EOF sequence
  */
-void sendfile(cc)
-    char cc;
+void sendfile(char cc)
 {
     FILE *fd;
     char *fnamex;
@@ -459,8 +448,7 @@ void sendfile(cc)
 /*
  * Cu-like put command
  */
-void cu_put(cc)
-    int cc;
+void cu_put(int cc)
 {
     FILE *fd;
     char line[BUFSIZ];
@@ -493,7 +481,7 @@ void cu_put(cc)
  * Stolen from consh() -- puts a remote file on the output of a local command.
  *  Identical to consh() except for where stdout goes.
  */
-void pipeout(c)
+void pipeout(int c)
 {
     char buf[256];
     int cpid, status, p;
@@ -547,7 +535,7 @@ void pipeout(c)
  *  3 <-> remote tty in
  *  4 <-> remote tty out
  */
-void consh(c)
+void consh(int c)
 {
     char buf[256];
     int cpid, status, p;
@@ -668,8 +656,7 @@ void chdirectory()
     printf("!\r\n");
 }
 
-void tipabort(msg)
-    char *msg;
+void tipabort(char *msg)
 {
     kill(pid, SIGTERM);
     disconnect(msg);
@@ -696,8 +683,7 @@ void finish()
 /*
  * Turn tandem mode on or off for remote tty.
  */
-static void tandem(option)
-    char *option;
+static void tandem(char *option)
 {
     struct sgttyb rmtty;
 
@@ -769,8 +755,7 @@ void genbrk()
 /*
  * Suspend tip
  */
-void suspend(c)
-    int c;
+void suspend(int c)
 {
     unraw();
     kill(c == CTRL(y) ? getpid() : 0, SIGTSTP);
@@ -781,8 +766,7 @@ void suspend(c)
 /*
  * Are any of the characters in the two strings the same?
  */
-static int anyof(s1, s2)
-    register char *s1, *s2;
+static int anyof(char *s1, char *s2)
 {
     register int c;
 
@@ -795,8 +779,7 @@ static int anyof(s1, s2)
  *  expand a file name if it includes shell meta characters
  */
 char *
-expand(name)
-    char name[];
+expand(char name[])
 {
     static char xname[BUFSIZ];
     char cmdbuf[BUFSIZ];

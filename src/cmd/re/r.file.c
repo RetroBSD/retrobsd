@@ -12,9 +12,7 @@
  * When filename is NULL, use the name from file[n].name.
  * When no permission to write, ask to write to current directory.
  */
-int savefile(filename, n)
-    char *filename;
-    int n;
+int savefile(char *filename, int n)
 {
     char *fname, *last_slash;
     int newfd, dir_writable, need_backup = 1;
@@ -96,9 +94,7 @@ int savefile(filename, n)
  * When maxlines<0 - put only -maxlines paragraphs.
  * Return a count of written lines, or -1 on error.
  */
-int segmwrite(ff, maxlines, newf)
-    segment_t *ff;
-    int maxlines, newf;
+int segmwrite(segment_t *ff, int maxlines, int newf)
 {
     register segment_t *f;
     register char *c;
@@ -179,9 +175,7 @@ int segmwrite(ff, maxlines, newf)
  * Return -1, when the file was not opened and not created.
  * When putflg==1, file is displayed on the screen.
  */
-int editfile(filename, line, col, mkflg, puflg)
-    char *filename;
-    int line, col, mkflg, puflg;
+int editfile(char *filename, int line, int col, int mkflg, int puflg)
 {
     int i, j;
     register int fn;

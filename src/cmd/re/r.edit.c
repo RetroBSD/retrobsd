@@ -29,8 +29,7 @@ int curfile;
  * Setup for a cline_read routine to read a given file starting
  * from a given offset.
  */
-static void cline_setup(fi, offset)
-    int fi, offset;
+static void cline_setup(int fi, int offset)
 {
     if (fi <= 0) {
         file_desc = fi;
@@ -65,9 +64,7 @@ static void cline_setup(fi, offset)
  *      1 - end of input string
  *      2 - overflow of the output line
  */
-static int ext_to_int(si, se, so, no, mo)
-    char **si, *se, **so;
-    int *no, mo;
+static int ext_to_int(char **si, char *se, char **so, int *no, int mo)
 {
     register char *st, *sf;
     register unsigned sy;
@@ -159,8 +156,7 @@ next:
  * When parameter fill_cline is zero, cline is not allocated.
  * This mode is used to build a descriptor chain.
  */
-int cline_read(fill_cline)
-    int fill_cline;
+int cline_read(int fill_cline)
 {
     register char *c, *se;
     register int ko;
@@ -229,8 +225,7 @@ int cline_read(fill_cline)
  * Scan a file and create a segment chain.
  * Works from a current offset in the file.
  */
-static segment_t *fdesc2segm(chan)
-    int chan;
+static segment_t *fdesc2segm(int chan)
 {
     register segment_t *thissegm = 0, *lastsegm = 0;
     segment_t *firstsegm = 0;
@@ -289,8 +284,7 @@ static segment_t *fdesc2segm(chan)
 /*
  * Create a file descriptor list for a file.
  */
-segment_t *file2segm(fd)
-    int fd;
+segment_t *file2segm(int fd)
 {
     cline_setup(fd, 0);
     return fdesc2segm(fd);
@@ -303,9 +297,7 @@ segment_t *file2segm(fd)
  * Returns a length of resulting string.
  * Tail spaces are stripped.
  */
-int int_to_ext(line, nbytes)
-    char *line;
-    int nbytes;
+int int_to_ext(char *line, int nbytes)
 {
     register char *fm,*to;  /* pointers for move */
     register unsigned cc;   /* current character */
@@ -353,8 +345,7 @@ int int_to_ext(line, nbytes)
  * cline contains an allocated string;
  * cline_max is an allocated length.
  */
-void cline_expand(minbytes)
-    int minbytes;
+void cline_expand(int minbytes)
 {
     register int nbytes;
     register char *buf;
@@ -375,8 +366,7 @@ void cline_expand(minbytes)
 /*
  * Insert n spaces into cline at position col.
  */
-void putbks(col, n)
-    int col, n;
+void putbks(int col, int n)
 {
     register int i;
 
@@ -399,9 +389,7 @@ void putbks(col, n)
  * After this call, a function cline_read(0) will fetch the needed line.
  * Return 0 when done, 1 when no such line.
  */
-int wksp_seek(wksp, lno)
-    workspace_t *wksp;
-    int lno;
+int wksp_seek(workspace_t *wksp, int lno)
 {
     register char *cp;
     int i;
@@ -429,9 +417,7 @@ int wksp_seek(wksp, lno)
 /*
  * Set workspace position to segm with given line.
  */
-int wksp_position(wk,lno)
-    workspace_t *wk;
-    int lno;
+int wksp_position(workspace_t *wk, int lno)
 {
     register workspace_t *wksp;
 
@@ -492,8 +478,7 @@ void wksp_switch()
 /*
  * Create a segment with n empty lines.
  */
-static segment_t *blanklines(n)
-    int n;
+static segment_t *blanklines(int n)
 {
     int i;
     register segment_t *f,*g;
@@ -529,9 +514,7 @@ static segment_t *blanklines(n)
  * WARNING: breaksegm can disrupt the validity of pointers in workspace.
  * Recommended to call wksp_redraw().
  */
-static int breaksegm(w, n, realloc_flag)
-    workspace_t *w;
-    int n, realloc_flag;
+static int breaksegm(workspace_t *w, int n, int realloc_flag)
 {
     int nby, i, j, jj, k, lfb0;
     register segment_t *f,*ff;
@@ -618,8 +601,7 @@ static int breaksegm(w, n, realloc_flag)
  * Try to merge several segments into one to save some space.
  * Join w->cursegm->prev and w->cursegm, in case they are adjacent.
  */
-static int catsegm(w)
-    workspace_t *w;
+static int catsegm(workspace_t *w)
 {
     register segment_t *f0, *f;
     segment_t *f2;
@@ -699,10 +681,7 @@ static int catsegm(w)
  * Insert a segment f into file, described by wksp, before the line at.
  * The calling routine should call wksp_redraw() with needed args.
  */
-static void insert(wksp, f, at)
-    workspace_t *wksp;
-    segment_t *f;
-    int at;
+static void insert(workspace_t *wksp, segment_t *f, int at)
 {
     register segment_t *w0, *wf, *ff;
 
@@ -729,8 +708,7 @@ static void insert(wksp, f, at)
 /*
  * Insert lines.
  */
-void insertlines(from, number)
-    int from, number;
+void insertlines(int from, int number)
 {
     if (from >= file[curfile].nlines)
         return;
@@ -744,8 +722,7 @@ void insertlines(from, number)
 /*
  * Insert spaces.
  */
-void openspaces(line, col, number, nl)
-    int line, col, number, nl;
+void openspaces(int line, int col, int number, int nl)
 {
     register int i, j;
 
@@ -765,9 +742,7 @@ void openspaces(line, col, number, nl)
  * Append a line buf of length n to the temporary file.
  * Return a segment for this line.
  */
-static segment_t *writemp(buf, nbytes)
-    char *buf;
-    int nbytes;
+static segment_t *writemp(char *buf, int nbytes)
 {
     register segment_t *f1, *f2;
     register char *p;
@@ -802,8 +777,7 @@ static segment_t *writemp(buf, nbytes)
 /*
  * Split a line at col position.
  */
-void splitline(line, col)
-    int line, col;
+void splitline(int line, int col)
 {
     register int nsave;
     register char csave;
@@ -835,9 +809,7 @@ void splitline(line, col)
  * Returns a segment chain of the deleted lines, with tail segment appended.
  * Needs wksp_redraw().
  */
-static segment_t *delete(wksp, from, to)
-    workspace_t *wksp;
-    int from, to;
+static segment_t *delete(workspace_t *wksp, int from, int to)
 {
     segment_t *w0;
     register segment_t *wf,*f0,*ff;
@@ -863,8 +835,7 @@ static segment_t *delete(wksp, from, to)
  * Delete lines from file.
  * frum < 0 - do not call wksp_redraw (used for "exec").
  */
-void deletelines(frum, number)
-    int frum, number;
+void deletelines(int frum, int number)
 {
     register int n,from;
     register segment_t *f;
@@ -891,8 +862,7 @@ void deletelines(frum, number)
 /*
  * Pick (flg=0) / delete (flg=1).
  */
-static void pcspaces(line, col, number, nl, flg)
-    int line, col, number, nl, flg;
+static void pcspaces(int line, int col, int number, int nl, int flg)
 {
     register segment_t *f1,*f2;
     segment_t *f0;
@@ -990,8 +960,7 @@ static void pcspaces(line, col, number, nl, flg)
 /*
  * Delete rectangular area.
  */
-void closespaces(line, col, number, nl)
-    int line, col, number, nl;
+void closespaces(int line, int col, int number, int nl)
 {
     pcspaces(line, col, number, nl, 1);
 }
@@ -999,8 +968,7 @@ void closespaces(line, col, number, nl)
 /*
  * Merge a line with next one.
  */
-void combineline(line, col)
-    int line, col;
+void combineline(int line, int col)
 {
     register char *temp;
     register int nsave, i;
@@ -1034,8 +1002,7 @@ void combineline(line, col)
  * Returns a copy of segment subchain, from f to end, not including end.
  * When end = NULL - up to the end of file.
  */
-static segment_t *copysegm(f, end)
-    segment_t *f, *end;
+static segment_t *copysegm(segment_t *f, segment_t *end)
 {
     segment_t *res, *ff, *rend = 0;
     register int i;
@@ -1078,9 +1045,7 @@ static segment_t *copysegm(f, end)
  * Returns a segment chain for the given lines, tail segment appended.
  * Needs wksp_redraw.
  */
-static segment_t *pick(wksp, from, to)
-    workspace_t *wksp;
-    int from, to;
+static segment_t *pick(workspace_t *wksp, int from, int to)
 {
     segment_t *wf;
 
@@ -1093,8 +1058,7 @@ static segment_t *pick(wksp, from, to)
 /*
  * Get lines from file to pick workspace.
  */
-void picklines(from, number)
-    int from, number;
+void picklines(int from, int number)
 {
     register int n;
     register segment_t *f;
@@ -1115,8 +1079,7 @@ void picklines(from, number)
 /*
  * Get a rectangular area to pick buffer.
  */
-void pickspaces(line, col, number, nl)
-    int line, col, number, nl;
+void pickspaces(int line, int col, int number, int nl)
 {
     pcspaces(line, col, number, nl, 0);
 }
@@ -1125,9 +1088,7 @@ void pickspaces(line, col, number, nl)
  * Paste lines from the clipboard before the specified line.
  * (buf->ncolumns must be 0)
  */
-static void plines(buf, line)
-    clipboard_t *buf;
-    int line;
+static void plines(clipboard_t *buf, int line)
 {
     int lbuf, cc, cl;
     segment_t *w0, *w1;
@@ -1157,9 +1118,7 @@ static void plines(buf, line)
  * Paste a block from clipboard to a specified line/col.
  * (buf->ncolumns must be nonzero)
  */
-static void pspaces(buf, line, col)
-    clipboard_t *buf;
-    int line, col;
+static void pspaces(clipboard_t *buf, int line, int col)
 {
     workspace_t *oldwksp;
     char *linebuf;
@@ -1194,9 +1153,7 @@ static void pspaces(buf, line, col)
  * Paste a text from clipboard to a specified place in a file.
  * When buf->ncolumns == 0, lines are inserted, otherwise columns.
  */
-void paste(buf, line, col)
-    clipboard_t *buf;
-    int line, col;
+void paste(clipboard_t *buf, int line, int col)
 {
     if (buf->ncolumns == 0)
         plines(buf, line);
@@ -1208,8 +1165,7 @@ void paste(buf, line, col)
  * Get a line from the current workspace.
  * Line is stored in cline, length in cline_len.
  */
-void getlin(ln)
-    int ln;
+void getlin(int ln)
 {
     cline_modified = 0;
     clineno = ln;
@@ -1269,8 +1225,7 @@ void putline()
 /*
  * Free the segment chain.
  */
-void freesegm(f)
-    segment_t *f;
+void freesegm(segment_t *f)
 {
     register segment_t *g;
 
@@ -1284,8 +1239,7 @@ void freesegm(f)
 /*
  * Replace m lines from "line", via jproc pipe.
  */
-void doreplace(line, m, jproc, pipef)
-    int line, m, jproc, *pipef;
+void doreplace(int line, int m, int jproc, int *pipef)
 {
     register segment_t *e, *ee;
     register int l;
@@ -1335,8 +1289,7 @@ void doreplace(line, m, jproc, pipef)
 /*
  * Debug output of segm chains.
  */
-void printsegm(f)
-    segment_t *f;
+void printsegm(segment_t *f)
 {
     int i;
     register char *c;

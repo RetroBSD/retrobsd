@@ -11,8 +11,7 @@ int timeout();
 /*
  * Botch the interface to look like cu's
  */
-void cumain(argc, argv)
-    char *argv[];
+void cumain(int argc, char *argv[])
 {
     register int i;
     static char sbuf[12];

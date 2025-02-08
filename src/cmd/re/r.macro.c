@@ -34,9 +34,7 @@ static char mtab_type[NMACRO];
  * When nbytes=0, it finds and checks a type.
  * Otherwise, creates a new descriptor.
  */
-static macro_t *mfind(name, typ, nbytes)
-    register char *name;
-    int typ, nbytes;
+static macro_t *mfind(char *name, int typ, int nbytes)
 {
     register int i;
 
@@ -67,9 +65,7 @@ static macro_t *mfind(name, typ, nbytes)
  * Fetch a clipboard by name.
  * Return 0 on error.
  */
-int mfetch(cb, name)
-    register clipboard_t *cb;
-    register char *name;
+int mfetch(clipboard_t *cb, char *name)
 {
     register macro_t *m;
 
@@ -84,9 +80,7 @@ int mfetch(cb, name)
 /*
  * Store a clipboard by name.
  */
-void mstore(cb, name)
-    register clipboard_t *cb;
-    register char *name;
+void mstore(clipboard_t *cb, char *name)
 {
     register macro_t *m;
 
@@ -100,8 +94,7 @@ void mstore(cb, name)
  * The deficiency is that the tag is not linked to a file
  * and moves when lines are inserted or deleted.
  */
-int msvtag(name)
-    register char *name;
+int msvtag(char *name)
 {
     register macro_t *m;
     register workspace_t *cws;
@@ -120,8 +113,7 @@ int msvtag(name)
  * Return a cursor back to named position.
  * cgoto is common for it and other functions.
  */
-int mgotag(name)
-    char *name;
+int mgotag(char *name)
 {
     register int i;
     int fnew = 0;
@@ -144,8 +136,7 @@ int mgotag(name)
  * Define the parameters, describing the text area between the current
  * cursor and a given tag name.  Param_type is set to -2.
  */
-int mdeftag(name)
-    char *name;
+int mdeftag(char *name)
 {
     register macro_t *m;
     register workspace_t *cws;

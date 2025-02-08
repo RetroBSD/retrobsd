@@ -125,8 +125,7 @@ void ttcleanup()
 /*
  * Output a raw character, buffered.
  */
-static void putcbuf(c)
-    int c;
+static void putcbuf(int c)
 {
     out_buf[out_count++] = c;
     if (out_count == OUTBUFSZ)
@@ -136,8 +135,7 @@ static void putcbuf(c)
 /*
  * Move screen cursor to given coordinates.
  */
-void pcursor(col, lin)
-    int col, lin;
+void pcursor(int col, int lin)
 {
     register char *c, sy;
 
@@ -151,8 +149,7 @@ void pcursor(col, lin)
  * Output a symbol or output control code.
  * Return 0 on error.
  */
-int putch(c)
-    int c;
+int putch(int c)
 {
     register int cr;
     register char *s;
@@ -175,8 +172,7 @@ int putch(c)
 /*
  * Output a line of spaces.
  */
-void putblanks(k)
-    register int k;
+void putblanks(int k)
 {
     cursorcol += k;
     while (k--) {
@@ -208,10 +204,7 @@ void dumpcbuf()
  *      BADF  - no such keycode;
  *      >=0   - keycode detected.
  */
-static int findt (fb, fe, sy, ns)
-    keycode_t **fb, **fe;
-    char sy;
-    int ns;
+static int findt (keycode_t **fb, keycode_t **fe, char sy, int ns)
 {
     char sy1;
     register keycode_t *fi;

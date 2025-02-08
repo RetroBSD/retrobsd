@@ -120,8 +120,7 @@ keycode_t keytab[] = {
  * tc="XXYY..ZZ"
  * Auestion mark bebore the code denodes an optional feature.
  */
-static char *gettcs(termcap, tc)
-    char *termcap, *tc;
+static char *gettcs(char *termcap, char *tc)
 {
     char name[3], buftc0[128], *buftc = buftc0;
     register char *c;
@@ -162,9 +161,7 @@ static char *gettcs(termcap, tc)
 /*
  * Sort the keytab for the function findt().
  */
-static void itsort(fb, fe, ns)
-    keycode_t *fb,*fe;
-    int ns;
+static void itsort(keycode_t *fb, keycode_t *fe, int ns)
 {
     register keycode_t *fr, *fw;
     char c;

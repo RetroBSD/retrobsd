@@ -7,7 +7,7 @@ include $(TOPSRC)/target.mk
 CFLAGS		+= -Werror -Wall -I../ar -g
 LDFLAGS         += -g
 
-OBJS            = main.o doname.o misc.o files.o dosys.o gram.o
+OBJS            = main.o doname.o misc.o files.o dosys.o y.tab.o
 
 all:            xmake
 
@@ -18,12 +18,10 @@ xmake:          ${OBJS}
 		${ELF2AOUT} make.elf $@ && rm make.elf
 
 clean:
-		rm -f *.o *.elf xmake *.elf *.dis tags *~ gram.c
+		rm -f *.o *.elf xmake *.elf *.dis tags *~ y.tab.c
 
 install:        all
 		install xmake $(DESTDIR)/bin/make
 
-gram.c:         gram.y
+y.tab.c:        gram.y
 		$(YACC) gram.y
-		fgrep -v "static char yaccpar_sccsid" y.tab.c >gram.c
-		rm -f y.tab.c

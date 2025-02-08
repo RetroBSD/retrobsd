@@ -28,29 +28,27 @@
  * arising out of or in connection with the use or performance of
  * this software.
  */
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/ioctl.h>
 #include <sys/gpio.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
 
 #include "font6x10.c"
 
 /*
  * Display a line of text.
  */
-void display (fd, text)
-    int fd;
-    const char *text;
+void display(int fd, const char *text)
 {
-    static short picture [9];
+    static short picture[9];
     const unsigned char *glyph;
     int c, x, y;
 
     /* Clear image. */
-    memset (picture, 0, sizeof(picture));
+    memset(picture, 0, sizeof(picture));
 
     /* Build a running text. */
     while (*text != 0) {
@@ -58,33 +56,32 @@ void display (fd, text)
         c = *text++;
         if (c < ' ' || c > '~')
             continue;
-        glyph = font6x10_bits + font6x10_offset [c];
+        glyph = font6x10_bits + font6x10_offset[c];
 
-        for (x=0; x<FONT_WIDTH; x++) {
+        for (x = 0; x < FONT_WIDTH; x++) {
             /* Shift image. */
-            for (y=0; y<9; y++)
+            for (y = 0; y < 9; y++)
                 picture[y] >>= 1;
 
             /* Add a column of pixels */
-            for (y=0; y<FONT_HEIGHT; y++) {
+            for (y = 0; y < FONT_HEIGHT; y++) {
                 if ((glyph[y] << x) & 0x80)
                     picture[y] |= 1 << 13;
             }
             /* Display a frame. */
-            ioctl (fd, GPIO_LOL | 120, picture);
+            ioctl(fd, GPIO_LOL | 120, picture);
         }
     }
 
     /* Shift out the rest of picture. */
-    while (picture[0] | picture[1] | picture[2] | picture[3] |
-        picture[4] | picture[5] | picture[6] | picture[7] | picture[8])
-    {
+    while (picture[0] | picture[1] | picture[2] | picture[3] | picture[4] | picture[5] |
+           picture[6] | picture[7] | picture[8]) {
         /* Shift image. */
-        for (y=0; y<9; y++)
+        for (y = 0; y < 9; y++)
             picture[y] >>= 1;
 
         /* Display a frame. */
-        ioctl (fd, GPIO_LOL | 120, picture);
+        ioctl(fd, GPIO_LOL | 120, picture);
     }
 }
 
@@ -94,53 +91,53 @@ void display (fd, text)
  * 2) horizontal lines;
  * 3) all LEDs on.
  */
-void demo1 (fd)
+void demo1(int fd)
 {
     static unsigned short picture[9];
     int y, frame;
 
-    printf ("LoL Demo 1 ");
-    fflush (stdout);
+    printf("LoL Demo 1 ");
+    fflush(stdout);
 
-    for (frame = 0; frame<14; frame++) {
-        printf (".");
-        fflush (stdout);
-        memset (picture, 0, sizeof(picture));
+    for (frame = 0; frame < 14; frame++) {
+        printf(".");
+        fflush(stdout);
+        memset(picture, 0, sizeof(picture));
 
-        for (y=0; y<9; y++)
+        for (y = 0; y < 9; y++)
             picture[y] |= 1 << frame;
 
         /* Display a frame. */
-        ioctl (fd, GPIO_LOL | 100, picture);
+        ioctl(fd, GPIO_LOL | 100, picture);
     }
-    for (frame = 0; frame<9; frame++) {
-        printf (":");
-        fflush (stdout);
-        memset (picture, 0, sizeof(picture));
+    for (frame = 0; frame < 9; frame++) {
+        printf(":");
+        fflush(stdout);
+        memset(picture, 0, sizeof(picture));
 
         picture[frame] = (1 << 14) - 1;
 
         /* Display a frame. */
-        ioctl (fd, GPIO_LOL | 100, picture);
+        ioctl(fd, GPIO_LOL | 100, picture);
     }
-    printf (",");
-    fflush (stdout);
-    memset (picture, 0xFF, sizeof(picture));
+    printf(",");
+    fflush(stdout);
+    memset(picture, 0xFF, sizeof(picture));
 
     /* Display a frame. */
-    ioctl (fd, GPIO_LOL | 250, picture);
-    ioctl (fd, GPIO_LOL | 250, picture);
+    ioctl(fd, GPIO_LOL | 250, picture);
+    ioctl(fd, GPIO_LOL | 250, picture);
 
-    printf (" Done\n");
+    printf(" Done\n");
 }
 
-void demo2 (fd)
+void demo2(int fd)
 {
     static unsigned short picture[9];
     int x, y, dx, dy;
 
-    printf ("LoL Demo 2: press ^C to stop\n");
-    memset (picture, 0, sizeof(picture));
+    printf("LoL Demo 2: press ^C to stop\n");
+    memset(picture, 0, sizeof(picture));
     x = 0;
     y = 0;
     dx = 1;
@@ -148,7 +145,7 @@ void demo2 (fd)
     for (;;) {
         /* Draw ball. */
         picture[y] |= 1 << x;
-        ioctl (fd, GPIO_LOL | 120, picture);
+        ioctl(fd, GPIO_LOL | 120, picture);
         picture[y] &= ~(1 << x);
 
         /* Move the ball. */
@@ -165,55 +162,54 @@ void demo2 (fd)
     }
 }
 
-void usage ()
+void usage()
 {
-    fprintf (stderr, "LoL shield utility.\n");
-    fprintf (stderr, "Usage:\n");
-    fprintf (stderr, "    lol [options] text\n");
-    fprintf (stderr, "Options:\n");
-    fprintf (stderr, "    -1        -- demo of vertical and horizontal lines\n");
-    fprintf (stderr, "    -2        -- demo of ball in a box\n");
-    fprintf (stderr, "    text      -- display a running text\n");
-    exit (-1);
+    fprintf(stderr, "LoL shield utility.\n");
+    fprintf(stderr, "Usage:\n");
+    fprintf(stderr, "    lol [options] text\n");
+    fprintf(stderr, "Options:\n");
+    fprintf(stderr, "    -1        -- demo of vertical and horizontal lines\n");
+    fprintf(stderr, "    -2        -- demo of ball in a box\n");
+    fprintf(stderr, "    text      -- display a running text\n");
+    exit(-1);
 }
 
-int main (argc, argv)
-    char **argv;
+int main(int argc, char **argv)
 {
     const char *devname = "/dev/porta";
     int fd, idle = 1;
 
     /* Open gpio device. */
-    fd = open (devname, 1);
+    fd = open(devname, 1);
     if (fd < 0) {
-        perror (devname);
-        exit (-1);
+        perror(devname);
+        exit(-1);
     }
 
     for (;;) {
-        switch (getopt (argc, argv, "12")) {
+        switch (getopt(argc, argv, "12")) {
         case EOF:
             break;
         case '1':
-            demo1 (fd);
+            demo1(fd);
             idle = 0;
             continue;
         case '2':
-            demo2 (fd);
+            demo2(fd);
             idle = 0;
             continue;
         default:
-            usage ();
+            usage();
         }
         break;
     }
     argc -= optind;
     argv += optind;
     if (argc < 1 && idle)
-        usage ();
+        usage();
 
     while (argc-- > 0) {
-        display (fd, *argv++);
+        display(fd, *argv++);
     }
     return 0;
 }

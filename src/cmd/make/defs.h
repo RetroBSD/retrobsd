@@ -101,8 +101,8 @@ struct varblock {
     struct varblock *nxtvarblock;
     char *varname;
     char *varval;
-    int noreset:1;
-    int used:1;
+    unsigned noreset : 1;
+    unsigned used : 1;
 };
 extern struct varblock *firstvar;
 

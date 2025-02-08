@@ -5,6 +5,11 @@
  */
 #ifndef _DIR_
 #define _DIR_
+#ifdef KERNEL
+#include "types.h"
+#else
+#include <sys/types.h>
+#endif
 
 #ifndef MAXNAMLEN
 #define MAXNAMLEN   63

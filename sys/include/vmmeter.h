@@ -37,8 +37,8 @@ struct vmsum
     long        v_swpout;   /* swapouts */
 };
 #if defined(KERNEL) && defined(UCB_METER)
-struct vmrate   cnt, rate;
-struct vmsum    sum;
+extern struct vmrate   cnt, rate;
+extern struct vmsum    sum;
 #endif
 
 /* systemwide totals computed every five seconds */
@@ -59,7 +59,7 @@ struct vmtotal
     size_t      t_free;     /* free memory, kb */
 };
 #ifdef KERNEL
-struct  vmtotal total;
+extern struct  vmtotal total;
 
 /*
  * Count up various things once a second

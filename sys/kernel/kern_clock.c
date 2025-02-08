@@ -11,12 +11,20 @@
 #include <sys/kernel.h>
 #include <sys/systm.h>
 
-int     noproc;         /* no one is running just now */
+int noproc;                 /* no one is running just now */
 
-struct  callout *callfree, calltodo;
+struct callout *callfree, calltodo;
+
+long cp_time[CPUSTATES];    /* number of ticks spent in each cpu state */
 
 #ifdef UCB_METER
-int dk_ndrive = DK_NDRIVE;
+int  dk_ndrive = DK_NDRIVE; /* number of drives being monitored */
+int  dk_busy;               /* bit array of drive busy flags */
+long dk_xfer[DK_NDRIVE];    /* number of transfers */
+long dk_bytes[DK_NDRIVE];   /* number of bytes transfered */
+char *dk_name[DK_NDRIVE];   /* names of monitored drives */
+int  dk_unit[DK_NDRIVE];    /* unit numbers of monitored drives */
+int  dk_n;                  /* number of dk numbers assigned so far */
 
 /*
  * Gather statistics on resource utilization.
@@ -27,10 +35,8 @@ int dk_ndrive = DK_NDRIVE;
  * update statistics accordingly.
  */
 /*ARGSUSED*/
-void
-gatherstats(pc, ps)
-    caddr_t pc;
-    int ps;
+static void
+gatherstats(caddr_t pc, int ps)
 {
     register int cpstate;
 
@@ -75,9 +81,7 @@ gatherstats(pc, ps)
  * Run periodic events from timeout queue.
  */
 void
-softclock(pc, ps)
-    caddr_t pc;
-    int ps;
+softclock(caddr_t pc, int ps)
 {
     for (;;) {
         register struct callout *p1;
@@ -133,9 +137,7 @@ softclock(pc, ps)
  *  profile
  */
 void
-hardclock(pc, ps)
-    caddr_t pc;
-    int ps;
+hardclock(caddr_t pc, int ps)
 {
     register struct callout *p1;
     register struct proc *p;
@@ -250,10 +252,7 @@ hardclock(pc, ps)
  * Arrange that (*fun)(arg) is called in t/hz seconds.
  */
 void
-timeout (fun, arg, t)
-    void (*fun) (caddr_t);
-    caddr_t arg;
-    register int t;
+timeout (void (*fun) (caddr_t), caddr_t arg, int t)
 {
     register struct callout *p1, *p2, *pnew;
     register int s = splclock();
@@ -282,9 +281,7 @@ timeout (fun, arg, t)
  * from the callout structure.
  */
 void
-untimeout (fun, arg)
-    void (*fun) (caddr_t);
-    caddr_t arg;
+untimeout (void (*fun) (caddr_t), caddr_t arg)
 {
     register struct callout *p1, *p2;
     register int s;
@@ -326,8 +323,7 @@ profil()
  * absolute time.
  */
 int
-hzto(tv)
-    register struct timeval *tv;
+hzto(struct timeval *tv)
 {
     register long ticks;
     register long sec;

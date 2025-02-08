@@ -175,8 +175,8 @@ int main(int argc, char *argv[])
         return 10;
     }
 
-    for(rit = cores[config.core.device].always.requires.begin();
-        rit != cores[config.core.device].always.requires.end();
+    for(rit = cores[config.core.device].always.require.begin();
+        rit != cores[config.core.device].always.require.end();
         rit++)
     {
         map <string,instance>::iterator iit;
@@ -201,8 +201,8 @@ int main(int argc, char *argv[])
         for(it = config.instances.begin(); it != config.instances.end(); it++)
         {
             for(
-                rit = devices[(*it).second.device].always.requires.begin();
-                rit != devices[(*it).second.device].always.requires.end();
+                rit = devices[(*it).second.device].always.require.begin();
+                rit != devices[(*it).second.device].always.require.end();
                 rit++)
             {
                 map <string,instance>::iterator iit;

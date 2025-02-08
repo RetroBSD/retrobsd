@@ -46,8 +46,7 @@ endvfork()
  * Check for child processes and orphan them.
  */
 void
-exit (rv)
-    int rv;
+exit (int rv)
 {
     register int i;
     register struct proc *p;
@@ -166,10 +165,7 @@ struct args {
  * child's proc structure.
  */
 static int
-wait1 (q, uap, retval)
-    struct proc *q;
-    register struct args *uap;
-    int retval[];
+wait1 (struct proc *q, struct args *uap, int retval[])
 {
     int nfound, status;
     struct rusage ru;                   /* used for local conversion */

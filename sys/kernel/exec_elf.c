@@ -186,10 +186,10 @@ exec_elf_check(struct exec_params *epp)
               || (epp->data.vaddr != NO_ADDR
               && (caddr_t)ph[i].p_vaddr >= epp->data.vaddr
               && (caddr_t)ph[i].p_vaddr + ph[i].p_filesz <= epp->data.vaddr + epp->data.len))
-            || ph[i].p_filesz >= ph[i].p_memsz || ph[i].p_filesz <= 0)
+            || ph[i].p_filesz >= ph[i].p_memsz || ph[i].p_filesz <= 0) {
             return ENOEXEC;
-
-            error = rdwri(UIO_READ, epp->ip, (caddr_t)ph[i].p_vaddr, ph[i].p_filesz, ph[i].p_offset, IO_UNIT, 0);
+        }
+        error = rdwri(UIO_READ, epp->ip, (caddr_t)ph[i].p_vaddr, ph[i].p_filesz, ph[i].p_offset, IO_UNIT, 0);
     }
 
     exec_clear(epp);

@@ -42,8 +42,8 @@
  * different types of controllers.
  */
 struct driver {
-    const char  *d_name;        /* driver name for vmstat and iostat */
-    int         (*d_init)();    /* routine to probe & initialize device */
+    const char  *d_name;          /* driver name for vmstat and iostat */
+    int         (*d_init)(void*); /* routine to probe & initialize device */
 };
 
 /*

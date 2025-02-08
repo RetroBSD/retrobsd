@@ -13,10 +13,7 @@
  * Move data to/from user space.
  */
 int
-uiomove (cp, n, uio)
-    caddr_t cp;
-    u_int n;
-    register struct uio *uio;
+uiomove (caddr_t cp, u_int n, struct uio *uio)
 {
     register struct iovec *iov;
     int error = 0;
@@ -50,9 +47,7 @@ uiomove (cp, n, uio)
  * Give next character to user as result of read.
  */
 int
-ureadc (c, uio)
-    register int c;
-    register struct uio *uio;
+ureadc (int c, struct uio *uio)
 {
     register struct iovec *iov;
 
@@ -78,8 +73,7 @@ again:
  * Get next character written in by user from uio.
  */
 int
-uwritec(uio)
-    register struct uio *uio;
+uwritec(struct uio *uio)
 {
     register struct iovec *iov;
     register int c;
@@ -109,11 +103,7 @@ again:
  * Copy bytes to/from the kernel and the user.
  */
 int
-uiofmove(cp, n, uio, iov)
-    caddr_t cp;
-    register int n;
-    struct uio *uio;
-    struct iovec *iov;
+uiofmove(caddr_t cp, int n, struct uio *uio, struct iovec *iov)
 {
     if (uio->uio_rw == UIO_READ) {
         /* From kernel to user. */

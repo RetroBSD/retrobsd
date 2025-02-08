@@ -18,8 +18,7 @@
  * Common routine for chroot and chdir.
  */
 static void
-chdirec(ipp)
-    register struct inode **ipp;
+chdirec(struct inode **ipp)
 {
     register struct inode *ip;
     struct a {
@@ -100,10 +99,7 @@ chroot()
  * and call the device open routine if any.
  */
 static int
-copen (mode, cmode, fname)
-    int mode;
-    int cmode;
-    caddr_t fname;
+copen (int mode, int cmode, caddr_t fname)
 {
     register struct inode *ip;
     register struct file *fp;
@@ -421,8 +417,7 @@ done:
 }
 
 static void
-stat1 (follow)
-    int follow;
+stat1 (int follow)
 {
     register struct inode *ip;
     register struct a {
@@ -472,15 +467,15 @@ readlink()
         char    *buf;
         int     count;
     } *uap = (struct a *)u.u_arg;
-    struct  nameidata nd;
+    struct nameidata nd;
     register struct nameidata *ndp = &nd;
-    int resid;
+    int resid = 0;
 
     NDINIT (ndp, LOOKUP, NOFOLLOW, uap->name);
     ip = namei(ndp);
     if (ip == NULL)
         return;
-    if ((ip->i_mode&IFMT) != IFLNK) {
+    if ((ip->i_mode & IFMT) != IFLNK) {
         u.u_error = EINVAL;
         goto out;
     }
@@ -492,9 +487,7 @@ out:
 }
 
 static int
-chflags1 (ip, flags)
-    register struct inode *ip;
-    u_short flags;
+chflags1 (struct inode *ip, u_short flags)
 {
     struct  vattr   vattr;
 
@@ -596,9 +589,7 @@ fchmod()
  * Inode must be locked before calling.
  */
 int
-chmod1(ip, mode)
-    register struct inode *ip;
-    register int mode;
+chmod1(struct inode *ip, int mode)
 {
     if (u.u_uid != ip->i_uid && !suser())
         return(u.u_error);
@@ -670,9 +661,7 @@ fchown()
  * inode must be locked prior to call.
  */
 int
-chown1 (ip, uid, gid)
-    register struct inode *ip;
-    register int uid, gid;
+chown1 (struct inode *ip, int uid, int gid)
 {
     int ouid, ogid;
 
@@ -1082,9 +1071,7 @@ out:
  * Make a new file.
  */
 struct inode *
-maknode (mode, ndp)
-    int mode;
-    register struct nameidata *ndp;
+maknode (int mode, struct nameidata *ndp)
 {
     register struct inode *ip;
     register struct inode *pdir = ndp->ni_pdir;
@@ -1320,8 +1307,7 @@ out:
  * Get an inode pointer of a file descriptor.
  */
 struct inode *
-getinode(fdes)
-    int fdes;
+getinode(int fdes)
 {
     register struct file *fp;
 

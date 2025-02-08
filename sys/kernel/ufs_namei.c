@@ -36,12 +36,12 @@ union nchash {
 #define nch_back    nch_chain[1]
 
 struct  namecache *nchhead, **nchtail;  /* LRU chain pointers */
+u_int nextinodeid;                      /* unique id generator */
+struct inode *rootdir;                  /* pointer to inode of root directory */
+struct nchstats nchstats;               /* cache effectiveness statistics */
 
 static void
-dirbad (ip, offset, how)
-    struct inode *ip;
-    off_t offset;
-    char *how;
+dirbad (struct inode *ip, off_t offset, char *how)
 {
     printf ("%s: bad dir I=%u off %ld: %s\n",
         ip->i_fs->fs_fsmnt, ip->i_number, offset, how);
@@ -54,10 +54,7 @@ dirbad (ip, offset, how)
  * remaining space in the directory.
  */
 static struct buf *
-blkatoff(ip, offset, res)
-    struct inode *ip;
-    off_t offset;
-    char **res;
+blkatoff(struct inode *ip, off_t offset, char **res)
 {
     daddr_t lbn = lblkno(offset);
     register struct buf *bp;
@@ -91,9 +88,7 @@ blkatoff(ip, offset, res)
  *  name must be as long as advertised, and null terminated
  */
 static int
-dirbadentry (ep, entryoffsetinblock)
-    register struct direct *ep;
-    int entryoffsetinblock;
+dirbadentry (struct direct *ep, int entryoffsetinblock)
 {
     register int i;
 
@@ -175,8 +170,7 @@ dirbadentry (ep, entryoffsetinblock)
  *   but unlocked.
  */
 struct inode *
-namei (ndp)
-    register struct nameidata *ndp;
+namei (struct nameidata *ndp)
 {
     register char *cp;          /* pointer into pathname argument */
 /* these variables refer to things which must be freed or unlocked */
@@ -895,9 +889,7 @@ retNULL:
  * how the space for the new entry is to be gotten.
  */
 int
-direnter(ip, ndp)
-    struct inode *ip;
-    register struct nameidata *ndp;
+direnter(struct inode *ip, struct nameidata *ndp)
 {
     register struct direct *ep, *nep;
     register struct inode *dp = ndp->ni_pdir;
@@ -1015,8 +1007,7 @@ direnter(ip, ndp)
  * to the size of the previous entry.
  */
 int
-dirremove (ndp)
-    register struct nameidata *ndp;
+dirremove (struct nameidata *ndp)
 {
     register struct inode *dp = ndp->ni_pdir;
     register struct buf *bp;
@@ -1050,10 +1041,7 @@ dirremove (ndp)
  * set up by a call to namei.
  */
 void
-dirrewrite(dp, ip, ndp)
-    register struct inode *dp;
-    struct inode *ip;
-    register struct nameidata *ndp;
+dirrewrite(struct inode *dp, struct inode *ip, struct nameidata *ndp)
 {
     ndp->ni_dent.d_ino = ip->i_number;
     u.u_error = rdwri (UIO_WRITE, dp, (caddr_t) &ndp->ni_dent,
@@ -1072,9 +1060,7 @@ dirrewrite(dp, ip, ndp)
  * NB: does not handle corrupted directories.
  */
 int
-dirempty (ip, parentino)
-    register struct inode *ip;
-    ino_t parentino;
+dirempty (struct inode *ip, ino_t parentino)
 {
     register off_t off;
     struct dirtemplate dbuf;
@@ -1122,8 +1108,7 @@ dirempty (ip, parentino)
  * The target is always iput() before returning.
  */
 int
-checkpath (source, target)
-    struct inode *source, *target;
+checkpath (struct inode *source, struct inode *target)
 {
     struct dirtemplate dirbuf;
     register struct inode *ip;
@@ -1210,8 +1195,7 @@ nchinit()
  * inode.  This makes the algorithm O(n^2), but do you think I care?
  */
 void
-nchinval (dev)
-    register dev_t dev;
+nchinval (dev_t dev)
 {
     register struct namecache *ncp, *nxtcp;
 

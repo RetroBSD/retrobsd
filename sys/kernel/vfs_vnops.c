@@ -61,9 +61,7 @@
  * (maknode) routine.
  */
 int
-vn_open (ndp, fmode, cmode)
-    register struct nameidata *ndp;
-    int fmode, cmode;
+vn_open (struct nameidata *ndp, int fmode, int cmode)
 {
     register struct inode *ip;
     register int error;
@@ -172,9 +170,7 @@ retuerr:
  * takes a "file *" and extracts the flags from the file structure.
  */
 int
-vn_close(ip, flags)
-    register struct inode *ip;
-    int flags;
+vn_close(struct inode *ip, int flags)
 {
     register int error;
 
@@ -195,8 +191,7 @@ vn_close(ip, flags)
  * and call closei() and irele() ourself.
  */
 int
-vn_closefile(fp)
-    register struct file *fp;
+vn_closefile(struct file *fp)
 {
     register struct inode *ip = (struct inode *)fp->f_data;
 

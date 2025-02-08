@@ -8,12 +8,14 @@
 #include <sys/proc.h>
 #include <sys/systm.h>
 
+struct proc *pidhash [PIDHSZ];
+struct proc *freeproc, *zombproc, *allproc, *qs; /* lists of procs in various states */
+
 /*
  * Is p an inferior of the current process?
  */
 int
-inferior(p)
-    register struct proc *p;
+inferior(struct proc *p)
 {
     for (; p != u.u_procp; p = p->p_pptr)
         if (p->p_ppid == 0)
@@ -25,8 +27,7 @@ inferior(p)
  * Find a process by pid.
  */
 struct proc *
-pfind (pid)
-    register int pid;
+pfind (int pid)
 {
     register struct proc *p = pidhash [PIDHASH(pid)];
 

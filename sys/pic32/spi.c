@@ -276,9 +276,9 @@ int spidev_ioctl(dev_t dev, u_int cmd, caddr_t addr, int flag)
  * SPI ports are always present, if configured.
  */
 static int
-spiprobe(config)
-    struct conf_ctlr *config;
+spiprobe(void *arg)
 {
+    struct conf_ctlr *config = arg;
     int channel = config->ctlr_unit - 1;
     struct spiio *io = &spi_io[channel];
     int sdi, sdo, sck;

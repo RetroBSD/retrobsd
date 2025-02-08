@@ -15,12 +15,10 @@
 #include <sys/proc.h>
 
 static int
-statfs1 (mp, sbp)
-    struct  mount   *mp;
-    struct  statfs  *sbp;
+statfs1 (struct mount *mp, struct statfs *sbp)
 {
     struct  statfs  sfs;
-    register struct statfs  *sfsp;
+    register struct statfs *sfsp;
     struct  fs  *fs = &mp->m_filsys;
 
     sfsp = &sfs;
@@ -86,11 +84,11 @@ getfsstat()
         u_int   flags;
     } *uap = (struct a *)u.u_arg;
     register struct mount *mp;
-    caddr_t sfsp;
+    struct statfs *sfsp;
     int count, maxcount, error;
 
     maxcount = uap->bufsize / sizeof (struct statfs);
-    sfsp = (caddr_t)uap->buf;
+    sfsp = (struct statfs *)uap->buf;
     count = 0;
     for (mp = mount; mp < &mount[NMOUNT]; mp++) {
         if (mp->m_inodp == NULL)
@@ -101,11 +99,11 @@ getfsstat()
                 u.u_error = error;
                 return;
             }
-            sfsp += sizeof (struct statfs);
+            sfsp++;
         }
         count++;
     }
-    if (sfsp && count > maxcount)
+    if (count > maxcount)
         u.u_rval = maxcount;
     else
         u.u_rval = count;
@@ -117,8 +115,7 @@ getfsstat()
  * which only happens every 30 seconds.
  */
 static void
-syncinodes(fs)
-    struct  fs *fs;
+syncinodes(struct fs *fs)
 {
     register struct inode *ip;
 
@@ -148,8 +145,7 @@ syncinodes(fs)
  * sync _every_ filesystem when unmounting just one filesystem.
  */
 int
-ufs_sync(mp)
-    register struct mount *mp;
+ufs_sync(struct mount *mp)
 {
     register struct fs *fs;
     struct  buf *bp;

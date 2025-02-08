@@ -146,8 +146,7 @@ static const unsigned mask_by_vector[] = {
 };
 
 static void
-dumpregs(frame)
-    int *frame;
+dumpregs(int *frame)
 {
     unsigned int cause;
     const char *code = 0;
@@ -232,8 +231,7 @@ dumpregs(frame)
  * by the hardware and software during the exception processing.
  */
 void
-exception(frame)
-    int *frame;
+exception(int *frame)
 {
     register int psig;
     time_t syst;

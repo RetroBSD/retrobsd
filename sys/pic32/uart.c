@@ -219,10 +219,7 @@ uartclose (dev_t dev, int flag, int mode)
 
 /*ARGSUSED*/
 int
-uartread (dev, uio, flag)
-    dev_t dev;
-    struct uio *uio;
-    int flag;
+uartread (dev_t dev, struct uio *uio, int flag)
 {
     register int unit = minor(dev);
     register struct tty *tp = &uartttys[unit];
@@ -235,10 +232,7 @@ uartread (dev, uio, flag)
 
 /*ARGSUSED*/
 int
-uartwrite (dev, uio, flag)
-    dev_t dev;
-    struct uio *uio;
-    int flag;
+uartwrite (dev_t dev, struct uio *uio, int flag)
 {
     register int unit = minor(dev);
     register struct tty *tp = &uartttys[unit];
@@ -250,9 +244,7 @@ uartwrite (dev, uio, flag)
 }
 
 int
-uartselect (dev, rw)
-    register dev_t dev;
-    int rw;
+uartselect (dev_t dev, int rw)
 {
     register int unit = minor(dev);
     register struct tty *tp = &uartttys[unit];
@@ -265,10 +257,7 @@ uartselect (dev, rw)
 
 /*ARGSUSED*/
 int
-uartioctl (dev, cmd, addr, flag)
-    dev_t dev;
-    register u_int cmd;
-    caddr_t addr;
+uartioctl (dev_t dev, u_int cmd, caddr_t addr, int flag)
 {
     register int unit = minor(dev);
     register struct tty *tp = &uartttys[unit];
@@ -284,8 +273,7 @@ uartioctl (dev, cmd, addr, flag)
 }
 
 void
-uartintr (dev)
-    dev_t dev;
+uartintr (dev_t dev)
 {
     register int c;
     register int unit = minor(dev);
@@ -444,9 +432,9 @@ char uartgetc(dev_t dev)
  * Return true if found and initialized ok.
  */
 static int
-uartprobe(config)
-    struct conf_device *config;
+uartprobe(void *arg)
 {
+    struct conf_device *config = arg;
     int unit = config->dev_unit - 1;
     int is_console = (CONS_MAJOR == UART_MAJOR &&
                       CONS_MINOR == unit);

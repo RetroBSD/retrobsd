@@ -9,19 +9,19 @@
  */
 
 /* 1.1 */
-long    hostid;
-char    hostname[MAXHOSTNAMELEN];
-int hostnamelen;
+extern long hostid;
+extern char hostname[];
+extern int hostnamelen;
 
 /* 1.2 */
 #include <sys/time.h>
 
-struct  timeval boottime;
-struct  timeval time;
-struct  timezone tz;        /* XXX */
-int     adjdelta;
-int     hz;
-int     usechz;             /* # microseconds per hz */
-int     lbolt;              /* awoken once a second */
+extern struct timeval boottime;
+extern struct timeval time;
+extern struct timezone tz;      /* XXX */
+extern int adjdelta;
+extern int hz;
+extern int usechz;              /* # microseconds per hz */
+extern int lbolt;               /* awoken once a second */
 
-short   avenrun[3];
+extern short avenrun[3];

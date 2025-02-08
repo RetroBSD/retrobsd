@@ -317,10 +317,16 @@ single_step_done:
                 .type   etcinit, @object
                 .type   argv, @object
 icode:
+                .equ    etcinit_icode, etcinit - icode
                 la      $a0, UBASE
                 move    $a1, $a0
-                addi    $a0, etcinit - icode
-                addi    $a1, argv - icode
+                la      $t0, etcinit
+                add     $a0, $t0
+                la      $t0, argv
+                add     $a1, $t0
+                la      $t0, icode
+                sub     $a0, $t0
+                sub     $a1, $t0
                 syscall 11                              # SYS_execv
                 move    $a0, $v0
                 syscall 1                               # SYS_exit
@@ -329,6 +335,7 @@ etcinit:
                 .align  2
 initflags:
                 .ascii  "-\0\0\0\0\0\0\0\0\0\0"         # space for options
+                .align  2
 argv:
                 .word   etcinit + 6 - icode + UBASE     # address of "init\0"
                 .word   initflags - icode + UBASE       # init options

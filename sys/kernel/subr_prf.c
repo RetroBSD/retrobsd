@@ -31,9 +31,7 @@ char    *panicstr;
  * are saved in msgbuf for inspection later.
  */
 static void
-putchar (c, flags, tp)
-    int c, flags;
-    register struct tty *tp;
+putchar (int c, int flags, struct tty *tp)
 {
     if (flags & TOTTY) {
         register int s = spltty();
@@ -133,11 +131,7 @@ void puts(char *s, int flags, struct tty *ttyp)
 #define HION "\e[1m"
 #define HIOFF "\e[0m"
 static void
-prf (fmt, ap, flags, ttyp)
-    register char *fmt;
-    register u_int *ap;
-    int flags;
-    struct tty *ttyp;
+prf (char *fmt, u_int *ap, int flags, struct tty *ttyp)
 {
 #define va_arg(ap,type) *(type*) (void*) (ap++)
 
@@ -441,11 +435,10 @@ number:
 }
 
 static void
-logpri (level)
-    int level;
+logpri (int level)
 {
     putchar ('<', TOLOG, (struct tty*) 0);
-    prf ("%u", &level, TOLOG, (struct tty*) 0);
+    prf ("%u", (u_int *)&level, TOLOG, (struct tty*) 0);
     putchar ('>', TOLOG, (struct tty*) 0);
 }
 
@@ -470,7 +463,7 @@ logpri (level)
 void
 printf(char *fmt, ...)
 {
-    prf(fmt, &fmt + 1, TOCONS | TOLOG, (struct tty *)0);
+    prf(fmt, (u_int *)(&fmt + 1), TOCONS | TOLOG, (struct tty *)0);
 }
 
 /*
@@ -506,7 +499,7 @@ uprintf (char *fmt, ...)
         return;
 
     if (ttycheckoutq (tp, 1))
-        prf (fmt, &fmt+1, TOTTY, tp);
+        prf (fmt, (u_int *)(&fmt + 1), TOTTY, tp);
 }
 
 /*
@@ -525,7 +518,7 @@ tprintf (register struct tty *tp, char *fmt, ...)
         tp = &cnttys[0];
     if (ttycheckoutq (tp, 0) == 0)
         flags = TOLOG;
-    prf (fmt, &fmt + 1, flags, tp);
+    prf (fmt, (u_int *)(&fmt + 1), flags, tp);
 #ifdef LOG_ENABLED
     logwakeup (logMSG);
 #endif
@@ -543,12 +536,12 @@ log (int level, char *fmt, ...)
     register int s = splhigh();
 
     logpri(level);
-    prf(fmt, &fmt + 1, TOLOG, (struct tty *)0);
+    prf(fmt, (u_int *)(&fmt + 1), TOLOG, (struct tty *)0);
     splx(s);
 #ifdef LOG_ENABLED
     if (! logisopen(logMSG))
 #endif
-        prf(fmt, &fmt + 1, TOCONS, (struct tty *)0);
+        prf(fmt, (u_int *)(&fmt + 1), TOCONS, (struct tty *)0);
 #ifdef LOG_ENABLED
     logwakeup(logMSG);
 #endif
@@ -561,8 +554,7 @@ log (int level, char *fmt, ...)
  * sync the disks as this often leads to recursive panics.
  */
 void
-panic(s)
-    char *s;
+panic(char *s)
 {
     int bootopt = RB_HALT | RB_DUMP;
 

@@ -26,8 +26,7 @@
  * Allocate a user file descriptor.
  */
 static int
-ufalloc(i)
-    register int i;
+ufalloc(int i)
 {
     for (; i < NOFILE; i++)
         if (u.u_ofile[i] == NULL) {
@@ -51,10 +50,7 @@ getdtablesize()
 }
 
 static void
-dupit(fd, fp, flags)
-    register int fd;
-    register struct file *fp;
-    int flags;
+dupit(int fd, struct file *fp, int flags)
 {
     u.u_ofile[fd] = fp;
     u.u_pofile[fd] = flags;
@@ -174,10 +170,7 @@ fcntl()
 }
 
 int
-fioctl(fp, cmd, value)
-    register struct file *fp;
-    u_int cmd;
-    caddr_t value;
+fioctl(struct file *fp, u_int cmd, caddr_t value)
 {
     return ((*Fops[fp->f_type]->fo_ioctl)(fp, cmd, value));
 }
@@ -186,9 +179,7 @@ fioctl(fp, cmd, value)
  * Set/clear file flags: nonblock and async.
  */
 int
-fset (fp, bit, value)
-    register struct file *fp;
-    int bit, value;
+fset (struct file *fp, int bit, int value)
 {
     if (value)
         fp->f_flag |= bit;
@@ -202,9 +193,7 @@ fset (fp, bit, value)
  * Get process group id for a file.
  */
 int
-fgetown(fp, valuep)
-    register struct file *fp;
-    register int *valuep;
+fgetown(struct file *fp, int *valuep)
 {
     register int error;
 
@@ -223,9 +212,7 @@ fgetown(fp, valuep)
  * Set process group id for a file.
  */
 int
-fsetown(fp, value)
-    register struct file *fp;
-    int value;
+fsetown(struct file *fp, int value)
 {
 #ifdef INET
     if (fp->f_type == DTYPE_SOCKET) {
@@ -340,8 +327,7 @@ slot:
  * consideration.
  */
 struct file *
-getf(f)
-    register int f;
+getf(int f)
 {
     register struct file *fp;
 
@@ -357,8 +343,7 @@ getf(f)
  * Decrement reference count on file structure.
  */
 int
-closef(fp)
-    register struct file *fp;
+closef(struct file *fp)
 {
     int error;
 
@@ -423,9 +408,7 @@ flock()
  */
 /* ARGSUSED */
 int
-fdopen(dev, mode, type)
-    dev_t dev;
-    int mode, type;
+fdopen(dev_t dev, int mode, int type)
 {
     /*
      * XXX Kludge: set u.u_dupfd to contain the value of the
@@ -443,10 +426,7 @@ fdopen(dev, mode, type)
  * Duplicate the specified descriptor to a free descriptor.
  */
 int
-dupfdopen (indx, dfd, mode, error)
-    register int indx, dfd;
-    int mode;
-    int error;
+dupfdopen (int indx, int dfd, int mode, int error)
 {
     register struct file *wfp;
     struct file *fp;

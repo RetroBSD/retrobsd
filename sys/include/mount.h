@@ -92,7 +92,7 @@ struct  mount
 
 #ifdef KERNEL
 
-struct  mount mount[NMOUNT];
+extern struct mount mount[];
 
 #else
 

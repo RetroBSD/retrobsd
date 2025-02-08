@@ -17,15 +17,15 @@
 #define DK_NDRIVE   4
 
 #if defined(KERNEL) && defined(UCB_METER)
-long    cp_time[CPUSTATES];     /* number of ticks spent in each cpu state */
-int     dk_ndrive;              /* number of drives being monitored */
-int     dk_busy;                /* bit array of drive busy flags */
-long    dk_xfer[DK_NDRIVE];     /* number of transfers */
-long    dk_bytes[DK_NDRIVE];    /* number of bytes transfered */
-char    *dk_name[DK_NDRIVE];    /* names of monitored drives */
-int     dk_unit[DK_NDRIVE];     /* unit numbers of monitored drives */
-int     dk_n;                   /* number of dk numbers assigned so far */
+extern long cp_time[CPUSTATES];     /* number of ticks spent in each cpu state */
+extern int  dk_ndrive;              /* number of drives being monitored */
+extern int  dk_busy;                /* bit array of drive busy flags */
+extern long dk_xfer[DK_NDRIVE];     /* number of transfers */
+extern long dk_bytes[DK_NDRIVE];    /* number of bytes transfered */
+extern char *dk_name[DK_NDRIVE];    /* names of monitored drives */
+extern int  dk_unit[DK_NDRIVE];     /* unit numbers of monitored drives */
+extern int  dk_n;                   /* number of dk numbers assigned so far */
 
-long    tk_nin;                 /* number of tty characters input */
-long    tk_nout;                /* number of tty characters output */
+extern long tk_nin;                 /* number of tty characters input */
+extern long tk_nout;                /* number of tty characters output */
 #endif

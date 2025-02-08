@@ -42,9 +42,7 @@
  * Algorithm is first-fit.
  */
 size_t
-malloc (mp, size)
-    struct map *mp;
-    register size_t size;
+malloc (struct map *mp, size_t size)
 {
     register struct mapent *bp, *ep;
     size_t addr;
@@ -81,10 +79,7 @@ malloc (mp, size)
  * map.  Sort addr into map and combine on one or both ends if possible.
  */
 void
-mfree (mp, size, addr)
-    struct map *mp;
-    size_t size;
-    register size_t addr;
+mfree (struct map *mp, size_t size, size_t addr)
 {
     register struct mapent *bp, *ep;
     struct mapent *start;
@@ -174,10 +169,7 @@ mfree (mp, size, addr)
  * best.  Returns NULL on failure, address of u. on success.
  */
 size_t
-malloc3 (mp, d_size, s_size, u_size, a)
-    struct map *mp;
-    size_t d_size, s_size, u_size;
-    size_t a[3];
+malloc3 (struct map *mp, size_t d_size, size_t s_size, size_t u_size, size_t a[3])
 {
     register struct mapent *bp, *remap;
     register int next;

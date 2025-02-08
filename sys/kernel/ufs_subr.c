@@ -60,8 +60,7 @@ sync()
  *  date with recent mods to the cooked device.
  */
 void
-syncip(ip)
-    struct inode *ip;
+syncip(struct inode *ip)
 {
     register struct buf *bp;
     register struct buf *lastbufp;
@@ -102,9 +101,7 @@ syncip(ip)
  * Check that a specified block number is in range.
  */
 int
-badblock (fp, bn)
-    register struct fs *fp;
-    daddr_t bn;
+badblock (struct fs *fp, daddr_t bn)
 {
     if (bn < fp->fs_isize || bn >= fp->fs_fsize) {
         printf("bad block %D, ",bn);
@@ -124,8 +121,7 @@ badblock (fp, bn)
  *  this "cannot happen"
  */
 struct fs *
-getfs(dev)
-    dev_t dev;
+getfs(dev_t dev)
 {
     register struct mount *mp;
     register struct fs *fs;

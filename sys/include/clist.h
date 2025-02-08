@@ -12,6 +12,6 @@ struct cblock {
 
 #ifdef KERNEL
 extern struct cblock cfree[];
-struct  cblock *cfreelist;
-int cfreecount;
+extern struct cblock *cfreelist;
+extern int cfreecount;
 #endif

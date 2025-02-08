@@ -14,10 +14,7 @@
 #include <sys/uio.h>
 
 int
-readp (fp, uio, flag)
-    register struct file *fp;
-    register struct uio *uio;
-    int flag;
+readp (struct file *fp, struct uio *uio, int flag)
 {
     register struct inode *ip;
     int error;
@@ -69,10 +66,7 @@ loop:
 }
 
 int
-writep (fp, uio, flag)
-    struct file *fp;
-    register struct uio *uio;
-    int flag;
+writep (struct file *fp, struct uio *uio, int flag)
 {
     register struct inode *ip;
     register int c;
@@ -138,20 +132,17 @@ done:       IUNLOCK(ip);
 }
 
 int
-pipe_rw (fp, uio, flag)
-    register struct file *fp;
-    register struct uio *uio;
-    int flag;
+pipe_rw (struct file *fp, struct uio *uio)
 {
+    int flag = 0;
+
     if (uio->uio_rw == UIO_READ)
         return (readp(fp, uio, flag));
     return (writep(fp, uio, flag));
 }
 
 int
-pipe_select (fp, which)
-    struct file *fp;
-    int which;
+pipe_select (struct file *fp, int which)
 {
     register struct inode *ip = (struct inode *)fp->f_data;
     register struct proc *p;
@@ -200,8 +191,7 @@ pipe_select (fp, which)
  * to the select wakeup processing.
  */
 int
-pipe_close(fp)
-    struct  file *fp;
+pipe_close(struct file *fp)
 {
     register struct inode *ip = (struct inode *)fp->f_data;
 

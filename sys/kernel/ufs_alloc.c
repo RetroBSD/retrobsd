@@ -25,9 +25,7 @@ typedef struct fblk *FBLKP;
  * obtain NICFREE more...
  */
 struct buf *
-balloc(ip, flags)
-    struct inode *ip;
-    int flags;
+balloc(struct inode *ip, int flags)
 {
     register struct fs *fs;
     register struct buf *bp;
@@ -122,8 +120,7 @@ nospace:
  * is instituted to pick up NICINOD more.
  */
 struct inode *
-ialloc (pip)
-    struct inode *pip;
+ialloc (struct inode *pip)
 {
     register struct fs *fs;
     register struct buf *bp;
@@ -134,8 +131,7 @@ ialloc (pip)
     daddr_t adr;
     ino_t inobas;
     int first;
-    struct inode *ifind();
-    char    *emsg = "no inodes free";
+    char *emsg = "no inodes free";
 
     fs = pip->i_fs;
     while (fs->fs_ilock)
@@ -224,9 +220,7 @@ fromtop:
  * specified device.
  */
 void
-free (ip, bno)
-    struct inode *ip;
-    daddr_t bno;
+free (struct inode *ip, daddr_t bno)
 {
     register struct fs *fs;
     register struct buf *bp;
@@ -268,9 +262,7 @@ free (ip, bno)
  * stores up to NICINOD I nodes in the super block and throws away any more.
  */
 void
-ifree (ip, ino)
-    struct inode *ip;
-    ino_t ino;
+ifree (struct inode *ip, ino_t ino)
 {
     register struct fs *fs;
 
@@ -294,9 +286,7 @@ ifree (ip, ino)
  *  fs: error message
  */
 void
-fserr (fp, cp)
-    struct fs *fp;
-    char *cp;
+fserr (struct fs *fp, char *cp)
 {
     printf ("%s: %s\n", fp->fs_fsmnt, cp);
 }

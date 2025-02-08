@@ -35,7 +35,7 @@ void cluster::read(ifstream& f)
         if (in == "REQUIRE") {
             temp >> in;
             uc(in);
-            this->requires.push_back(in);
+            this->require.push_back(in);
         }
         if (in == "FILE") {
             temp >> in;
@@ -52,4 +52,3 @@ void cluster::read(ifstream& f)
     }
     return;
 }
-

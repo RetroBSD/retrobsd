@@ -20,15 +20,15 @@ struct  forkstat
 };
 
 #if defined(KERNEL) && defined(UCB_METER)
-size_t  freemem;        /* remaining clicks of free memory */
+extern size_t  freemem;     /* remaining clicks of free memory */
 
-u_short avefree;        /* moving average of remaining free clicks */
-u_short avefree30;      /* 30 sec (avefree is 5 sec) moving average */
+extern u_short avefree;     /* moving average of remaining free clicks */
+extern u_short avefree30;   /* 30 sec (avefree is 5 sec) moving average */
 
 /*
  * writable copies of tunables
  */
-int     maxslp;         /* max sleep time before very swappable */
+extern int maxslp;          /* max sleep time before very swappable */
 
-struct  forkstat forkstat;
+extern struct forkstat forkstat;
 #endif

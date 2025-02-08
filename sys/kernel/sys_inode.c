@@ -24,9 +24,7 @@
 daddr_t rablock;        /* block to be read ahead */
 
 int
-ino_rw(fp, uio)
-    struct file *fp;
-    register struct uio *uio;
+ino_rw(struct file *fp, struct uio *uio)
 {
     register struct inode *ip = (struct inode *)fp->f_data;
     u_int count, error;
@@ -60,10 +58,7 @@ ino_rw(fp, uio)
 }
 
 int
-ino_ioctl(fp, com, data)
-    register struct file *fp;
-    register u_int com;
-    caddr_t data;
+ino_ioctl(struct file *fp, u_int com, caddr_t data)
 {
     register struct inode *ip = ((struct inode *)fp->f_data);
     dev_t dev;
@@ -114,9 +109,7 @@ ino_ioctl(fp, com, data)
 }
 
 int
-ino_select(fp, which)
-    struct file *fp;
-    int which;
+ino_select(struct file *fp, int which)
 {
     register struct inode *ip = (struct inode *)fp->f_data;
     register dev_t dev;
@@ -137,14 +130,7 @@ const struct fileops inodeops = {
 };
 
 int
-rdwri (rw, ip, base, len, offset, ioflg, aresid)
-    enum uio_rw rw;
-    struct inode *ip;
-    caddr_t base;
-    int len;
-    off_t offset;
-    int ioflg;
-    register int *aresid;
+rdwri (enum uio_rw rw, struct inode *ip, caddr_t base, int len, off_t offset, int ioflg, register int *aresid)
 {
     struct uio auio;
     struct iovec aiov;
@@ -167,10 +153,7 @@ rdwri (rw, ip, base, len, offset, ioflg, aresid)
 }
 
 int
-rwip (ip, uio, ioflag)
-    register struct inode *ip;
-    register struct uio *uio;
-    int ioflag;
+rwip (struct inode *ip, struct uio *uio, int ioflag)
 {
     dev_t dev = (dev_t)ip->i_rdev;
     register struct buf *bp;
@@ -357,9 +340,7 @@ rwip (ip, uio, ioflag)
 }
 
 int
-ino_stat(ip, sb)
-    register struct inode *ip;
-    register struct stat *sb;
+ino_stat(struct inode *ip, struct stat *sb)
 {
     register struct icommon2 *ic2;
 
@@ -403,17 +384,15 @@ ino_stat(ip, sb)
  * special (IBLK, ICHR) files.  Normal files simply return early (the default
  * case in the switch statement).  Pipes and sockets do NOT come here because
  * they have their own close routines.
-*/
+ */
 int
-closei (ip, flag)
-    register struct inode *ip;
-    int flag;
+closei (struct inode *ip, int flag)
 {
     register struct mount *mp;
     register struct file *fp;
     int mode, error;
     dev_t   dev;
-    int (*cfunc)();
+    int (*cfunc)(dev_t, int, int);
 
     mode = ip->i_mode & IFMT;
     dev = ip->i_rdev;
@@ -481,9 +460,7 @@ closei (ip, flag)
  *       error return ERESTART.
  */
 int
-ino_lock(fp, cmd)
-    register struct file *fp;
-    int cmd;
+ino_lock(struct file *fp, int cmd)
 {
     register int priority = PLOCK;
     register struct inode *ip = (struct inode *)fp->f_data;
@@ -557,9 +534,7 @@ again:
  * Unlock a file.
  */
 void
-ino_unlock(fp, kind)
-    register struct file *fp;
-    int kind;
+ino_unlock(struct file *fp, int kind)
 {
     register struct inode *ip = (struct inode *)fp->f_data;
     register int flags;
@@ -591,8 +566,7 @@ ino_unlock(fp, kind)
  * validate before actual IO.
  */
 int
-openi (ip, mode)
-    register struct inode *ip;
+openi (struct inode *ip, int mode)
 {
     register dev_t dev = ip->i_rdev;
     register int maj = major(dev);
@@ -658,8 +632,7 @@ openi (ip, mode)
 }
 
 static void
-forceclose(dev)
-    register dev_t dev;
+forceclose(dev_t dev)
 {
     register struct file *fp;
     register struct inode *ip;

@@ -141,13 +141,13 @@ void cinvalall (void);
 
 #define cacheinval(ip) \
     (ip)->i_id = ++nextinodeid; \
-    if (nextinodeid == 0) \
+    if ((u_short)nextinodeid == 0) \
         cinvalall();
 
-u_int nextinodeid;              /* unique id generator */
+extern u_int nextinodeid;       /* unique id generator */
 
 extern struct inode inode[];    /* the inode table itself */
-struct inode *rootdir;          /* pointer to inode of root directory */
+extern struct inode *rootdir;   /* pointer to inode of root directory */
 
 /*
  * Initialize hash links for inodes and build inode free list.
@@ -174,6 +174,11 @@ struct inode *iget (dev_t dev, struct fs *fs, ino_t ino);
  * write the inode out and deallocate the file.
  */
 void iput (struct inode *ip);
+
+/*
+ * Find an inode if it is incore.
+ */
+struct inode *ifind(dev_t dev, ino_t ino);
 
 /*
  * Make a new file.

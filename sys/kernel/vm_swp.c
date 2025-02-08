@@ -16,10 +16,7 @@
  * swap I/O
  */
 void
-swap (blkno, coreaddr, count, rdflg)
-    size_t blkno, coreaddr;
-    register int count;
-    int rdflg;
+swap (size_t blkno, size_t coreaddr, int count, int rdflg)
 {
     register struct buf *bp;
     int s;
@@ -88,12 +85,7 @@ swap (blkno, coreaddr, count, rdflg)
  * months with it ifdef'd out.  9/91-sms
  */
 int
-physio(strat, bp, dev, rw, uio)
-    void (*strat) (struct buf*);
-    register struct buf *bp;
-    dev_t dev;
-    int rw;
-    register struct uio *uio;
+physio(void (*strat) (struct buf*), struct buf *bp, dev_t dev, int rw, struct uio *uio)
 {
     int error = 0, s, c, allocbuf = 0;
     register struct iovec *iov;
@@ -165,10 +157,7 @@ physio(strat, bp, dev, rw, uio)
 }
 
 int
-rawrw (dev, uio, flag)
-    dev_t dev;
-    register struct uio *uio;
-    int flag;
+rawrw (dev_t dev, struct uio *uio, int flag)
 {
     return (physio(cdevsw[major(dev)].d_strategy, (struct buf *)NULL, dev,
         uio->uio_rw == UIO_READ ? B_READ : B_WRITE, uio));

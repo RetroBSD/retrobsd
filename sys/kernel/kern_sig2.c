@@ -57,9 +57,7 @@
 #include <sys/user.h>       /* for coredump */
 
 static void
-setsigvec(signum, sa)
-    int signum;
-    register struct sigaction *sa;
+setsigvec(int signum, struct sigaction *sa)
 {
     unsigned long bit;
     register struct proc *p = u.u_procp;
@@ -165,8 +163,7 @@ out:
  * reconstruct the process state safely.
  */
 void
-fatalsig(signum)
-    int signum;
+fatalsig(int signum)
 {
     unsigned long mask;
     register struct proc *p = u.u_procp;
@@ -184,8 +181,7 @@ fatalsig(signum)
  * set to ignore signals that are ignored by default.
  */
 void
-siginit(p)
-    register struct proc *p;
+siginit(struct proc *p)
 {
     register int i;
 

@@ -15,8 +15,7 @@
 #include <sys/dk.h>
 
 void
-disksort (dp, bp)
-    register struct buf *dp, *bp;
+disksort (struct buf *dp, struct buf *bp)
 {
     register struct buf *ap;
     struct buf *tp;
@@ -56,10 +55,9 @@ disksort (dp, bp)
  * ignore it.
  */
 void
-dk_alloc (dkn, slots, name)
-    int *dkn;   /* pointer to number for iostat */
-    int slots;  /* number of iostat slots requested */
-    char *name; /* name of device */
+dk_alloc (int *dkn,   /* pointer to number for iostat */
+          int slots,  /* number of iostat slots requested */
+          char *name) /* name of device */
 {
     int i;
     register char **np;

@@ -143,8 +143,7 @@ int adc_ioctl(dev_t dev, register u_int cmd, caddr_t addr, int flag)
  * Return true if found and initialized ok.
  */
 static int
-adcprobe(config)
-    struct conf_device *config;
+adcprobe(void /*struct conf_device*/ *config)
 {
     printf("adc: %u channels\n", ADCMAX);
     return 1;

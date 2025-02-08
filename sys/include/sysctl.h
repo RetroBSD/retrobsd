@@ -328,7 +328,7 @@ extern struct ctldebug debug10, debug11, debug12, debug13, debug14;
 extern struct ctldebug debug15, debug16, debug17, debug18, debug19;
 #endif  /* DEBUG */
 
-struct sysctl_lock memlock;
+extern struct sysctl_lock memlock;
 
 /*
  * Internal sysctl function calling convention:

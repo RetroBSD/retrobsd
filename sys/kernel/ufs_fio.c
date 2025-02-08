@@ -26,9 +26,7 @@
  * permissions.
  */
 int
-access (ip, mode)
-    register struct inode *ip;
-    int mode;
+access (struct inode *ip, int mode)
 {
     register int m;
     register gid_t *gp;
@@ -102,9 +100,7 @@ suser()
  * is too large already (it will probably be split into two files eventually).
  */
 int
-ufs_setattr (ip, vap)
-    register struct inode *ip;
-    register struct vattr *vap;
+ufs_setattr (struct inode *ip, struct vattr *vap)
 {
     int error;
     struct  timeval atimeval, mtimeval;
@@ -171,8 +167,7 @@ ufs_setattr (ip, vap)
  * Return EBUSY if mounted, 0 otherwise.
  */
 int
-ufs_mountedon (dev)
-    dev_t dev;
+ufs_mountedon (dev_t dev)
 {
     register struct mount *mp;
 

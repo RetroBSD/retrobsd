@@ -25,10 +25,7 @@
  * pc and regs.
  */
 void
-sendsig (p, sig, mask)
-    sig_t p;
-    int sig;
-    long mask;
+sendsig (sig_t p, int sig, long mask)
 {
     struct sigframe {
         int     sf_space [4];

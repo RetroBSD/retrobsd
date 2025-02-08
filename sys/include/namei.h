@@ -64,8 +64,8 @@ struct  namecache {
 };
 
 #ifdef KERNEL
-extern struct   namecache namecache [];
-struct  nchstats nchstats;      /* cache effectiveness statistics */
+extern struct namecache namecache [];
+extern struct nchstats nchstats;        /* cache effectiveness statistics */
 
 /*
  * Name cache initialization.

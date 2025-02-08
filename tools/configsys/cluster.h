@@ -14,7 +14,7 @@ class cluster {
         vector <string> files;
         vector <string> nofiles;
         map <string,string> sets;
-        vector <string> requires;
+        vector <string> require;
         vector <string> targets;
 
     public:

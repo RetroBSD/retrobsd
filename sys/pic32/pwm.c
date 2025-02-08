@@ -137,8 +137,7 @@ int pwm_duty(int unit, unsigned int duty)
 }
 
 int
-pwm_open (dev, flag, mode)
-    dev_t dev;
+pwm_open (dev_t dev, int flag, int mode)
 {
     int unit = minor(dev);
 
@@ -151,17 +150,13 @@ pwm_open (dev, flag, mode)
 }
 
 int
-pwm_close (dev, flag, mode)
-    dev_t dev;
+pwm_close (dev_t dev, int flag, int mode)
 {
     return 0;
 }
 
 int
-pwm_read (dev, uio, flag)
-    dev_t dev;
-    struct uio *uio;
-    int flag;
+pwm_read (dev_t dev, struct uio *uio, int flag)
 {
     // TODO
     return ENODEV;
@@ -173,24 +168,17 @@ int pwm_write (dev_t dev, struct uio *uio, int flag)
 }
 
 int
-pwm_ioctl (dev, cmd, addr, flag)
-    dev_t dev;
-    register u_int cmd;
-    caddr_t addr;
+pwm_ioctl (dev_t dev, u_int cmd, caddr_t addr, int flag)
 {
-    int unit;
-    int *val;
-    val = (int *)addr;
+    int unit = minor(dev);
+    int *val = (int *)addr;
 
-    unit = minor(dev);
-
-    if (unit >= PWM_MAX_DEV)
+    if (unit >= PWM_MAX_DEV) {
         return ENODEV;
-
+    }
     if (cmd == PWM_SET_MODE) {
         return pwm_set_mode(unit, *val);
     }
-
     if (cmd == PWM_DUTY) {
         return pwm_duty(unit, (unsigned int) *val);
     }
@@ -202,8 +190,7 @@ pwm_ioctl (dev, cmd, addr, flag)
  * Return true if found and initialized ok.
  */
 static int
-pwmprobe(config)
-    struct conf_device *config;
+pwmprobe(void /*struct conf_device*/ *config)
 {
     printf("pwm: %u channels\n", PWM_MAX_DEV);
     return 1;

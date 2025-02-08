@@ -19,8 +19,7 @@
  * U area goes into u0 buffer.
  */
 void
-swapin (p)
-    register struct proc *p;
+swapin (struct proc *p)
 {
     size_t daddr = USER_DATA_START;
     size_t saddr = USER_DATA_END - p->p_ssize;
@@ -60,10 +59,7 @@ swapin (p)
  * panic: out of swap space
  */
 void
-swapout (p, freecore, odata, ostack)
-    register struct proc *p;
-    int freecore;
-    register u_int odata, ostack;
+swapout (struct proc *p, int freecore, u_int odata, u_int ostack)
 {
     size_t a[3];
 

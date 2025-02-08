@@ -14,15 +14,15 @@
 #include <sys/kernel.h>
 #include <sys/syslog.h>
 
-int     mpid;           /* generic for unique process id's */
+int mpid;                   /* generic for unique process id's */
+struct forkstat forkstat;
 
 /*
  * Create a new process -- the internal version of system call fork.
  * It returns 1 in the new process, 0 in the old.
  */
 int
-newproc (isvfork)
-    int isvfork;
+newproc (int isvfork)
 {
     register struct proc *child, *parent;
     register int n;
@@ -193,8 +193,7 @@ again:
 }
 
 static void
-fork1 (isvfork)
-    int isvfork;
+fork1 (int isvfork)
 {
     register int a;
     register struct proc *p1, *p2;

@@ -16,6 +16,13 @@
 int     maxslp = MAXSLP;
 char    runin;                  /* scheduling flag */
 char    runout;                 /* scheduling flag */
+size_t  freemem;                /* remaining clicks of free memory */
+short avenrun[3];
+struct vmtotal total;
+struct vmsum   sum;
+struct vmrate  rate;
+u_short avefree;                /* moving average of remaining free clicks */
+u_short avefree30;              /* 30 sec (avefree is 5 sec) moving average */
 
 /*
  * The main loop of the scheduling (swapping) process.
@@ -167,9 +174,7 @@ vmmeter()
  * the right.
  */
 static void
-loadav (avg, n)
-    register short  *avg;
-    register int    n;
+loadav (short *avg, int n)
 {
     register int    i;
     static const long cexp[3] = {

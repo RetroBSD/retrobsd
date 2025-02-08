@@ -143,8 +143,7 @@ setgroups()
  * Check if gid is a member of the group set.
  */
 int
-groupmember(gid)
-    gid_t gid;
+groupmember(gid_t gid)
 {
     register gid_t *gp;
 

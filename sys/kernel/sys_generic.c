@@ -18,8 +18,7 @@
 int selwait;
 
 static void
-rwuio (uio)
-    register struct uio *uio;
+rwuio (struct uio *uio)
 {
     struct a {
         int     fdes;
@@ -224,9 +223,7 @@ struct pselect_args {
 };
 
 int
-selscan(ibits, obits, nfd, retval)
-    fd_set *ibits, *obits;
-    int nfd, *retval;
+selscan(fd_set *ibits, fd_set *obits, int nfd, int *retval)
 {
     register int i, j, flag = 0;
     fd_mask bits;
@@ -264,9 +261,7 @@ selscan(ibits, obits, nfd, retval)
  * Select helper function common to both select() and pselect()
  */
 static int
-select1(uap, is_pselect)
-    register struct pselect_args *uap;
-    int is_pselect;
+select1(struct pselect_args *uap, int is_pselect)
 {
     fd_set ibits[3], obits[3];
     struct timeval atv;
@@ -425,17 +420,13 @@ pselect()
 
 /*ARGSUSED*/
 int
-seltrue(dev, flag)
-    dev_t dev;
-    int flag;
+seltrue(dev_t dev, int flag)
 {
     return (1);
 }
 
 void
-selwakeup (p, coll)
-    register struct proc *p;
-    long coll;
+selwakeup (struct proc *p, long coll)
 {
     if (coll) {
         nselcoll++;
@@ -455,9 +446,7 @@ selwakeup (p, coll)
 }
 
 int
-sorw(fp, uio)
-    register struct file *fp;
-    register struct uio *uio;
+sorw(struct file *fp, struct uio *uio)
 {
 #ifdef  INET
     if (uio->uio_rw == UIO_READ)
@@ -469,10 +458,7 @@ sorw(fp, uio)
 }
 
 int
-soctl(fp, com, data)
-    struct file *fp;
-    u_int   com;
-    char    *data;
+soctl(struct file *fp, u_int com, char *data)
 {
 #ifdef  INET
     return (SOO_IOCTL(fp, com, data));
@@ -482,9 +468,7 @@ soctl(fp, com, data)
 }
 
 int
-sosel(fp, flag)
-    struct file *fp;
-    int     flag;
+sosel(struct file *fp, int flag)
 {
 #ifdef  INET
     return (SOO_SELECT(fp, flag));
@@ -494,8 +478,7 @@ sosel(fp, flag)
 }
 
 int
-socls(fp)
-    register struct file *fp;
+socls(struct file *fp)
 {
     register int error = 0;
 
@@ -526,8 +509,7 @@ const struct fileops *const Fops[] = {
  * Routine placed in illegal entries in the bdevsw and cdevsw tables.
  */
 void
-nostrategy (bp)
-    struct buf *bp;
+nostrategy (struct buf *bp)
 {
     /* Empty. */
 }

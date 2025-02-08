@@ -23,9 +23,7 @@
  * thing on which to mount, otherwise return error.
  */
 static int
-getmdev (pdev, fname)
-    caddr_t fname;
-    dev_t *pdev;
+getmdev (dev_t *pdev, caddr_t fname)
 {
     register dev_t dev;
     register struct inode *ip;
@@ -54,10 +52,7 @@ getmdev (pdev, fname)
 }
 
 void
-mount_updname (fs, on, from, lenon, lenfrom)
-    struct  fs  *fs;
-    char    *on, *from;
-    int lenon, lenfrom;
+mount_updname (struct fs *fs, char *on, char *from, int lenon, int lenfrom)
 {
     struct  mount   *mp;
 
@@ -176,10 +171,7 @@ cmnout:
  * this routine has races if running twice
  */
 struct fs *
-mountfs (dev, flags, ip)
-    dev_t dev;
-    int flags;
-    struct inode *ip;
+mountfs (dev_t dev, int flags, struct inode *ip)
 {
     register struct mount *mp = 0;
     struct buf *tp = 0;
@@ -254,8 +246,7 @@ out:
 }
 
 static int
-unmount1 (fname)
-    caddr_t fname;
+unmount1 (caddr_t fname)
 {
     dev_t dev = 0;
     register struct mount *mp;

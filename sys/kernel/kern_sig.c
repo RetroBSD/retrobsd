@@ -28,9 +28,7 @@
  * SIGCONT and the target process is a descendant of the current process
  */
 static int
-cansignal (q, signum)
-    register struct proc *q;
-    int signum;
+cansignal (struct proc *q, int signum)
 {
     register struct proc *curp = u.u_procp;
     uid_t   ruid;
@@ -76,8 +74,7 @@ out:
 }
 
 static int
-killpg1 (signo, pgrp, all)
-    int signo, pgrp, all;
+killpg1 (int signo, int pgrp, int all)
 {
     register struct proc *p;
     int f, error = 0;
@@ -181,8 +178,7 @@ out:
  * Signals are handled elsewhere.
  */
 void
-stop(p)
-    register struct proc *p;
+stop(struct proc *p)
 {
     p->p_stat = SSTOP;
     p->p_flag &= ~P_WAITED;
@@ -195,8 +191,7 @@ stop(p)
  * process group.
  */
 void
-gsignal (pgrp, sig)
-    register int pgrp;
+gsignal (int pgrp, int sig)
 {
     register struct proc *p;
 
@@ -213,9 +208,7 @@ gsignal (pgrp, sig)
  * the specified process.
  */
 void
-psignal(p, sig)
-    register struct proc *p;
-    register int sig;
+psignal(struct proc *p, int sig)
 {
     register int s;
     sig_t action;
@@ -404,8 +397,7 @@ out:
  *      postsig(signum);
  */
 int
-issignal (p)
-    register struct proc *p;
+issignal (struct proc *p)
 {
     register int sig;
     long mask;
@@ -618,8 +610,7 @@ out:
  * from the current set of pending signals.
  */
 void
-postsig(sig)
-    int sig;
+postsig(int sig)
 {
     register struct proc *p = u.u_procp;
     long mask = sigmask(sig), returnmask;

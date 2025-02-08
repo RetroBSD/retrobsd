@@ -142,8 +142,7 @@ int waittime = -1;
 int cpu_pins;
 
 static int
-nodump(dev)
-    dev_t dev;
+nodump(dev_t dev)
 {
     printf("\ndumping to dev %o off %D: not implemented\n", dumpdev, dumplo);
     return 0;
@@ -483,9 +482,7 @@ static void cpuidentify()
  * Check whether the controller has been successfully initialized.
  */
 static int
-is_controller_alive(driver, unit)
-    struct driver *driver;
-    int unit;
+is_controller_alive(struct driver *driver, int unit)
 {
     struct conf_ctlr *ctlr;
 
@@ -552,9 +549,7 @@ idle()
 }
 
 void
-boot(dev, howto)
-    register dev_t dev;
-    register int howto;
+boot(dev_t dev, int howto)
 {
     if ((howto & RB_NOSYNC) == 0 && waittime < 0 && bfreelist[0].b_forw) {
         register struct fs *fp;
@@ -672,8 +667,7 @@ boot(dev, howto)
  * every next clock cycle, i.e. at rate CPU_KHZ/2 per millisecond.
  */
 void
-udelay(usec)
-    u_int usec;
+udelay(u_int usec)
 {
     unsigned now = mips_read_c0_register(C0_COUNT, 0);
     unsigned final = now + usec * (CPU_KHZ / 1000) / 2;
@@ -743,8 +737,7 @@ void addupc(caddr_t pc, struct uprof *pbuf, int ticks)
  * Return 0 when no bit is set.
  */
 int
-ffs(i)
-    u_long i;
+ffs(u_long i)
 {
     if (i != 0)
         i = 32 - mips_clz(i & -i);
@@ -758,9 +751,7 @@ ffs(i)
  * (including the null terminating byte).
  */
 int
-copystr(src, dest, maxlength, lencopied)
-    register caddr_t src, dest;
-    register u_int maxlength, *lencopied;
+copystr(caddr_t src, caddr_t dest, u_int maxlength, u_int *lencopied)
 {
     caddr_t dest0 = dest;
     int error = ENOENT;
@@ -785,8 +776,7 @@ done:
  * Calculate the length of a string.
  */
 size_t
-strlen(s)
-    register const char *s;
+strlen(const char *s)
 {
     const char *s0 = s;
 
@@ -800,8 +790,7 @@ strlen(s)
  * There are two memory regions allowed for user: flash and RAM.
  */
 int
-baduaddr(addr)
-    register caddr_t addr;
+baduaddr(caddr_t addr)
 {
     if (addr >= (caddr_t) USER_FLASH_START &&
         addr < (caddr_t) USER_FLASH_END)
@@ -817,8 +806,7 @@ baduaddr(addr)
  * There is only one memory region allowed for kernel: RAM.
  */
 int
-badkaddr(addr)
-    register caddr_t addr;
+badkaddr(caddr_t addr)
 {
     if (addr >= (caddr_t) KERNEL_DATA_START &&
         addr < (caddr_t) KERNEL_DATA_END)

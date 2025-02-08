@@ -35,7 +35,7 @@ struct ipc {
 
 #ifdef KERNEL
 
-struct ipc ipc;
+extern struct ipc ipc;
 
 #else
 

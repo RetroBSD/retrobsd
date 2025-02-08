@@ -30,7 +30,7 @@ struct ttychars {
 };
 
 #define CTRL(c)         (c & 037)
-#define _POSIX_VDISABLE ((unsigned char)'\377')
+#define _POSIX_VDISABLE '\377'
 #define CCEQ(val,c)     (c == val ? val != _POSIX_VDISABLE : 0)
 
 /* default special characters */

@@ -51,10 +51,15 @@ struct  vseg {                  /* structure of a segment in memory */
 extern long    nswaps;          /* number of swaps */
 extern long    nmapsegs;        /* number of mapseg calls */
 
-int vminit(), vmopen();
-struct  vseg    *vmmapseg();
-void    vmlock(), vmunlock(), vmclrseg(), vmmodify();
-void    vmflush(), vmclose();
+int vminit(int n);
+int vmopen(struct vspace *vs, const char *filename);
+struct vseg *vmmapseg(struct vspace *vspace, u_short segno);
+void vmlock(struct vseg *seg);
+void vmunlock(struct vseg *seg);
+void vmclrseg(struct vseg *seg);
+void vmmodify(struct vseg *seg);
+void vmflush(void);
+void vmclose(struct vspace *vs);
 
 typedef long    VADDR;
 

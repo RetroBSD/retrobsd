@@ -25,14 +25,14 @@
  * bjoern@cs.stanford.edu 12/30/2008
  */
 #include <string.h>
-#include <wiznet/socket.h>
 #include <wiznet/ethernet.h>
+#include <wiznet/socket.h>
 #include <wiznet/udp.h>
 
 /*
  * Start UDP socket, listening at local port PORT
  */
-int udp_init (udp_t *u, unsigned port)
+int udp_init(udp_t *u, unsigned port)
 {
     int i;
 
@@ -48,7 +48,7 @@ int udp_init (udp_t *u, unsigned port)
         return 0;
 
     u->port = port;
-    socket_init (u->sock, SnMR_UDP, u->port, 0);
+    socket_init(u->sock, SnMR_UDP, u->port, 0);
     return 1;
 }
 
@@ -57,20 +57,20 @@ int udp_init (udp_t *u, unsigned port)
  * Returns 0 if no, number of available bytes if yes.
  * returned value includes 8 byte UDP header!
  */
-unsigned udp_available (udp_t *u)
+unsigned udp_available(udp_t *u)
 {
-    return w5100_getRXReceivedSize (u->sock);
+    return w5100_getRXReceivedSize(u->sock);
 }
 
 /*
  * Release any resources being used by this UDP instance.
  */
-void udp_stop (udp_t *u)
+void udp_stop(udp_t *u)
 {
     if (u->sock == MAX_SOCK_NUM)
         return;
 
-    socket_close (u->sock);
+    socket_close(u->sock);
 
     _socket_port[u->sock] = 0;
     u->sock = MAX_SOCK_NUM;
@@ -81,22 +81,20 @@ void udp_stop (udp_t *u)
  * Use this function to transmit binary data that might contain 0x00 bytes.
  * This function returns sent data size for success else -1.
  */
-unsigned udp_send_packet (udp_t *u, const uint8_t *buf, unsigned len,
-                          uint8_t *ip, unsigned port)
+unsigned udp_send_packet(udp_t *u, const uint8_t *buf, unsigned len, uint8_t *ip, unsigned port)
 {
-    return socket_sendto (u->sock, buf, len, ip, port);
+    return socket_sendto(u->sock, buf, len, ip, port);
 }
 
 /*
  * Send zero-terminated string str as packet to peer at specified ip, and port.
  * This function returns sent data size for success else -1.
  */
-unsigned udp_send_string (udp_t *u, const char *str,
-                          uint8_t *ip, unsigned port)
+unsigned udp_send_string(udp_t *u, const char *str, uint8_t *ip, unsigned port)
 {
-    unsigned len = strlen (str);
+    unsigned len = strlen(str);
 
-    return socket_sendto (u->sock, (const uint8_t *) str, len, ip, port);
+    return socket_sendto(u->sock, (const uint8_t *)str, len, ip, port);
 }
 
 /*
@@ -108,10 +106,9 @@ unsigned udp_send_string (udp_t *u, const char *str,
  * Returns number of bytes read, or negative number of bytes we would have
  * needed if we truncated.
  */
-int udp_read_packet (udp_t *u, uint8_t *buf, unsigned len,
-                     uint8_t *ip, unsigned *port)
+int udp_read_packet(udp_t *u, uint8_t *buf, unsigned len, uint8_t *ip, unsigned *port)
 {
-    int nbytes = udp_available (u) - 8;     /* skip UDP header */
+    int nbytes = udp_available(u) - 8; /* skip UDP header */
     if (nbytes < 0) {
         /* No real data here. */
         return 0;
@@ -124,7 +121,7 @@ int udp_read_packet (udp_t *u, uint8_t *buf, unsigned len,
         int i;
 
         /* Read 8 header bytes and get IP and port from it. */
-        socket_recv (u->sock, tmpBuf, 8);
+        socket_recv(u->sock, tmpBuf, 8);
         if (ip != 0) {
             ip[0] = tmpBuf[0];
             ip[1] = tmpBuf[1];
@@ -135,16 +132,16 @@ int udp_read_packet (udp_t *u, uint8_t *buf, unsigned len,
             *port = (tmpBuf[4] << 8) + tmpBuf[5];
 
         /* Now copy first (len) bytes into buf. */
-        for (i=0; i<(int)len; i++) {
-            socket_recv (u->sock, tmpBuf, 1);
+        for (i = 0; i < (int)len; i++) {
+            socket_recv(u->sock, tmpBuf, 1);
             buf[i] = tmpBuf[0];
         }
 
         /* And just read the rest byte by byte and throw it away. */
-        while (udp_available (u)) {
-            socket_recv (u->sock, tmpBuf, 1);
+        while (udp_available(u)) {
+            socket_recv(u->sock, tmpBuf, 1);
         }
         return -nbytes;
     }
-    return socket_recvfrom (u->sock, buf, len, ip, port);
+    return socket_recvfrom(u->sock, buf, len, ip, port);
 }

@@ -1,6 +1,8 @@
 #ifndef client_h
 #define client_h
 
+#include <stdint.h>
+
 struct _client_t {
     unsigned sock;
     uint8_t *ip;

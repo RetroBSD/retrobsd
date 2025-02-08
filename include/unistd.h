@@ -95,7 +95,7 @@ int     sethostid();
 void    setusershell();
 void    sync(void);
 unsigned int    ualarm();
-void    usleep();
+void    usleep(unsigned);
 int     pause(void);
 pid_t   vfork();
 

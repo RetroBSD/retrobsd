@@ -1,0 +1,67 @@
+
+---
+BasedOnStyle: Google
+
+#
+# Indent by four columns.
+#
+IndentWidth: 4
+
+#
+# Limit source width by 100 columns.
+#
+ColumnLimit: 100
+
+#
+# The brace breaking style:
+# attach braces to surrounding context, but break before functions.
+#
+BreakBeforeBraces: WebKit
+
+#
+# For case labels, use the same indentation level as for the switch statement.
+#
+IndentCaseLabels: false
+
+#
+# Put spaces after { and before } in initializers.
+#
+Cpp11BracedListStyle: false
+
+#
+# For access modifiers (like public:),
+# use the same indentation level as the class statement.
+#
+AccessModifierOffset: -4
+
+#
+# Align pointers to the right, like: int *a;
+#
+DerivePointerAlignment: false
+PointerAlignment: Right
+
+#
+# Short functions, loops or ifs should be split into multiple lines.
+#
+AllowShortFunctionsOnASingleLine: InlineOnly
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+
+#
+# Break inheritance list and constructor initializers before colon.
+#
+BreakInheritanceList: BeforeColon
+BreakConstructorInitializers: BeforeColon
+ConstructorInitializerAllOnOneLineOrOnePerLine: false
+
+#
+# Align trailing comments.
+#
+AlignTrailingComments: true
+SpacesBeforeTrailingComments: 1
+
+#
+# Allow packing of multiple function definition’s parameters per line.
+#
+BinPackParameters: true
+AllowAllParametersOfDeclarationOnNextLine: false

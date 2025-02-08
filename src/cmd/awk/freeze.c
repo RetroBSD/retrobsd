@@ -37,7 +37,7 @@ thaw(s)
 	}
 	read(fd, &len, sizeof(len));
 	(void) brk(len);
-	read(fd, (char *)0, len);
+	read(fd, (char *)0, (size_t)len);
 	close(fd);
 	return(0);
 }

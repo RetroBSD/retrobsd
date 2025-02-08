@@ -70,7 +70,7 @@ int write_mbr(int fd)
 		printf("Error writing MBR\n");
 		return -1;
 	}
-	sync(fd);
+	sync();
 	printf("Calling ioctl to reread the partition table\n");
 	sleep(1);
 	ioctl(fd, DIOCREINIT);

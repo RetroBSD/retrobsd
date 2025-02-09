@@ -150,14 +150,6 @@ nodump(dev_t dev)
 
 int (*dump)(dev_t) = nodump;
 
-#ifdef CONFIG
-/*
- * Build using old configuration utility (configsys).
- */
-dev_t   rootdev = NODEV;
-dev_t   swapdev = NODEV;
-dev_t   dumpdev = NODEV;
-#endif
 dev_t   pipedev;
 daddr_t dumplo = (daddr_t) 1024;
 

@@ -1,4 +1,0 @@
-always
-    file gpio.o
-    define GPIO_ENABLED YES
-end always

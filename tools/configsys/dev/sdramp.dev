@@ -1,7 +1,0 @@
-always
-    file sdram.o
-    file rd_sdramp.o
-    require rdisk
-    define KERNEL_EXECUTABLE_RAM
-    define SDRAMP_ENABLED YES
-end always

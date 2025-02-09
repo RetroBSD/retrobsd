@@ -1,3 +1,0 @@
-always
-    file devcfg.o
-end always

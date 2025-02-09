@@ -1,4 +1,0 @@
-always
-    file glcd.o
-    define GLCD_ENABLED YES
-end always

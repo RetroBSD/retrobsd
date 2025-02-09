@@ -30,7 +30,7 @@ FSUTIL		= tools/fsutil/fsutil
 -include Makefile.user
 
 TOPSRC       = $(shell pwd)
-CONFIG       = $(TOPSRC)/tools/configsys/config
+CONFIG       = $(TOPSRC)/tools/kconfig/kconfig
 
 all:
 		$(MAKE) -C tools
@@ -58,7 +58,7 @@ $(FSUTIL):
 		cd tools/fsutil; $(MAKE)
 
 $(CONFIG):
-		make -C tools/configsys
+		make -C tools/kconfig
 
 clean:
 		rm -f *~

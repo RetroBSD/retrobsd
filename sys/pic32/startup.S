@@ -317,7 +317,6 @@ single_step_done:
                 .type   etcinit, @object
                 .type   argv, @object
 icode:
-                .equ    etcinit_icode, etcinit - icode
                 la      $a0, UBASE
                 move    $a1, $a0
                 la      $t0, etcinit

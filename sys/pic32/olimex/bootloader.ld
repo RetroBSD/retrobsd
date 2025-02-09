@@ -3,8 +3,6 @@
  * Flash area for user starts at 9d003000.
  * Start address for user program is 9d004000.
  */
-OUTPUT_FORMAT("elf32-littlemips", "elf32-bigmips",
-	      "elf32-littlemips")
 OUTPUT_ARCH(mips)
 ENTRY(_reset_vector_)
 MEMORY
@@ -33,7 +31,7 @@ SECTIONS
   {
     /* Exception handlers. */
     *(.exception)
-    . = 0x1000;
+    . = 0x1000 + ORIGIN(flash);
     /* Execution starts here. */
     *(.startup)
     *(.text .stub .text.* .gnu.linkonce.t.*)
@@ -41,10 +39,10 @@ SECTIONS
     *(.gnu.warning)
     *(.glue_7t) *(.glue_7)
     __rodata_start = . ;
-    *(.rodata .rodata.* .gnu.linkonce.r.* .rel.dyn)
+    *(.rodata .rodata.* .gnu.linkonce.r.*)
     *(.dinit)
     /* Align here to ensure that the .text section ends on word boundary. */
-    . = ALIGN (32 / 8);
+    . = ALIGN (16);
     _etext = .;
   } > flash
 
@@ -59,6 +57,7 @@ SECTIONS
     *(.sdata .sdata.* .gnu.linkonce.s.*)
     *(.data .data.* .gnu.linkonce.d.*)
     *(.eh_frame)
+    . = ALIGN (16);
     _edata = .;
   } > ram
 
@@ -73,7 +72,7 @@ SECTIONS
    /* Align here to ensure that the .bss section occupies space up to
       _end.  Align after .bss to ensure correct alignment even if the
       .bss section disappears because there are no input sections.  */
-   . = ALIGN (32 / 8);
+   . = ALIGN (16);
   } > ram
   __bss_end = . ;
   _end = .;
@@ -114,4 +113,6 @@ SECTIONS
   .debug_pubtypes 0 : { *(.debug_pubtypes) }
   .debug_ranges   0 : { *(.debug_ranges) }
   .gnu.attributes 0 : { KEEP (*(.gnu.attributes)) }
+
+  /DISCARD/ : { *(.reginfo) *(.MIPS.abiflags) *(.got.plt) *(.got) }
 }

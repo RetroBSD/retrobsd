@@ -41,6 +41,7 @@ LDFLAGS         = -nostdlib -T ../${LDSCRIPT}
 SIZE            = $(LLVMBIN)llvm-size
 OBJCOPY         = $(LLVMBIN)llvm-objcopy
 OBJDUMP         = $(LLVMBIN)llvm-objdump
+NM              = $(LLVMBIN)llvm-nm
 
 # sources are located via $S relative to the compilation directory
 S               = ../..
@@ -111,7 +112,8 @@ SYSTEM_LD       = -@echo ${LD} ${LDFLAGS} '$${SYSTEM_OBJ}' vers.o -o $@; \
 SYSTEM_LD_TAIL  = ${SIZE} $@; \
                   $(OBJCOPY) -O ihex $@ $(basename $@).hex; \
                   $(OBJCOPY) -O binary -R .boot -R .config $@ $(basename $@).bin; \
-                  $(OBJDUMP) -d -S $@ > $(basename $@).dis
+                  $(OBJDUMP) -d -S $@ > $(basename $@).dis; \
+                  $(NM) -n $@ > $(basename $@).nm
 
 unix: unix.elf
 
@@ -126,7 +128,7 @@ swapunix.o: swapunix.c
 all: unix
 
 clean:
-	rm -rf .deps *.elf *.o *.map *.dis *.bin machine sys
+	rm -rf .deps *.elf *.o *.nm *.dis *.bin machine sys
 
 clean-all: clean
 	rm -f *.h *.hex ioconf.c swap*.c vers.c

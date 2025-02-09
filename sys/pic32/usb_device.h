@@ -381,7 +381,7 @@ typedef struct __attribute__ ((packed))
 // to read the length of the last transfer, the status of the last transfer,
 // and various other information.  Insure to initialize USB_HANDLE objects
 // to NULL so that they are in a known state during their first usage.
-#define USB_HANDLE volatile BDT_ENTRY*
+#define USB_HANDLE BDT_ENTRY*
 
 // PIC32 supports only full ping-pong mode.
 #define USB_PING_PONG_MODE USB_PING_PONG__FULL_PING_PONG

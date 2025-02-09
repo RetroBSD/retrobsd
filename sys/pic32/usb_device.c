@@ -1445,10 +1445,10 @@ void usb_stall_endpoint (unsigned ep, unsigned dir)
  *   unsigned char* data - pointer to the data to be sent
  *   unsigned len - length of the data needing to be sent
  */
-USB_HANDLE usb_transfer_one_packet (unsigned ep, unsigned dir,
+volatile USB_HANDLE usb_transfer_one_packet (unsigned ep, unsigned dir,
     unsigned char* data, unsigned len)
 {
-    USB_HANDLE handle;
+    volatile USB_HANDLE handle;
 
     // If the direction is IN
     if (dir != 0) {

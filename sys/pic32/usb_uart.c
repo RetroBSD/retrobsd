@@ -92,8 +92,7 @@ int usbopen (dev_t dev, int flag, int mode)
     return ttyopen (dev, tp);
 }
 
-int usbclose (dev, flag, mode)
-    dev_t dev;
+int usbclose (dev_t dev, int flag, int mode)
 {
     register struct tty *tp = &usbttys[0];
 
@@ -102,30 +101,21 @@ int usbclose (dev, flag, mode)
     return 0;
 }
 
-int usbread (dev, uio, flag)
-    dev_t dev;
-    struct uio *uio;
-    int flag;
+int usbread (dev_t dev, struct uio *uio, int flag)
 {
     register struct tty *tp = &usbttys[0];
 
     return ttread (tp, uio, flag);
 }
 
-int usbwrite (dev, uio, flag)
-    dev_t dev;
-    struct uio *uio;
-    int flag;
+int usbwrite (dev_t dev, struct uio *uio, int flag)
 {
     register struct tty *tp = &usbttys[0];
 
     return ttwrite (tp, uio, flag);
 }
 
-int usbioctl (dev, cmd, addr, flag)
-    dev_t dev;
-    register u_int cmd;
-    caddr_t addr;
+int usbioctl (dev_t dev, u_int cmd, caddr_t addr, int flag)
 {
     register struct tty *tp = &usbttys[0];
     register int error;
@@ -136,17 +126,14 @@ int usbioctl (dev, cmd, addr, flag)
     return error;
 }
 
-int usbselect (dev, rw)
-    register dev_t dev;
-    int rw;
+int usbselect (dev_t dev, int rw)
 {
     register struct tty *tp = &usbttys[0];
 
     return ttyselect (tp, rw);
 }
 
-void usbstart (tp)
-    register struct tty *tp;
+void usbstart (struct tty *tp)
 {
     register int s;
 
@@ -274,8 +261,7 @@ void usbintr (int chan)
  * Return true if found and initialized ok.
  */
 static int
-usbprobe(config)
-    struct conf_device *config;
+usbprobe(void /*struct conf_device*/ *config)
 {
     int is_console = (CONS_MAJOR == UARTUSB_MAJOR);
 

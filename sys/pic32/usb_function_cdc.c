@@ -30,8 +30,8 @@ unsigned cdc_tx_len;            // total tx length
 
 LINE_CODING cdc_line_coding;    // Buffer to store line coding information
 
-static USB_HANDLE data_out;
-static USB_HANDLE data_in;
+static volatile USB_HANDLE data_out;
+static volatile USB_HANDLE data_in;
 
 static CONTROL_SIGNAL_BITMAP control_signal_bitmap;
 

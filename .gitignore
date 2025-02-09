@@ -24,6 +24,7 @@
 *.dis
 *.0
 *.img
+*.nm
 
 Makefile.user
 

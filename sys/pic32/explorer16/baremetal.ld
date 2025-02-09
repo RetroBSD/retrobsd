@@ -1,5 +1,7 @@
 /*
- * Linker script for PIC32 firmware.
+ * Linker script for PIC32 firmware on bare metal.
+ * Flash area for user starts at 9d000000.
+ * Start address for user program is bfc00000.
  */
 OUTPUT_ARCH(mips)
 ENTRY(_reset_vector_)
@@ -25,44 +27,14 @@ u_end	= ORIGIN(uarea) + LENGTH(uarea);
 
 SECTIONS
 {
-  /* Read-only sections, merged into text segment: */
-  . = 0x0000;
-  .interp         : { *(.interp) }
-  .hash           : { *(.hash) }
-  .dynsym         : { *(.dynsym) }
-  .dynstr         : { *(.dynstr) }
-  .gnu.version    : { *(.gnu.version) }
-  .gnu.version_d  : { *(.gnu.version_d) }
-  .gnu.version_r  : { *(.gnu.version_r) }
-  .rel.init       : { *(.rel.init) }
-  .rela.init      : { *(.rela.init) }
-  .rel.text       : { *(.rel.text .rel.text.* .rel.gnu.linkonce.t.*) }
-  .rela.text      : { *(.rela.text .rela.text.* .rela.gnu.linkonce.t.*) }
-  .rel.fini       : { *(.rel.fini) }
-  .rela.fini      : { *(.rela.fini) }
-  .rel.rodata     : { *(.rel.rodata .rel.rodata.* .rel.gnu.linkonce.r.*) }
-  .rela.rodata    : { *(.rela.rodata .rela.rodata.* .rela.gnu.linkonce.r.*) }
-  .rel.data       : { *(.rel.data .rel.data.* .rel.gnu.linkonce.d.*) }
-  .rela.data      : { *(.rela.data .rela.data.* .rela.gnu.linkonce.d.*) }
-  .rel.ctors      : { *(.rel.ctors) }
-  .rela.ctors     : { *(.rela.ctors) }
-  .rel.dtors      : { *(.rel.dtors) }
-  .rela.dtors     : { *(.rela.dtors) }
-  .rel.got        : { *(.rel.got) }
-  .rela.got       : { *(.rela.got) }
-  .rel.sdata      : { *(.rel.sdata .rel.sdata.* .rel.gnu.linkonce.s.*) }
-  .rela.sdata     : { *(.rela.sdata .rela.sdata.* .rela.gnu.linkonce.s.*) }
-  .rel.sbss       : { *(.rel.sbss .rel.sbss.* .rel.gnu.linkonce.sb.*) }
-  .rela.sbss      : { *(.rela.sbss .rela.sbss.* .rela.gnu.linkonce.sb.*) }
-  .rel.sdata2     : { *(.rel.sdata2 .rel.sdata2.* .rel.gnu.linkonce.s2.*) }
-  .rela.sdata2    : { *(.rela.sdata2 .rela.sdata2.* .rela.gnu.linkonce.s2.*) }
-  .rel.sbss2      : { *(.rel.sbss2 .rel.sbss2.* .rel.gnu.linkonce.sb2.*) }
-  .rela.sbss2     : { *(.rela.sbss2 .rela.sbss2.* .rela.gnu.linkonce.sb2.*) }
-  .rel.bss        : { *(.rel.bss .rel.bss.* .rel.gnu.linkonce.b.*) }
-  .rela.bss       : { *(.rela.bss .rela.bss.* .rela.gnu.linkonce.b.*) }
-  .rel.plt        : { *(.rel.plt) }
-  .rela.plt       : { *(.rela.plt) }
-  .plt            : { *(.plt) }
+  /* Device configuration.  */
+  .config         :
+  {
+    *(.config3)
+    *(.config2)
+    *(.config1)
+    *(.config0)
+  } > devcfg
 
   .boot           :
   {
@@ -101,15 +73,6 @@ SECTIONS
     _edata = .;
   } > ram
 
-  /* Device configuration.  */
-  .config         :
-  {
-    *(.config3)
-    *(.config2)
-    *(.config1)
-    *(.config0)
-  } > devcfg
-
   .bss ADDR (.data) + SIZEOF (.data) (NOLOAD) :
   {
    __bss_start = .;
@@ -125,23 +88,6 @@ SECTIONS
   } > ram
   __bss_end = . ;
   _end = .;
-
-/*
-   * RAM functions go at the end of our stack and heap allocation.
-   * Alignment of 2K required by the boundary register (BMXDKPBA).
-   */
-/*
-  .ramfunc : AT (LOADADDR (.data) + SIZEOF (.data))
-  {
-    _ramfunc_begin = . ;
-    *(.ramfunc  .ramfunc.*)
-    . = ALIGN(4) ;
-    _ramfunc_end = . ;
-  } >keram
-  _ramfunc_image_begin = LOADADDR(.ramfunc) ;
-  _ramfunc_length = SIZEOF(.ramfunc) ;
-*/
-
 
   /* Stabs debugging sections.  */
   .stab          0 : { *(.stab) }

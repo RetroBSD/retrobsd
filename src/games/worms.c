@@ -29,8 +29,8 @@
 
 #define cursor(col,row) tputs(tgoto(CM,col,row),1,fputchar)
 
-extern char *UP;
-extern short ospeed;
+char *UP;
+short ospeed;
 
 int Wrap;
 short *ref[24];
@@ -143,8 +143,7 @@ static struct options {
 
 char *TE;
 
-int fputchar(c)
-    char c;
+int fputchar(int c)
 {
     return putchar(c);
 }
@@ -152,7 +151,7 @@ int fputchar(c)
 void quit()
 {
     signal(SIGINT, SIG_IGN);
-    tputs(TE,1,fputchar);
+    tputs(TE, 1, fputchar);
     exit(0);
 }
 
@@ -161,9 +160,7 @@ float ranf()
     return((float)rand()/2147483647.);
 }
 
-int main(argc, argv)
-    int argc;
-    char *argv[];
+int main(int argc, char *argv[])
 {
     register int x, y;
     register int n;

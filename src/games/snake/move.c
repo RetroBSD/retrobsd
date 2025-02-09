@@ -75,14 +75,13 @@ int delaystr[10];
 static char str[80];
 
 int
-outch(c)
+outch(int c)
 {
 	return putchar(c);
 }
 
 void
-putpad(str)
-char *str;
+putpad(char *str)
 {
 	if (str)
 		tputs(str, 1, outch);
@@ -110,8 +109,7 @@ nd()
 }
 
 void
-right(sp)
-struct point *sp;
+right(struct point *sp)
 {
 	if (sp->col < cursor.col)
 		print("ERROR:right() can't move left\n");
@@ -135,7 +133,7 @@ ll()
 
 	l = lcnt + 2;
 	if (LL != NULL && LINES==l) {
-	 	putpad(LL);
+		putpad(LL);
 		cursor.line = LINES-1;
 		cursor.col = 0;
 		return;
@@ -161,8 +159,7 @@ down()
 }
 
 void
-gto(sp)
-struct point *sp;
+gto(struct point *sp)
 {
 	int distance, f;
 
@@ -256,8 +253,7 @@ clear()
 }
 
 void
-move(sp)
-struct point *sp;
+move(struct point *sp)
 {
 	struct point z;
 
@@ -296,7 +292,7 @@ struct point *sp;
 }
 
 void
-pch(c)
+pch(int c)
 {
 	outch(c);
 	if (++cursor.col >= COLUMNS) {
@@ -306,8 +302,7 @@ pch(c)
 }
 
 void
-pstring(s)
-char *s;
+pstring(char *s)
 {
 	struct point z;
 	int stcol;
@@ -368,9 +363,7 @@ print(char *fmt, ...)
 }
 
 void
-pchar(ps,ch)
-struct point *ps;
-char ch;
+pchar(struct point *ps, char ch)
 {
 	struct point p;
 
@@ -386,8 +379,7 @@ char ch;
 }
 
 void
-delay(t)
-int t;
+delay(int t)
 {
         usleep(t * 50);
 }
@@ -430,17 +422,14 @@ raw()
 }
 
 int
-same(sp1,sp2)
-struct point *sp1, *sp2;
+same(struct point *sp1, struct point *sp2)
 {
 	if ((sp1->line == sp2->line) && (sp1->col == sp2->col))return(1);
 	return(0);
 }
 
 struct point *
-point(ps,x,y)
-struct point *ps;
-int x,y;
+point(struct point *ps, int x, int y)
 {
 	ps->col=x;
 	ps->line=y;

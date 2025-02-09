@@ -5,15 +5,15 @@
  */
 
 int
-isrepair(card)
-CARD	card; {
+isrepair(CARD card)
+{
 
 	return card == C_GAS || card == C_SPARE || card == C_REPAIRS || card == C_INIT;
 }
 
 int
-safety(card)
-CARD	card; {
+safety(CARD card)
+{
 
 	switch (card) {
 	  case C_EMPTY:

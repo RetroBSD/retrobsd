@@ -35,8 +35,8 @@ CONFIG       = $(TOPSRC)/tools/configsys/config
 all:
 		$(MAKE) -C tools
 		$(MAKE) -C src
-		$(MAKE) -C lib
-		$(MAKE) -C install
+		#$(MAKE) -C lib
+		$(MAKE) -C src install
 		$(MAKE) kernel
 		$(MAKE) fs
 

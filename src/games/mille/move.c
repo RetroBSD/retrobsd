@@ -25,8 +25,8 @@ char	*Movenames[] = {
  * return whether or not the player has picked
  */
 static int
-haspicked(pp)
-PLAY	*pp; {
+haspicked(PLAY *pp)
+{
 
 	int	card;
 
@@ -45,8 +45,7 @@ PLAY	*pp; {
 }
 
 static int
-playcard(pp)
-PLAY	*pp;
+playcard(PLAY *pp)
 {
 	int	v;
 	CARD	card;
@@ -197,7 +196,8 @@ protected:
  * the game is over
  */
 static void
-check_go() {
+check_go()
+{
 
 	CARD	card;
 	PLAY	*pp, *op;
@@ -450,8 +450,8 @@ ret:
 }
 
 void
-account(card)
-CARD	card; {
+account(CARD card)
+{
 
 	CARD	oppos;
 
@@ -476,8 +476,7 @@ CARD	card; {
 }
 
 void
-prompt(promptno)
-int	promptno;
+prompt(int promptno)
 {
 	static char	*names[] = {
 				">>:Move:",
@@ -508,8 +507,7 @@ int	promptno;
 }
 
 void
-sort(hand)
-CARD	*hand;
+sort(CARD *hand)
 {
 	CARD	*cp, *tp;
 	CARD	temp;

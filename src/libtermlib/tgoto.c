@@ -9,9 +9,6 @@
 
 #define MAXRETURNSIZE 64
 
-extern char	*UP;
-extern char	*BC;
-
 /*
  * Routine to perform cursor addressing.
  * CM is a string containing printf type escapes to allow
@@ -106,36 +103,6 @@ setwhich:
 			/* fall into... */
 
 		case '.':
-			/*
-			 * This code is worth scratching your head at for a
-			 * while.  The idea is that various weird things can
-			 * happen to nulls, EOT's, tabs, and newlines by the
-			 * tty driver, arpanet, and so on, so we don't send
-			 * them if we can help it.
-			 *
-			 * Tab is taken out to get Ann Arbors to work, otherwise
-			 * when they go to column 9 we increment which is wrong
-			 * because bcd isn't continuous.  We should take out
-			 * the rest too, or run the thing through more than
-			 * once until it doesn't make any of these, but that
-			 * would make termlib (and hence pdp-11 ex) bigger,
-			 * and also somewhat slower.  This requires all
-			 * programs which use termlib to stty tabs so they
-			 * don't get expanded.  They should do this anyway
-			 * because some terminals use ^I for other things,
-			 * like nondestructive space.
-			 */
-			if (which == 0 || which == CTRL(d) || /* which == '\t' || */ which == '\n') {
-				if (oncol || UP) /* Assumption: backspace works */
-					/*
-					 * Loop needed because newline happens
-					 * to be the successor of tab.
-					 */
-					do {
-						strcat(added, oncol ? (BC ? BC : "\b") : UP);
-						which++;
-					} while (which == '\n');
-			}
 			*dp++ = which;
 			goto swap;
 

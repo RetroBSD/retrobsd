@@ -14,14 +14,14 @@ MAN             = pig.0
 
 all:            pig $(MAN)
 
-pig:           $(OBJS)
-		$(CC) $(LDFLAGS) -o $@.elf $(OBJS) $(LIBS)
+pig:            $(OBJS)
+		$(LD) $(LDFLAGS) -o $@.elf $(OBJS) $(LIBS)
 		$(OBJDUMP) -S $@.elf > $@.dis
 		$(SIZE) $@.elf
 		$(ELF2AOUT) $@.elf $@ && rm $@.elf
 
 $(MAN):         pig.6
-		nroff -man $< > $@
+		$(MANROFF) $< > $@
 
 clean:
 		rm -f *.o core pig *.0 *.dis

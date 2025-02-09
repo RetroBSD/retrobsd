@@ -39,6 +39,17 @@ struct cvntab	Skitab[] =
 	{ 0 },
 };
 
+struct quad Quad[NQUADS][NQUADS];
+char Sect[NSECTS][NSECTS];
+struct event Event[MAXEVENTS];
+struct ship Ship;
+struct game Game;
+struct move Move;
+struct param Param;
+struct now Now;
+struct etc Etc;
+int Trace;
+
 void
 setup()
 {

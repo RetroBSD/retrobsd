@@ -40,8 +40,8 @@ where() {
  *	This routine prints out the mortgage flag.
  */
 static void
-printmorg(sqp)
-reg SQUARE	*sqp; {
+printmorg(SQUARE *sqp)
+{
 
 	if (((PROP*)sqp->desc)->morg)
 		printf(" * ");
@@ -53,10 +53,8 @@ reg SQUARE	*sqp; {
  *	This routine prints out an individual square
  */
 void
-printsq(sqn, eoln)
-int		sqn;
-reg bool	eoln; {
-
+printsq(int sqn, bool eoln)
+{
 	reg int		rnt;
 	reg PROP	*pp;
 	reg SQUARE	*sqp;
@@ -122,7 +120,7 @@ spec:
 		printmorg(sqp);
 		rnt = 25;
 		rnt <<= play[(int)sqp->owner].num_rr - 1;
-		printf("%d %4d", play[(int)sqp->owner].num_rr, 25 << (play[(int)sqp->owner].num_rr - 1));
+		printf("%d %4d", play[(int)sqp->owner].num_rr, rnt);
 		break;
 	}
 	if (eoln)
@@ -133,8 +131,8 @@ spec:
  *	This routine lists the holdings of the player given
  */
 void
-printhold(pl)
-reg int	pl; {
+printhold(int pl)
+{
 
 	reg OWN		*op;
 	reg PLAY	*pp;

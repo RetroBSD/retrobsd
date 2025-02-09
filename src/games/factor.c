@@ -14,8 +14,7 @@
  *
  * Algorithm from E.W. Dijkstra (A Discipline of Programming, Chapter 20)
  */
-int factor(N)
-	int	N;
+int factor(int N)
 {
 	int		p;
 	register int	f;
@@ -68,8 +67,7 @@ int factor(N)
 /*
  * Print all prime factors of integer n > 0, smallest first, one to a line
  */
-void printfactors(n)
-	register int	n;
+void printfactors(int n)
 {
 	register int	prime;
 
@@ -82,8 +80,7 @@ void printfactors(n)
 	}
 }
 
-int main(argc, argv)
-        char	*argv[];
+int main(int argc, char *argv[])
 {
 	int	n;
 

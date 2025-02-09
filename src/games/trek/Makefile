@@ -24,13 +24,13 @@ MANSRC		= trek.6
 all:            trek $(MAN)
 
 trek:           ${OBJS}
-		${CC} ${LDFLAGS} -o trek.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o trek.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S trek.elf > trek.dis
 		${SIZE} trek.elf
 		${ELF2AOUT} trek.elf $@ && rm trek.elf
 
 ${MAN}:         ${MANSRC}
-		${MANROFF} $< > $@
+		nroff -man $< > $@
 
 clean:
 		rm -f *.o *.0 *.elf ${MAN} trek *.elf *.dis tags *~

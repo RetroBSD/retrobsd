@@ -57,7 +57,7 @@ setfiles:	phant.h setfiles.c
 
 # the flags below on tbl and nroff are to make a line printable version
 phant.help:	phant.nr
-		tbl -TX phant.nr | nroff -man -Ttn300 > phant.help
+		tbl -TX phant.nr | $(MANROFF) > phant.help
 
 # DO NOT use an absolute pathname in the symbolic link below.  Figure out
 #   what the relative path is.
@@ -74,7 +74,7 @@ install:	all phantasia.0
 	install -m 444 -o bin -g bin  phantasia.0 ${DESTDIR}/usr/man/cat6
 
 phantasia.0: phant.nr
-	tbl -TX phant.nr | nroff -man -h -Tascii > phantasia.0
+	tbl -TX phant.nr | $(MANROFF) > phantasia.0
 
 clean:
 	rm -f *.o phantasia phant.help setfiles phantasia.0

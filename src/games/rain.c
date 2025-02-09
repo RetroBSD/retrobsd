@@ -20,8 +20,8 @@
 
 #define cursor(col, row) tputs(tgoto(CM, col, row), 1, fputchar)
 
-extern char *UP;
-extern short ospeed;
+char *UP;
+short ospeed;
 struct sgttyb old_tty;
 char *LL, *TE, *TI;
 

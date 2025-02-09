@@ -22,7 +22,7 @@ LIBS            = -lcurses -ltermcap -lc
 all:            cribbage ${MAN} crib.instr
 
 cribbage:       ${OBJS}
-		$(CC) $(LDFLAGS) -o $@.elf $(OBJS) $(LIBS)
+		$(LD) $(LDFLAGS) -o $@.elf $(OBJS) $(LIBS)
 		$(OBJDUMP) -S $@.elf > $@.dis
 		$(SIZE) $@.elf
 		$(ELF2AOUT) $@.elf $@ && rm $@.elf
@@ -31,7 +31,7 @@ crib.instr:     cribbage.n macro
 		nroff cribbage.n > $@
 
 ${MAN}:         ${MANSRC}
-		${MANROFF} $< > $@
+		nroff -man $< > $@
 
 clean:
 		rm -f *.o core cribbage ${MAN} *.dis crib.instr

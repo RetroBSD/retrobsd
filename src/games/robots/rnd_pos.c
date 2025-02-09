@@ -9,8 +9,7 @@
 #define	IS_SAME(p,y,x)	((p).y != -1 && (p).y == y && (p).x == x)
 
 static int
-rnd(range)
-int	range;
+rnd(int range)
 {
 	return random() % range;
 }
@@ -23,13 +22,11 @@ COORD *
 rnd_pos()
 {
 	static COORD	pos;
-	static int	call = 0;
 
 	do {
 		pos.y = rnd(Y_FIELDSIZE - 1) + 1;
 		pos.x = rnd(X_FIELDSIZE - 1) + 1;
 		refresh();
 	} while (Field[pos.y][pos.x] != 0);
-	call++;
 	return &pos;
 }

@@ -11,7 +11,7 @@
 #include <unistd.h>
 #include "back.h"
 
-int	buffnum;
+extern int buffnum;
 char	outbuff[BUFSIZ];
 
 static char	plred[] = "Player is red, computer is white.";
@@ -32,8 +32,7 @@ char  *descr[] = {
 };
 
 void
-errexit (s)
-        register char	*s;
+errexit (char *s)
 {
 	write (2,"\n",1);
 	perror (s);
@@ -41,15 +40,13 @@ errexit (s)
 }
 
 void
-strset (s1,s2)
-        register char	*s1, *s2;
+strset (char *s1, char *s2)
 {
 	while ( (*s1++ = *s2++) != '\0');
 }
 
 int
-addbuf (c)
-        register int	c;
+addbuf (int c)
 {
 	buffnum++;
 	if (buffnum == BUFSIZ)  {
@@ -98,8 +95,7 @@ readc ()
 }
 
 void
-writec (c)
-        int	c;
+writec (int c)
 {
 	if (tflag)
 		fancyc (c);
@@ -108,8 +104,7 @@ writec (c)
 }
 
 void
-writel (l)
-        register const char	*l;
+writel (const char *l)
 {
 #ifdef DEBUG
 	register const char	*s;
@@ -149,8 +144,7 @@ proll ()
 }
 
 void
-wrint (n)
-        int	n;
+wrint (int n)
 {
 	register int	i, j, t;
 
@@ -230,8 +224,7 @@ quit ()
 }
 
 int
-yorn (special)
-        register int	special;		/* special response */
+yorn (int special)                              /* special response */
 {
 	register int	c;
 	register int	i;
@@ -261,8 +254,7 @@ yorn (special)
 }
 
 void
-wrhit (i)
-        register int	i;
+wrhit (int i)
 {
 	writel ("Blot hit on ");
 	wrint (i);
@@ -288,8 +280,7 @@ nexturn ()
 }
 
 void
-getarg (arg)
-        register char	***arg;
+getarg (char ***arg)
 {
 	register char	**s;
 
@@ -401,8 +392,7 @@ wrscore ()
 }
 
 void
-fixtty (mode)
-        int	mode;
+fixtty (int mode)
 {
 	if (tflag)
 		newpos();
@@ -412,7 +402,7 @@ fixtty (mode)
 }
 
 void
-getout (sig)
+getout (int sig)
 {
 	/* go to bottom of screen */
 	if (tflag)  {

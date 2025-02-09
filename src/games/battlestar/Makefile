@@ -20,7 +20,7 @@ MANSRC		= battlestar.6
 all:            battle_strings battlestar $(MAN)
 
 battlestar:     ${OBJS}
-		${CC} ${LDFLAGS} -o battlestar.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o battlestar.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S battlestar.elf > battlestar.dis
 		${SIZE} battlestar.elf
 		${ELF2AOUT} battlestar.elf $@ && rm battlestar.elf

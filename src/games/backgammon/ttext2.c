@@ -5,7 +5,7 @@
  */
 #include "back.h"
 
-char *prompt, *opts;
+extern char *prompt, *opts;
 extern const char *list[];
 
 const char	*doubl[] = {

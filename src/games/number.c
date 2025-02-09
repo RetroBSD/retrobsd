@@ -74,8 +74,7 @@ const char *decade[] = {
 
 char line[100];
 
-void print(s)
-        const char *s;
+void print(const char *s)
 {
 	if (flag)
 		printf(" ");
@@ -83,15 +82,14 @@ void print(s)
 	flag = 1;
 }
 
-void ones(d)
+void ones(int d)
 {
 	if(d=='0')
 		return;
 	print(unit[d-'0']);
 }
 
-void tens(p)
-        char *p;
+void tens(char *p)
 {
 	switch(p[1]) {
 
@@ -107,7 +105,7 @@ void tens(p)
 	print(decade[p[1]-'0']);
 }
 
-int digit(c)
+int digit(int c)
 {
 	if(c < '0' || c > '9')
 		return(0);
@@ -121,15 +119,13 @@ void nline()
 	flag = 0;
 }
 
-void cprint(s)
-        const char *s;
+void cprint(const char *s)
 {
 	if(flag)
 		print(s);
 }
 
-void conv(p, c)
-        char *p;
+void conv(char *p, int c)
 {
 
 	if(c > max) {

@@ -83,10 +83,7 @@ short cur_col;
 #define BUFLEN 256
 
 static boolean
-tc_tname(fp, term, buf)
-        FILE *fp;
-        char *term;
-        char *buf;
+tc_tname(FILE *fp, char *term, char *buf)
 {
 	int i, j;
 	boolean found = 0;
@@ -125,9 +122,7 @@ tc_tname(fp, term, buf)
 }
 
 static void
-tc_gets(ibuf, tcstr)
-        char *ibuf;
-        char **tcstr;
+tc_gets(char *ibuf, char **tcstr)
 {
 	int i, j, k, n;
 	char obuf[BUFLEN];
@@ -202,9 +197,7 @@ tc_gets(ibuf, tcstr)
 }
 
 static void
-tc_gnum(ibuf, n)
-        char *ibuf;
-        int *n;
+tc_gnum(char *ibuf, int *n)
 {
 	int i, r = 0;
 
@@ -279,9 +272,7 @@ tc_cmget()
 }
 
 static void
-tc_gtdata(fp, buf)
-        FILE *fp;
-        char *buf;
+tc_gtdata(FILE *fp, char *buf)
 {
 	int i;
 	boolean first = 1;
@@ -404,8 +395,7 @@ endwin()
 }
 
 void
-move(row, col)
-        int row, col;
+move(int row, int col)
 {
 	curscr->_cury = row;
 	curscr->_curx = col;
@@ -413,17 +403,14 @@ move(row, col)
 }
 
 void
-mvaddstr(row, col, str)
-        int row, col;
-        char *str;
+mvaddstr(int row, int col, char *str)
 {
 	move(row, col);
 	addstr(str);
 }
 
 void
-addstr(str)
-        char *str;
+addstr(char *str)
 {
 	while (*str) {
 		addch((int) *str++);
@@ -431,8 +418,7 @@ addstr(str)
 }
 
 void
-addch(ch)
-        register int ch;
+addch(int ch)
 {
 	int row, col;
 
@@ -448,16 +434,14 @@ addch(ch)
 }
 
 void
-mvaddch(row, col, ch)
-        int row, col, ch;
+mvaddch(int row, int col, int ch)
 {
 	move(row, col);
 	addch(ch);
 }
 
 static void
-put_st_char(ch)
-        register int ch;
+put_st_char(int ch)
 {
 	if ((ch & ST_MASK) && (!term_stand_out)) {
 		ch &= ~ST_MASK;
@@ -473,8 +457,7 @@ put_st_char(ch)
 }
 
 static void
-put_cursor(row, col)
-        register int row, col;
+put_cursor(int row, int col)
 {
 	register int i, rdif, cdif;
 	int ch, t;
@@ -528,8 +511,7 @@ put_cursor(row, col)
 }
 
 static void
-put_char_at(row, col, ch)
-        register int row, col, ch;
+put_char_at(int row, int col, int ch)
 {
 	put_cursor(row, col);
 	put_st_char(ch);
@@ -567,8 +549,7 @@ refresh()
 }
 
 void
-wrefresh(scr)
-        WINDOW *scr;
+wrefresh(WINDOW *scr)
 {
 	int i, col;
 
@@ -593,12 +574,10 @@ wrefresh(scr)
 	}
 	put_cursor(curscr->_cury, curscr->_curx);
 	fflush(stdout);
-	scr = scr;		/* make lint happy */
 }
 
 int
-mvinch(row, col)
-        int row, col;
+mvinch(int row, int col)
 {
 	move(row, col);
 	return((int) buffer[row][col]);

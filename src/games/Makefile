@@ -11,9 +11,10 @@ CFLAGS          += -Werror -Wall -Os
 
 # Programs that live in subdirectories, and have makefiles of their own.
 #
-SUBDIR          = adventure atc backgammon battlestar boggle btlgammon \
+SUBDIR          = adventure atc backgammon boggle btlgammon \
                   caesar cribbage fortune hangman mille monop pom pig quiz \
-                  robots rogue sail snake trek
+                  robots snake trek
+# TODO: battlestar rogue sail
 
 # C programs that live in the current directory and do not need
 # explicit make lines.
@@ -34,7 +35,8 @@ FRC:
 
 # $(STD)
 %: %.c
-		$(CC) $(CFLAGS) $(LDFLAGS) -o $@.elf $< $(LIBS)
+		$(CC) $(CFLAGS) -c $<
+		$(LD) $(LDFLAGS) -o $@.elf $@.o $(LIBS)
 		$(OBJDUMP) -S $@.elf > $@.dis
 		$(SIZE) $@.elf
 		$(ELF2AOUT) $@.elf $@ && /bin/rm $@.elf
@@ -57,31 +59,36 @@ clean:
 # Files listed in $(NSTD) have explicit make lines given below.
 
 canfield:       canfield.c
-		$(CC) $(CFLAGS) $(LDFLAGS) -o $@.elf $< -lcurses -ltermcap $(LIBS)
+		$(CC) $(CFLAGS) -c $<
+		$(LD) $(LDFLAGS) -o $@.elf $@.o -lcurses -ltermcap $(LIBS)
 		$(OBJDUMP) -S $@.elf > $@.dis
 		$(SIZE) $@.elf
 		$(ELF2AOUT) $@.elf $@ && /bin/rm $@.elf
 
 primes:         primes.c
-		$(CC) $(CFLAGS) $(LDFLAGS) -o $@.elf $< -lm $(LIBS)
+		$(CC) $(CFLAGS) -c $<
+		$(LD) $(LDFLAGS) -o $@.elf $@.o -lm $(LIBS)
 		$(OBJDUMP) -S $@.elf > $@.dis
 		$(SIZE) $@.elf
 		$(ELF2AOUT) $@.elf $@ && /bin/rm $@.elf
 
 rain:           rain.c
-		$(CC) $(CFLAGS) $(LDFLAGS) -o $@.elf $< -ltermcap $(LIBS)
+		$(CC) $(CFLAGS) -c $<
+		$(LD) $(LDFLAGS) -o $@.elf $@.o -ltermcap $(LIBS)
 		$(OBJDUMP) -S $@.elf > $@.dis
 		$(SIZE) $@.elf
 		$(ELF2AOUT) $@.elf $@ && /bin/rm $@.elf
 
 worm:           worm.c
-		$(CC) $(CFLAGS) $(LDFLAGS) -o $@.elf $< -lcurses -ltermcap $(LIBS)
+		$(CC) $(CFLAGS) -c $<
+		$(LD) $(LDFLAGS) -o $@.elf $@.o -lcurses -ltermcap $(LIBS)
 		$(OBJDUMP) -S $@.elf > $@.dis
 		$(SIZE) $@.elf
 		$(ELF2AOUT) $@.elf $@ && /bin/rm $@.elf
 
 worms:          worms.c
-		$(CC) $(CFLAGS) $(LDFLAGS) -o $@.elf $< -ltermcap $(LIBS)
+		$(CC) $(CFLAGS) -c $<
+		$(LD) $(LDFLAGS) -o $@.elf $@.o -ltermcap $(LIBS)
 		$(OBJDUMP) -S $@.elf > $@.dis
 		$(SIZE) $@.elf
 		$(ELF2AOUT) $@.elf $@ && /bin/rm $@.elf

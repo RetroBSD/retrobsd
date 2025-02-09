@@ -20,6 +20,47 @@ extern const char	*stragy[];
 extern const char	*prog[];
 extern const char	*lastch[];
 
+char args[100];		/* args passed to teachgammon and back */
+int board[26];		/* board:  negative values are white, positive are red */
+int dice[2];		/* value of dice */
+int mvlim;		/* 'move limit':  max. number of moves */
+int mvl;		/* working copy of mvlim */
+int p[5];		/* starting position of moves */
+int g[5];		/* ending position of moves (goals) */
+int h[4];		/* flag for each move if a man was hit */
+int cturn;		/* whose turn it currently is */
+int d0;			/* flag if dice have been reversed from original position */
+int table[6][6];	/* odds table for possible rolls */
+int rscore;		/* red's score */
+int wscore;		/* white's score */
+int gvalue;		/* value of game (64 max.) */
+int dlast;		/* who doubled last (0 = neither) */
+int bar;		/* position of bar for current player */
+int home;		/* position of home for current player */
+int off[2];		/* number of men off board */
+int *offptr;		/* pointer to off for current player */
+int *offopp;		/* pointer to off for opponent */
+int in[2];		/* number of men in inner table */
+int *inptr;		/* pointer to in for current player */
+int *inopp;		/* pointer to in for opponent */
+
+int ncin;		/* number of characters in cin */
+char cin[100];		/* input line of current move */
+
+char **colorptr;	/* color of current player */
+char **Colorptr;	/* color of current player, capitalized */
+int colen;		/* length of color of current player */
+
+struct sgttyb tty;	/* tty information buffer */
+int old;		/* original tty status */
+int noech;		/* original tty status without echo */
+int raw;		/* raw tty status, no echo */
+
+int curr;		/* row position of cursor */
+int curc;		/* column position of cursor */
+int begscr;		/* 'beginning' of screen */
+char ospeed;		/* tty output speed */
+
 const char *helpm[] = {
 	"\nEnter a space or newline to roll, or",
 	"     b   to display the board",

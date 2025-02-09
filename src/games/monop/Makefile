@@ -19,7 +19,7 @@ MANSRC		= monop.6
 all:            monop $(MAN) cards.pck
 
 monop:          $(OBJS)
-		$(CC) $(LDFLAGS) -o monop.elf $(OBJS) $(LIBS)
+		$(LD) $(LDFLAGS) -o monop.elf $(OBJS) $(LIBS)
 		$(OBJDUMP) -S monop.elf > monop.dis
 		$(SIZE) monop.elf
 		$(ELF2AOUT) monop.elf $@ && rm monop.elf
@@ -31,7 +31,7 @@ cards.pck:      #initdeck cards.inp
 		./initdeck
 
 $(MAN):         $(MANSRC)
-		$(MANROFF) $< > $@
+		nroff -man $< > $@
 
 clean:
 		rm -f *.o *.0 *.elf $(MAN) monop initdeck *.elf *.dis tags *~

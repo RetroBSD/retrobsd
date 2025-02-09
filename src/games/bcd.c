@@ -74,8 +74,7 @@ int chtab[] = {
 char s[128];
 char *sp = {&s[0]};
 
-void putstr(ss)
-        char *ss;
+void putstr(char *ss)
 {
 	int t;
 
@@ -86,8 +85,7 @@ void putstr(ss)
 	}
 }
 
-int main(argc, argv)
-        char *argv[];
+int main(int argc, char *argv[])
 {
 	char *spp;
 	int i;

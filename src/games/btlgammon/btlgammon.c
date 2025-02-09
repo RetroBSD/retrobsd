@@ -52,8 +52,7 @@ struct	{
 	int	mov[4];
 } moves[MAXIMOVES];
 
-int piececount(player,startrow,endrow)
-int *player,startrow,endrow;
+int piececount(int *player, int startrow, int endrow)
 {
 	int	sum;
 
@@ -63,8 +62,7 @@ int *player,startrow,endrow;
 	return(sum);
 }
 
-int play(player,playee,pos)
-int *player,*playee,pos[];
+int play(int *player, int *playee, int pos[])
 {
 	int	k, n, die, ipos;
 
@@ -112,8 +110,7 @@ badmove:
 	return(NIL);
 }
 
-void moverecord(mover)
-int *mover;
+void moverecord(int *mover)
 {
 	int	t;
 
@@ -159,8 +156,7 @@ int *mover;
 	}
 }
 
-void movegen(mover,movee)
-int *mover,*movee;
+void movegen(int *mover, int *movee)
 {
 	int	k;
 
@@ -271,8 +267,7 @@ int *mover,*movee;
 	}
 }
 
-int getprob(player,playee,start,finish)
-int *player,*playee,start,finish;
+int getprob(int *player, int *playee, int start, int finish)
 {			/*returns the probability (times 102) that any
 			  pieces belonging to 'player' and lying between
 			  his points 'start' and 'finish' will be hit
@@ -294,8 +289,7 @@ int *player,*playee,start,finish;
 	return(sum);
 }
 
-int eval(player,playee,k,prob)
-int *player,*playee,k,*prob;
+int eval(int *player, int *playee, int k, int *prob)
 {
 	int	newtry[31], newother[31], *r, *q, *p, n, sum, first;
 	int	ii, lastwhite, lastbrown;
@@ -367,8 +361,7 @@ int *player,*playee,k,*prob;
 	return(sum);
 }
 
-int strategy(player,playee)
-int *player,*playee;
+int strategy(int *player, int *playee)
 {
 	int	k, n, nn, bestval, moveval, prob;
 
@@ -407,8 +400,7 @@ int *player,*playee;
 	return(goodmoves[(rand()>>4)%n]);
 }
 
-void prtmov(k)
-int k;
+void prtmov(int k)
 {
 	int	n;
 
@@ -422,8 +414,7 @@ int k;
 	fprintf(stdout, "\n");
 }
 
-void update(player,playee,k)
-int *player,*playee,k;
+void update(int *player, int *playee, int k)
 {
 	int	n,t;
 
@@ -440,8 +431,7 @@ int *player,*playee,k;
 	}
 }
 
-int nextmove(player,playee)
-int *player,*playee;
+int nextmove(int *player, int *playee)
 {
 	int	k;
 
@@ -479,7 +469,7 @@ void pmoves()
 	fprintf(stdout, "\n");
 }
 
-void roll(who)
+void roll(int who)
 {
 	register int n;
 	char	 s[10];
@@ -510,8 +500,7 @@ void instructions()
 		write(1, buf, r);
 }
 
-void numline(upcol,downcol,start,fin)
-int *upcol,*downcol,start,fin;
+void numline(int *upcol, int *downcol, int start, int fin)
 {
 	int	k, n;
 
@@ -523,9 +512,7 @@ int *upcol,*downcol,start,fin;
 	}
 }
 
-void colorline(upcol,c1,downcol,c2,start,fin)
-int *upcol,*downcol,start,fin;
-char c1,c2;
+void colorline(int *upcol, char c1, int *downcol, char c2, int start, int fin)
 {
 	int	k;
 	char 	c;

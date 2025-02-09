@@ -14,8 +14,8 @@ MAN             = pom.0
 
 all:            pom $(MAN)
 
-pom:           $(OBJS)
-		$(CC) $(LDFLAGS) -o $@.elf $(OBJS) $(LIBS)
+pom:            $(OBJS)
+		$(LD) $(LDFLAGS) -o $@.elf $(OBJS) $(LIBS)
 		$(OBJDUMP) -S $@.elf > $@.dis
 		$(SIZE) $@.elf
 		$(ELF2AOUT) $@.elf $@ && rm $@.elf

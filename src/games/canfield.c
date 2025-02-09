@@ -381,7 +381,7 @@ void clearstat()
 /*
  * procedure to remove the card from the board
  */
-void removecard(a, b)
+void removecard(int a, int b)
 {
 	move(b, a);
 	printw("   ");
@@ -446,8 +446,7 @@ void cleanupboard()
 /*
  * procedure to create a deck of cards
  */
-void initdeck(deck)
-	struct cardtype *deck[];
+void initdeck(struct cardtype *deck[])
 {
 	int i;
 	int scnt;
@@ -471,8 +470,7 @@ void initdeck(deck)
 /*
  * procedure to shuffle the deck
  */
-void shuffle(deck)
-	struct cardtype *deck[];
+void shuffle(struct cardtype *deck[])
 {
 	int i,j;
 	struct cardtype *temp;
@@ -494,9 +492,7 @@ void shuffle(deck)
 /*
  * procedure to print the cards on the board
  */
-void printrank(a, b, cp, inverse)
-	struct cardtype *cp;
-	bool inverse;
+void printrank(int a, int b, struct cardtype *cp, bool inverse)
 {
 	move(b, a);
 	if (cp->rank != 10)
@@ -527,9 +523,7 @@ void printrank(a, b, cp, inverse)
 /*
  * procedure to print out a card
  */
-void printcard(a, b, cp)
-	int a,b;
-	struct cardtype *cp;
+void printcard(int a, int b, struct cardtype *cp)
 {
 	if (cp == NIL)
 		removecard(a, b);
@@ -553,8 +547,7 @@ void printcard(a, b, cp)
  * of another location. The pointers always point to the top
  * of the piles.
  */
-void transit(source, dest)
-	struct cardtype **source, **dest;
+void transit(struct cardtype **source, struct cardtype **dest)
 {
 	struct cardtype *temp;
 
@@ -604,8 +597,7 @@ void usedstock()
  * Note that it is only called on a foundation pile at the beginning of
  * the game, so the pile will have exactly one card in it.
  */
-void fndbase(cp, column, row)
-	struct cardtype **cp;
+void fndbase(struct cardtype **cp, int column, int row)
 {
 	bool nomore;
 
@@ -934,8 +926,7 @@ void destinerror()
 /*
  * function to see if the source has cards in it
  */
-bool notempty(cp)
-        struct cardtype *cp;
+bool notempty(struct cardtype *cp)
 {
 	if (cp == NIL) {
 		errmsg = TRUE;
@@ -949,8 +940,7 @@ bool notempty(cp)
 /*
  * function to see if the rank of one card is less than another
  */
-bool ranklower(cp1, cp2)
-	struct cardtype *cp1, *cp2;
+bool ranklower(struct cardtype *cp1, struct cardtype *cp2)
 {
 	if (cp2->rank == Ace)
 		if (cp1->rank == King)
@@ -966,8 +956,7 @@ bool ranklower(cp1, cp2)
 /*
  * function to check the cardcolor for moving to a tableau
  */
-bool diffcolor(cp1, cp2)
-	struct cardtype *cp1, *cp2;
+bool diffcolor(struct cardtype *cp1, struct cardtype *cp2)
 {
 	if (cp1->color == cp2->color)
 		return (FALSE);
@@ -978,8 +967,7 @@ bool diffcolor(cp1, cp2)
 /*
  * function to see if the card can move to the tableau
  */
-bool tabok(cp, des)
-	struct cardtype *cp;
+bool tabok(struct cardtype *cp, int des)
 {
 	if ((cp == stock) && (tableau[des] == NIL))
 		return (TRUE);
@@ -1022,9 +1010,7 @@ void suspend()
 /*
  * procedure to get a command
  */
-void getcmd(row, col, cp)
-	int row, col;
-	char *cp;
+void getcmd(int row, int col, char *cp)
 {
 	char cmd[2], ch;
 	int i;
@@ -1121,8 +1107,7 @@ void showcards()
 /*
  * procedure to move a card from the stock or talon to the tableau
  */
-void simpletableau(cp, des)
-        struct cardtype **cp;
+void simpletableau(struct cardtype **cp, int des)
 {
 	int origin;
 
@@ -1153,7 +1138,7 @@ void simpletableau(cp, des)
 /*
  * print the tableau
  */
-void tabprint(sour, des)
+void tabprint(int sour, int des)
 {
 	int dlength, slength, i;
 	struct cardtype *tempcard;
@@ -1178,8 +1163,7 @@ void tabprint(sour, des)
 /*
  * procedure to move from the tableau to the tableau
  */
-void tabtotab(sour, des)
-	register int sour, des;
+void tabtotab(int sour, int des)
 {
 	struct cardtype *temp;
 
@@ -1204,8 +1188,7 @@ void tabtotab(sour, des)
 /*
  * functions to see if the card can go onto the foundation
  */
-bool rankhigher(cp, let)
-	struct cardtype *cp;
+bool rankhigher(struct cardtype *cp, int let)
 {
 	if (found[let]->rank == King)
 		if (cp->rank == Ace)
@@ -1221,8 +1204,7 @@ bool rankhigher(cp, let)
 /*
  * function to determine if two cards are the same suit
  */
-bool samesuit(cp, let)
-	struct cardtype *cp;
+bool samesuit(struct cardtype *cp, int let)
 {
 	if (cp->suit == found[let]->suit)
 		return (TRUE);
@@ -1233,8 +1215,7 @@ bool samesuit(cp, let)
 /*
  * procedure to move a card to the correct foundation pile
  */
-void movetofound(cp, source)
-	struct cardtype **cp;
+void movetofound(struct cardtype **cp, int source)
 {
 	tempbase = 0;
 	mtfdone = FALSE;
@@ -1600,9 +1581,7 @@ void askquit()
 /*
  * Can you tell that this used to be a Pascal program?
  */
-int main(argc, argv)
-	int argc;
-	char *argv[];
+int main(int argc, char *argv[])
 {
 #ifdef MAXLOAD
 	double vec[3];

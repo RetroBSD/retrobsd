@@ -6,9 +6,8 @@
  * appropriate flags.
  */
 void
-buy(player, sqrp)
-reg int		player;
-reg SQUARE	*sqrp; {
+buy(int player, SQUARE *sqrp)
+{
 
 	trading = FALSE;
 	sqrp->owner = player;
@@ -20,8 +19,8 @@ reg SQUARE	*sqrp; {
  * given square.
  */
 static int
-value(sqp)
-reg SQUARE	*sqp; {
+value(SQUARE *sqp)
+{
 
 	reg int	sqr;
 
@@ -48,10 +47,8 @@ reg SQUARE	*sqp; {
  *	This routine adds an item to the list.
  */
 void
-add_list(plr, head, op_sqr)
-int	plr;
-OWN	**head;
-int	op_sqr; {
+add_list(int plr, OWN **head, int op_sqr)
+{
 
 	reg int	val;
 	reg OWN	*tp, *last_tp;
@@ -81,10 +78,8 @@ int	op_sqr; {
  *	This routine deletes property from the list.
  */
 void
-del_list(plr, head, op_sqr)
-int	plr;
-OWN	**head;
-shrt	op_sqr; {
+del_list(int plr, OWN **head, shrt op_sqr)
+{
 
 	reg OWN	*op, *last_op;
 
@@ -168,8 +163,8 @@ bid() {
  * of given player.
  */
 int
-prop_worth(plp)
-reg PLAY	*plp; {
+prop_worth(PLAY *plp)
+{
 
 	reg OWN	*op;
 	reg int	worth;

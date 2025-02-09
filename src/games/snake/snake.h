@@ -20,21 +20,17 @@
 
 #define ESC	'\033'
 
-struct tbuffer {
-	long t[4];
-} tbuffer;
-
-char	*CL, *UP, *DO, *ND, *BS,
+extern char *CL, *UP, *DO, *ND, *BS,
 	*HO, *CM, *LL,
 	*KL, *KR, *KU, *KD,
 	*TI, *TE, *KS, *KE;
-int	LINES, COLUMNS;	/* physical screen size. */
-int	lcnt, ccnt;	/* user's idea of screen size */
-char	xBC, PC;
-int	BW;
-char	tbuf[1024], tcapbuf[128];
-int	Klength;	/* length of KX strings */
-int	chunk;		/* amount of money given at a time */
+extern int LINES, COLUMNS;  /* physical screen size. */
+extern int lcnt, ccnt;      /* user's idea of screen size */
+extern char xBC, PC;
+extern int BW;
+extern char tbuf[1024], tcapbuf[128];
+extern int Klength;         /* length of KX strings */
+extern int chunk;           /* amount of money given at a time */
 
 #ifdef	debug
 #   define cashvalue	(loot-penalty)/25
@@ -45,10 +41,10 @@ int	chunk;		/* amount of money given at a time */
 struct point {
 	int col, line;
 };
-struct point cursor;
-struct sgttyb origtty, newtty;
+extern struct point cursor;
+extern struct sgttyb origtty, newtty;
 #ifdef TIOCLGET
-struct ltchars olttyc, nlttyc;
+extern struct ltchars olttyc, nlttyc;
 #endif
 
 #undef CTRL

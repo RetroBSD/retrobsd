@@ -58,9 +58,69 @@
 #define	Pzero	  192.917585	/* lunar mean long of perigee at EPOCH */
 #define	Nzero	  55.204723	/* lunar mean long of node at EPOCH */
 
-double dtor(), potm(), adj360();
+/*
+ * adj360 --
+ *	adjust value so 0 <= deg <= 360
+ */
+void
+adj360(double *deg)
+{
+	for (;;)
+		if (*deg < 0)
+			*deg += 360;
+		else if (*deg > 360)
+			*deg -= 360;
+		else
+			break;
+}
 
-main()
+/*
+ * dtor --
+ *	convert degrees to radians
+ */
+double
+dtor(double deg)
+{
+	return(deg * PI / 180);
+}
+
+/*
+ * potm --
+ *	return phase of the moon
+ */
+double
+potm(double days)
+{
+	double N, Msol, Ec, LambdaSol, l, Mm, Ev, Ac, A3, Mmprime;
+	double A4, lprime, V, ldprime, D, Nm;
+
+	N = 360 * days / 365.2422;				/* sec 42 #3 */
+	adj360(&N);
+	Msol = N + EPSILONg - RHOg;				/* sec 42 #4 */
+	adj360(&Msol);
+	Ec = 360 / PI * ECCEN * sin(dtor(Msol));		/* sec 42 #5 */
+	LambdaSol = N + Ec + EPSILONg;				/* sec 42 #6 */
+	adj360(&LambdaSol);
+	l = 13.1763966 * days + lzero;				/* sec 61 #4 */
+	adj360(&l);
+	Mm = l - (0.1114041 * days) - Pzero;			/* sec 61 #5 */
+	adj360(&Mm);
+	Nm = Nzero - (0.0529539 * days);			/* sec 61 #6 */
+	adj360(&Nm);
+	Ev = 1.2739 * sin(dtor(2*(l - LambdaSol) - Mm));	/* sec 61 #7 */
+	Ac = 0.1858 * sin(dtor(Msol));				/* sec 61 #8 */
+	A3 = 0.37 * sin(dtor(Msol));
+	Mmprime = Mm + Ev - Ac - A3;				/* sec 61 #9 */
+	Ec = 6.2886 * sin(dtor(Mmprime));			/* sec 61 #10 */
+	A4 = 0.214 * sin(dtor(2 * Mmprime));			/* sec 61 #11 */
+	lprime = l + Ev + Ec - Ac + A4;				/* sec 61 #12 */
+	V = 0.6583 * sin(dtor(2 * (lprime - LambdaSol)));	/* sec 61 #13 */
+	ldprime = lprime + V;					/* sec 61 #14 */
+	D = ldprime - LambdaSol;				/* sec 63 #2 */
+	return(50 * (1 - cos(dtor(D))));			/* sec 63 #3 */
+}
+
+int main()
 {
 	extern int errno;
 	struct timeval tp;
@@ -101,69 +161,4 @@ main()
 				    today);
 		}
 	}
-}
-
-/*
- * potm --
- *	return phase of the moon
- */
-double
-potm(days)
-	double days;
-{
-	double N, Msol, Ec, LambdaSol, l, Mm, Ev, Ac, A3, Mmprime;
-	double A4, lprime, V, ldprime, D, Nm;
-
-	N = 360 * days / 365.2422;				/* sec 42 #3 */
-	adj360(&N);
-	Msol = N + EPSILONg - RHOg;				/* sec 42 #4 */
-	adj360(&Msol);
-	Ec = 360 / PI * ECCEN * sin(dtor(Msol));		/* sec 42 #5 */
-	LambdaSol = N + Ec + EPSILONg;				/* sec 42 #6 */
-	adj360(&LambdaSol);
-	l = 13.1763966 * days + lzero;				/* sec 61 #4 */
-	adj360(&l);
-	Mm = l - (0.1114041 * days) - Pzero;			/* sec 61 #5 */
-	adj360(&Mm);
-	Nm = Nzero - (0.0529539 * days);			/* sec 61 #6 */
-	adj360(&Nm);
-	Ev = 1.2739 * sin(dtor(2*(l - LambdaSol) - Mm));	/* sec 61 #7 */
-	Ac = 0.1858 * sin(dtor(Msol));				/* sec 61 #8 */
-	A3 = 0.37 * sin(dtor(Msol));
-	Mmprime = Mm + Ev - Ac - A3;				/* sec 61 #9 */
-	Ec = 6.2886 * sin(dtor(Mmprime));			/* sec 61 #10 */
-	A4 = 0.214 * sin(dtor(2 * Mmprime));			/* sec 61 #11 */
-	lprime = l + Ev + Ec - Ac + A4;				/* sec 61 #12 */
-	V = 0.6583 * sin(dtor(2 * (lprime - LambdaSol)));	/* sec 61 #13 */
-	ldprime = lprime + V;					/* sec 61 #14 */
-	D = ldprime - LambdaSol;				/* sec 63 #2 */
-	return(50 * (1 - cos(dtor(D))));			/* sec 63 #3 */
-}
-
-/*
- * dtor --
- *	convert degrees to radians
- */
-double
-dtor(deg)
-	double deg;
-{
-	return(deg * PI / 180);
-}
-
-/*
- * adj360 --
- *	adjust value so 0 <= deg <= 360
- */
-double
-adj360(deg)
-	double *deg;
-{
-	for (;;)
-		if (*deg < 0)
-			*deg += 360;
-		else if (*deg > 360)
-			*deg -= 360;
-		else
-			break;
 }

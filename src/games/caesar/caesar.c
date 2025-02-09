@@ -43,6 +43,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <unistd.h>
+#include <string.h>
 
 #define	LINELENGTH	2048
 #define	ROTATE(ch, perm) \
@@ -59,9 +60,20 @@ double stdf[26] = {
 	2.62, 0.81, 1.88, 0.23,  2.07, 0.06,
 };
 
-main(argc, argv)
-	int argc;
-	char **argv;
+int printit(char *arg)
+{
+	register int ch, rot;
+
+	if ((rot = atoi(arg)) < 0) {
+		(void)fprintf(stderr, "caesar: bad rotation value.\n");
+		exit(1);
+	}
+	while ((ch = getchar()) != EOF)
+		putchar(ROTATE(ch, rot));
+	exit(0);
+}
+
+int main(int argc, char **argv)
 {
 	extern int errno;
 	register int ch, dot, i, nread, winnerdot;
@@ -125,19 +137,5 @@ main(argc, argv)
 			exit(1);
 		}
 	}
-	exit(0);
-}
-
-printit(arg)
-	char *arg;
-{
-	register int ch, rot;
-
-	if ((rot = atoi(arg)) < 0) {
-		(void)fprintf(stderr, "caesar: bad rotation value.\n");
-		exit(1);
-	}
-	while ((ch = getchar()) != EOF)
-		putchar(ROTATE(ch, rot));
 	exit(0);
 }

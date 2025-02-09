@@ -12,7 +12,7 @@ MANSRC		= fortune.6
 all:            fortune $(MAN) fortunes.dat
 
 fortune:        $(OBJS)
-		$(CC) $(LDFLAGS) -o fortune.elf $(OBJS) $(LIBS)
+		$(LD) $(LDFLAGS) -o fortune.elf $(OBJS) $(LIBS)
 		$(OBJDUMP) -S fortune.elf > fortune.dis
 		$(SIZE) fortune.elf
 		$(ELF2AOUT) fortune.elf $@ && rm fortune.elf
@@ -32,7 +32,7 @@ fortunes:       scene obscene
 		cat obscene >> fortunes
 
 $(MAN):         $(MANSRC)
-		$(MANROFF) $< > $@
+		nroff -man $< > $@
 
 clean:
 		rm -f *.o *.0 *.elf $(MAN) fortune strfile unstr fortunes *.elf *.dis tags *~

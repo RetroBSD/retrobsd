@@ -9,14 +9,18 @@ TOPSRC          = $(shell cd ../..; pwd)
 include $(TOPSRC)/target.mk
 vpath %.c $(TOPSRC)/src/startup-mips
 
-CFLAGS          = -Os -B$(TOPSRC)/lib/ -fno-integrated-as -Xassembler -x $(DEFS)
+#CFLAGS          = -Os -B$(TOPSRC)/lib/ -fno-integrated-as -Xassembler $(DEFS)
+CFLAGS          = -Os
 
 OBJS		= ../crt0.o
 
 all:		$(OBJS)
 
-../crt0.o:	crt0.c
-		$(CC) $(DEFS) $(CFLAGS) -c $< -o $@
+../crt0.o:      crt0.s
+		$(TOPSRC)/lib/as $< -o $@
+
+crt0.s:         crt0.c
+		$(CC) $(DEFS) $(CFLAGS) -S $< -o $@
 
 clean:
 		rm -f $(OBJS) *~

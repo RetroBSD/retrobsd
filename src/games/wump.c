@@ -98,7 +98,7 @@ int	loc;
 int	wloc;
 int	tchar;
 
-int rnum(n)
+int rnum(int n)
 {
 	static time_t first;
 
@@ -109,7 +109,7 @@ int rnum(n)
 	return rand() % n;
 }
 
-int tunnel(i)
+int tunnel(int i)
 {
 	register struct room *p;
 	register int n, j;
@@ -166,8 +166,7 @@ int rin()
 	return(n);
 }
 
-int near(ap, ahaz)
-        struct room *ap;
+int near(struct room *ap, int ahaz)
 {
 	register struct room *p;
 	register int haz, i;
@@ -180,9 +179,10 @@ int near(ap, ahaz)
 	return(0);
 }
 
-int icomp(p1, p2)
-        int *p1, *p2;
+int icomp(const void *arg1, const void *arg2)
 {
+        const int *p1 = arg1;
+        const int *p2 = arg2;
 	return(*p1 - *p2);
 }
 

@@ -37,7 +37,7 @@ void score()
 	stvec += dtvec - etvec;
 }
 
-void delete(sig)
+void delete(int sig)
 {
 	if(rights + wrongs == 0.) {
 		printf("\n");
@@ -47,8 +47,7 @@ void delete(sig)
 	exit(0);
 }
 
-int getnum(s)
-        char *s;
+int getnum(char *s)
 {
 	int	a;
 	char	c;
@@ -62,7 +61,7 @@ int getnum(s)
 
 int arand;
 
-void srand13(n)
+void srand13(int n)
 {
 	arand = (n & 077774) | 01;
 }
@@ -79,12 +78,12 @@ int rand13()		/*uniform on 0 to 2**13-1*/
  *  are assumed to be 16-bit integers. It replaces an old PDP-11
  *  assembler language subroutine. -- dks.
  */
-int hmul(a, b)
+int hmul(int a, int b)
 {
         return (long)a*b >> 16;
 }
 
-int skrand(range)
+int skrand(int range)
 {
         int temp;
 
@@ -94,13 +93,12 @@ int skrand(range)
 	return hmul(temp, 8*range);
 }
 
-int rrandom(range)
+int rrandom(int range)
 {
 	return(hmul(rand13(), 8*range));
 }
 
-void getln(s)
-        char *s;
+void getln(char *s)
 {
 	register char	*rs;
 
@@ -121,8 +119,7 @@ void getln(s)
 		*rs = '\n';
 }
 
-int main(argc, argv)
-        char	*argv[];
+int main(int argc, char *argv[])
 {
 	int range, k, dif, l;
 	char line[100];

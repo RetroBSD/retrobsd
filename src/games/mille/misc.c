@@ -20,8 +20,7 @@
 
 /* VARARGS1 */
 int
-error(str, arg)
-char	*str;
+error(char *str, int arg)
 {
 	stdscr = Score;
 	mvprintw(ERR_Y, ERR_X, str, arg);
@@ -83,8 +82,8 @@ cont:		;
 }
 
 int
-check_ext(forcomp)
-bool	forcomp; {
+check_ext(bool forcomp)
+{
 
 
 	if (End == 700)
@@ -138,8 +137,8 @@ done:
  * also allowed.  Return TRUE if the answer was yes, FALSE if no.
  */
 int
-getyn(promptno)
-register int	promptno; {
+getyn(int promptno)
+{
 
 	char	c;
 

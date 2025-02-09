@@ -353,8 +353,7 @@ play_it:
 }
 
 int
-onecard(pp)
-register PLAY	*pp;
+onecard(PLAY *pp)
 {
 	register CARD	bat, spd, card;
 
@@ -386,9 +385,7 @@ register PLAY	*pp;
 }
 
 int
-canplay(pp, op, card)
-register PLAY	*pp, *op;
-register CARD	card;
+canplay(PLAY *pp, PLAY *op, CARD card)
 {
 	switch (card) {
 	  case C_200:

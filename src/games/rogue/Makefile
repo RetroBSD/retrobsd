@@ -51,7 +51,7 @@ rogue:          ${OBJS}
 		${ELF2AOUT} rogue.elf $@ && rm rogue.elf
 
 ${MAN}:         ${MANSRC}
-		${MANROFF} $< > $@
+		nroff -man $< > $@
 
 clean:
 		rm -f *.o *.0 *.elf ${MAN} rogue *.elf *.dis tags *~

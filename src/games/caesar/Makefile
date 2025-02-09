@@ -14,14 +14,14 @@ MAN             = caesar.0
 
 all:            caesar $(MAN)
 
-caesar:           $(OBJS)
-		$(CC) $(LDFLAGS) -o $@.elf $(OBJS) $(LIBS)
+caesar:         $(OBJS)
+		$(LD) $(LDFLAGS) -o $@.elf $(OBJS) $(LIBS)
 		$(OBJDUMP) -S $@.elf > $@.dis
 		$(SIZE) $@.elf
 		$(ELF2AOUT) $@.elf $@ && rm $@.elf
 
 $(MAN):         caesar.6
-		nroff -man $< > $@
+		$(MANROFF) $< > $@
 
 clean:
 		rm -f *.o core caesar *.0 *.dis

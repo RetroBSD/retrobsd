@@ -44,9 +44,7 @@ char lastch;
 
 extern int printf(const char *, ...);
 
-void display(pos, chr)
-        struct body *pos;
-        char chr;
+void display(struct body *pos, char chr)
 {
 	wmove(tv, pos->y, pos->x);
 	waddch(tv, chr);
@@ -123,13 +121,12 @@ void crash()
 	leave();
 }
 
-int rnd(range)
+int rnd(int range)
 {
 	return abs((rand()>>5)+(rand()>>5)) % range;
 }
 
-void newpos(bp)
-        struct body * bp;
+void newpos(struct body *bp)
 {
 	do {
 		bp->y = rnd(LINES-3)+ 2;
@@ -148,8 +145,7 @@ void prize()
 	wrefresh(tv);
 }
 
-void process(ch)
-        char ch;
+void process(char ch)
 {
 	register int x,y;
 	struct body *nh;
@@ -213,8 +209,7 @@ void wake()
 	process(lastch);
 }
 
-int main(argc, argv)
-        char **argv;
+int main(int argc, char **argv)
 {
 	char ch;
 

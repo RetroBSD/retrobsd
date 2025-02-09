@@ -30,6 +30,7 @@ OBJS            = adddf3.o \
                   fixdfsi.o \
                   fixsfsi.o \
                   fixunssfsi.o \
+                  fixunsdfsi.o \
                   floatsidf.o \
                   floatsisf.o \
                   floatunsisf.o \

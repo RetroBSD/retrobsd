@@ -107,6 +107,23 @@ float absv[8]= {
 
 int oldw = 0;
 
+char *CL, *UP, *DO, *ND, *BS,
+	*HO, *CM, *LL,
+	*KL, *KR, *KU, *KD,
+	*TI, *TE, *KS, *KE;
+int LINES, COLUMNS;  /* physical screen size. */
+int lcnt, ccnt;      /* user's idea of screen size */
+char xBC, PC;
+int BW;
+char tbuf[1024], tcapbuf[128];
+int Klength;         /* length of KX strings */
+int chunk;           /* amount of money given at a time */
+struct point cursor;
+struct sgttyb origtty, newtty;
+#ifdef TIOCLGET
+struct ltchars olttyc, nlttyc;
+#endif
+
 void
 drawbox()
 {

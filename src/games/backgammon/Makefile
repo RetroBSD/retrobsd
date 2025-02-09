@@ -20,13 +20,13 @@ MANSRC		= backgammon.6
 all:            backgammon teachgammon $(MAN)
 
 backgammon:     $(OBJS)
-		$(CC) $(LDFLAGS) -o backgammon.elf $(OBJS) $(LIBS)
+		$(LD) $(LDFLAGS) -o backgammon.elf $(OBJS) $(LIBS)
 		$(OBJDUMP) -S backgammon.elf > backgammon.dis
 		$(SIZE) backgammon.elf
 		$(ELF2AOUT) backgammon.elf $@ && rm backgammon.elf
 
 teachgammon:    $(TOBJS)
-		$(CC) $(LDFLAGS) -o teachgammon.elf $(TOBJS) $(LIBS)
+		$(LD) $(LDFLAGS) -o teachgammon.elf $(TOBJS) $(LIBS)
 		$(OBJDUMP) -S teachgammon.elf > teachgammon.dis
 		$(SIZE) teachgammon.elf
 		$(ELF2AOUT) teachgammon.elf $@ && rm teachgammon.elf

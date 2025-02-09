@@ -90,7 +90,7 @@ int __void__;
 /*
  * psuedo functions for standard screen
  */
-#define addch(ch)   VOID(waddch(stdscr, ch))
+#define addch(ch)   waddch(stdscr, ch)
 #define getch()     wgetch(stdscr)
 #define addstr(str) VOID(waddstr(stdscr, str))
 #define getstr(str) VOID(wgetstr(stdscr, str))
@@ -102,7 +102,7 @@ int __void__;
 #define insertln()  VOID(winsertln(stdscr))
 #define deleteln()  VOID(wdeleteln(stdscr))
 #define refresh()   VOID(wrefresh(stdscr))
-#define inch()      VOID(winch(stdscr))
+#define inch()      winch(stdscr)
 #define insch(c)    VOID(winsch(stdscr,c))
 #define delch()     VOID(wdelch(stdscr))
 #define standout()  VOID(wstandout(stdscr))

@@ -27,7 +27,7 @@ short debug;
 
 HAND myhand;
 HAND yourhand;
-char deck[DECK];
+int deck[DECK];
 short nextcd;
 int proflag;
 
@@ -40,15 +40,13 @@ char hehas[CTSIZ];
 
 /* utility and output programs */
 
-void error(s)
-        char *s;
+void error(char *s)
 {
 	fprintf(stderr, "error: %s\n", s);
 	exit(1);
 }
 
-int choose(a, n)
-        char a[];
+int choose(int a[], int n)
 {
 	/* pick and return one at random from the n choices in a */
 	/* The last one is moved to replace the one chosen */
@@ -87,8 +85,7 @@ int draw()
 	return deck[nextcd++];
 }
 
-int empty(h)
-        HAND h;
+int empty(HAND h)
 {
 	register int i;
 
@@ -99,8 +96,7 @@ int empty(h)
 	return(i);
 }
 
-int mark(hand, cd)
-        HAND hand;
+int mark(HAND hand, int cd)
 {
 	if (cd != NOMORE) {
 		++hand[cd];
@@ -111,8 +107,7 @@ int mark(hand, cd)
 	return(cd);
 }
 
-void deal(hand, n)
-        HAND hand;
+void deal(HAND hand, int n)
 {
 	while(n--) {
 		if (mark(hand, draw()) == NOMORE)
@@ -165,8 +160,7 @@ void stats()
 	printf("You ask me for: ");
 }
 
-void phand(h)
-        HAND h;
+void phand(HAND h)
 {
 	register int i, j;
 
@@ -231,8 +225,7 @@ void instruct()
 	}
 }
 
-void start(h)
-        HAND h;
+void start(HAND h)
 {
 	;
 }
@@ -267,25 +260,24 @@ void score()
 	exit(0);
 }
 
-void heguessed(d)
+void heguessed(int d)
 {
 	++hehas[d];
 }
 
-void madebook(x)
+void madebook(int x)
 {
 	printf("Made a book of %s's\n", cname[x]);
 }
 
-void hedrew(d)
+void hedrew(int d)
 {
 	++hehas[d];
 }
 
 /* reflect the effect of a move on the hands */
 
-int move(hs, ht, g, v)
-        HAND hs, ht;
+int move(HAND hs, HAND ht, int g, int v)
 {
 	/* hand hs has made a guess, g, directed towards ht */
 	/* v on indicates that the guess was made by the machine */
@@ -530,8 +522,7 @@ void game()
 	}
 }
 
-int main(argc, argv)
-        char * argv[];
+int main(int argc, char *argv[])
 {
 	/* initialize shuffling, ask for instructions, play game, die */
 	register int c;

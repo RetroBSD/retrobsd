@@ -57,9 +57,7 @@ static int	cg[5];				/* candidate finish position */
 static int	race;				/* game reduced to a race */
 
 static int
-bcomp (a, b)
-        struct BOARD	*a;
-        struct BOARD	*b;
+bcomp (struct BOARD *a, struct BOARD *b)
 {
 	register int	*aloc = a->b_board;	/* pointer to board a */
 	register int	*bloc = b->b_board;	/* pointer to board b */
@@ -75,9 +73,7 @@ bcomp (a, b)
 }
 
 static void
-mvcheck (incumbent, candidate)
-        register struct BOARD 	*incumbent;
-        register struct BOARD 	*candidate;
+mvcheck (struct BOARD *incumbent, struct BOARD *candidate)
 {
 	register int	i;
 	register int	result;
@@ -98,16 +94,14 @@ mvcheck (incumbent, candidate)
 }
 
 static void
-makefree (dead)
-        struct BOARD	*dead;			/* dead position */
+makefree (struct BOARD *dead)                   /* dead position */
 {
 	dead->b_next = freeq;			/* add to freeq */
 	freeq = dead;
 }
 
 static void
-binsert (new)
-        struct BOARD	*new;				/* item to insert */
+binsert (struct BOARD *new)                     /* item to insert */
 {
 	register struct BOARD	*p = checkq;		/* queue pointer */
 	register int		result;			/* comparison result */
@@ -150,9 +144,8 @@ binsert (new)
 }
 
 static void
-trymove (mvnum, swapped)
-        register int	mvnum;				/* number of move (rel zero) */
-        int		swapped;			/* see if swapped also tested */
+trymove (int mvnum,                             /* number of move (rel zero) */
+         int swapped)                           /* see if swapped also tested */
 {
 	register int	pos;			/* position on board */
 	register int	rval;			/* value of roll */
@@ -205,8 +198,7 @@ trymove (mvnum, swapped)
 }
 
 static void
-brcopy (s)
-        register struct BOARD	*s;		/* game situation */
+brcopy (struct BOARD *s)                        /* game situation */
 {
 	register int	i;			/* index */
 
@@ -320,9 +312,10 @@ movcmp ()
 	if (!race)  {
 		ch = op = pt = 0;
 		for (i = 1; i < 25; i++)  {
-			if (board[i] == cturn)
-				ch = canhit (i,1);
-				op += abs (bar-i);
+			if (board[i] == cturn) {
+				ch = canhit (i, 1);
+                        }
+			op += abs (bar-i);
 		}
 		for (i = bar+cturn; i != home; i += cturn)
 			if (board[i]*cturn > 1)
@@ -405,8 +398,7 @@ pickmove ()
 }
 
 void
-move (okay)
-        int	okay;				/* zero if first move */
+move (int okay)                         /* zero if first move */
 {
 	register int	i;		/* index */
 	register int	l = 0;		/* last man */

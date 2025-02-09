@@ -65,7 +65,7 @@ struct quad		/* definition for each quadrant */
 extern char	*Systemname[NINHAB];
 
 /* quadrant definition */
-struct quad	Quad[NQUADS][NQUADS];
+extern struct quad Quad[NQUADS][NQUADS];
 
 /* defines for sector map  (below) */
 # define	EMPTY		'.'
@@ -78,7 +78,7 @@ struct quad	Quad[NQUADS][NQUADS];
 # define	HOLE		' '
 
 /* current sector map */
-char	Sect[NSECTS][NSECTS];
+extern char Sect[NSECTS][NSECTS];
 
 
 /************************ DEVICES ******************************/
@@ -108,7 +108,7 @@ struct device
 	char	*person;	/* the person who fixes it */
 };
 
-struct device	Device[NDEV];
+extern struct device Device[NDEV];
 
 /***************************  EVENTS  ****************************/
 
@@ -136,6 +136,7 @@ struct event
 	char	evcode;			/* event type */
 	char	systemname;		/* starsystem name */
 };
+
 /* systemname conventions:
  *	1 -> NINHAB	index into Systemname table for reported distress calls
  *
@@ -148,7 +149,7 @@ struct event
 
 # define	MAXEVENTS	25	/* max number of concurrently pending events */
 
-struct event	Event[MAXEVENTS];	/* dynamic event list; one entry per pending event */
+extern struct event Event[MAXEVENTS];	/* dynamic event list; one entry per pending event */
 
 /*****************************  KLINGONS  *******************************/
 
@@ -193,7 +194,7 @@ struct xy
 
 
 /* information regarding the state of the starship */
-struct
+struct ship
 {
 	double	warp;		/* warp factor */
 	double	warp2;		/* warp factor squared */
@@ -216,12 +217,13 @@ struct
 	char	*shipname;	/* name of current starship */
 	char	ship;		/* current starship */
 	int	distressed;	/* number of distress calls */
-}	Ship;
+};
+extern struct ship Ship;
 
 /* sinsbad is set if SINS is working but not calibrated */
 
 /* game related information, mostly scoring */
-struct
+struct game
 {
 	int	killk;		/* number of klingons killed */
 	int	deaths;		/* number of deaths onboard Enterprise */
@@ -237,10 +239,11 @@ struct
 	char	snap;		/* set if snapshot taken */
 	char	helps;		/* number of help calls */
 	int	captives;	/* total number of captives taken */
-}	Game;
+};
+extern struct game Game;
 
 /* per move information */
-struct
+struct move
 {
 	char	free;		/* set if a move is free */
 	char	endgame;	/* end of game flag */
@@ -248,10 +251,11 @@ struct
 	char	newquad;	/* set if just entered this quadrant */
 	char	resting;	/* set if this move is a rest */
 	double	time;		/* time used this move */
-}	Move;
+};
+extern struct move Move;
 
 /* parametric information */
-struct
+struct param
 {
 	char	bases;		/* number of starbases */
 	char	klings;		/* number of klingons */
@@ -282,12 +286,13 @@ struct
 	int	klingcrew;	/* number of Klingons in a crew */
 	double	srndrprob;	/* surrender probability */
 	int	energylow;	/* low energy mark (cond YELLOW) */
-}	Param;
+};
+extern struct param Param;
 
 /* Sum of damage probabilities must add to 1000 */
 
 /* other information kept in a snapshot */
-struct
+struct now
 {
 	char	bases;		/* number of starbases */
 	char	klings;		/* number of klingons */
@@ -297,10 +302,11 @@ struct
 	char	distressed;	/* number of currently distressed quadrants */
 	struct event	*eventptr[NEVENTS];	/* pointer to event structs */
 	struct xy	base[MAXBASES];		/* locations of starbases */
-}	Now;
+};
+extern struct now Now;
 
 /* Other stuff, not dumped in a snapshot */
-struct
+struct etc
 {
 	struct kling	klingon[MAXKLQUAD];	/* sorted Klingon list */
 	char		nkling;			/* number of Klingons in this sector */
@@ -309,7 +315,8 @@ struct
 	struct xy	starbase;	/* starbase in current quadrant */
 	char		snapshot[sizeof Quad + sizeof Event + sizeof Now];	/* snapshot for time warp */
 	char		statreport;		/* set to get a status report on a srscan */
-}	Etc;
+};
+extern struct etc Etc;
 
 /*
  *	eventptr is a pointer to the event[] entry of the last
@@ -343,7 +350,7 @@ struct
 
 /* Trace info */
 # define	xTRACE		1
-int	Trace;
+extern int Trace;
 
 struct event *schedule(int type, double offset, int x, int y, int z);
 struct event * xsched(int ev1, int factor, int x, int y, int z);

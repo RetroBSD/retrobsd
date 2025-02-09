@@ -796,9 +796,7 @@ const struct font_t font[] = {
 /*
  * Draw a symbol
  */
-int setchar (linep, glyph)
-        char *linep;
-        char glyph[7];
+int setchar (char *linep, const char glyph[7])
 {
         register int mask, w, c, morebits;
 
@@ -828,9 +826,7 @@ int setchar (linep, glyph)
         return w;
 }
 
-int main (argc, argv)
-        int argc;
-        char **argv;
+int main (int argc, char **argv)
 {
         int i, j;
 

@@ -120,23 +120,3 @@ and a USB cable to install a kernel:
 ```shell
 $ pic32prog sys/pic32/starter-kit/unix.hex
 ```
-
-
-## Simulator
-
-You can use a MIPS32 simulator to develop a debug a RetroBSD software,
-without a need for hardware board.  By default, a simulator is configured
-to imitate a Max32 board.  To build it:
-
-```shell
-$ cd tools/virtualmips
-$ make
-```
-
-Run it:
-
-```shell
-$ ./pic32
-```
-
-Configuration of simulated board is stored in file `pic32_max32.conf`.

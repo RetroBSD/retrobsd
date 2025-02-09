@@ -121,9 +121,7 @@ static char *blptcl(char *str);
  *		SUCCESS - ok
  *		FAIL - failed
  */
-int cntrl(role, wkpre)
-int role;
-char *wkpre;
+int cntrl(int role, char *wkpre)
 {
 	char msg[BUFSIZ], rqstr[BUFSIZ];
 	register FILE *fp;
@@ -695,8 +693,7 @@ int wmesg(char m, char *s)
  *
  *	return codes:  none
  */
-void notify(mailopt, user, file, sys, msgcode)
-char *user, *file, *sys, *msgcode;
+void notify(int mailopt, char *user, char *file, char *sys, char *msgcode)
 {
 	char str[BUFSIZ];
 	int i;
@@ -723,8 +720,7 @@ char *user, *file, *sys, *msgcode;
  *
  *	return code - none
  */
-void lnotify(user, file, mesg)
-char *user, *file, *mesg;
+void lnotify(char *user, char *file, char *mesg)
 {
 	char mbuf[200];
 	sprintf(mbuf, "file %s!%s -- %s\n", Myname, file, mesg);
@@ -740,8 +736,7 @@ char *user, *file, *mesg;
  *		SUCCESS - successful protocol selection
  *		FAIL - can't find common or open failed
  */
-int startup(role)
-int role;
+int startup(int role)
 {
 	char msg[BUFSIZ], str[MAXFULLNAME];
 
@@ -783,8 +778,7 @@ int role;
  *		any character  -  the chosen protocol
  */
 char
-fptcl(str)
-register char *str;
+fptcl(char *str)
 {
 	register struct Proto *p;
 	extern char LineType[];
@@ -812,8 +806,7 @@ register char *str;
  *	build a string of the letters of the available protocols
  */
 char *
-blptcl(str)
-register char *str;
+blptcl(char *str)
 {
 	register struct Proto *p;
 	register char *s;
@@ -834,8 +827,7 @@ register char *str;
  *		FAIL - no find or failed to open
  *
  */
-int stptcl(c)
-register char *c;
+int stptcl(char *c)
 {
 	register struct Proto *p;
 
@@ -863,8 +855,7 @@ register char *c;
  *
  *	return code  SUCCESS | FAIL
  */
-int putinpub(file, tmp, user)
-register char *file, *tmp, *user;
+int putinpub(char *file, char *tmp, char *user)
 {
 	char fullname[MAXFULLNAME];
 	int status;
@@ -889,8 +880,7 @@ register char *file, *tmp, *user;
  *
  *	return code - none
  */
-void unlinkdf(file)
-register char *file;
+void unlinkdf(char *file)
 {
 	if (strlen(file) > 6)
 		unlink(subfile(file));
@@ -902,8 +892,7 @@ register char *file;
  *
  *	return code - none
  */
-void arrived(opt, file, nuser, rmtsys, rmtuser)
-char *file, *nuser, *rmtsys, *rmtuser;
+void arrived(int opt, char *file, char *nuser, char *rmtsys, char *rmtuser)
 {
 	char mbuf[200];
 

@@ -8,95 +8,79 @@
 void rmfunctmp(void);
 
 /* ========     error handling  ======== */
-void
-failed(s1, s2)
-char    *s1, *s2;
+void failed(s1, s2) char *s1, *s2;
 {
-	prp();
-	prs_cntl(s1);
-	if (s2)
-	{
-		prs(colon);
-		prs(s2);
-	}
-	newline();
-	exitsh(ERROR);
+    prp();
+    prs_cntl(s1);
+    if (s2) {
+        prs(colon);
+        prs(s2);
+    }
+    newline();
+    exitsh(ERROR);
 }
 
-void
-error(s)
-char    *s;
+void error(s) char *s;
 {
-	failed(s, NIL);
+    failed(s, NIL);
 }
 
-void
-exitsh(xno)
-int     xno;
+void exitsh(xno) int xno;
 {
-	/*
-	 * Arrive here from `FATAL' errors
-	 *  a) exit command,
-	 *  b) default trap,
-	 *  c) fault with no trap set.
-	 *
-	 * Action is to return to command level or exit.
-	 */
-	exitval = xno;
-	flags |= eflag;
-	if ((flags & (forked | errflg | ttyflg)) != ttyflg)
-		done();
-	else
-	{
-		clearup();
-		restore(0);
-		clear_buff();
-		execbrk = breakcnt = funcnt = 0;
-		longjmp(errshell, 1);
-	}
+    /*
+     * Arrive here from `FATAL' errors
+     *  a) exit command,
+     *  b) default trap,
+     *  c) fault with no trap set.
+     *
+     * Action is to return to command level or exit.
+     */
+    exitval = xno;
+    flags |= eflag;
+    if ((flags & (forked | errflg | ttyflg)) != ttyflg)
+        done();
+    else {
+        clearup();
+        restore(0);
+        clear_buff();
+        execbrk = breakcnt = funcnt = 0;
+        longjmp(errshell, 1);
+    }
 }
 
-void
-done()
+void done()
 {
-	register char   *t;
+    register char *t;
 
-	if ((t = trapcom[0]))
-	{
-		trapcom[0] = NIL;
-		execexp(t, 0);
-		free(t);
-	}
-	else
-		chktrap();
+    if ((t = trapcom[0])) {
+        trapcom[0] = NIL;
+        execexp(t, 0);
+        free(t);
+    } else
+        chktrap();
 
-	rmtemp(NIL);
-	rmfunctmp();
+    rmtemp(NIL);
+    rmfunctmp();
 
 #ifdef ACCOUNT
-	doacct();
+    doacct();
 #endif
-	exit(exitval);
+    exit(exitval);
 }
 
-void
-rmtemp(base)
-struct ionod    *base;
+void rmtemp(base) struct ionod *base;
 {
-	while (iotemp > base)
-	{
-		unlink(iotemp->ioname);
-		free(iotemp->iolink);
-		iotemp = iotemp->iolst;
-	}
+    while (iotemp > base) {
+        unlink(iotemp->ioname);
+        free(iotemp->iolink);
+        iotemp = iotemp->iolst;
+    }
 }
 
-void
-rmfunctmp()
+void rmfunctmp()
 {
-	while (fiotemp)
-	{
-		unlink(fiotemp->ioname);
-		fiotemp = fiotemp->iolst;
-	}
+    while (fiotemp) {
+        unlink(fiotemp->ioname);
+        fiotemp = fiotemp->iolst;
+    }
 }

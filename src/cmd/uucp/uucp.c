@@ -31,8 +31,7 @@ static void clscfile(void);
 static void chsys(char *s1);
 static void xuux(char *ename, char *s1, char *f1, char *s2, char *f2, char *opts);
 
-int main(argc, argv)
-char *argv[];
+int main(int argc, char *argv[])
 {
 	int ret;
 	char *sysfile1, *sysfl2;
@@ -184,8 +183,7 @@ char *argv[];
 	cleanup(0);
 }
 
-void cleanup(code)
-int code;
+void cleanup(int code)
 {
 	logcls();
 	rmlock(CNULL);
@@ -199,8 +197,7 @@ int code;
  *
  *	return codes 0  |  FAIL
  */
-int copy(s1, f1, s2, f2)
-register char *s1, *f1, *s2, *f2;
+int copy(char *s1, char *f1, char *s2, char *f2)
 {
 	int type, statret;
 	struct stat stbuf, stbuf1;
@@ -368,8 +365,7 @@ register char *s1, *f1, *s2, *f2;
  *
  *	return code - none
  */
-void xuux(ename, s1, f1, s2, f2, opts)
-char *ename, *s1, *s2, *f1, *f2, *opts;
+void xuux(char *ename, char *s1, char *f1, char *s2, char *f2, char *opts)
 {
 	char cmd[200];
 
@@ -395,8 +391,7 @@ char Cfile[NAMESIZE];
  *	return an open file descriptor
  */
 FILE *
-gtcfile(sys)
-register char *sys;
+gtcfile(char *sys)
 {
 	static char presys[8] = "";
 	static int cmdcount = 0;
@@ -443,8 +438,7 @@ void clscfile()
 /*
  * compile a list of all systems we are referencing
  */
-void chsys(s1)
-register char *s1;
+void chsys(char *s1)
 {
 	if (xsflag < 0)
 		xsflag = 0;

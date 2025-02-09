@@ -39,7 +39,10 @@ typedef struct val {	/* general value during processing */
 	struct val	*nextval;	/* ptr to next if chained */
 } cell;
 extern cell *symtab[];
-cell	*setsymtab(), *lookup(), **makesymtab();
+
+cell *setsymtab(char *n, char *s, awkfloat f, unsigned t, cell **tab);
+cell *lookup(char *s, cell **tab, int flag);
+cell **makesymtab(void);
 
 extern cell	*recloc;	/* location of input record */
 extern cell	*nrloc;		/* NR */
@@ -51,9 +54,12 @@ extern cell	*nfloc;		/* NF */
 #define	CON	010	/* this is a constant */
 #define	ARR	020	/* this is an array */
 
-awkfloat setfval(), getfval();
-char	*setsval(), *getsval();
-char	*tostring(), *tokname();
+awkfloat setfval(cell *vp, awkfloat f);
+awkfloat getfval(cell *vp);
+char *setsval(cell *vp, char *s);
+char *getsval(cell *vp);
+char *tostring(char *s);
+char *tokname(int n);
 
 /* function types */
 #define	FLENGTH	1
@@ -147,3 +153,7 @@ int member(char c, char *s);
 void fldbld(void);
 void freesymtab(cell *ap);
 int match(struct fa *pfa, char *p);
+obj execute(node *u);
+obj nodetoobj(node *a);
+obj dopa2(node **a, int n);
+obj gettemp(void);

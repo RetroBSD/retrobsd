@@ -16,8 +16,7 @@ static void cal(int m, int y, char *p, int w);
 static void pstr(char *str, int n);
 static int jan1(int yr);
 
-int main(argc, argv)
-char *argv[];
+int main(int argc, char *argv[])
 {
     int y, i, j, m;
 
@@ -74,8 +73,7 @@ badarg:
     printf("Bad argument\n");
 }
 
-int number(str)
-char *str;
+int number(char *str)
 {
     int n, c;
     char *s;
@@ -90,8 +88,7 @@ char *str;
     return(n);
 }
 
-void pstr(str, n)
-char *str;
+void pstr(char *str, int n)
 {
     int i;
     char *s;
@@ -116,8 +113,7 @@ char    mon[] = {
     30, 31, 30, 31,
 };
 
-void cal(m, y, p, w)
-char *p;
+void cal(int m, int y, char *p, int w)
 {
     int d, i;
     char *s;
@@ -175,7 +171,7 @@ char *p;
  *  return day of the week
  *  of jan 1 of given year
  */
-int jan1(yr)
+int jan1(int yr)
 {
     int y, d;
 

@@ -53,9 +53,7 @@ static void stagen(void);
 static void summary(void);
 static void others(void);
 
-int main(argc, argv)
-int argc;
-char *argv[];
+int main(int argc, char *argv[])
 {
     setup(argc, argv); /* initialize and read productions */
     tbitset = NWORDS(ntokens);
@@ -130,8 +128,7 @@ void others()
     fclose(ftable);
 }
 
-char *chcopy(p, q)
-register char *p, *q;
+char *chcopy(char *p, char *q)
 {
     /* copies string q into p, returning next free char ptr */
     while ((*p = *q++))
@@ -144,8 +141,7 @@ register char *p, *q;
 /*
  * creates output string for item pointed to by pp
  */
-char *writem(pp)
-int *pp;
+char *writem(int *pp)
 {
     register int i, *p;
     static char sarr[ISIZE];
@@ -179,7 +175,7 @@ int *pp;
 /*
  * return a pointer to the name of symbol i
  */
-char *symnam(i)
+char *symnam(int i)
 {
     register char *cp;
 
@@ -260,15 +256,14 @@ void error(char *fmt, ...)
 /*
  * set elements 0 through n-1 to c
  */
-void aryfil(v, n, c) int *v, n, c;
+void aryfil(int *v, int n, int c)
 {
     register int i;
     for (i = 0; i < n; ++i)
         v[i] = c;
 }
 
-int setunion(a, b)
-register int *a, *b;
+int setunion(int *a, int *b)
 {
     /* set a to the union of a and b */
     /* return 1 if b is not a subset of a, 0 otherwise */
@@ -284,7 +279,7 @@ register int *a, *b;
     return (sub);
 }
 
-void prlook(p) struct looksets *p;
+void prlook(struct looksets *p)
 {
     register int j, *pp;
 
@@ -397,7 +392,7 @@ void cpfir()
 /*
  * sorts last state,and sees if it equals earlier ones. returns state number
  */
-int state(c)
+int state(int c)
 {
     int size1, size2;
     register int i;
@@ -473,8 +468,7 @@ int state(c)
 
 int pidebug = 0; /* debugging flag for putitem */
 
-void putitem(ptr, lptr) int *ptr;
-struct looksets *lptr;
+void putitem(int *ptr, struct looksets *lptr)
 {
     register struct item *j;
 
@@ -656,7 +650,7 @@ int cldebug = 0; /* debugging flag for closure */
 /*
  * generate the closure of state i
  */
-void closure(i)
+void closure(int i)
 {
     int c, ch, work, k;
     register struct wset *u, *v;
@@ -771,8 +765,7 @@ void closure(i)
     }
 }
 
-struct looksets *flset(p)
-struct looksets *p;
+struct looksets *flset(struct looksets *p)
 {
     /* decide if the lookahead set pointed to by p is known */
     /* return pointer to a perminent location for the set */

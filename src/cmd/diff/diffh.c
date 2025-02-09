@@ -29,8 +29,7 @@ void change(long a, int b, long c, int d, char *s);
 void range(long a, int b);
 
 	/* return pointer to line n of file f*/
-char *getl(f,n)
-long n;
+char *getl(int f, long n)
 {
 	register char *t;
 	register int delta, nt;
@@ -65,8 +64,7 @@ again:
 
 	/*remove thru line n of file f from storage*/
 void
-clrl(f,n)
-long n;
+clrl(int f, long n)
 {
 	register int i,j;
 	j = n-lineno[f]+1;
@@ -77,16 +75,14 @@ long n;
 }
 
 void
-movstr(s,t)
-register char *s, *t;
+movstr(char *s, char *t)
 {
 	while ((*t++ = *s++))
 		continue;
 }
 
 int
-main(argc,argv)
-char **argv;
+main(int argc, char **argv)
 {
 	char *s0,*s1;
 	FILE *dopen();
@@ -161,7 +157,7 @@ cont2:			;
 }
 
 int
-output(a,b)
+output(int a, int b)
 {
 	register int i;
 	char *s;
@@ -193,9 +189,7 @@ output(a,b)
 }
 
 void
-change(a,b,c,d,s)
-long a,c;
-char *s;
+change(long a, int b, long c, int d, char *s)
 {
 	range(a,b);
 	printf("%s",s);
@@ -204,8 +198,7 @@ char *s;
 }
 
 void
-range(a,b)
-long a;
+range(long a, int b)
 {
 	if(b==INF)
 		printf("%ld,$",a);
@@ -216,8 +209,7 @@ long a;
 }
 
 int
-cmp(s,t)
-char *s,*t;
+cmp(char *s, char *t)
 {
 	if(debug)
 		printf("%s:%s\n",s,t);
@@ -234,8 +226,7 @@ char *s,*t;
 	return(*s-*t);
 }
 
-FILE *dopen(f1,f2)
-char *f1,*f2;
+FILE *dopen(char *f1, char *f2)
 {
 	FILE *f;
 	char b[100],*bptr,*eptr;
@@ -264,15 +255,13 @@ char *f1,*f2;
 }
 
 void
-progerr(s)
-char *s;
+progerr(char *s)
 {
 	error("program error ",s);
 }
 
 void
-error(s,t)
-char *s,*t;
+error(char *s, char *t)
 {
 	fprintf(stderr,"diffh: %s%s\n",s,t);
 	exit(2);

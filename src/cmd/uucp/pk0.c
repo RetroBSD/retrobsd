@@ -24,8 +24,7 @@ static int pksize(int n);
 /*
  * receive control messages
  */
-void pkcntl(c, pk)
-register struct pack *pk;
+void pkcntl(int c, struct pack *pk)
 {
 	register int cntl, val;
 
@@ -108,8 +107,7 @@ register struct pack *pk;
 		pkoutput(pk);
 }
 
-int pkaccept(pk)
-register struct pack *pk;
+int pkaccept(struct pack *pk)
 {
 	register int x, seq;
 	char m, cntl, *p, imask, **bp;
@@ -229,10 +227,7 @@ free:
 }
 
 /*ARGSUSED*/
-int pkread(pk, ibuf, icount)
-register struct pack *pk;
-char *ibuf;
-int icount;
+int pkread(struct pack *pk, char *ibuf, int icount)
 {
 	register int x;
 	int is, cc, xfr, count;
@@ -292,10 +287,7 @@ int icount;
 }
 
 /*ARGSUSED*/
-int pkwrite(pk, ibuf, icount)
-register struct pack *pk;
-char *ibuf;
-int icount;
+int pkwrite(struct pack *pk, char *ibuf, int icount)
 {
 	register int x;
 	int partial;
@@ -348,8 +340,7 @@ int icount;
 	return count;
 }
 
-int pksack(pk)
-register struct pack *pk;
+int pksack(struct pack *pk)
 {
 	register int x, i;
 
@@ -368,8 +359,7 @@ register struct pack *pk;
 	return i;
 }
 
-void pkoutput(pk)
-register struct pack *pk;
+void pkoutput(struct pack *pk)
 {
 	register int x;
 	int i;
@@ -475,8 +465,7 @@ out:
  *	releasing space and turning off line discipline
  */
 /*ARGSUSED*/
-void pkclose(pk)
-register struct pack *pk;
+void pkclose(struct pack *pk)
 {
 	register int i;
 	char **bp;
@@ -542,25 +531,21 @@ register struct pack *pk;
 	free((char *)pk);
 }
 
-void pkreset(pk)
-register struct pack *pk;
+void pkreset(struct pack *pk)
 {
 	pk->p_ps = pk->p_pr =  pk->p_rpr = 0;
 	pk->p_nxtps = 1;
 }
 
 #ifndef BSD4_2
-void bzero(s,n)
-register char *s;
-register int n;
+void bzero(char *s, int n)
 {
 	while (n--)
 		*s++ = 0;
 }
 #endif
 
-int pksize(n)
-register int n;
+int pksize(int n)
 {
 	register int k;
 

@@ -8,8 +8,7 @@
 /*
  *	print out assetion error
  */
-void assert(s1, s2, i1)
-char *s1, *s2;
+void assert(char *s1, char *s2, int i1)
 {
 	register FILE *errlog;
 	register struct tm *tp;

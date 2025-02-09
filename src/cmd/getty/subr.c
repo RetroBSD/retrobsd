@@ -18,8 +18,7 @@ extern	struct ltchars ltc;
 /*
  * Get a table entry.
  */
-void gettable(name, buf, area)
-	char *name, *buf, *area;
+void gettable(char *name, char *buf, char *area)
 {
 	register struct gettystrs *sp;
 	register struct gettynums *np;
@@ -118,7 +117,7 @@ void setchars()
 }
 
 long
-setflags(n)
+setflags(int n)
 {
 	register long f;
 
@@ -181,8 +180,7 @@ setflags(n)
 
 char	editedhost[32];
 
-void edithost(pat)
-	register char *pat;
+void edithost(char *pat)
 {
 	register char *host = HN;
 	register char *res = editedhost;
@@ -255,8 +253,7 @@ struct speedtab {
 	0
 };
 
-int speed(val)
-	long val;
+int speed(long val)
 {
 	register struct speedtab *sp;
 
@@ -270,8 +267,7 @@ int speed(val)
 	return (B300);		/* default in impossible cases */
 }
 
-void makeenv(env)
-	char *env[];
+void makeenv(char *env[])
 {
 	static char termbuf[128] = "TERM=";
 	register char *p, *q;

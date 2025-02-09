@@ -111,7 +111,7 @@ int Twostop;		/* Use two stop bits */
 /*
  *  Return non 0 iff something to read from io descriptor f
  */
-int rdchk(f)
+int rdchk(int f)
 {
 	static long lf;
 
@@ -134,7 +134,7 @@ int checked = 0;
  */
 #define EATSIT
 
-int rdchk(f)
+int rdchk(int f)
 {
 	int lf, savestat;
 	static char bchecked;
@@ -151,7 +151,7 @@ int rdchk(f)
 #endif
 
 static unsigned
-getspeed(code)
+getspeed(int code)
 {
 	int n;
 
@@ -175,7 +175,7 @@ struct tchars oldtch, tch;
  *  1: save old tty stat, set raw mode
  *  0: restore original tty mode
  */
-int mode(n)
+int mode(int n)
 {
 	static int did0 = FALSE;
 

@@ -309,8 +309,7 @@ copytemp()
 }
 
 char *
-splice(dir, file)
-	char *dir, *file;
+splice(char *dir, char *file)
 {
 	char *tail;
 	char buf[BUFSIZ];
@@ -329,9 +328,7 @@ splice(dir, file)
 }
 
 void
-prepare(i, fd)
-	int i;
-	FILE *fd;
+prepare(int i, FILE *fd)
 {
 	register struct line *p;
 	register int j, h;
@@ -365,9 +362,7 @@ prune()
 }
 
 void
-equiv(a,n,b,m,c)
-struct line *a, *b;
-int *c;
+equiv(struct line *a, int n, struct line *b, int m, int *c)
 {
 	register int i, j;
 	i = j = 1;
@@ -394,10 +389,7 @@ int *c;
 }
 
 int
-stone(a,n,b,c)
-int *a;
-int *b;
-register int *c;
+stone(int *a, int n, int *b, int *c)
 {
 	register int i, k,y;
 	int j, l;
@@ -436,7 +428,7 @@ register int *c;
 }
 
 int
-newcand(x,y,pred)
+newcand(int x, int y, int pred)
 {
 	register struct cand *q;
 	clist = (struct cand *)ralloc((char *)clist,++clen*sizeof(cand));
@@ -448,8 +440,7 @@ newcand(x,y,pred)
 }
 
 int
-search(c, k, y)
-int *c;
+search(int *c, int k, int y)
 {
 	register int i, j, l;
 	int t;
@@ -473,7 +464,7 @@ int *c;
 }
 
 void
-unravel(p)
+unravel(int p)
 {
 	register int i;
 	register struct cand *q;
@@ -591,8 +582,7 @@ check()
 }
 
 void
-sort(a,n)	/*shellsort CACM #201*/
-struct line *a;
+sort(struct line *a, int n)	/*shellsort CACM #201*/
 {
 	struct line w;
 	register int j,m;
@@ -627,9 +617,7 @@ struct line *a;
 }
 
 void
-unsort(f, l, b)
-struct line *f;
-int *b;
+unsort(struct line *f, int l, int *b)
 {
 	register int *a;
 	register int i;
@@ -642,7 +630,7 @@ int *b;
 }
 
 int
-skipline(f)
+skipline(int f)
 {
 	register int i, c;
 
@@ -721,7 +709,7 @@ struct	context_vec	*context_vec_start,
    If c is greater than d then there are lines missing from the to file.
 */
 void
-change(a,b,c,d)
+change(int a, int b, int c, int d)
 {
 	int ch;
 	int lowa,upb,lowc,upd;
@@ -812,8 +800,7 @@ change(a,b,c,d)
 }
 
 void
-range(a,b,separator)
-char *separator;
+range(int a, int b, char *separator)
 {
 	printf("%d", a>b?b:a);
 	if(a<b) {
@@ -822,10 +809,7 @@ char *separator;
 }
 
 void
-fetch(f,a,b,lb,s,oldfile)
-long *f;
-FILE *lb;
-char *s;
+fetch(long *f, int a, int b, FILE *lb, char *s, int oldfile)
 {
 	register int i, j;
 	register int c;
@@ -902,8 +886,7 @@ char *s;
  * summing 1-s complement in 16-bit hunks
  */
 int
-readhash(f)
-register FILE *f;
+readhash(FILE *f)
 {
 	register long sum;
 	register unsigned shift;
@@ -970,8 +953,7 @@ register FILE *f;
 #include <a.out.h>
 
 int
-asciifile(f)
-	FILE *f;
+asciifile(FILE *f)
 {
 	char buf[BUFSIZ];
 	register int cnt;

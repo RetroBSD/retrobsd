@@ -108,9 +108,7 @@ int mygetgid(char *groupname);
  */
 //#define	AMES	1
 
-int main(argc, argv)
-	int argc;
-	char *argv[];
+int main(int argc, char *argv[])
 {
 	struct anode *exlist;
 	int paths;
@@ -184,7 +182,8 @@ usage:		fprintf(stderr, "Usage: find path-list predicate-list\n");
 
 /* compile time functions:  priority is  expr()<e1()<e2()<e3()  */
 
-struct anode *expr() { /* parse ALTERNATION (-o)  */
+struct anode *expr() /* parse ALTERNATION (-o)  */
+{
 	register struct anode * p1;
 
 	p1 = e1() /* get left operand */ ;
@@ -336,9 +335,7 @@ err:	fprintf(stderr, "find: bad option < %s >\n", a);
 	exit(1);
 }
 
-struct anode *mk(f, l, r)
-int (*f)(struct anode *);
-struct anode *l, *r;
+struct anode *mk(int (*f)(struct anode *), struct anode *l, struct anode *r)
 {
 	if (Nn >= MAXNODES) {
 		fprintf(stderr, "find: Too many options\n");
@@ -367,106 +364,91 @@ char *nxtarg() { /* get next arg from command line */
 }
 
 /* execution time functions */
-int and(p)
-register struct anode *p;
+int and(struct anode *p)
 {
 	return ((*p->L->F)(p->L)) && ((*p->R->F)(p->R)) ? 1 : 0;
 }
 
-int or(p)
-register struct anode *p;
+int or(struct anode *p)
 {
 	 return ((*p->L->F)(p->L)) || ((*p->R->F)(p->R)) ? 1 : 0;
 }
 
-int not(p)
-register struct anode *p;
+int not(struct anode *p)
 {
 	return !((*p->L->F)(p->L));
 }
 
-int glob(p)
-struct anode *p;
+int glob(struct anode *p)
 {
 	return gmatch(Fname, (char*) p->L);
 }
 
-int print(p)
-struct anode *p;
+int print(struct anode *p)
 {
 	puts(Pathname);
 	return 1;
 }
 
-int mtime(p)
-struct anode *p;
+int mtime(struct anode *p)
 {
         int t = (int) p->L;
         int s = (int) p->R;
 	return scomp((int)((Now - Statb.st_mtime) / A_DAY), t, s);
 }
 
-int atime(p)
-struct anode *p;
+int atime(struct anode *p)
 {
         int t = (int) p->L;
         int s = (int) p->R;
 	return scomp((int)((Now - Statb.st_atime) / A_DAY), t, s);
 }
 
-int user(p)
-struct anode *p;
+int user(struct anode *p)
 {
         int u = (int) p->L;
         int s = (int) p->R;
 	return scomp(Statb.st_uid, u, s);
 }
 
-int nouser(p)
-struct anode *p;
+int nouser(struct anode *p)
 {
 	return (getname(Statb.st_uid) == NULL);
 }
 
-int ino(p)
-struct anode *p;
+int ino(struct anode *p)
 {
         int u = (int) p->L;
         int s = (int) p->R;
 	return scomp((int)Statb.st_ino, u, s);
 }
 
-int group(p)
-struct anode *p;
+int group(struct anode *p)
 {
         int u = (int) p->L;
 	return u == Statb.st_gid;
 }
 
-int nogroup(p)
-struct anode *p;
+int nogroup(struct anode *p)
 {
 	return (getgroup(Statb.st_gid) == NULL);
 }
 
-int links(p)
-struct anode *p;
+int links(struct anode *p)
 {
         int link = (int) p->L;
         int s = (int) p->R;
 	return scomp(Statb.st_nlink, link, s);
 }
 
-int size(p)
-struct anode *p;
+int size(struct anode *p)
 {
         int sz = (int) p->L;
         int s = (int) p->R;
 	return scomp((int)((Statb.st_size + 511) >> 9), sz, s);
 }
 
-int perm(p)
-struct anode *p;
+int perm(struct anode *p)
 {
         int per = (int) p->L;
         int s = (int) p->R;
@@ -475,23 +457,20 @@ struct anode *p;
 	return (Statb.st_mode & i & 07777) == per;
 }
 
-int type(p)
-struct anode *p;
+int type(struct anode *p)
 {
         int per = (int) p->L;
 	return (Statb.st_mode & S_IFMT) == per;
 }
 
-int exeq(p)
-struct anode *p;
+int exeq(struct anode *p)
 {
         int com = (int) p->L;
 	fflush(stdout); /* to flush possible `-print' */
 	return doex(com);
 }
 
-int ok(p)
-struct anode *p;
+int ok(struct anode *p)
 {
         int com = (int) p->L;
 	char c;
@@ -510,9 +489,10 @@ struct anode *p;
 }
 
 #define MKSHORT(v, lv) {U.l=1L;if(U.c[0]) U.l=lv, v[0]=U.s[1], v[1]=U.s[0]; else U.l=lv, v[0]=U.s[0], v[1]=U.s[1];}
+
 union { long l; short s[2]; char c[4]; } U;
-long mklong(v)
-short v[];
+
+long mklong(short v[])
 {
 	U.l = 1;
 	if(U.c[0] /* VAX */)
@@ -580,21 +560,18 @@ cerror:
 	return 1;
 }
 
-int newer(p)
-struct anode *p;
+int newer(struct anode *p)
 {
 	return Statb.st_mtime > Newer;
 }
 
-int ls(p)
-struct anode *p;
+int ls(struct anode *p)
 {
 	list(Pathname, &Statb);
 	return (1);
 }
 
-int dummy(p)
-struct anode *p;
+int dummy(struct anode *p)
 {
 	/* dummy */
 	return (1);
@@ -610,7 +587,7 @@ int scomp(int a, int b, char s) /* funny signed compare */
 	return a == b;
 }
 
-int doex(com)
+int doex(int com)
 {
 	register int np;
 	register char *na;
@@ -661,7 +638,8 @@ int doex(com)
         return 0;
 }
 
-int getunum(f, s) char *f, *s; { /* find user/group name and return number */
+int getunum(char *f, char *s) /* find user/group name and return number */
+{
 	register int i;
 	register char *sp;
 	register int c;
@@ -693,9 +671,7 @@ int getunum(f, s) char *f, *s; { /* find user/group name and return number */
 	return i;
 }
 
-int descend(name, fname, exlist)
-	struct anode *exlist;
-	char *name, *fname;
+int descend(char *name, char *fname, struct anode *exlist)
 {
 	DIR	*dir = NULL;
 	register struct direct	*dp;
@@ -753,16 +729,14 @@ ret:
 	return rv;
 }
 
-int gmatch(s, p) /* string match as in glob */
-register char *s, *p;
+int gmatch(char *s, char *p) /* string match as in glob */
 {
 	if (*s=='.' && *p!='.')
                 return 0;
 	return amatch(s, p);
 }
 
-int amatch(s, p)
-register char *s, *p;
+int amatch(char *s, char *p)
 {
 	register int cc;
 	int scc, k;
@@ -806,8 +780,7 @@ register char *s, *p;
 	return 0;
 }
 
-int umatch(s, p)
-register char *s, *p;
+int umatch(char *s, char *p)
 {
 	if(*p==0)
                 return 1;
@@ -817,9 +790,7 @@ register char *s, *p;
 	return 0;
 }
 
-void bwrite(rp, c)
-register short *rp;
-register int c;
+void bwrite(short *rp, int c)
 {
 	register short *wp = Wp;
 
@@ -841,7 +812,7 @@ again:
 	Wp = wp;
 }
 
-int chgreel(x, fl)
+int chgreel(int x, int fl)
 {
 	register int f;
 	char str[22];
@@ -901,8 +872,7 @@ again:
 #define	OFFSET	14
 #define	ESCCODE	30
 
-void fastfind ( pathpart )
-	char pathpart[];
+void fastfind(char pathpart[])
 {
 	register char *p, *s;
 	register int c;
@@ -962,8 +932,7 @@ void fastfind ( pathpart )
 static char globfree[100];
 
 char *
-patprep ( name )
-	char *name;
+patprep(char *name)
 {
 	register char *p, *endmark;
 	register char *subp = globfree;
@@ -1033,7 +1002,7 @@ int	outrangegid = -1;
  * If this isn't true, duplicate the code for getgroup().
  */
 char *
-getname(uid)
+getname(int uid)
 {
 	register struct passwd *pw;
 	register int cp;
@@ -1056,7 +1025,7 @@ getname(uid)
 }
 
 char *
-getgroup(gid)
+getgroup(int gid)
 {
 	register struct group *gr;
 	static int init;
@@ -1103,8 +1072,7 @@ rescan:
 }
 
 int
-mygetuid(username)
-	char *username;
+mygetuid(char *username)
 {
 	register struct passwd *pw;
 #ifndef	NO_PW_STAYOPEN
@@ -1119,8 +1087,7 @@ mygetuid(username)
 }
 
 int
-mygetgid(groupname)
-	char *groupname;
+mygetgid(char *groupname)
 {
 	register struct group *gr;
 
@@ -1135,9 +1102,7 @@ mygetgid(groupname)
 #define permission(who, type)	((type) >> permoffset(who))
 #define kbytes(bytes)		(((bytes) + 1023) / 1024)
 
-int list(file, stp)
-	char *file;
-	register struct stat *stp;
+int list(char *file, struct stat *stp)
 {
 	char pmode[32], uname[32], gname[32], fsize[32], ftime[32];
 	static long special[] = { S_ISUID, 's', S_ISGID, 's', S_ISVTX, 't' };

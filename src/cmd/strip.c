@@ -18,8 +18,7 @@ struct  exec head;
 int status;
 
 void
-strip(name)
-    char *name;
+strip(char *name)
 {
     register int f;
     long size;
@@ -57,8 +56,7 @@ out:
 }
 
 int
-main(argc, argv)
-    char *argv[];
+main(int argc, char *argv[])
 {
     register int i;
 

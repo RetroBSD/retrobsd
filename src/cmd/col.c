@@ -24,8 +24,7 @@ static void decr(void);
 static void outc(char c);
 static void emit(char *s, int lineno);
 
-int main(argc, argv)
-    int argc; char **argv;
+int main(int argc, char **argv)
 {
     int i;
     int greek;
@@ -208,7 +207,7 @@ void outc(char c)
     }
 }
 
-void store(lno)
+void store(int lno)
 {
     lno %= PL;
     if (page[lno] != 0)
@@ -221,7 +220,7 @@ void store(lno)
     strcpy(page[lno],lbuff);
 }
 
-void fetch(lno)
+void fetch(int lno)
 {
     char *p;
 
@@ -235,9 +234,7 @@ void fetch(lno)
         strcpy(line, page[lno]);
 }
 
-void emit(s, lineno)
-    char *s;
-    int lineno;
+void emit(char *s, int lineno)
 {
     static int cline = 0;
     int ncp;

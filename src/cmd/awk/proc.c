@@ -73,7 +73,7 @@ struct xx
 char *table[SIZE];
 char *names[SIZE];
 
-char *tokname(n)
+char *tokname(int n)
 {
 	if (n<=256 || n >= LASTTOKEN)
 		n = 257;

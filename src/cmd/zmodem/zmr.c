@@ -39,8 +39,7 @@
 
 /* Send data subpacket RLE encoded with 32 bit FCS */
 void
-zsdar32(buf, length, frameend)
-char *buf;
+zsdar32(char *buf, int length, int frameend)
 {
 	register int c, l, n;
 	register UNSL long crc;
@@ -98,8 +97,7 @@ char *buf;
 
 /* Receive data subpacket RLE encoded with 32 bit FCS */
 int
-zrdatr32(buf, length)
-register char *buf;
+zrdatr32(char *buf, int length)
 {
 	register int c;
 	register UNSL long crc;

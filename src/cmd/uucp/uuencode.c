@@ -16,8 +16,7 @@ static void encode(FILE *in, FILE *out);
 static int fr(FILE *fd, char *buf, int cnt);
 static void outdec(char *p, FILE *f);
 
-int main(argc, argv)
-char **argv;
+int main(int argc, char **argv)
 {
 	FILE *in;
 	struct stat sbuf;
@@ -52,9 +51,7 @@ char **argv;
 /*
  * copy from in to out, encoding as you go along.
  */
-void encode(in, out)
-FILE *in;
-FILE *out;
+void encode(FILE *in, FILE *out)
 {
 	char buf[80];
 	int i, n;
@@ -76,9 +73,7 @@ FILE *out;
 /*
  * output one group of 3 bytes, pointed at by p, on file f.
  */
-void outdec(p, f)
-char *p;
-FILE *f;
+void outdec(char *p, FILE *f)
 {
 	int c1, c2, c3, c4;
 
@@ -94,10 +89,7 @@ FILE *f;
 
 /* fr: like read but stdio */
 int
-fr(fd, buf, cnt)
-FILE *fd;
-char *buf;
-int cnt;
+fr(FILE *fd, char *buf, int cnt)
 {
 	int c, i;
 

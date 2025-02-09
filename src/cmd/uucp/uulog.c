@@ -4,8 +4,7 @@
 static char SYSBUF[BUFSIZ];
 #endif
 
-int main(argc, argv)
-char *argv[];
+int main(int argc, char *argv[])
 {
 	FILE *plogf;
 	char *sys, *user;
@@ -83,8 +82,7 @@ char *argv[];
 	exit(0);
 }
 
-void cleanup(code)
-int code;
+void cleanup(int code)
 {
 	exit(code);
 }

@@ -22,7 +22,7 @@ void error(char *s)
     exit(-1);
 }
 
-void newmode(m)
+void newmode(int m)
 {
     if (chmod(tty, m) < 0)
         error("cannot change mode");

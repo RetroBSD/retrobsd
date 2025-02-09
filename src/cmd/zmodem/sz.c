@@ -268,8 +268,7 @@ static int getinsync(int flag);
 
 #ifdef XARGSFILE
 char *
-mystrsave(s)
-char *s;
+mystrsave(char *s)
 {
 	register char *p;
 	char *malloc();
@@ -282,8 +281,7 @@ char *s;
 }
 
 /* Remove (presumably) terminating CR and/or LF from string */
-uncrlf(s)
-register char *s;
+uncrlf(char *s)
 {
 	for ( ; *s; ++s)
 		switch (*s) {
@@ -297,7 +295,7 @@ register char *s;
 
 /* called by signal interrupt or terminate to clean things up */
 void
-bibi(n)
+bibi(int n)
 {
 	canit(); fflush(stdout); mode(0);
 	fprintf(stderr, "sz: caught signal %d; exiting\n", n);
@@ -313,7 +311,7 @@ bibi(n)
 
 /* Called when ZMODEM gets an interrupt (^X) */
 void
-onintr(sig)
+onintr(int sig)
 {
 	signal(SIGINT, SIG_IGN);
 	longjmp(intrjmp, -1);
@@ -333,8 +331,7 @@ char *xargv[XARGSMAX+1];
 #endif
 
 int
-main(argc, argv)
-char *argv[];
+main(int argc, char *argv[])
 {
 	register char *cp;
 	int npats;
@@ -575,8 +572,7 @@ char *argv[];
 }
 
 int
-wcsend(argc, argp)
-char *argp[];
+wcsend(int argc, char *argp[])
 {
 	int n;
 
@@ -618,8 +614,7 @@ char *argp[];
 }
 
 int
-wcs(oname)
-char *oname;
+wcs(char *oname)
 {
 	int c;
 	register char *p, *q;
@@ -728,8 +723,7 @@ char *oname;
  *  N.B.: modifies the passed name, may extend it!
  */
 int
-wctxpn(name)
-char *name;
+wctxpn(char *name)
 {
 	register char *p, *q;
 	char name2[PATHLEN];
@@ -859,8 +853,7 @@ getnak()
 }
 
 int
-wctx(flen)
-long flen;
+wctx(long flen)
 {
 	register int thisblklen;
 	register int sectnum, attempts, firstch;
@@ -908,10 +901,7 @@ long flen;
 }
 
 int
-wcputsec(buf, sectnum, cseclen)
-char *buf;
-int sectnum;
-int cseclen;	/* data length of this sector to send */
+wcputsec(char *buf, int sectnum, int cseclen) /* data length of this sector to send */
 {
 	int checksum, wcj;
 	register char *cp;
@@ -989,8 +979,7 @@ cancan:
 
 /* fill buf with count chars padding with ^Z for CPM */
 int
-filbuf(buf, count)
-register char *buf;
+filbuf(char *buf, int count)
 {
 	int c, m;
 
@@ -1071,9 +1060,7 @@ zfilbuf()
 #ifdef TXBSIZE
 /* Replacement for brain damaged fseek function.  Returns 0==success */
 int
-fooseek(fptr, pos, whence)
-FILE *fptr;
-long pos;
+fooseek(FILE *fptr, long pos, int whence)
 {
 	long m, n;
 #ifdef GENIE
@@ -1174,7 +1161,7 @@ vfile(char *f, ...)
 }
 
 void
-alrm(sig)
+alrm(int sig)
 {
 	longjmp(tohere, -1);
 }
@@ -1186,8 +1173,7 @@ alrm(sig)
  * timeout is in tenths of seconds
  */
 int
-readline(timeout)
-unsigned timeout;
+readline(unsigned timeout)
 {
 	register int c;
 	static char byt[1];
@@ -1271,8 +1257,7 @@ zperr(char *s, ...)
  * returns pointer to token within string if found, NULL otherwise
  */
 char *
-substr(s, t)
-register char *s,*t;
+substr(char *s, char *t)
 {
 	register char *ss,*tt;
 	/* search for first char of token */
@@ -1533,8 +1518,7 @@ sendzsinit()
 
 /* Send file name and related info */
 int
-zsendfile(buf, blen)
-char *buf;
+zsendfile(char *buf, int blen)
 {
 	int c;
 	register UNSL long crc;
@@ -1827,7 +1811,7 @@ gotack:
  * Respond to receiver's complaint, get back in sync with receiver
  */
 int
-getinsync(flag)
+getinsync(int flag)
 {
 	int c;
 
@@ -1898,7 +1882,7 @@ saybibi()
 
 /* Local screen character display function */
 void
-bttyout(c)
+bttyout(int c)
 {
 	if (Verbose)
 		putc(c, stderr);
@@ -1906,8 +1890,7 @@ bttyout(c)
 
 /* Send command and related info */
 int
-zsendcmd(buf, blen)
-char *buf;
+zsendcmd(char *buf, int blen)
 {
 	int c;
 	long cmdnum;
@@ -1968,8 +1951,7 @@ listen:
  * If called as sb use YMODEM protocol
  */
 void
-chkinvok(s)
-char *s;
+chkinvok(char *s)
 {
 	register char *p;
 
@@ -1993,8 +1975,7 @@ char *s;
 
 #ifdef STAT
 void
-countem(argc, argv)
-register char **argv;
+countem(int argc, char **argv)
 {
 	int c;
 	struct stat f;
@@ -2020,8 +2001,7 @@ register char **argv;
 }
 #else
 void
-countem(argc, argv)
-register char **argv;
+countem(int argc, char **argv)
 {
 	int c;
 	register char *p;
@@ -2061,7 +2041,7 @@ register char **argv;
 #endif
 
 void
-chartest(m)
+chartest(int m)
 {
 	int n;
 

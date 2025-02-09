@@ -33,9 +33,7 @@ char	pr[] = PR;
 void noroom(void);
 
 int
-main(argc, argv)
-	int argc;
-	char **argv;
+main(int argc, char **argv)
 {
 	register char *argp;
 
@@ -171,8 +169,7 @@ main(argc, argv)
 }
 
 char *
-savestr(cp)
-	register char *cp;
+savestr(char *cp)
 {
 	register char *dp = malloc(strlen(cp)+1);
 
@@ -185,24 +182,21 @@ savestr(cp)
 }
 
 int
-min(a,b)
-	int a,b;
+min(int a, int b)
 {
 
 	return (a < b ? a : b);
 }
 
 int
-max(a,b)
-	int a,b;
+max(int a, int b)
 {
 
 	return (a > b ? a : b);
 }
 
 void
-done(sig)
-        int sig;
+done(int sig)
 {
 	if (tempfile)
 		unlink(tempfile);
@@ -210,7 +204,7 @@ done(sig)
 }
 
 char *
-talloc(n)
+talloc(int n)
 {
 	register char *p;
 
@@ -221,8 +215,7 @@ talloc(n)
 }
 
 char *
-ralloc(p,n)
-char *p;
+ralloc(char *p, int n)
 {
 	register char *q;
 

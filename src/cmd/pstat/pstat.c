@@ -67,8 +67,7 @@ static void putf(long v, char n);
 static void dottytype(char *name, int type);
 static void ttyprt(struct tty *atp, int line);
 
-int main(argc, argv)
-char **argv;
+int main(int argc, char **argv)
 {
 	register char *argp;
 	int allflags;
@@ -227,8 +226,7 @@ void doinode()
 }
 
 u_int
-getuint(loc)
-	off_t loc;
+getuint(off_t loc)
 {
 	u_int word;
 
@@ -317,8 +315,7 @@ void dotty()
 	dottytype("cn", SKL);
 }
 
-void dottytype(name, type)
-char *name;
+void dottytype(char *name, int type)
 {
 	register struct tty *tp;
 
@@ -329,8 +326,7 @@ char *name;
 	ttyprt(tty, 0);
 }
 
-void ttyprt(atp, line)
-struct tty *atp;
+void ttyprt(struct tty *atp, int line)
 {
 	register struct tty *tp;
 
@@ -478,8 +474,7 @@ void dousr()
 		minor(U.u_ncache.nc_dev));
 }
 
-int oatoi(s)
-char *s;
+int oatoi(char *s)
 {
 	int v;
 

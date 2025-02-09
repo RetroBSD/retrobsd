@@ -112,8 +112,7 @@ getrec()
 }
 
 void
-setclvar(s)	/* set var=value from s */
-char *s;
+setclvar(char *s)	/* set var=value from s */
 {
 	char *p;
 	cell *q;
@@ -212,7 +211,7 @@ recbld()
 	dprintf("recbld = |%s|\n", record, NULL, NULL);
 }
 
-cell *fieldadr(n)
+cell *fieldadr(int n)
 {
 	if (n >= MAXFLD)
 		error(FATAL, "trying to access field %d", n);
@@ -222,16 +221,14 @@ cell *fieldadr(n)
 int	errorflag	= 0;
 
 void
-yyerror(s)
-        char *s;
+yyerror(char *s)
 {
 	fprintf(stderr, "awk: %s near line %d\n", s, lineno);
 	errorflag = 2;
 }
 
 void
-PUTS(s)
-        char *s;
+PUTS(char *s)
 {
 	dprintf("%s\n", s, NULL, NULL);
 }
@@ -239,8 +236,7 @@ PUTS(s)
 #define	MAXEXPON	38	/* maximum exponenet for fp number */
 
 int
-isnumber(s)
-register char *s;
+isnumber(char *s)
 {
 	int d1, d2;
 	int point;
@@ -299,6 +295,3 @@ register char *s;
 	else
 		return(0);
 }
-/*
-isnumber(s) char *s; {return(0);}
-*/

@@ -3,7 +3,7 @@
 #include "awk.def.h"
 #include "awk.h"
 
-node *ALLOC(n)
+node *ALLOC(int n)
 {
 	register node *x;
 	x = (node *) malloc(sizeof(node) + (n-1)*sizeof(node *));
@@ -11,13 +11,16 @@ node *ALLOC(n)
 		error(FATAL, "out of space in ALLOC");
 	return(x);
 }
-node *exptostat(a) node *a;
+
+node *exptostat(node *a)
 {
 	a->ntype = NSTAT;
 	return(a);
 }
+
 node	*nullstat;
-node *node0(a)
+
+node *node0(int a)
 {
 	register node *x;
 	x=ALLOC(0);
@@ -25,7 +28,8 @@ node *node0(a)
 	x->nobj=a;
 	return(x);
 }
-node *node1(a,b) node *b;
+
+node *node1(int a, node *b)
 {
 	register node *x;
 	x=ALLOC(1);
@@ -34,7 +38,8 @@ node *node1(a,b) node *b;
 	x->narg[0]=b;
 	return(x);
 }
-node *node2(a,b,c) node *b, *c;
+
+node *node2(int a, node *b, node *c)
 {
 	register node *x;
 	x = ALLOC(2);
@@ -44,7 +49,8 @@ node *node2(a,b,c) node *b, *c;
 	x->narg[1] = c;
 	return(x);
 }
-node *node3(a,b,c,d) node *b, *c, *d;
+
+node *node3(int a, node *b, node *c, node *d)
 {
 	register node *x;
 	x = ALLOC(3);
@@ -55,7 +61,8 @@ node *node3(a,b,c,d) node *b, *c, *d;
 	x->narg[2] = d;
 	return(x);
 }
-node *node4(a,b,c,d,e) node *b, *c, *d, *e;
+
+node *node4(int a, node *b, node *c, node *d, node *e)
 {
 	register node *x;
 	x = ALLOC(4);
@@ -67,56 +74,64 @@ node *node4(a,b,c,d,e) node *b, *c, *d, *e;
 	x->narg[3] = e;
 	return(x);
 }
-node *stat3(a,b,c,d) node *b, *c, *d;
+
+node *stat3(int a, node *b, node *c, node *d)
 {
 	register node *x;
 	x = node3(a,b,c,d);
 	x->ntype = NSTAT;
 	return(x);
 }
-node *op2(a,b,c) node *b, *c;
+
+node *op2(int a, node *b, node *c)
 {
 	register node *x;
 	x = node2(a,b,c);
 	x->ntype = NEXPR;
 	return(x);
 }
-node *op1(a,b) node *b;
+
+node *op1(int a, node *b)
 {
 	register node *x;
 	x = node1(a,b);
 	x->ntype = NEXPR;
 	return(x);
 }
-node *stat1(a,b) node *b;
+
+node *stat1(int a, node *b)
 {
 	register node *x;
 	x = node1(a,b);
 	x->ntype = NSTAT;
 	return(x);
 }
-node *op3(a,b,c,d) node *b, *c, *d;
+
+node *op3(int a, node *b, node *c, node *d)
 {
 	register node *x;
 	x = node3(a,b,c,d);
 	x->ntype = NEXPR;
 	return(x);
 }
-node *stat2(a,b,c) node *b, *c;
+
+node *stat2(int a, node *b, node *c)
 {
 	register node *x;
 	x = node2(a,b,c);
 	x->ntype = NSTAT;
 	return(x);
 }
-node *stat4(a,b,c,d,e) node *b, *c, *d, *e;
+
+node *stat4(int a, node *b, node *c, node *d, node *e)
 {
 	register node *x;
 	x = node4(a,b,c,d,e);
 	x->ntype = NSTAT;
 	return(x);
 }
-node *valtonode(a, b) cell *a;
+
+node *valtonode(cell *a, int b)
 {
 	register node *x;
 	x = node0((int) a);
@@ -124,14 +139,16 @@ node *valtonode(a, b) cell *a;
 	x->subtype = b;
 	return(x);
 }
-node *pa2stat(a,b,c) node *a, *b, *c;
+
+node *pa2stat(node *a, node *b, node *c)
 {
 	register node *x;
 	x = node3(paircnt++, a, b, c);
 	x->ntype = NPA2;
 	return(x);
 }
-node *linkum(a,b) node *a, *b;
+
+node *linkum(node *a, node *b)
 {
 	register node *c;
 	if(a == NULL) return(b);
@@ -140,6 +157,7 @@ node *linkum(a,b) node *a, *b;
 	c->nnext = b;
 	return(a);
 }
+
 node *genprint()
 {
 	register node *x;

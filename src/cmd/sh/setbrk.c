@@ -5,11 +5,10 @@
  */
 #include "defs.h"
 
-char*
-setbrk(incr)
+char *setbrk(int incr)
 {
-	register char *a = sbrk(incr);
+    register char *a = sbrk(incr);
 
-	brkend = a + incr;
-	return(a);
+    brkend = a + incr;
+    return (a);
 }

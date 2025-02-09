@@ -88,8 +88,7 @@ static void prompt(void);
 
 jmp_buf timeout;
 
-void dingdong(sig)
-        int sig;
+void dingdong(int sig)
 {
 	alarm(0);
 	signal(SIGALRM, SIG_DFL);
@@ -98,15 +97,13 @@ void dingdong(sig)
 
 jmp_buf	intrupt;
 
-void interrupt(sig)
-        int sig;
+void interrupt(int sig)
 {
 	signal(SIGINT, interrupt);
 	longjmp(intrupt, 1);
 }
 
-int main(argc, argv)
-	char *argv[];
+int main(int argc, char *argv[])
 {
 	register char *tname;
 	long allflags;
@@ -242,8 +239,7 @@ int main(argc, argv)
 	}
 }
 
-void putstr(s)
-	register const char *s;
+void putstr(const char *s)
 {
 	while (*s)
 		putchr(*s++);
@@ -333,8 +329,7 @@ short	tmspc10[] = {
 	0, 2000, 1333, 909, 743, 666, 500, 333, 166, 83, 55, 41, 20, 10, 5, 15
 };
 
-void putpad(s)
-	register char *s;
+void putpad(char *s)
 {
 	register int pad = 0;
 	register int mspc10;
@@ -378,7 +373,7 @@ void putpad(s)
 char	outbuf[OBUFSIZ];
 int	obufcnt = 0;
 
-void putchr(cc)
+void putchr(int cc)
 {
 	char c;
 
@@ -409,8 +404,7 @@ void prompt()
 		putchr('\n');
 }
 
-void putf(cp)
-	register char *cp;
+void putf(char *cp)
 {
 	char *ttyn, *slash;
 	char datebuffer[60];

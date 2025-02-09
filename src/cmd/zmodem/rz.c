@@ -242,14 +242,14 @@ static void sendline(int c);
 int tryzhdrtype=ZRINIT;	/* Header type to send corresponding to Last rx close */
 
 void
-alrm(sig)
+alrm(int sig)
 {
 	longjmp(tohere, -1);
 }
 
 /* called by signal interrupt or terminate to clean things up */
 void
-bibi(n)
+bibi(int n)
 {
 	if (Zmodem)
 		zmputs(Attn);
@@ -260,8 +260,7 @@ bibi(n)
 }
 
 int
-main(argc, argv)
-char *argv[];
+main(int argc, char *argv[])
 {
 	register char *cp;
 	int npats;
@@ -425,8 +424,7 @@ char *rbmsg =
 "%s ready. To begin transfer, type \"%s file ...\" to your modem program\r\n\n";
 
 int
-wcreceive(argc, argp)
-char **argp;
+wcreceive(int argc, char **argp)
 {
 	int c;
 
@@ -491,8 +489,7 @@ fubar:
  * A null string represents no more files (YMODEM)
  */
 int
-wcrxpn(rpn)
-char *rpn;	/* receive a pathname */
+wcrxpn(char *rpn) /* receive a pathname */
 {
 	int c;
 
@@ -579,9 +576,7 @@ wcrx()
  *    (Caller must do that when he is good and ready to get next sector)
  */
 int
-wcgetsec(rxbuf, maxtime)
-char *rxbuf;
-int maxtime;
+wcgetsec(char *rxbuf, int maxtime)
 {
 	int checksum, wcj, firstch;
 	register unsigned short oldcrc;
@@ -681,8 +676,7 @@ humbug:
  * timeout is in tenths of seconds
  */
 int
-readline(timeout)
-unsigned int timeout;
+readline(unsigned timeout)
 {
 	unsigned int n;
 	register char *p;
@@ -759,8 +753,7 @@ purgeline()
  * Process incoming file information header
  */
 int
-procheader(name)
-char *name;
+procheader(char *name)
 {
 	register char *openmode, *p, **pp;
 
@@ -874,8 +867,7 @@ char *name;
  * so, create all required dirs.
  */
 int
-make_dirs(pathname)
-register char *pathname;
+make_dirs(char *pathname)
 {
 	register char *p;		/* Points into path */
 	int madeone = 0;		/* Did we do anything yet? */
@@ -918,9 +910,7 @@ register char *pathname;
 /*
  * Make a directory.  Compatible with the mkdir() system call on 4.2BSD.
  */
-mkdir(dpath, dmode)
-char *dpath;
-int dmode;
+mkdir(char *dpath, int dmode)
 {
 	int cpid, status;
 	struct stat statbuf;
@@ -970,9 +960,7 @@ int dmode;
  *  starting with CPMEOF are discarded.
  */
 int
-putsec(buf, n)
-char *buf;
-int n;
+putsec(char *buf, int n)
 {
 	register char *p;
 
@@ -1002,7 +990,7 @@ int n;
  *  Send a character to modem.  Small is beautiful.
  */
 void
-sendline(c)
+sendline(int c)
 {
 	char d;
 
@@ -1017,8 +1005,7 @@ void flushmo() {}
 
 /* make string s lower case */
 void
-uncaps(s)
-register char *s;
+uncaps(char *s)
 {
 	for ( ; *s; ++s)
 		if (isupper(*s))
@@ -1029,8 +1016,7 @@ register char *s;
  * IsAnyLower returns TRUE if string s has lower case letters.
  */
 int
-IsAnyLower(s)
-register char *s;
+IsAnyLower(char *s)
 {
 	for ( ; *s; ++s)
 		if (islower(*s))
@@ -1043,8 +1029,7 @@ register char *s;
  * returns pointer to token within string if found, NULL otherwise
  */
 char *
-substr(s, t)
-register char *s,*t;
+substr(char *s, char *t)
 {
 	register char *ss,*tt;
 	/* search for first char of token */
@@ -1095,8 +1080,7 @@ canit()
 }
 
 void
-report(sct)
-int sct;
+report(int sct)
 {
 	if (Verbose>1)
 		fprintf(stderr,"%03d%c",sct,sct%10? ' ' : '\r');
@@ -1108,8 +1092,7 @@ int sct;
  * If called as rb use YMODEM protocol
  */
 void
-chkinvok(s)
-char *s;
+chkinvok(char *s)
 {
 	register char *p;
 
@@ -1137,8 +1120,7 @@ char *s;
  * Totalitarian Communist pathname processing
  */
 void
-checkpath(name)
-char *name;
+checkpath(char *name)
 {
 	if (Restricted) {
 		if (fopen(name, "r") != NULL) {
@@ -1479,8 +1461,7 @@ moredata:
  *   and \335 (break signal)
  */
 void
-zmputs(s)
-char *s;
+zmputs(char *s)
 {
 	int c;
 
@@ -1563,7 +1544,7 @@ ackbibi()
  * Local console output simulation
  */
 void
-bttyout(c)
+bttyout(int c)
 {
 	if (Verbose || Fromcu)
 		putc(c, stderr);
@@ -1574,8 +1555,7 @@ bttyout(c)
  * Strip leading ! if present, do shell escape.
  */
 int
-sys2(s)
-register char *s;
+sys2(char *s)
 {
 	if (*s == '!')
 		++s;
@@ -1586,8 +1566,7 @@ register char *s;
  * Strip leading ! if present, do exec.
  */
 void
-exec2(s)
-register char *s;
+exec2(char *s)
 {
 	if (*s == '!')
 		++s;

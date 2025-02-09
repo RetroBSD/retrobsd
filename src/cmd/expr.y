@@ -264,7 +264,7 @@ int ematch(char *s, char *p)
     return 0;
 }
 
-void errxx(c)
+void errxx(int c)
 {
     yyerror("RE error");
 }

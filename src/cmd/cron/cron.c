@@ -31,16 +31,15 @@ static	void	usage __P((void)),
 
 
 static void
-usage() {
+usage()
+{
 	fprintf(stderr, "usage:  %s [-x debugflag[,...]]\n", ProgramName);
 	exit(ERROR_EXIT);
 }
 
 
 int
-main(argc, argv)
-	int	argc;
-	char	*argv[];
+main(int argc, char *argv[])
 {
 	cron_db	database;
 
@@ -112,8 +111,7 @@ main(argc, argv)
 
 
 static void
-run_reboot_jobs(db)
-	cron_db *db;
+run_reboot_jobs(cron_db *db)
 {
 	register user		*u;
 	register entry		*e;
@@ -130,8 +128,7 @@ run_reboot_jobs(db)
 
 
 static void
-cron_tick(db)
-	cron_db	*db;
+cron_tick(cron_db *db)
 {
 	register struct tm	*tm = localtime(&TargetTime);
 	register int		minute, hour, dom, month, dow;
@@ -185,7 +182,8 @@ cron_tick(db)
  * that's something sysadmin's know to expect what with crashing computers..
  */
 static void
-cron_sync() {
+cron_sync()
+{
 	register struct tm	*tm;
 
 	TargetTime = time((time_t*)0);
@@ -193,9 +191,9 @@ cron_sync() {
 	TargetTime += (60 - tm->tm_sec);
 }
 
-
 static void
-cron_sleep() {
+cron_sleep()
+{
 	register int	seconds_to_wait;
 
 	do {
@@ -221,9 +219,9 @@ cron_sleep() {
 	}
 }
 
-
 static void
-sigchld_handler(x) {
+sigchld_handler(int x)
+{
 	WAIT_T		waiter;
 	PID_T		pid;
 
@@ -247,15 +245,14 @@ sigchld_handler(x) {
 }
 
 static void
-sighup_handler(x) {
+sighup_handler(int x)
+{
 	log_close();
 }
 
 
 static void
-parse_args(argc, argv)
-	int	argc;
-	char	*argv[];
+parse_args(int argc, char *argv[])
 {
 	int	argch;
 

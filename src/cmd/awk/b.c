@@ -45,8 +45,7 @@ void overflo(void);
 void freetr(node *p);
 void penter(node *p);
 
-struct fa *makedfa(p)	/* returns dfa for tree pointed to by p */
-node *p;
+struct fa *makedfa(node *p)	/* returns dfa for tree pointed to by p */
 {
 	node *p1;
 	struct fa *fap;
@@ -65,8 +64,7 @@ node *p;
 }
 
 void
-penter(p)	/* set up parent pointers and leaf indices */
-node *p;
+penter(node *p)	/* set up parent pointers and leaf indices */
 {
 	switch(type(p)) {
 		LEAF
@@ -91,8 +89,7 @@ node *p;
 }
 
 void
-freetr(p)	/* free parse tree and follow sets */
-node *p;
+freetr(node *p)	/* free parse tree and follow sets */
 {
 	switch(type(p)) {
 		LEAF
@@ -114,8 +111,8 @@ node *p;
 			break;
 	}
 }
-char *cclenter(p)
-register char *p;
+
+char *cclenter(char *p)
 {
 	int i, c;
 	char *op;
@@ -152,8 +149,7 @@ overflo()
 }
 
 void
-cfoll(v)		/* enter follow set of each leaf of vertex v into foll[leaf] */
-register node *v;
+cfoll(node *v)		/* enter follow set of each leaf of vertex v into foll[leaf] */
 {
 	int i;
 	int prev;
@@ -185,9 +181,8 @@ register node *v;
 }
 
 int
-first(p)			/* collects initially active leaves of p into setvec */
-register node *p;		/* returns 0 or 1 depending on whether p matches empty string */
-{
+first(node *p)			/* collects initially active leaves of p into setvec */
+{                               /* returns 0 or 1 depending on whether p matches empty string */
 	int b;
 
 	switch(type(p)) {
@@ -220,8 +215,7 @@ register node *p;		/* returns 0 or 1 depending on whether p matches empty string
 }
 
 void
-follow(v)
-node *v;		/* collects leaves that can follow v into setvec */
+follow(node *v) /* collects leaves that can follow v into setvec */
 {
 	node *p;
 
@@ -265,9 +259,8 @@ member(char c, char *s)	/* is c in s? */
 }
 
 int
-notin(array, n, prev)		/* is setvec in array[0] thru array[n]? */
-int **array;
-int *prev; {
+notin(int **array, int n, int *prev)		/* is setvec in array[0] thru array[n]? */
+{
 	int i, j;
 	int *ptr;
 	for (i=0; i<=n; i++) {
@@ -283,7 +276,8 @@ int *prev; {
 	return(1);
 }
 
-int *add(n) {		/* remember setvec */
+int *add(int n) 		/* remember setvec */
+{
 	int *ptr, *p;
 	int i;
 	if ((p = ptr = (int *) malloc((n+1)*sizeof(int))) == NULL)
@@ -519,9 +513,7 @@ struct fa *cgotofn()
 }
 
 int
-match(pfa, p)
-register struct fa *pfa;
-register char *p;
+match(struct fa *pfa, char *p)
 {
 	int count;
 	char c;

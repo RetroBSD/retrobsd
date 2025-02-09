@@ -153,7 +153,7 @@ void callopt()
     ZAPFILE(TEMPNAME);
 }
 
-void gin(i)
+void gin(int i)
 {
     register int *p, *r, *s, *q1, *q2;
 
@@ -203,7 +203,7 @@ void gin(i)
 nextgi:;
 }
 
-void stin(i)
+void stin(int i)
 {
     register int *r, *s, n, flag, j, *q1, *q2;
 
@@ -325,8 +325,7 @@ void aoutput()
     arout("yypgo", pgo, nnonter + 1);
 }
 
-void arout(s, v, n) char *s;
-int *v, n;
+void arout(char *s, int *v, int n)
 {
     register int i;
 

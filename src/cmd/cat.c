@@ -21,8 +21,7 @@ int spaced, col, lno, inlin, ibsize, obsize;
 static void copyopt(FILE *f);
 static int fastcat(int fd);
 
-int main(argc, argv)
-char **argv;
+int main(int argc, char **argv)
 {
     int fflg = 0;
     FILE *fi;
@@ -125,8 +124,7 @@ char **argv;
     exit(retval);
 }
 
-void copyopt(f)
-    FILE *f;
+void copyopt(FILE *f)
 {
     int c;
 
@@ -172,8 +170,7 @@ top:
     goto top;
 }
 
-int fastcat(fd)
-int fd;
+int fastcat(int fd)
 {
     int    buffsize, n, nwritten, offset;
     char   *buff;

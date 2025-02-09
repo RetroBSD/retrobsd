@@ -56,8 +56,7 @@ cell **makesymtab()
 }
 
 void
-freesymtab(ap)	/* free symbol table */
-cell *ap;
+freesymtab(cell *ap)	/* free symbol table */
 {
 	cell *cp, **tp;
 	int i;
@@ -75,15 +74,10 @@ cell *ap;
 	xfree(tp);
 }
 
-cell *setsymtab(n, s, f, t, tab)
-char *n, *s;
-awkfloat f;
-unsigned t;
-cell **tab;
+cell *setsymtab(char *n, char *s, awkfloat f, unsigned t, cell **tab)
 {
 	int h;
 	register cell *p;
-	cell *lookup();
 
 	if (n != NULL && (p = lookup(n, tab, 0)) != NULL) {
 		if (s != EMPTY ) xfree(s); /* careful here */
@@ -107,8 +101,7 @@ cell **tab;
 }
 
 int
-hash(s)	/* form hash value for string s */
-char *s;
+hash(char *s)	/* form hash value for string s */
 {
 	register int hashval;
 
@@ -117,9 +110,7 @@ char *s;
 	return(hashval % MAXSYM);
 }
 
-cell *lookup(s, tab, flag)	/* look for s in tab, flag must match*/
-register char *s;
-cell **tab;
+cell *lookup(char *s, cell **tab, int flag)	/* look for s in tab, flag must match*/
 {
 	register cell *p;
 
@@ -130,9 +121,7 @@ cell **tab;
 	return(NULL);	/* not found */
 }
 
-awkfloat setfval(vp, f)
-register cell *vp;
-awkfloat f;
+awkfloat setfval(cell *vp, awkfloat f)
 {
 	dprintf("setfval: %o %g\n", vp, f, NULL);
 	checkval(vp);
@@ -145,9 +134,7 @@ awkfloat f;
 	return(vp->fval = f);
 }
 
-char *setsval(vp, s)
-register cell *vp;
-char *s;
+char *setsval(cell *vp, char *s)
 {
 	dprintf("setsval: %o %s\n", vp, s, NULL);
 	checkval(vp);
@@ -163,8 +150,7 @@ char *s;
 	return(vp->sval = tostring(s));
 }
 
-awkfloat getfval(vp)
-register cell *vp;
+awkfloat getfval(cell *vp)
 {
 
 	if (vp->sval == record && donerec == 0)
@@ -188,8 +174,7 @@ register cell *vp;
 	return(vp->fval);
 }
 
-char *getsval(vp)
-register cell *vp;
+char *getsval(cell *vp)
 {
 	char s[100];
 
@@ -213,8 +198,7 @@ register cell *vp;
 }
 
 void
-checkval(vp)
-register cell *vp;
+checkval(cell *vp)
 {
 	if (vp->tval & ARR)
 		error(FATAL, "illegal reference to array %s", vp->nval);
@@ -223,8 +207,7 @@ register cell *vp;
 			vp->sval, vp->fval, vp->tval);
 }
 
-char *tostring(s)
-register char *s;
+char *tostring(char *s)
 {
 	register char *p;
 
@@ -241,17 +224,21 @@ register char *s;
 	}
 	return(p);
 }
+
 #ifndef yfree
-yfree(a) char *a;
+yfree(char *a)
 {
 	printf("%o\n", a);
 	free(a);
 }
 #endif
+
 #ifdef malloc
 #undef malloc
-char *ymalloc(u) unsigned u;
-{	char *p;
+
+char *ymalloc(unsigned u)
+{
+        char *p;
 	p = malloc(u);
 	printf("%o %o\n", u, p);
 	return(p);

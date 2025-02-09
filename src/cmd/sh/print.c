@@ -3,246 +3,207 @@
  *
  * Bell Telephone Laboratories
  */
-#include "defs.h"
 #include <sys/param.h>
 
-#define BUFLEN  256
+#include "defs.h"
+
+#define BUFLEN 256
 
 int hz = (-1);
 
-static char     buffer[BUFLEN];
-static int      index = 0;
-char            numbuf[12];
+static char buffer[BUFLEN];
+static int index = 0;
+char numbuf[12];
 
 /*
  * printing and io conversion
  */
-void
-prp()
+void prp()
 {
-	if ((flags & prompt) == 0 && cmdadr)
-	{
-		prs_cntl(cmdadr);
-		prs(colon);
-	}
+    if ((flags & prompt) == 0 && cmdadr) {
+        prs_cntl(cmdadr);
+        prs(colon);
+    }
 }
 
-void
-prs(as)
-char    *as;
+void prs(char *as)
 {
-	register char   *s;
+    register char *s;
 
-	if ((s = as))
-		write(output, s, length(s) - 1);
+    if ((s = as))
+        write(output, s, length(s) - 1);
 }
 
 /* print a prompt */
 /* it's a subject for future expansion @@@ */
-void
-prprompt(as)
-char *as;
+void prprompt(char *as)
 {
-	prs(as);
+    prs(as);
 }
 
-void
-prc(char c)
+void prc(char c)
 {
-	if (c)
-		write(output, &c, 1);
+    if (c)
+        write(output, &c, 1);
 }
 
-void
-prt(t)
-long    t;
+void prt(long t)
 {
-	register int hr, min, sec;
-	char *s;
+    register int hr, min, sec;
+    char *s;
 
-	if( hz < 0 ){
-		s = getenv( "HZ" );
-		if (s)
-                        hz = atoi( s );
-		else
-                        hz = HZ;
-	}
+    if (hz < 0) {
+        s = getenv("HZ");
+        if (s)
+            hz = atoi(s);
+        else
+            hz = HZ;
+    }
 
-	t += hz / 2;
-	t /= hz;
-	sec = t % hz;
-	t /= HZ;
-	min = t % hz;
+    t += hz / 2;
+    t /= hz;
+    sec = t % hz;
+    t /= HZ;
+    min = t % hz;
 
-	if ((hr = t / hz))
-	{
-		prn_buff(hr);
-		prc_buff('h');
-	}
+    if ((hr = t / hz)) {
+        prn_buff(hr);
+        prc_buff('h');
+    }
 
-	prn_buff(min);
-	prc_buff('m');
-	prn_buff(sec);
-	prc_buff('s');
+    prn_buff(min);
+    prc_buff('m');
+    prn_buff(sec);
+    prc_buff('s');
 }
 
-void
-prn(n)
-	int     n;
+void prn(int n)
 {
-	itos(n);
+    itos(n);
 
-	prs(numbuf);
+    prs(numbuf);
 }
 
-void
-itos(n)
+void itos(int n)
 {
-	register char *abuf;
-	register unsigned a, i;
-	int pr, d;
+    register char *abuf;
+    register unsigned a, i;
+    int pr, d;
 
-	abuf = numbuf;
+    abuf = numbuf;
 
-	pr = FALSE;
-	a = n;
-	for (i = 10000; i != 1; i /= 10)
-	{
-		if ((pr |= (d = a / i)))
-			*abuf++ = d + '0';
-		a %= i;
-	}
-	*abuf++ = a + '0';
-	*abuf++ = 0;
+    pr = FALSE;
+    a = n;
+    for (i = 10000; i != 1; i /= 10) {
+        if ((pr |= (d = a / i)))
+            *abuf++ = d + '0';
+        a %= i;
+    }
+    *abuf++ = a + '0';
+    *abuf++ = 0;
 }
 
-int
-stoi(icp)
-char    *icp;
+int stoi(char *icp)
 {
-	register char   *cp = icp;
-	register int    r = 0;
-	register char   c;
+    register char *cp = icp;
+    register int r = 0;
+    register char c;
 
-	while ((c = *cp, digit(c)) && c && r >= 0)
-	{
-		r = r * 10 + c - '0';
-		cp++;
-	}
-	if (r < 0 || cp == icp)
-		failed(icp, badnum);
-	return(r);
+    while ((c = *cp, digit(c)) && c && r >= 0) {
+        r = r * 10 + c - '0';
+        cp++;
+    }
+    if (r < 0 || cp == icp)
+        failed(icp, badnum);
+    return (r);
 }
 
-void
-prl(n)
-long n;
+void prl(long n)
 {
-	int i;
+    int i;
 
-	i = 11;
-	while (n > 0 && --i >= 0)
-	{
-		numbuf[i] = n % 10 + '0';
-		n /= 10;
-	}
-	numbuf[11] = '\0';
-	prs_buff(&numbuf[i]);
+    i = 11;
+    while (n > 0 && --i >= 0) {
+        numbuf[i] = n % 10 + '0';
+        n /= 10;
+    }
+    numbuf[11] = '\0';
+    prs_buff(&numbuf[i]);
 }
 
-void
-flushb()
+void flushb()
 {
-	if (index)
-	{
-		buffer[index] = '\0';
-		write(1, buffer, length(buffer) - 1);
-		index = 0;
-	}
+    if (index) {
+        buffer[index] = '\0';
+        write(1, buffer, length(buffer) - 1);
+        index = 0;
+    }
 }
 
-void
-prc_buff(char c)
+void prc_buff(char c)
 {
-	if (c)
-	{
-		if (index + 1 >= BUFLEN)
-			flushb();
+    if (c) {
+        if (index + 1 >= BUFLEN)
+            flushb();
 
-		buffer[index++] = c;
-	}
-	else
-	{
-		flushb();
-		write(1, &c, 1);
-	}
+        buffer[index++] = c;
+    } else {
+        flushb();
+        write(1, &c, 1);
+    }
 }
 
-void
-prs_buff(s)
-	char *s;
+void prs_buff(char *s)
 {
-	register int len = length(s) - 1;
+    register int len = length(s) - 1;
 
-	if (index + len >= BUFLEN)
-		flushb();
+    if (index + len >= BUFLEN)
+        flushb();
 
-	if (len >= BUFLEN)
-		write(1, s, len);
-	else
-	{
-		movstr(s, &buffer[index]);
-		index += len;
-	}
+    if (len >= BUFLEN)
+        write(1, s, len);
+    else {
+        movstr(s, &buffer[index]);
+        index += len;
+    }
 }
 
-void
-clear_buff()
+void clear_buff()
 {
-	index = 0;
+    index = 0;
 }
 
-void
-prs_cntl(s)
-	char *s;
+void prs_cntl(char *s)
 {
-	register char *ptr = buffer;
-	int c;
+    register char *ptr = buffer;
+    int c;
 
-	while (*s != '\0')
-	{
-		c = *s;
-		c &= 0377;
+    while (*s != '\0') {
+        c = *s;
+        c &= 0377;
 
-		/* translate a control character into a printable sequence */
+        /* translate a control character into a printable sequence */
 
-		if (c < ' ')
-		{       /* assumes ASCII char */
-			*ptr++ = '^';
-			*ptr++ = (c + '@');    /* assumes ASCII char */
-		}
-		else if (c == 0177 || (c>=0200 && c<0300 ))
-		{       /* '\0177' does not work */
-			*ptr++ = '^';
-			*ptr++ = '?';
-		}
-		else
-		{       /* printable character */
-			*ptr++ = c;
-		}
+        if (c < ' ') { /* assumes ASCII char */
+            *ptr++ = '^';
+            *ptr++ = (c + '@');                            /* assumes ASCII char */
+        } else if (c == 0177 || (c >= 0200 && c < 0300)) { /* '\0177' does not work */
+            *ptr++ = '^';
+            *ptr++ = '?';
+        } else { /* printable character */
+            *ptr++ = c;
+        }
 
-		++s;
-	}
+        ++s;
+    }
 
-	*ptr = '\0';
-	prs(buffer);
+    *ptr = '\0';
+    prs(buffer);
 }
 
-void
-prn_buff(n)
-	int     n;
+void prn_buff(int n)
 {
-	itos(n);
+    itos(n);
 
-	prs_buff(numbuf);
+    prs_buff(numbuf);
 }

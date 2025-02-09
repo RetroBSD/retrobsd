@@ -18,8 +18,6 @@ struct
 	char *fname;
 } files[FILENUM];
 
-extern obj execute(), nodetoobj(), fieldel(), dopa2(), gettemp();
-
 int pairstack[PA2NUM], paircnt;
 
 node *winner = (node *)NULL;
@@ -47,7 +45,7 @@ run()
 			fclose(files[i].fp);
 }
 
-obj execute(u) node *u;
+obj execute(node *u)
 {
 	register obj (*proc)();
 	obj x;
@@ -78,7 +76,7 @@ obj execute(u) node *u;
 	}
 }
 
-obj program(a, n) node **a;
+obj program(node **a, int n)
 {
 	obj x;
 
@@ -114,7 +112,7 @@ obj getline()
 	return(x);
 }
 
-obj array(a,n) node **a;
+obj array(node **a, int n)
 {
 	obj x, y;
 	extern obj arrayel();
@@ -125,7 +123,7 @@ obj array(a,n) node **a;
 	return(y);
 }
 
-obj arrayel(a,b) node *a; obj b;
+obj arrayel(node *a, obj b)
 {
 	char *s;
 	cell *x;
@@ -140,13 +138,13 @@ obj arrayel(a,b) node *a; obj b;
 		x->tval |= ARR;
 		x->sval = (char *) makesymtab();
 	}
-	y.optr = setsymtab(s, tostring(""), 0.0, STR|NUM, x->sval);
+	y.optr = setsymtab(s, tostring(""), 0.0, STR|NUM, (cell **) x->sval);
 	y.otype = OCELL;
 	y.osub = CVAR;
 	return(y);
 }
 
-obj matchop(a,n) node **a;
+obj matchop(node **a, int n)
 {
 	obj x;
 	char *s;
@@ -163,7 +161,7 @@ obj matchop(a,n) node **a;
 		return(false);
 }
 
-obj boolop(a,n) node **a;
+obj boolop(node **a, int n)
 {
 	obj x, y;
 	int i;
@@ -194,7 +192,7 @@ obj boolop(a,n) node **a;
 	}
 }
 
-obj relop(a,n) node **a;
+obj relop(node **a, int n)
 {
 	int i;
 	obj x, y;
@@ -229,7 +227,7 @@ obj relop(a,n) node **a;
 }
 
 void
-tempfree(a) obj a;
+tempfree(obj a)
 {
 	if (!istemp(a)) return;
 	strfree(a.optr->sval);
@@ -253,7 +251,7 @@ obj gettemp()
 	return(x);
 }
 
-obj indirect(a,n) node **a;
+obj indirect(node **a, int n)
 {
 	obj x;
 	int m;
@@ -268,7 +266,7 @@ obj indirect(a,n) node **a;
 	return(x);
 }
 
-obj substr(a, nnn) node **a;
+obj substr(node **a, int nnn)
 {
 	char *s, temp;
 	obj x;
@@ -305,7 +303,7 @@ obj substr(a, nnn) node **a;
 	return(x);
 }
 
-obj sindex(a, nnn) node **a;
+obj sindex(node **a, int nnn)
 {
 	obj x;
 	char *s1, *s2, *p1, *p2, *q;
@@ -330,7 +328,7 @@ obj sindex(a, nnn) node **a;
 	return(x);
 }
 
-char *format(s,a) char *s; node *a;
+char *format(char *s, node *a)
 {
 	char *buf, *p, fmt[200], *t, *os;
 	obj x;
@@ -402,7 +400,7 @@ char *format(s,a) char *s; node *a;
 	return(buf);
 }
 
-obj awksprintf(a,n) node **a;
+obj awksprintf(node **a, int n)
 {
 	obj x;
 	node *y;
@@ -418,7 +416,7 @@ obj awksprintf(a,n) node **a;
 	return(x);
 }
 
-obj arith(a,n) node **a;
+obj arith(node **a, int n)
 {
 	awkfloat i,j;
 	obj x,y,z;
@@ -462,7 +460,7 @@ obj arith(a,n) node **a;
 	return(z);
 }
 
-obj incrdecr(a, n) node **a;
+obj incrdecr(node **a, int n)
 {
 	obj x, z;
 	int k;
@@ -482,8 +480,7 @@ obj incrdecr(a, n) node **a;
 	return(z);
 }
 
-
-obj assign(a,n) node **a;
+obj assign(node **a, int n)
 {
 	obj x, y;
 	awkfloat xf, yf;
@@ -534,7 +531,7 @@ obj assign(a,n) node **a;
 	return(x);
 }
 
-obj cat(a,q) node **a;
+obj cat(node **a, int q)
 {
 	obj x,y,z;
 	int n1, n2;
@@ -557,7 +554,7 @@ obj cat(a,q) node **a;
 	return(z);
 }
 
-obj pastat(a,n) node **a;
+obj pastat(node **a, int n)
 {
 	obj x;
 
@@ -572,7 +569,7 @@ obj pastat(a,n) node **a;
 	return(x);
 }
 
-obj dopa2(a,n) node **a;
+obj dopa2(node **a, int n)
 {
 	obj x;
 
@@ -593,7 +590,7 @@ obj dopa2(a,n) node **a;
 	return(false);
 }
 
-obj aprintf(a,n) node **a;
+obj aprintf(node **a, int n)
 {
 	obj x;
 
@@ -607,7 +604,7 @@ obj aprintf(a,n) node **a;
 	return(x);
 }
 
-obj split(a,nnn) node **a;
+obj split(node **a, int nnn)
 {
 	obj x;
 	cell *ap;
@@ -649,9 +646,9 @@ obj split(a,nnn) node **a;
 			*s = '\0';
 			sprintf(num, "%d", n);
 			if (isnumber(t))
-				setsymtab(num, tostring(t), atof(t), STR|NUM, ap->sval);
+				setsymtab(num, tostring(t), atof(t), STR|NUM, (cell **) ap->sval);
 			else
-				setsymtab(num, tostring(t), 0.0, STR, ap->sval);
+				setsymtab(num, tostring(t), 0.0, STR, (cell **) ap->sval);
 			*s = temp;
 			if (*s != 0)
 				s++;
@@ -666,9 +663,9 @@ obj split(a,nnn) node **a;
 			*s = '\0';
 			sprintf(num, "%d", n);
 			if (isnumber(t))
-				setsymtab(num, tostring(t), atof(t), STR|NUM, ap->sval);
+				setsymtab(num, tostring(t), atof(t), STR|NUM, (cell **) ap->sval);
 			else
-				setsymtab(num, tostring(t), 0.0, STR, ap->sval);
+				setsymtab(num, tostring(t), 0.0, STR, (cell **) ap->sval);
 			*s = temp;
 			if (*s++ == 0)
 				break;
@@ -679,7 +676,7 @@ obj split(a,nnn) node **a;
 	return(x);
 }
 
-obj ifstat(a,n) node **a;
+obj ifstat(node **a, int n)
 {
 	obj x;
 
@@ -695,7 +692,7 @@ obj ifstat(a,n) node **a;
 	return(x);
 }
 
-obj whilestat(a,n) node **a;
+obj whilestat(node **a, int n)
 {
 	obj x;
 
@@ -714,7 +711,7 @@ obj whilestat(a,n) node **a;
 	}
 }
 
-obj forstat(a,n) node **a;
+obj forstat(node **a, int n)
 {
 	obj x;
 
@@ -737,7 +734,7 @@ obj forstat(a,n) node **a;
 	}
 }
 
-obj instat(a, n) node **a;
+obj instat(node **a, int n)
 {
 	cell *vp, *arrayp, *cp, **tp;
 	obj x;
@@ -764,7 +761,7 @@ obj instat(a, n) node **a;
 	return (true);
 }
 
-obj jump(a,n) node **a;
+obj jump(node **a, int n)
 {
 	obj x, y;
 
@@ -793,7 +790,7 @@ obj jump(a,n) node **a;
 	return(x);
 }
 
-obj fncn(a,n) node **a;
+obj fncn(node **a, int n)
 {
 	obj x;
 	awkfloat u;
@@ -819,7 +816,7 @@ obj fncn(a,n) node **a;
 	return(x);
 }
 
-obj print(a,n) node **a;
+obj print(node **a, int n)
 {
 	register node *x;
 	obj y;
@@ -851,7 +848,7 @@ obj nullproc()
         return zero;
 }
 
-obj nodetoobj(a) node *a;
+obj nodetoobj(node *a)
 {
 	obj x;
 
@@ -863,7 +860,7 @@ obj nodetoobj(a) node *a;
 }
 
 void
-redirprint(s, a, b) char *s; node *b;
+redirprint(char *s, int a, node *b)
 {
 	register int i;
 	obj x;

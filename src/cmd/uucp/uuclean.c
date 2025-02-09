@@ -37,8 +37,7 @@ static void sdmail(char *file, int uid);
 int checkprefix = 0;
 struct timeval Now;
 
-int main(argc, argv)
-char *argv[];
+int main(int argc, char *argv[])
 {
 	DIR *dirp;
 	char file[NAMESIZE];
@@ -128,8 +127,7 @@ int Npre = 0;
  *		0  -  not prefix
  *		1  -  is prefix
  */
-int chkpre(file)
-char *file;
+int chkpre(char *file)
 {
 	int i;
 
@@ -146,8 +144,7 @@ char *file;
  *
  *	return codes:  none
  */
-void stpre(p)
-char *p;
+void stpre(char *p)
 {
 	if (Npre < MAXPRE - 2)
 		strcpy(Pre[Npre++], p);
@@ -159,8 +156,7 @@ char *p;
  *
  *	return code - none
  */
-void notfyuser(file)
-char *file;
+void notfyuser(char *file)
 {
 	FILE *fp;
 	int numrq;
@@ -202,8 +198,7 @@ char *file;
  *	This is only implemented for local system
  *	mail at this time.
  */
-void sdmail(file, uid)
-char *file;
+void sdmail(char *file, int uid)
 {
 	static struct passwd *pwd;
 	struct passwd *getpwuid();
@@ -220,8 +215,7 @@ char *file;
 		mailst(pwd->pw_name, mstr, CNULL);
 }
 
-void cleanup(code)
-int code;
+void cleanup(int code)
 {
 	exit(code);
 }

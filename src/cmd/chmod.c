@@ -37,8 +37,7 @@ static int who(void);
 static int what(void);
 static int where(int om);
 
-int main(argc, argv)
-    char *argv[];
+int main(int argc, char *argv[])
 {
     char *p, *flags;
     int i;
@@ -102,10 +101,7 @@ done:
     exit(status);
 }
 
-int chmodr(dir, mode, savedir)
-    char *dir;
-    int mode;
-    int savedir;
+int chmodr(char *dir, int mode, int savedir)
 {
     DIR *dirp;
     struct direct *dp;
@@ -191,8 +187,7 @@ int Perror(char *s)
     return (!fflag);
 }
 
-int newmode(nm)
-    unsigned nm;
+int newmode(unsigned nm)
 {
     int o, m, b;
     int savem;
@@ -285,8 +280,7 @@ int what()
     return (0);
 }
 
-int where(om)
-    int om;
+int where(int om)
 {
     int m;
 

@@ -150,8 +150,7 @@ int nodev()
  *		> 0  -  file number  -  ok
  *		FAIL  -  failed
  */
-int diropn(flds)
-register char *flds[];
+int diropn(char *flds[])
 {
 	register int dcr, status;
 	struct Devices dev;
@@ -250,8 +249,7 @@ register char *flds[];
 	return dcr;
 }
 
-int dircls(fd)
-register int fd;
+int dircls(int fd)
 {
 	if (fd > 0) {
 		close(fd);
@@ -269,8 +267,7 @@ register int fd;
  */
 char devSel[20];	/* used for later unlock() */
 
-int Acuopn(flds)
-register char *flds[];
+int Acuopn(char *flds[])
 {
 	char phone[MAXPH+1];
 	register struct condev *cd;
@@ -371,8 +368,7 @@ register char *flds[];
 #ifdef INTERVALTIMER
 #define uucpdelay(num,denom) intervaldelay(num,denom)
 
-void intervaldelay(num,denom)
-int num, denom;
+void intervaldelay(int num, int denom)
 {
 	struct timeval tv;
 	tv.tv_sec = num / denom;
@@ -387,8 +383,7 @@ int num, denom;
 #ifdef FASTTIMER
 #define uucpdelay(num,denom) nap(60*num/denom)
 
-void nap (time)
-register int time;
+void nap (int time)
 {
 	static int fd;
 
@@ -402,7 +397,7 @@ register int time;
 #ifdef FTIME
 #define uucpdelay(num,denom) ftimedelay(1000*num/denom)
 
-void ftimedelay(n)
+void ftimedelay(int n)
 {
 	static struct timeval loctime;
 	register i = loctime.millitm;
@@ -418,14 +413,13 @@ void ftimedelay(n)
 #define CPUSPEED 1000000	/* VAX 780 is 1MIPS */
 #define	DELAY(n)	{ register long N = (n); while (--N > 0); }
 
-void busyloop(n)
+void busyloop(int n)
 {
 	DELAY(n);
 }
 #endif
 
-void slowrite(fd, str)
-register char *str;
+void slowrite(int fd, char *str)
 {
 	DEBUG(6, "slowrite ", CNULL);
 	while (*str) {
@@ -442,8 +436,7 @@ register char *str;
 /*
  *	send a break
  */
-void genbrk(fn, bnulls)
-register int fn, bnulls;
+void genbrk(int fn, int bnulls)
 {
 #ifdef	USG
 	if (ioctl(fn, TCSBRK, STBNULL) < 0) {
@@ -499,8 +492,7 @@ badbreak:
  */
 char enbdev[16];
 
-int disable(dev)
-register char *dev;
+int disable(char *dev)
 {
 	register char *rdev;
 
@@ -534,8 +526,7 @@ void reenable()
 	enbdev[0] = '\0';
 }
 
-int enbcall(type, dev)
-char *type, *dev;
+int enbcall(char *type, char *dev)
 {
 	int pid;
 	register char *p;

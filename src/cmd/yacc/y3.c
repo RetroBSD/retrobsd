@@ -86,7 +86,7 @@ int pkdebug = 0;
 /*
  * pack state i from temp1 into amem
  */
-int apack(p, n) int *p;
+int apack(int *p, int n)
 {
     int off;
     register int *pp, *qq, *rr;
@@ -209,7 +209,7 @@ int g2debug = 0;
 /*
  * output the gotos for nonterminal c
  */
-void go2gen(c)
+void go2gen(int c)
 {
     register int i, cc;
     int work;
@@ -270,7 +270,7 @@ void go2gen(c)
  * the conflict is in state s
  * temp1[t] is changed to reflect the action
  */
-void precftn(r, t, s) register int t;
+void precftn(int r, int t, int s)
 {
     int lp, lt, action;
 
@@ -305,7 +305,7 @@ void precftn(r, t, s) register int t;
 /*
  * output state i
  */
-void wract(i) register int i;
+void wract(int i)
 {
     /* temp1 has the actions, lastred the default */
     int p, p0, p1;
@@ -384,7 +384,7 @@ void wract(i) register int i;
 /*
  * writes state i
  */
-void wrstate(i)
+void wrstate(int i)
 {
     register int j0, j1;
     register struct item *pp, *qq;
@@ -441,14 +441,12 @@ void wrstate(i)
 /*
  * output a definition of s to the value n
  */
-void wdef(s, n) char *s;
+void wdef(char *s, int n)
 {
     fprintf(ftable, "# define %s %d\n", s, n);
 }
 
-void warray(s, v, n)
-char *s;
-int *v, n;
+void warray(char *s, int *v, int n)
 {
     register int i;
 

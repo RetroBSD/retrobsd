@@ -60,8 +60,7 @@ int gwrmsg(char type, char *str, int fn)
 }
 
 /*ARGSUSED*/
-int grdmsg(str, fn)
-register char *str;
+int grdmsg(char *str, int fn)
 {
 	unsigned len;
 
@@ -78,8 +77,7 @@ register char *str;
 	return SUCCESS;
 }
 
-int gwrdata(fp1, fn)
-FILE *fp1;
+int gwrdata(FILE *fp1, int fn)
 {
 	char bufr[BUFSIZ];
 	register int len;
@@ -123,8 +121,7 @@ FILE *fp1;
 	return SUCCESS;
 }
 
-int grddata(fn, fp2)
-FILE *fp2;
+int grddata(int fn, FILE *fp2)
 {
 	register int len;
 	char bufr[BUFSIZ];
@@ -175,9 +172,7 @@ static	int tc = TC;
 #endif
 
 /*ARGSUSED*/
-int grdblk(blk, len,  fn)
-register int len;
-char *blk;
+int grdblk(char *blk, int len,  int fn)
 {
 	register int i, ret;
 
@@ -200,8 +195,7 @@ char *blk;
 }
 
 /*ARGSUSED*/
-int gwrblk(blk, len, fn)
-register char *blk;
+int gwrblk(char *blk, int len, int fn)
 {
 #if !defined(BSD4_2) && !defined(USG)
 	/* call ultouch occasionally */

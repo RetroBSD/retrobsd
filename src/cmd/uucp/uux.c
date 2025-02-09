@@ -27,8 +27,7 @@ struct timeval Now;
 static FILE *ufopen(char *file, char *mode);
 static int split(char *name, char *sys, char *rest);
 
-int main(argc, argv)
-char *argv[];
+int main(int argc, char *argv[])
 {
 	char cfile[NAMESIZE];	/* send commands for files from here */
 	char dfile[NAMESIZE];	/* used for all data files from here */
@@ -445,8 +444,7 @@ int Fnamect = 0;
  *
  *	return - none - do exit()
  */
-void cleanup(code)
-int code;
+void cleanup(int code)
 {
 	int i;
 
@@ -466,8 +464,7 @@ int code;
  *
  *	return file pointer.
  */
-FILE *ufopen(file, mode)
-char *file, *mode;
+FILE *ufopen(char *file, char *mode)
 {
 	if (Fnamect < FTABSIZE)
 		strcpy(Fname[Fnamect++], file);
@@ -483,8 +480,7 @@ char *file, *mode;
  *	Note if we are running under Unix shell we don't
  *	do the right thing.
  */
-void arg_fix(argc, argv)
-char **argv;
+void arg_fix(int argc, char **argv)
 {
 	register char *cp, *tp;
 
@@ -510,9 +506,7 @@ char **argv;
  *		NOSYSPART
  *		HASSYSPART
  */
-int split(name, sys, rest)
-register char *name, *rest;
-char *sys;
+int split(char *name, char *sys, char *rest)
 {
 	register char *c;
 	register int i;

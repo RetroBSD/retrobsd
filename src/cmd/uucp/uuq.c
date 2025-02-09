@@ -66,8 +66,7 @@ struct timeval Now;
 static void gather(void);
 static int analjob(char *filename);
 
-int main(argc, argv)
-char **argv;
+int main(int argc, char **argv)
 {
 	register int i;
 	register struct sys *sp;
@@ -171,8 +170,7 @@ char **argv;
 	exit(0);
 }
 
-int jcompare(j1, j2)
-struct job **j1, **j2;
+int jcompare(struct job **j1, struct job **j2)
 {
 	int delta;
 
@@ -214,8 +212,7 @@ void gather()
 /*
  * analjob does the grunge work of verifying jobs
  */
-int analjob(filename)
-char *filename;
+int analjob(char *filename)
 {
 	struct job *jp;
 	struct sys *sp;
@@ -355,8 +352,7 @@ char *filename;
 }
 
 struct sys *
-getsys(s)
-register char *s;
+getsys(char *s)
 {
 	register struct sys *sp;
 

@@ -125,8 +125,7 @@ static int zgeth1(void);
 
 /* Send ZMODEM binary header hdr of type type */
 void
-zsbhdr(len, type, hdr)
-register char *hdr;
+zsbhdr(int len, int type, char *hdr)
 {
 	register int n;
 	register unsigned short crc;
@@ -171,8 +170,7 @@ register char *hdr;
 
 /* Send ZMODEM binary header hdr of type type */
 void
-zsbh32(len, hdr, type, flavour)
-register char *hdr;
+zsbh32(int len, char *hdr, int type, int flavour)
 {
 	register int n;
 	register UNSL long crc;
@@ -196,8 +194,7 @@ register char *hdr;
 
 /* Send ZMODEM HEX header hdr of type type */
 void
-zshhdr(len, type, hdr)
-register char *hdr;
+zshhdr(int len, int type, char *hdr)
 {
 	register int n;
 	register unsigned short crc;
@@ -239,8 +236,7 @@ register char *hdr;
 static char *Zendnames[] = { "ZCRCE", "ZCRCG", "ZCRCQ", "ZCRCW"};
 
 void
-zsdata(buf, length, frameend)
-register char *buf;
+zsdata(char *buf, int length, int frameend)
 {
 	register unsigned short crc;
 
@@ -269,8 +265,7 @@ register char *buf;
 }
 
 void
-zsda32(buf, length, frameend)
-register char *buf;
+zsda32(char *buf, int length, int frameend)
 {
 	register int c;
 	register UNSL long crc;
@@ -299,8 +294,7 @@ register char *buf;
  *  NB: On errors may store length+1 bytes!
  */
 int
-zrdata(buf, length)
-register char *buf;
+zrdata(char *buf, int length)
 {
 	register int c;
 	register unsigned short crc;
@@ -362,8 +356,7 @@ crcfoo:
 }
 
 int
-zrdat32(buf, length)
-register char *buf;
+zrdat32(char *buf, int length)
 {
 	register int c;
 	register UNSL long crc;
@@ -439,8 +432,7 @@ garbitch()
  *   Return ERROR instantly if ZCRCW sequence, for fast error recovery.
  */
 int
-zgethdr(hdr, eflag)
-char *hdr;
+zgethdr(char *hdr, int eflag)
 {
 	register int c, n, cancount;
 
@@ -605,8 +597,7 @@ fifi:
 
 /* Receive a binary style header (type and position) */
 int
-zrbhdr(hdr)
-register char *hdr;
+zrbhdr(char *hdr)
 {
 	register int c, n;
 	register unsigned short crc;
@@ -641,8 +632,7 @@ register char *hdr;
 
 /* Receive a binary style header (type and position) with 32 bit FCS */
 int
-zrbhd32(hdr)
-register char *hdr;
+zrbhd32(char *hdr)
 {
 	register int c, n;
 	register UNSL long crc;
@@ -685,8 +675,7 @@ register char *hdr;
 
 /* Receive a hex style header (type and position) */
 int
-zrhhdr(hdr)
-char *hdr;
+zrhhdr(char *hdr)
 {
 	register int c;
 	register unsigned short crc;
@@ -734,8 +723,7 @@ char *hdr;
 
 /* Send a byte as two hex digits */
 void
-zputhex(c)
-register int c;
+zputhex(int c)
 {
 	static char	digits[]	= "0123456789abcdef";
 
@@ -752,7 +740,7 @@ register int c;
  *  Escape XON, XOFF. Escape CR following @ (Telenet net escape)
  */
 void
-zsendline(c)
+zsendline(int c)
 {
 
 	/* Quick check for non control characters */
@@ -922,8 +910,7 @@ noxrd7()
 
 /* Store long integer pos in Txhdr */
 void
-stohdr(pos)
-long pos;
+stohdr(long pos)
 {
 	Txhdr[ZP0] = pos;
 	Txhdr[ZP1] = pos>>8;
@@ -933,8 +920,7 @@ long pos;
 
 /* Recover a long integer from a header */
 long
-rclhdr(hdr)
-register char *hdr;
+rclhdr(char *hdr)
 {
 	register long l;
 

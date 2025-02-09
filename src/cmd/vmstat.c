@@ -395,7 +395,7 @@ void stats(int dn)
     printf("%4.0f", s.xfer[dn] / etime);
 }
 
-double stat1(row)
+double stat1(int row)
 {
     double t;
     int i;

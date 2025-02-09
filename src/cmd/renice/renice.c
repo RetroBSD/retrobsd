@@ -12,8 +12,7 @@
 #include <string.h>
 
 int
-donice(which, who, prio)
-	int which, who, prio;
+donice(int which, int who, int prio)
 {
 	int oldprio;
 
@@ -38,8 +37,7 @@ donice(which, who, prio)
  * running.
  */
 int
-main(argc, argv)
-	char **argv;
+main(int argc, char **argv)
 {
 	int which = PRIO_PROCESS;
 	int who = 0, prio, errs = 0;

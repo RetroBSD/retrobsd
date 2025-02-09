@@ -12,9 +12,7 @@ struct timeval Now;
 
 static void intrEXIT(int inter);
 
-int main(argc,argv)
-char *argv[];
-int argc;
+int main(int argc, char *argv[])
 {
 	int ret;
 	int i;
@@ -64,13 +62,12 @@ int argc;
 	exit(0);
 }
 
-void intrEXIT(inter)
+void intrEXIT(int inter)
 {
 	exit(inter);
 }
 
-void cleanup(code)
-int code;
+void cleanup(int code)
 {
 	exit(code);
 }

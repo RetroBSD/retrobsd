@@ -73,8 +73,7 @@ static void cpyact(int offset);
 static void finact(void);
 static int skipcom(void);
 
-void setup(argc, argv) int argc;
-char *argv[];
+void setup(int argc, char *argv[])
 {
     int i, lev, ty;
     register int t, j;
@@ -425,7 +424,7 @@ void finact()
  * define s to be a terminal if t=0
  *          or a nonterminal if t=1
  */
-int defin(t, s) register char *s;
+int defin(int t, char *s)
 {
     register int val;
 
@@ -523,8 +522,7 @@ void defout()
     ndefout = ntokens + 1;
 }
 
-char *cstash(s)
-register char *s;
+char *cstash(char *s)
 {
     char *temp;
 
@@ -705,7 +703,7 @@ begin:
 /*
  * determine the type of a symbol
  */
-int fdtype(t)
+int fdtype(int t)
 {
     register int v;
 
@@ -719,7 +717,7 @@ int fdtype(t)
     return (v);
 }
 
-int chfind(t, s) register char *s;
+int chfind(int t, char *s)
 {
     int i;
 
@@ -846,7 +844,7 @@ int skipcom()
 /*
  * copy C action to the next ; or closing }
  */
-void cpyact(offset)
+void cpyact(int offset)
 {
     register int c;
     int brac, match, j, s, tok;

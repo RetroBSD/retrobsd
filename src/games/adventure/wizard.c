@@ -9,8 +9,7 @@
 char *magic;
 
 void
-datime(d, t)
-int *d, *t;
+datime(int *d, int *t)
 {
         time_t now;
         struct tm *tm;
@@ -47,7 +46,7 @@ wizard()                /* not as complex as advent/10 (for now)        */
 }
 
 void
-start(n)
+start(int n)
 {
         int d, t, delay;
 
@@ -96,9 +95,8 @@ ciao()
 }
 
 int
-ran(range)                              /* uses unix rng                */
-int range;                              /* can't div by 32768 because   */
-{
+ran(int range)                          /* uses unix rng                */
+{                                       /* can't div by 32768 because   */
 	long i;
 	i = rand() % range;
 	return(i);

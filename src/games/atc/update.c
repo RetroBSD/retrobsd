@@ -8,8 +8,7 @@
  */
 #include "include.h"
 
-int too_close(p1, p2, dist)
-	PLANE	*p1, *p2;
+int too_close(PLANE *p1, PLANE *p2, int dist)
 {
 	if (ABS(p1->altitude - p2->altitude) <= dist &&
 	    ABS(p1->xpos - p2->xpos) <= dist && ABS(p1->ypos - p2->ypos) <= dist)
@@ -103,7 +102,7 @@ void update(int sig)
 		case T_EXIT:
 			if (pp->xpos == sp->exit[pp->dest_no].x &&
 			    pp->ypos == sp->exit[pp->dest_no].y) {
-			    	if (pp->altitude != 9)
+				if (pp->altitude != 9)
 				    loser(pp, "exited at the wrong altitude.");
 				else {
 				    pp->status = S_GONE;
@@ -179,7 +178,7 @@ void update(int sig)
 	(void)sigprocmask(SIG_SETMASK, &oset, NULL);
 }
 
-int dir_deg(d)
+int dir_deg(int d)
 {
 	switch (d) {
 	case 0: return (0);
@@ -196,8 +195,7 @@ int dir_deg(d)
 }
 
 char *
-command(pp)
-	PLANE	*pp;
+command(PLANE *pp)
 {
 	static char	buf[50], *bp, *comm_start;
 
@@ -227,8 +225,7 @@ command(pp)
 }
 
 /* char */
-int name(p)
-	PLANE	*p;
+int name(PLANE *p)
 {
 	if (p->plane_type == 0)
 		return ('A' + p->plane_no);
@@ -236,7 +233,7 @@ int name(p)
 		return ('a' + p->plane_no);
 }
 
-int number(l)
+int number(int l)
 {
 	if (l < 'a' && l > 'z' && l < 'A' && l > 'Z')
 		return (-1);
@@ -345,7 +342,7 @@ int addplane()
 }
 
 PLANE	*
-findplane(n)
+findplane(int n)
 {
 	PLANE	*pp;
 

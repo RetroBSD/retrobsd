@@ -130,7 +130,7 @@ linkdata()                              /*  secondary data manipulation */
 }
 
 void
-trapdel(sig)                            /* come here if he hits a del   */
+trapdel(int sig)                        /* come here if he hits a del   */
 {	delhit++;			/* main checks, treats as QUIT  */
 	signal(2,trapdel);		/* catch subsequent DELs        */
 }

@@ -245,14 +245,14 @@ Lline:
 	;
 %%
 
-void check_edge(x, y)
+void check_edge(int x, int y)
 {
 	if (!(x == 0) && !(x == sp->width - 1) &&
 	    !(y == 0) && !(y == sp->height - 1))
 		yyerror("edge value not on edge.");
 }
 
-void check_point(x, y)
+void check_point(int x, int y)
 {
 	if (x < 1 || x >= sp->width - 1)
 		yyerror("X value out of range.");
@@ -260,7 +260,7 @@ void check_point(x, y)
 		yyerror("Y value out of range.");
 }
 
-void check_linepoint(x, y)
+void check_linepoint(int x, int y)
 {
 	if (x < 0 || x >= sp->width)
 		yyerror("X value out of range.");
@@ -268,7 +268,7 @@ void check_linepoint(x, y)
 		yyerror("Y value out of range.");
 }
 
-void check_line(x1, y1, x2, y2)
+void check_line(int x1, int y1, int x2, int y2)
 {
 	int	d1, d2;
 
@@ -290,7 +290,7 @@ int yyerror(char *s)
 	return (errors);
 }
 
-void check_edir(x, y, dir)
+void check_edir(int x, int y, int dir)
 {
 	int	bad = 0;
 
@@ -321,7 +321,7 @@ void check_edir(x, y, dir)
 		yyerror("Bad direction for entrance at exit.");
 }
 
-void check_adir(x, y, dir)
+void check_adir(int x, int y, int dir)
 {
 }
 

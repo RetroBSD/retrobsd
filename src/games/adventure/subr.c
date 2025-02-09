@@ -6,34 +6,30 @@
 /* Statement functions */
 
 int
-toting(objj)
-int objj;
+toting(int objj)
 {       if (place[objj] == -1) return(TRUE);
 	else return(FALSE);
 }
 
 int
-here(objj)
-int objj;
+here(int objj)
 {       if (place[objj]==loc || toting(objj)) return(TRUE);
 	else return(FALSE);
 }
 
 int
-at(objj)
-int objj;
+at(int objj)
 {       if (place[objj]==loc || fixed[objj]==loc) return(TRUE);
 	else return (FALSE);
 }
 
 int
-liq2(pbotl)
-int pbotl;
+liq2(int pbotl)
 {       return((1-pbotl)*water+(pbotl/2)*(water+oil));
 }
 
 int
-liq(foo)
+liq(int foo)
 {       register int i;
 	i=prop[bottle];
 	if (i>-1-i) return(liq2(i));
@@ -41,8 +37,7 @@ liq(foo)
 }
 
 int
-liqloc(locc)     /* may want to clean this one up a bit */
-int locc;
+liqloc(int locc)     /* may want to clean this one up a bit */
 {       register int i,j,l;
 	i=cond[locc]/2;
 	j=((i*2)%8)-5;
@@ -52,29 +47,26 @@ int locc;
 }
 
 int
-bitset(l,n)
-int l,n;
+bitset(int l, int n)
 {       if (cond[l] & setbit[n]) return(TRUE);
 	return(FALSE);
 }
 
 int
-forced(locc)
-int locc;
+forced(int locc)
 {       if (cond[locc]==2) return(TRUE);
 	return(FALSE);
 }
 
 int
-dark(foo)
+dark(int foo)
 {       if ((cond[loc]%2)==0 && (prop[lamp]==0 || !here(lamp)))
 		return(TRUE);
 	return(FALSE);
 }
 
 int
-pct(n)
-int n;
+pct(int n)
 {       if (ran(100)<n) return(TRUE);
 	return(FALSE);
 }
@@ -358,8 +350,7 @@ l12:    /* alternative to probability move      */
 }
 
 void
-bug(n)
-int n;
+bug(int n)
 {       printf("Please tell jim@rand-unix that fatal bug %d happened.\n",n);
 	exit(0);
 }

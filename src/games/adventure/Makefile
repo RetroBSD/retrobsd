@@ -16,7 +16,7 @@ adventure.dat:  #glorkz
 		./adventure glorkz
 
 adventure:      ${OBJS}
-		${CC} ${LDFLAGS} -o adventure.elf ${OBJS} ${LIBS}
+		${LD} ${LDFLAGS} -o adventure.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S adventure.elf > adventure.dis
 		${SIZE} adventure.elf
 		${ELF2AOUT} adventure.elf $@ && rm adventure.elf

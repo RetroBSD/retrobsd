@@ -115,7 +115,7 @@ RULE	state0[] = {	{ ALPHATOKEN,	1,	"%c:",		setplane},
 			{ HELPTOKEN,	12,	" @a<dir><ret>",NULL	}},
 	state7[] = {	{ RETTOKEN,	-1,	"",		NULL	},
 #ifdef SYSV
-	            	{ CRTOKEN,	-1,	"",		NULL	},
+			{ CRTOKEN,	-1,	"",		NULL	},
 #endif
 			{ HELPTOKEN,	12,	" <ret>",	NULL	}},
 	state8[] = {	{ NUMTOKEN,	4,	"%c",		benum	},
@@ -174,7 +174,7 @@ void rezero()
 	strcpy(T_STR, "");
 }
 
-void push(ruleno, ch)
+void push(int ruleno, int ch)
 {
 	int	newstate, newpos;
 
@@ -324,7 +324,7 @@ int getcommand()
 }
 
 char	*
-setplane(c)
+setplane(int c)
 {
 	PLANE	*pp;
 
@@ -337,7 +337,7 @@ setplane(c)
 }
 
 char	*
-turn(c)
+turn(int c)
 {
 	if (p.altitude == 0)
 		return ("Planes at airports may not change direction");
@@ -345,7 +345,7 @@ turn(c)
 }
 
 char	*
-circle(c)
+circle(int c)
 {
 	if (p.altitude == 0)
 		return ("Planes cannot circle on the ground");
@@ -354,7 +354,7 @@ circle(c)
 }
 
 char	*
-left(c)
+left(int c)
 {
 	dir = D_LEFT;
 	p.new_dir = p.dir - 1;
@@ -364,7 +364,7 @@ left(c)
 }
 
 char	*
-right(c)
+right(int c)
 {
 	dir = D_RIGHT;
 	p.new_dir = p.dir + 1;
@@ -374,7 +374,7 @@ right(c)
 }
 
 char	*
-Left(c)
+Left(int c)
 {
 	p.new_dir = p.dir - 2;
 	if (p.new_dir < 0)
@@ -383,7 +383,7 @@ Left(c)
 }
 
 char	*
-Right(c)
+Right(int c)
 {
 	p.new_dir = p.dir + 2;
 	if (p.new_dir > MAXDIR)
@@ -392,7 +392,7 @@ Right(c)
 }
 
 char	*
-delayb(c)
+delayb(int c)
 {
 	int	xdiff, ydiff;
 
@@ -437,42 +437,42 @@ delayb(c)
 }
 
 char	*
-beacon(c)
+beacon(int c)
 {
 	dest_type = T_BEACON;
 	return (NULL);
 }
 
 char	*
-ex_it(c)
+ex_it(int c)
 {
 	dest_type = T_EXIT;
 	return (NULL);
 }
 
 char	*
-airport(c)
+airport(int c)
 {
 	dest_type = T_AIRPORT;
 	return (NULL);
 }
 
 char	*
-climb(c)
+climb(int c)
 {
 	dir = D_UP;
 	return (NULL);
 }
 
 char	*
-descend(c)
+descend(int c)
 {
 	dir = D_DOWN;
 	return (NULL);
 }
 
 char	*
-setalt(c)
+setalt(int c)
 {
 	if ((p.altitude == c - '0') && (p.new_altitude == p.altitude))
 		return ("Already at that altitude");
@@ -481,7 +481,7 @@ setalt(c)
 }
 
 char	*
-setrelalt(c)
+setrelalt(int c)
 {
 	if (c == 0)
 		return ("altitude not changed");
@@ -505,7 +505,7 @@ setrelalt(c)
 }
 
 char	*
-benum(c)
+benum(int c)
 {
 	dest_no = c -= '0';
 
@@ -536,14 +536,14 @@ benum(c)
 }
 
 char	*
-to_dir(c)
+to_dir(int c)
 {
 	p.new_dir = dir_no(c);
 	return (NULL);
 }
 
 char	*
-rel_dir(c)
+rel_dir(int c)
 {
 	int	angle;
 
@@ -567,7 +567,7 @@ rel_dir(c)
 }
 
 char	*
-mark(c)
+mark(int c)
 {
 	if (p.altitude == 0)
 		return ("Cannot mark planes on the ground");
@@ -578,7 +578,7 @@ mark(c)
 }
 
 char	*
-unmark(c)
+unmark(int c)
 {
 	if (p.altitude == 0)
 		return ("Cannot unmark planes on the ground");
@@ -589,7 +589,7 @@ unmark(c)
 }
 
 char	*
-ignore(c)
+ignore(int c)
 {
 	if (p.altitude == 0)
 		return ("Cannot ignore planes on the ground");
@@ -599,7 +599,7 @@ ignore(c)
 	return (NULL);
 }
 
-int dir_no(ch)
+int dir_no(int ch)
 {
 	int	dir = 0;
 

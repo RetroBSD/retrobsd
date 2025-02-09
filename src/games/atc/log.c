@@ -28,7 +28,7 @@ int compar(a, b)
 #define SEC(t)		((t) % SECAMIN)
 
 char	*
-timestr(t)
+timestr(int t)
 {
 	static char	s[80];
 
@@ -46,7 +46,7 @@ timestr(t)
 	return (s);
 }
 
-void log_score(list_em)
+void log_score(int list_em)
 {
 	register int	i, fd, num_scores = 0, good, changed = 0, found = 0;
 	struct passwd	*pw;

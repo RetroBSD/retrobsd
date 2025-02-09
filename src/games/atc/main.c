@@ -9,8 +9,7 @@
 
 #include "include.h"
 
-int read_file(s)
-	char	*s;
+int read_file(char *s)
 {
 	extern FILE	*yyin;
 	int		retval;
@@ -56,8 +55,7 @@ default_game()
 }
 
 char	*
-okay_game(s)
-	char	*s;
+okay_game(char *s)
 {
 	FILE		*fp;
 	static char	file[256];
@@ -116,8 +114,7 @@ int list_games()
 	return (0);
 }
 
-int main(ac, av)
-	char	*av[];
+int main(int ac, char *av[])
 {
 	int			seed;
 	int			f_usage = 0, f_list = 0, f_showscore = 0;

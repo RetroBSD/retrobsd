@@ -27,8 +27,8 @@
 #endif
 #include <stdlib.h>
 
-int datfd;                              /* message file descriptor      */
-int delhit;
+extern int datfd;                       /* message file descriptor      */
+extern int delhit;
 
 #define DATFILE "glorkz"                /* all the original msgs        */
 #define DATSIZE (46*1024)               /* size of encrypted data       */
@@ -38,7 +38,7 @@ int delhit;
 #define FLUSHLINE while (getchar()!='\n')
 #define FLUSHLF   while (next()!=LF)
 
-char *wd1, *wd2;                        /* the complete words           */
+extern char *wd1, *wd2;                 /* the complete words           */
 
 struct hashtab {                        /* hash table for vocabulary    */
         int val;                        /* word type &index (ktab)      */
@@ -60,7 +60,7 @@ struct travlist {                       /* direcs & conditions of travel*/
 /*
  * Game state.
  */
-struct {
+extern struct game {
     short loc, newloc, oldloc, oldlc2, wzdark, gaveup, kq, k, k2;
     short verb, obj, spk;
     short blklin;
@@ -130,7 +130,7 @@ struct {
     short limit;
 } game;
 
-struct travlist *tkk;                   /* travel is closer to keys(...)*/
+extern struct travlist *tkk;                   /* travel is closer to keys(...)*/
 
 extern const short setbit[16];            /* bit defn masks 1,2,4,...     */
 

@@ -7,7 +7,11 @@
 #include <signal.h>
 #include <fcntl.h>
 
-int	datfd;
+int datfd;
+int delhit;
+char *wd1, *wd2;
+struct game game;
+struct travlist *tkk;
 
 int
 main(argc, argv)

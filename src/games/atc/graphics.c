@@ -80,9 +80,7 @@ void init_gr()
 	planes = newwin(LINES - INPUT_LINES, PLANE_COLS, 0, COLS - PLANE_COLS);
 }
 
-void draw_line(w, x, y, lx, ly, s)
-	WINDOW	*w;
-	char	*s;
+void draw_line(WINDOW *w, int x, int y, int lx, int ly, char *s)
 {
 	int	dx, dy;
 
@@ -98,8 +96,7 @@ void draw_line(w, x, y, lx, ly, s)
 	}
 }
 
-void setup_screen(scp)
-	C_SCREEN	*scp;
+void setup_screen(C_SCREEN *scp)
 {
 	register int	i, j;
 	char		str[3], *airstr;
@@ -189,7 +186,7 @@ void setup_screen(scp)
 	fflush(stdout);
 }
 
-void ioclrtoeol(pos)
+void ioclrtoeol(int pos)
 {
 	wmove(input, 0, pos);
 	wclrtoeol(input);
@@ -197,15 +194,14 @@ void ioclrtoeol(pos)
 	fflush(stdout);
 }
 
-void iomove(pos)
+void iomove(int pos)
 {
 	wmove(input, 0, pos);
 	wrefresh(input);
 	fflush(stdout);
 }
 
-void ioaddstr(pos, str)
-	char	*str;
+void ioaddstr(int pos, char *str)
 {
 	wmove(input, 0, pos);
 	waddstr(input, str);
@@ -220,8 +216,7 @@ void ioclrtobot()
 	fflush(stdout);
 }
 
-void ioerror(pos, len, str)
-	char	*str;
+void ioerror(int pos, int len, char *str)
 {
 	int	i;
 
@@ -316,9 +311,7 @@ void planewin()
 	fflush(stdout);
 }
 
-void loser(p, s)
-	PLANE	*p;
-	char	*s;
+void loser(PLANE *p, char *s)
 {
 	int			c;
 #ifdef BSD

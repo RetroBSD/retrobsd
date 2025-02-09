@@ -23,7 +23,7 @@ MANSRC		= atc.6
 all:            atc $(MAN)
 
 atc:            $(OBJS)
-		$(CC) $(LDFLAGS) -o atc.elf $(OBJS) $(LIBS)
+		$(LD) $(LDFLAGS) -o atc.elf $(OBJS) $(LIBS)
 		$(OBJDUMP) -S atc.elf > atc.dis
 		$(SIZE) atc.elf
 		$(ELF2AOUT) atc.elf $@ && rm atc.elf

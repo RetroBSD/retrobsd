@@ -24,13 +24,13 @@
 
 extern  int returntosingle;
 
-int memdata [16 * sizeof(BUFAREA) / sizeof(int)]; // Align to word boundary
+int memdata [10 * sizeof(BUFAREA) / sizeof(int)]; // Align to word boundary
 
 BUFAREA inoblk;         /* inode blocks */
 BUFAREA fileblk;        /* other blks in filesys */
 BUFAREA sblk;           /* file system superblock */
 BUFAREA *poolhead;      /* ptr to first buffer in pool */
-struct filecntl dfile, sfile;    /* file descriptors for filesys/scratch files */
+struct filecntl dfile, sfile;   /* file descriptors for filesys/scratch files */
 daddr_t duplist[DUPTBLSIZE];    /* head of dup list */
 daddr_t *enddup;                /* next entry in dup table */
 daddr_t *muldup;                /* multiple dups part of table */

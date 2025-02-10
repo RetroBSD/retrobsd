@@ -47,7 +47,7 @@ run()
 
 obj execute(node *u)
 {
-	register obj (*proc)();
+	register obj (*proc)(node **a, int n);
 	obj x;
 	node *a;
 
@@ -57,7 +57,7 @@ obj execute(node *u)
 		if (cantexec(a))
 			return(nodetoobj(a));
 		if (a->ntype==NPA2)
-			proc=dopa2;
+			proc = dopa2;
 		else {
 			if (notlegal(a->nobj))
 				error(FATAL, "illegal statement %o", a);
@@ -112,17 +112,6 @@ obj getline()
 	return(x);
 }
 
-obj array(node **a, int n)
-{
-	obj x, y;
-	extern obj arrayel();
-
-	x = execute(a[1]);
-	y = arrayel(a[0], x);
-	tempfree(x);
-	return(y);
-}
-
 obj arrayel(node *a, obj b)
 {
 	char *s;
@@ -141,6 +130,16 @@ obj arrayel(node *a, obj b)
 	y.optr = setsymtab(s, tostring(""), 0.0, STR|NUM, (cell **) x->sval);
 	y.otype = OCELL;
 	y.osub = CVAR;
+	return(y);
+}
+
+obj array(node **a, int n)
+{
+	obj x, y;
+
+	x = execute(a[1]);
+	y = arrayel(a[0], x);
+	tempfree(x);
 	return(y);
 }
 
@@ -255,7 +254,6 @@ obj indirect(node **a, int n)
 {
 	obj x;
 	int m;
-	cell *fieldadr();
 
 	x = execute(a[0]);
 	m = getfval(x.optr);

@@ -69,9 +69,7 @@ int check(FILE *fp, struct passwd *pw);
 int prompt(void);
 
 int
-main(argc, argv)
-	int argc;
-	char **argv;
+main(int argc, char **argv)
 {
 	extern int errno, optind;
 	extern char *optarg;
@@ -232,8 +230,7 @@ bad:		(void)fprintf(stderr, "%s unchanged.\n", _PATH_SHADOW);
 }
 
 int
-info(pw)
-	struct passwd *pw;
+info(struct passwd *pw)
 {
 	struct stat begin, end;
 	FILE *fp;
@@ -281,9 +278,7 @@ info(pw)
 }
 
 int
-check(fp, pw)
-	FILE *fp;
-	struct passwd *pw;
+check(FILE *fp, struct passwd *pw)
 {
 	register struct entry *ep;
 	register char *p;
@@ -345,9 +340,7 @@ check(fp, pw)
 }
 
 int
-copy(pw, fp)
-	struct passwd *pw;
-	FILE *fp;
+copy(struct passwd *pw, FILE *fp)
 {
 	register int done;
 	register char *p;
@@ -386,8 +379,7 @@ copy(pw, fp)
 }
 
 int
-makedb(file)
-	char *file;
+makedb(char *file)
 {
 	int status, pid, w;
 
@@ -400,11 +392,10 @@ makedb(file)
 }
 
 int
-edit(file)
-	char *file;
+edit(char *file)
 {
 	int status, pid, w;
-	char *p, *editor, *getenv();
+	char *p, *editor;
 
 	editor = getenv("EDITOR");
 	if (editor) {
@@ -427,9 +418,7 @@ edit(file)
 }
 
 void
-loadpw(arg, pw)
-	char *arg;
-	register struct passwd *pw;
+loadpw(char *arg, struct passwd *pw)
 {
 	register char *cp;
 	char	*bp = arg;

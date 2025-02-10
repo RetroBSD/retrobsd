@@ -30,17 +30,6 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
-
-#ifndef lint
-static char copyright[] =
-"@(#) Copyright (c) 1989, 1993\n\
-	The Regents of the University of California.  All rights reserved.\n";
-#endif /* not lint */
-
-#ifndef lint
-static char sccsid[] = "@(#)calendar.c	8.3 (Berkeley) 3/25/94";
-#endif /* not lint */
-
 #include <sys/param.h>
 #include <sys/time.h>
 #include <sys/stat.h>
@@ -78,9 +67,7 @@ void	 settime (void);
 void	 usage (void);
 
 int
-main(argc, argv)
-	int argc;
-	char *argv[];
+main(int argc, char *argv[])
 {
 	extern int optind;
 	int ch;
@@ -195,8 +182,7 @@ settime()
  * along with the matched line.
  */
 int
-isnow(endp)
-	char *endp;
+isnow(char *endp)
 {
 	int day, flags, month, v1, v2;
 
@@ -243,9 +229,7 @@ isnow(endp)
 }
 
 int
-getfield(p, endp, flags)
-	char *p, **endp;
-	int *flags;
+getfield(char *p, char **endp, int *flags)
 {
 	int val;
 	char *start, savech;
@@ -327,8 +311,7 @@ opencal()
 }
 
 void
-closecal(fp)
-	FILE *fp;
+closecal(FILE *fp)
 {
 	struct stat sbuf;
 	int nread, pdes[2], status;
@@ -380,8 +363,7 @@ static char *months[] = {
 };
 
 int
-getmonth(s)
-	register char *s;
+getmonth(char *s)
 {
 	register char **p;
 
@@ -396,8 +378,7 @@ static char *days[] = {
 };
 
 int
-getday(s)
-	register char *s;
+getday(char *s)
 {
 	register char **p;
 

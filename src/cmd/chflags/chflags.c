@@ -38,8 +38,7 @@ die(char *fmt, ...)
 }
 
 int
-warning(msg)
-	char *msg;
+warning(char *msg)
 {
 	if (! fflag)
 		fprintf(stderr, "chflags: %s: %s\n", msg, strerror(errno));
@@ -47,8 +46,7 @@ warning(msg)
 }
 
 int
-newflags(flags)
-	int flags;
+newflags(int flags)
 {
 	if (oct)
 		flags = set;
@@ -60,9 +58,7 @@ newflags(flags)
 }
 
 int
-recurse(dir, savedir)
-	char	*dir;
-	int	savedir;
+recurse(char *dir, int savedir)
 {
 	register DIR *dirp;
 	register struct direct *dp;
@@ -120,9 +116,7 @@ usage()
 }
 
 int
-main(argc, argv)
-	int	argc;
-	char	*argv[];
+main(int argc, char *argv[])
 {
 	register char *p;
 	char	*flags, *ep;

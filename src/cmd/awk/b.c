@@ -3,8 +3,9 @@
 #include "awk.def.h"
 #include "awk.h"
 
-extern node *op2();
-extern struct fa *cgotofn();
+extern node *op2(int a, node *b, node *c);
+extern struct fa *cgotofn(void);
+
 #define MAXLIN 256
 #define NCHARS 128
 #define NSTATES 256
@@ -148,12 +149,28 @@ overflo()
 	error(FATAL, "regular expression too long\n");
 }
 
+int *add(int n) 		/* remember setvec */
+{
+	int *ptr, *p;
+	int i;
+	if ((p = ptr = (int *) malloc((n+1)*sizeof(int))) == NULL)
+		overflo();
+	*ptr = n;
+	dprintf("add(%d)\n", n, NULL, NULL);
+	for (i=1; i <= line; i++)
+		if (setvec[i] == 1) {
+			*(++ptr) = i;
+			dprintf("  ptr = %o, *ptr = %d, i = %d\n", ptr, *ptr, i);
+		}
+	dprintf("\n", NULL, NULL, NULL);
+	return(p);
+}
+
 void
 cfoll(node *v)		/* enter follow set of each leaf of vertex v into foll[leaf] */
 {
 	int i;
 	int prev;
-	int *add();
 
 	switch(type(v)) {
 		LEAF
@@ -274,23 +291,6 @@ notin(int **array, int n, int *prev)		/* is setvec in array[0] thru array[n]? */
 		nxt: ;
 	}
 	return(1);
-}
-
-int *add(int n) 		/* remember setvec */
-{
-	int *ptr, *p;
-	int i;
-	if ((p = ptr = (int *) malloc((n+1)*sizeof(int))) == NULL)
-		overflo();
-	*ptr = n;
-	dprintf("add(%d)\n", n, NULL, NULL);
-	for (i=1; i <= line; i++)
-		if (setvec[i] == 1) {
-			*(++ptr) = i;
-			dprintf("  ptr = %o, *ptr = %d, i = %d\n", ptr, *ptr, i);
-		}
-	dprintf("\n", NULL, NULL, NULL);
-	return(p);
 }
 
 struct fa *cgotofn()

@@ -157,3 +157,4 @@ obj execute(node *u);
 obj nodetoobj(node *a);
 obj dopa2(node **a, int n);
 obj gettemp(void);
+cell *fieldadr(int n);

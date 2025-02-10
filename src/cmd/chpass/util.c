@@ -33,8 +33,7 @@ static char *months[] =
 	  "July", "August", "September", "October", "November",
 	  "December", NULL };
 char *
-ttoa(tval)
-	time_t tval;
+ttoa(time_t tval)
 {
 	register struct tm *tp;
 	static char tbuf[50];
@@ -50,13 +49,11 @@ ttoa(tval)
 }
 
 int
-atot(p, store)
-	char *p;
-	time_t *store;
+atot(char *p, time_t *store)
 {
 	register char *t, **mp;
 	static struct tm *lt;
-	time_t tval, time();
+	time_t tval;
 	int day, month, year;
 
 	if (!*p) {
@@ -114,9 +111,7 @@ bad:		return(1);
 }
 
 void
-print(fp, pw)
-	register FILE *fp;
-	struct passwd *pw;
+print(FILE *fp, struct passwd *pw)
 {
 	register char *p;
 	char	*bp;

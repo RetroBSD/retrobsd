@@ -3,8 +3,7 @@
 #include <fcntl.h>
 
 int
-freeze(s)
-        char *s;
+freeze(char *s)
 {
         int fd;
 	size_t len;
@@ -21,8 +20,7 @@ freeze(s)
 }
 
 int
-thaw(s)
-        char *s;
+thaw(char *s)
 {
         int fd;
 	unsigned int *len;

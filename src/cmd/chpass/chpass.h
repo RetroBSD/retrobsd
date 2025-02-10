@@ -17,7 +17,8 @@
 
 struct entry {
 	char *prompt;
-	int (*func)(), restricted, len;
+	int (*func)(char *p, struct passwd *pw, struct entry *ep);
+        int restricted, len;
 	char *except, *save;
 };
 

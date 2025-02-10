@@ -72,9 +72,7 @@ char    *getgroup(gid_t gid);
 char    *fmtmode(char *lp, int flags);
 
 int
-main(argc, argv)
-	int argc;
-	char *argv[];
+main(int argc, char *argv[])
 {
 	extern int optind;
 	struct afile *fp0, *fplast;
@@ -216,9 +214,7 @@ main(argc, argv)
 }
 
 void
-formatd(name, dotitle)
-	char *name;
-	int dotitle;
+formatd(char *name, int dotitle)
 {
 	register struct afile *fp;
 	register struct subdirs *dp;
@@ -256,10 +252,7 @@ formatd(name, dotitle)
 }
 
 long
-getdir(dir, pfp0, pfplast, isadir)
-	char *dir;
-	struct afile **pfp0, **pfplast;
-	int *isadir;
+getdir(char *dir, struct afile **pfp0, struct afile **pfplast, int *isadir)
 {
 	register struct afile *fp;
 	DIR *dirp;
@@ -312,13 +305,9 @@ getdir(dir, pfp0, pfplast, isadir)
 }
 
 struct afile *
-gstat(fp, file, statarg, pnb)
-	register struct afile *fp;
-	char *file;
-	int statarg;
-	long *pnb;
+gstat(struct afile *fp, char *file, int statarg, long *pnb)
 {
-	int (*statf)() = Lflg ? stat : lstat;
+	int (*statf)(const char *, struct stat *) = Lflg ? stat : lstat;
 	char buf[BUFSIZ]; int cc;
 	static struct afile azerofile;
 
@@ -386,8 +375,7 @@ gstat(fp, file, statarg, pnb)
 }
 
 void
-formatf(fp0, fplast)
-	struct afile *fp0, *fplast;
+formatf(struct afile *fp0, struct afile *fplast)
 {
 	register struct afile *fp;
 	register int i, j, w;
@@ -472,8 +460,7 @@ fcmp(const void *a, const void *b)
 }
 
 char *
-cat(dir, file)
-	char *dir, *file;
+cat(char *dir, char *file)
 {
 	static char dfile[BUFSIZ];
 	register int dlen;
@@ -492,8 +479,7 @@ cat(dir, file)
 }
 
 char *
-savestr(str)
-	char *str;
+savestr(char *str)
 {
 	register char *cp = strdup(str);
 
@@ -505,9 +491,7 @@ savestr(str)
 }
 
 char *
-fmtentry(fp, maxflags)
-        register struct afile *fp;
-        int maxflags;
+fmtentry(struct afile *fp, int maxflags)
 {
 	static char fmtres[BUFSIZ];
 	register char *cp, *dp;
@@ -545,8 +529,7 @@ fmtentry(fp, maxflags)
 }
 
 char *
-fmtinum(p)
-	register struct afile *p;
+fmtinum(struct afile *p)
 {
 	static char inumbuf[8];
 
@@ -555,8 +538,7 @@ fmtinum(p)
 }
 
 char *
-fmtsize(p)
-	register struct afile *p;
+fmtsize(struct afile *p)
 {
 	static char sizebuf[16];
 
@@ -565,9 +547,7 @@ fmtsize(p)
 }
 
 char *
-fmtlstuff(p, maxflags)
-	register struct afile *p;
-	int maxflags;
+fmtlstuff(struct afile *p, int maxflags)
 {
 	static char lstuffbuf[256];
 	char gname[32], uname[32], fsize[32], ftime[32], fflags[64];
@@ -629,9 +609,7 @@ int	m9[] = { 3, S_ISVTX|(S_IEXEC>>6), 't', S_ISVTX, 'T', S_IEXEC>>6, 'x', '-' };
 int	*m[] = { m1, m2, m3, m4, m5, m6, m7, m8, m9};
 
 char *
-fmtmode(lp, flags)
-	char *lp;
-	register int flags;
+fmtmode(char *lp, int flags)
 {
 	int **mp;
 
@@ -660,8 +638,7 @@ struct	utmp utmp;
 #define CAMASK	NCACHE - 1
 
 char *
-getname(uid)
-	uid_t uid;
+getname(uid_t uid)
 {
 	static struct ncache {
 		uid_t	uid;
@@ -682,8 +659,7 @@ getname(uid)
 }
 
 char *
-getgroup(gid)
-	gid_t gid;
+getgroup(gid_t gid)
 {
 	static struct ncache {
 		gid_t	gid;

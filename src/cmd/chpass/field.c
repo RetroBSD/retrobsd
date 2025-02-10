@@ -29,10 +29,7 @@
 
 /* ARGSUSED */
 int
-p_login(p, pw, ep)
-	char *p;
-	struct passwd *pw;
-	struct entry *ep;
+p_login(char *p, struct passwd *pw, struct entry *ep)
 {
 	if (!*p) {
 		(void)fprintf(stderr, "chpass: empty login field.\n");
@@ -61,10 +58,7 @@ p_login(p, pw, ep)
 
 /* ARGSUSED */
 int
-p_passwd(p, pw, ep)
-	char *p;
-	struct passwd *pw;
-	struct entry *ep;
+p_passwd(char *p, struct passwd *pw, struct entry *ep)
 {
 	if (!*p)
 		pw->pw_passwd = "";	/* "NOLOGIN"; */
@@ -78,10 +72,7 @@ p_passwd(p, pw, ep)
 
 /* ARGSUSED */
 int
-p_uid(p, pw, ep)
-	register char *p;
-	struct passwd *pw;
-	struct entry *ep;
+p_uid(char *p, struct passwd *pw, struct entry *ep)
 {
 	int id;
 
@@ -105,10 +96,7 @@ p_uid(p, pw, ep)
 
 /* ARGSUSED */
 int
-p_gid(p, pw, ep)
-	register char *p;
-	struct passwd *pw;
-	struct entry *ep;
+p_gid(char *p, struct passwd *pw, struct entry *ep)
 {
 	struct group *gr;
 	int id;
@@ -138,10 +126,7 @@ p_gid(p, pw, ep)
 
 /* ARGSUSED */
 int
-p_gecos(p, pw, ep)
-	char *p;
-	struct passwd *pw;
-	struct entry *ep;
+p_gecos(char *p, struct passwd *pw, struct entry *ep)
 {
 	if (!*p)
 		ep->save = "";
@@ -154,10 +139,7 @@ p_gecos(p, pw, ep)
 
 /* ARGSUSED */
 int
-p_hdir(p, pw, ep)
-	char *p;
-	struct passwd *pw;
-	struct entry *ep;
+p_hdir(char *p, struct passwd *pw, struct entry *ep)
 {
 	if (!*p) {
 		(void)fprintf(stderr, "chpass: empty home directory field.\n");
@@ -172,10 +154,7 @@ p_hdir(p, pw, ep)
 
 /* ARGSUSED */
 int
-p_shell(p, pw, ep)
-	register char *p;
-	struct passwd *pw;
-	struct entry *ep;
+p_shell(char *p, struct passwd *pw, struct entry *ep)
 {
 	register char *sh, *t;
 

@@ -7,16 +7,28 @@
 #include <stdarg.h>
 
 int
-execle (const char *name, const char *arg, ...)
+execle(const char *name, const char *arg, ...)
 {
-	va_list ap;
-	char **envp;
+    va_list ap, copy;
+    char **envp;
+    unsigned argc;
 
-	va_start (ap, arg);
-	while ((va_arg (ap, char *)) != NULL)
-		continue;
-	envp = va_arg (ap, char **);
-	va_end (ap);
+    // Compute number of arguments.
+    va_start(ap, arg);
+    va_copy(copy, ap);
+    for (argc = 1; va_arg(ap, char *); ) {
+        ++argc;
+    }
+    envp = va_arg(ap, char **);
+    va_end(ap);
 
-	return execve (name, (char *const*) &arg, envp);
+    // Allocate args on stack.
+    const char *argv[argc + 1];
+    argv[0] = arg;
+    for (unsigned i = 1; i <= argc; i++) {
+        argv[i] = va_arg(copy, char *);
+    }
+    va_end(copy);
+
+    return execve(name, (char *const *)argv, envp);
 }

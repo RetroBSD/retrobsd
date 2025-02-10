@@ -8,7 +8,7 @@ CFLAGS          += -Os
 # rest of the system calls are generated with printf(1) and do not have
 # source files associated with them.
 
-COBJS		= sbrk.o execl.o execle.o execv.o
+COBJS		= sbrk.o execl.o execle.o execlp.o execv.o
 
 ASMOBJS		= _exit.o _brk.o pipe.o ptrace.o sigaction.o
 

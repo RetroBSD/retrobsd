@@ -2,6 +2,7 @@
 #include <signal.h>
 #include <sgtty.h>
 #include <fcntl.h>
+#include <unistd.h>
 
 char *
 getpass(char *prompt)

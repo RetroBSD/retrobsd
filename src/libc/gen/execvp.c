@@ -10,12 +10,6 @@
 
 static	char shell[] =	"/bin/sh";
 
-int
-execlp(const char *name, const char *argv, ...)
-{
-	return execvp (name, (char * const*) &argv);
-}
-
 static char *
 execat(char *s1, const char *s2, char *si)
 {

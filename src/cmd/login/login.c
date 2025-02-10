@@ -82,16 +82,13 @@ void dolastlog(int quiet);
 char *stypeof(char *ttyid);
 void motd(void);
 
-void timedout(sig)
-        int sig;
+void timedout(int sig)
 {
 	(void)fprintf(stderr, "Login timed out after %d seconds\n", timeout);
 	exit(0);
 }
 
-int main(argc, argv)
-	int argc;
-	char **argv;
+int main(int argc, char **argv)
 {
 	extern int errno, optind;
 	extern char *optarg, **environ;
@@ -424,7 +421,7 @@ nouser:
 	/* discard permissions last so can't get killed and drop core */
 	(void)setuid(pwd->pw_uid);
 
-	execlp(pwd->pw_shell, tbuf, 0);
+	execlp(pwd->pw_shell, tbuf, NULL);
 	(void)fprintf(stderr, "login: no shell: %s\n", strerror(errno));
 	exit(0);
 }
@@ -458,8 +455,7 @@ void getloginname()
 	}
 }
 
-int rootterm(ttyn)
-	char *ttyn;
+int rootterm(char *ttyn)
 {
 	struct ttyent *t;
 
@@ -468,8 +464,7 @@ int rootterm(ttyn)
 
 jmp_buf motdinterrupt;
 
-void sigint(sig)
-        int sig;
+void sigint(int sig)
 {
 	longjmp(motdinterrupt, 1);
 }
@@ -502,8 +497,7 @@ void checknologin()
 	}
 }
 
-void dolastlog(quiet)
-	int quiet;
+void dolastlog(int quiet)
 {
 	struct lastlog ll;
 	int fd;
@@ -534,8 +528,7 @@ void dolastlog(quiet)
 	}
 }
 
-void badlogin(name)
-	char *name;
+void badlogin(char *name)
 {
 	if (failures == 0)
 		return;
@@ -550,17 +543,14 @@ void badlogin(name)
 #undef	UNKNOWN
 #define	UNKNOWN	"su"
 
-char *stypeof(ttyid)
-	char *ttyid;
+char *stypeof(char *ttyid)
 {
 	struct ttyent *t;
 
 	return(ttyid && (t = getttynam(ttyid)) ? t->ty_type : UNKNOWN);
 }
 
-void getstr(buf, cnt, err)
-	char *buf, *err;
-	int cnt;
+void getstr(char *buf, int cnt, char *err)
 {
 	char ch;
 
@@ -575,8 +565,7 @@ void getstr(buf, cnt, err)
 	} while (ch);
 }
 
-void sleepexit(eval)
-	int eval;
+void sleepexit(int eval)
 {
 	sleep((u_int)5);
 	exit(eval);

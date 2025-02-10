@@ -243,7 +243,7 @@ extern jmp_buf errshell;
 extern unsigned brkincr;
 
 #define MINTRAP 0
-#define MAXTRAP 26
+#define MAXTRAP NSIG
 
 #define TRAPSET 2
 #define SIGSET 4

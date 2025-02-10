@@ -45,6 +45,7 @@ LD		= $(LLVMBIN)ld.lld -m elf32ltsmip
 AR		= $(LLVMBIN)llvm-ar
 RANLIB          = $(LLVMBIN)llvm-ranlib
 SIZE            = $(LLVMBIN)llvm-size
+NM              = $(LLVMBIN)llvm-nm
 OBJDUMP         = $(LLVMBIN)llvm-objdump --mcpu=mips32r2
 AS		= $(CC) -x assembler-with-cpp -c
 YACC            = byacc

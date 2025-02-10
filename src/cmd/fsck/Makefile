@@ -37,6 +37,7 @@ all:		${PROG}
 ${PROG}:	${OBJS} ${HDRS}
 		${LD} ${LDFLAGS} -o fsck.elf ${OBJS} ${LIBS}
 		${OBJDUMP} -S fsck.elf > fsck.dis
+		${NM} fsck.elf > fsck.nm
 		${SIZE} fsck.elf
 		${ELF2AOUT} fsck.elf $@ && rm fsck.elf
 

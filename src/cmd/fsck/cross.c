@@ -16,7 +16,7 @@
 #include <fstab.h>
 #include "fsck.h"
 
-char memdata [MAXDATA];
+int memdata [MAXDATA / sizeof(int)]; // Align to word boundary
 
 void
 usage ()
@@ -183,7 +183,7 @@ main(argc, argv)
     }
 
     memsize = sizeof (memdata);
-    membase = memdata;
+    membase = (char*)memdata;
 
     if (signal(SIGINT, SIG_IGN) != SIG_IGN)
         (void)signal(SIGINT, catch);

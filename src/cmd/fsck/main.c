@@ -24,7 +24,7 @@
 
 extern  int returntosingle;
 
-static char memdata[16 * sizeof(BUFAREA)];
+int memdata [16 * sizeof(BUFAREA) / sizeof(int)]; // Align to word boundary
 
 BUFAREA inoblk;         /* inode blocks */
 BUFAREA fileblk;        /* other blks in filesys */
@@ -320,7 +320,7 @@ main(argc, argv)
         errexit("Can't open checklist file: %s\n", _PATH_FSTAB);
     setpassent(1);
 
-    membase = memdata;
+    membase = (char*)memdata;
     memsize = sizeof(memdata);
 
     if (signal(SIGINT, SIG_IGN) != SIG_IGN)

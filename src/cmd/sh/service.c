@@ -19,9 +19,7 @@ void gocsh(char **t, char *cp, char **xecenv);
 /*
  * service routines for `execute'
  */
-int initio(iop, save)
-struct ionod *iop;
-int save;
+int initio(struct ionod *iop, int save)
 {
     register char *ion;
     register int iof, fd;
@@ -77,8 +75,7 @@ int save;
     return (lastfd);
 }
 
-char *simple(s)
-char *s;
+char *simple(char *s)
 {
     char *sname;
 
@@ -92,8 +89,7 @@ char *s;
     }
 }
 
-char *getpath(s)
-char *s;
+char *getpath(char *s)
 {
     register char *path;
 
@@ -108,8 +104,7 @@ char *s;
         return (cpystak(path));
 }
 
-int pathopen(path, name)
-register char *path, *name;
+int pathopen(char *path, char *name)
 {
     register int f;
 
@@ -119,9 +114,7 @@ register char *path, *name;
     return (f);
 }
 
-char *catpath(path, name)
-register char *path;
-char *name;
+char *catpath(char *path, char *name)
 {
     /*
      * leaves result on top of stack
@@ -142,8 +135,7 @@ char *name;
     return (path);
 }
 
-char *nextpath(path)
-register char *path;
+char *nextpath(char *path)
 {
     register char *scanp = path;
 
@@ -159,9 +151,7 @@ register char *path;
 static char *xecmsg;
 static char **xecenv;
 
-static char *execs(ap, t)
-char *ap;
-register char *t[];
+static char *execs(char *ap, char *t[])
 {
     register char *p, *prefix;
 
@@ -251,7 +241,7 @@ void execa(char *at[], short pos)
     }
 }
 
-void gocsh(t, cp, xecenv) register char **t, *cp, **xecenv;
+void gocsh(char **t, char *cp, char **xecenv)
 {
     char *newt[1000];
     register char **p;
@@ -282,7 +272,7 @@ void postclr()
     pwc = 0;
 }
 
-void post(pcsid) int pcsid;
+void post(int pcsid)
 {
     register int *pw = pwlist;
 
@@ -297,7 +287,7 @@ void post(pcsid) int pcsid;
     }
 }
 
-void await(i, bckg) int i, bckg;
+void await(int i, int bckg)
 {
     int rc = 0, wx = 0;
     union wait w;
@@ -377,7 +367,7 @@ void await(i, bckg) int i, bckg;
 
 BOOL nosubst;
 
-void trim(at) char *at;
+void trim(char *at)
 {
     register char *p;
     register char *ptr;
@@ -399,8 +389,7 @@ void trim(at) char *at;
     nosubst = isq(q);
 }
 
-char *mactrim(s)
-char *s;
+char *mactrim(char *s)
 {
     register char *t = macro(s);
 
@@ -408,7 +397,7 @@ char *s;
     return (t);
 }
 
-static void gsort(from, to) char *from[], *to[];
+static void gsort(char *from[], char *to[])
 {
     int k, m, n;
     register int i, j;
@@ -438,8 +427,7 @@ static void gsort(from, to) char *from[], *to[];
     }
 }
 
-char **scan(argn)
-int argn;
+char **scan(int argn)
 {
     register struct argnod *argp = (struct argnod *)(Rcheat(gchain) & ~ARGMK);
     register char **comargn, **comargm;
@@ -463,8 +451,7 @@ int argn;
     return (comargn);
 }
 
-static int split(s) /* blank interpretation routine */
-register char *s;
+static int split(char *s) /* blank interpretation routine */
 {
     register char *argp;
     register int c;
@@ -502,8 +489,7 @@ register char *s;
 /*
  * Argument list generation
  */
-int getarg(ac)
-struct comnod *ac;
+int getarg(struct comnod *ac)
 {
     register struct argnod *argp;
     register int count = 0;
@@ -541,7 +527,7 @@ void suspacct()
     shaccton = 0;
 }
 
-void preacct(cmdadr) char *cmdadr;
+void preacct(char *cmdadr)
 {
     char *simple();
 
@@ -578,8 +564,7 @@ void doacct()
  *      Produce a pseudo-floating point representation
  *      with 3 bits base-8 exponent, 13 bits fraction
  */
-int compress(t)
-register time_t t;
+int compress(time_t t)
 {
     register exp = 0;
     register rund = 0;

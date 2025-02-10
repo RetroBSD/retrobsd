@@ -21,8 +21,7 @@ static int findpath(char *name, int oldpath);
 static void pr_path(char *name, int count);
 static int chk_access(char *name);
 
-static int argpath(arg)
-register struct argnod *arg;
+static int argpath(struct argnod *arg)
 {
     register char *s;
     register char *start;
@@ -51,10 +50,7 @@ register struct argnod *arg;
     return (0);
 }
 
-short pathlook(com, flg, arg)
-char *com;
-int flg;
-register struct argnod *arg;
+short pathlook(char *com, int flg, struct argnod *arg)
 {
     register char *name = com;
     register ENTRY *h;
@@ -138,7 +134,7 @@ register struct argnod *arg;
     }
 }
 
-static void zapentry(h) ENTRY *h;
+static void zapentry(ENTRY *h)
 {
     h->data &= HASHZAP;
 }
@@ -157,7 +153,7 @@ void zapcd()
     }
 }
 
-static void hashout(h) ENTRY *h;
+static void hashout(ENTRY *h)
 {
     sigchk();
 
@@ -212,7 +208,7 @@ void set_dotpath()
     multrel = 0;
 }
 
-void hash_func(name) char *name;
+void hash_func(char *name)
 {
     ENTRY *h;
     ENTRY hentry;
@@ -240,7 +236,7 @@ void hash_func(name) char *name;
     }
 }
 
-void func_unhash(name) char *name;
+void func_unhash(char *name)
 {
     ENTRY *h;
 
@@ -250,8 +246,7 @@ void func_unhash(name) char *name;
         h->data = NOTFOUND;
 }
 
-short hash_cmd(name)
-char *name;
+short hash_cmd(char *name)
 {
     ENTRY *h;
 
@@ -270,7 +265,7 @@ char *name;
     return (pathlook(name, 0, NIL));
 }
 
-void what_is_path(name) register char *name;
+void what_is_path(char *name)
 {
     register ENTRY *h;
     int cnt;
@@ -332,9 +327,7 @@ void what_is_path(name) register char *name;
         prs_buff(" not found\n");
 }
 
-static int findpath(name, oldpath)
-register char *name;
-int oldpath;
+static int findpath(char *name, int oldpath)
 {
     register char *path;
     register int count = 1;
@@ -380,8 +373,7 @@ int oldpath;
     return (ok ? -e_code : count);
 }
 
-static int chk_access(name)
-register char *name;
+static int chk_access(char *name)
 {
     if (access(name, EXECUTE) == 0)
         return (0);
@@ -389,8 +381,7 @@ register char *name;
     return (errno == EACCES ? 3 : 1);
 }
 
-static void pr_path(name, count) register char *name;
-int count;
+static void pr_path(char *name, int count)
 {
     register char *path;
 

@@ -7,8 +7,7 @@
 
 /* ========	storage allocation	======== */
 
-char *getstak(asize) /* allocate requested stack */
-int asize;
+char *getstak(int asize) /* allocate requested stack */
 {
     register char *oldstak;
     register int size;
@@ -40,8 +39,7 @@ char *savstak()
     return (stakbot);
 }
 
-char *endstak(argp) /* tidy up after `locstak' */
-register char *argp;
+char *endstak(char *argp) /* tidy up after `locstak' */
 {
     register char *oldstak;
 
@@ -51,8 +49,7 @@ register char *argp;
     return (oldstak);
 }
 
-void tdystak(x) /* try to bring stack back to x */
-    register char *x;
+void tdystak(char *x) /* try to bring stack back to x */
 {
     while ((char *)(stakbsy) > (char *)(x)) {
         free(stakbsy);
@@ -68,8 +65,7 @@ void stakchk()
         setbrk(-BRKINCR);
 }
 
-char *cpystak(x)
-char *x;
+char *cpystak(char *x)
 {
     return (endstak(movstr(x, locstak())));
 }

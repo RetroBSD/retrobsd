@@ -8,7 +8,7 @@
 void rmfunctmp(void);
 
 /* ========     error handling  ======== */
-void failed(s1, s2) char *s1, *s2;
+void failed(char *s1, char *s2)
 {
     prp();
     prs_cntl(s1);
@@ -20,12 +20,12 @@ void failed(s1, s2) char *s1, *s2;
     exitsh(ERROR);
 }
 
-void error(s) char *s;
+void error(char *s)
 {
     failed(s, NIL);
 }
 
-void exitsh(xno) int xno;
+void exitsh(int xno)
 {
     /*
      * Arrive here from `FATAL' errors
@@ -68,7 +68,7 @@ void done()
     exit(exitval);
 }
 
-void rmtemp(base) struct ionod *base;
+void rmtemp(struct ionod *base)
 {
     while (iotemp > base) {
         unlink(iotemp->ioname);

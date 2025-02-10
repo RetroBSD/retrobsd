@@ -18,10 +18,8 @@ struct blk *blokp;   /*current search pointer*/
 struct blk *bloktop; /* top of arena (last blok) */
 
 char *brkbegin;
-char *setbrk();
 
-char *alloc(nbytes)
-unsigned nbytes;
+char *alloc(unsigned nbytes)
 {
     register unsigned rbytes = round(nbytes + BYTESPERWORD, BYTESPERWORD);
 
@@ -49,7 +47,7 @@ unsigned nbytes;
     }
 }
 
-void addblok(reqd) unsigned reqd;
+void addblok(unsigned reqd)
 {
     if (stakbot == NIL) {
         extern int end;
@@ -86,7 +84,7 @@ void addblok(reqd) unsigned reqd;
     }
 }
 
-void free(ap) void *ap;
+void free(void *ap)
 {
     register struct blk *p;
 
@@ -100,7 +98,7 @@ void free(ap) void *ap;
 }
 
 #ifdef DEBUG
-void chkbptr(ptr) struct blk *ptr;
+void chkbptr(struct blk *ptr)
 {
     int exf = 0;
     register struct blk *p = (struct blk *)brkbegin;

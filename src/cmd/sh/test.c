@@ -92,7 +92,6 @@ int e3()
     int p1;
     register char *a;
     char *p2;
-    long atol();
     long int1, int2;
 
     a = nxtarg(0);

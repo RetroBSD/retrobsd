@@ -59,9 +59,9 @@ char tty[20];
 jmp_buf sjbuf, shutpass;
 time_t time0;
 
-void reset();
-void setsecuritylevel();
-int getsecuritylevel();
+void reset(int);
+void setsecuritylevel(int);
+int getsecuritylevel(void);
 extern int errno;
 
 struct sigvec rvec = { reset, sigmask(SIGHUP), 0 };
@@ -686,7 +686,7 @@ void merge(int signum)
     }
 }
 
-void reset()
+void reset(int sig)
 {
     longjmp(sjbuf, 1);
 }

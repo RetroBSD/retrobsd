@@ -27,6 +27,6 @@ typedef struct entry {
     struct entry *next;
 } ENTRY;
 
-ENTRY *hfind();
-ENTRY *henter();
+ENTRY *hfind(char*);
+ENTRY *henter(ENTRY);
 void hcreate(void);

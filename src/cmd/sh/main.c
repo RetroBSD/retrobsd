@@ -34,7 +34,7 @@ static long *mod_time = (long *)NIL;
 void Ldup(int fa, int fb);
 void chkmail(void);
 
-static void exfile(prof) BOOL prof;
+static void exfile(BOOL prof)
 {
     long mailtime = 0; /* Must not be a register variable */
     long curtime = 0;
@@ -129,10 +129,7 @@ static void exfile(prof) BOOL prof;
     }
 }
 
-int main(c, v, e)
-int c;
-char **v;
-char **e;
+int main(int c, char **v, char **e)
 {
     register int rflag = ttyflg;
     int rsflag = 1; /* local restricted flag */
@@ -280,7 +277,7 @@ void settmp()
     tmpnam = movstr(numbuf, &tmpout[TMPNAM]);
 }
 
-void Ldup(fa, fb) register int fa, fb;
+void Ldup(int fa, int fb)
 {
 #if defined(RES) || defined(pdp11)
 
@@ -349,7 +346,7 @@ void chkmail()
     }
 }
 
-void setmail(mailpath) char *mailpath;
+void setmail(char *mailpath)
 {
     register char *s = mailpath;
     register int cnt = 1;

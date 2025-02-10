@@ -7,8 +7,7 @@
 
 /* ========     general purpose string handling ======== */
 
-char *movstr(a, b)
-register char *a, *b;
+char *movstr(char *a, char *b)
 {
     while ((*b++ = *a++))
         ;
@@ -26,8 +25,7 @@ int any(char c, char *s)
     return (FALSE);
 }
 
-int cf(s1, s2)
-register char *s1, *s2;
+int cf(char *s1, char *s2)
 {
     while (*s1++ == *s2)
         if (*s2++ == '\0')
@@ -35,8 +33,7 @@ register char *s1, *s2;
     return *--s1 - *s2;
 }
 
-int length(as)
-char *as;
+int length(char *as)
 {
     register char *s;
 
@@ -46,9 +43,7 @@ char *as;
     return (s - as);
 }
 
-char *movstrn(a, b, n)
-register char *a, *b;
-register int n;
+char *movstrn(char *a, char *b, int n)
 {
     while ((n-- > 0) && *a)
         *b++ = *a++;

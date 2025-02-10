@@ -21,7 +21,7 @@ static int didpwd = FALSE;
 /*
  * This routine will remove repeated slashes from string.
  */
-static void rmslash(string) char *string;
+static void rmslash(char *string)
 {
     register char *pstring;
 
@@ -45,7 +45,7 @@ static void rmslash(string) char *string;
     return;
 }
 
-void cwd(dir) register char *dir;
+void cwd(char *dir)
 {
     register char *pcwd;
     register char *pdir;

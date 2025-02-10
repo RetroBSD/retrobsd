@@ -28,7 +28,7 @@ static struct node **table;
 static unsigned int bitsper; /* Bits per byte */
 static unsigned int shift;
 
-static unsigned int crunch();
+static unsigned int crunch(char *);
 
 void hcreate()
 {
@@ -56,7 +56,7 @@ void hcreate()
     shift = (bitsper * sizeof(int)) - LOG2LEN;
 }
 
-void hscan(uscan) void (*uscan)();
+void hscan(void (*uscan)(ENTRY*))
 {
     struct node *p, *nxt;
     int j;
@@ -71,8 +71,7 @@ void hscan(uscan) void (*uscan)();
     }
 }
 
-ENTRY *hfind(str)
-char *str;
+ENTRY *hfind(char *str)
 {
     struct node *p;
     struct node **q;
@@ -103,8 +102,7 @@ char *str;
     }
 }
 
-ENTRY *henter(item)
-ENTRY item;
+ENTRY *henter(ENTRY item)
 {
     struct node *p = (struct node *)alloc(sizeof(struct node));
 
@@ -114,8 +112,7 @@ ENTRY item;
     return (&(p->item));
 }
 
-static unsigned int crunch(key)
-char *key;
+static unsigned int crunch(char *key)
 {
     unsigned int sum = 0;
     int s;

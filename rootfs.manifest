@@ -928,14 +928,15 @@ target sys/syslog.h
 #
 # Files: /lib
 #
-file /lib/crt0.o
-file /lib/libc.a
-file /lib/libm.a
-file /lib/libcurses.a
-file /lib/libgpanel.a
-file /lib/libreadline.a
-file /lib/libtermlib.a
-file /lib/libwiznet.a
+# TODO: enable later
+#file /lib/crt0.o
+#file /lib/libc.a
+#file /lib/libm.a
+#file /lib/libcurses.a
+#file /lib/libgpanel.a
+#file /lib/libreadline.a
+#file /lib/libtermlib.a
+#file /lib/libwiznet.a
 file /lib/retroImage
 
 #

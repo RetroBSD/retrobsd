@@ -22,11 +22,11 @@
 ## Build
 
 To compile everything from sources, you'll need some packages installed, namely:
-Berkeley YACC, GNU bison, flex, groff and ELF library.
+Clang compiler, LLVM linker, Berkeley YACC, GNU bison, flex, groff and ELF library.
 Under Ubuntu, for example, you can do it by command:
 
 ```shell
-$ sudo apt-get install bison byacc flex groff-base libelf-dev
+$ sudo apt-get install clang lld byacc bison flex groff-base libelf-dev
 ```
 
 ```shell

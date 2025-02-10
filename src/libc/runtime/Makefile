@@ -43,7 +43,8 @@ OBJS            = adddf3.o \
                   truncdfsf2.o \
                   udivdi3.o \
                   udivmoddi4.o \
-                  umoddi3.o
+                  umoddi3.o \
+		  floatunsidf.o
 
 runtime.a:      ${OBJS}
 		@echo "buiding runtime.a"

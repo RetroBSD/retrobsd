@@ -677,7 +677,7 @@ file /games/arithmetic
 file /games/atc
 file /games/backgammon
 file /games/banner
-file /games/battlestar
+#TODO: file /games/battlestar
 file /games/bcd
 file /games/boggle
 file /games/btlgammon
@@ -700,8 +700,8 @@ file /games/primes
 file /games/quiz
 file /games/rain
 file /games/robots
-file /games/rogue
-file /games/sail
+#TODO: file /games/rogue
+#TODO: file /games/sail
 file /games/snake
 file /games/snscore
 file /games/teachgammon
@@ -1696,7 +1696,7 @@ file /share/man/cat6/arithmetic.0
 file /share/man/cat6/atc.0
 file /share/man/cat6/backgammon.0
 file /share/man/cat6/banner.0
-file /share/man/cat6/battlestar.0
+#TODO: file /share/man/cat6/battlestar.0
 file /share/man/cat6/bcd.0
 file /share/man/cat6/boggle.0
 file /share/man/cat6/caesar.0
@@ -1712,8 +1712,8 @@ file /share/man/cat6/pom.0
 file /share/man/cat6/quiz.0
 file /share/man/cat6/rain.0
 file /share/man/cat6/robots.0
-file /share/man/cat6/rogue.0
-file /share/man/cat6/sail.0
+#TODO: file /share/man/cat6/rogue.0
+#TODO: file /share/man/cat6/sail.0
 file /share/man/cat6/trek.0
 file /share/man/cat6/worm.0
 file /share/man/cat6/worms.0

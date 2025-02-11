@@ -5,34 +5,332 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-void init(int argc, char *argv[]);
 void commnds(void);
-int readc(void);
-void unreadc(char c);
-void pushp(struct blk *p);
-void sdump(char *s1, struct blk *hptr);
-void chsign(struct blk *p);
-void more(struct blk *hptr);
-int subt(void);
-int eqk(void);
-void binop(char c);
-int dscale(void);
-void release(struct blk *p);
-int log2v(long n);
-void print(struct blk *hptr);
-void load(void);
-void seekc(struct blk *hptr, int n);
-void salterwd(struct wblk *hptr, struct blk *n);
-void putwd(struct blk *p, struct blk *c);
-int command(void);
-int cond(char c);
-void oneot(struct blk *p, int sc, char ch);
-void tenot(struct blk *p, int sc);
-void hexot(struct blk *p, int flg);
-void bigot(struct blk *p, int flg);
-void garbage(char *s);
-void ospace(char *s);
-void redef(struct blk *p);
+
+void sdump(char *s1, struct blk *hptr)
+{
+    char *p;
+    printf("%s %p rd %p wt %p beg %p last %p\n", s1, hptr, hptr->rd, hptr->wt, hptr->beg,
+           hptr->last);
+    p = hptr->beg;
+    while (p < hptr->wt)
+        printf("%d ", *p++);
+    printf("\n");
+}
+
+void ospace(char *s)
+{
+    printf("out of space: %s\n", s);
+    printf("all %ld rel %ld headmor %ld\n", all, rel, headmor);
+    printf("nbytes %ld\n", nbytes);
+    sdump("stk", *stkptr);
+    abort();
+}
+
+void redef(struct blk *p)
+{
+    register int offset;
+    register char *newp;
+
+    if ((int)p->beg & 01) {
+        printf("odd ptr %p hdr %p\n", p->beg, p);
+        ospace("redef-bad");
+    }
+    newp = realloc(p->beg, (unsigned)(p->last - p->beg));
+    if (newp == NULL)
+        ospace("redef");
+    offset = newp - p->beg;
+    p->beg = newp;
+    p->rd += offset;
+    p->wt += offset;
+    p->last += offset;
+}
+
+struct blk *getpwd(struct blk *p)
+{
+    register struct wblk *wp;
+
+    wp = (struct wblk *)p;
+    if (wp->rdw == wp->wtw)
+        return (NULL);
+    return (*wp->rdw++);
+}
+
+void garbage(char *s)
+{
+    int i;
+    struct blk *p, *q;
+    struct sym *tmps;
+    int ct;
+
+    /*	printf("got to garbage %s\n",s);	*/
+    for (i = 0; i < TBLSZ; i++) {
+        tmps = stable[i];
+        if (tmps != 0) {
+            if (i < ARRAYST) {
+                do {
+                    p = tmps->val;
+                    if (((int)p->beg & 01) != 0) {
+                        printf("string %o\n", i);
+                        sdump("odd beg", p);
+                    }
+                    redef(p);
+                    tmps = tmps->next;
+                } while (tmps != 0);
+                continue;
+            } else {
+                do {
+                    p = tmps->val;
+                    rewind(p);
+                    ct = 0;
+                    while ((q = getpwd(p)) != NULL) {
+                        ct++;
+                        if (q != 0) {
+                            if (((int)q->beg & 01) != 0) {
+                                printf("array %o elt %d odd\n", i - ARRAYST, ct);
+                                printf("tmps %p p %p\n", tmps, p);
+                                sdump("elt", q);
+                            }
+                            redef(q);
+                        }
+                    }
+                    tmps = tmps->next;
+                } while (tmps != 0);
+            }
+        }
+    }
+}
+
+struct blk *morehd()
+{
+    register struct blk *h, *kk;
+    headmor++;
+    nbytes += HEADSZ;
+    hfree = h = (struct blk *)malloc(HEADSZ);
+    if (hfree == 0) {
+        garbage("morehd");
+        if ((hfree = h = (struct blk *)malloc(HEADSZ)) == 0)
+            ospace("headers");
+    }
+    kk = h;
+    while (h < hfree + (HEADSZ / BLK))
+        (h++)->rd = (char *)++kk;
+    (--h)->rd = 0;
+    return (hfree);
+}
+
+struct blk *salloc(int size)
+{
+    register struct blk *hdr;
+    register char *ptr;
+
+    if (size == 0)
+        size++; /* malloc returns NULL for 0 length requests */
+    all++;
+    nbytes += size;
+    ptr = malloc((unsigned)size);
+    if (ptr == 0) {
+        garbage("salloc");
+        if ((ptr = malloc((unsigned)size)) == 0)
+            ospace("salloc");
+    }
+    if ((hdr = hfree) == 0)
+        hdr = morehd();
+    hfree = (struct blk *)hdr->rd;
+    hdr->rd = hdr->wt = hdr->beg = ptr;
+    hdr->last = ptr + size;
+    return (hdr);
+}
+
+void pushp(struct blk *p)
+{
+    if (stkptr == stkend) {
+        printf("out of stack space\n");
+        return;
+    }
+    stkerr = 0;
+    *++stkptr = p;
+    return;
+}
+
+char *nalloc(char *p, unsigned nbytes)
+{
+    register char *q, *r;
+
+    q = r = malloc(nbytes);
+    if (q == 0)
+        return (0);
+    while (nbytes--)
+        *q++ = *p++;
+    return (r);
+}
+
+struct blk *copy(struct blk *hptr, int size)
+{
+    register struct blk *hdr;
+    register unsigned sz;
+    register char *ptr;
+
+    all++;
+    nbytes += size;
+    sz = length(hptr);
+    ptr = nalloc(hptr->beg, (unsigned)size);
+    if (ptr == 0) {
+        garbage("copy");
+        if ((ptr = nalloc(hptr->beg, (unsigned)size)) == NULL) {
+            printf("copy size %d\n", size);
+            ospace("copy");
+        }
+    }
+    if ((hdr = hfree) == 0)
+        hdr = morehd();
+    hfree = (struct blk *)hdr->rd;
+    hdr->rd = hdr->beg = ptr;
+    hdr->last = ptr + size;
+    hdr->wt = ptr + sz;
+    ptr = hdr->wt;
+    while (ptr < hdr->last)
+        *ptr++ = '\0';
+    return (hdr);
+}
+
+void more(struct blk *hptr)
+{
+    register unsigned size;
+    register char *p;
+
+    if ((size = (hptr->last - hptr->beg) * 2) == 0)
+        size = 1;
+    nbytes += size / 2;
+    p = realloc(hptr->beg, (unsigned)size);
+    if (p == 0) {
+        hptr->beg = realloc(hptr->beg, (unsigned)(hptr->last - hptr->beg));
+        garbage("more");
+        if ((p = realloc(hptr->beg, (unsigned)size)) == 0)
+            ospace("more");
+    }
+    hptr->rd = hptr->rd - hptr->beg + p;
+    hptr->wt = hptr->wt - hptr->beg + p;
+    hptr->beg = p;
+    hptr->last = p + size;
+    return;
+}
+
+void chsign(struct blk *p)
+{
+    register int carry;
+    register char ct;
+
+    carry = 0;
+    rewind(p);
+    while (sfeof(p) == 0) {
+        ct = 100 - slookc(p) - carry;
+        carry = 1;
+        if (ct >= 100) {
+            ct -= 100;
+            carry = 0;
+        }
+        salterc(p, ct);
+    }
+    if (carry != 0) {
+        sputc(p, -1);
+        fsfile(p);
+        sbackc(p);
+        ct = sbackc(p);
+        if (ct == 99) {
+            truncat(p);
+            sputc(p, -1);
+        }
+    } else {
+        fsfile(p);
+        ct = sbackc(p);
+        if (ct == 0)
+            truncat(p);
+    }
+    return;
+}
+
+void seekc(struct blk *hptr, int n)
+{
+    register char *nn, *p;
+
+    nn = hptr->beg + n;
+    if (nn > hptr->last) {
+        nbytes += nn - hptr->last;
+        p = realloc(hptr->beg, (unsigned)n);
+        if (p == 0) {
+            hptr->beg = realloc(hptr->beg, (unsigned)(hptr->last - hptr->beg));
+            garbage("seekc");
+            if ((p = realloc(hptr->beg, (unsigned)n)) == 0)
+                ospace("seekc");
+        }
+        hptr->beg = p;
+        hptr->wt = hptr->last = hptr->rd = p + n;
+        return;
+    }
+    hptr->rd = nn;
+    if (nn > hptr->wt)
+        hptr->wt = nn;
+    return;
+}
+
+struct blk *add(struct blk *a1, struct blk *a2)
+{
+    register struct blk *p;
+    register int carry, n;
+    int size;
+    int c, n1, n2;
+
+    size = length(a1) > length(a2) ? length(a1) : length(a2);
+    p = salloc(size);
+    rewind(a1);
+    rewind(a2);
+    carry = 0;
+    while (--size >= 0) {
+        n1 = sfeof(a1) ? 0 : sgetc(a1);
+        n2 = sfeof(a2) ? 0 : sgetc(a2);
+        n = n1 + n2 + carry;
+        if (n >= 100) {
+            carry = 1;
+            n -= 100;
+        } else if (n < 0) {
+            carry = -1;
+            n += 100;
+        } else
+            carry = 0;
+        sputc(p, n);
+    }
+    if (carry != 0)
+        sputc(p, carry);
+    fsfile(p);
+    if (sfbeg(p) == 0) {
+        while (sfbeg(p) == 0 && (c = sbackc(p)) == 0)
+            ;
+        if (c != 0)
+            salterc(p, c);
+        truncat(p);
+    }
+    fsfile(p);
+    if (sfbeg(p) == 0 && sbackc(p) == -1) {
+        while ((c = sbackc(p)) == 99) {
+            if (c == EOF)
+                break;
+        }
+        sgetc(p);
+        salterc(p, -1);
+        truncat(p);
+    }
+    return (p);
+}
+
+void release(struct blk *p)
+{
+    rel++;
+    nbytes -= p->last - p->beg;
+    p->rd = (char *)hfree;
+    hfree = p;
+    free(p->beg);
+}
 
 struct blk *div(struct blk *ddivd, struct blk *ddivr)
 {
@@ -169,6 +467,125 @@ ddone:
     return (p);
 }
 
+struct blk *pop()
+{
+    if (stkptr == stack) {
+        stkerr = 1;
+        return (0);
+    }
+    return (*stkptr--);
+}
+
+struct blk *removr(struct blk *p, int n)
+{
+    int nn;
+    register struct blk *q, *s, *r;
+
+    rewind(p);
+    nn = (n + 1) / 2;
+    q = salloc(nn);
+    while (n > 1) {
+        sputc(q, sgetc(p));
+        n -= 2;
+    }
+    r = salloc(2);
+    while (sfeof(p) == 0)
+        sputc(r, sgetc(p));
+    release(p);
+    if (n == 1) {
+        s = div(r, tenptr);
+        release(r);
+        rewind(rem);
+        if (sfeof(rem) == 0)
+            sputc(q, sgetc(rem));
+        release(rem);
+        irem = q;
+        return (s);
+    }
+    irem = q;
+    return (r);
+}
+
+struct blk *mult(struct blk *p, struct blk *q)
+{
+    register struct blk *mp, *mq, *mr;
+    int sign, offset, carry;
+    int cq, cp, mt, mcr;
+
+    offset = sign = 0;
+    fsfile(p);
+    mp = p;
+    if (sfbeg(p) == 0) {
+        if (sbackc(p) < 0) {
+            mp = copy(p, length(p));
+            chsign(mp);
+            sign = ~sign;
+        }
+    }
+    fsfile(q);
+    mq = q;
+    if (sfbeg(q) == 0) {
+        if (sbackc(q) < 0) {
+            mq = copy(q, length(q));
+            chsign(mq);
+            sign = ~sign;
+        }
+    }
+    mr = salloc(length(mp) + length(mq));
+    zero(mr);
+    rewind(mq);
+    while (sfeof(mq) == 0) {
+        cq = sgetc(mq);
+        rewind(mp);
+        rewind(mr);
+        mr->rd += offset;
+        carry = 0;
+        while (sfeof(mp) == 0) {
+            cp = sgetc(mp);
+            mcr = sfeof(mr) ? 0 : slookc(mr);
+            mt = cp * cq + carry + mcr;
+            carry = mt / 100;
+            salterc(mr, mt % 100);
+        }
+        offset++;
+        if (carry != 0) {
+            mcr = sfeof(mr) ? 0 : slookc(mr);
+            salterc(mr, mcr + carry);
+        }
+    }
+    if (sign < 0) {
+        chsign(mr);
+    }
+    if (mp != p)
+        release(mp);
+    if (mq != q)
+        release(mq);
+    return (mr);
+}
+
+struct blk *add0(struct blk *p, int ct)
+{
+    /* returns pointer to struct with ct 0's & p */
+    register struct blk *q, *t;
+
+    q = salloc(length(p) + (ct + 1) / 2);
+    while (ct > 1) {
+        sputc(q, 0);
+        ct -= 2;
+    }
+    rewind(p);
+    while (sfeof(p) == 0) {
+        sputc(q, sgetc(p));
+    }
+    release(p);
+    if (ct == 1) {
+        t = mult(tenptr, q);
+        release(q);
+        return (t);
+    }
+    return (q);
+}
+
 int dscale()
 {
     register struct blk *dd, *dr;
@@ -200,36 +617,6 @@ int dscale()
     arg2 = dr;
     savk = k;
     return (0);
-}
-
-struct blk *removr(struct blk *p, int n)
-{
-    int nn;
-    register struct blk *q, *s, *r;
-
-    rewind(p);
-    nn = (n + 1) / 2;
-    q = salloc(nn);
-    while (n > 1) {
-        sputc(q, sgetc(p));
-        n -= 2;
-    }
-    r = salloc(2);
-    while (sfeof(p) == 0)
-        sputc(r, sgetc(p));
-    release(p);
-    if (n == 1) {
-        s = div(r, tenptr);
-        release(r);
-        rewind(rem);
-        if (sfeof(rem) == 0)
-            sputc(q, sgetc(rem));
-        release(rem);
-        irem = q;
-        return (s);
-    }
-    irem = q;
-    return (r);
 }
 
 struct blk *sqrtv(struct blk *p)
@@ -354,6 +741,20 @@ void onintr(int sig)
     commnds();
 }
 
+int log2v(long n)
+{
+    register int i;
+
+    if (n == 0)
+        return (0);
+    i = 31;
+    if (n < 0)
+        return (i);
+    while ((n = n << 1) > 0)
+        i--;
+    return (--i);
+}
+
 void init(int argc, char *argv[])
 {
     register struct sym *sp;
@@ -412,24 +813,57 @@ void init(int argc, char *argv[])
     return;
 }
 
-void pushp(struct blk *p)
+int readc()
 {
-    if (stkptr == stkend) {
-        printf("out of stack space\n");
-        return;
+loop:
+    if ((readptr != &readstk[0]) && (*readptr != 0)) {
+        if (sfeof(*readptr) == 0)
+            return (lastchar = sgetc(*readptr));
+        release(*readptr);
+        readptr--;
+        goto loop;
     }
-    stkerr = 0;
-    *++stkptr = p;
+    lastchar = getc(curfile);
+    if (lastchar != EOF)
+        return (lastchar);
+    if (readptr != &readptr[0]) {
+        readptr--;
+        if (*readptr == 0)
+            curfile = stdin;
+        goto loop;
+    }
+    if (curfile != stdin) {
+        fclose(curfile);
+        curfile = stdin;
+        goto loop;
+    }
+    exit(0);
+}
+
+void unreadc(char c)
+{
+    if ((readptr != &readstk[0]) && (*readptr != 0)) {
+        sungetc(*readptr, c);
+    } else
+        ungetc(c, curfile);
     return;
 }
 
-struct blk *pop()
+struct blk *scale(struct blk *p, int n)
 {
-    if (stkptr == stack) {
-        stkerr = 1;
-        return (0);
-    }
-    return (*stkptr--);
+    register struct blk *q, *s, *t;
+
+    t = add0(p, n);
+    q = salloc(1);
+    sputc(q, n);
+    s = expr(inbas, q);
+    release(q);
+    q = div(t, s);
+    release(t);
+    release(s);
+    release(rem);
+    sputc(q, n);
+    return (q);
 }
 
 struct blk *readin()
@@ -485,156 +919,6 @@ gotnum:
     }
 }
 
-struct blk *add0(struct blk *p, int ct)
-{
-    /* returns pointer to struct with ct 0's & p */
-    register struct blk *q, *t;
-
-    q = salloc(length(p) + (ct + 1) / 2);
-    while (ct > 1) {
-        sputc(q, 0);
-        ct -= 2;
-    }
-    rewind(p);
-    while (sfeof(p) == 0) {
-        sputc(q, sgetc(p));
-    }
-    release(p);
-    if (ct == 1) {
-        t = mult(tenptr, q);
-        release(q);
-        return (t);
-    }
-    return (q);
-}
-
-struct blk *mult(struct blk *p, struct blk *q)
-{
-    register struct blk *mp, *mq, *mr;
-    int sign, offset, carry;
-    int cq, cp, mt, mcr;
-
-    offset = sign = 0;
-    fsfile(p);
-    mp = p;
-    if (sfbeg(p) == 0) {
-        if (sbackc(p) < 0) {
-            mp = copy(p, length(p));
-            chsign(mp);
-            sign = ~sign;
-        }
-    }
-    fsfile(q);
-    mq = q;
-    if (sfbeg(q) == 0) {
-        if (sbackc(q) < 0) {
-            mq = copy(q, length(q));
-            chsign(mq);
-            sign = ~sign;
-        }
-    }
-    mr = salloc(length(mp) + length(mq));
-    zero(mr);
-    rewind(mq);
-    while (sfeof(mq) == 0) {
-        cq = sgetc(mq);
-        rewind(mp);
-        rewind(mr);
-        mr->rd += offset;
-        carry = 0;
-        while (sfeof(mp) == 0) {
-            cp = sgetc(mp);
-            mcr = sfeof(mr) ? 0 : slookc(mr);
-            mt = cp * cq + carry + mcr;
-            carry = mt / 100;
-            salterc(mr, mt % 100);
-        }
-        offset++;
-        if (carry != 0) {
-            mcr = sfeof(mr) ? 0 : slookc(mr);
-            salterc(mr, mcr + carry);
-        }
-    }
-    if (sign < 0) {
-        chsign(mr);
-    }
-    if (mp != p)
-        release(mp);
-    if (mq != q)
-        release(mq);
-    return (mr);
-}
-
-void chsign(struct blk *p)
-{
-    register int carry;
-    register char ct;
-
-    carry = 0;
-    rewind(p);
-    while (sfeof(p) == 0) {
-        ct = 100 - slookc(p) - carry;
-        carry = 1;
-        if (ct >= 100) {
-            ct -= 100;
-            carry = 0;
-        }
-        salterc(p, ct);
-    }
-    if (carry != 0) {
-        sputc(p, -1);
-        fsfile(p);
-        sbackc(p);
-        ct = sbackc(p);
-        if (ct == 99) {
-            truncat(p);
-            sputc(p, -1);
-        }
-    } else {
-        fsfile(p);
-        ct = sbackc(p);
-        if (ct == 0)
-            truncat(p);
-    }
-    return;
-}
-
-int readc()
-{
-loop:
-    if ((readptr != &readstk[0]) && (*readptr != 0)) {
-        if (sfeof(*readptr) == 0)
-            return (lastchar = sgetc(*readptr));
-        release(*readptr);
-        readptr--;
-        goto loop;
-    }
-    lastchar = getc(curfile);
-    if (lastchar != EOF)
-        return (lastchar);
-    if (readptr != &readptr[0]) {
-        readptr--;
-        if (*readptr == 0)
-            curfile = stdin;
-        goto loop;
-    }
-    if (curfile != stdin) {
-        fclose(curfile);
-        curfile = stdin;
-        goto loop;
-    }
-    exit(0);
-}
-
-void unreadc(char c)
-{
-    if ((readptr != &readstk[0]) && (*readptr != 0)) {
-        sungetc(*readptr, c);
-    } else
-        ungetc(c, curfile);
-    return;
-}
-
 void binop(char c)
 {
     register struct blk *r;
@@ -655,6 +939,130 @@ void binop(char c)
     sputc(r, savk);
     pushp(r);
     return;
+}
+
+struct blk *removc(struct blk *p, int n)
+{
+    register struct blk *q, *r;
+
+    rewind(p);
+    while (n > 1) {
+        sgetc(p);
+        n -= 2;
+    }
+    q = salloc(2);
+    while (sfeof(p) == 0)
+        sputc(q, sgetc(p));
+    if (n == 1) {
+        r = div(q, tenptr);
+        release(q);
+        release(rem);
+        q = r;
+    }
+    release(p);
+    return (q);
+}
+
+void oneot(struct blk *p, int sc, char ch)
+{
+    register struct blk *q;
+
+    q = removc(p, sc);
+    create(strptr);
+    sputc(strptr, -1);
+    while (length(q) > 0) {
+        p = add(strptr, q);
+        release(q);
+        q = p;
+        OUTC(ch);
+    }
+    release(q);
+    printf("\n");
+    return;
+}
+
+void tenot(struct blk *p, int sc)
+{
+    register int c, f;
+
+    fsfile(p);
+    f = 0;
+    while ((sfbeg(p) == 0) && ((p->rd - p->beg - 1) * 2 >= sc)) {
+        c = sbackc(p);
+        if ((c < 10) && (f == 1))
+            printf("0%d", c);
+        else
+            printf("%d", c);
+        f = 1;
+        TEST2;
+    }
+    if (sc == 0) {
+        printf("\n");
+        release(p);
+        return;
+    }
+    if ((p->rd - p->beg) * 2 > sc) {
+        c = sbackc(p);
+        printf("%d.", c / 10);
+        TEST2;
+        OUTC(c % 10 + '0');
+        sc--;
+    } else {
+        OUTC('.');
+    }
+    if (sc > (p->rd - p->beg) * 2) {
+        while (sc > (p->rd - p->beg) * 2) {
+            OUTC('0');
+            sc--;
+        }
+    }
+    while (sc > 1) {
+        c = sbackc(p);
+        if (c < 10)
+            printf("0%d", c);
+        else
+            printf("%d", c);
+        sc -= 2;
+        TEST2;
+    }
+    if (sc == 1) {
+        OUTC(sbackc(p) / 10 + '0');
+    }
+    printf("\n");
+    release(p);
+    return;
+}
+
+struct blk *getdec(struct blk *p, int sc)
+{
+    int cc;
+    register struct blk *q, *t, *s;
+
+    rewind(p);
+    if (length(p) * 2 < sc) {
+        q = copy(p, length(p));
+        return (q);
+    }
+    q = salloc(length(p));
+    while (sc >= 1) {
+        sputc(q, sgetc(p));
+        sc -= 2;
+    }
+    if (sc != 0) {
+        t = mult(q, tenptr);
+        s = salloc(cc = length(q));
+        release(q);
+        rewind(t);
+        while (cc-- > 0)
+            sputc(s, sgetc(t));
+        sputc(s, 0);
+        release(t);
+        t = div(s, tenptr);
+        release(s);
+        release(rem);
+        return (t);
+    }
+    return (q);
 }
 
 void print(struct blk *hptr)
@@ -738,108 +1146,6 @@ void print(struct blk *hptr)
     return;
 }
 
-struct blk *getdec(struct blk *p, int sc)
-{
-    int cc;
-    register struct blk *q, *t, *s;
-
-    rewind(p);
-    if (length(p) * 2 < sc) {
-        q = copy(p, length(p));
-        return (q);
-    }
-    q = salloc(length(p));
-    while (sc >= 1) {
-        sputc(q, sgetc(p));
-        sc -= 2;
-    }
-    if (sc != 0) {
-        t = mult(q, tenptr);
-        s = salloc(cc = length(q));
-        release(q);
-        rewind(t);
-        while (cc-- > 0)
-            sputc(s, sgetc(t));
-        sputc(s, 0);
-        release(t);
-        t = div(s, tenptr);
-        release(s);
-        release(rem);
-        return (t);
-    }
-    return (q);
-}
-
-void tenot(struct blk *p, int sc)
-{
-    register int c, f;
-
-    fsfile(p);
-    f = 0;
-    while ((sfbeg(p) == 0) && ((p->rd - p->beg - 1) * 2 >= sc)) {
-        c = sbackc(p);
-        if ((c < 10) && (f == 1))
-            printf("0%d", c);
-        else
-            printf("%d", c);
-        f = 1;
-        TEST2;
-    }
-    if (sc == 0) {
-        printf("\n");
-        release(p);
-        return;
-    }
-    if ((p->rd - p->beg) * 2 > sc) {
-        c = sbackc(p);
-        printf("%d.", c / 10);
-        TEST2;
-        OUTC(c % 10 + '0');
-        sc--;
-    } else {
-        OUTC('.');
-    }
-    if (sc > (p->rd - p->beg) * 2) {
-        while (sc > (p->rd - p->beg) * 2) {
-            OUTC('0');
-            sc--;
-        }
-    }
-    while (sc > 1) {
-        c = sbackc(p);
-        if (c < 10)
-            printf("0%d", c);
-        else
-            printf("%d", c);
-        sc -= 2;
-        TEST2;
-    }
-    if (sc == 1) {
-        OUTC(sbackc(p) / 10 + '0');
-    }
-    printf("\n");
-    release(p);
-    return;
-}
-
-void oneot(struct blk *p, int sc, char ch)
-{
-    register struct blk *q;
-
-    q = removc(p, sc);
-    create(strptr);
-    sputc(strptr, -1);
-    while (length(q) > 0) {
-        p = add(strptr, q);
-        release(q);
-        q = p;
-        OUTC(ch);
-    }
-    release(q);
-    printf("\n");
-    return;
-}
-
 void hexot(struct blk *p, int flg)
 {
     register int c;
@@ -913,55 +1219,6 @@ void bigot(struct blk *p, int flg)
     return;
 }
 
-struct blk *add(struct blk *a1, struct blk *a2)
-{
-    register struct blk *p;
-    register int carry, n;
-    int size;
-    int c, n1, n2;
-
-    size = length(a1) > length(a2) ? length(a1) : length(a2);
-    p = salloc(size);
-    rewind(a1);
-    rewind(a2);
-    carry = 0;
-    while (--size >= 0) {
-        n1 = sfeof(a1) ? 0 : sgetc(a1);
-        n2 = sfeof(a2) ? 0 : sgetc(a2);
-        n = n1 + n2 + carry;
-        if (n >= 100) {
-            carry = 1;
-            n -= 100;
-        } else if (n < 0) {
-            carry = -1;
-            n += 100;
-        } else
-            carry = 0;
-        sputc(p, n);
-    }
-    if (carry != 0)
-        sputc(p, carry);
-    fsfile(p);
-    if (sfbeg(p) == 0) {
-        while (sfbeg(p) == 0 && (c = sbackc(p)) == 0)
-            ;
-        if (c != 0)
-            salterc(p, c);
-        truncat(p);
-    }
-    fsfile(p);
-    if (sfbeg(p) == 0 && sbackc(p) == -1) {
-        while ((c = sbackc(p)) == 99) {
-            if (c == EOF)
-                break;
-        }
-        sgetc(p);
-        salterc(p, -1);
-        truncat(p);
-    }
-    return (p);
-}
-
 int eqk()
 {
     register struct blk *p, *q;
@@ -991,51 +1248,12 @@ int eqk()
     return (0);
 }
 
-struct blk *removc(struct blk *p, int n)
-{
-    register struct blk *q, *r;
-
-    rewind(p);
-    while (n > 1) {
-        sgetc(p);
-        n -= 2;
-    }
-    q = salloc(2);
-    while (sfeof(p) == 0)
-        sputc(q, sgetc(p));
-    if (n == 1) {
-        r = div(q, tenptr);
-        release(q);
-        release(rem);
-        q = r;
-    }
-    release(p);
-    return (q);
-}
-
 struct blk *scalint(struct blk *p)
 {
     register int n;
     n = sunputc(p);
     p = removc(p, n);
     return (p);
-}
-
-struct blk *scale(struct blk *p, int n)
-{
-    register struct blk *q, *s, *t;
-
-    t = add0(p, n);
-    q = salloc(1);
-    sputc(q, n);
-    s = expr(inbas, q);
-    release(q);
-    q = div(t, s);
-    release(t);
-    release(s);
-    release(rem);
-    sputc(q, n);
-    return (q);
 }
 
 int subt()
@@ -1052,38 +1270,48 @@ int subt()
     return (0);
 }
 
-int command()
+void putwd(struct blk *p, struct blk *c)
 {
-    int c;
-    char line[100], *sl;
-    register void (*savint)(int);
-    register int pid, rpid;
-    int retcode;
+    register struct wblk *wp;
 
-    switch (c = readc()) {
-    case '<':
-        return (cond(NL));
-    case '>':
-        return (cond(NG));
-    case '=':
-        return (cond(NE));
-    default:
-        sl = line;
-        *sl++ = c;
-        while ((c = readc()) != '\n')
-            *sl++ = c;
-        *sl = 0;
-        if ((pid = fork()) == 0) {
-            execl("/bin/sh", "sh", "-c", line, 0);
-            exit(0100);
+    wp = (struct wblk *)p;
+    if (wp->wtw == wp->lastw)
+        more(p);
+    *wp->wtw++ = c;
+}
+
+void load()
+{
+    register int c;
+    register struct blk *p, *q;
+    struct blk *t, *s;
+    c = readc() & 0377;
+    sptr = stable[c];
+    if (sptr != 0) {
+        p = sptr->val;
+        if (c >= ARRAYST) {
+            q = salloc(length(p));
+            rewind(p);
+            while (sfeof(p) == 0) {
+                s = getpwd(p);
+                if (s == 0) {
+                    putwd(q, (struct blk *)NULL);
+                } else {
+                    t = copy(s, length(s));
+                    putwd(q, t);
+                }
+            }
+            pushp(q);
+        } else {
+            q = copy(p, length(p));
+            pushp(q);
         }
-        savint = signal(SIGINT, SIG_IGN);
-        while ((rpid = wait(&retcode)) != pid && rpid != -1)
-            ;
-        signal(SIGINT, savint);
-        printf("!\n");
-        return (0);
+    } else {
+        q = salloc(1);
+        sputc(q, 0);
+        pushp(q);
     }
+    return;
 }
 
 int cond(char c)
@@ -1126,157 +1354,38 @@ int cond(char c)
     return (1);
 }
 
-void load()
+int command()
 {
-    register int c;
-    register struct blk *p, *q;
-    struct blk *t, *s;
-    c = readc() & 0377;
-    sptr = stable[c];
-    if (sptr != 0) {
-        p = sptr->val;
-        if (c >= ARRAYST) {
-            q = salloc(length(p));
-            rewind(p);
-            while (sfeof(p) == 0) {
-                s = getpwd(p);
-                if (s == 0) {
-                    putwd(q, (struct blk *)NULL);
-                } else {
-                    t = copy(s, length(s));
-                    putwd(q, t);
-                }
-            }
-            pushp(q);
-        } else {
-            q = copy(p, length(p));
-            pushp(q);
+    int c;
+    char line[100], *sl;
+    register void (*savint)(int);
+    register int pid, rpid;
+    int retcode;
+
+    switch (c = readc()) {
+    case '<':
+        return (cond(NL));
+    case '>':
+        return (cond(NG));
+    case '=':
+        return (cond(NE));
+    default:
+        sl = line;
+        *sl++ = c;
+        while ((c = readc()) != '\n')
+            *sl++ = c;
+        *sl = 0;
+        if ((pid = fork()) == 0) {
+            execl("/bin/sh", "sh", "-c", line, 0);
+            exit(0100);
         }
-    } else {
-        q = salloc(1);
-        sputc(q, 0);
-        pushp(q);
-    }
-    return;
-}
-
-int log2v(long n)
-{
-    register int i;
-
-    if (n == 0)
+        savint = signal(SIGINT, SIG_IGN);
+        while ((rpid = wait(&retcode)) != pid && rpid != -1)
+            ;
+        signal(SIGINT, savint);
+        printf("!\n");
         return (0);
-    i = 31;
-    if (n < 0)
-        return (i);
-    while ((n = n << 1) > 0)
-        i--;
-    return (--i);
-}
-
-struct blk *salloc(int size)
-{
-    register struct blk *hdr;
-    register char *ptr;
-
-    if (size == 0)
-        size++; /* malloc returns NULL for 0 length requests */
-    all++;
-    nbytes += size;
-    ptr = malloc((unsigned)size);
-    if (ptr == 0) {
-        garbage("salloc");
-        if ((ptr = malloc((unsigned)size)) == 0)
-            ospace("salloc");
     }
-    if ((hdr = hfree) == 0)
-        hdr = morehd();
-    hfree = (struct blk *)hdr->rd;
-    hdr->rd = hdr->wt = hdr->beg = ptr;
-    hdr->last = ptr + size;
-    return (hdr);
-}
-
-struct blk *morehd()
-{
-    register struct blk *h, *kk;
-    headmor++;
-    nbytes += HEADSZ;
-    hfree = h = (struct blk *)malloc(HEADSZ);
-    if (hfree == 0) {
-        garbage("morehd");
-        if ((hfree = h = (struct blk *)malloc(HEADSZ)) == 0)
-            ospace("headers");
-    }
-    kk = h;
-    while (h < hfree + (HEADSZ / BLK))
-        (h++)->rd = (char *)++kk;
-    (--h)->rd = 0;
-    return (hfree);
-}
-
-struct blk *copy(struct blk *hptr, int size)
-{
-    register struct blk *hdr;
-    register unsigned sz;
-    register char *ptr;
-
-    all++;
-    nbytes += size;
-    sz = length(hptr);
-    ptr = nalloc(hptr->beg, (unsigned)size);
-    if (ptr == 0) {
-        garbage("copy");
-        if ((ptr = nalloc(hptr->beg, (unsigned)size)) == NULL) {
-            printf("copy size %d\n", size);
-            ospace("copy");
-        }
-    }
-    if ((hdr = hfree) == 0)
-        hdr = morehd();
-    hfree = (struct blk *)hdr->rd;
-    hdr->rd = hdr->beg = ptr;
-    hdr->last = ptr + size;
-    hdr->wt = ptr + sz;
-    ptr = hdr->wt;
-    while (ptr < hdr->last)
-        *ptr++ = '\0';
-    return (hdr);
-}
-
-void sdump(char *s1, struct blk *hptr)
-{
-    char *p;
-    printf("%s %p rd %p wt %p beg %p last %p\n", s1, hptr, hptr->rd, hptr->wt, hptr->beg,
-           hptr->last);
-    p = hptr->beg;
-    while (p < hptr->wt)
-        printf("%d ", *p++);
-    printf("\n");
-}
-
-void seekc(struct blk *hptr, int n)
-{
-    register char *nn, *p;
-
-    nn = hptr->beg + n;
-    if (nn > hptr->last) {
-        nbytes += nn - hptr->last;
-        p = realloc(hptr->beg, (unsigned)n);
-        if (p == 0) {
-            hptr->beg = realloc(hptr->beg, (unsigned)(hptr->last - hptr->beg));
-            garbage("seekc");
-            if ((p = realloc(hptr->beg, (unsigned)n)) == 0)
-                ospace("seekc");
-        }
-        hptr->beg = p;
-        hptr->wt = hptr->last = hptr->rd = p + n;
-        return;
-    }
-    hptr->rd = nn;
-    if (nn > hptr->wt)
-        hptr->wt = nn;
-    return;
 }
 
 void salterwd(struct wblk *hptr, struct blk *n)
@@ -1288,130 +1397,6 @@ void salterwd(struct wblk *hptr, struct blk *n)
         hptr->wtw = hptr->rdw;
 }
 
-void more(struct blk *hptr)
-{
-    register unsigned size;
-    register char *p;
-
-    if ((size = (hptr->last - hptr->beg) * 2) == 0)
-        size = 1;
-    nbytes += size / 2;
-    p = realloc(hptr->beg, (unsigned)size);
-    if (p == 0) {
-        hptr->beg = realloc(hptr->beg, (unsigned)(hptr->last - hptr->beg));
-        garbage("more");
-        if ((p = realloc(hptr->beg, (unsigned)size)) == 0)
-            ospace("more");
-    }
-    hptr->rd = hptr->rd - hptr->beg + p;
-    hptr->wt = hptr->wt - hptr->beg + p;
-    hptr->beg = p;
-    hptr->last = p + size;
-    return;
-}
-
-void ospace(char *s)
-{
-    printf("out of space: %s\n", s);
-    printf("all %ld rel %ld headmor %ld\n", all, rel, headmor);
-    printf("nbytes %ld\n", nbytes);
-    sdump("stk", *stkptr);
-    abort();
-}
-
-void garbage(char *s)
-{
-    int i;
-    struct blk *p, *q;
-    struct sym *tmps;
-    int ct;
-
-    /*	printf("got to garbage %s\n",s);	*/
-    for (i = 0; i < TBLSZ; i++) {
-        tmps = stable[i];
-        if (tmps != 0) {
-            if (i < ARRAYST) {
-                do {
-                    p = tmps->val;
-                    if (((int)p->beg & 01) != 0) {
-                        printf("string %o\n", i);
-                        sdump("odd beg", p);
-                    }
-                    redef(p);
-                    tmps = tmps->next;
-                } while (tmps != 0);
-                continue;
-            } else {
-                do {
-                    p = tmps->val;
-                    rewind(p);
-                    ct = 0;
-                    while ((q = getpwd(p)) != NULL) {
-                        ct++;
-                        if (q != 0) {
-                            if (((int)q->beg & 01) != 0) {
-                                printf("array %o elt %d odd\n", i - ARRAYST, ct);
-                                printf("tmps %p p %p\n", tmps, p);
-                                sdump("elt", q);
-                            }
-                            redef(q);
-                        }
-                    }
-                    tmps = tmps->next;
-                } while (tmps != 0);
-            }
-        }
-    }
-}
-
-void redef(struct blk *p)
-{
-    register int offset;
-    register char *newp;
-
-    if ((int)p->beg & 01) {
-        printf("odd ptr %p hdr %p\n", p->beg, p);
-        ospace("redef-bad");
-    }
-    newp = realloc(p->beg, (unsigned)(p->last - p->beg));
-    if (newp == NULL)
-        ospace("redef");
-    offset = newp - p->beg;
-    p->beg = newp;
-    p->rd += offset;
-    p->wt += offset;
-    p->last += offset;
-}
-
-void release(struct blk *p)
-{
-    rel++;
-    nbytes -= p->last - p->beg;
-    p->rd = (char *)hfree;
-    hfree = p;
-    free(p->beg);
-}
-
-struct blk *getpwd(struct blk *p)
-{
-    register struct wblk *wp;
-
-    wp = (struct wblk *)p;
-    if (wp->rdw == wp->wtw)
-        return (NULL);
-    return (*wp->rdw++);
-}
-
-void putwd(struct blk *p, struct blk *c)
-{
-    register struct wblk *wp;
-
-    wp = (struct wblk *)p;
-    if (wp->wtw == wp->lastw)
-        more(p);
-    *wp->wtw++ = c;
-}
-
 struct blk *lookwd(struct blk *p)
 {
     register struct wblk *wp;
@@ -1420,18 +1405,6 @@ struct blk *lookwd(struct blk *p)
     if (wp->rdw == wp->wtw)
         return (NULL);
     return (*wp->rdw);
-}
-
-char *nalloc(char *p, unsigned nbytes)
-{
-    register char *q, *r;
-
-    q = r = malloc(nbytes);
-    if (q == 0)
-        return (0);
-    while (nbytes--)
-        *q++ = *p++;
-    return (r);
 }
 
 void commnds()

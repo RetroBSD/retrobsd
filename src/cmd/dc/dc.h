@@ -108,11 +108,6 @@ struct blk {
     char *last;
 };
 struct blk *hfree;
-struct blk *getpwd(struct blk *p);
-struct blk *lookwd(struct blk *p);
-struct blk *getdec(struct blk *p, int sc);
-struct blk *morehd(void);
-
 struct blk *arg1, *arg2;
 int svargc;
 char savk;
@@ -157,19 +152,4 @@ int logo;
 int log10v;
 int count;
 char *pp;
-
-struct blk *pop(), *readin();
-struct blk *add0(struct blk *p, int ct);
-struct blk *mult(struct blk *p, struct blk *q);
-struct blk *scalint(struct blk *p);
-struct blk *removc(struct blk *p, int n);
-struct blk *add(struct blk *a1, struct blk *a2);
-struct blk *div(struct blk *ddivd, struct blk *ddivr);
-struct blk *removr(struct blk *p, int n);
-struct blk *expr(struct blk *base, struct blk *ex);
-struct blk *sqrtv(struct blk *p);
-struct blk *salloc(int size);
-struct blk *copy(struct blk *hptr, int size);
-struct blk *scale(struct blk *p, int n);
 void (*outdit)(struct blk *p, int flg);
-char *nalloc(char *p, unsigned nbytes);

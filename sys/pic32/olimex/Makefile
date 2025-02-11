@@ -26,7 +26,7 @@ LDSCRIPT = "olimex/bootloader.ld"
 #
 # DEBUG is set to -g by kconfig if debugging is requested (kconfig -g).
 #
-include ../clang-config.mk
+include ../../../clang-config.mk
 
 AS              = $(LLVMBIN)clang -target mipsel -mcpu=mips32r2 ${DEBUG}
 CC              =  -mabi=o32 -mfloat-abi=soft \

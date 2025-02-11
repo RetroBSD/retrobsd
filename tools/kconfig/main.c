@@ -30,24 +30,23 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/file.h>
-#include <unistd.h>
 #include <ctype.h>
-#include "y.tab.h"
-#include "config.h"
+#include <sys/file.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 
-struct  file_list *conf_list;
-int     debugging;
+#include "config.h"
+#include "y.tab.h"
+
+struct file_list *conf_list;
+int debugging;
 
 /*
  * Config builds a set of files for building a UNIX
  * system given a description of the desired system.
  */
-int main(argc, argv)
-    int argc;
-    char **argv;
+int main(int argc, char **argv)
 {
     int ch;
 
@@ -64,23 +63,23 @@ int main(argc, argv)
     argv += optind;
 
     if (argc != 1) {
-usage:  fputs("usage: kconfig [-gp] sysname\n", stderr);
+    usage:
+        fputs("usage: kconfig [-gp] sysname\n", stderr);
         exit(1);
     }
 
-    if (! freopen(*argv, "r", stdin)) {
+    if (!freopen(*argv, "r", stdin)) {
         perror(*argv);
         exit(2);
     }
 
     dtab = NULL;
     confp = &conf_list;
-    //compp = &comp_list;
+    // compp = &comp_list;
     if (yyparse())
         exit(3);
 
     switch (arch) {
-
     case ARCH_PIC32:
         pic32_ioconf();
         break;
@@ -89,8 +88,8 @@ usage:  fputs("usage: kconfig [-gp] sysname\n", stderr);
         printf("Specify architecture, e.g. ``architecture pic32''\n");
         exit(1);
     }
-    makefile();             /* build Makefile */
-    swapconf();             /* swap config files */
+    makefile(); /* build Makefile */
+    swapconf(); /* swap config files */
     exit(0);
 }
 
@@ -100,9 +99,7 @@ usage:  fputs("usage: kconfig [-gp] sysname\n", stderr);
  *  NULL on end of line
  *  pointer to the word otherwise
  */
-char *
-get_word(fp)
-    register FILE *fp;
+char *get_word(FILE *fp)
 {
     static char line[80];
     register int ch;
@@ -125,7 +122,7 @@ get_word(fp)
     *cp = 0;
     if (ch == EOF)
         return ((char *)EOF);
-    (void) ungetc(ch, fp);
+    (void)ungetc(ch, fp);
     return (line);
 }
 
@@ -134,9 +131,7 @@ get_word(fp)
  *  like get_word but will accept something in double or single quotes
  *  (to allow embedded spaces).
  */
-char *
-get_quoted_word(fp)
-    register FILE *fp;
+char *get_quoted_word(FILE *fp)
 {
     static char line[256];
     register int ch;
@@ -158,8 +153,7 @@ get_quoted_word(fp)
                 break;
             if (ch == '\n') {
                 *cp = 0;
-                printf("config: missing quote reading `%s'\n",
-                    line);
+                printf("config: missing quote reading `%s'\n", line);
                 exit(2);
             }
             *cp++ = ch;
@@ -172,7 +166,7 @@ get_quoted_word(fp)
             *cp++ = ch;
         }
         if (ch != EOF)
-            (void) ungetc(ch, fp);
+            (void)ungetc(ch, fp);
     }
     *cp = 0;
     if (ch == EOF)

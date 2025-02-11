@@ -36,106 +36,106 @@
 /*
  * Config.
  */
-#include <sys/types.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
+#include <sys/types.h>
 
-#define NODEV   ((dev_t)-1)
+#define NODEV ((dev_t) - 1)
 
 struct file_list {
-    struct  file_list *f_next;
-    char    *f_fn;          /* the name */
-    u_char  f_type;         /* see below */
-    u_char  f_flags;        /* see below */
-    char    *f_special;     /* special make rule if present */
-    char    *f_needs;
+    struct file_list *f_next;
+    char *f_fn;      /* the name */
+    u_char f_type;   /* see below */
+    u_char f_flags;  /* see below */
+    char *f_special; /* special make rule if present */
+    char *f_needs;
     /*
      * Random values:
      *  swap space parameters for swap areas
      *  root device, etc. for system specifications
      */
     union {
-        struct {            /* when swap specification */
-            dev_t   fuw_swapdev;
-            int     fuw_swapsize;
-            int     fuw_swapflag;
+        struct { /* when swap specification */
+            dev_t fuw_swapdev;
+            int fuw_swapsize;
+            int fuw_swapflag;
         } fuw;
-        struct {            /* when system specification */
-            dev_t   fus_rootdev;
-            dev_t   fus_dumpdev;
+        struct { /* when system specification */
+            dev_t fus_rootdev;
+            dev_t fus_dumpdev;
         } fus;
-        struct {            /* when component dev specification */
-            dev_t   fup_compdev;
-            int     fup_compinfo;
+        struct { /* when component dev specification */
+            dev_t fup_compdev;
+            int fup_compinfo;
         } fup;
     } fun;
-#define f_swapdev   fun.fuw.fuw_swapdev
-#define f_swapsize  fun.fuw.fuw_swapsize
-#define f_swapflag  fun.fuw.fuw_swapflag
-#define f_rootdev   fun.fus.fus_rootdev
-#define f_dumpdev   fun.fus.fus_dumpdev
-#define f_compdev   fun.fup.fup_compdev
-#define f_compinfo  fun.fup.fup_compinfo
+#define f_swapdev fun.fuw.fuw_swapdev
+#define f_swapsize fun.fuw.fuw_swapsize
+#define f_swapflag fun.fuw.fuw_swapflag
+#define f_rootdev fun.fus.fus_rootdev
+#define f_dumpdev fun.fus.fus_dumpdev
+#define f_compdev fun.fup.fup_compdev
+#define f_compinfo fun.fup.fup_compinfo
 };
 
 /*
  * Types.
  */
-#define NORMAL      1
-#define INVISIBLE   2
-#define SYSTEMSPEC  3
-#define SWAPSPEC    4
+#define NORMAL 1
+#define INVISIBLE 2
+#define SYSTEMSPEC 3
+#define SWAPSPEC 4
 
-struct  idlst {
-    char    *id;
-    struct  idlst *id_next;
+struct idlst {
+    char *id;
+    struct idlst *id_next;
 };
 
 struct device {
-    int     d_type;             /* CONTROLLER, DEVICE, bus adaptor */
-    struct  device *d_conn;     /* what it is connected to */
-    char    *d_name;            /* name of device (e.g. rk11) */
-    struct  idlst *d_vec;       /* interrupt vectors */
-    int     d_pri;              /* interrupt priority */
-    int     d_addr;             /* address of csr */
-    int     d_unit;             /* unit number */
-    int     d_drive;            /* drive number */
-    int     d_slave;            /* slave number */
-#define QUES    -1              /* -1 means '?' */
-#define UNKNOWN -2              /* -2 means not set yet */
-    int     d_flags;            /* flags for device init */
-    char    *d_port;            /* io port base manifest constant */
-    char    *d_mask;            /* interrupt mask */
-    int     d_maddr;            /* io memory base */
-    int     d_msize;            /* io memory size */
-    int     d_drq;              /* DMA request  */
-    int     d_irq;              /* interrupt request  */
-    struct  device *d_next;     /* Next one in list */
-#define MAXPINS 32              /* max number of pins */
-    short   d_pins[MAXPINS];    /* pins assigned */
-    int     d_npins;            /* pin count */
+    int d_type;            /* CONTROLLER, DEVICE, bus adaptor */
+    struct device *d_conn; /* what it is connected to */
+    char *d_name;          /* name of device (e.g. rk11) */
+    struct idlst *d_vec;   /* interrupt vectors */
+    int d_pri;             /* interrupt priority */
+    int d_addr;            /* address of csr */
+    int d_unit;            /* unit number */
+    int d_drive;           /* drive number */
+    int d_slave;           /* slave number */
+#define QUES -1            /* -1 means '?' */
+#define UNKNOWN -2         /* -2 means not set yet */
+    int d_flags;           /* flags for device init */
+    char *d_port;          /* io port base manifest constant */
+    char *d_mask;          /* interrupt mask */
+    int d_maddr;           /* io memory base */
+    int d_msize;           /* io memory size */
+    int d_drq;             /* DMA request  */
+    int d_irq;             /* interrupt request  */
+    struct device *d_next; /* Next one in list */
+#define MAXPINS 32         /* max number of pins */
+    short d_pins[MAXPINS]; /* pins assigned */
+    int d_npins;           /* pin count */
 };
 
 struct config {
-    char    *c_dev;
-    char    *s_sysname;
+    char *c_dev;
+    char *s_sysname;
 };
 
 /*
  * Config has a global notion of which architecture is being used.
  */
-extern int     arch;
-extern char    *archname;
-#define ARCH_PIC32      1
+extern int arch;
+extern char *archname;
+#define ARCH_PIC32 1
 
 /*
  * For each architecture, a set of CPU's may be specified as supported.
  * These and the options (below) are put in the C flags in the makefile.
  */
 extern struct cputype {
-    char    *cpu_name;
-    struct  cputype *cpu_next;
+    char *cpu_name;
+    struct cputype *cpu_next;
 } *cputype;
 
 /*
@@ -144,49 +144,49 @@ extern struct cputype {
  * A separate set of options may be defined for make-style options.
  */
 extern struct opt {
-    char    *op_name;
-    char    *op_value;
-    struct  opt *op_next;
+    char *op_name;
+    char *op_value;
+    struct opt *op_next;
 } *opt, *mkopt;
 
 /*
  * Mapping of signal names to pins.
  */
 extern struct signal {
-    char    *sig_name;
-    int     sig_pin;
-    int     sig_invert;
-    struct  signal *sig_next;
+    char *sig_name;
+    int sig_pin;
+    int sig_invert;
+    struct signal *sig_next;
 } *siglist;
 
-extern char    *board;
-extern char    *ldscript;
+extern char *board;
+extern char *ldscript;
 
 extern int do_trace;
 
-extern struct  device *dtab;
+extern struct device *dtab;
 
-extern char    errbuf[];
-extern int     yyline;
+extern char errbuf[];
+extern int yyline;
 
-extern struct  file_list *ftab, *conf_list, **confp, *comp_list, **compp;
+extern struct file_list *ftab, *conf_list, **confp, *comp_list, **compp;
 
-extern int     zone, hadtz;
-extern int     dst;
-extern int     debugging;
+extern int zone, hadtz;
+extern int dst;
+extern int debugging;
 
-extern int     maxusers;
+extern int maxusers;
 
-#define eq(a,b) (!strcmp(a,b))
+#define eq(a, b) (!strcmp(a, b))
 
-char    *get_word(FILE *);
-char    *get_quoted_word(FILE *);
-char    *raise(char *);
-dev_t   nametodev(char *, int);
-char    *devtoname(dev_t);
-void    init_dev(struct device *);
-int     yyparse(void);
-void    pic32_ioconf(void);
-void    makefile(void);
-void    headers(void);
-void    swapconf(void);
+char *get_word(FILE *);
+char *get_quoted_word(FILE *);
+char *raise(char *);
+dev_t nametodev(char *, int);
+char *devtoname(dev_t);
+void init_dev(struct device *);
+int yyparse(void);
+void pic32_ioconf(void);
+void makefile(void);
+void headers(void);
+void swapconf(void);

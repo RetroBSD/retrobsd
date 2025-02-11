@@ -93,8 +93,7 @@ static struct kt key_words[] = {
  * string is not a keyword otherwise it returns the keyword number
  */
 static int
-kw_lookup(word)
-    register char *word;
+kw_lookup(char *word)
 {
     register struct kt *kp;
 

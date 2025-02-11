@@ -37,55 +37,63 @@
  * additional files for the architecture being compiled to.
  */
 #include <ctype.h>
-#include "y.tab.h"
+
 #include "config.h"
+#include "y.tab.h"
 
 struct file_list *ftab;
 
-#define next_word(fp, wd) \
-    { register char *word = get_word(fp); \
-      if (word == (char *)EOF) \
-        return; \
-      else \
-        wd = word; \
+#define next_word(fp, wd)                   \
+    {                                       \
+        register char *word = get_word(fp); \
+        if (word == (char *)EOF)            \
+            return;                         \
+        else                                \
+            wd = word;                      \
     }
-#define next_quoted_word(fp, wd) \
-    { register char *word = get_quoted_word(fp); \
-      if (word == (char *)EOF) \
-        return; \
-      else \
-        wd = word; \
+#define next_quoted_word(fp, wd)                   \
+    {                                              \
+        register char *word = get_quoted_word(fp); \
+        if (word == (char *)EOF)                   \
+            return;                                \
+        else                                       \
+            wd = word;                             \
     }
 
-static  struct file_list *fcur;
-char *tail();
+static struct file_list *fcur;
 
 /*
  * Lookup a file, by name.
  */
-struct file_list *
-fl_lookup(file)
-    register char *file;
+struct file_list *fl_lookup(char *file)
 {
     register struct file_list *fp;
 
-    for (fp = ftab ; fp != 0; fp = fp->f_next) {
+    for (fp = ftab; fp != 0; fp = fp->f_next) {
         if (eq(fp->f_fn, file))
             return (fp);
     }
     return (0);
 }
 
+char *tail(char *fn)
+{
+    register char *cp;
+
+    cp = rindex(fn, '/');
+    if (cp == 0)
+        return (fn);
+    return (cp + 1);
+}
+
 /*
  * Lookup a file, by final component name.
  */
-struct file_list *
-fltail_lookup(file)
-    register char *file;
+struct file_list *fltail_lookup(char *file)
 {
     register struct file_list *fp;
 
-    for (fp = ftab ; fp != 0; fp = fp->f_next) {
+    for (fp = ftab; fp != 0; fp = fp->f_next) {
         if (eq(tail(fp->f_fn), tail(file)))
             return (fp);
     }
@@ -95,12 +103,11 @@ fltail_lookup(file)
 /*
  * Make a new file list entry
  */
-struct file_list *
-new_fent()
+struct file_list *new_fent()
 {
     register struct file_list *fp;
 
-    fp = (struct file_list *) malloc(sizeof *fp);
+    fp = (struct file_list *)malloc(sizeof *fp);
     bzero(fp, sizeof *fp);
     if (fcur == 0)
         fcur = ftab = fp;
@@ -110,12 +117,11 @@ new_fent()
     return (fp);
 }
 
-int opteq(cp, dp)
-    char *cp, *dp;
+int opteq(char *cp, char *dp)
 {
     char c, d;
 
-    for (; ; cp++, dp++) {
+    for (;; cp++, dp++) {
         if (*cp != *dp) {
             c = isupper(*cp) ? tolower(*cp) : *cp;
             d = isupper(*dp) ? tolower(*dp) : *dp;
@@ -143,7 +149,7 @@ void read_files()
     int nreqs, first = 1, isdup, std, filetype;
 
     ftab = 0;
-    (void) strcpy(fname, "../files.kconf");
+    (void)strcpy(fname, "../files.kconf");
     fp = fopen(fname, "r");
     if (fp == 0) {
         perror(fname);
@@ -155,9 +161,10 @@ next:
      */
     wd = get_word(fp);
     if (wd == (char *)EOF) {
-eof:    (void) fclose(fp);
+    eof:
+        (void)fclose(fp);
         if (first == 1) {
-            (void) sprintf(fname, "files.%s", raise(board));
+            (void)sprintf(fname, "files.%s", raise(board));
             first++;
             fp = fopen(fname, "r");
             if (fp != 0)
@@ -180,8 +187,7 @@ eof:    (void) fclose(fp);
     this = strdup(wd);
     next_word(fp, wd);
     if (wd == 0) {
-        printf("%s: No type for %s.\n",
-            fname, this);
+        printf("%s: No type for %s.\n", fname, this);
         exit(1);
     }
     if ((pf = fl_lookup(this)) && (pf->f_type != INVISIBLE || pf->f_flags))
@@ -190,8 +196,7 @@ eof:    (void) fclose(fp);
         isdup = 0;
     tp = 0;
     if (first == 3 && (tp = fltail_lookup(this)) != 0)
-        printf("%s: Local file %s overrides %s.\n",
-            fname, this, tp->f_fn);
+        printf("%s: Local file %s overrides %s.\n", fname, this, tp->f_fn);
     nreqs = 0;
     special = 0;
     needs = 0;
@@ -210,8 +215,7 @@ nextparam:
     if (eq(wd, "compile-with")) {
         next_quoted_word(fp, wd);
         if (wd == 0) {
-            printf("%s: missing compile command string.\n",
-                   fname);
+            printf("%s: missing compile command string.\n", fname);
             exit(1);
         }
         special = strdup(wd);
@@ -224,13 +228,12 @@ nextparam:
         goto invis;
     for (dp = dtab; dp != 0; save_dp = dp, dp = dp->d_next)
         if (eq(dp->d_name, wd)) {
-            if (std && dp->d_type == SERVICE &&
-                dp->d_slave <= 0)
+            if (std && dp->d_type == SERVICE && dp->d_slave <= 0)
                 dp->d_slave = 1;
             goto nextparam;
         }
     if (std) {
-        dp = (struct device *) malloc(sizeof *dp);
+        dp = (struct device *)malloc(sizeof *dp);
         init_dev(dp);
         dp->d_name = strdup(wd);
         dp->d_type = SERVICE;
@@ -261,14 +264,12 @@ invis:
 
 doneparam:
     if (std == 0 && nreqs == 0) {
-        printf("%s: what is %s optional on?\n",
-            fname, this);
+        printf("%s: what is %s optional on?\n", fname, this);
         exit(1);
     }
 
     if (wd) {
-        printf("%s: syntax error describing %s\n",
-            fname, this);
+        printf("%s: syntax error describing %s\n", fname, this);
         exit(1);
     }
     if (tp == 0)
@@ -279,12 +280,11 @@ doneparam:
     tp->f_needs = needs;
     tp->f_special = special;
     if (pf && pf->f_type == INVISIBLE)
-        pf->f_flags = 1;        /* mark as duplicate */
+        pf->f_flags = 1; /* mark as duplicate */
     goto next;
 }
 
-void do_objs(fp)
-    FILE *fp;
+void do_objs(FILE *fp)
 {
     register struct file_list *tp, *fl;
     register int lpos, len;
@@ -300,7 +300,7 @@ void do_objs(fp)
         for (fl = conf_list; fl; fl = fl->f_next) {
             if (fl->f_type != SWAPSPEC)
                 continue;
-            (void) sprintf(swapname, "swap%s.c", fl->f_fn);
+            (void)sprintf(swapname, "swap%s.c", fl->f_fn);
             if (eq(sp, swapname))
                 goto cont;
         }
@@ -314,15 +314,13 @@ void do_objs(fp)
         fprintf(fp, "%s ", sp);
         lpos += len + 1;
         *cp = och;
-cont:
-        ;
+    cont:;
     }
     if (lpos != 8)
         putc('\n', fp);
 }
 
-void do_cfiles(fp)
-    FILE *fp;
+void do_cfiles(FILE *fp)
 {
     register struct file_list *tp, *fl;
     register int lpos, len;
@@ -344,14 +342,13 @@ void do_cfiles(fp)
         }
     for (fl = conf_list; fl; fl = fl->f_next)
         if (fl->f_type == SYSTEMSPEC) {
-            (void) sprintf(swapname, "swap%s.c", fl->f_fn);
+            (void)sprintf(swapname, "swap%s.c", fl->f_fn);
             if ((len = 3 + strlen(swapname)) + lpos > 72) {
                 lpos = 8;
                 fputs("\\\n\t", fp);
             }
             if (eq(fl->f_fn, "generic"))
-                fprintf(fp, "$A/%s/%s ",
-                    archname, swapname);
+                fprintf(fp, "$A/%s/%s ", archname, swapname);
             else
                 fprintf(fp, "%s ", swapname);
             lpos += len + 1;
@@ -364,8 +361,7 @@ void do_cfiles(fp)
  * Create the makerules for each file
  * which is part of the system.
  */
-void do_rules(f)
-    FILE *f;
+void do_rules(FILE *f)
 {
     register char *cp, *np, och;
     register struct file_list *ftp;
@@ -393,19 +389,44 @@ void do_rules(f)
     }
 }
 
+void do_swapspec(FILE *f, char *name)
+{
+    if (!eq(name, "generic"))
+        fprintf(f, "swap%s.o: swap%s.c\n", name, name);
+    else
+        fprintf(f, "swapgeneric.o: $A/%s/swapgeneric.c\n", archname);
+    fprintf(f, "\t${COMPILE_C}\n\n");
+}
+
+struct file_list *do_systemspec(FILE *f, struct file_list *fl, int first)
+{
+    fprintf(f, "%s: %s.elf\n\n", fl->f_needs, fl->f_needs);
+
+    fprintf(f, "%s.elf: ${SYSTEM_DEP} swap%s.o", fl->f_needs, fl->f_fn);
+    // Don't use newvers target.
+    // A preferred way is to run newvers.sh from SYSTEM_LD_HEAD macro.
+    // if (first)
+    //  fprintf(f, " newvers");
+    fprintf(f, "\n\t${SYSTEM_LD_HEAD}\n");
+    fprintf(f, "\t${SYSTEM_LD} swap%s.o\n", fl->f_fn);
+    fprintf(f, "\t${SYSTEM_LD_TAIL}\n\n");
+    do_swapspec(f, fl->f_fn);
+    for (fl = fl->f_next; fl; fl = fl->f_next)
+        if (fl->f_type != SWAPSPEC)
+            break;
+    return (fl);
+}
+
 /*
  * Create the load strings
  */
-void do_load(f)
-    register FILE *f;
+void do_load(FILE *f)
 {
     register struct file_list *fl;
     register int first;
-    struct file_list *do_systemspec();
 
     for (first = 1, fl = conf_list; fl; first = 0)
-        fl = fl->f_type == SYSTEMSPEC ?
-            do_systemspec(f, fl, first) : fl->f_next;
+        fl = fl->f_type == SYSTEMSPEC ? do_systemspec(f, fl, first) : fl->f_next;
     fputs("all:", f);
     for (fl = conf_list; fl; fl = fl->f_next)
         if (fl->f_type == SYSTEMSPEC)
@@ -427,7 +448,7 @@ void makefile()
 
     read_files();
     strcpy(line, "../Makefile.kconf");
-    //strcat(line, archname);
+    // strcat(line, archname);
     ifp = fopen(line, "r");
     if (ifp == 0) {
         perror(line);
@@ -459,12 +480,11 @@ void makefile()
         int bit = sig->sig_pin & 0xff;
         int port = sig->sig_pin >> 8;
         if (bit > 15 || port < 1 || port > 7) {
-            printf("%s: invalid pin name R%c%u\n",
-                sig->sig_name, 'A'+port-1, bit);
+            printf("%s: invalid pin name R%c%u\n", sig->sig_name, 'A' + port - 1, bit);
             exit(1);
         }
-        fprintf(ofp, "PARAM += -D%s_PORT=TRIS%c -D%s_PIN=%d",
-            sig->sig_name, 'A'+port-1, sig->sig_name, bit);
+        fprintf(ofp, "PARAM += -D%s_PORT=TRIS%c -D%s_PIN=%d", sig->sig_name, 'A' + port - 1,
+                sig->sig_name, bit);
         if (sig->sig_invert)
             fprintf(ofp, " -D%s_INVERT", sig->sig_name);
         fprintf(ofp, "\n");
@@ -505,68 +525,17 @@ void makefile()
         else if (eq(line, "%LOAD\n"))
             do_load(ofp);
         else
-            fprintf(stderr,
-                "Unknown %% construct in generic makefile: %s",
-                line);
+            fprintf(stderr, "Unknown %% construct in generic makefile: %s", line);
     }
-    (void) fclose(ifp);
-    (void) fclose(ofp);
-}
-
-char *
-tail(fn)
-    char *fn;
-{
-    register char *cp;
-
-    cp = rindex(fn, '/');
-    if (cp == 0)
-        return (fn);
-    return (cp+1);
-}
-
-void do_swapspec(f, name)
-    FILE *f;
-    register char *name;
-{
-
-    if (!eq(name, "generic"))
-        fprintf(f, "swap%s.o: swap%s.c\n", name, name);
-    else
-        fprintf(f, "swapgeneric.o: $A/%s/swapgeneric.c\n", archname);
-    fprintf(f, "\t${COMPILE_C}\n\n");
-}
-
-struct file_list *
-do_systemspec(f, fl, first)
-    FILE *f;
-    register struct file_list *fl;
-    int first;
-{
-    fprintf(f, "%s: %s.elf\n\n", fl->f_needs, fl->f_needs);
-
-    fprintf(f, "%s.elf: ${SYSTEM_DEP} swap%s.o", fl->f_needs, fl->f_fn);
-    // Don't use newvers target.
-    // A preferred way is to run newvers.sh from SYSTEM_LD_HEAD macro.
-    //if (first)
-    //  fprintf(f, " newvers");
-    fprintf(f, "\n\t${SYSTEM_LD_HEAD}\n");
-    fprintf(f, "\t${SYSTEM_LD} swap%s.o\n", fl->f_fn);
-    fprintf(f, "\t${SYSTEM_LD_TAIL}\n\n");
-    do_swapspec(f, fl->f_fn);
-    for (fl = fl->f_next; fl; fl = fl->f_next)
-        if (fl->f_type != SWAPSPEC)
-            break;
-    return (fl);
+    (void)fclose(ifp);
+    (void)fclose(ofp);
 }
 
 /*
  * Convert a name to uppercase.
  * Return a pointer to a static buffer.
  */
-char *
-raise(str)
-    register char *str;
+char *raise(char *str)
 {
     static char buf[100];
     register char *cp = buf;

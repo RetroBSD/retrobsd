@@ -34,43 +34,25 @@
 /*
  * Build a swap configuration file.
  */
-
+#if __linux__
 #include <sys/sysmacros.h> //definitions for makedev(), major(), minor()
+#endif
+#include <ctype.h>
+#include <unistd.h>
 
 #include "config.h"
 
-#include <unistd.h>
-#include <ctype.h>
-#include <sys/sysmacros.h>
-
-void swapconf()
-{
-    register struct file_list *fl;
-    struct file_list *do_swap();
-
-    fl = conf_list;
-    while (fl) {
-        if (fl->f_type != SYSTEMSPEC) {
-            fl = fl->f_next;
-            continue;
-        }
-        fl = do_swap(fl);
-    }
-}
-
-struct file_list *
-do_swap(fl)
-    register struct file_list *fl;
+struct file_list *do_swap(struct file_list *fl)
 {
     FILE *fp;
-    char  swapname[80];
+    char swapname[80];
     register struct file_list *swap;
 
     if (eq(fl->f_fn, "generic")) {
         fl = fl->f_next;
         return (fl->f_next);
     }
-    (void) sprintf(swapname, "swap%s.c", fl->f_fn);
+    (void)sprintf(swapname, "swap%s.c", fl->f_fn);
     fp = fopen(swapname, "w");
     if (fp == 0) {
         perror(swapname);
@@ -86,29 +68,25 @@ do_swap(fl)
      */
     swap = fl->f_next;
     if (swap == 0 || swap->f_type != SWAPSPEC) {
-        (void) unlink(swapname);
+        (void)unlink(swapname);
         fclose(fp);
         return (swap);
     }
-    fprintf(fp, "dev_t\trootdev = makedev(%d, %d);\t/* %s */\n",
-        major(fl->f_rootdev), minor(fl->f_rootdev),
-        devtoname(fl->f_rootdev));
-    fprintf(fp, "dev_t\tdumpdev = makedev(%d, %d);\t/* %s */\n",
-        major(fl->f_dumpdev), minor(fl->f_dumpdev),
-        devtoname(fl->f_dumpdev));
+    fprintf(fp, "dev_t\trootdev = makedev(%d, %d);\t/* %s */\n", major(fl->f_rootdev),
+            minor(fl->f_rootdev), devtoname(fl->f_rootdev));
+    fprintf(fp, "dev_t\tdumpdev = makedev(%d, %d);\t/* %s */\n", major(fl->f_dumpdev),
+            minor(fl->f_dumpdev), devtoname(fl->f_dumpdev));
 #if 1
     /* Only one swap device is supported. */
-    fprintf(fp, "dev_t\tswapdev = makedev(%d, %d);\t/* %s */\n",
-        major(swap->f_swapdev), minor(swap->f_swapdev),
-        devtoname(swap->f_swapdev));
+    fprintf(fp, "dev_t\tswapdev = makedev(%d, %d);\t/* %s */\n", major(swap->f_swapdev),
+            minor(swap->f_swapdev), devtoname(swap->f_swapdev));
 #else
     fprintf(fp, "\n");
     fprintf(fp, "struct\tswdevt swdevt[] = {\n");
     do {
         int dev = swap->f_swapdev;
-        fprintf(fp, "\t{ makedev(%d, %d), %d, %d },\t/* %s */\n",
-            major(dev), minor(dev), swap->f_swapflag,
-            swap->f_swapsize, swap->f_fn);
+        fprintf(fp, "\t{ makedev(%d, %d), %d, %d },\t/* %s */\n", major(dev), minor(dev),
+                swap->f_swapflag, swap->f_swapsize, swap->f_fn);
         swap = swap->f_next;
     } while (swap && swap->f_type == SWAPSPEC);
     fprintf(fp, "\t{ NODEV, 0, 0 }\n");
@@ -118,12 +96,26 @@ do_swap(fl)
     return (swap);
 }
 
-static  int devtablenotread = 1;
+void swapconf()
+{
+    register struct file_list *fl;
 
-static  struct devdescription {
-    char    *dev_name;
-    int     dev_major;
-    struct  devdescription *dev_next;
+    fl = conf_list;
+    while (fl) {
+        if (fl->f_type != SYSTEMSPEC) {
+            fl = fl->f_next;
+            continue;
+        }
+        fl = do_swap(fl);
+    }
+}
+
+static int devtablenotread = 1;
+
+static struct devdescription {
+    char *dev_name;
+    int dev_major;
+    struct devdescription *dev_next;
 } *devtable;
 
 void initdevtable()
@@ -133,14 +125,14 @@ void initdevtable()
     register struct devdescription **dp = &devtable;
     FILE *fp;
 
-    (void) sprintf(buf, "../devices.kconf");
+    (void)sprintf(buf, "../devices.kconf");
     fp = fopen(buf, "r");
     if (fp == NULL) {
         fprintf(stderr, "config: can't open %s\n", buf);
         exit(1);
     }
     while (fgets(buf, sizeof(buf), fp)) {
-        for (p=buf; *p; p++)
+        for (p = buf; *p; p++)
             if (*p != ' ' && *p != '\t')
                 break;
         if (*p == '#' || *p == '\n' || *p == '\r')
@@ -149,7 +141,7 @@ void initdevtable()
             fprintf(stderr, "../devices.kconf: unrecognized line %s\n", buf);
             exit(1);
         }
-        *dp = (struct devdescription *)malloc(sizeof (**dp));
+        *dp = (struct devdescription *)malloc(sizeof(**dp));
         (*dp)->dev_name = strdup(name);
         (*dp)->dev_major = maj;
         dp = &(*dp)->dev_next;
@@ -168,10 +160,7 @@ void initdevtable()
  * This is a hack, but the system still thinks in
  * terms of major/minor instead of string names.
  */
-dev_t
-nametodev(name, defunit)
-    char *name;
-    int defunit;
+dev_t nametodev(char *name, int defunit)
 {
     char *cp, partition;
     int unit;
@@ -186,10 +175,8 @@ nametodev(name, defunit)
         cp++;
     unit = *cp ? atoi(cp) : defunit;
     if (unit < 0 || unit > 31) {
-        fprintf(stderr,
-            "config: %s: invalid device specification, unit out of range\n",
-            name);
-        unit = defunit;         /* carry on more checking */
+        fprintf(stderr, "config: %s: invalid device specification, unit out of range\n", name);
+        unit = defunit; /* carry on more checking */
     }
     if (*cp) {
         *cp++ = '\0';
@@ -198,9 +185,8 @@ nametodev(name, defunit)
     }
     partition = *cp ? *cp : '`';
     if (partition < '`' || partition > 'd') {
-        fprintf(stderr,
-            "config: %c: invalid device specification, bad partition\n", *cp);
-        partition = 'a';   /* carry on */
+        fprintf(stderr, "config: %c: invalid device specification, bad partition\n", *cp);
+        partition = 'a'; /* carry on */
     }
     if (devtablenotread)
         initdevtable();
@@ -214,9 +200,7 @@ nametodev(name, defunit)
     return (makedev(dp->dev_major, (unit << 3) + (partition - '`')));
 }
 
-char *
-devtoname(dev)
-    dev_t dev;
+char *devtoname(dev_t dev)
 {
     char buf[80];
     register struct devdescription *dp;
@@ -232,7 +216,6 @@ devtoname(dev)
     if (minor(dev) == 0)
         sprintf(buf, "%s%d", dp->dev_name, minor(dev) >> 3);
     else
-        sprintf(buf, "%s%d%c", dp->dev_name, minor(dev) >> 3,
-            (minor(dev) & 07) + 'a' - 1);
+        sprintf(buf, "%s%d%c", dp->dev_name, minor(dev) >> 3, (minor(dev) & 07) + 'a' - 1);
     return strdup(buf);
 }

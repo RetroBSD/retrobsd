@@ -30,16 +30,31 @@ ifeq ($(LLVMBIN),)
     LLVMBIN = $(dir $(wildcard /usr/local/Cellar/llvm@18/18.*/bin/clang-18))
 endif
 ifeq ($(LLVMBIN),)
+    LLVMBIN = $(dir $(wildcard /opt/homebrew/Cellar/llvm@18/18.*/bin/clang-18))
+endif
+ifeq ($(LLVMBIN),)
     LLVMBIN = $(dir $(wildcard /usr/local/Cellar/llvm@17/17.*/bin/clang-17))
+endif
+ifeq ($(LLVMBIN),)
+    LLVMBIN = $(dir $(wildcard /opt/homebrew/Cellar/llvm@17/17.*/bin/clang-17))
 endif
 ifeq ($(LLVMBIN),)
     LLVMBIN = $(dir $(wildcard /usr/local/Cellar/llvm@16/16.*/bin/clang-16))
 endif
 ifeq ($(LLVMBIN),)
+    LLVMBIN = $(dir $(wildcard /opt/homebrew/Cellar/llvm@16/16.*/bin/clang-16))
+endif
+ifeq ($(LLVMBIN),)
     LLVMBIN = $(dir $(wildcard /usr/local/Cellar/llvm@15/15.*/bin/clang-15))
 endif
 ifeq ($(LLVMBIN),)
+    LLVMBIN = $(dir $(wildcard /opt/homebrew/Cellar/llvm@15/15.*/bin/clang-15))
+endif
+ifeq ($(LLVMBIN),)
     LLVMBIN = $(dir $(wildcard /usr/local/Cellar/llvm@14/14.*/bin/clang-14))
+endif
+ifeq ($(LLVMBIN),)
+    LLVMBIN = $(dir $(wildcard /opt/homebrew/Cellar/llvm@14/14.*/bin/clang-14))
 endif
 
 # Default Clang compiler

@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "readline.h"
-#include "history.h"
+#include <readline/readline.h>
+#include <readline/history.h>
 
 int main(int argc, char **argv) {
     char *line;

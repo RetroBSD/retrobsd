@@ -11,9 +11,9 @@ all:            ../libreadline.a
 		@$(AR) cru $@ ${OBJS}
 		$(RANLIB) $@
 
-install: 	all readline.h history.h
-		install -d $(DESTDIR)/include/readline/
-		cp -p readline.h history.h $(DESTDIR)/include/readline/
+install: 	#all readline.h history.h
+#		install -d $(DESTDIR)/include/readline/
+#		cp -p readline.h history.h $(DESTDIR)/include/readline/
 
 clean:
 		rm -f *~ *.o a.out ../libreadline*.a

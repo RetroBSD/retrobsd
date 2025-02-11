@@ -117,8 +117,8 @@
 #include <sys/types.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
-#include "readline.h"
-#include "history.h"
+#include <readline/readline.h>
+#include <readline/history.h>
 #ifdef USE_TERMIOS
 #   include <termios.h>
 #else

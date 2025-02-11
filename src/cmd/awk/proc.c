@@ -88,7 +88,7 @@ main()
 	printf("obj nullproc();\n");
 	for(p=proc;p->token!=0;p++)
 		if(p==proc || strcmp(p->name, (p-1)->name))
-			printf("extern obj %s();\n",p->name);
+			printf("extern obj %s(node **a, int n);\n",p->name);
 	for(p=proc;p->token!=0;p++)
 		table[p->token-FIRSTTOKEN]=p->name;
 	printf("const objfunc proctab[%d] = {\n", SIZE);

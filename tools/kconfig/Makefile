@@ -1,5 +1,5 @@
-CC		= gcc -g -m32
-CFLAGS		= -O -Wall -Werror 
+CC		= gcc -g
+CFLAGS		= -O -Wall -Werror
 YACC            = byacc -d
 DESTDIR		= /usr/local
 OBJS            = config.o main.o lang.o mkioconf.o mkmakefile.o mkswapconf.o

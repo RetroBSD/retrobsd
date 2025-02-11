@@ -18,7 +18,7 @@ struct dir {
 	char	*d_entry;
 };
 
-struct	dir *setupdir();
+struct	dir *setupdir(char *);
 int	header;
 char	title[2*BUFSIZ], *etitle;
 
@@ -31,8 +31,7 @@ void calldiff(char *wantpr);
 int ascii(int f);
 
 void
-diffdir(argv)
-	char **argv;
+diffdir(char **argv)
 {
 	register struct dir *d1, *d2;
 	struct dir *dir1, *dir2;
@@ -120,9 +119,7 @@ diffdir(argv)
 }
 
 void
-setfile(fpp, epp, file)
-	char **fpp, **epp;
-	char *file;
+setfile(char **fpp, char **epp, char *file)
 {
 	register char *cp;
 
@@ -139,10 +136,7 @@ setfile(fpp, epp, file)
 }
 
 void
-scanpr(dp, test, title, file1, efile1, file2, efile2)
-	register struct dir *dp;
-	int test;
-	char *title, *file1, *efile1, *file2, *efile2;
+scanpr(struct dir *dp, int test, char *title, char *file1, char *efile1, char *file2, char *efile2)
 {
 	int titled = 0;
 
@@ -165,9 +159,7 @@ scanpr(dp, test, title, file1, efile1, file2, efile2)
 }
 
 void
-only(dp, which)
-	struct dir *dp;
-	int which;
+only(struct dir *dp, int which)
 {
 	char *file = which == 1 ? file1 : file2;
 	char *efile = which == 1 ? efile1 : efile2;
@@ -175,11 +167,17 @@ only(dp, which)
 	printf("Only in %.*s: %s\n", efile - file - 1, file, dp->d_entry);
 }
 
-int	entcmp();
+int
+entcmp(const void *a1, const void *a2)
+{
+	const struct dir *d1 = a1;
+        const struct dir *d2 = a2;
+
+	return (strcmp(d1->d_entry, d2->d_entry));
+}
 
 struct dir *
-setupdir(cp)
-	char *cp;
+setupdir(char *cp)
 {
 	register struct dir *dp = 0, *ep;
 	register struct direct *rp;
@@ -235,16 +233,8 @@ setupdir(cp)
 	return (dp);
 }
 
-int
-entcmp(d1, d2)
-	struct dir *d1, *d2;
-{
-	return (strcmp(d1->d_entry, d2->d_entry));
-}
-
 void
-compare(dp)
-	register struct dir *dp;
+compare(struct dir *dp)
 {
 	register int i, j;
 	int f1, f2, fmt1, fmt2;
@@ -336,8 +326,7 @@ closem:
 char	*prargs[] = { "pr", "-h", 0, "-f", 0, 0 };
 
 void
-calldiff(wantpr)
-	char *wantpr;
+calldiff(char *wantpr)
 {
 	int pid, status, status2, pv[2];
 
@@ -396,8 +385,7 @@ calldiff(wantpr)
 #include <a.out.h>
 
 int
-ascii(f)
-	int f;
+ascii(int f)
 {
 	char buf[BUFSIZ];
 	register int cnt;
@@ -422,8 +410,7 @@ ascii(f)
  * THIS IS CRUDE.
  */
 int
-useless(cp)
-register char *cp;
+useless(char *cp)
 {
 
 	if (cp[0] == '.') {

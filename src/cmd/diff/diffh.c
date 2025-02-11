@@ -27,6 +27,7 @@ int easysynch(void);
 int output(int a, int b);
 void change(long a, int b, long c, int d, char *s);
 void range(long a, int b);
+FILE *dopen(char *f1, char *f2);
 
 	/* return pointer to line n of file f*/
 char *getl(int f, long n)
@@ -85,7 +86,6 @@ int
 main(int argc, char **argv)
 {
 	char *s0,*s1;
-	FILE *dopen();
 	register int status = 0;
 
 	while(*argv[1]=='-') {

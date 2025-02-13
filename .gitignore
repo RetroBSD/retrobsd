@@ -31,5 +31,6 @@ Makefile.user
 #misc
 *.log
 *.txt
+*.c-
 
 TODO

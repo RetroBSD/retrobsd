@@ -591,6 +591,7 @@ file /bin/uusnap
 file /bin/uux
 file /bin/uuxqt
 file /bin/vi
+file /bin/virus
 file /bin/vmstat
 mode 02755
 file /bin/w

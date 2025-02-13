@@ -17,12 +17,12 @@ SUBDIR		= adb adc-demo aout ar as awk basic calendar cc chflags \
                   ranlib re renice retroforth scm sed setty sh sl smallc \
                   smlrc smux stty sysctl test uname wiznet xargs \
                   zmodem gtest msec cron compress date2 tip \
-                  talloc uucp yacc
+                  talloc uucp viless virus yacc
 
 # /sbin
 SUBDIR         += chown chroot disktool fsck getty init \
                   mkfs mknod mkpasswd mount pstat \
-                  reboot shutdown umount update vipw virus
+                  reboot shutdown umount update vipw
 
 # TODO: ccom lex m4 reloc sre pforth
 

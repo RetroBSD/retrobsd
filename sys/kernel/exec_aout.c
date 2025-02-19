@@ -68,9 +68,12 @@ int exec_aout_check(struct exec_params *epp)
 
     /*
      * Allocate core at this point, committed to the new image.
-     * TODO: What to do for errors?
      */
-    exec_estab(epp);
+    error = exec_estab(epp);
+    if (error) {
+        DEBUG("exec_estab returned error=%d\n", error);
+        return error;
+    }
 
     /* read in text and data */
     DEBUG("reading a.out image\n");

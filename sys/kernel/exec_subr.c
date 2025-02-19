@@ -2,6 +2,7 @@
 #include <sys/systm.h>
 #include <sys/map.h>
 #include <sys/inode.h>
+#include <sys/types.h>
 #include <sys/user.h>
 #include <sys/proc.h>
 #include <sys/buf.h>
@@ -218,6 +219,13 @@ int exec_estab(struct exec_params *epp)
      * Try out for overflow
      */
     if (epp->text.len + epp->data.len + epp->heap.len + epp->stack.len > MAXMEM)
+        return ENOMEM;
+
+    /*
+     * Check for bss and data addresses over limit
+    */
+    if (epp->data.vaddr + epp->data.len > (caddr_t)USER_DATA_END
+        || epp->bss.vaddr+epp->bss.len > (caddr_t)USER_DATA_END)
         return ENOMEM;
 
     if (roundup((unsigned)epp->data.vaddr + epp->data.len, NBPW) != roundup((unsigned)epp->bss.vaddr, NBPW)) {

@@ -119,12 +119,10 @@ char *zznextc;  /* zero if need another line; otherwise points to next char */
 int yylineno;
 extern FILE * fin;
 
-int retsh(q)
-char *q;
+int retsh(char *q)
 {
     register char *p;
     struct shblock *sp;
-    char *copys();
 
     for(p=q+1 ; *p==' '||*p=='\t' ; ++p)  ;
 

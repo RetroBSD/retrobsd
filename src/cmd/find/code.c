@@ -26,95 +26,94 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAXPATH 1024		/* maximum pathname length */
-#define	RESET	30		/* switch code */
+#define MAXPATH 1024 /* maximum pathname length */
+#define RESET 30     /* switch code */
 
 char path[MAXPATH];
 char oldpath[MAXPATH] = " ";
 char bigrams[257] = { 0 };
 
-int
-strindex(string, pattern)	/* return location of pattern in string or -1 */
-	char *string, *pattern;
+/*
+ * return location of pattern in string or -1
+ */
+int strindex(char *string, char *pattern)
 {
-	register char *s, *p, *q;
+    register char *s, *p, *q;
 
-	for (s = string; *s != NULL; s++)
-		if (*s == *pattern) {		/* fast first char check */
-			for (p = pattern + 1, q = s + 1; *p != NULL; p++, q++)
-				if (*q != *p)
-					break;
-			if (*p == NULL)
-				return (q - strlen ( pattern ) - string);
-		}
-	return (-1);
+    for (s = string; *s != NULL; s++)
+        if (*s == *pattern) { /* fast first char check */
+            for (p = pattern + 1, q = s + 1; *p != NULL; p++, q++)
+                if (*q != *p)
+                    break;
+            if (*p == NULL)
+                return (q - strlen(pattern) - string);
+        }
+    return (-1);
 }
 
-int
-prefix_length(s1, s2)		/* return length of longest common prefix */
-	char *s1, *s2;		/* ... of strings s1 and s2 */
+/*
+ * return length of longest common prefix of strings s1 and s2
+ */
+int prefix_length(char *s1, char *s2)
 {
-	register char *start;
+    register char *start;
 
-	for (start = s1; *s1 == *s2; s1++, s2++)
-		if (*s1 == NULL)
-			break;
-	return (s1 - start);
+    for (start = s1; *s1 == *s2; s1++, s2++)
+        if (*s1 == NULL)
+            break;
+    return (s1 - start);
 }
 
-int
-main(argc, argv)
-	int argc; char *argv[];
+int main(int argc, char *argv[])
 {
-	int count, oldcount, diffcount;
-	int j, code;
-	char bigram[3];
-	FILE *fp;
+    int count, oldcount, diffcount;
+    int j, code;
+    char bigram[3];
+    FILE *fp;
 
-	oldcount = 0;
-	bigram[2] = NULL;
+    oldcount = 0;
+    bigram[2] = NULL;
 
-	if ((fp = fopen(argv[1], "r")) == NULL) {
-		printf("Usage: code common_bigrams < list > coded_list\n");
-		exit(1);
-	}
-	fgets(bigrams, 257, fp);
-	fwrite(bigrams, 1, 256, stdout);
+    if ((fp = fopen(argv[1], "r")) == NULL) {
+        printf("Usage: code common_bigrams < list > coded_list\n");
+        exit(1);
+    }
+    fgets(bigrams, 257, fp);
+    fwrite(bigrams, 1, 256, stdout);
 
-	while (gets(path) != NULL) {
-		/*
-		   squelch unprintable chars so as not to botch decoding
-		*/
-		for (j = 0; path[j] != NULL; j++) {
-			path[j] &= 0177;
-			if (path[j] < 040 || path[j] == 0177)
-				path[j] = '?';
-		}
-		count = prefix_length(oldpath, path);
-		diffcount = count - oldcount;
-		if ((diffcount < -14) || (diffcount > 14)) {
-			putc(RESET, stdout);
-			putw(diffcount + 14, stdout);
-		}
-		else
-			putc(diffcount + 14, stdout);
+    while (gets(path) != NULL) {
+        /*
+           squelch unprintable chars so as not to botch decoding
+        */
+        for (j = 0; path[j] != NULL; j++) {
+            path[j] &= 0177;
+            if (path[j] < 040 || path[j] == 0177)
+                path[j] = '?';
+        }
+        count = prefix_length(oldpath, path);
+        diffcount = count - oldcount;
+        if ((diffcount < -14) || (diffcount > 14)) {
+            putc(RESET, stdout);
+            putw(diffcount + 14, stdout);
+        } else
+            putc(diffcount + 14, stdout);
 
-		for (j = count; path[j] != NULL; j += 2) {
-			if (path[j + 1] == NULL) {
-				putchar(path[j]);
-				break;
-			}
-			bigram[0] = path[j];
-			bigram[1] = path[j + 1];
-			/*
-			    linear search for specific bigram in string table
-			*/
-			if ((code = strindex ( bigrams, bigram )) % 2 == 0)
-				putchar((code / 2) | 0200);
-			else
-				fputs(bigram, stdout);
-		}
-		strcpy(oldpath, path);
-		oldcount = count;
-	}
+        for (j = count; path[j] != NULL; j += 2) {
+            if (path[j + 1] == NULL) {
+                putchar(path[j]);
+                break;
+            }
+            bigram[0] = path[j];
+            bigram[1] = path[j + 1];
+            /*
+                linear search for specific bigram in string table
+            */
+            if ((code = strindex(bigrams, bigram)) % 2 == 0)
+                putchar((code / 2) | 0200);
+            else
+                fputs(bigram, stdout);
+        }
+        strcpy(oldpath, path);
+        oldcount = count;
+    }
 }

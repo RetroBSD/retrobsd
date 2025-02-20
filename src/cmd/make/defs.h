@@ -1,13 +1,13 @@
 /* defs 4.10.1 1996/10/27 */
 #ifdef CROSS
-#   include </usr/include/stdio.h>
-#   include </usr/include/ctype.h>
+#include </usr/include/ctype.h>
+#include </usr/include/stdio.h>
 #else
-#   include <stdio.h>
-#   include <ctype.h>
+#include <ctype.h>
+#include <stdio.h>
 #endif
-#include <sys/param.h>
 #include <sys/dir.h>
+#include <sys/param.h>
 
 #define SHELLCOM "/bin/sh"
 
@@ -23,29 +23,29 @@ typedef long int TIMETYPE;
 */
 #define FSTATIC static
 
-#define NO      0
-#define YES     1
+#define NO 0
+#define YES 1
 
 #define unequal strcmp
 
-#define HASHSIZE        541     // 1021
-#define NLEFTS          80      // 512
-#define NCHARS          500
-#define NINTS           250
-#define INMAX           1350    // 7000
-#define OUTMAX          2300    // 7000
-#define MAXDIR          10
-#define QBUFMAX         5000
+#define HASHSIZE 541 // 1021
+#define NLEFTS 80    // 512
+#define NCHARS 500
+#define NINTS 250
+#define INMAX 1350  // 7000
+#define OUTMAX 2300 // 7000
+#define MAXDIR 10
+#define QBUFMAX 5000
 
-#define ALLDEPS         1
-#define SOMEDEPS        2
+#define ALLDEPS 1
+#define SOMEDEPS 2
 
-#define META            1
-#define TERMINAL        2
+#define META 1
+#define TERMINAL 2
 
 extern char funny[128];
 
-#define ALLOC(x) (struct x *) ckalloc(sizeof(struct x))
+#define ALLOC(x) (struct x *)ckalloc(sizeof(struct x))
 
 extern int sigivalue;
 extern int sigqvalue;
@@ -72,8 +72,8 @@ struct nameblock {
     char *namep;
     char *alias;
     struct lineblock *linep;
-    int done:3;
-    int septype:3;
+    int done : 3;
+    int septype : 3;
     TIMETYPE modtime;
 };
 
@@ -126,29 +126,29 @@ struct chain {
 
 extern char **linesptr;
 
-int yyparse (void);
-void yyerror (char *s);
-void enbint (void (*k)(int));
-void intrupt (int sig);
-int eqsign (char *a);
-void setvar (char *v, char *s);
-void fatal (char *s);
-void fatal1 (char *s, char *t);
-struct varblock *varptr (char *v);
-struct nameblock *srchname (char *s);
-struct nameblock *makename (char *s);
-int doname (struct nameblock *p, int reclevel, TIMETYPE *tval);
-char *subst (char *a, char *b);
-TIMETYPE exists (struct nameblock *pname);
-void expand (struct depblock *q);
-int dosys (char *comstring, int nohalt);
-void touch (int force, char *name);
-void fixname (char *s, char *d);
-int suffix (char *a, char *b, char *p);
-char *concat (char *a, char *b, char *c);
-char *copys (char *s);
-struct depblock *srchdir (char *pat, int mkchain, struct depblock *nextdbl);
-int *ckalloc (int n);
-struct chain *appendq (struct chain *head, char *tail);
-char *mkqlist (struct chain *p);
-TIMETYPE prestime (void);
+int yyparse(void);
+void yyerror(char *s);
+void enbint(void (*k)(int));
+void intrupt(int sig);
+int eqsign(char *a);
+void setvar(char *v, char *s);
+void fatal(char *s);
+void fatal1(char *s, char *t);
+struct varblock *varptr(char *v);
+struct nameblock *srchname(char *s);
+struct nameblock *makename(char *s);
+int doname(struct nameblock *p, int reclevel, TIMETYPE *tval);
+char *subst(char *a, char *b);
+TIMETYPE exists(struct nameblock *pname);
+void expand(struct depblock *q);
+int dosys(char *comstring, int nohalt);
+void touch(int force, char *name);
+void fixname(char *s, char *d);
+int suffix(char *a, char *b, char *p);
+char *concat(char *a, char *b, char *c);
+char *copys(char *s);
+struct depblock *srchdir(char *pat, int mkchain, struct depblock *nextdbl);
+int *ckalloc(int n);
+struct chain *appendq(struct chain *head, char *tail);
+char *mkqlist(struct chain *p);
+TIMETYPE prestime(void);

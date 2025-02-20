@@ -1,6 +1,7 @@
-#include "defs.h"
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
+
+#include "defs.h"
 
 FSTATIC struct nameblock *hashtab[HASHSIZE];
 FSTATIC int nhashed = 0;
@@ -9,8 +10,7 @@ FSTATIC int nhashed = 0;
  * simple linear hash.  hash function is sum of
  *  characters mod hash table size.
  */
-int hashloc(s)
-    char *s;
+int hashloc(char *s)
 {
     register int i;
     register int hashval;
@@ -18,40 +18,36 @@ int hashloc(s)
 
     hashval = 0;
 
-    for(t=s; *t!='\0' ; ++t)
+    for (t = s; *t != '\0'; ++t)
         hashval += *t;
 
     hashval %= HASHSIZE;
 
-    for(i=hashval;
-        hashtab[i]!=0 && unequal(s,hashtab[i]->namep);
-        i = (i+1)%HASHSIZE ) ;
+    for (i = hashval; hashtab[i] != 0 && unequal(s, hashtab[i]->namep); i = (i + 1) % HASHSIZE)
+        ;
 
-    return(i);
+    return (i);
 }
 
-struct nameblock *srchname(s)
-    char *s;
+struct nameblock *srchname(char *s)
 {
-    return( hashtab[hashloc(s)] );
+    return (hashtab[hashloc(s)]);
 }
 
-int hasslash(s)
-    char *s;
+int hasslash(char *s)
 {
     for (; *s; ++s)
         if (*s == '/')
-            return(YES);
-    return(NO);
+            return (YES);
+    return (NO);
 }
 
-struct nameblock *makename(s)
-    char *s;
+struct nameblock *makename(char *s)
 {
     /* make a fresh copy of the string s */
     register struct nameblock *p;
 
-    if (nhashed++ > HASHSIZE-3)
+    if (nhashed++ > HASHSIZE - 3)
         fatal("Hash table overflow");
 
     p = ALLOC(nameblock);
@@ -64,16 +60,15 @@ struct nameblock *makename(s)
 
     firstname = p;
     if (mainname == NULL)
-        if (s[0]!='.' || hasslash(s))
+        if (s[0] != '.' || hasslash(s))
             mainname = p;
 
     hashtab[hashloc(s)] = p;
 
-    return(p);
+    return (p);
 }
 
-char *copys(s)
-    register char *s;
+char *copys(char *s)
 {
     register char *t, *t0;
 
@@ -82,42 +77,42 @@ char *copys(s)
         fatal("out of memory");
     while ((*t++ = *s++))
         ;
-    return(t0);
+    return (t0);
 }
 
 /*
  * c = concatenation of a and b
  */
-char *concat(a, b, c)
-    register char *a, *b;
-    char *c;
+char *concat(char *a, char *b, char *c)
 {
     register char *t;
     t = c;
 
     while ((*t = *a++))
         t++;
-    while ((*t++ = *b++));
+    while ((*t++ = *b++))
+        ;
     return c;
 }
 
 /*
  * is b the suffix of a?  if so, set p = prefix
  */
-int suffix(a, b, p)
-    register char *a, *b, *p;
+int suffix(char *a, char *b, char *p)
 {
     char *a0 = a, *b0 = b;
 
-    while (*a++);
-    while (*b++);
+    while (*a++)
+        ;
+    while (*b++)
+        ;
 
     if ((a - a0) < (b - b0))
         return 0;
 
     while (b > b0)
         if (*--a != *--b)
-        return 0;
+            return 0;
 
     while (a0 < a)
         *p++ = *a0++;
@@ -125,13 +120,12 @@ int suffix(a, b, p)
     return 1;
 }
 
-int *ckalloc(n)
-    register int n;
+int *ckalloc(int n)
 {
     register int *p;
 
-    p = (int *) calloc(1,n);
-    if (! p)
+    p = (int *)calloc(1, n);
+    if (!p)
         fatal("out of memory");
 
     return p;
@@ -140,8 +134,7 @@ int *ckalloc(n)
 /*
  * copy string a into b, substituting for arguments
  */
-char *subst(a,b)
-    register char *a,*b;
+char *subst(char *a, char *b)
 {
     static int depth = 0;
     register char *s;
@@ -152,21 +145,21 @@ char *subst(a,b)
     if (++depth > 100)
         fatal("infinitely recursive macro?");
     if (a != 0) {
-        while(*a) {
+        while (*a) {
             if (*a != '$')
                 *b++ = *a++;
-            else if (*++a=='\0' || *a=='$')
+            else if (*++a == '\0' || *a == '$')
                 *b++ = *a++;
             else {
                 s = vname;
-                if (*a=='(' || *a=='{') {
+                if (*a == '(' || *a == '{') {
                     closer = (*a == '(') ? ')' : '}';
                     ++a;
                     while (*a == ' ')
                         ++a;
-                    while (*a!=' ' && *a!=closer && *a!='\0')
+                    while (*a != ' ' && *a != closer && *a != '\0')
                         *s++ = *a++;
-                    while (*a!=closer && *a!='\0')
+                    while (*a != closer && *a != '\0')
                         ++a;
                     if (*a == closer)
                         ++a;
@@ -184,11 +177,10 @@ char *subst(a,b)
     }
     *b = '\0';
     --depth;
-    return(b);
+    return (b);
 }
 
-void setvar(v, s)
-    char *v, *s;
+void setvar(char *v, char *s)
 {
     struct varblock *p;
 
@@ -196,8 +188,7 @@ void setvar(v, s)
     if (p->noreset == 0) {
         p->varval = s;
         p->noreset = inarglist;
-        if (p->used && unequal(v, "@") && unequal(v, "*")
-            && unequal(v, "<") && unequal(v, "?"))
+        if (p->used && unequal(v, "@") && unequal(v, "*") && unequal(v, "<") && unequal(v, "?"))
             fprintf(stderr, "Warning: %s changed after being used\n", v);
     }
 }
@@ -205,48 +196,46 @@ void setvar(v, s)
 /*
  * look for arguments with equal signs but not colons
  */
-int eqsign(a)
-    char *a;
+int eqsign(char *a)
 {
     register char *s, *t, *b;
     char buf[256];
 
     while (*a == ' ')
         ++a;
-    for (s=a; *s!='\0' && *s!=':'; ++s) {
+    for (s = a; *s != '\0' && *s != ':'; ++s) {
         if (*s == '=') {
             b = buf;
-            for (t = a; *t!='=' && *t!=' ' && *t!='\t'; t++)
+            for (t = a; *t != '=' && *t != ' ' && *t != '\t'; t++)
                 *b++ = *t;
             *b = '\0';
 
-            for (++s; *s==' ' || *s=='\t'; ++s);
+            for (++s; *s == ' ' || *s == '\t'; ++s)
+                ;
             setvar(buf, copys(s));
-            return(YES);
+            return (YES);
         }
     }
-    return(NO);
+    return (NO);
 }
 
-struct varblock *varptr(v)
-    char *v;
+struct varblock *varptr(char *v)
 {
     register struct varblock *vp;
 
-    for (vp = firstvar; vp ; vp = vp->nxtvarblock)
-        if (! unequal(v, vp->varname))
-            return(vp);
+    for (vp = firstvar; vp; vp = vp->nxtvarblock)
+        if (!unequal(v, vp->varname))
+            return (vp);
 
     vp = ALLOC(varblock);
     vp->nxtvarblock = firstvar;
     firstvar = vp;
     vp->varname = copys(v);
     vp->varval = 0;
-    return(vp);
+    return (vp);
 }
 
-void fatal1(s, t)
-    char *s, *t;
+void fatal1(char *s, char *t)
 {
     char buf[BUFSIZ];
 
@@ -254,8 +243,7 @@ void fatal1(s, t)
     fatal(buf);
 }
 
-void fatal(s)
-    char *s;
+void fatal(char *s)
 {
     if (s)
         fprintf(stderr, "Make: %s.  Stop.\n", s);
@@ -264,8 +252,7 @@ void fatal(s)
     exit(1);
 }
 
-void yyerror(s)
-    char *s;
+void yyerror(char *s)
 {
     char buf[50];
     extern int yylineno;
@@ -274,25 +261,22 @@ void yyerror(s)
     fatal(buf);
 }
 
-struct chain *appendq(head, tail)
-    struct chain *head;
-    char *tail;
+struct chain *appendq(struct chain *head, char *tail)
 {
     register struct chain *p, *q;
 
     p = ALLOC(chain);
     p->datap = tail;
 
-    if (! head)
-        return(p);
-    for(q = head ; q->nextp ; q = q->nextp)
+    if (!head)
+        return (p);
+    for (q = head; q->nextp; q = q->nextp)
         ;
     q->nextp = p;
-    return(head);
+    return (head);
 }
 
-char *mkqlist(p)
-    struct chain *p;
+char *mkqlist(struct chain *p)
 {
     register char *qbufp, *s;
     static char qbuf[QBUFMAX];
@@ -306,7 +290,7 @@ char *mkqlist(p)
 
     for (; p; p = p->nextp) {
         s = p->datap;
-        if (qbufp+strlen(s) > &qbuf[QBUFMAX-3]) {
+        if (qbufp + strlen(s) > &qbuf[QBUFMAX - 3]) {
             fprintf(stderr, "$? list too long\n");
             break;
         }

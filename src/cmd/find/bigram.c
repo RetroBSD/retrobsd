@@ -7,41 +7,40 @@
 #include <stdio.h>
 #include <string.h>
 
-#define MAXPATH	1024		/* maximum pathname length */
+#define MAXPATH 1024 /* maximum pathname length */
 
 char path[MAXPATH];
 char oldpath[MAXPATH] = " ";
 
-int
-prefix_length(s1, s2)		/* return length of longest common prefix */
-	char *s1, *s2;		/* ... of strings s1 and s2 */
+/*
+ * return length of longest common prefix of strings s1 and s2
+ */
+int prefix_length(char *s1, char *s2)
 {
-	register char *start;
+    register char *start;
 
-	for ( start = s1; *s1 == *s2; s1++, s2++ )
-		if ( *s1 == NULL )
-			break;
-	return ( s1 - start );
+    for (start = s1; *s1 == *s2; s1++, s2++)
+        if (*s1 == NULL)
+            break;
+    return (s1 - start);
 }
 
-int
-main()
+int main()
 {
-	register int count, j;
+    register int count, j;
 
-	while ( gets ( path ) != NULL ) {
-
-		count = prefix_length ( oldpath, path );
-		/*
-		   output post-residue bigrams only
-		*/
-		for ( j = count; path[j] != NULL; j += 2 ) {
-			if ( path[j + 1] == NULL )
-				break;
-			putchar ( path[j] );
-			putchar ( path[j + 1] );
-			putchar ( '\n' );
-		}
-		strcpy ( oldpath, path );
-	}
+    while (gets(path) != NULL) {
+        count = prefix_length(oldpath, path);
+        /*
+           output post-residue bigrams only
+        */
+        for (j = count; path[j] != NULL; j += 2) {
+            if (path[j + 1] == NULL)
+                break;
+            putchar(path[j]);
+            putchar(path[j + 1]);
+            putchar('\n');
+        }
+        strcpy(oldpath, path);
+    }
 }

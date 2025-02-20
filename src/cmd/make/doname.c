@@ -6,54 +6,51 @@
  * p->done = 2   file already exists in current state
  * p->done = 3   file make failed
  */
-#include "defs.h"
+#include <signal.h>
 #include <stdlib.h>
 #include <strings.h>
-#include <signal.h>
+
+#include "defs.h"
 
 extern char *sys_siglist[], arfile[], *arfname;
 
-int docom1(comstring, nohalt, noprint)
-    register char *comstring;
-    int nohalt, noprint;
+int docom1(char *comstring, int nohalt, int noprint)
 {
     register int status;
 
     if (comstring[0] == '\0')
-        return(0);
+        return (0);
 
-    if (! silflag && (! noprint || noexflag)) {
+    if (!silflag && (!noprint || noexflag)) {
         printf("%s%s\n", (noexflag ? "" : prompt), comstring);
         fflush(stdout);
     }
     if (noexflag)
-        return(0);
+        return (0);
 
     status = dosys(comstring, nohalt);
     if (status != 0) {
         unsigned sig = status & 0177;
         if (sig) {
-            if (sig < NSIG && sys_siglist[sig] != NULL &&
-                *sys_siglist[sig] != '\0')
+            if (sig < NSIG && sys_siglist[sig] != NULL && *sys_siglist[sig] != '\0')
                 printf("*** %s", sys_siglist[sig]);
             else
                 printf("*** Signal %d", sig);
             if (status & 0200)
                 printf(" - core dumped");
         } else
-            printf("*** Exit %d", (status>>8) & 0xff);
+            printf("*** Exit %d", (status >> 8) & 0xff);
 
         if (nohalt)
-                printf(" (ignored)\n");
+            printf(" (ignored)\n");
         else
-                printf("\n");
+            printf("\n");
         fflush(stdout);
     }
-    return(status);
+    return (status);
 }
 
-int docom(q)
-    struct shblock *q;
+int docom(struct shblock *q)
 {
     register char *s;
     register int ign, nopr;
@@ -62,13 +59,13 @@ int docom(q)
 
     ++ndocoms;
     if (questflag)
-        return(NO);
+        return (NO);
 
     if (touchflag) {
         s = varptr("@")->varval;
-        if (! silflag)
+        if (!silflag)
             printf("touch(%s)\n", s);
-        if (! noexflag)
+        if (!noexflag)
             touch(YES, s);
     } else {
         for (; q; q = q->nxtshblock) {
@@ -77,35 +74,32 @@ int docom(q)
 
             ign = ignerr;
             nopr = NO;
-            for(s = string; *s=='-' || *s=='@'; ++s) {
+            for (s = string; *s == '-' || *s == '@'; ++s) {
                 if (*s == '-')
                     ign = YES;
                 else
                     nopr = YES;
             }
 
-            if (docom1(s, ign, nopr) && ! ign) {
+            if (docom1(s, ign, nopr) && !ign) {
                 if (keepgoing)
-                    return(YES);
+                    return (YES);
                 else
-                    fatal((char *) NULL);
+                    fatal((char *)NULL);
             }
         }
     }
-    return(NO);
+    return (NO);
 }
 
-int doname(p, reclevel, tval)
-    register struct nameblock *p;
-    int reclevel;
-    TIMETYPE *tval;
+int doname(struct nameblock *p, int reclevel, TIMETYPE *tval)
 {
     int errstat;
     u_char okdel1;
     u_char didwork;
     TIMETYPE td, td1, tdep, ptime, ptime1;
     register struct depblock *q;
-    struct depblock *qtemp, *srchdir(), *suffp, *suffp1;
+    struct depblock *qtemp, *suffp, *suffp1;
     struct nameblock *p1, *p2;
     struct shblock *implcom, *explcom;
     register struct lineblock *lp;
@@ -130,7 +124,7 @@ int doname(p, reclevel, tval)
         static struct varblock *vpath_cp;
         static char vpath_exp[256];
 
-        if (! vpath_cp) {
+        if (!vpath_cp) {
             vpath_cp = varptr("VPATH");
             if (vpath_cp->varval) {
                 subst(vpath_cp->varval, vpath_exp);
@@ -141,17 +135,17 @@ int doname(p, reclevel, tval)
 
     if (p == 0) {
         *tval = 0;
-        return(0);
+        return (0);
     }
 
     if (dbgflag) {
-        printf("doname(%s,%d)\n",p->namep,reclevel);
+        printf("doname(%s,%d)\n", p->namep, reclevel);
         fflush(stdout);
     }
 
     if (p->done > 0) {
         *tval = p->modtime;
-        return(p->done == 3);
+        return (p->done == 3);
     }
 
     errstat = 0;
@@ -161,14 +155,14 @@ int doname(p, reclevel, tval)
     ptime = exists(p);
     ptime1 = 0;
     didwork = NO;
-    p->done = 1;    /* avoid infinite loops */
+    p->done = 1; /* avoid infinite loops */
 
     qchain = NULL;
 
     /* Expand any names that have embedded metacharaters */
 
-    for (lp = p->linep ; lp ; lp = lp->nxtlineblock) {
-        for (q = lp->depp ; q ; q=qtemp) {
+    for (lp = p->linep; lp; lp = lp->nxtlineblock) {
+        for (q = lp->depp; q; q = qtemp) {
             qtemp = q->nxtdepblock;
             expand(q);
         }
@@ -176,10 +170,10 @@ int doname(p, reclevel, tval)
 
     /* make sure all dependents are up to date */
 
-    for(lp = p->linep; lp; lp = lp->nxtlineblock) {
+    for (lp = p->linep; lp; lp = lp->nxtlineblock) {
         td = 0;
         for (q = lp->depp; q; q = q->nxtdepblock) {
-            errstat += doname(q->depname, reclevel+1, &td1);
+            errstat += doname(q->depname, reclevel + 1, &td1);
             if (dbgflag)
                 printf("TIME(%s)=%ld\n", q->depname->namep, td1);
             if (td1 > td)
@@ -189,15 +183,15 @@ int doname(p, reclevel, tval)
         }
         if (p->septype == SOMEDEPS) {
             if (lp->shp != 0) {
-                if (ptime<td || (ptime==0 && td==0) || lp->depp==0) {
+                if (ptime < td || (ptime == 0 && td == 0) || lp->depp == 0) {
                     okdel1 = okdel;
                     okdel = NO;
                     setvar("@", p->namep);
-                    setvar("?", mkqlist(qchain) );
+                    setvar("?", mkqlist(qchain));
                     qchain = NULL;
-                    if (! questflag)
+                    if (!questflag)
                         errstat += docom(lp->shp);
-                    setvar("@", (char *) NULL);
+                    setvar("@", (char *)NULL);
                     okdel = okdel1;
                     ptime1 = prestime();
                     didwork = YES;
@@ -223,21 +217,20 @@ int doname(p, reclevel, tval)
         p->namep = arfname;
     }
 
-    for(lp = sufflist ; lp ; lp = lp->nxtlineblock) {
-        for(suffp = lp->depp ; suffp ; suffp = suffp->nxtdepblock) {
+    for (lp = sufflist; lp; lp = lp->nxtlineblock) {
+        for (suffp = lp->depp; suffp; suffp = suffp->nxtdepblock) {
             pnamep = suffp->depname->namep;
             if (suffix(p->namep, pnamep, prefix)) {
                 if (savenamep)
                     pnamep = ".a";
 
-                srchdir( concat(prefix,"*",temp), NO, (struct depblock *) NULL);
-                for(lp1 = sufflist ; lp1 ; lp1 = lp1->nxtlineblock) {
-                    for(suffp1=lp1->depp ; suffp1 ; suffp1 = suffp1->nxtdepblock) {
+                srchdir(concat(prefix, "*", temp), NO, (struct depblock *)NULL);
+                for (lp1 = sufflist; lp1; lp1 = lp1->nxtlineblock) {
+                    for (suffp1 = lp1->depp; suffp1; suffp1 = suffp1->nxtdepblock) {
                         p1namep = suffp1->depname->namep;
-                        if ((p1=srchname(concat(p1namep, pnamep ,concsuff))) &&
-                            (p2=srchname(concat(prefix, p1namep ,sourcename))))
-                        {
-                            errstat += doname(p2, reclevel+1, &td);
+                        if ((p1 = srchname(concat(p1namep, pnamep, concsuff))) &&
+                            (p2 = srchname(concat(prefix, p1namep, sourcename)))) {
+                            errstat += doname(p2, reclevel + 1, &td);
                             if (ptime < td)
                                 qchain = appendq(qchain, p2->namep);
                             if (dbgflag)
@@ -249,7 +242,7 @@ int doname(p, reclevel, tval)
                                 setvar("<", copys(p2->alias));
                             else
                                 setvar("<", copys(p2->namep));
-                            for(lp2=p1->linep ; lp2 ; lp2 = lp2->nxtlineblock) {
+                            for (lp2 = p1->linep; lp2; lp2 = lp2->nxtlineblock) {
                                 implcom = lp2->shp;
                                 if (implcom)
                                     break;
@@ -269,10 +262,10 @@ endloop:
     if (savenamep)
         p->namep = savenamep;
 
-    if (errstat==0 && (ptime<tdep || (ptime==0 && tdep==0))) {
+    if (errstat == 0 && (ptime < tdep || (ptime == 0 && tdep == 0))) {
         ptime = (tdep > 0) ? tdep : prestime();
         setvar("@", savenamep ? arfile : p->namep);
-        setvar("?", mkqlist(qchain) );
+        setvar("?", mkqlist(qchain));
         if (explcom) {
             errstat += docom(explcom);
         } else if (implcom) {
@@ -297,33 +290,31 @@ endloop:
             } else
                 fatal1(" Don't know how to make %s", p->namep);
         }
-        setvar("@", (char *) NULL);
+        setvar("@", (char *)NULL);
         if (noexflag || (ptime = exists(p)) == 0)
             ptime = prestime();
-    }
-    else if (errstat!=0 && reclevel==0)
+    } else if (errstat != 0 && reclevel == 0)
         printf("`%s' not remade because of errors\n", p->namep);
 
-    else if (!questflag && reclevel==0  &&  didwork==NO)
+    else if (!questflag && reclevel == 0 && didwork == NO)
         printf("`%s' is up to date.\n", p->namep);
 
-    if (questflag && reclevel==0)
-        exit(ndocoms>0 ? -1 : 0);
+    if (questflag && reclevel == 0)
+        exit(ndocoms > 0 ? -1 : 0);
 
     p->done = (errstat ? 3 : 2);
     if (ptime1 > ptime)
         ptime = ptime1;
     p->modtime = ptime;
     *tval = ptime;
-    return(errstat);
+    return (errstat);
 }
 
 /*
  * If there are any Shell meta characters in the name,
  * expand into a list, after searching directory
  */
-void expand(q)
-    register struct depblock *q;
+void expand(struct depblock *q)
 {
     register char *s;
     char *s1;
@@ -332,8 +323,8 @@ void expand(q)
     if (q->depname == NULL)
         return;
     s1 = q->depname->namep;
-    for (s=s1; ;) {
-        switch(*s++) {
+    for (s = s1;;) {
+        switch (*s++) {
         case '\0':
             return;
 

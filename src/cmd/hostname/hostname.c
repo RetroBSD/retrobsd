@@ -30,45 +30,41 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
-#include <sys/param.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/param.h>
 #include <unistd.h>
 
-int
-main(argc,argv)
-	int argc;
-	char *argv[];
+int main(int argc, char *argv[])
 {
-	extern int optind;
-	int ch, sflag;
-	char *p, hostname[MAXHOSTNAMELEN];
+    extern int optind;
+    int ch, sflag;
+    char *p, hostname[MAXHOSTNAMELEN];
 
-	sflag = 0;
-	while ((ch = getopt(argc, argv, "s")) != EOF)
-		switch (ch) {
-		case 's':
-			sflag = 1;
-			break;
-		case '?':
-		default:
-			(void)fprintf(stderr,
-			    "usage: hostname [-s] [hostname]\n");
-			exit(1);
-		}
-	argc -= optind;
-	argv += optind;
+    sflag = 0;
+    while ((ch = getopt(argc, argv, "s")) != EOF)
+        switch (ch) {
+        case 's':
+            sflag = 1;
+            break;
+        case '?':
+        default:
+            (void)fprintf(stderr, "usage: hostname [-s] [hostname]\n");
+            exit(1);
+        }
+    argc -= optind;
+    argv += optind;
 
-	if (*argv) {
-		if (sethostname(*argv, strlen(*argv)))
-			err(1, "sethostname");
-	} else {
-		if (gethostname(hostname, sizeof(hostname)))
-			err(1, "gethostname");
-		if (sflag && (p = strchr(hostname, '.')))
-			*p = '\0';
-		(void)printf("%s\n", hostname);
-	}
-	exit(0);
+    if (*argv) {
+        if (sethostname(*argv, strlen(*argv)))
+            err(1, "sethostname");
+    } else {
+        if (gethostname(hostname, sizeof(hostname)))
+            err(1, "gethostname");
+        if (sflag && (p = strchr(hostname, '.')))
+            *p = '\0';
+        (void)printf("%s\n", hostname);
+    }
+    exit(0);
 }

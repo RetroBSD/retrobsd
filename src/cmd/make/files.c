@@ -1,79 +1,79 @@
-#include "defs.h"
+#include <ar.h>
+#include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <time.h>
 #include <sys/stat.h>
-#include <ar.h>
-#include "archive.h"    /* from 'ar's directory */
+#include <time.h>
+#include <unistd.h>
+
+#include "archive.h" /* from 'ar's directory */
+#include "defs.h"
 
 /* UNIX DEPENDENT PROCEDURES */
 
 /* DEFAULT RULES FOR UNIX */
 
-char *builtin[] = {
-    ".SUFFIXES : .out .a .o .c .y .l .s .S",
-    "YACC=yacc",
-    "YFLAGS=",
-    "LEX=lex",
-    "LFLAGS=",
-    "CC=cc",
-    "AS=as",
-    "LD=ld",
-    "CFLAGS=",
-    "ASFLAGS=",
-    "LIBS=",
+char *builtin[] = { ".SUFFIXES : .out .a .o .c .y .l .s .S",
+                    "YACC=yacc",
+                    "YFLAGS=",
+                    "LEX=lex",
+                    "LFLAGS=",
+                    "CC=cc",
+                    "AS=as",
+                    "LD=ld",
+                    "CFLAGS=",
+                    "ASFLAGS=",
+                    "LIBS=",
 
-    ".c.a :",
-    "\t$(CC) $(CFLAGS) -c $<",
-    "\tar r $@ $*.o",
-    "\trm -f $*.o",
+                    ".c.a :",
+                    "\t$(CC) $(CFLAGS) -c $<",
+                    "\tar r $@ $*.o",
+                    "\trm -f $*.o",
 
-    ".c.o :",
-    "\t$(CC) $(CFLAGS) -c $<",
+                    ".c.o :",
+                    "\t$(CC) $(CFLAGS) -c $<",
 
-    ".S.o :",
-    "\t$(CC) $(ASFLAGS) -c $<",
+                    ".S.o :",
+                    "\t$(CC) $(ASFLAGS) -c $<",
 
-    ".s.o :",
-    "\t$(AS) $(ASFLAGS) -o $@ $<",
+                    ".s.o :",
+                    "\t$(AS) $(ASFLAGS) -o $@ $<",
 
-    ".y.o :",
-    "\t$(YACC) $(YFLAGS) $<",
-    "\t$(CC) $(CFLAGS) -c y.tab.c",
-    "\trm y.tab.c",
-    "\tmv y.tab.o $@",
+                    ".y.o :",
+                    "\t$(YACC) $(YFLAGS) $<",
+                    "\t$(CC) $(CFLAGS) -c y.tab.c",
+                    "\trm y.tab.c",
+                    "\tmv y.tab.o $@",
 
-    ".l.o :",
-    "\t$(LEX) $(LFLAGS) $<",
-    "\t$(CC) $(CFLAGS) -c lex.yy.c",
-    "\trm lex.yy.c",
-    "\tmv lex.yy.o $@",
+                    ".l.o :",
+                    "\t$(LEX) $(LFLAGS) $<",
+                    "\t$(CC) $(CFLAGS) -c lex.yy.c",
+                    "\trm lex.yy.c",
+                    "\tmv lex.yy.o $@",
 
-    ".y.c :",
-    "\t$(YACC) $(YFLAGS) $<",
-    "\tmv y.tab.c $@",
+                    ".y.c :",
+                    "\t$(YACC) $(YFLAGS) $<",
+                    "\tmv y.tab.c $@",
 
-    ".l.c :",
-    "\t$(LEX) $(LFLAGS) $<",
-    "\tmv lex.yy.c $@",
+                    ".l.c :",
+                    "\t$(LEX) $(LFLAGS) $<",
+                    "\tmv lex.yy.c $@",
 
-    ".s.out .c.out .o.out :",
-    "\t$(CC) $(CFLAGS) $< $(LIBS) -o $@",
+                    ".s.out .c.out .o.out :",
+                    "\t$(CC) $(CFLAGS) $< $(LIBS) -o $@",
 
-    ".y.out :",
-    "\t$(YACC) $(YFLAGS) $<",
-    "\t$(CC) $(CFLAGS) y.tab.c $(LIBS) -ly -o $@",
-    "\trm y.tab.c",
+                    ".y.out :",
+                    "\t$(YACC) $(YFLAGS) $<",
+                    "\t$(CC) $(CFLAGS) y.tab.c $(LIBS) -ly -o $@",
+                    "\trm y.tab.c",
 
-    ".l.out :",
-    "\t$(LEX) $(LFLAGS) $<",
-    "\t$(CC) $(CFLAGS) lex.yy.c $(LIBS) -ll -o $@",
-    "\trm lex.yy.c",
+                    ".l.out :",
+                    "\t$(LEX) $(LFLAGS) $<",
+                    "\t$(CC) $(CFLAGS) lex.yy.c $(LIBS) -ll -o $@",
+                    "\trm lex.yy.c",
 
-    0 };
+                    0 };
 
 FSTATIC char nbuf[MAXNAMLEN + 1];
 FSTATIC char *nbufend = &nbuf[MAXNAMLEN];
@@ -94,15 +94,16 @@ off_t arpos;
 typedef struct ar_hdr HDR;
 
 /* Convert ar header field to an integer. */
-#define AR_ATOI(from, to, len, base) { \
-    bcopy(from, buf, len); \
-    buf[len] = '\0'; \
-    to = strtoul(buf, (char **)NULL, base); \
-}
+#define AR_ATOI(from, to, len, base)            \
+    {                                           \
+        bcopy(from, buf, len);                  \
+        buf[len] = '\0';                        \
+        to = strtoul(buf, (char **)NULL, base); \
+    }
 
 int getarch()
 {
-    char hb[sizeof(HDR) + 1];   /* real header */
+    char hb[sizeof(HDR) + 1]; /* real header */
     register HDR *hdr;
     register int len;
     int nr;
@@ -110,20 +111,20 @@ int getarch()
     char buf[20];
 
     if (!arfd)
-        return(0);
+        return (0);
     fseek(arfd, arpos, 0);
 
     nr = fread(hb, 1, sizeof(HDR), arfd);
     if (nr != sizeof(HDR))
-        return(0);
+        return (0);
 
     hdr = (HDR *)hb;
     if (strncmp(hdr->ar_fmag, ARFMAG, sizeof(ARFMAG) - 1))
-        return(0);
+        return (0);
 
     /* Convert the header into the internal format. */
 #define DECIMAL 10
-#define OCTAL    8
+#define OCTAL 8
 
     AR_ATOI(hdr->ar_date, chdr.date, sizeof(hdr->ar_date), DECIMAL);
     AR_ATOI(hdr->ar_uid, chdr.uid, sizeof(hdr->ar_uid), DECIMAL);
@@ -133,7 +134,7 @@ int getarch()
 
     /* Leading spaces should never happen. */
     if (hdr->ar_name[0] == ' ')
-        return(-1);
+        return (-1);
 
     /*
      * Long name support.  Set the "real" size of the file, and the
@@ -142,10 +143,10 @@ int getarch()
     if (!bcmp(hdr->ar_name, AR_EFMT1, sizeof(AR_EFMT1) - 1)) {
         chdr.lname = len = atoi(hdr->ar_name + sizeof(AR_EFMT1) - 1);
         if (len <= 0 || len > MAXNAMLEN)
-            return(-1);
+            return (-1);
         nr = fread(chdr.name, 1, (size_t)len, arfd);
         if (nr != len)
-            return(0);
+            return (0);
         chdr.name[len] = 0;
         chdr.size -= len;
     } else {
@@ -153,16 +154,16 @@ int getarch()
         bcopy(hdr->ar_name, chdr.name, sizeof(hdr->ar_name));
 
         /* Strip trailing spaces, null terminate. */
-        for (p = chdr.name + sizeof(hdr->ar_name) - 1; *p == ' '; --p);
+        for (p = chdr.name + sizeof(hdr->ar_name) - 1; *p == ' '; --p)
+            ;
         *++p = '\0';
     }
-    return(1);
+    return (1);
 }
 
-void openarch(f)
-    register char *f;
+void openarch(char *f)
 {
-    char    magic[SARMAG];
+    char magic[SARMAG];
 
     arfd = fopen(f, "r");
     if (arfd == NULL)
@@ -178,7 +179,7 @@ void openarch(f)
 void clarch()
 {
     if (arfd) {
-        fclose (arfd);
+        fclose(arfd);
         arfd = 0;
     }
 }
@@ -187,12 +188,11 @@ void clarch()
  * look inside archive for notation a(b)
  * a(b)    is file member   b   in archive a
  */
-TIMETYPE lookarch(filename)
-    char *filename;
+TIMETYPE lookarch(char *filename)
 {
     char *p, *q, *send, s[MAXNAMLEN + 1];
 
-    for (p = filename; *p!= '(' ; ++p)
+    for (p = filename; *p != '('; ++p)
         ;
     *p = '\0';
     strcpy(arfile, filename);
@@ -201,25 +201,23 @@ TIMETYPE lookarch(filename)
 
     send = s + sizeof(s);
 
-    for( q = s; q < send && *p!='\0' && *p!=')' ; *q++ = *p++)
+    for (q = s; q < send && *p != '\0' && *p != ')'; *q++ = *p++)
         ;
     *q++ = '\0';
     while (getarch()) {
-        if (! strcmp(arfname, s)) {
+        if (!strcmp(arfname, s)) {
             clarch();
-            return(chdr.date);
+            return (chdr.date);
         }
         arpos += (chdr.size + (chdr.size + (chdr.lname & 1)));
-        arpos += sizeof (struct ar_hdr);
+        arpos += sizeof(struct ar_hdr);
     }
     strcpy(chdr.name, s);
     clarch();
-    return(0L);
+    return (0L);
 }
 
-char *execat(s1, s2, si)
-    register char *s1, *s2;
-    char *si;
+char *execat(char *s1, char *s2, char *si)
 {
     register char *s;
 
@@ -231,7 +229,7 @@ char *execat(s1, s2, si)
     while (*s2)
         *s++ = *s2++;
     *s = '\0';
-    return(*s1? ++s1: 0);
+    return (*s1 ? ++s1 : 0);
 }
 
 /*
@@ -239,54 +237,53 @@ char *execat(s1, s2, si)
  */
 static char fname[128];
 
-char *findfl(name)
-    register char *name;
+char *findfl(char *name)
 {
     register char *p;
     struct varblock *cp;
     struct stat buf;
 
     for (p = name; *p; p++)
-        if(*p == '/') return(name);
+        if (*p == '/')
+            return (name);
 
     cp = varptr("VPATH");
-    if(cp->varval == NULL || *cp->varval == 0)
+    if (cp->varval == NULL || *cp->varval == 0)
         p = ":";
     else
         p = cp->varval;
 
     do {
         p = execat(p, name, fname);
-        if(stat(fname,&buf) >= 0)
-            return(fname);
+        if (stat(fname, &buf) >= 0)
+            return (fname);
     } while (p);
-    return((char *)-1);
+    return ((char *)-1);
 }
 
-TIMETYPE exists(pname)
-    struct nameblock *pname;
+TIMETYPE exists(struct nameblock *pname)
 {
     struct stat buf;
     register char *s, *filename;
 
     filename = pname->namep;
 
-    for(s = filename ; *s!='\0' && *s!='(' ; ++s)
+    for (s = filename; *s != '\0' && *s != '('; ++s)
         ;
 
-    if(*s == '(')
-        return(lookarch(filename));
+    if (*s == '(')
+        return (lookarch(filename));
 
     if (stat(filename, &buf) >= 0)
-        return(buf.st_mtime);
+        return (buf.st_mtime);
 
     s = findfl(filename);
     if (s != (char *)-1) {
         pname->alias = copys(s);
-        if(stat(pname->alias, &buf) == 0)
-            return(buf.st_mtime);
+        if (stat(pname->alias, &buf) == 0)
+            return (buf.st_mtime);
     }
-    return(0);
+    return (0);
 }
 
 TIMETYPE prestime()
@@ -294,13 +291,12 @@ TIMETYPE prestime()
     TIMETYPE t;
 
     time(&t);
-    return(t);
+    return (t);
 }
 
-static int amatch (char *s, char *p);
+static int amatch(char *s, char *p);
 
-static int umatch(s, p)
-    char *s, *p;
+static int umatch(char *s, char *p)
 {
     if (*p == 0)
         return 1;
@@ -313,8 +309,7 @@ static int umatch(s, p)
 /*
  * stolen from glob through find
  */
-static int amatch(s, p)
-    char *s, *p;
+static int amatch(char *s, char *p)
 {
     register int cc, scc, k;
     int c, lc;
@@ -348,17 +343,16 @@ static int amatch(s, p)
     case '*':
         return umatch(s, ++p);
     case 0:
-        return ! scc;
+        return !scc;
     }
     if (c == scc)
         goto caseq;
     return 0;
 }
 
-struct depblock *srchdir(pat, mkchain, nextdbl)
-    register char *pat;         /* pattern to be matched in directory */
-    int mkchain;                /* nonzero if results to be remembered */
-    struct depblock *nextdbl;   /* final value for chain */
+struct depblock *srchdir(char *pat,                /* pattern to be matched in directory */
+                         int mkchain,              /* nonzero if results to be remembered */
+                         struct depblock *nextdbl) /* final value for chain */
 {
     register DIR *dirf;
     int cldir;
@@ -368,16 +362,16 @@ struct depblock *srchdir(pat, mkchain, nextdbl)
     struct depblock *thisdbl;
     struct dirhdr *od;
     struct pattern *patp;
-    struct varblock *cp, *varptr();
-    char *path, pth[MAXPATHLEN], *strcpy();
+    struct varblock *cp;
+    char *path, pth[MAXPATHLEN];
     struct direct *dptr;
 
     thisdbl = 0;
 
     if (mkchain == NO)
-        for(patp=firstpat ; patp ; patp = patp->nxtpattern)
-            if (! unequal(pat, patp->patval))
-                return(0);
+        for (patp = firstpat; patp; patp = patp->nxtpattern)
+            if (!unequal(pat, patp->patval))
+                return (0);
 
     patp = ALLOC(pattern);
     patp->nxtpattern = firstpat;
@@ -386,7 +380,7 @@ struct depblock *srchdir(pat, mkchain, nextdbl)
 
     endir = 0;
 
-    for (p=pat; *p!='\0'; ++p)
+    for (p = pat; *p != '\0'; ++p)
         if (*p == '/')
             endir = p;
 
@@ -405,20 +399,19 @@ struct depblock *srchdir(pat, mkchain, nextdbl)
              * to understand this code.
              */
             if (strncmp(cp->varval, ".:", 2) != 0) {
-                strcpy(pth,".:");
+                strcpy(pth, ".:");
                 subst(cp->varval, pth + 2);
-            }
-            else
+            } else
                 subst(cp->varval, pth);
-            }
+        }
     } else {
         *endir = '\0';
         path = strcpy(pth, pat);
         dirpref = concat(pat, "/", temp);
-        filepat = endir+1;
+        filepat = endir + 1;
     }
 
-    while (*path) {         /* Loop thru each VPATH directory */
+    while (*path) { /* Loop thru each VPATH directory */
         dirname = path;
         for (; *path; path++)
             if (*path == ':') {
@@ -430,7 +423,7 @@ struct depblock *srchdir(pat, mkchain, nextdbl)
         cldir = NO;
 
         for (od = firstod; od; od = od->nxtopendir)
-            if (! unequal(dirname, od->dirn)) {
+            if (!unequal(dirname, od->dirn)) {
                 dirf = od->dirfc;
                 if (dirf != NULL)
                     rewinddir(dirf); /* start over at the beginning  */
@@ -455,25 +448,25 @@ struct depblock *srchdir(pat, mkchain, nextdbl)
         if (dirf == NULL) {
             fprintf(stderr, "Directory %s: ", dirname);
             fatal("Cannot open");
-        }
-        else for (dptr = readdir(dirf); dptr != NULL; dptr = readdir(dirf)) {
-            p1 = dptr->d_name;
-            p2 = nbuf;
-            while ((p2<nbufend) && (*p2++ = *p1++)!='\0')
-                /* void */;
-            if (amatch(nbuf, filepat)) {
-                concat(dirpref, nbuf, fullname);
-                q = srchname(fullname);
-                if (q == 0)
-                    q = makename(copys(fullname));
-                if (mkchain) {
-                    thisdbl = ALLOC(depblock);
-                    thisdbl->nxtdepblock = nextdbl;
-                    thisdbl->depname = q;
-                    nextdbl = thisdbl;
+        } else
+            for (dptr = readdir(dirf); dptr != NULL; dptr = readdir(dirf)) {
+                p1 = dptr->d_name;
+                p2 = nbuf;
+                while ((p2 < nbufend) && (*p2++ = *p1++) != '\0')
+                    /* void */;
+                if (amatch(nbuf, filepat)) {
+                    concat(dirpref, nbuf, fullname);
+                    q = srchname(fullname);
+                    if (q == 0)
+                        q = makename(copys(fullname));
+                    if (mkchain) {
+                        thisdbl = ALLOC(depblock);
+                        thisdbl->nxtdepblock = nextdbl;
+                        thisdbl->depname = q;
+                        nextdbl = thisdbl;
+                    }
                 }
             }
-        }
 
         if (endir != 0)
             *endir = '/';
@@ -489,10 +482,9 @@ struct depblock *srchdir(pat, mkchain, nextdbl)
 #ifdef METERFILE
 #include <pwd.h>
 
-int meteron = 0;    /* default: metering off */
+int meteron = 0; /* default: metering off */
 
-void meter(file)
-    char *file;
+void meter(char *file)
 {
     TIMETYPE tvec;
     char *p;
@@ -510,7 +502,7 @@ void meter(file)
     if (mout != NULL) {
         p = ctime(&tvec);
         p[16] = '\0';
-        fprintf(mout, "User %s, %s\n", pwd->pw_name, p+4);
+        fprintf(mout, "User %s, %s\n", pwd->pw_name, p + 4);
         fclose(mout);
     }
 }
@@ -519,29 +511,32 @@ void meter(file)
 /*
  * copy s to d, changing file names to file aliases
  */
-void fixname(s, d)
-    char *s, *d;
+void fixname(char *s, char *d)
 {
     register char *r, *q;
     struct nameblock *pn;
     char name[MAXPATHLEN];
 
     while (*s) {
-        if (isspace(*s)) *d++ = *s++;
+        if (isspace(*s))
+            *d++ = *s++;
         else {
             r = name;
             while (*s) {
-                if (isspace(*s)) break;
+                if (isspace(*s))
+                    break;
                 *r++ = *s++;
-                }
+            }
             *r = '\0';
 
             if (((pn = srchname(name)) != 0) && (pn->alias))
                 q = pn->alias;
-            else q = name;
+            else
+                q = name;
 
-            while (*q) *d++ = *q++;
-            }
+            while (*q)
+                *d++ = *q++;
         }
+    }
     *d = '\0';
 }

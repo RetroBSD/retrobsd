@@ -1,10 +1,11 @@
-#include "defs.h"
-#include <unistd.h>
-#include <signal.h>
 #include <fcntl.h>
+#include <signal.h>
 #include <sys/wait.h>
+#include <unistd.h>
 
-#define MAXARGV 254     /* execvp can only handle 254 anyhow */
+#include "defs.h"
+
+#define MAXARGV 254 /* execvp can only handle 254 anyhow */
 
 int await()
 {
@@ -13,11 +14,11 @@ int await()
 
     enbint(SIG_IGN);
     while ((pid = wait(&status)) != wpid)
-        if(pid == -1)
+        if (pid == -1)
             fatal("bad wait code");
     wpid = 0;
     enbint(intrupt);
-    return(status);
+    return (status);
 }
 
 /*
@@ -39,27 +40,26 @@ void doclose()
     }
 }
 
-int doexec(str)
-    register char *str;
+int doexec(char *str)
 {
     register char *t;
     static char *argv[MAXARGV]; /* docom() ate most of the stack already */
     register char **p;
 
-    while (*str==' ' || *str=='\t')
+    while (*str == ' ' || *str == '\t')
         ++str;
     if (*str == '\0')
-        return(-1); /* no command */
+        return (-1); /* no command */
 
     p = argv;
-    for (t = str; *t; ) {
+    for (t = str; *t;) {
         if (p >= argv + MAXARGV)
             fatal1("%s: Too many arguments.", str);
         *p++ = t;
-        while (*t!=' ' && *t!='\t' && *t!='\0')
+        while (*t != ' ' && *t != '\t' && *t != '\0')
             ++t;
         if (*t)
-            for (*t++ = '\0'; *t==' ' || *t=='\t'; ++t)
+            for (*t++ = '\0'; *t == ' ' || *t == '\t'; ++t)
                 ;
     }
     *p = NULL;
@@ -70,14 +70,12 @@ int doexec(str)
         doclose();
         enbint(intrupt);
         execvp(str, argv);
-        fatal1("Cannot load %s",str);
+        fatal1("Cannot load %s", str);
     }
     return await();
 }
 
-int doshell(comstring, nohalt)
-    char *comstring;
-    int nohalt;
+int doshell(char *comstring, int nohalt)
 {
 #ifdef SHELLENV
     char *shellcom = getenv("SHELL");
@@ -92,9 +90,9 @@ int doshell(comstring, nohalt)
         if (shellcom == 0)
             shellcom = SHELLCOM;
         shellstr = rindex(shellcom, '/') + 1;
-        execl(shellcom, shellstr, (nohalt ? "-c" : "-ce"), comstring, (char*)0);
+        execl(shellcom, shellstr, (nohalt ? "-c" : "-ce"), comstring, (char *)0);
 #else
-        execl(SHELLCOM, "sh", (nohalt ? "-c" : "-ce"), comstring, (char*)0);
+        execl(SHELLCOM, "sh", (nohalt ? "-c" : "-ce"), comstring, (char *)0);
 #endif
         fatal("Couldn't load Shell");
     }
@@ -104,14 +102,13 @@ int doshell(comstring, nohalt)
 /*
  * Are there are any Shell meta-characters?
  */
-int metas(s)
-    register char *s;
+int metas(char *s)
 {
     register int c;
 
     for (;;) {
         c = *s++;
-        if (! c)
+        if (!c)
             break;
         if (funny[c] & META)
             return c;
@@ -119,9 +116,7 @@ int metas(s)
     return 0;
 }
 
-int dosys(comstring, nohalt)
-    register char *comstring;
-    int nohalt;
+int dosys(char *comstring, int nohalt)
 {
     register int status;
 
@@ -130,15 +125,13 @@ int dosys(comstring, nohalt)
     else
         status = doexec(comstring);
 
-    return(status);
+    return (status);
 }
 
 #include <errno.h>
 #include <sys/stat.h>
 
-void touch(force, name)
-    int force;
-    char *name;
+void touch(int force, char *name)
 {
     struct stat stbuff;
     char junk[1];
@@ -151,7 +144,7 @@ void touch(force, name)
         return;
     }
 
-    if(stbuff.st_size == 0)
+    if (stbuff.st_size == 0)
         goto create;
 
     fd = open(name, 2);

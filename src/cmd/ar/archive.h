@@ -34,6 +34,7 @@
  * SUCH DAMAGE.
  */
 #include <sys/stat.h>
+#include <sys/dir.h>
 
 #ifdef CROSS
 #   ifdef __linux__

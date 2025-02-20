@@ -4,39 +4,16 @@
  * This file contains the command processing functions for a number of random
  * commands. There is no functional grouping here, for sure.
  */
-
-#include "estruct.h"
 #include "edef.h"
-
-extern void mlwrite();
-extern void lchange(int);
-extern int lnewline();
-extern int linsert(int, int);
-extern int backchar(int, int);
-extern void kdelete();
-extern int ldelete(int, int);
-extern int kremove(int);
-
-int setfillcol(int, int);
-int getccol(int);
-int twiddle(int, int);
-int quote(int, int);
-int tab(int, int);
-int openline(int, int);
-int newline(int, int);
-int forwdel(int, int);
-int backdel(int, int);
-int killtext(int, int);
-int yank(int, int);
 
 /*
  * Set fill column to n.
  */
 int setfillcol(int f, int n)
 {
-  fillcol = n;
-  mlwrite("[Fill column is %d]", n);
-  return (TRUE);
+    fillcol = n;
+    mlwrite("[Fill column is %d]", n);
+    return (TRUE);
 }
 
 /*
@@ -44,21 +21,20 @@ int setfillcol(int f, int n)
  */
 int getccol(int bflg)
 {
-  int c, i, col;
+    int c, i, col;
 
-  col = 0;
-  for (i = 0; i < curwp->w_doto; ++i)
-    {
-      c = lgetc(curwp->w_dotp, i);
-      if (c != ' ' && c != '\t' && bflg)
-	break;
-      if (c == '\t')
-	col |= 0x07;
-      else if (c < 0x20 || c == 0x7F)
-	++col;
-      ++col;
+    col = 0;
+    for (i = 0; i < curwp->w_doto; ++i) {
+        c = lgetc(curwp->w_dotp, i);
+        if (c != ' ' && c != '\t' && bflg)
+            break;
+        if (c == '\t')
+            col |= 0x07;
+        else if (c < 0x20 || c == 0x7F)
+            ++col;
+        ++col;
     }
-  return (col);
+    return (col);
 }
 
 /*
@@ -70,21 +46,21 @@ int getccol(int bflg)
  */
 int twiddle(int f, int n)
 {
-  LINE *dotp;
-  int doto, cl, cr;
+    LINE *dotp;
+    int doto, cl, cr;
 
-  dotp = curwp->w_dotp;
-  doto = curwp->w_doto;
-  if (doto == llength(dotp) && --doto < 0)
-    return (FALSE);
-  cr = lgetc(dotp, doto);
-  if (--doto < 0)
-    return (FALSE);
-  cl = lgetc(dotp, doto);
-  lputc(dotp, doto + 0, cr);
-  lputc(dotp, doto + 1, cl);
-  lchange(WFEDIT);
-  return (TRUE);
+    dotp = curwp->w_dotp;
+    doto = curwp->w_doto;
+    if (doto == llength(dotp) && --doto < 0)
+        return (FALSE);
+    cr = lgetc(dotp, doto);
+    if (--doto < 0)
+        return (FALSE);
+    cl = lgetc(dotp, doto);
+    lputc(dotp, doto + 0, cr);
+    lputc(dotp, doto + 1, cl);
+    lchange(WFEDIT);
+    return (TRUE);
 }
 
 /*
@@ -95,23 +71,20 @@ int twiddle(int f, int n)
  */
 int quote(int f, int n)
 {
-  int s, c;
+    int s, c;
 
-  c = (*term.t_getchar) ();
-  if (n < 0)
-    return (FALSE);
-  if (n == 0)
-    return (TRUE);
-  if (c == '\n')
-    {
-      do
-	{
-	  s = lnewline();
-	}
-      while (s == TRUE && --n);
-      return (s);
+    c = (*term.t_getchar)();
+    if (n < 0)
+        return (FALSE);
+    if (n == 0)
+        return (TRUE);
+    if (c == '\n') {
+        do {
+            s = lnewline();
+        } while (s == TRUE && --n);
+        return (s);
     }
-  return (linsert(n, c));
+    return (linsert(n, c));
 }
 
 /*
@@ -120,9 +93,9 @@ int quote(int f, int n)
  */
 int tab(int f, int n)
 {
-  if (n < 0)
-    return (FALSE);
-  return (linsert(n, 9));
+    if (n < 0)
+        return (FALSE);
+    return (linsert(n, 9));
 }
 
 /*
@@ -132,21 +105,19 @@ int tab(int f, int n)
  */
 int openline(int f, int n)
 {
-  int i, s;
+    int i, s;
 
-  if (n < 0)
-    return (FALSE);
-  if (n == 0)
-    return (TRUE);
-  i = n;			/* Insert newlines */
-  do
-    {
-      s = lnewline();
-    }
-  while (s == TRUE && --i);
-  if (s == TRUE)		/* Then back up overtop */
-    s = backchar(f, n);		/* of them all */
-  return (s);
+    if (n < 0)
+        return (FALSE);
+    if (n == 0)
+        return (TRUE);
+    i = n; /* Insert newlines */
+    do {
+        s = lnewline();
+    } while (s == TRUE && --i);
+    if (s == TRUE)          /* Then back up overtop */
+        s = backchar(f, n); /* of them all */
+    return (s);
 }
 
 /*
@@ -154,18 +125,17 @@ int openline(int f, int n)
  */
 int newline(int f, int n)
 {
-  int s;
+    int s;
 
-  if (n < 0)
-    return (FALSE);
+    if (n < 0)
+        return (FALSE);
 
-  /* insert some lines */
-  while (n--)
-    {
-      if ((s = lnewline()) != TRUE)
-	return (s);
+    /* insert some lines */
+    while (n--) {
+        if ((s = lnewline()) != TRUE)
+            return (s);
     }
-  return (TRUE);
+    return (TRUE);
 }
 
 /*
@@ -176,15 +146,14 @@ int newline(int f, int n)
  */
 int forwdel(int f, int n)
 {
-  if (n < 0)
-    return (backdel(f, -n));
-  if (f != FALSE)
-    {			       /* Really a kill */
-      if ((lastflag & CFKILL) == 0)
-	kdelete();
-      thisflag |= CFKILL;
+    if (n < 0)
+        return (backdel(f, -n));
+    if (f != FALSE) { /* Really a kill */
+        if ((lastflag & CFKILL) == 0)
+            kdelete();
+        thisflag |= CFKILL;
     }
-  return (ldelete(n, f));
+    return (ldelete(n, f));
 }
 
 /*
@@ -195,19 +164,18 @@ int forwdel(int f, int n)
  */
 int backdel(int f, int n)
 {
-  int s;
+    int s;
 
-  if (n < 0)
-    return (forwdel(f, -n));
-  if (f != FALSE)
-    {			       /* Really a kill */
-      if ((lastflag & CFKILL) == 0)
-	kdelete();
-      thisflag |= CFKILL;
+    if (n < 0)
+        return (forwdel(f, -n));
+    if (f != FALSE) { /* Really a kill */
+        if ((lastflag & CFKILL) == 0)
+            kdelete();
+        thisflag |= CFKILL;
     }
-  if ((s = backchar(f, n)) == TRUE)
-    s = ldelete(n, f);
-  return (s);
+    if ((s = backchar(f, n)) == TRUE)
+        s = ldelete(n, f);
+    return (s);
 }
 
 /*
@@ -220,41 +188,33 @@ int backdel(int f, int n)
  */
 int killtext(int f, int n)
 {
-  LINE *nextp;
-  int chunk;
+    LINE *nextp;
+    int chunk;
 
-  if ((lastflag & CFKILL) == 0)/* Clear kill buffer if last wasn't a kill */
-    kdelete();
-  thisflag |= CFKILL;
-  if (f == FALSE)
-    {
-      chunk = llength(curwp->w_dotp) - curwp->w_doto;
-      if (chunk == 0)
-	chunk = 1;
+    if ((lastflag & CFKILL) == 0) /* Clear kill buffer if last wasn't a kill */
+        kdelete();
+    thisflag |= CFKILL;
+    if (f == FALSE) {
+        chunk = llength(curwp->w_dotp) - curwp->w_doto;
+        if (chunk == 0)
+            chunk = 1;
+    } else if (n == 0) {
+        chunk = curwp->w_doto;
+        curwp->w_doto = 0;
+    } else if (n > 0) {
+        chunk = llength(curwp->w_dotp) - curwp->w_doto + 1;
+        nextp = lforw(curwp->w_dotp);
+        while (--n) {
+            if (nextp == curbp->b_linep)
+                return (FALSE);
+            chunk += llength(nextp) + 1;
+            nextp = lforw(nextp);
+        }
+    } else {
+        mlwrite("neg kill");
+        return (FALSE);
     }
-  else if (n == 0)
-    {
-      chunk = curwp->w_doto;
-      curwp->w_doto = 0;
-    }
-  else if (n > 0)
-    {
-      chunk = llength(curwp->w_dotp) - curwp->w_doto + 1;
-      nextp = lforw(curwp->w_dotp);
-      while (--n)
-	{
-	  if (nextp == curbp->b_linep)
-	    return (FALSE);
-	  chunk += llength(nextp) + 1;
-	  nextp = lforw(nextp);
-	}
-    }
-  else
-    {
-      mlwrite("neg kill");
-      return (FALSE);
-    }
-  return (ldelete(chunk, TRUE));
+    return (ldelete(chunk, TRUE));
 }
 
 /*
@@ -264,27 +224,22 @@ int killtext(int f, int n)
  */
 int yank(int f, int n)
 {
-  int c, i;
+    int c, i;
 
-  if (n < 0)
-    return (FALSE);
-  while (n--)
-    {
-      i = 0;
-      while ((c = kremove(i)) >= 0)
-	{
-	  if (c == '\n')
-	    {
-	      if (lnewline(FALSE, 1) == FALSE)
-		return (FALSE);
-	    }
-	  else
-	    {
-	      if (linsert(1, c) == FALSE)
-		return (FALSE);
-	    }
-	  ++i;
-	}
+    if (n < 0)
+        return (FALSE);
+    while (n--) {
+        i = 0;
+        while ((c = kremove(i)) >= 0) {
+            if (c == '\n') {
+                if (lnewline() == FALSE)
+                    return (FALSE);
+            } else {
+                if (linsert(1, c) == FALSE)
+                    return (FALSE);
+            }
+            ++i;
+        }
     }
-  return (TRUE);
+    return (TRUE);
 }

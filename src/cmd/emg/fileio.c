@@ -6,27 +6,20 @@
  * be used
  */
 
-#include <stdio.h>		/* fopen(3), et.al. */
-#include "estruct.h"
+#include <stdio.h> /* fopen(3), et.al. */
 
-extern void mlwrite();
+#include "edef.h"
 
-int ffropen(char *);
-int ffwopen(char *);
-int ffclose();
-int ffputline(char [], int);
-int ffgetline(char [], int);
-
-FILE *ffp;			/* File pointer, all functions */
+FILE *ffp; /* File pointer, all functions */
 
 /*
  * Open a file for reading.
  */
 int ffropen(char *fn)
 {
-  if ((ffp = fopen(fn, "r")) == NULL)
-    return (FIOFNF);
-  return (FIOSUC);
+    if ((ffp = fopen(fn, "r")) == NULL)
+        return (FIOFNF);
+    return (FIOSUC);
 }
 
 /*
@@ -35,12 +28,11 @@ int ffropen(char *fn)
  */
 int ffwopen(char *fn)
 {
-  if ((ffp = fopen(fn, "w")) == NULL)
-    {
-      mlwrite("Cannot open file for writing");
-      return (FIOERR);
+    if ((ffp = fopen(fn, "w")) == NULL) {
+        mlwrite("Cannot open file for writing");
+        return (FIOERR);
     }
-  return (FIOSUC);
+    return (FIOSUC);
 }
 
 /*
@@ -48,12 +40,11 @@ int ffwopen(char *fn)
  */
 int ffclose()
 {
-  if (fclose(ffp) != FALSE)
-    {
-      mlwrite("Error closing file");
-      return (FIOERR);
+    if (fclose(ffp) != FALSE) {
+        mlwrite("Error closing file");
+        return (FIOERR);
     }
-  return (FIOSUC);
+    return (FIOSUC);
 }
 
 /*
@@ -63,19 +54,18 @@ int ffclose()
  */
 int ffputline(char buf[], int nbuf)
 {
-  int i;
+    int i;
 
-  for (i = 0; i < nbuf; ++i)
-    fputc(buf[i] & 0xFF, ffp);
+    for (i = 0; i < nbuf; ++i)
+        fputc(buf[i] & 0xFF, ffp);
 
-  fputc('\n', ffp);
+    fputc('\n', ffp);
 
-  if (ferror(ffp))
-    {
-      mlwrite("Write I/O error");
-      return (FIOERR);
+    if (ferror(ffp)) {
+        mlwrite("Write I/O error");
+        return (FIOERR);
     }
-  return (FIOSUC);
+    return (FIOSUC);
 }
 
 /*
@@ -86,36 +76,31 @@ int ffputline(char buf[], int nbuf)
  */
 int ffgetline(char buf[], int nbuf)
 {
-  int c, i;
+    int c, i;
 
-  i = 0;
+    i = 0;
 
-  while ((c = fgetc(ffp)) != EOF && c != '\n')
-    {
-      if (i >= nbuf - 2)
-	{
-	  buf[nbuf - 2] = c;	   /* store last char read */
-	  buf[nbuf - 1] = 0;	   /* and terminate it */
-	  mlwrite("File has long lines");
-	  return (FIOLNG);
-	}
-      buf[i++] = c;
+    while ((c = fgetc(ffp)) != EOF && c != '\n') {
+        if (i >= nbuf - 2) {
+            buf[nbuf - 2] = c; /* store last char read */
+            buf[nbuf - 1] = 0; /* and terminate it */
+            mlwrite("File has long lines");
+            return (FIOLNG);
+        }
+        buf[i++] = c;
     }
 
-  if (c == EOF)
-    {
-      if (ferror(ffp))
-	{
-	  mlwrite("File read error");
-	  return (FIOERR);
-	}
-      if (i != 0)
-	{
-	  mlwrite("No newline at EOF");
-	  return (FIOERR);
-	}
-      return (FIOEOF);
+    if (c == EOF) {
+        if (ferror(ffp)) {
+            mlwrite("File read error");
+            return (FIOERR);
+        }
+        if (i != 0) {
+            mlwrite("No newline at EOF");
+            return (FIOERR);
+        }
+        return (FIOEOF);
     }
-  buf[i] = 0;
-  return (FIOSUC);
+    buf[i] = 0;
+    return (FIOSUC);
 }

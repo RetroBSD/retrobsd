@@ -5,48 +5,108 @@
  * This file list all the C code functions used. To add functions, declare it
  * here in both the extern function list and the name binding table
  */
+int ctrlg(int, int);       /* Abort out of things */
+int quit(int, int);        /* Quit */
+int ctlxlp(int, int);      /* Begin macro */
+int ctlxrp(int, int);      /* End macro */
+int ctlxe(int, int);       /* Execute macro */
+int fileread(int, int);    /* Get a file, read only */
+int filewrite(int, int);   /* Write a file */
+int filesave(int, int);    /* Save current file */
+int filename(int, int);    /* Adjust file name */
+int getccol(int);          /* Get current column */
+int gotobol(int, int);     /* Move to start of line */
+int forwchar(int, int);    /* Move forward by characters */
+int gotoeol(int, int);     /* Move to end of line */
+int backchar(int, int);    /* Move backward by characters */
+int forwline(int, int);    /* Move forward by lines */
+int backline(int, int);    /* Move backward by lines */
+int pagedown(int, int);    /* PgDn */
+int pageup(int, int);      /* PgUp */
+int gotobob(int, int);     /* Move to start of buffer */
+int gotoeob(int, int);     /* Move to end of buffer */
+int setfillcol(int, int);  /* Set fill column */
+int setmark(int, int);     /* Set mark */
+int forwsearch(int, int);  /* Search forward */
+int backsearch(int, int);  /* Search backwards */
+int refresh(int, int);     /* Refresh the screen */
+int twiddle(int, int);     /* Twiddle characters */
+int tab(int, int);         /* Insert tab */
+int newline(int, int);     /* Insert CR-LF */
+int openline(int, int);    /* Open up a blank line */
+int quote(int, int);       /* Insert literal */
+int backword(int, int);    /* Backup by words */
+int forwword(int, int);    /* Advance by words */
+int forwdel(int, int);     /* Forward delete */
+int backdel(int, int);     /* Backward delete */
+int killtext(int, int);    /* Kill forward */
+int yank(int, int);        /* Yank back from killbuffer */
+int killregion(int, int);  /* Kill region */
+int copyregion(int, int);  /* Copy region to kill buffer */
+int setline(int, int);     /* go to a numbered line */
+int deskey(int, int);      /* describe a key's binding */
+int insfile(int, int);     /* insert a file */
+int forwhunt(int, int);    /* hunt forward for next match */
+int backhunt(int, int);    /* hunt backwards for next match */
+int showversion(int, int); /* show emacs version */
 
-extern int ctrlg();	       /* Abort out of things */
-extern int quit();	       /* Quit */
-extern int ctlxlp();	       /* Begin macro */
-extern int ctlxrp();	       /* End macro */
-extern int ctlxe();	       /* Execute macro */
-extern int fileread();	       /* Get a file, read only */
-extern int filewrite();        /* Write a file */
-extern int filesave();	       /* Save current file */
-extern int filename();	       /* Adjust file name */
-extern int getccol();	       /* Get current column */
-extern int gotobol();	       /* Move to start of line */
-extern int forwchar();	       /* Move forward by characters */
-extern int gotoeol();	       /* Move to end of line */
-extern int backchar();	       /* Move backward by characters */
-extern int forwline();	       /* Move forward by lines */
-extern int backline();	       /* Move backward by lines */
-extern int pagedown();	       /* PgDn */
-extern int pageup();	       /* PgUp */
-extern int gotobob();	       /* Move to start of buffer */
-extern int gotoeob();	       /* Move to end of buffer */
-extern int setfillcol();       /* Set fill column */
-extern int setmark();	       /* Set mark */
-extern int forwsearch();       /* Search forward */
-extern int backsearch();       /* Search backwards */
-extern int refresh();	       /* Refresh the screen */
-extern int twiddle();	       /* Twiddle characters */
-extern int tab();	       /* Insert tab */
-extern int newline();	       /* Insert CR-LF */
-extern int openline();	       /* Open up a blank line */
-extern int quote();	       /* Insert literal */
-extern int backword();	       /* Backup by words */
-extern int forwword();	       /* Advance by words */
-extern int forwdel();	       /* Forward delete */
-extern int backdel();	       /* Backward delete */
-extern int killtext();	       /* Kill forward */
-extern int yank();	       /* Yank back from killbuffer */
-extern int killregion();       /* Kill region */
-extern int copyregion();       /* Copy region to kill buffer */
-extern int setline();	       /* go to a numbered line */
-extern int deskey();	       /* describe a key's binding */
-extern int insfile();	       /* insert a file */
-extern int forwhunt();	       /* hunt forward for next match */
-extern int backhunt();	       /* hunt backwards for next match */
-extern int showversion();      /* show emacs version */
+int mlreply(char *, char *, int);
+int mlreplyt(char *, char *, int, char);
+void mlwrite(char *, ...);
+LINE *lalloc(int);
+int mlyesno(char *prompt);
+void lfree(LINE *lp);
+int typeahead(void);
+void modeline(WINDOW *wp);
+void updext(void);
+void updateline(int row, char vline[], char pline[], short *flags);
+void mlputi(int, int);
+void mlputli(long, int);
+void mlputs(char *);
+int readin(char[]);
+int ifile(char[]);
+int bclear(BUFFER *);
+int ffropen(char *);
+int ffgetline(char[], int);
+int ffclose(void);
+int writeout(char *);
+int ffwopen(char *);
+int ffputline(char[], int);
+int ldelnewline(void);
+int kinsert(int);
+void getwinsize(void);
+void edinit(char[]);
+void vtinit(void);
+void update(void);
+int getkey(void);
+void mlerase(void);
+int getctl(void);
+int execute(int, int, int);
+BUFFER *bfind(char *);
+int linsert(int, int);
+int anycb(void);
+void vttidy(void);
+void lchange(int);
+int lnewline(void);
+void kdelete(void);
+int ldelete(int, int);
+int kremove(int);
+int getregion(REGION *);
+int readpattern(char *);
+int forscan(char *patrn, int leavep);
+int bsearch(int f, int n);
+int eq(int, int);
+void expandp(char *, char *, int);
+void tcapopen(void);
+void tcaprev(int state);
+void tcapmove(int row, int col);
+void tcapeeol(void);
+void tcapeeop(void);
+void tcapbeep(void);
+void ttopen(void);
+void ttclose(void);
+int ttgetc(void);
+int ttputc(int);
+void ttflush(void);
+void panic(char *);
+int inword(void);

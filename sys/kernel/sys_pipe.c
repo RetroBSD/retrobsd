@@ -284,7 +284,11 @@ pipe()
     /* Move a secondary return value to register $v1. */
     u.u_frame [FRAME_R3] = u.u_rval;
 #else
-#error "pipe return value for unknown architecture"
+    #ifdef __riscv
+    u.u_frame [FRAME_R3] = u.u_rval;
+    #else
+        #error "pipe return value for unknown architecture"
+    #endif
 #endif
     u.u_rval = r;
     wf->f_flag = FWRITE;

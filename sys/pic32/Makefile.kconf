@@ -44,25 +44,35 @@ SYSTEM_OBJ      = startup.o ${OBJS} ioconf.o
 ifeq (devcfg.c,$(wildcard devcfg.c))
     SYSTEM_OBJ  += devcfg.o
 endif
-SYSTEM_DEP      = Makefile ioconf.c machine sys .deps ${SYSTEM_OBJ}
+SYSTEM_DEP      = Makefile ioconf.c | machine sys .deps
 SYSTEM_LD_HEAD  = sh ../newvers.sh > vers.c; ${CC} $(CFLAGS) -c vers.c; rm -f $@
 SYSTEM_LD       = -@echo ${LD} ${LDFLAGS} '$${SYSTEM_OBJ}' vers.o -o $@; \
                   ${LD} ${LDFLAGS} ${SYSTEM_OBJ} vers.o -o $@
 SYSTEM_LD_TAIL  = ${SIZE} $@; \
                   $(OBJCOPY) -O ihex $@ $(basename $@).hex; \
                   $(OBJCOPY) -O binary -R .boot -R .config $@ $(basename $@).bin; \
+				  $(OBJCOPY) -O binary --only-section .boot $@ boot.bin; \
                   $(OBJDUMP) -d -S $@ > $(basename $@).dis; \
                   $(NM) -n $@ > $(basename $@).nm
 
 %LOAD
 
 clean:
-	rm -rf .deps *.elf *.o *.nm *.dis *.bin machine sys
+	rm -rf *.elf *.o *.nm *.dis *.bin
 
 clean-all: clean
-	rm -f *.h *.hex ioconf.c swap*.c vers.c
+	rm -f *.h *.hex ioconf.c swap*.c vers.c machine sys .deps
 
-reconfig ioconf.c: Config ../../../tools/kconfig/kconfig
+.PHONY: reconfig
+
+reconfig: ioconf.c
+
+swapunix.c: Config ../../../tools/kconfig/kconfig | sys machine
+	../../../tools/kconfig/kconfig Config
+	$(MAKE) clean
+	rm -f *.hex
+
+ioconf.c: Config ../../../tools/kconfig/kconfig | sys machine
 	../../../tools/kconfig/kconfig Config
 	$(MAKE) clean
 	rm -f *.hex
@@ -79,14 +89,14 @@ sys:
 .deps:
 	mkdir .deps
 
-startup.o: ../startup.S
+startup.o: ../startup.S ${SYSTEM_DEP}
 	${COMPILE_S}
 
-ioconf.o: ioconf.c
+ioconf.o: ioconf.c  ${SYSTEM_DEP}
 	${COMPILE_C}
+
+devcfg.o: devcfg.c ${SYSTEM_DEP}
 
 %RULES
 
-ifeq (.deps, $(wildcard .deps))
 -include .deps/*.dep
-endif

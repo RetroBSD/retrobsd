@@ -3,12 +3,15 @@
 #
 SUBDIR		= explorer16 olimex
 
-default:
 
-all:
-		-for i in $(SUBDIR); do ${MAKE} -C $$i all; done
+all: subdirs
 
-install:
+.PHONY: subdirs $(SUBDIR)
+
+subdirs: $(SUBDIR)
+
+$(SUBDIR):
+	$(MAKE) -C $@
 
 clean:
 		-for i in $(SUBDIR); do ${MAKE} -C $$i clean; done

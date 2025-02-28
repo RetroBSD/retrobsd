@@ -19,6 +19,12 @@ clean:
 $(PROG):	$(OBJS)
 		$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
 
+config.c: config.y
+	${YACC} config.y
+	mv -f y.tab.c config.c
+
+y.tab.h: config.c
+
 main.o: main.c y.tab.h config.h
 mkheaders.o: mkheaders.c config.h y.tab.h
 mkioconf.o: mkioconf.c y.tab.h config.h

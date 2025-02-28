@@ -10,3 +10,4 @@ vers.c
 *.h
 ioconf.c
 swapunix.c
+boot.bin

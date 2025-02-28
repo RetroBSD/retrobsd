@@ -8,12 +8,16 @@ include $(TOPSRC)/target.mk
 
 # Programs that live in subdirectories, and have makefiles of their own.
 #
-SUBDIR		= startup-$(MACHINE) libc libm libutil libtermlib libcurses \
-                  libvmf libwiznet libreadline libgpanel share cmd games man
+LIBS		= startup-$(MACHINE) libc libm libutil libtermlib libcurses \
+                  libvmf libwiznet libreadline libgpanel 
+SUBDIR		= share cmd games man
 
-all:		$(SUBDIR)
+all:		$(LIBS) $(SUBDIR)
 
-$(SUBDIR):	FRC
+$(LIBS):	FRC
+	$(MAKE) -C $@
+
+$(SUBDIR):	FRC | $(LIBS)
 		$(MAKE) -C $@
 
 FRC:
@@ -26,3 +30,4 @@ install:        elf32-mips.ld
 clean:
 		rm -f a.out core *.s *.o *.a *~
 		-for i in $(SUBDIR); do $(MAKE) -C $$i clean; done
+		-for i in $(LIBS); do $(MAKE) -C $$i clean; done

@@ -83,8 +83,7 @@ FRC:
 
 # bc egrep expr
 %.c: %.y
-		$(YACC) $(YFLAGS) $<
-		-/bin/mv y.tab.c $@
+		$(YACC) $(YFLAGS) -o $@ $<
 
 $(SCRIPT):
 		install -c $@.sh $@

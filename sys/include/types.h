@@ -36,6 +36,16 @@ typedef struct  label_t {
     unsigned val[12];               /* regs S0-S8, RA, GP and SP */
 } label_t;
 #endif
+#ifdef __riscv
+typedef struct  label_t {
+    unsigned val[33];               /* regs x0-x31, GP */
+    #ifdef __riscv_f
+    unsigned fval[32];               /* regs f0-f31 */
+    #endif
+} label_t;
+#endif
+
+
 typedef long    daddr_t;
 typedef char *  caddr_t;
 typedef u_int   ino_t;

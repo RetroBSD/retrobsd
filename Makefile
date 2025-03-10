@@ -32,16 +32,22 @@ FSUTIL		= tools/fsutil/fsutil
 TOPSRC       = $(shell pwd)
 CONFIG       = $(TOPSRC)/tools/kconfig/kconfig
 
-all:
-		$(MAKE) -C tools
+all: tools
+		$(MAKE) kernel
 		$(MAKE) -C src
 		#$(MAKE) -C lib
 		$(MAKE) -C src install
-		$(MAKE) kernel
 		$(MAKE) fs
 
-kernel:         $(CONFIG)
+.PHONY: kernel
+
+kernel: $(CONFIG) tools
 		$(MAKE) -C sys/pic32 all
+
+.PHONY: tools
+
+tools:
+		$(MAKE) -C tools
 
 fs:             sdcard.img
 
@@ -58,7 +64,7 @@ $(FSUTIL):
 		cd tools/fsutil; $(MAKE)
 
 $(CONFIG):
-		make -C tools/kconfig
+		$(MAKE) -C tools/kconfig
 
 clean:
 		rm -f *~

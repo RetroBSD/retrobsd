@@ -377,7 +377,7 @@ void do_rules(FILE *f)
             fprintf(f, "%so:\n\t-cp $S/%so .\n\n", tail(np), np);
             continue;
         }
-        fprintf(f, "%so: $S/%s%c\n", tail(np), np, och);
+        fprintf(f, "%so: $S/%s%c ${SYSTEM_DEP}\n", tail(np), np, och);
         special = ftp->f_special;
         if (special == 0) {
             static char cmd[128];
@@ -392,7 +392,7 @@ void do_rules(FILE *f)
 void do_swapspec(FILE *f, char *name)
 {
     if (!eq(name, "generic"))
-        fprintf(f, "swap%s.o: swap%s.c\n", name, name);
+        fprintf(f, "swap%s.o: swap%s.c ${SYSTEM_DEP}\n", name, name);
     else
         fprintf(f, "swapgeneric.o: $A/%s/swapgeneric.c\n", archname);
     fprintf(f, "\t${COMPILE_C}\n\n");
@@ -402,7 +402,7 @@ struct file_list *do_systemspec(FILE *f, struct file_list *fl, int first)
 {
     fprintf(f, "%s: %s.elf\n\n", fl->f_needs, fl->f_needs);
 
-    fprintf(f, "%s.elf: ${SYSTEM_DEP} swap%s.o", fl->f_needs, fl->f_fn);
+    fprintf(f, "%s.elf: ${SYSTEM_DEP} ${SYSTEM_OBJ} swap%s.o", fl->f_needs, fl->f_fn);
     // Don't use newvers target.
     // A preferred way is to run newvers.sh from SYSTEM_LD_HEAD macro.
     // if (first)

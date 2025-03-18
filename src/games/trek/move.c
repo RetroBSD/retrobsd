@@ -41,11 +41,11 @@
 **	Uses trace flag 4.
 */
 double
-move(ramflag, course, time, speed)
-        int	ramflag;
-        int	course;
-        double	time;
-        double	speed;
+move(
+        int	ramflag,
+        int	course,
+        double	time,
+        double	speed)
 {
 	double			angle;
 	double			x, y, dx, dy;

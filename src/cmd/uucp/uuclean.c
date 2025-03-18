@@ -201,7 +201,6 @@ void notfyuser(char *file)
 void sdmail(char *file, int uid)
 {
 	static struct passwd *pwd;
-	struct passwd *getpwuid();
 	char mstr[40];
 
 	sprintf(mstr, "uuclean deleted file %s\n", file);

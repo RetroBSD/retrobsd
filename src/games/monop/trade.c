@@ -20,8 +20,8 @@ static TRADE	trades[2];
  *	This routine sets up the list of tradable property.
  */
 static int
-set_list(the_list)
-reg OWN	*the_list; {
+set_list(
+reg OWN	*the_list) {
 
 	reg int	i;
 	reg OWN	*op;
@@ -40,8 +40,9 @@ reg OWN	*the_list; {
  * player, and puts in the structure given.
  */
 static void
-get_list(struct_no, play_no)
-int	struct_no, play_no; {
+get_list(
+int	struct_no, 
+int play_no) {
 
 	reg int		sn, pn;
 	reg PLAY	*pp;
@@ -124,8 +125,9 @@ summate() {
  *	This routine does a switch from one player to another
  */
 static void
-move_em(from, to)
-TRADE	*from, *to; {
+move_em(
+TRADE	*from, 
+TRADE	*to) {
 
 	reg PLAY	*pl_fr, *pl_to;
 	reg OWN		*op;

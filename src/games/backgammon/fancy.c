@@ -59,11 +59,11 @@ int	realc;
  * differently.
  */
 static void
-bsect (b, rpos, cpos, cnext)
-        int	b;				/* contents of position */
-        int	rpos;				/* row of position */
-        int	cpos;				/* column of position */
-        int	cnext;				/* direction of position */
+bsect (
+        int	b,				/* contents of position */
+        int	rpos,				/* row of position */
+        int	cpos,				/* column of position */
+        int	cnext)				/* direction of position */
 {
 	register int	j;			/* index */
 	register int	n;			/* number of men on position */
@@ -219,9 +219,12 @@ fboard ()
 }
 
 void
-fixcol (r, c, l, ch, inc)
-        register int	l, ch;
-        int		r, c, inc;
+fixcol (
+int	r,
+int c,
+register int l,
+int ch,
+int inc)
 {
 	register int	i;
 
@@ -234,8 +237,12 @@ fixcol (r, c, l, ch, inc)
 }
 
 void
-fixpos (old, new, r, c, inc)
-        int	old, new, r, c, inc;
+fixpos (
+        int	old, 
+		int new,
+		int r,
+		int c,
+		int inc)
 {
 	register int	o, n, nv;
 	int		ov, nc = 0;
@@ -363,8 +370,8 @@ refresh()
 }
 
 void
-curmove (r, c)
-        register int	r, c;
+curmove (
+        register int	r, int c)
 {
 	if (curr == r && curc == c)
 		return;
@@ -548,7 +555,6 @@ void
 clear ()
 {
 	register int	i;
-	int		addbuf();
 
 					/* double space if can't clear */
 	if (CL == 0)  {
@@ -581,8 +587,8 @@ newline ()
 }
 
 void
-fancyc (c)
-        register int	c;		/* character to output */
+fancyc (
+        register int	c)		/* character to output */
 {
 	register int	sp;		/* counts spaces in a tab */
 
@@ -682,8 +688,8 @@ cline ()
 }
 
 int
-getcaps (s)
-        register char	*s;
+getcaps (
+        register char	*s)
 {
 	register char	*code;		/* two letter code */
 	register char	***cap;		/* pointer to cap string */

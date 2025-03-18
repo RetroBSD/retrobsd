@@ -6,7 +6,7 @@
 #include "tip.h"
 #include <fcntl.h>
 
-extern char *getremote();
+extern char *getremote(char*);
 extern char *rindex();
 
 static  jmp_buf deadline;
@@ -19,8 +19,8 @@ dead(int sig)
     longjmp(deadline, 1);
 }
 
-int hunt(name)
-    char *name;
+int hunt(
+    char *name)
 {
     register char *cp;
     sig_t f;

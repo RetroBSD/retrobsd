@@ -7,7 +7,7 @@ The following makes PROTOTYPES default to 0 if it has not already
   been defined with C compiler flags.
  */
 #ifndef PROTOTYPES
-#define PROTOTYPES 0
+#define PROTOTYPES 1
 #endif
 
 /* POINTER defines a generic pointer type */

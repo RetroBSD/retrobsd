@@ -16,8 +16,9 @@
 **	also rack up incredible damages.
 */
 void
-ram(ix, iy)
-        int	ix, iy;
+ram(
+        int	ix, 
+		int iy)
 {
 	register int		i;
 	register char		c;

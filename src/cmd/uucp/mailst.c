@@ -16,8 +16,10 @@ static int rpclose(FILE *ptr);
  *	If file is non-null, the file is also sent.
  *	(this is used for mail returned to sender.)
  */
-void mailst(user, str, file)
-char *user, *str, *file;
+void mailst(
+char *user, 
+char *str,
+char *file)
 {
 	register FILE *fp, *fi;
 	char buf[BUFSIZ];
@@ -47,9 +49,9 @@ char *user, *str, *file;
 static	int	popen_pid[20];
 
 FILE *
-rpopen(cmd, mode)
-char	*cmd;
-char	*mode;
+rpopen(
+char	*cmd,
+char	*mode)
 {
 	int p[2];
 	register int myside, hisside, pid;
@@ -81,8 +83,8 @@ char	*mode;
 	return(fdopen(myside, mode));
 }
 
-int rpclose(ptr)
-FILE *ptr;
+int rpclose(
+FILE *ptr)
 {
 	register int f, r;
         register sig_t hstat, istat, qstat;

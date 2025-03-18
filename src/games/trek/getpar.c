@@ -27,8 +27,8 @@ testterm()
  **	get integer parameter
  **/
 int
-getintpar(s)
-        char	*s;
+getintpar(
+        char	*s)
 {
 	register int	i;
 	int		n;
@@ -51,8 +51,8 @@ getintpar(s)
  **	get floating parameter
  **/
 double
-getfltpar(s)
-        char	*s;
+getfltpar(
+        char	*s)
 {
 	register int		i;
 	double			d;
@@ -81,8 +81,8 @@ struct cvntab	Yntab[] = {
 };
 
 int
-getynpar(s)
-        char	*s;
+getynpar(
+        char	*s)
 {
 	struct cvntab		*r;
 
@@ -100,8 +100,10 @@ getynpar(s)
 **	pointer to the end of `s3' field.
 */
 char *
-concat(s1, s2, s3)
-        char	*s1, *s2, *s3;
+concat(
+        char	*s1, 
+		char 	*s2,
+		char	*s3)
 {
 	register char		*p;
 	register char		*q;
@@ -122,9 +124,9 @@ concat(s1, s2, s3)
  **	get coded parameter
  **/
 struct cvntab *
-getcodpar(s, tab)
-        char		*s;
-        struct cvntab	tab[];
+getcodpar(
+        char		*s,
+        struct cvntab	tab[])
 {
 	char				input[100];
 	register struct cvntab		*r;
@@ -199,11 +201,11 @@ getcodpar(s, tab)
  **	get string parameter
  **/
 void
-getstrpar(s, r, l, t)
-        char	*s;
-        char	*r;
-        int	l;
-        char	*t;
+getstrpar(
+        char	*s,
+        char	*r,
+        int	l,
+        char	*t)
 {
 	register int	i;
 	char		format[20];
@@ -253,8 +255,8 @@ testnl()
  **	scan for newline
  **/
 void
-skiptonl(c)
-        int	c;
+skiptonl(
+        int	c)
 {
 	while (c != '\n')
 		if (!(c = fgetc(stdin)))
@@ -271,8 +273,8 @@ skiptonl(c)
 **	zero is returned.
 */
 int
-readdelim(d)
-        int	d;
+readdelim(
+        int	d)
 {
 	register char	c;
 

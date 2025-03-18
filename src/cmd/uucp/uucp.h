@@ -387,7 +387,7 @@ extern time_t Retrytime;
 extern short Usrf;
 extern int IsTcpIp;
 extern char Progname[];
-extern int (*CU_end)();
+extern int (*CU_end)(int);
 extern struct condev condevs[];
 extern char NOLOGIN[];
 
@@ -474,7 +474,7 @@ int chksum(char *s, int n);
 int snccmp(char *s1, char *s2);
 int rddev(FILE *fp, struct Devices *dev);
 void alarmtr(int sig);
-int nulldev(void);
+int nulldev(int);
 int diropn(char *flds[]);
 void genbrk(int fn, int bnulls);
 void exphone(char *in, char *out);

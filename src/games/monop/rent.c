@@ -4,8 +4,8 @@
  *	This routine has the player pay rent
  */
 void
-rent(sqp)
-reg SQUARE	*sqp; {
+rent(
+reg SQUARE	*sqp) {
 
 	reg int		rnt = 0;
 	reg PROP	*pp;

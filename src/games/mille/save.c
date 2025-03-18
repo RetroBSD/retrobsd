@@ -103,8 +103,8 @@ over:
  * be cleaned up before the game starts.
  */
 int
-rest_f(file)
-char	*file; {
+rest_f(
+char	*file) {
 
 	char	*sp;
 	int	inf;

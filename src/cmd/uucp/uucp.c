@@ -30,6 +30,7 @@ static int copy(char *s1, char *f1, char *s2, char *f2);
 static void clscfile(void);
 static void chsys(char *s1);
 static void xuux(char *ename, char *s1, char *f1, char *s2, char *f2, char *opts);
+FILE * gtcfile(char *sys);
 
 int main(int argc, char *argv[])
 {
@@ -203,7 +204,7 @@ int copy(char *s1, char *f1, char *s2, char *f2)
 	struct stat stbuf, stbuf1;
 	char dfile[NAMESIZE];
 	char file1[MAXFULLNAME], file2[MAXFULLNAME];
-	FILE *cfp, *gtcfile();
+	FILE *cfp;
 	char opts[100];
 
 	type = 0;

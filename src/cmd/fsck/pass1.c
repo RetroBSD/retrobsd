@@ -11,7 +11,7 @@
 #include "fsck.h"
 
 void
-pass1()
+pass1(void)
 {
     register int j;
     register DINODE *dp;
@@ -129,8 +129,8 @@ unknown:
 }
 
 int
-pass1check(idesc)
-    register struct inodesc *idesc;
+pass1check(
+    register struct inodesc *idesc)
 {
     int res = KEEPON;
     daddr_t blkno = idesc->id_blkno;

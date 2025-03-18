@@ -49,8 +49,8 @@ struct job {
 };
 
 struct sys *syshead;
-struct sys *getsys();
-int jcompare();
+struct sys *getsys(char *s);
+int jcompare(struct job **j1, struct job **j2);
 char *sysname;
 char *user;
 char *rmjob;
@@ -145,7 +145,7 @@ int main(int argc, char **argv)
  *));
 		for (i=0, jp=sp->s_jobp; i < sp->s_njobs; i++, jp=jp->j_jobp)
 			sortjob[i] = jp;
-		qsort(sortjob, sp->s_njobs, sizeof (struct job *), jcompare);
+		qsort(sortjob, sp->s_njobs, sizeof (struct job *), (int (*)(const void*, const void*))jcompare);
 		for (i = 0; i < sp->s_njobs; i++) {
 			jp = sortjob[i];
 			if (lflag) {

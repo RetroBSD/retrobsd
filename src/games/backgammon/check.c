@@ -71,8 +71,8 @@ getmove ()
 }
 
 int
-movokay (mv)
-        register int	mv;
+movokay (
+        register int	mv)
 {
 	register int	i, m;
 

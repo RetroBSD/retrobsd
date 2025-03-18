@@ -4,8 +4,8 @@
 #   include <stdio.h>
 #endif
 
-void putone(byte)
-        register int byte;
+void putone(
+        register int byte)
 {
 	register int i;
 

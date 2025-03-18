@@ -120,7 +120,7 @@ abandon()
 			if (Sect[Ship.sectx][Ship.secty] == EMPTY)
 			{
 				Sect[Ship.sectx][Ship.secty] = QUEENE;
-				dock();
+				dock(0);
 				compkldist(0);
 				return;
 			}

@@ -25,8 +25,8 @@ static void rdpth(void);
  *
  *	return codes:  0  |  FAIL
  */
-int chkpth(logname, mchname, path)
-char *path, *logname, *mchname;
+int chkpth(
+char *path, char *logname, char *mchname)
 {
 	register struct userpath *u;
 	register char **p, *s;
@@ -162,8 +162,8 @@ void rdpth()
  *		0  -  no call back
  *		1  -  call back
  */
-int callback(name)
-register char *name;
+int callback(
+register char *name)
 {
 	register struct userpath *u;
 
@@ -195,8 +195,8 @@ register char *name;
  *
  *	return SUCCESS | FAIL
  */
-int chkperm(file, mopt)
-char *file, *mopt;
+int chkperm(
+char *file, char *mopt)
 {
 	struct stat s;
 	int ret;

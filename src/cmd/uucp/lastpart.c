@@ -9,8 +9,8 @@
  *	return - pointer to last part
  */
 char *
-lastpart(file)
-register char *file;
+lastpart(
+register char *file)
 {
 	register char *c;
 

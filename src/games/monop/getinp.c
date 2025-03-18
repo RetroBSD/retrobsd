@@ -9,8 +9,8 @@
 static char	buf[257];
 
 static int
-comp(s1)
-char	*s1; {
+comp(
+char	*s1) {
 
 	reg char	*sp, *tsp, c;
 
@@ -27,8 +27,9 @@ char	*s1; {
 }
 
 int
-getinp(prompt, list)
-char	*prompt, *list[]; {
+getinp(
+char	*prompt, 
+char	*list[]) {
 
 	reg int	i, n_match, match = 0;
 	char	*sp;

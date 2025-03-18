@@ -115,8 +115,8 @@ void interrupt ()
     timept = &zero;
 }
 
-void goodbye (stat)
-int stat;
+void goodbye (
+int stat)
 {
     if (master != 0) {
         wait(&status);
@@ -136,8 +136,9 @@ void clearscreen ()
     printf("\n\f\r");
 }
 
-int wordcomp (p, q)
-register char *p, *q;
+int wordcomp (
+register char *p, 
+char *q)
 {
     if (*p=='0' && *q!='0')
         return(-1);
@@ -151,8 +152,9 @@ register char *p, *q;
     return(*p-*q);
 }
 
-int compare (a, b)
-char **a, **b;
+int compare (
+char **a, 
+char **b)
 {
     return(wordcomp(*a, *b));
 }
@@ -319,14 +321,14 @@ int getuword ()
     return(1);
 }
 
-void aputuword (ways)
-int ways;
+void aputuword(
+int ways)
 {
     *word[wcount-1] = ways>=10 ? '*' : '0'+ways;
 }
 
-void aputword (ways)
-int ways;
+void aputword(
+int ways)
 {
     /* store (wbuff, ways) in next slot in space */
     register int i;
@@ -336,8 +338,8 @@ int ways;
     word[++wcount] = freesp;
 }
 
-void outword (p)
-register char *p;
+void outword(
+register char *p)
 {
     register int newcol;
     register char *q;
@@ -365,8 +367,8 @@ register char *p;
     }
 }
 
-void tputword (ways)
-int ways;
+void tputword (
+int ways)
 {
     /* print (wbuff, ways) on terminal */
     wbuff[wlength+1] = '0';
@@ -426,9 +428,9 @@ void printdiff ()
     }
 }
 
-int numways (leaf, last)
-register struct frame *leaf;
-struct frame *last;
+int numways (
+register struct frame *leaf,
+struct frame *last)
 {
     int count;
     register char *p;
@@ -447,9 +449,9 @@ struct frame *last;
     return(count);
 }
 
-int evalboard (getword, putword)
-int (*getword)();
-void (*putword)();
+int evalboard(
+int (*getword)(),
+void (*putword)(int))
 {
     register struct frame *top;
     register int l, q;
@@ -472,7 +474,7 @@ void (*putword)();
             /* level[0],...,level[l] of tree built */
             if (l == wlength) {
                 if (wlength >= 3 && (q = numways(level[l], top)) != 0) {
-                    (*putword) (q);
+                    (*putword)(q);
                     found++;
                 }
                 l = BSIZE+1;
@@ -505,9 +507,9 @@ void (*putword)();
     return(found);
 }
 
-int main (argc, argv)
-int argc;
-char **argv;
+int main(
+int argc,
+char **argv)
 {
     char *q;
     register char *p;
@@ -602,7 +604,7 @@ char **argv;
                 alarm(*timept++);
                 evalboard(getuword, aputuword);
                 clearscreen();
-                qsort(&word[0], wcount, sizeof (int), compare);
+                qsort(&word[0], wcount, sizeof (int), (int (*)(const void*, const void*))compare);
                 for (i=0; i<wcount; i++)
                     if (i==0 || wordcomp(word[i], word[i-1])!=0) {
                         p = word[i];

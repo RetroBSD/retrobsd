@@ -7,8 +7,8 @@
  *	Return the absolute value of an integer
  */
 off_t
-offabs(i)
-off_t	i;
+offabs(
+off_t	i)
 {
 	if (i < 0)
 		return -(off_t) i;

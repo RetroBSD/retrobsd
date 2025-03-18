@@ -27,9 +27,9 @@ rub(int sig) {
 }
 
 int
-main(ac, av)
-int	ac;
-char	*av[]; {
+main(
+int	ac,
+char	*av[]) {
 
 	bool	restore;
 	unsigned avs[3];

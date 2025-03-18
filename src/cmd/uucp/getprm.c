@@ -12,8 +12,8 @@
  *	return - pointer to next character in s
  */
 char *
-getprm(s, prm)
-register char *s, *prm;
+getprm(
+register char *s, char *prm)
 {
 	register char *c;
 

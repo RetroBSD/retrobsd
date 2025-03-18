@@ -123,7 +123,7 @@ int nullopn(char *telno, char *flds[], struct Devices *dev)
 /*
  *	nulldev		a null device (returns CF_DIAL)
  */
-int nulldev()
+int nulldev(int unused)
 {
 	return CF_DIAL;
 }

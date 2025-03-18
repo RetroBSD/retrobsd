@@ -93,8 +93,8 @@ rtrav()                                 /* read travel table            */
 }
 
 void
-rdesc(sect)                             /* read description-format msgs */
-int sect;
+rdesc(                             /* read description-format msgs */
+int sect)
 {
 	register int locc;
 	int seekstart, maystart;
@@ -160,8 +160,8 @@ int sect;
 }
 
 void
-getin(wrd1, wrd2)                       /* get command from user        */
-char **wrd1, **wrd2;                    /* no prompt, usually           */
+getin(                       /* get command from user        */
+char **wrd1, char **wrd2)                    /* no prompt, usually           */
 {       register char *s;
 	static char wd1buf[MAXSTR],wd2buf[MAXSTR];
 	int first, numch;
@@ -207,8 +207,8 @@ char **wrd1, **wrd2;                    /* no prompt, usually           */
 }
 
 int
-confirm(mesg)                           /* confirm irreversible action  */
-char *mesg;
+confirm(                           /* confirm irreversible action  */
+char *mesg)
 {       register int result;
 	printf("%s",mesg);              /* tell him what he did         */
 	if (getchar()=='y')             /* was his first letter a 'y'?  */
@@ -219,8 +219,8 @@ char *mesg;
 }
 
 int
-yes(x, y, z)                            /* confirm with rspeak          */
-int x, y, z;
+yes(                            /* confirm with rspeak          */
+int x, int y, int z)
 {       register int result = -1;
 	register char ch;
 	for (;;)
@@ -238,8 +238,8 @@ int x, y, z;
 }
 
 int
-yesm(x, y, z)                           /* confirm with mspeak          */
-int x, y, z;
+yesm(                           /* confirm with mspeak          */
+int x, int y, int z)
 {       register int result = -1;
 	register char ch;
 	for (;;)
@@ -320,8 +320,8 @@ rhints()
 }
 
 void
-rdata(infile, outfile)                  /* read all data from orig file */
-char *infile, *outfile;                 /* datfile we were called with  */
+rdata(                                  /* read all data from orig file */
+char *infile, char *outfile)            /* datfile we were called with  */
 {       register int sect;
 	register char ch;
 	inbuf = fopen(infile, "r");
@@ -390,8 +390,8 @@ char *infile, *outfile;                 /* datfile we were called with  */
 }
 
 void
-twrite(loq)                             /* travel options from this loc */
-int loq;
+twrite(                             /* travel options from this loc */
+int loq)
 {       register struct travlist *t;
 	printf("If");
 	speak(&ltext[loq]);
@@ -409,20 +409,20 @@ int loq;
 }
 
 void
-rspeak(msg)
-int msg;
+rspeak(
+int msg)
 {       if (msg!=0) speak(&rtext[msg]);
 }
 
 void
-mspeak(msg)
-int msg;
+mspeak(
+int msg)
 {       if (msg!=0) speak(&mtext[msg]);
 }
 
 void
-speak(msg)       /* read, decrypt, and print a message (not ptext)      */
-struct text *msg;/* msg is a pointer to seek address and length of mess */
+speak(           /* read, decrypt, and print a message (not ptext)      */
+struct text *msg)/* msg is a pointer to seek address and length of mess */
 {       register char *s,nonfirst;
 	register char *tbuf;
 	lseek(datfd, (off_t) msg->seekadr, 0);
@@ -450,9 +450,9 @@ struct text *msg;/* msg is a pointer to seek address and length of mess */
 }
 
 void
-pspeak(msg, skip) /* read, decrypt an print a ptext message             */
-int msg;          /* msg is the number of all the p msgs for this place */
-int skip;         /* assumes object 1 doesn't have prop 1, obj 2 no prop 2 &c*/
+pspeak(           /* read, decrypt an print a ptext message             */
+int msg,          /* msg is the number of all the p msgs for this place */
+int skip)         /* assumes object 1 doesn't have prop 1, obj 2 no prop 2 &c*/
 {       register char *s, nonfirst;
 	register char *tbuf;
 	char *numst;

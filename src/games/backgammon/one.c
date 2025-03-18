@@ -17,8 +17,8 @@ last ()
 }
 
 static int
-checkd (d)
-        register int	d;
+checkd (
+        register int	d)
 {
 	if (d0 != d)
 		swap;
@@ -26,8 +26,8 @@ checkd (d)
 }
 
 int
-makmove (i)
-        register int	i;
+makmove (
+        register int	i)
 {
 	register int	n, d;
 	int		max;
@@ -80,8 +80,8 @@ makmove (i)
 }
 
 void
-moverr (i)
-        register int	i;
+moverr (
+        register int	i)
 {
 	register int	j;
 
@@ -102,8 +102,8 @@ moverr (i)
 }
 
 void
-movback (i)
-        register int	i;
+movback (
+        register int	i)
 {
 	register int	j;
 
@@ -112,8 +112,8 @@ movback (i)
 }
 
 void
-backone (i)
-        register int	i;
+backone (
+        register int	i)
 {
 	board[p[i]] += cturn;
 	if (g[i] != home)  {

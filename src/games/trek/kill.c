@@ -22,8 +22,9 @@
 **	and the game is won if that was the last klingon.
 */
 void
-killk(ix, iy)
-        int	ix, iy;
+killk(
+        int	ix, 
+		int iy)
 {
 	register int		i;
 
@@ -61,8 +62,9 @@ killk(ix, iy)
 **  handle a starbase's death
 */
 void
-killb(qx, qy)
-        int	qx, qy;
+killb(
+        int	qx, 
+		int qy)
 {
 	register struct quad	*q;
 	register struct xy	*b;
@@ -88,7 +90,7 @@ killb(qx, qy)
 	{
 		Sect[(int)Etc.starbase.x][(int)Etc.starbase.y] = EMPTY;
 		if (Ship.cond == DOCKED)
-			undock();
+			undock(0);
 		printf("Starbase at %d,%d destroyed\n", Etc.starbase.x, Etc.starbase.y);
 	}
 	else
@@ -107,9 +109,10 @@ killb(qx, qy)
  **	kill an inhabited starsystem
  **/
 void
-kills(x, y, f)
-        int	x, y;	/* quad coords if f == 0, else sector coords */
-        int	f;	/* f != 0 -- this quad;  f < 0 -- Enterprise's fault */
+kills(
+        int	x, 
+		int y,	/* quad coords if f == 0, else sector coords */
+        int	f)	/* f != 0 -- this quad;  f < 0 -- Enterprise's fault */
 {
 	register struct quad	*q;
 	register struct event	*e;
@@ -149,9 +152,10 @@ kills(x, y, f)
  **	"kill" a distress call
  **/
 void
-killd(x, y, f)
-        int	x, y;		/* quadrant coordinates */
-        int	f;		/* set if user is to be informed */
+killd(
+        int	x, 
+		int y,		/* quadrant coordinates */
+        int	f)		/* set if user is to be informed */
 {
 	register struct event	*e;
 	register int		i;

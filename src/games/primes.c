@@ -43,8 +43,8 @@ unsigned factab[] = {		/* difference between succesive trial factors */
 /*
  * Insert all multiples of given factor into the sieve
  */
-void sieve(factor)
-        unsigned factor;
+void sieve(
+        unsigned factor)
 {
 	register int	i;
 	unsigned	off;
@@ -69,9 +69,9 @@ void ouch()
 	fprintf(stderr, "Ouch.\n");
 }
 
-int main(argc, argv)
-        int	argc;
-        char	**argv;
+int main(
+        int	argc,
+        char	**argv)
 {
 	register unsigned *fp;
 	register char	*p;

@@ -1,7 +1,7 @@
 #ifndef pdp11
-int chksum(s, n)
-register char *s;
-register int n;
+int chksum(
+register char *s,
+register int n)
 {
 	register long sum, x, t;
 

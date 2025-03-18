@@ -100,10 +100,10 @@ static int lookup_op(char *name, char table[][4]);
  * to stat, to avoid repeated stat calls on the same file.
  */
 void
-expr_operator(op, sp, fs)
-	int op;
-	register struct value *sp;
-	struct filestat *fs;
+expr_operator(
+	int op,
+	register struct value *sp,
+	struct filestat *fs)
 {
 	register int i;
 
@@ -253,9 +253,9 @@ filebit:	if (fs->stat.st_mode & i && fs->rcode >= 0)
  * Integer type checking.
  */
 void
-get_int(v, lp)
-	register char *v;
-	long *lp;
+get_int(
+	register char *v,
+	long *lp)
 {
 
 	for (; *v && isspace(*v); ++v);
@@ -285,9 +285,9 @@ overflow()
 }
 
 int
-main(argc, argv)
-	int argc;
-	char *argv[];
+main(
+	int argc,
+	char *argv[])
 {
 
 	struct operator opstack[STACKSIZE];
@@ -481,8 +481,8 @@ done:	return (expr_is_false(&valstack[0]));
 }
 
 int
-expr_is_false(val)
-	register struct value *val;
+expr_is_false(
+	register struct value *val)
 {
 
 	if (val->type == STRING) {
@@ -496,9 +496,9 @@ expr_is_false(val)
 }
 
 int
-lookup_op(name, table)
-	char *name;
-	char table[][4];
+lookup_op(
+	char *name,
+	char table[][4])
 {
 	char c;
 	int  i;
@@ -512,8 +512,8 @@ lookup_op(name, table)
 }
 
 int
-posix_unary_op(argv)
-	char **argv;
+posix_unary_op(
+	char **argv)
 {
 	struct filestat fs;
 	struct value valp;
@@ -537,8 +537,8 @@ posix_unary_op(argv)
 }
 
 int
-posix_binary_op(argv)
-	char  **argv;
+posix_binary_op(
+	char  **argv)
 {
 	struct value v[2];
 	int op, c;

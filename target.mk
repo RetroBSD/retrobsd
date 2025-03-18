@@ -6,10 +6,9 @@ VERSION     = $(RELEASE)-$(BUILD)
 
 include $(TOPSRC)/clang-config.mk
 
-# TODO: remove -Wno-deprecated-non-prototype -Wno-implicit-int
 CC		= $(LLVMBIN)clang -target mipsel -mcpu=mips32r2 -mabi=o32 -msoft-float \
                   -fomit-frame-pointer -finline-hint-functions -I$(TOPSRC)/include \
-                  -Wno-builtin-requires-header -Wno-deprecated-non-prototype
+                  -Wno-builtin-requires-header -Werror
 CXX             = $(LLVMBIN)clang++ -target mipsel -mcpu=mips32r2 -mabi=o32 -msoft-float \
                   -fomit-frame-pointer -finline-hint-functions -I$(TOPSRC)/include
 LD		= $(LLVMBIN)ld.lld -m elf32ltsmip

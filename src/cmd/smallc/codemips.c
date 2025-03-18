@@ -47,8 +47,8 @@ newline()
     output_byte ('\n');
 }
 
-int galign(t)
-    int t;
+int galign(
+    int t)
 {
     int sign;
     if (t < 0) {
@@ -812,8 +812,8 @@ void gen_unsigned_greater_or_equal()
 /*
  * Put first 4 arguments to registers a0-a3.
  */
-void gnargs (nargs)
-    int nargs;
+void gnargs (
+    int nargs)
 {
     int i;
 

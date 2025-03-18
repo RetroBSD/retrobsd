@@ -31,8 +31,8 @@ struct cvntab Udtab[] =
 };
 
 void
-shield(f)
-        int	f;
+shield(
+        int	f)
 {
 	register int		i;
 	struct cvntab		*r;

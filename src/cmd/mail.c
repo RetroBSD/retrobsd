@@ -520,7 +520,7 @@ void bulkmail(int argc, char **argv)
 
 int sendrmt(int n, char *name)
 {
-    FILE *rmf, *popen();
+    FILE *rmf;
     char *p;
     char rsys[64], cmd[64];
     int pid;

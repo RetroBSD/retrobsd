@@ -43,8 +43,8 @@ static void pkdata(char c, unsigned short sum, struct pack *pk, char **bp);
  * start initial synchronization.
  */
 struct pack *
-pkopen(ifn, ofn)
-int ifn, ofn;
+pkopen(
+int ifn, int ofn)
 {
 	register struct pack *pk;
 	register char **bp;
@@ -123,8 +123,8 @@ int pksizes[] = {
 /*
  * Pseudo-dma byte collection.
  */
-void pkgetpack(pk)
-register struct pack *pk;
+void pkgetpack(
+register struct pack *pk)
 {
 	int k, tries, noise;
 	register char *p;
@@ -312,9 +312,9 @@ void pkxstart(register struct pack *pk, char cntl, register int x)
 		pkoutput(pk);
 }
 
-void pkmove(p1, p2, count, flag)
-char *p1, *p2;
-int count, flag;
+void pkmove(
+char *p1, char *p2,
+int count, int flag)
 {
 	register char *s, *d;
 	register int i;
@@ -345,10 +345,10 @@ void cgalarm()
 	longjmp(Getjbuf, 1);
 }
 
-int pkcget(fn, b, n)
-int fn;
-register char *b;
-register int n;
+int pkcget(
+int fn,
+register char *b,
+register int n)
 {
 	register int ret;
 	extern int linebaudrate;

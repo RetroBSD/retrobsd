@@ -105,9 +105,9 @@ static void parse(char *string, int flags);
 static int findname(char *string, char *level, char **bufp, struct list *namelist);
 
 int
-main(argc, argv)
-	int argc;
-	char *argv[];
+main(
+	int argc,
+	char *argv[])
 {
 	int ch, lvl1;
 
@@ -154,9 +154,9 @@ main(argc, argv)
  * List all variables known to the system.
  */
 void
-listall(prefix, lp)
-	char *prefix;
-	struct list *lp;
+listall(
+	char *prefix,
+	struct list *lp)
 {
 	int lvl2;
 	char *cp, name[BUFSIZ];
@@ -180,9 +180,9 @@ listall(prefix, lp)
  * Set a new value if requested.
  */
 void
-parse(string, flags)
-	char *string;
-	int flags;
+parse(
+	char *string,
+	int flags)
 {
 	int indx, type, state, len;
 	size_t size;
@@ -535,11 +535,11 @@ sysctl_inet(string, bufpp, mib, flags, typep)
  * Scan a list of names searching for a particular name.
  */
 int
-findname(string, level, bufp, namelist)
-	char *string;
-	char *level;
-	char **bufp;
-	struct list *namelist;
+findname(
+	char *string,
+	char *level,
+	char **bufp,
+	struct list *namelist)
 {
 	char *name;
 	int i;

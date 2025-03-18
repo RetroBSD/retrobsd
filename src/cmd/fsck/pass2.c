@@ -78,8 +78,8 @@ pass2()
 }
 
 int
-pass2check(idesc)
-    struct inodesc *idesc;
+pass2check(
+    struct inodesc *idesc)
 {
     register DIRECT *dirp = idesc->id_dirp;
     char *curpathloc;

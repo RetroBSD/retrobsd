@@ -22,9 +22,9 @@ char Mend = '\0';
  *		FAIL - no more messages
  *		SUCCESS - message returned
  */
-int imsg(amsg, fn)
-char *amsg;
-register int fn;
+int imsg(
+char *amsg,
+register int fn)
 {
 	register char *msg = amsg;
 	int foundsync = FAIL;

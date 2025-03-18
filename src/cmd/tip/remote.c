@@ -20,8 +20,8 @@ static char *capstrings[] = {
 };
 
 static void
-getremcap(host)
-    register char *host;
+getremcap(
+    register char *host)
 {
     int stat;
     char tbuf[BUFSIZ];
@@ -126,8 +126,8 @@ getremcap(host)
 }
 
 char *
-getremote(host)
-    char *host;
+getremote(
+    char *host)
 {
     register char *cp;
     static char *next;

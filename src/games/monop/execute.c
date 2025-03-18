@@ -24,8 +24,8 @@ static bool	new_play;	/* set if move on to new player		*/
  *	This routine executes the given command by index number
  */
 void
-execute(com_num)
-reg int	com_num; {
+execute(
+reg int	com_num) {
 
 	new_play = FALSE;	/* new_play is true if fixing	*/
 	(*func[com_num])();
@@ -112,8 +112,8 @@ show_move() {
  *	This routine moves a normal move
  */
 void
-move(rl)
-reg int	rl; {
+move(
+reg int	rl) {
 
 	reg int	old_loc;
 
@@ -199,8 +199,8 @@ restore() {
  * backup was successful, else false.
  */
 int
-rest_f(file)
-reg char	*file; {
+rest_f(
+reg char	*file) {
 
 	reg char	*sp;
 	reg int		inf, num;

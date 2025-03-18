@@ -36,8 +36,8 @@ struct vaconfig {
 #define ETX 03
 
 static char *
-sanitize(s)
-    register char *s;
+sanitize(
+    register char *s)
 {
     static char buf[128];
     register char *cp;
@@ -76,9 +76,9 @@ void v831_disconnect()
 }
 
 static int
-dialit(phonenum, acu)
-    register char *phonenum;
-    char *acu;
+dialit(
+    register char *phonenum,
+    char *acu)
 {
     register struct vaconfig *vp;
     struct sgttyb cntrl;
@@ -142,8 +142,8 @@ alarmtr(int sig)
     longjmp(jmpbuf, 1);
 }
 
-int v831_dialer(num, acu)
-    char *num, *acu;
+int v831_dialer(
+    char *num, char *acu)
 {
     int status, pid;
     register int timelim;

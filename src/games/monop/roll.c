@@ -4,8 +4,9 @@
 #include <stdlib.h>
 
 int
-roll(ndie, nsides)
-int	ndie, nsides; {
+roll(
+int	ndie, 
+int nsides) {
 
 	int	tot;
 

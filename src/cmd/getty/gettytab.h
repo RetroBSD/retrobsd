@@ -97,12 +97,12 @@ struct gettyflags {
 #define DX	gettyflags[18].value
 #define	HF	gettyflags[19].value
 
-int	getent();
-long	getnum();
-int	getflag();
-char	*getstr();
+int getent(char *bp, char *name);
+long	getnum(char *);
+int	getflag(char *);
+char *getstr(char *id, char **area);
 
-long	setflags();
+long	setflags(int);
 
 extern	struct gettyflags gettyflags[];
 extern	struct gettynums gettynums[];

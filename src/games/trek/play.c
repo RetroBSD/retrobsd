@@ -17,10 +17,16 @@
 **	attack if the move was not free, and checkcond() to check up
 **	on how we are doing after the move.
 */
-extern void	abandon(), capture(), shield(), computer(), dcrept(),
-		destruct(), dock(), help(), impulse(), lrscan(),
-		warp(), dumpgame(), rest(), shell(), srscan(),
-		myreset(), torped(), visual(), setwarp(), undock(), phaser();
+extern void	abandon(), computer(), dcrept(),
+		destruct(), help(), impulse(), lrscan(),
+		dumpgame(), rest(), shell(),
+		myreset(), torped(), visual(), setwarp(), phaser();
+
+
+void warpCommand(int c)
+{
+	warp(c, 0,0);
+}
 
 struct cvntab	Comtab[] =
 {
@@ -34,9 +40,9 @@ struct cvntab	Comtab[] =
 	{ "help",		"",			help,		0 },
 	{ "i",			"mpulse",		impulse,	0 },
 	{ "l",			"rscan",		lrscan,         0 },
-	{ "m",			"ove",			warp,		0 },
+	{ "m",			"ove",			warpCommand,	0 },
 	{ "p",			"hasers",		phaser,         0 },
-	{ "ram",		"",			warp,		1 },
+	{ "ram",		"",			warpCommand,	1 },
 	{ "dump",		"",			dumpgame,	0 },
 	{ "r",			"est",			rest,		0 },
 	{ "shell",		"",			shell,		0 },

@@ -110,10 +110,10 @@ retry:
  *	return codes:
  *		n - the number of items in the list
  */
-int srchst(name, list, n)
-char *name;
-register char **list;
-int n;
+int srchst(
+char *name,
+register char **list,
+int n)
 {
 	register int i;
 	register char *p;

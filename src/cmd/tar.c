@@ -84,7 +84,7 @@ int nblock = 0;
 
 daddr_t low;
 daddr_t high;
-daddr_t bsrch();
+daddr_t bsrch(char *s, int n, daddr_t l, daddr_t h);
 
 FILE *vfile = stdout;
 FILE *tfile;
@@ -126,6 +126,7 @@ static int cmp(char *b, char *s, int n);
 static void getbuf(void);
 static int bread(int fd, char *buf, int size);
 static void mterr(char *operation, int i, int exitcode);
+daddr_t lookup(char *s);
 
 void onintr(int sig)
 {
@@ -1000,7 +1001,6 @@ int checkupdate(char *arg)
     char name[100];
     long mtime;
     daddr_t seekp;
-    daddr_t lookup();
 
     rewind(tfile);
     for (;;) {

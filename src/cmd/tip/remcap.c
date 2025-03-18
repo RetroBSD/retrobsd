@@ -59,8 +59,8 @@ static int tnchktc (void);
  * against each such name.  The normal : terminator after the last
  * name (before the first field) stops us.
  */
-static int tnamatch(np)
-    char *np;
+static int tnamatch(
+    char *np)
 {
     register char *Np, *Bp;
 
@@ -80,8 +80,8 @@ static int tnamatch(np)
     }
 }
 
-static int getent(bp, name, cp)
-    char *bp, *name, *cp;
+static int getent(
+    char *bp, char *name, char *cp)
 {
     register int c;
     register int i = 0, cnt = 0;
@@ -206,8 +206,8 @@ static int tnchktc()
  * from the termcap file.  Parse is very rudimentary;
  * we just notice escaped newlines.
  */
-int tgetent(bp, name)
-    char *bp, *name;
+int tgetent(
+    char *bp, char *name)
 {
     char lbuf[BUFSIZ], *cp, *p;
     int rc1, rc2;
@@ -245,8 +245,8 @@ int tgetent(bp, name)
  * into the termcap file in octal.
  */
 static char *
-tskip(bp)
-    register char *bp;
+tskip(
+    register char *bp)
 {
 
     while (*bp && *bp != ':')
@@ -264,8 +264,8 @@ tskip(bp)
  * a # character.  If the option is not found we return -1.
  * Note that we handle octal numbers beginning with 0.
  */
-int tgetnum(id)
-    char *id;
+int tgetnum(
+    char *id)
 {
     register int i, base;
     register char *bp = tbuf;
@@ -297,8 +297,8 @@ int tgetnum(id)
  * of the buffer.  Return 1 if we find the option, or 0 if it is
  * not given.
  */
-int tgetflag(id)
-    char *id;
+int tgetflag(
+    char *id)
 {
     register char *bp = tbuf;
 
@@ -320,9 +320,9 @@ int tgetflag(id)
  * string capability escapes.
  */
 static char *
-tdecode(str, area)
-    register char *str;
-    char **area;
+tdecode(
+    register char *str,
+    char **area)
 {
     register char *cp;
     register int c;
@@ -373,8 +373,8 @@ nextc:
  * No checking on area overflow.
  */
 char *
-tgetstr(id, area)
-    char *id, **area;
+tgetstr(
+    char *id, char **area)
 {
     register char *bp = tbuf;
 

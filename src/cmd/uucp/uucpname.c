@@ -24,8 +24,8 @@ char Myfullname[64];
  *
  *	return code - none
  */
-void uucpname(name)
-register char *name;
+void uucpname(
+register char *name)
 {
 	register char *s;
 

@@ -32,8 +32,8 @@ static int newspool(time_t limit);
 
 /* LOCAL only */
 int
-anlwrk(file, wvec)
-register char *file, **wvec;
+anlwrk(
+register char *file, char **wvec)
 {
 	static char str[MAXRQST], nstr[MAXRQST], lastfile[MAXFULLNAME] = "";
 	static FILE *fp = NULL;
@@ -108,9 +108,9 @@ register char *file, **wvec;
 
 /* LOCAL only */
 int
-bldflst (reqst, dir, pre)
-char *reqst;
-register char *dir, *pre;
+bldflst (
+char *reqst,
+register char *dir, char *pre)
 {
 	static DIR  *dirp = NULL;
 	register int nfound;
@@ -161,8 +161,8 @@ register char *dir, *pre;
 
 /* LOCAL only */
 void
-entflst(file)
-register char *file;
+entflst(
+register char *file)
 {
 	register int i;
 
@@ -194,8 +194,8 @@ register char *file;
  */
 /* LOCAL only */
 int
-pcompar(p1, p2)
-register char *p1, *p2;
+pcompar(
+register char *p1, char *p2)
 {
 	register int rc;
 
@@ -231,8 +231,9 @@ register char *p1, *p2;
  */
 
 /* LOCAL only */
-int gtwrkf(dir, file)
-char *file, *dir;
+int gtwrkf(
+char *dir,
+char *file)
 {
 	register int i;
 
@@ -256,9 +257,12 @@ char *file, *dir;
 
 /* EXTERNALLY CALLED */
 int
-gtwvec(file, dir, wkpre, wrkvec)
-char *dir, *wkpre, **wrkvec;
-register char *file;
+gtwvec(
+register char *file,
+char *dir,
+char *wkpre, 
+char **wrkvec
+)
 {
 	register int nargs, n;
 
@@ -285,8 +289,11 @@ register char *file;
 
 /* EXTERNALLY CALLED */
 int
-iswrk(file, reqst, dir, pre)
-register char *file, *reqst, *dir, *pre;
+iswrk(
+register char *file, 
+char *reqst,
+char *dir,
+char *pre)
 {
 	static char *lastpre = 0;
 	register int ret;
@@ -346,8 +353,8 @@ register char *file, *reqst, *dir, *pre;
  */
 /* LOCAL only */
 int
-newspool(limit)
-time_t	limit;
+newspool(
+time_t	limit)
 {
 	static time_t lastcheck = 0, lastmod = 0;
 	time_t check;

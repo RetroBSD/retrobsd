@@ -38,11 +38,10 @@
 #define	RECOVER
 //#define	DEBUG	"/usr/spool/uucp/uusend.log"/**/
 
+char * getfname(register char *p);
+
 FILE	*in, *out;
 FILE	*dout;
-
-extern FILE	*popen();
-extern char	*index(), *strcpy(), *strcat(), *ctime();
 
 #ifdef	RUUSEND
 int	rsend;
@@ -54,7 +53,6 @@ char	cmdbuf[256];	/* buffer to build uux command in */
 char	*rflg = "";	/* default value of rflg  ccw -- 1 Nov '82 */
 
 struct	passwd *user;	/* entry  in /etc/passwd for ~user */
-struct	passwd *getpwnam();
 struct	stat	stbuf;
 
 char	*excl;		/* location of first ! in destname */
@@ -66,16 +64,15 @@ char	*UULIB = "/etc/uucp";	  /* UUCP lib directory */
 #ifdef	RECOVER
 char	*UUPUB = "/usr/spool/uucppublic/";  /* public UUCP directory */
 char	*filename;	/* file name from end of destname */
-char	*getfname();	/* routine to get filename from destname */
 int	fflg;
 char	f[100];		/* name of default output file */
 #else
 char	*f	= "";	/* so we waste a little space */
 #endif
 
-int main(argc, argv)
-int	argc;
-char	**argv;
+int main(
+int	argc,
+char	**argv)
 {
 	register int c;
 	long count;
@@ -306,8 +303,8 @@ fflush(dout);
 
 #ifdef	RECOVER
 char *
-getfname(p)
-register char *p;
+getfname(
+register char *p)
 {
 	register char *s;
 	s = p;
@@ -324,9 +321,9 @@ register char *p;
 }
 
 #ifndef BSD4_2
-int makedir(dirname, mode)
-char *dirname;
-int mode;
+int makedir(
+char *dirname,
+int mode)
 {
 	register int pid;
 	int retcode, status;

@@ -20,8 +20,8 @@
 #include <paths.h>
 #include <string.h>
 
-void fatal(msg)
-	char *msg;
+void fatal(
+	char *msg)
 {
 	extern int errno;
 
@@ -29,9 +29,9 @@ void fatal(msg)
 	exit(1);
 }
 
-int main(argc, argv)
-	int argc;
-	char **argv;
+int main(
+	int argc,
+	char **argv)
 {
         char *shell;
 

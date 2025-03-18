@@ -13,8 +13,8 @@
  *	Player would get eaten at this place
  */
 int
-eaten(pos)
-register COORD	*pos;
+eaten(
+register COORD	*pos)
 {
 	register int	x, y;
 
@@ -69,8 +69,9 @@ must_telep()
  *	Execute a move
  */
 int
-do_move(dy, dx)
-int	dy, dx;
+do_move(
+int	dy, 
+int dx)
 {
 	static COORD	newpos;
 

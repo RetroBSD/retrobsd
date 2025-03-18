@@ -57,9 +57,9 @@ ufs_usage()
 }
 
 int
-mount_ufs(argc, argv)
-	int argc;
-	register char *argv[];
+mount_ufs(
+	int argc,
+	register char *argv[])
 {
 	extern int optreset;
 	int ch, mntflags;

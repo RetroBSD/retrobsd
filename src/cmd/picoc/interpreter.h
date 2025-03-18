@@ -162,6 +162,9 @@ struct ValueType
     int StaticQualifier;            /* true if it's a static */
 };
 
+// Forward declaration of Value
+struct Value;
+
 /* function definition */
 struct FuncDef
 {
@@ -170,7 +173,7 @@ struct FuncDef
     int VarArgs;                    /* has a variable number of arguments after the explicitly specified ones */
     struct ValueType **ParamType;   /* array of parameter types */
     char **ParamName;               /* array of parameter names */
-    void (*Intrinsic)();            /* intrinsic call address or NULL */
+    void (*Intrinsic)(struct ParseState *Parser, struct Value*, struct Value **, int);            /* intrinsic call address or NULL */
     struct ParseState Body;         /* lexical tokens of the function body if not intrinsic */
 };
 

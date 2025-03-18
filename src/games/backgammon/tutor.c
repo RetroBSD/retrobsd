@@ -14,8 +14,9 @@ extern struct situatn	test[];
 static char	better[] = "That is a legal move, but there is a better one.\n";
 
 static int
-brdeq (b1,b2)
-        register int  *b1, *b2;
+brdeq (
+        register int  *b1, 
+		int *b2)
 {
 	register int  *e;
 

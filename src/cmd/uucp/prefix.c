@@ -6,8 +6,8 @@
  *	return 0 - !=
  *	return 1 - ==
  */
-int prefix(s1, s2)
-register char *s1, *s2;
+int prefix(
+register char *s1, char *s2)
 {
 	register char c;
 
@@ -24,8 +24,8 @@ register char *s1, *s2;
  *	return 1 - ==
  */
 int
-wprefix(s1, s2)
-register char *s1, *s2;
+wprefix(
+register char *s1, char *s2)
 {
 	register char c;
 

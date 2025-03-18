@@ -7,8 +7,8 @@ static char	*names[N_MON+2],
 static MON	*monops[N_MON];
 
 static void
-list_cur(mp)
-reg MON	*mp; {
+list_cur(
+reg MON	*mp) {
 
 	reg int		i;
 	reg SQUARE	*sqp;
@@ -24,8 +24,8 @@ reg MON	*mp; {
 }
 
 static void
-buy_h(mnp)
-MON	*mnp; {
+buy_h(
+MON	*mnp) {
 
 	reg int	i;
 	reg MON	*mp;
@@ -137,8 +137,8 @@ over:
 }
 
 static void
-sell_h(mnp)
-MON	*mnp; {
+sell_h(
+MON	*mnp) {
 
 	reg int	i;
 	reg MON	*mp;

@@ -10,14 +10,14 @@
 #include "include.h"
 
 PLANE	*
-newplane()
+newplane(void)
 {
 	return ((PLANE *) calloc(1, sizeof (PLANE)));
 }
 
-void append(l, p)
-	LIST	*l;
-	PLANE	*p;
+void append(
+	LIST	*l,
+	PLANE	*p)
 {
 	PLANE 	*q = NULL, *r = NULL;
 
@@ -53,9 +53,9 @@ void append(l, p)
 	}
 }
 
-void delete(l, p)
-	LIST	*l;
-	PLANE	*p;
+void delete(
+	LIST	*l,
+	PLANE	*p)
 {
 	if (l->head == NULL)
 		loser(p, "deleted a non-existant plane! Get help!");

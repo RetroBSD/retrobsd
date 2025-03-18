@@ -32,9 +32,9 @@ void cour_disconnect()
     close(FD);
 }
 
-int cour_dialer(num, acu)
-    register char *num;
-    char *acu;
+int cour_dialer(
+    register char *num,
+    char *acu)
 {
     register char *cp;
 #ifdef ACULOG
@@ -100,8 +100,8 @@ sigALRM(int i)
 }
 
 static int
-cour_swallow(match)
-    register char *match;
+cour_swallow(
+    register char *match)
 {
     char c;
     sig_t f;
@@ -268,10 +268,10 @@ coursync()
 
 extern ssize_t write(int fd, const void *cp, size_t n);
 
-ssize_t cour_write(fd, cp, n)
-    int fd;
-    const void *cp;
-    size_t n;
+ssize_t cour_write(
+    int fd,
+    const void *cp,
+    size_t n)
 {
     struct sgttyb sb;
     int n0 = n;

@@ -10,11 +10,11 @@
 /*
  * initialize a deck of cards to contain one of each type
  */
-void makedeck( d )
-    CARD	d[];
+void makedeck(
+    CARD	d[])
 {
 	register  int		i, j, k;
-	long			time();
+	long			time(long *);
 
 	i = time( (long *) 0 );
 	i = ( (i&0xff) << 8 ) | ( (i >> 8)&0xff ) | 1;
@@ -32,8 +32,8 @@ void makedeck( d )
  * given a deck of cards, shuffle it -- i.e. randomize it
  * see Knuth, vol. 2, page 125
  */
-void shuffle( d )
-    CARD	d[];
+void shuffle(
+    CARD	d[])
 {
 	register  int		j, k;
 	CARD			c;
@@ -49,8 +49,9 @@ void shuffle( d )
 /*
  * return true if the two cards are equal...
  */
-int eq( a, b )
-    CARD		a, b;
+int eq(
+    CARD		a, 
+	CARD		b)
 {
 	return(  ( a.rank == b.rank )  &&  ( a.suit == b.suit )  );
 }
@@ -58,9 +59,10 @@ int eq( a, b )
 /*
  * isone returns TRUE if a is in the set of cards b
  */
-BOOLEAN isone( a, b, n )
-    CARD		a, b[];
-    int			n;
+BOOLEAN isone(
+    CARD		a,
+	CARD		b[],
+    int			n)
 {
 	register  int		i;
 
@@ -73,9 +75,10 @@ BOOLEAN isone( a, b, n )
 /*
  * remove the card a from the deck d of n cards
  */
-void cremove( a, d, n )
-    CARD	a, d[];
-    int		n;
+void cremove(
+    CARD	a, 
+	CARD	d[],
+    int		n)
 {
 	register  int		i, j;
 
@@ -90,9 +93,9 @@ void cremove( a, d, n )
  * sorthand:
  *	Sort a hand of n cards
  */
-void sorthand(h, n)
-    register CARD	h[];
-    int			n;
+void sorthand(
+    register CARD	h[],
+    int			n)
 {
 	register CARD		*cp, *endp;
 	CARD			c;

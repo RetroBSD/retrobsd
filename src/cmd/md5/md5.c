@@ -55,7 +55,7 @@ static void MDPrint PROTO_LIST ((unsigned char [16]));
 #if MD == 4
 #define MD_CTX MD4_CTX
 #define MDInit MD4Init
-#define MDUpdate MD4Update
+#define MDUpdate MD4UpdatePROTOTYPES
 #define MDFinal MD4Final
 #endif
 #if MD == 5
@@ -74,9 +74,7 @@ Arguments (may be any combination):
   filename - digests file
   (none)   - digests standard input
  */
-int main (argc, argv)
-int argc;
-char *argv[];
+int main (int argc, char* argv[])
 {
   int i;
 
@@ -98,8 +96,7 @@ char *argv[];
 
 /* Digests a string and prints the result.
  */
-static void MDString (string)
-char *string;
+static void MDString (char* string)
 {
   MD_CTX context;
   unsigned char digest[16];
@@ -177,8 +174,7 @@ static void MDTestSuite ()
 
 /* Digests a file and prints the result.
  */
-static void MDFile (filename)
-char *filename;
+static void MDFile (char* filename)
 {
   FILE *file;
   MD_CTX context;
@@ -221,8 +217,7 @@ static void MDFilter ()
 
 /* Prints a message digest in hexadecimal.
  */
-static void MDPrint (digest)
-unsigned char digest[16];
+static void MDPrint (unsigned char digest[16])
 {
   unsigned int i;
 

@@ -10,7 +10,7 @@ struct cvntab		/* used for getcodpar() paramater list */
 {
 	char	*abrev;
 	char	*full;
-	void	(*value)();
+	void	(*value)(int);
 	int	value2;
 };
 

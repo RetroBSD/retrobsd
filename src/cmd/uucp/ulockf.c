@@ -20,9 +20,9 @@ static int onelock(int pid, char *tempfile, char *name);
  *
  *	return codes:  SUCCESS  |  FAIL
  */
-int ulockf(hfile, atime)
-char *hfile;
-time_t atime;
+int ulockf(
+char *hfile,
+time_t atime)
 {
 	register char *p;
 	register int i;
@@ -84,8 +84,8 @@ time_t atime;
 /*
  *	remove all lock files in list or name
  */
-void rmlock(name)
-register char *name;
+void rmlock(
+register char *name)
 {
 	register int i;
 	char file[MAXFULLNAME];
@@ -109,9 +109,9 @@ register char *name;
  *	makes lock a name on behalf of pid. Tempfile must be in the same
  *	file system as name.
  */
-int onelock(pid, tempfile, name)
-int pid;
-char *tempfile, *name;
+int onelock(
+int pid,
+char *tempfile, char *name)
 {
 	register int fd, ret;
 	extern int errno;

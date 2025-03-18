@@ -72,8 +72,8 @@ char *instr[] = {
     0};
 
 int
-text (t)
-        const char	**t;
+text (
+        const char	**t)
 {
 	register int	i;
 	register const char	*s, *a;

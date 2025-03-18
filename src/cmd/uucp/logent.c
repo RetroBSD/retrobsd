@@ -21,8 +21,8 @@ static void mlogent(FILE *fp, char *status, char *text);
 /*
  *	make log entry
  */
-void logent(text, status)
-char *text, *status;
+void logent(
+char *text, char *status)
 {
 #ifdef LOGBYSITE
 	char lfile[MAXFULLNAME];
@@ -72,13 +72,13 @@ char *text, *status;
 /*
  *	make a log entry
  */
-void mlogent(fp, status, text)
-char *text, *status;
-register FILE *fp;
+void mlogent(
+	register FILE *fp,
+	char *status,
+	char *text)
 {
 	static int pid = 0;
 	register struct tm *tp;
-	extern struct tm *localtime();
 
 	if (text == NULL)
 		text = "";
@@ -136,11 +136,10 @@ void logcls()
 /*
  *	make system log entry
  */
-void syslog(text)
-char *text;
+void syslog(
+char *text)
 {
 	register struct tm *tp;
-	extern struct tm *localtime();
 #ifdef LOGBYSITE
 	char lfile[MAXFULLNAME];
 	static char SLogRmtname[64];
@@ -210,8 +209,8 @@ char *text;
 #include <sgtty.h>
 #endif
 
-void fioclex(fd)
-int fd;
+void fioclex(
+int fd)
 {
 	register int ret;
 

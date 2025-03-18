@@ -104,9 +104,9 @@ int get_disk_size(char *fn)
  * return size of directory.
  */
 int
-makedir (protodir, entries)
-	register struct direct *protodir;
-	int entries;
+makedir (
+	register struct direct *protodir,
+	int entries)
 {
 	char *cp;
 	int i, spcleft;
@@ -124,9 +124,9 @@ makedir (protodir, entries)
 }
 
 void
-rdfs (bno, bf)
-	daddr_t bno;
-	char *bf;
+rdfs (
+	daddr_t bno,
+	char *bf)
 {
 	int n;
 	off_t offset;
@@ -144,9 +144,9 @@ rdfs (bno, bf)
 }
 
 void
-wtfs (bno, bf)
-	daddr_t bno;
-	char *bf;
+wtfs (
+	daddr_t bno,
+	char *bf)
 {
 	int n;
 	off_t offset;
@@ -164,8 +164,8 @@ wtfs (bno, bf)
 }
 
 void
-iput (ip)
-	register struct inode *ip;
+iput (
+	register struct inode *ip)
 {
 	struct	dinode	buf [INOPB];
 	register struct dinode *dp;
@@ -354,8 +354,8 @@ fsinit()
 }
 
 void
-bfree (bno)
-	daddr_t bno;
+bfree (
+	daddr_t bno)
 {
 	register int i;
 
@@ -398,9 +398,9 @@ usage()
 }
 
 int
-main (argc,argv)
-	int	argc;
-	char	**argv;
+main (
+	int	argc,
+	char	**argv)
 {
 	register int c;
 	unsigned n, kbytes, swapsz = 0;

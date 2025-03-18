@@ -43,10 +43,10 @@
 #include "mntopts.h"
 
 void
-getmntopts(options, m0, flagp)
-	char *options;
-	struct mntopt *m0;
-	int *flagp;
+getmntopts(
+	char *options,
+	struct mntopt *m0,
+	int *flagp)
 {
 	register struct mntopt *m;
 	int negative;

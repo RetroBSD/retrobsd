@@ -33,7 +33,7 @@
 
 static  int timeout = 0;
 static  jmp_buf timeoutbuf;
-static  char gobble();
+static  char gobble(register char *match);
 #define DUMBUFLEN   40
 static char dumbuf[DUMBUFLEN];
 
@@ -79,8 +79,8 @@ int hay_sync()
     return(0);
 }
 
-void error_rep(c)
-    register char c;
+void error_rep(
+    register char c)
 {
     printf("\n\r");
     switch (c) {
@@ -178,9 +178,9 @@ void hay_disconnect()
     goodbye();
 }
 
-int hay_dialer(num, acu)
-    register char *num;
-    char *acu;
+int hay_dialer(
+    register char *num,
+    char *acu)
 {
     register int connected = 0;
     int zero = 0;
@@ -234,8 +234,8 @@ void hay_abort()
 }
 
 static char
-gobble(match)
-    register char *match;
+gobble(
+    register char *match)
 {
     char c;
     sig_t f;

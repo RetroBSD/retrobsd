@@ -63,9 +63,9 @@ void putstr()
     }
 }
 
-int main(argc, argv)
-int argc;
-char *argv[];
+int main(
+int argc,
+char *argv[])
 {
     while ((c = getch()) != EOF) {
         switch (c) {
@@ -309,8 +309,8 @@ int getch()
     return (lastchar);
 }
 
-int lookup(tab)
-char *tab[];
+int lookup(
+char *tab[])
 {
     char r;
     int l, kk, k, i;

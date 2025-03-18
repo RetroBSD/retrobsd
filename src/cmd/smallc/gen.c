@@ -11,7 +11,7 @@
  *      return next available internal label number
  *
  */
-int getlabel ()
+int getlabel (void)
 {
         return (nxtlab++);
 
@@ -21,8 +21,8 @@ int getlabel ()
  * print specified number as label
  * @param label
  */
-void print_label (label)
-int     label;
+void print_label (
+int     label)
 {
         output_label_prefix ();
         output_decimal (label);
@@ -33,8 +33,8 @@ int     label;
  * not used ?
  * @param lab label number
  */
-void glabel (lab)
-char    *lab;
+void glabel (
+char    *lab)
 {
         output_string (lab);
         output_label_terminator ();
@@ -46,8 +46,8 @@ char    *lab;
  * @param nlab label number
  * @return
  */
-void generate_label (nlab)
-int     nlab;
+void generate_label (
+int     nlab)
 {
         print_label (nlab);
         output_label_terminator ();
@@ -73,8 +73,8 @@ int output_byte (char c)
  * @return
  */
 void
-output_string (ptr)
-char    ptr[];
+output_string (
+char    ptr[])
 {
         int     k;
         k = 0;
@@ -86,7 +86,7 @@ char    ptr[];
  * @return
  */
 void
-print_tab ()
+print_tab (void)
 {
         output_byte ('\t');
 }
@@ -96,8 +96,8 @@ print_tab ()
  * @param ptr
  * @return
  */
-void output_line (ptr)
-char    ptr[];
+void output_line (
+char    ptr[])
 {
         output_with_tab (ptr);
         newline ();
@@ -108,8 +108,8 @@ char    ptr[];
  * @param ptr
  * @return
  */
-void output_with_tab (ptr)
-char    ptr[];
+void output_with_tab (
+char    ptr[])
 {
         print_tab ();
         output_string (ptr);
@@ -153,9 +153,9 @@ int rvalue (lvalue_t *lval, int reg)
  * @param ft
  * @return
  */
-void test (label, ft)
+void test (
 int     label,
-        ft;
+int     ft)
 {
         needbrack ("(");
         expression (YES);

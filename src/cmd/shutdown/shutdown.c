@@ -85,24 +85,25 @@ static time_t getsdt(char *s);
 static void nolog(time_t sdt);
 static void doitfast(void);
 
-void finish(sig)
-        int sig;
+void finish(
+        int sig)
 {
 	(void) signal(SIGTERM, SIG_IGN);
 	(void) unlink(nologin);
 	exit(0);
 }
 
-void timeout(sig)
-        int sig;
+void timeout(
+        int sig)
 {
 	longjmp(alarmbuf, 1);
 }
 
-void warning(term, sdt, now, type)
-	FILE *term;
-	time_t sdt, now;
-	char *type;
+void warning(
+	FILE *term,
+	time_t sdt, 
+	time_t now,
+	char *type)
 {
 	char *ts;
 	register int delay = sdt - now;
@@ -128,9 +129,9 @@ void warning(term, sdt, now, type)
 		fprintf(term, "System going down IMMEDIATELY\r\n");
 }
 
-int main(argc,argv)
-	int argc;
-	char **argv;
+int main(
+	int argc,
+	char **argv)
 {
 	register int i, ufd;
 	register char *f;
@@ -316,8 +317,8 @@ int main(argc,argv)
 }
 
 time_t
-getsdt(s)
-	register char *s;
+getsdt(
+	register char *s)
 {
 	time_t t, t1, tim;
 	register char c;
@@ -381,8 +382,8 @@ void doitfast()
 	}
 }
 
-void nolog(sdt)
-	time_t sdt;
+void nolog(
+	time_t sdt)
 {
 	register FILE *nologf;
 

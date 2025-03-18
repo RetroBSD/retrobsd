@@ -100,7 +100,7 @@ typedef struct {
  */
 typedef struct {
     char    *acu_name;
-    int (*acu_dialer)();
+    int (*acu_dialer)(char*, char*);
     int (*acu_disconnect)();
     int (*acu_abort)();
 } acu_t;
@@ -137,7 +137,7 @@ typedef struct {
     char    e_char;         /* char to match on */
     char    e_flags;        /* experimental, priviledged */
     char    *e_help;        /* help string */
-    int     (*e_func)();    /* command */
+    int     (*e_func)(int);    /* command */
 } esctable_t;
 
 #define NORM    00          /* normal protection, execute anyone */
@@ -259,6 +259,7 @@ void setscript (void);
 int escape (void);
 void tipabort (char *msg);
 void finish (void);
+char * expand(char name[]);
 
 #ifndef ACULOG
 #define logent(a, b, c, d)

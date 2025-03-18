@@ -12,11 +12,11 @@
 #endif
 
 /* ARGSUSED */
-int hysopn(telno, flds, dev, toneflag)
-char *telno;
-char *flds[];
-struct Devices *dev;
-int toneflag;
+int hysopn(
+char *telno,
+char *flds[],
+struct Devices *dev,
+int toneflag)
 {
 	char dcname[20];
 	char cbuf[MAXPH];
@@ -125,22 +125,22 @@ int toneflag;
  *		CF_DIAL,CF_DEVICE  -  failed
  */
 
-int hyspopn(telno, flds, dev)
-char *telno, *flds[];
-struct Devices *dev;
+int hyspopn(
+char *telno, char *flds[],
+struct Devices *dev)
 {
 	return hysopn(telno, flds, dev, 0);
 }
 
-int hystopn(telno, flds, dev)
-char *telno, *flds[];
-struct Devices *dev;
+int hystopn(
+char *telno, char *flds[],
+struct Devices *dev)
 {
 	return hysopn(telno, flds, dev, 1);
 }
 
-int hyscls(fd)
-int fd;
+int hyscls(
+int fd)
 {
 	char dcname[20];
 #ifdef DROPDTR

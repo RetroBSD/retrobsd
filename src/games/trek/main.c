@@ -115,9 +115,9 @@ int	Mother	= 51 + (51 << 8);
 jmp_buf	env;
 
 int
-main(argc, argv)
-        int	argc;
-        char	**argv;
+main(
+        int	argc,
+        char	**argv)
 {
 	long			vect;
 	/* extern FILE		*f_log; */

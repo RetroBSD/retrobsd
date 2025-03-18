@@ -919,7 +919,7 @@ char *getblock(int atl, int iof)
     return (obuff + off);
 }
 
-void blkio(int b, char *buf, int (*iofcn)())
+void blkio(int b, char *buf, int (*iofcn)(int, char*, int))
 {
     lseek(tfile, (long)b << 9, 0);
     if ((*iofcn)(tfile, buf, 512) != 512) {

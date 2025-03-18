@@ -237,10 +237,10 @@ extern int zzrrconf;
 extern int zzsrconf;
 /* define functions with strange types... */
 
-extern char *cstash();
-extern struct looksets *flset();
-extern char *symnam();
-extern char *writem();
+extern char *cstash(char *s);
+extern struct looksets *flset(struct looksets *p);
+extern char *symnam(int i);
+extern char *writem(int *pp);
 
 /* default settings for a number of macros */
 

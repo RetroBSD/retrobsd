@@ -16,8 +16,8 @@
 **	to the tubes, etc.
 */
 static int
-randcourse(n)
-        int	n;
+randcourse(
+        int	n)
 {
 	double			r;
 	register int		d;

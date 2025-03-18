@@ -19,8 +19,8 @@
 **	If the zap is too much, it gets destroyed.
 */
 void
-nova(x, y)
-        int	x, y;
+nova(
+        int	x, int y)
 {
 	register int		i, j;
 	register int		se;

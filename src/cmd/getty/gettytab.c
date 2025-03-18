@@ -22,8 +22,8 @@ static int nchktc(void);
  * from the termcap file.  Parse is very rudimentary;
  * we just notice escaped newlines.
  */
-int getent(bp, name)
-	char *bp, *name;
+int getent(
+	char *bp, char *name)
 {
 	register char *cp;
 	register int c;
@@ -129,8 +129,8 @@ int nchktc()
  * against each such name.  The normal : terminator after the last
  * name (before the first field) stops us.
  */
-int namatch(np)
-	char *np;
+int namatch(
+	char *np)
 {
 	register char *Np, *Bp;
 
@@ -156,8 +156,8 @@ int namatch(np)
  * into the termcap file in octal.
  */
 static char *
-skip(bp)
-	register char *bp;
+skip(
+	register char *bp)
 {
 
 	while (*bp && *bp != ':')
@@ -176,8 +176,8 @@ skip(bp)
  * Note that we handle octal numbers beginning with 0.
  */
 long
-getnum(id)
-	char *id;
+getnum(
+	char *id)
 {
 	register long i, base;
 	register char *bp = tbuf;
@@ -209,8 +209,8 @@ getnum(id)
  * of the buffer.  Return 1 if we find the option, or 0 if it is
  * not given.
  */
-int getflag(id)
-	char *id;
+int getflag(
+	char *id)
 {
 	register char *bp = tbuf;
 
@@ -234,9 +234,9 @@ int getflag(id)
  * string capability escapes.
  */
 static char *
-decode(str, area)
-	register char *str;
-	char **area;
+decode(
+	register char *str,
+	char **area)
 {
 	register char *cp;
 	register int c;
@@ -287,8 +287,8 @@ nextc:
  * No checking on area overflow.
  */
 char *
-getstr(id, area)
-	char *id, **area;
+getstr(
+	char *id, char **area)
 {
 	register char *bp = tbuf;
 

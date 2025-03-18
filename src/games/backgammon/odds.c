@@ -6,9 +6,10 @@
 #include "back.h"
 
 void
-odds (r1, r2, val)
-        register int	r1;
-        int		r2, val;
+odds (
+        register int	r1,
+        int		r2, 
+		int		val)
 {
 	register int	i, j;
 
@@ -46,8 +47,8 @@ count ()
 }
 
 int
-canhit (i, c)
-        int	i, c;
+canhit (
+        int	i, int c)
 {
 	register int	j, k, b;
 	int		a, diff, place, addon, menstuck;

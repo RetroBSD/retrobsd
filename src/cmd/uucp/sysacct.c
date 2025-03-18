@@ -7,9 +7,10 @@
  */
 
 /*ARGSUSED*/
-void sysacct(bytes, time)
-time_t time;
-long bytes;
+void sysacct(
+long bytes,
+time_t time
+)
 {
 	return;
 }

@@ -117,7 +117,7 @@ help()
 				Ship.sectx = dx;
 				Ship.secty = dy;
 				Sect[dx][dy] = Ship.ship;
-				dock();
+				dock(0);
 				compkldist(0);
 				return;
 			}

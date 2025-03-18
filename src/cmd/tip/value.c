@@ -7,6 +7,9 @@
 
 #define MIDDLE  35
 
+extern char *interp(register char *s);
+extern char *ctrl(int);
+
 static int col = 0;
 
 /*
@@ -54,8 +57,8 @@ void vinit()
 }
 
 static int
-vaccess(mode, rw)
-    register unsigned mode, rw;
+vaccess(
+    register unsigned mode, unsigned rw)
 {
     if (mode & (rw<<PUBLIC))
         return (1);
@@ -65,9 +68,9 @@ vaccess(mode, rw)
 }
 
 /*VARARGS1*/
-void vassign(p, v)
-    register value_t *p;
-    char *v;
+void vassign(
+    register value_t *p,
+    char *v)
 {
     if (! vaccess(p->v_access, WRITE)) {
         printf("access denied\r\n");
@@ -109,9 +112,9 @@ void vassign(p, v)
 }
 
 static char *
-vinterp(s, stop)
-    register char *s;
-    char stop;
+vinterp(
+    register char *s,
+    char stop)
 {
     register char *p = s, c;
     int num;
@@ -162,11 +165,10 @@ vinterp(s, stop)
 }
 
 static void
-vprint(p)
-    register value_t *p;
+vprint(
+    register value_t *p)
 {
     register char *cp;
-    extern char *interp(), *ctrl();
 
     if (col > 0 && col < MIDDLE)
         while (col++ < MIDDLE)
@@ -186,7 +188,7 @@ vprint(p)
         printf("%s=", p->v_name);
         col++;
         if (p->v_value) {
-            cp = interp(p->v_value, NULL);
+            cp = interp(p->v_value);
             col += size(cp);
             printf("%s", cp);
         }
@@ -214,8 +216,8 @@ vprint(p)
 }
 
 static value_t *
-vlookup(s)
-    register char *s;
+vlookup(
+    register char *s)
 {
     register value_t *p;
 
@@ -226,12 +228,11 @@ vlookup(s)
 }
 
 static void
-vtoken(s)
-    register char *s;
+vtoken(
+    register char *s)
 {
     register value_t *p;
     register char *cp;
-    char *expand();
 
     cp = strchr(s, '=');
     if (cp) {
@@ -268,8 +269,8 @@ vtoken(s)
     printf("%s: unknown variable\r\n", s);
 }
 
-void vlex(s)
-    register char *s;
+void vlex(
+    register char *s)
 {
     register value_t *p;
 
@@ -297,12 +298,11 @@ void vlex(s)
 /*
  * assign variable s with value v (for NUMBER or STRING or CHAR types)
  */
-int vstring(s, v)
-    register char *s;
-    register char *v;
+int vstring(
+    register char *s,
+    register char *v)
 {
     register value_t *p;
-    char *expand();
 
     p = vlookup(s);
     if (p == 0)

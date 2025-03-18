@@ -105,9 +105,9 @@ static char	password[] = "losfurng";
 static char	pbuf[10];
 
 int
-main (argc,argv)
-        int	argc;
-        char	**argv;
+main (
+        int	argc,
+        char	**argv)
 {
 	register int	i;		/* non-descript index */
 	register int	l;		/* non-descript index */

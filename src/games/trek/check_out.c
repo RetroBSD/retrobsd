@@ -16,8 +16,8 @@
 **	It prints appropriate messages too.
 */
 int
-check_out(device)
-        int	device;
+check_out(
+        int	device)
 {
 	register int	dev;
 

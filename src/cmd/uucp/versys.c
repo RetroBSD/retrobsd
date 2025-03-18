@@ -18,8 +18,8 @@ static int uualias(char **hostptr);
  *	See accompanying changes in uucp.c and uux.c
  *		-- Ray Essick, April 27, 1984
  */
-int versys(nameptr)
-register char **nameptr;
+int versys(
+register char **nameptr)
 {
 	register FILE *fp;
 	char line[BUFSIZ];
@@ -62,8 +62,8 @@ register char **nameptr;
  *		FAIL		No L.aliases file
  *		SUCCESS		Anything else
  */
-int uualias(hostptr)
-char  **hostptr;			  /* we change it */
+int uualias(
+char  **hostptr)			  /* we change it */
 {
 	FILE *Aliases;			  /* list of aliases */
 	char buf[BUFSIZ];

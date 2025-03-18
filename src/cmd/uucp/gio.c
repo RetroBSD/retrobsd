@@ -17,7 +17,7 @@ void pkfail()
 
 int gturnon()
 {
-	struct pack *pkopen();
+	struct pack *pkopen(int ifn, int ofn);
 
 	if (setjmp(Failbuf))
 		return FAIL;

@@ -7,8 +7,8 @@
 # include	"trek.h"
 
 int
-ranf(max)
-        int	max;
+ranf(
+        int	max)
 {
 	register int	t;
 

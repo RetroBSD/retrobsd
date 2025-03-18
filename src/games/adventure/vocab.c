@@ -4,14 +4,14 @@
 #include "hdr.h"
 
 void
-dstroy(object)
-int object;
+dstroy(
+int object)
 {       move(object,0);
 }
 
 void
-juggle(object)
-int object;
+juggle(
+int object)
 {       register int i,j;
 	i=place[object];
 	j=fixed[object];
@@ -20,8 +20,8 @@ int object;
 }
 
 void
-move(object, where)
-int object, where;
+move(
+int object, int where)
 {       register int from;
 	if (object<=100)
 		from=place[object];
@@ -32,15 +32,15 @@ int object, where;
 }
 
 int
-put(object, where, pval)
-int object, where, pval;
+put(
+int object, int where, int pval)
 {       move(object,where);
 	return(-1-pval);
 }
 
 void
-carry(object, where)
-int object, where;
+carry(
+int object, int where)
 {       register int temp;
 	if (object<=100)
 	{       if (place[object]== -1) return;
@@ -56,8 +56,8 @@ int object, where;
 }
 
 void
-drop(object, where)
-int object, where;
+drop(
+int object, int where)
 {	if (object>100) fixed[object-100]=where;
 	else
 	{       if (place[object]== -1) holdng--;
@@ -91,10 +91,10 @@ unsigned int rot13_hash (char *str)
 }
 
 int
-vocab(word, type, value)                /* look up or store a word      */
-char *word;
-int type;       /* -2 for store, -1 for user word, >=0 for canned lookup*/
-int value;                              /* used for storing only        */
+vocab(                /* look up or store a word      */
+char *word,
+int type,       /* -2 for store, -1 for user word, >=0 for canned lookup*/
+int value)                              /* used for storing only        */
 {       register int adr;
 	unsigned int hash32, hash;
 	struct hashtab *h;
@@ -144,8 +144,8 @@ exitloop2:      /* hashed entry does not match  */
 }
 
 void
-copystr(w1, w2)                         /* copy one string to another   */
-char *w1, *w2;
+copystr(                         /* copy one string to another   */
+char *w1, char *w2)
 {       register char *s,*t;
 	for (s=w1,t=w2; *s;)
 		*t++ = *s++;
@@ -153,8 +153,8 @@ char *w1, *w2;
 }
 
 int
-weq(w1, w2)                             /* compare words                */
-char *w1, *w2;                          /* w1 is user, w2 is system     */
+weq(                             /* compare words                */
+char *w1, char *w2)                          /* w1 is user, w2 is system     */
 {       register char *s,*t;
 	register int i;
 	s=w1;
@@ -168,8 +168,8 @@ char *w1, *w2;                          /* w1 is user, w2 is system     */
 }
 
 int
-length(str)                             /* includes 0 at end            */
-char *str;
+length(                             /* includes 0 at end            */
+char *str)
 {       register char *s;
 	register int n;
 	for (n=0,s=str; *s++;) n++;

@@ -9,8 +9,8 @@
  * the end-of-games points to the user who deserves it (if any).
  */
 void
-finalscore(pp)
-PLAY	*pp; {
+finalscore(
+	PLAY	*pp) {
 
 	int	temp, tot, num;
 

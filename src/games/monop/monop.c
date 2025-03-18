@@ -105,9 +105,9 @@ init_monops() {
  *	This program implements a monopoly game
  */
 int
-main(ac, av)
-reg int		ac;
-reg char	*av[]; {
+main(
+reg int		ac,
+reg char	*av[]) {
 
 
 	srand(getpid());

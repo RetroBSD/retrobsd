@@ -21,7 +21,8 @@ extern struct sgttyb	tty_start, tty_new;
 
 extern DISPLACEMENT	displacement[MAXDIR];
 
-extern PLANE		*findplane(), *newplane();
+PLANE *findplane(int n);
+PLANE *newplane(void);
 
 int dir_no(int ch);
 void ioclrtoeol(int pos);

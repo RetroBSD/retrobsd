@@ -45,19 +45,19 @@ typedef enum { MNTON, MNTFROM } mntwhat;
 int	fake, fflag, vflag, allflag, *typelist;
 char	*nfshost;
 
-int	 fsnametotype();
-char	*getmntname();
-void	 maketypelist();
-int	 selected();
+int fsnametotype(char *name);
+char *getmntname(char *name, mntwhat what, int *type);
+void maketypelist(register char *fslist);
+int selected(int type);
 int	 namematch();
 int	 umountall();
-int	 umountfs();
+int umountfs(char *name);
 void	 usage();
 
 int
-main(argc, argv)
-	int argc;
-	register char *argv[];
+main(
+	int argc,
+	register char *argv[])
 {
 	int ch, errs;
 
@@ -147,8 +147,8 @@ umountall()
 }
 
 int
-umountfs(name)
-	char *name;
+umountfs(
+	char *name)
 {
 	struct stat sb;
 	int type;
@@ -194,10 +194,10 @@ umountfs(name)
 }
 
 char *
-getmntname(name, what, type)
-	char *name;
-	mntwhat what;
-	int *type;
+getmntname(
+	char *name,
+	mntwhat what,
+	int *type)
 {
 	struct statfs *mntbuf;
 	register int i, mntsize;
@@ -224,8 +224,8 @@ getmntname(name, what, type)
 static enum { IN_LIST, NOT_IN_LIST } which;
 
 int
-selected(type)
-	int type;
+selected(
+	int type)
 {
 	/* If no type specified, it's always selected. */
 	if (typelist == NULL)
@@ -237,8 +237,8 @@ selected(type)
 }
 
 void
-maketypelist(fslist)
-	register char *fslist;
+maketypelist(
+	register char *fslist)
 {
 	register int *av, i;
 	char *nextcp;
@@ -277,8 +277,8 @@ maketypelist(fslist)
 }
 
 int
-fsnametotype(name)
-	char *name;
+fsnametotype(
+	char *name)
 {
 	static char *namelist[] = INITMOUNTNAMES;
 	register char **cp;

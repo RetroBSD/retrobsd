@@ -55,10 +55,11 @@ char            *suitchar[ SUITS ]      = { "S", "H", "D", "C" };
  * msgcrd:
  *	Print the value of a card in ascii
  */
-BOOLEAN msgcrd(c, brfrank, mid, brfsuit)
-    CARD	c;
-    char	*mid;
-    BOOLEAN	brfrank,  brfsuit;
+BOOLEAN msgcrd(
+    CARD	c,
+    BOOLEAN	brfrank,  
+    char	*mid,
+	BOOLEAN brfsuit)
 {
 	if (c.rank == EMPTY || c.suit == EMPTY)
 	    return FALSE;
@@ -79,9 +80,9 @@ BOOLEAN msgcrd(c, brfrank, mid, brfsuit)
  * msgcard:
  *	Call msgcrd in one of two forms
  */
-BOOLEAN msgcard(c, brief)
-    CARD	c;
-    BOOLEAN	brief;
+BOOLEAN msgcard(
+    CARD	c,
+    BOOLEAN	brief)
 {
 	if (brief)
 		return msgcrd(c, TRUE, (char *) NULL, TRUE);
@@ -93,11 +94,11 @@ BOOLEAN msgcard(c, brief)
  * printcard:
  *	Print out a card.
  */
-void printcard(win, cardno, c, blank)
-    WINDOW	*win;
-    int		cardno;
-    CARD	c;
-    BOOLEAN	blank;
+void printcard(
+    WINDOW	*win,
+    int		cardno,
+    CARD	c,
+    BOOLEAN	blank)
 {
 	prcard(win, cardno * 2, cardno, c, blank);
 }
@@ -106,11 +107,12 @@ void printcard(win, cardno, c, blank)
  * prcard:
  *	Print out a card on the window at the specified location
  */
-void prcard(win, y, x, c, blank)
-    WINDOW	*win;
-    int		y, x;
-    CARD	c;
-    BOOLEAN	blank;
+void prcard(
+    WINDOW	*win,
+    int		y, 
+	int		x,
+    CARD	c,
+    BOOLEAN	blank)
 {
 	if (c.rank == EMPTY)
 	    return;
@@ -131,11 +133,11 @@ void prcard(win, y, x, c, blank)
  * prhand:
  *	Print a hand of n cards
  */
-void prhand(h, n, win, blank)
-    CARD	h[];
-    int		n;
-    WINDOW	*win;
-    BOOLEAN	blank;
+void prhand(
+    CARD	h[],
+    int		n,
+    WINDOW	*win,
+    BOOLEAN	blank)
 {
 	register int	i;
 
@@ -150,8 +152,8 @@ void prhand(h, n, win, blank)
  *	Inputs a card in any format.  It reads a line ending with a CR
  *	and then parses it.
  */
-BOOLEAN incard(crd)
-    CARD	*crd;
+BOOLEAN incard(
+    CARD	*crd)
 {
 	register int	i;
 	int		rnk, sut;
@@ -231,10 +233,10 @@ gotit:
  *	reads a card, supposedly in hand, accepting unambigous brief
  *	input, returns the index of the card found...
  */
-int infrom(hand, n, prompt)
-    CARD	hand[];
-    int		n;
-    char	*prompt;
+int infrom(
+    CARD	hand[],
+    int		n,
+    char	*prompt)
 {
 	register int           i, j;
 	CARD                    crd;
@@ -327,9 +329,10 @@ int getuchar()
  *	Reads in a decimal number and makes sure it is between "lo" and
  *	"hi" inclusive.
  */
-int number(lo, hi, prompt)
-    int		lo, hi;
-    char	*prompt;
+int number(
+    int		lo, 
+	int		hi,
+    char	*prompt)
 {
 	register char		*p;
 	register int		sum;
@@ -476,8 +479,8 @@ void endmsg()
  * wait_for
  *	Sit around until the guy types the right key
  */
-void wait_for(ch)
-    register int ch;
+void wait_for(
+    register int ch)
 {
     register int c;
 

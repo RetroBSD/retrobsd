@@ -18,10 +18,10 @@
  *
  *	return - the number of subfields, or -1 if >= maxargs.
  */
-int getargs(s, arps, maxargs)
-register char *s;
-char *arps[];
-int maxargs;
+int getargs(
+register char *s,
+char *arps[],
+int maxargs)
 {
 	register int i;
 #ifdef	FANCYARGS

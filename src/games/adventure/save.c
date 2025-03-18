@@ -7,9 +7,9 @@
 #include <fcntl.h>
 
 void
-save(savfile, offset)                   /* save game state to file      */
-char *savfile;
-unsigned offset;
+save(                   /* save game state to file      */
+char *savfile,
+unsigned offset)
 {
 	int fd, i;
         struct travlist *entry;
@@ -44,9 +44,9 @@ unsigned offset;
 }
 
 int
-restdat(fd, offset)                     /* restore game from dat file   */
-int fd;
-unsigned offset;
+restdat(                     /* restore game from dat file   */
+int fd,
+unsigned offset)
 {
 	int i;
         struct travlist **entryp;
@@ -80,8 +80,8 @@ failed:         close(fd);
 }
 
 int
-restore(savfile)                        /* restore game from user file  */
-char *savfile;
+restore(                        /* restore game from user file  */
+char *savfile)
 {
 	int fd;
 

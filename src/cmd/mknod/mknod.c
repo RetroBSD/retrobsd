@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-int number(s)
-char *s;
+int number(
+char *s)
 {
 	int n, c;
 
@@ -16,9 +16,9 @@ char *s;
 	return n;
 }
 
-int main(argc, argv)
-	int argc;
-	char **argv;
+int main(
+	int argc,
+	char **argv)
 {
 	int m, a, b;
 

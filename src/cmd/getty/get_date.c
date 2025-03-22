@@ -19,8 +19,8 @@ static char *months[] = {
 #define AM "am"
 #define PM "pm"
 
-void get_date(datebuffer)
-	char *datebuffer;
+void get_date(
+	char *datebuffer)
 {
 	register struct tm *tmp;
 	struct timeval tv;

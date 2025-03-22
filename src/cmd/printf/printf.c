@@ -53,12 +53,12 @@
 static char **gargv;
 
 static int	 asciicode();
-static void	 escape();
+static void escape(register char *fmt);
 static int	 getchr();
-static int	 getint();
-static int	 getlong();
+static int getint(int *ip);
+static int getlong(register long *lp);
 static char	*getstr();
-static char	*mklong();
+static char * mklong(register char *str, int ch);
 static void	 usage();
 #ifndef NOFPU
 static double	 getdouble();
@@ -66,12 +66,12 @@ static double	 getdouble();
 
 int
 #ifdef BUILTIN
-progprintf(argc, argv)
+progprintf(
 #else
-main(argc, argv)
+main(
 #endif
-	int argc;
-	char *argv[];
+	int argc,
+	char *argv[])
 {
 	extern int optind;
 	static char *skip1, *skip2;
@@ -209,9 +209,9 @@ next:		for (start = fmt;; ++fmt) {
 }
 
 static char *
-mklong(str, ch)
-	register char *str;
-	int ch;
+mklong(
+	register char *str,
+	int ch)
 {
 	static char copy[64];
 	register int len;
@@ -227,8 +227,8 @@ mklong(str, ch)
 }
 
 static void
-escape(fmt)
-	register char *fmt;
+escape(
+	register char *fmt)
 {
 	register char *store;
 	register int value;
@@ -306,8 +306,8 @@ getstr()
 
 static char *Number = "+-.0123456789";
 static int
-getint(ip)
-	int *ip;
+getint(
+	int *ip)
 {
 	long val;
 
@@ -322,8 +322,8 @@ getint(ip)
 }
 
 static int
-getlong(lp)
-	register long *lp;
+getlong(
+	register long *lp)
 {
 	long val;
 	char *ep;

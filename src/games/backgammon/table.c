@@ -43,9 +43,9 @@ struct state	atmata[] = {
 };
 
 static int
-dotable (c, i)
-        char		c;
-        register int	i;
+dotable (
+        char		c,
+        register int	i)
 {
 	register int	a;
 	int		test;
@@ -154,8 +154,8 @@ rsetbrd ()
 }
 
 int
-checkmove (ist)
-        int	ist;
+checkmove (
+        int	ist)
 {
 	register int	j, n;
 	register char	c;

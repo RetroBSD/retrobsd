@@ -32,9 +32,9 @@ struct nodelist {
     int live;
 } firstnode = { NULL, NULL, NULL, DEAD };
 
-struct nodelist *nindex();
+struct nodelist *nindex(char *s);
 struct nodelist *findloop();
-struct nodelist *mark();
+struct nodelist *mark(struct nodelist *i);
 char *empty = "";
 
 static void error(char *s, char *t);

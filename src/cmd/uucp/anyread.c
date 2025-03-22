@@ -7,8 +7,8 @@
  *	anyread		check if anybody can read
  *	return SUCCESS ok: FAIL not ok
  */
-int anyread(file)
-char *file;
+int anyread(
+char *file)
 {
 	struct stat s;
 

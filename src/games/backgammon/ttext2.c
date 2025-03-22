@@ -93,8 +93,8 @@ const char	*lastch[] = {
    0};
 
 int
-text (txt)
-        const char	**txt;
+text (
+        const char	**txt)
 {
 	const char	*a;
 	const char	*c;

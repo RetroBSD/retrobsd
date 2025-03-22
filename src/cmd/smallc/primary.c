@@ -143,8 +143,8 @@ void result (lvalue_t *lval, lvalue_t *lval2)
         }
 }
 
-int constant (val)
-        int     val[];
+int constant (
+        int     val[])
 {
         if (number (val))
                 gen_immediate_c ();
@@ -162,8 +162,8 @@ int constant (val)
 
 }
 
-int number (val)
-        int     val[];
+int number (
+        int     val[])
 {
         int     k, minus, base;
         char    c;
@@ -297,8 +297,8 @@ int spechar()
  * of HL
  * @param ptr name of the function
  */
-void callfunction (ptr)
-        char    *ptr;
+void callfunction (
+        char    *ptr)
 {
         int     nargs;
 

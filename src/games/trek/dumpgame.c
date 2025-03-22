@@ -74,8 +74,8 @@ dumpgame()
 **	Returns zero for success, one for failure.
 */
 int
-readdump(fd1)
-        int	fd1;
+readdump(
+        int	fd1)
 {
 	register int		fd;
 	register struct dump	*d;

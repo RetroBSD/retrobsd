@@ -68,9 +68,9 @@ another()
 }
 
 int
-main(ac, av)
-int	ac;
-char	**av;
+main(
+int	ac,
+char	**av)
 {
 	register char	*sp;
 	register bool	bad_arg;

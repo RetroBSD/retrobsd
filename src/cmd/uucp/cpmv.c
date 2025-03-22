@@ -8,8 +8,8 @@
  *
  *	return - SUCCESS | FAIL
  */
-int xcp(f1, f2)
-char *f1, *f2;
+int xcp(
+char *f1, char *f2)
 {
 	char buf[BUFSIZ];
 	register int len;
@@ -48,8 +48,8 @@ char *f1, *f2;
  *
  *	return  0 ok  |  FAIL failed
  */
-int xmv(f1, f2)
-register char *f1, *f2;
+int xmv(
+register char *f1, char *f2)
 {
 	register int ret;
 

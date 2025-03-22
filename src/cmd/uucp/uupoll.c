@@ -13,9 +13,9 @@
 int TransferSucceeded = 1;
 struct timeval Now;
 
-int main(argc, argv)
-register int argc;
-register char **argv;
+int main(
+register int argc,
+register char **argv)
 {
 	int ret;
 	char wrkpre[MAXFULLNAME];
@@ -68,8 +68,8 @@ register char **argv;
 	cleanup(0);
 }
 
-void cleanup(code)
-int code;
+void cleanup(
+int code)
 {
 	exit(code);
 }

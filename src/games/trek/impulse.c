@@ -16,7 +16,6 @@ impulse()
 	register int		power;
 	double			dist, time;
 	register int		percent;
-	extern double		move();
 
 	if (Ship.cond == DOCKED) {
 	        printf("Scotty: Sorry captain, but we are still docked.\n");

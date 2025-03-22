@@ -179,51 +179,50 @@ typedef	struct _cron_db {
 	time_t		mtime;		/* last modtime on spooldir */
 } cron_db;
 
+void set_cron_uid(void);
+void set_cron_cwd(void);
+void load_database(cron_db *);
+void open_logfile(void);
+void sigpipe_func(void);
+void job_add(entry *, user *);
+void do_command(entry *, user *);
+void link_user(cron_db *, user *);
+void unlink_user(cron_db *, user *);
+void free_user(user *);
+void env_free(char **);
+void unget_char(int, FILE *);
+void free_entry(entry *);
+void acquire_daemonlock(int);
+void skip_comments(FILE *);
+void log_it(char *, int, char *, char *);
+void log_close(void);
 
-void		set_cron_uid __P((void)),
-		set_cron_cwd __P((void)),
-		load_database __P((cron_db *)),
-		open_logfile __P((void)),
-		sigpipe_func __P((void)),
-		job_add __P((entry *, user *)),
-		do_command __P((entry *, user *)),
-		link_user __P((cron_db *, user *)),
-		unlink_user __P((cron_db *, user *)),
-		free_user __P((user *)),
-		env_free __P((char **)),
-		unget_char __P((int, FILE *)),
-		free_entry __P((entry *)),
-		acquire_daemonlock __P((int)),
-		skip_comments __P((FILE *)),
-		log_it __P((char *, int, char *, char *)),
-		log_close __P((void));
+int job_runqueue(void);
+int set_debug_flags(char *);
+int get_char(FILE *);
+int get_string(char *, int, FILE *, char *);
+int swap_uids(void);
+int load_env(char *, FILE *);
+int cron_pclose(FILE *);
+int strcmp_until(char *, char *, int);
+int allowed(char *);
+int strdtb(char *);
 
-int		job_runqueue __P((void)),
-		set_debug_flags __P((char *)),
-		get_char __P((FILE *)),
-		get_string __P((char *, int, FILE *, char *)),
-		swap_uids __P((void)),
-		load_env __P((char *, FILE *)),
-		cron_pclose __P((FILE *)),
-		strcmp_until __P((char *, char *, int)),
-		allowed __P((char *)),
-		strdtb __P((char *));
+char* env_get(char *, char **);
+char* arpadate(time_t *);
+char* mkprints(unsigned char *, unsigned int);
+char* first_word(char *, char *);
+char* *env_init(void);
+char* *env_copy(char **);
+char* *env_set(char **, char *);
 
-char		*env_get __P((char *, char **)),
-		*arpadate __P((time_t *)),
-		*mkprints __P((unsigned char *, unsigned int)),
-		*first_word __P((char *, char *)),
-		**env_init __P((void)),
-		**env_copy __P((char **)),
-		**env_set __P((char **, char *));
+user		*load_user(int, struct passwd *, char *);
+user		*find_user(cron_db *, char *);
 
-user		*load_user __P((int, struct passwd *, char *)),
-		*find_user __P((cron_db *, char *));
+entry		*load_entry(FILE *, void (*)(char *),
+				 struct passwd *, char **);
 
-entry		*load_entry __P((FILE *, void (*)(),
-				 struct passwd *, char **));
-
-FILE		*cron_popen __P((char *, char *));
+FILE		*cron_popen(char *, char *);
 
 
 				/* in the C tradition, we only create

@@ -16,11 +16,12 @@
 **	The address of the slot is returned.
 */
 struct event *
-schedule(type, offset, x, y, z)
-        int	type;
-        double	offset;
-        int	x, y;
-        int	z;
+schedule(
+        int	type,
+        double	offset,
+        int	x, 
+		int y,
+        int	z)
 {
 	register struct event	*e;
 	register int		i;
@@ -58,9 +59,9 @@ schedule(type, offset, x, y, z)
 **	time plus 'offset'.
 */
 void
-reschedule(e1, offset)
-        struct event	*e1;
-        double		offset;
+reschedule(
+        struct event	*e1,
+        double		offset)
 {
 	double			date;
 	register struct event	*e;
@@ -83,8 +84,8 @@ reschedule(e1, offset)
 **	The event at slot 'e' is deleted.
 */
 void
-unschedule(e1)
-        struct event	*e1;
+unschedule(
+        struct event	*e1)
 {
 	register struct event	*e;
 
@@ -108,10 +109,12 @@ unschedule(e1)
 **	figure.
 */
 struct event *
-xsched(ev1, factor, x, y, z)
-        int	ev1;
-        int	factor;
-        int	x, y, z;
+xsched(
+        int	ev1,
+        int	factor,
+        int	x, 
+		int y,
+		int z)
 {
 	register int	ev;
 
@@ -127,10 +130,10 @@ xsched(ev1, factor, x, y, z)
 **	division factor.  Look at the code to see what really happens.
 */
 void
-xresched(e1, ev1, factor)
-        struct event	*e1;
-        int		ev1;
-        int		factor;
+xresched(
+        struct event	*e1,
+        int		ev1,
+        int		factor)
 {
 	register int		ev;
 	register struct event	*e;

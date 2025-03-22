@@ -60,8 +60,9 @@ void declare_global(int type, int storage) {
  * @param typ
  * @param stclass
  */
-void declare_local (typ, stclass)
-int     typ, stclass;
+void declare_local (
+int     typ, 
+int     stclass)
 {
         int     k, j, count;
         char    sname[NAMESIZE];

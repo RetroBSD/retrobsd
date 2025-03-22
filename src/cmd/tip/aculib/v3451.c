@@ -16,17 +16,17 @@ static int notin(char *sh, char *lg);
 static int expect(register char *cp);
 
 static void
-vawrite(cp, delay)
-    register char *cp;
-    int delay;
+vawrite(
+    register char *cp,
+    int delay)
 {
     for (; *cp; sleep(delay), cp++)
         write(FD, cp, 1);
 }
 
-int v3451_dialer(num, acu)
-    register char *num;
-    char *acu;
+int v3451_dialer(
+    register char *num,
+    char *acu)
 {
     int ok;
     sig_t func;
@@ -117,8 +117,8 @@ alarmtr()
 }
 
 static int
-expect(cp)
-    register char *cp;
+expect(
+    register char *cp)
 {
     char buf[300];
     register char *rp = buf;
@@ -156,8 +156,8 @@ expect(cp)
 }
 
 static int
-notin(sh, lg)
-    char *sh, *lg;
+notin(
+    char *sh, char *lg)
 {
 
     for (; *lg; lg++)
@@ -167,8 +167,8 @@ notin(sh, lg)
 }
 
 static int
-prefix(s1, s2)
-    register char *s1, *s2;
+prefix(
+    register char *s1, char *s2)
 {
     register char c;
 

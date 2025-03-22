@@ -37,8 +37,9 @@ static PID_T *pids;
 static int fds;
 
 FILE *
-cron_popen(program, type)
-	char *program, *type;
+cron_popen(
+	char *program,
+	char *type)
 {
 	register char *cp;
 	FILE *iop;
@@ -136,8 +137,8 @@ pfree:
 }
 
 int
-cron_pclose(iop)
-	FILE *iop;
+cron_pclose(
+	FILE *iop)
 {
 	register int fdes;
 	sigset_t omask, nmask;

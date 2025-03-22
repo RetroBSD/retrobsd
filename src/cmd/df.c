@@ -48,18 +48,18 @@
 #include <strings.h>
 #include <unistd.h>
 
-int  bread();
-char    *getmntpt();
-void     prtstat();
-void     ufs_df();
+int bread(off_t off, void *buf, register int cnt);
+char *getmntpt(char *name);
+void prtstat(register struct statfs *sfsp, register int maxwidth);
+void ufs_df(char *file, int maxwidth);
 void     usage();
 
 int iflag;
 
 int
-main(argc, argv)
-    int argc;
-    register char *argv[];
+main(
+    int argc,
+    register char *argv[])
 {
     struct stat stbuf;
     struct statfs statfsbuf, *mntbuf;
@@ -126,8 +126,8 @@ main(argc, argv)
 }
 
 char *
-getmntpt(name)
-    char *name;
+getmntpt(
+    char *name)
 {
     register int i;
     int mntsize;
@@ -146,9 +146,10 @@ getmntpt(name)
  * Attempts to avoid overflow for large filesystems.
  */
 long
-fsbtoblk(num, fsbs, bs)
-    long    num;
-    register int    fsbs, bs;
+fsbtoblk(
+    long    num,
+    register int    fsbs,
+    int bs)
 {
     return((fsbs != 0 && fsbs < bs) ?
         num / (bs / fsbs) : (num) * (fsbs / bs));
@@ -158,9 +159,9 @@ fsbtoblk(num, fsbs, bs)
  * Print out status about a filesystem.
  */
 void
-prtstat(sfsp, maxwidth)
-    register struct statfs *sfsp;
-    register int maxwidth;
+prtstat(
+    register struct statfs *sfsp,
+    register int maxwidth)
 {
     static int blocksize;
     static int headerlen, timesthrough;
@@ -217,9 +218,9 @@ union {
 int rfd;
 
 void
-ufs_df(file, maxwidth)
-    char *file;
-    int maxwidth;
+ufs_df(
+    char *file,
+    int maxwidth)
 {
     struct statfs statfsbuf;
     register struct statfs *sfsp;
@@ -260,10 +261,10 @@ ufs_df(file, maxwidth)
 }
 
 int
-bread(off, buf, cnt)
-    off_t off;
-    void *buf;
-    register int cnt;
+bread(
+    off_t off,
+    void *buf,
+    register int cnt)
 {
     register int nr;
 

@@ -11,8 +11,8 @@
  *		      1 - Other normal file
  *		      FAIL - no Wrkdir name available
  */
-int expfile(file)
-char *file;
+int expfile(
+char *file)
 {
 	register char *fpart, *p;
 	char user[WKDSIZE], *up;
@@ -54,8 +54,8 @@ char *file;
  *
  *	return codes:  0 - not directory  |  1 - is directory
  */
-int isdir(name)
-char *name;
+int isdir(
+char *name)
 {
 	register int ret;
 	struct stat s;
@@ -73,8 +73,8 @@ char *name;
  *
  *	return SUCCESS  |  FAIL
  */
-int mkdirs(name)
-char *name;
+int mkdirs(
+char *name)
 {
 	int ret, mask;
 	char dir[MAXFULLNAME];
@@ -104,8 +104,8 @@ char *name;
  *
  *	return code - SUCCESS - ok; FAIL if expfile failed
  */
-int ckexpf(file)
-register char *file;
+int ckexpf(
+register char *file)
 {
 
 	if (expfile(file) != FAIL)

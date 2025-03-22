@@ -56,7 +56,7 @@ struct dfmt {
     int df_radix;    /* conversion radix */
     int df_signed;   /* signed? flag */
     int df_paddr;    /* "put address on each line?" flag */
-    int (*df_put)(); /* function to output object */
+    int (*df_put)(void*, struct dfmt*); /* function to output object */
     char *df_fmt;    /* output string format */
 } *conv_vec[32];     /* vector of conversions to be done */
 
@@ -70,20 +70,22 @@ static int f_put(float *f, struct dfmt *d);
 static int d_put(double *f, struct dfmt *d);
 static int st_put(char *cc, struct dfmt *d);
 
-struct dfmt ascii = { 3, sizeof(char), 10, 0, PADDR, a_put, 0 };
-struct dfmt byte = { 3, sizeof(char), 8, UNSIGNED, PADDR, b_put, 0 };
-struct dfmt cchar = { 3, sizeof(char), 8, UNSIGNED, PADDR, c_put, 0 };
-struct dfmt u_s_oct = { 6, sizeof(short), 8, UNSIGNED, PADDR, us_put, 0 };
-struct dfmt u_s_dec = { 5, sizeof(short), 10, UNSIGNED, PADDR, us_put, 0 };
-struct dfmt u_s_hex = { 4, sizeof(short), 16, UNSIGNED, PADDR, us_put, 0 };
-struct dfmt u_l_oct = { 11, sizeof(long), 8, UNSIGNED, PADDR, l_put, 0 };
-struct dfmt u_l_dec = { 10, sizeof(long), 10, UNSIGNED, PADDR, l_put, 0 };
-struct dfmt u_l_hex = { 8, sizeof(long), 16, UNSIGNED, PADDR, l_put, 0 };
-struct dfmt s_s_dec = { 6, sizeof(short), 10, SIGNED, PADDR, s_put, 0 };
-struct dfmt s_l_dec = { 11, sizeof(long), 10, SIGNED, PADDR, l_put, 0 };
-struct dfmt flt = { 14, sizeof(float), 10, SIGNED, PADDR, f_put, 0 };
-struct dfmt dble = { 21, sizeof(double), 10, SIGNED, PADDR, d_put, 0 };
-struct dfmt string = { 0, 0, 8, 0, NO, st_put, 0 };
+// df_put functions must be cast
+// This isn't type-safe so may need to be revisited
+struct dfmt ascii = { 3, sizeof(char), 10, 0, PADDR, (int (*)(void*, struct dfmt*))a_put, 0 };
+struct dfmt byte = { 3, sizeof(char), 8, UNSIGNED, PADDR, (int (*)(void*, struct dfmt*))b_put, 0 };
+struct dfmt cchar = { 3, sizeof(char), 8, UNSIGNED, PADDR, (int (*)(void*, struct dfmt*))c_put, 0 };
+struct dfmt u_s_oct = { 6, sizeof(short), 8, UNSIGNED, PADDR, (int (*)(void*, struct dfmt*))us_put, 0 };
+struct dfmt u_s_dec = { 5, sizeof(short), 10, UNSIGNED, PADDR, (int (*)(void*, struct dfmt*))us_put, 0 };
+struct dfmt u_s_hex = { 4, sizeof(short), 16, UNSIGNED, PADDR, (int (*)(void*, struct dfmt*))us_put, 0 };
+struct dfmt u_l_oct = { 11, sizeof(long), 8, UNSIGNED, PADDR, (int (*)(void*, struct dfmt*))l_put, 0 };
+struct dfmt u_l_dec = { 10, sizeof(long), 10, UNSIGNED, PADDR, (int (*)(void*, struct dfmt*))l_put, 0 };
+struct dfmt u_l_hex = { 8, sizeof(long), 16, UNSIGNED, PADDR, (int (*)(void*, struct dfmt*))l_put, 0 };
+struct dfmt s_s_dec = { 6, sizeof(short), 10, SIGNED, PADDR, (int (*)(void*, struct dfmt*))s_put, 0 };
+struct dfmt s_l_dec = { 11, sizeof(long), 10, SIGNED, PADDR, (int (*)(void*, struct dfmt*))l_put, 0 };
+struct dfmt flt = { 14, sizeof(float), 10, SIGNED, PADDR, (int (*)(void*, struct dfmt*))f_put, 0 };
+struct dfmt dble = { 21, sizeof(double), 10, SIGNED, PADDR, (int (*)(void*, struct dfmt*))d_put, 0 };
+struct dfmt string = { 0, 0, 8, 0, NO, (int (*)(void*, struct dfmt*))st_put, 0 };
 
 char usage[] = "usage: od [-abcdfhilopswvx] [file] [[+]offset[.][b] [label]]";
 char dbuf[DBUF_SIZE];

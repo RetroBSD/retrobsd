@@ -151,8 +151,8 @@ syserr:		(void)fprintf(stderr, "vipw: %s: %s; ",
 	exit(0);
 }
 
-int check(tfp)
-	FILE *tfp;
+int check(
+	FILE *tfp)
 {
 	long id;
 	int	root;
@@ -217,8 +217,8 @@ bad:			(void)fprintf(stderr, "; line #%d.\n", lcnt);
 	return(0);
 }
 
-int makedb(file)
-	char *file;
+int makedb(
+	char *file)
 {
 	int status, pid, w;
 
@@ -268,8 +268,8 @@ int prompt()
 	/* NOTREACHED */
 }
 
-void stop(val)
-	int val;
+void stop(
+	int val)
 {
 	(void)fprintf(stderr, "%s unchanged.\n", passwd);
 	(void)unlink(temp);

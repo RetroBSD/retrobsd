@@ -20,8 +20,8 @@ static char	rec[] = "\" to recover your game.\n\n";
 static char	cantrec[] = "Can't recover file:  ";
 
 void
-save (n)
-        register int	n;
+save (
+        register int	n)
 {
 	register int	fdesc;
 	register char	*fs;
@@ -111,8 +111,8 @@ save (n)
 }
 
 static void
-norec (s)
-        register char	*s;
+norec (
+        register char	*s)
 {
 	register char	*c;
 
@@ -125,8 +125,8 @@ norec (s)
 }
 
 void
-recover (s)
-        char	*s;
+recover (
+        char	*s)
 {
 	int	fdesc;
 

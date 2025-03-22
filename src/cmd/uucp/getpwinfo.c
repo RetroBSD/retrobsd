@@ -9,9 +9,9 @@
  *	return codes:  SUCCESS  |  FAIL
  *
  */
-int guinfo(uid, name, path)
-int uid;
-register char *path, *name;
+int guinfo(
+int uid,
+register char *path, char *name)
 {
 	register struct passwd *pwd;
 	char *l;
@@ -42,9 +42,10 @@ register char *path, *name;
  *
  *	return codes:  SUCCESS  |  FAIL
  */
-int gninfo(name, uid, path)
-char *path, *name;
-int *uid;
+int gninfo(
+char *name,
+int *uid,
+char *path)
 {
 	register struct passwd *pwd;
 

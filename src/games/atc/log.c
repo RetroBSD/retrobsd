@@ -8,8 +8,8 @@
  */
 #include "include.h"
 
-int compar(a, b)
-	SCORE	*a, *b;
+int compar(
+	SCORE	*a, SCORE *b)
 {
 	if (b->planes == a->planes)
 		return (b->time - a->time);
@@ -159,7 +159,7 @@ void log_score(int list_em)
 				puts("You beat your previous score!");
 			else
 				puts("You made the top players list!");
-			qsort(score, num_scores, sizeof (*score), compar);
+			qsort(score, num_scores, sizeof (*score), (int (*)(const void*, const void*))compar);
 			rewind(fp);
 			for (i = 0; i < num_scores; i++)
 				fprintf(fp, "%s %s %s %d %d %d\n",

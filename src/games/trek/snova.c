@@ -26,8 +26,9 @@
 **	override mode.
 */
 void
-snova(x, y)
-        int	x, y;
+snova(
+        int	x, 
+		int y)
 {
 	int			qx, qy;
 	register int		ix, iy;

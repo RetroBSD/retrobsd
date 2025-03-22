@@ -87,8 +87,8 @@ fatal(fmt, va_alist)
 }
 
 void
-run(argv)
-	char **argv;
+run(
+	char **argv)
 {
 	int noinvoke;
 	register char **p;
@@ -135,9 +135,9 @@ usage()
 }
 
 int
-main(argc, argv)
-	int argc;
-	char **argv;
+main(
+	int argc,
+	char **argv)
 {
 	register int ch;
 	register char *p, *bbp, *ebp, **bxp, **exp, **xp;

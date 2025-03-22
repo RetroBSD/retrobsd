@@ -23,8 +23,8 @@
 #include "fsck.h"
 
 int
-setup(dev)
-    char *dev;
+setup(
+    char *dev)
 {
     dev_t rootdev;
     off_t smapsz, lncntsz, allocd;

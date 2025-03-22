@@ -27,9 +27,9 @@ static int copy(char *from, char *to);
 static int rcopy(char *from, char *to);
 static int setimes(char *path, struct stat *statp);
 
-int main(argc, argv)
-    int argc;
-    char **argv;
+int main(
+    int argc,
+    char **argv)
 {
     struct stat stb;
     int rc, i;
@@ -74,8 +74,8 @@ usage:
     exit(1);
 }
 
-int copy(from, to)
-    char *from, *to;
+int copy(
+    char *from, char *to)
 {
     int fold, fnew, n, exists;
     char *last, destname[MAXPATHLEN + 1], buf[MAXBSIZE];
@@ -179,8 +179,8 @@ int copy(from, to)
     return (0);
 }
 
-int rcopy(from, to)
-    char *from, *to;
+int rcopy(
+    char *from, char *to)
 {
     DIR *fold = opendir(from);
     struct direct *dp;
@@ -216,9 +216,9 @@ int rcopy(from, to)
 }
 
 int
-setimes(path, statp)
-    char *path;
-    struct stat *statp;
+setimes(
+    char *path,
+    struct stat *statp)
 {
     struct timeval tv[2];
 
@@ -232,8 +232,8 @@ setimes(path, statp)
     return (0);
 }
 
-void Perror(s)
-    char *s;
+void Perror(
+    char *s)
 {
     fprintf(stderr, "cp: ");
     perror(s);

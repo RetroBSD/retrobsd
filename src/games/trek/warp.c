@@ -22,9 +22,10 @@
 **	case, there is code to handle time warps, etc.
 */
 void
-warp(fl, c, d)
-        int	fl, c;
-        double	d;
+warp(
+        int	fl, 
+		int c,
+        double	d)
 {
 	int			course;
 	double			power;

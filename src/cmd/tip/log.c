@@ -12,8 +12,8 @@ static  FILE *flog = NULL;
 /*
  * Log file maintenance routines
  */
-void logent(group, num, acu, message)
-    char *group, *num, *acu, *message;
+void logent(
+    char *group, char *num, char *acu, char *message)
 {
     char *user, *timestamp;
     struct passwd *pwd;

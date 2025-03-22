@@ -14,8 +14,8 @@
 **	and so on.
 */
 int
-events(warp)
-        int	warp;		/* set if called in a time warp */
+events(
+        int	warp)		/* set if called in a time warp */
 {
 	register int		i;
 	int			j;
@@ -23,7 +23,7 @@ events(warp)
 	double			rtime;
 	double			xdate;
 	double			idate;
-	struct event		*ev, *xsched(), *schedule();
+	struct event		*ev;
 	int			ix, iy;
 	register struct quad	*q;
 	register struct event	*e;

@@ -13,8 +13,8 @@
  *	Return the sign of the number
  */
 static int
-sign(n)
-int	n;
+sign(
+int	n)
 {
 	if (n < 0)
 		return -1;
@@ -29,8 +29,8 @@ int	n;
  *	Move the robots around
  */
 void
-move_robots(was_sig)
-int	was_sig;
+move_robots(
+int	was_sig)
 {
 	register COORD	*rp;
 
@@ -112,8 +112,8 @@ int	was_sig;
  *	Add a score to the overall point total
  */
 void
-add_score(add)
-int	add;
+add_score(
+int	add)
 {
 	Score += add;
 	move(Y_SCORE, X_SCORE);

@@ -25,14 +25,14 @@ short ospeed;
 struct sgttyb old_tty;
 char *LL, *TE, *TI;
 
-int fputchar(c)
-    char c;
+int fputchar(
+    int c)
 {
     return putchar(c);
 }
 
-void onsig(n)
-    int n;
+void onsig(
+    int n)
 {
     tputs(LL, 1, fputchar);
     if (TE) tputs(TE, 1, fputchar);
@@ -47,9 +47,9 @@ float ranf()
     return((float)rand()/2147483647.);
 }
 
-int main(argc, argv)
-    int argc;
-    char *argv[];
+int main(
+    int argc,
+    char *argv[])
 {
     register int x, y, j;
     static int xpos[5], ypos[5];

@@ -108,8 +108,8 @@ char *Flds[MAXC/10];
 char LineType[10];
 extern int LocalOnly;
 
-int conn(system)
-char *system;
+int conn(
+char *system)
 {
 	int nf;
 	char info[MAXC], wkpre[NAMESIZE], file[NAMESIZE];
@@ -221,8 +221,8 @@ keeplooking:
  *		>0  -  file number - ok
  *		FAIL  -  failed
  */
-int getto(flds)
-register char *flds[];
+int getto(
+register char *flds[])
 {
 	register struct condev *cd;
 	char *line;
@@ -259,7 +259,7 @@ register char *flds[];
 	return diropn(flds);	/* search failed, so use direct */
 }
 
-int (*CU_end)() = nulldev;
+int (*CU_end)(int) = nulldev;
 
 /*
  *	close call unit
@@ -298,8 +298,8 @@ void clsacu()
 /*
  *	expand phone number for given prefix and number
  */
-void exphone(in, out)
-register char *in, *out;
+void exphone(
+register char *in, char *out)
 {
 	FILE *fn;
 	char pre[MAXPH], npart[MAXPH], tpre[MAXPH], p[MAXPH];
@@ -345,9 +345,9 @@ register char *in, *out;
  *
  *	return code - FAIL at end-of file; 0 otherwise
  */
-int rddev(fp, dev)
-register struct Devices *dev;
-FILE *fp;
+int rddev(
+FILE *fp,
+register struct Devices *dev)
 {
 	register int na;
 
@@ -372,9 +372,10 @@ FILE *fp;
  *		CF_SYSTEM  -  system name not found
  *		CF_TIME  -  wrong time to call
  */
-int finds(fsys, sysnam, info, flds)
-char *sysnam, info[], *flds[];
-FILE *fsys;
+int finds(
+FILE *fsys,
+char *sysnam, char info[], char *flds[]
+)
 {
 	int na;
 	int fcode = 0;
@@ -404,9 +405,10 @@ FILE *fsys;
  *
  *	return codes:  SUCCESS  |  FAIL
  */
-int login(nf, flds, fn)
-register char *flds[];
-int nf, fn;
+int login(
+int nf,
+register char *flds[],
+int fn)
 {
 	register char *want, *altern;
 	int k, ok;
@@ -515,8 +517,8 @@ struct sg_spds {int sp_val, sp_name;} spds[] = {
  *
  *	return codes:  none
  */
-int fixline(tty, spwant)
-int tty, spwant;
+int fixline(
+int tty, int spwant)
 {
 #ifdef	USG
 	struct termio ttbuf;
@@ -571,9 +573,9 @@ int tty, spwant;
  *		FAIL  -  lost line or too many characters read
  *		some character  -  timed out
  */
-int expect(str, fn)
-register char *str;
-int fn;
+int expect(
+register char *str,
+int fn)
 {
 	char rdvec[MR];
 	register char *rp = rdvec, *strptr;
@@ -661,9 +663,9 @@ void getnextfd()
  *
  *	return codes:  none
  */
-void sendthem(str, fn)
-register char *str;
-int fn;
+void sendthem(
+register char *str,
+int fn)
 {
 	register char *strptr;
 	int i, n, cr = 1;
@@ -813,8 +815,8 @@ void p_chwrite(int fd, char c)
 /*
  * generate parity table for use by p_chwrite.
  */
-void bld_partab(type)
-int type;
+void bld_partab(
+int type)
 {
 	register int i, j, n;
 
@@ -837,8 +839,8 @@ int type;
  *		0  -  found the string
  *		1  -  not in the string
  */
-int notin(sh, lg)
-register char *sh, *lg;
+int notin(
+register char *sh, char *lg)
 {
 	while (*lg != '\0') {
 		if (wprefix(sh, lg))
@@ -852,8 +854,8 @@ register char *sh, *lg;
 /*
  *	Allow multiple date specifications separated by ','.
  */
-int ifdate(p)
-register char *p;
+int ifdate(
+register char *p)
 {
 	register char *np;
 	register int ret, g;
@@ -902,8 +904,8 @@ register char *p;
  *		0  -  not within limits
  *		1  -  within limits
  */
-int ifadate(string)
-char *string;
+int ifadate(
+char *string)
 {
 	static char *days[]={
 		"Su", "Mo", "Tu", "We", "Th", "Fr", "Sa", 0
@@ -911,7 +913,6 @@ char *string;
 	time_t clock;
 	register char *s = string;
 	int i, tl, th, tn, dayok=0;
-	struct tm *localtime();
 	struct tm *tp;
 	char *p, MGrade;
 
@@ -978,8 +979,8 @@ char *string;
  *	return - pointer to first digit in string or end of string
  */
 char *
-fdig(cp)
-register char *cp;
+fdig(
+register char *cp)
 {
 	register char *c;
 
@@ -993,8 +994,8 @@ register char *cp;
  * Compare strings:  s1>s2: >0  s1==s2: 0  s1<s2: <0
  * Strings are compared as if they contain all capital letters.
  */
-int snccmp(s1, s2)
-register char *s1, *s2;
+int snccmp(
+register char *s1, char *s2)
 {
 	char c1, c2;
 
@@ -1027,9 +1028,9 @@ register char *s1, *s2;
  * Compare strings:  s1>s2: >0  s1==s2: 0  s1<s2: <0
  * Strings are compared as if they contain all capital letters.
  */
-int sncncmp(s1, s2, n)
-register char *s1, *s2;
-register int n;
+int sncncmp(
+register char *s1, char *s2,
+register int n)
 {
 	char c1, c2;
 
@@ -1063,10 +1064,10 @@ register int n;
  * occurs after local port is opened,
  * before 'dialing' the other machine.
  */
-int dochat(dev, flds, fd)
-register struct Devices *dev;
-char *flds[];
-int fd;
+int dochat(
+register struct Devices *dev,
+char *flds[],
+int fd)
 {
 	register int i;
 	register char *p;
@@ -1101,8 +1102,8 @@ int fd;
  *
  *	return codes:  none
  */
-void fixmode(tty)
-register int tty;
+void fixmode(
+register int tty)
 {
 #ifdef	USG
 	struct termio ttbuf;

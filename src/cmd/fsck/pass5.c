@@ -36,8 +36,8 @@ ifreechk()
 }
 
 int
-pass5check(blk)
-    daddr_t blk;
+pass5check(
+    daddr_t blk)
 {
     if (outrange(blk)) {
         fixfree = 1;

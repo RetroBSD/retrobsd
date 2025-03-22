@@ -36,9 +36,9 @@ static int Perror(char *s);
 static int error(char *fmt, ...);
 static int chownr(char *dir, uid_t uid, gid_t gid, int savedir);
 
-int main(argc, argv)
-    int argc;
-    char *argv[];
+int main(
+    int argc,
+    char *argv[])
 {
     int c, i;
     char *cp;
@@ -116,8 +116,8 @@ ok:
     exit(status);
 }
 
-int isnumber(s)
-    char *s;
+int isnumber(
+    char *s)
 {
     int c;
 
@@ -127,11 +127,11 @@ int isnumber(s)
     return (1);
 }
 
-int chownr(dir, uid, gid, savedir)
-    char *dir;
-    uid_t   uid;
-    gid_t   gid;
-    int savedir;
+int chownr(
+    char *dir,
+    uid_t   uid,
+    gid_t   gid,
+    int savedir)
 {
     DIR *dirp;
     struct direct *dp;

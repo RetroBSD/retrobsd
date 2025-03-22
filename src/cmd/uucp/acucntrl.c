@@ -142,7 +142,6 @@ int argc; char *argv[];
 	int devfile;
 	int uid, gid;
 	off_t lseek();
-	struct passwd *getpwuid();
 	char *rindex();
 
 	/* check input arguments */

@@ -41,9 +41,9 @@ extern	int	optind;
 void usage();
 
 int
-main(argc, argv)
-	int argc;
-	char *argv[];
+main(
+	int argc,
+	char *argv[])
 {
 #define	MFLAG	0x01
 #define	NFLAG	0x02

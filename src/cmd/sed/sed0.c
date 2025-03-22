@@ -3,6 +3,8 @@
 
 #include "sed.h"
 
+char *address(char *expbuf);
+
 struct label *labtab = ltab;
 char CGMES[] = "command garbled: %s\n";
 char TMMES[] = "Too much text: %s\n";
@@ -173,7 +175,6 @@ int main(int argc, char *argv[])
 void fcomp()
 {
     char *p, *op, *tp;
-    char *address();
     union reptr *pt, *pt1;
     int i;
     struct label *lpt;

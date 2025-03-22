@@ -9,9 +9,10 @@
  *	make system status entry
  *	return codes:  none
  */
-void systat(name, type, text)
-char *name, *text;
-int type;
+void systat(
+char *name, 
+int type,
+char *text)
 {
 	char filename[MAXFULLNAME], line[S_SIZE];
 	int count, oldtype;
@@ -67,8 +68,8 @@ int type;
  *
  *	return codes:  none
  */
-void rmstat(name)
-char *name;
+void rmstat(
+char *name)
 {
 	char filename[MAXFULLNAME];
 
@@ -81,8 +82,8 @@ char *name;
  *
  *	return codes  0 - ok | >0 system status
  */
-int callok(name)
-char *name;
+int callok(
+char *name)
 {
 	char filename[MAXFULLNAME], line[S_SIZE];
 	register FILE *fp;

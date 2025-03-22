@@ -21,9 +21,10 @@
 **	Overflow of `b' is not tested.
 */
 void *
-bmove(a, b, l)
-        void	*a, *b;
-        int	l;
+bmove(
+        void	*a,
+		void *b,
+        int	l)
 {
 	register int		n;
 	register char		*p, *q;
@@ -44,8 +45,9 @@ bmove(a, b, l)
 **	returns one if equal, zero otherwise.
 */
 int
-sequal(a, b)
-        char	*a, *b;
+sequal(
+        char	*a, 
+		char	*b)
 {
 	register char		*p, *q;
 
@@ -65,8 +67,8 @@ sequal(a, b)
 **		terminates the string) is returned.
 */
 int
-length(s)
-        char	*s;
+length(
+        char	*s)
 {
 	register int	l;
 	register char	*p;

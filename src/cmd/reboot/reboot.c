@@ -24,9 +24,9 @@
 
 static void markdown(void);
 
-int main(argc, argv)
-	int argc;
-	char **argv;
+int main(
+	int argc,
+	char **argv)
 {
 	int howto;		/* reboot options argument */
 	int needlog = 1;	/* tell syslog what's happening */

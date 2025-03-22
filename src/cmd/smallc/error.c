@@ -7,8 +7,8 @@
 #include "data.h"
 
 void
-doerror(ptr)
-        char *ptr;
+doerror(
+        char *ptr)
 {
         int k;
         gen_comment ();
@@ -33,8 +33,8 @@ doerror(ptr)
 }
 
 void
-error(ptr)
-        char ptr[];
+error(
+        char ptr[])
 {
         FILE *tempfile;
 

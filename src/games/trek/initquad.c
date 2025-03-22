@@ -6,8 +6,9 @@
 # include	"trek.h"
 
 void
-sector(x, y)
-        int	*x, *y;
+sector(
+        int	*x, 
+		int *y)
 {
 	register int		i, j;
 
@@ -36,8 +37,8 @@ sector(x, y)
 **	to be docked, i.e., abandon() and help().
 */
 void
-initquad(f)
-        int	f;
+initquad(
+        int	f)
 {
 	register int		i, j;
 	int			rx, ry;

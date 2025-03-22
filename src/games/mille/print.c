@@ -12,9 +12,11 @@
  *	Show the given card if it is different from the last one shown
  */
 static void
-show_card(y, x, c, lc)
-int		y, x;
-register CARD	c, *lc;
+show_card(
+int		y, 
+int		x,
+register CARD	c, 
+CARD *lc)
 {
 	if (c == *lc)
 		return;
@@ -82,9 +84,11 @@ static char	Score_fmt[] = "%4d";
  *	showed it.
  */
 static void
-show_score(y, x, s, ls)
-int		y, x;
-register int	s, *ls;
+show_score(
+int		y, 
+int		x,
+register int	s,
+int *ls)
 {
 	if (s == *ls)
 		return;
@@ -94,8 +98,8 @@ register int	s, *ls;
 }
 
 void
-prscore(for_real)
-bool	for_real; {
+prscore(
+bool	for_real) {
 
 	PLAY	*pp;
 	int	x;

@@ -12,9 +12,9 @@
  * channel file.  func() is either read or write.
  */
 void
-varpush(file, func)
-int	file;
-int	(*func)(); {
+varpush(
+int	file,
+int	(*func)(int, void *, size_t)) {
 
 	int	temp;
 

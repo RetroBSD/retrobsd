@@ -22,7 +22,6 @@
 
 static char *fchdirmsg = "Can't fchdir() back to starting directory";
 struct passwd *pwd;
-struct passwd *getpwnam();
 struct stat stbuf;
 uid_t uid;
 int status;

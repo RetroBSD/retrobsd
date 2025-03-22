@@ -12,7 +12,6 @@ void assert(char *s1, char *s2, int i1)
 {
 	register FILE *errlog;
 	register struct tm *tp;
-	extern struct tm *localtime();
 	time_t clock;
 	int pid;
 

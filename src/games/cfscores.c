@@ -27,9 +27,9 @@ int dbfd;
 /*
  * print out info for specified password entry
  */
-void printuser(pw, printfail)
-	register struct passwd *pw;
-	int printfail;
+void printuser(
+	register struct passwd *pw,
+	int printfail)
 {
 	struct betinfo total;
 	int i;
@@ -72,9 +72,9 @@ void printuser(pw, printfail)
 	printf("*----------------------*\n\n");
 }
 
-int main(argc, argv)
-	int argc;
-	char *argv[];
+int main(
+	int argc,
+	char *argv[])
 {
 	register struct passwd *pw;
 	int uid;

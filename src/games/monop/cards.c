@@ -19,8 +19,8 @@ static FILE	*deckf;
  *	This routine sets up the offset pointers for the given deck.
  */
 static void
-set_up(dp)
-DECK	*dp; {
+set_up(
+DECK	*dp) {
 
 	reg int	r1, r2;
 	int	i;
@@ -81,8 +81,8 @@ printmes() {
  *	This routine draws a card from the given deck
  */
 void
-get_card(dp)
-DECK	*dp; {
+get_card(
+DECK	*dp) {
 
 	reg char	type_maj, type_min;
 	reg int		num;

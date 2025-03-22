@@ -872,7 +872,6 @@ make_dirs(char *pathname)
 	register char *p;		/* Points into path */
 	int madeone = 0;		/* Did we do anything yet? */
 	int save_errno = errno;		/* Remember caller's errno */
-	char *strchr();
 
 	if (errno != ENOENT)
 		return 0;		/* Not our problem */

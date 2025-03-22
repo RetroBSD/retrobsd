@@ -9,9 +9,9 @@
  *		0  -  end of directory read
  *		1  -  returned name
  */
-int gnamef(dirp, filename)
-register DIR *dirp;
-register char *filename;
+int gnamef(
+register DIR *dirp,
+register char *filename)
 {
 	register struct direct *dentp;
 

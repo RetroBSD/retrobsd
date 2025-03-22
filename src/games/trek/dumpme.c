@@ -17,8 +17,8 @@
 **	Repair of devices must be deferred.
 */
 void
-dumpme(flag)
-        int	flag;
+dumpme(
+        int	flag)
 {
 	register int		f;
 	double			x;

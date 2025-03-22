@@ -86,7 +86,7 @@ void needbrack(char *str) {
  * @param str1
  * @return
  */
-int sstreq(str1) char *str1; {
+int sstreq( char *str1) {
     return (streq(line + lptr, str1));
 }
 

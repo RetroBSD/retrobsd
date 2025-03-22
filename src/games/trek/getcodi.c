@@ -15,9 +15,9 @@
 **	(meaning to drop the request).
 */
 int
-getcodi(co, di)
-        int	*co;
-        double	*di;
+getcodi(
+        int	*co,
+        double	*di)
 {
 	*co = getintpar("Course");
 

@@ -37,7 +37,6 @@ int main(int argc, char *argv[])
     int i;
     int n1, n2;
     long top2, bot2;
-    long ftell();
 
     while (argc > 1 && argv[1][0] == '-') {
         if (argv[1][1] == '\0')

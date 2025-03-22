@@ -46,18 +46,18 @@ static	FILE		*NewCrontab;
 static	int		CheckErrorCount;
 static	enum opt_t	Option;
 static	struct passwd	*pw;
-static	void		list_cmd __P((void)),
-			delete_cmd __P((void)),
-			edit_cmd __P((void)),
-			poke_daemon __P((void)),
-			check_error __P((char *)),
-			parse_args __P((int c, char *v[]));
+static	void list_cmd(void);
+static	void delete_cmd(void);
+static	void edit_cmd(void);
+static	void poke_daemon(void);
+static	void check_error(char *);
+static	void parse_args(int c, char *v[]);
 static	int		replace_cmd __P((void));
 
 
 static void
-usage(msg)
-	char *msg;
+usage(
+	char *msg)
 {
 	fprintf(stderr, "%s: usage error: %s\n", ProgramName, msg);
 	fprintf(stderr, "usage:\t%s [-u user] file\n", ProgramName);
@@ -71,9 +71,9 @@ usage(msg)
 
 
 int
-main(argc, argv)
-	int	argc;
-	char	*argv[];
+main(
+	int	argc,
+	char	*argv[])
 {
 	int	exitstatus;
 
@@ -112,9 +112,9 @@ main(argc, argv)
 
 
 static void
-parse_args(argc, argv)
-	int	argc;
-	char	*argv[];
+parse_args(
+	int	argc,
+	char	*argv[])
 {
 	int		argch;
 
@@ -263,8 +263,8 @@ delete_cmd() {
 
 
 static void
-check_error(msg)
-	char	*msg;
+check_error(
+	char	*msg)
 {
 	CheckErrorCount++;
 	fprintf(stderr, "\"%s\":%d: %s\n", Filename, LineNumber-1, msg);

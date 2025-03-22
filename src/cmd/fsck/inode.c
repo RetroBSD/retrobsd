@@ -15,14 +15,14 @@
 #include "fsck.h"
 
 int
-iblock(idesc, ilevel, isize)
-    struct inodesc *idesc;
-    register int ilevel;
-    long isize;
+iblock(
+    struct inodesc *idesc,
+    register int ilevel,
+    long isize)
 {
     register daddr_t *ap;
     register daddr_t *aplim;
-    int i, n, (*func)(), nif;
+    int i, n, (*func)(struct inodesc*), nif;
     long sizepb;
     BUFAREA ib;
     char buf[128];
@@ -74,9 +74,9 @@ iblock(idesc, ilevel, isize)
 }
 
 int
-ckinode(dp, idesc)
-    DINODE *dp;
-    register struct inodesc *idesc;
+ckinode(
+    DINODE *dp,
+    register struct inodesc *idesc)
 {
     register daddr_t *ap;
     int ret, n;
@@ -113,8 +113,8 @@ ckinode(dp, idesc)
 }
 
 DINODE *
-ginode(inumber)
-    register ino_t inumber;
+ginode(
+    register ino_t inumber)
 {
     daddr_t iblk;
     register DINODE *dp;
@@ -136,10 +136,10 @@ ginode(inumber)
 }
 
 void
-clri(idesc, s, flg)
-    register struct inodesc *idesc;
-    char *s;
-    int flg;
+clri(
+    register struct inodesc *idesc,
+    char *s,
+    int flg)
 {
     register DINODE *dp;
 
@@ -160,8 +160,8 @@ clri(idesc, s, flg)
 }
 
 int
-findname(idesc)
-    struct inodesc *idesc;
+findname(
+    struct inodesc *idesc)
 {
     register DIRECT *dirp = idesc->id_dirp;
 
@@ -172,8 +172,8 @@ findname(idesc)
 }
 
 int
-findino(idesc)
-    struct inodesc *idesc;
+findino(
+    struct inodesc *idesc)
 {
     register DIRECT *dirp = idesc->id_dirp;
 
@@ -188,8 +188,8 @@ findino(idesc)
 }
 
 void
-pinode(ino)
-    ino_t ino;
+pinode(
+    ino_t ino)
 {
     register DINODE *dp;
     register char *p;
@@ -213,10 +213,10 @@ pinode(ino)
 }
 
 void
-blkerr(ino, s, blk)
-    ino_t ino;
-    char *s;
-    daddr_t blk;
+blkerr(
+    ino_t ino,
+    char *s,
+    daddr_t blk)
 {
 
     pfatal("%ld %s I=%u\n", blk, s, ino);
@@ -245,9 +245,9 @@ blkerr(ino, s, blk)
  * allocate an unused inode
  */
 ino_t
-allocino(request, type)
-    ino_t request;
-    int type;
+allocino(
+    ino_t request,
+    int type)
 {
     register ino_t ino;
     register DINODE *dp;
@@ -291,8 +291,8 @@ allocino(request, type)
  * deallocate an inode
  */
 void
-freeino(ino)
-    ino_t ino;
+freeino(
+    ino_t ino)
 {
     struct inodesc idesc;
     DINODE *dp;

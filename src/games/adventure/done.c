@@ -41,8 +41,8 @@ score()                                         /* sort of like 20000   */
 }
 
 void
-done(entry)     /* entry=1 means goto 13000 */  /* game is over         */
-int entry;      /* entry=2 means goto 20000 */ /* 3=19000 */
+done(     /* entry=1 means goto 13000 */  /* game is over         */
+int entry)      /* entry=2 means goto 20000 */ /* 3=19000 */
 {       register int i,sc;
 	if (entry==1) mspeak(1);
 	if (entry==3) rspeak(136);
@@ -69,8 +69,8 @@ int entry;      /* entry=2 means goto 20000 */ /* 3=19000 */
 }
 
 int
-die(entry)                                      /* label 90             */
-int entry;
+die(                                      /* label 90             */
+int entry)
 {       register int i, yea;
 	if (entry != 99)
 	{       rspeak(23);

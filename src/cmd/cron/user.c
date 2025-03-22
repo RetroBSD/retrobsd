@@ -20,8 +20,8 @@
 #include "cron.h"
 
 void
-free_user(u)
-	user	*u;
+free_user(
+	user	*u)
 {
 	register entry	*e, *ne;
 
@@ -35,10 +35,10 @@ free_user(u)
 
 
 user *
-load_user(crontab_fd, pw, name)
-	int		crontab_fd;
-	struct passwd	*pw;		/* NULL implies syscrontab */
-	char		*name;
+load_user(
+	int		crontab_fd,
+	struct passwd	*pw,		/* NULL implies syscrontab */
+	char		*name)
 {
 	char	envstr[MAX_ENVSTR];
 	FILE	*file;

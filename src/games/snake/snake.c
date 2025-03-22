@@ -171,8 +171,8 @@ setup(){	/*
 }
 
 void
-randm(sp)
-struct point *sp;
+randm(
+struct point *sp)
 {
 	register int issame;
 	struct point p;
@@ -215,8 +215,8 @@ flushi()
 }
 
 void
-winnings(won)
-int won;
+winnings(
+int won)
 {
 	struct point p;
 
@@ -228,8 +228,8 @@ int won;
 }
 
 void
-spacewarp(w)
-int w;
+spacewarp(
+int w)
 {
 	struct point p;
 	int j;
@@ -259,8 +259,8 @@ int w;
 }
 
 int
-removep(sp)
-struct point *sp;
+removep(
+struct point *sp)
 {
 	int j;
 
@@ -296,8 +296,8 @@ struct point *sp;
 }
 
 int
-stretch(ps)
-struct point *ps;
+stretch(
+struct point *ps)
 {
 	struct point p;
 
@@ -378,8 +378,8 @@ snap()
 }
 
 void
-win(ps)
-struct point *ps;
+win(
+struct point *ps)
 {
 	struct point x;
 	int j,k;
@@ -429,15 +429,15 @@ suspend()
 }
 
 void
-length(num)
-int num;
+length(
+int num)
 {
 	print("You made %d moves.\n",num);
 }
 
 void
-logit(msg)
-char *msg;
+logit(
+char *msg)
 {
 	FILE *logfile;
 	long t;
@@ -450,15 +450,16 @@ char *msg;
 }
 
 int
-post(iscore, flag)
-int	iscore, flag;
+post(
+int	iscore, 
+int flag)
 {
 	short	score = iscore;
 	int	rawscores;
 	short	uid;
 	short	oldbest=0;
 	short	allbwho=0, allbscore=0;
-	struct	passwd *p, *getpwuid();
+	struct	passwd *p;
 
 	/*
 	 * Neg uid, 0, and 1 cannot have scores recorded.
@@ -506,14 +507,15 @@ int	iscore, flag;
 }
 
 void
-chase (np, sp)
-struct point *sp, *np;
+chase (
+struct point *sp, 
+struct point *np)
 {
 	/* this algorithm has bugs; otherwise the
 	   snake would get too good */
 	struct point d;
 	int w, i, wt[8];
-	double sqrt(), v1, v2, vp, max;
+	double v1, v2, vp, max;
 	point(&d,you.col-sp->col,you.line-sp->line);
 	v1 = sqrt( (double) (d.col*d.col + d.line*d.line) );
 	w=0;
@@ -561,8 +563,8 @@ struct point *sp, *np;
 }
 
 void
-surround(ps)
-struct point *ps;
+surround(
+struct point *ps)
 {
 	struct point x;
 	int j;
@@ -898,9 +900,9 @@ stop(int sig)
 }
 
 int
-main(argc,argv)
-int argc;
-char **argv;
+main(
+int argc,
+char **argv)
 {
 	int i;
 	char stdbuf[BUFSIZ];

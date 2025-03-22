@@ -68,9 +68,9 @@ struct cvntab	Cputab[] =
 };
 
 void
-prkalc(course, dist)
-        int	course;
-        double	dist;
+prkalc(
+        int	course,
+        double	dist)
 {
 	printf(": course %d  dist %.3f\n", course, dist);
 }
@@ -82,12 +82,12 @@ prkalc(course, dist)
 **	sqx,sqy/ssx,ssy to tqx,tqy/tsx,tsy.
 */
 int
-kalc(tqx, tqy, tsx, tsy, dist)
-        int	tqx;
-        int	tqy;
-        int	tsx;
-        int	tsy;
-        double	*dist;
+kalc(
+        int	tqx,
+        int	tqy,
+        int	tsx,
+        int	tsy,
+        double	*dist)
 {
 	double			dx, dy;
 	double			quadsize;

@@ -187,8 +187,8 @@ void scandir(char *dnam, char *prfx, int flen, char fchr, int type)
 	closedir(dirp);
 }
 
-void getstst(sdir)
-char *sdir;
+void getstst(
+char *sdir)
 {
 	register int i, csys;
 	register char *tp;
@@ -197,7 +197,6 @@ char *sdir;
 	register DIR *dirp;
 	register FILE *st;
 	struct stat stbuf;
-	long atol();
 
 	if (chdir(sdir) < 0) {
 		perror(sdir);

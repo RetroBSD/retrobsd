@@ -197,8 +197,7 @@ void tputs (char *string, int nlines, int (*outfun) ())
 /*
 ** Come here if a quit signal is received
 */
-void onquit(sig)
-        int sig;
+void onquit(int sig)
 {
     signal(SIGQUIT, SIG_IGN);
     if (!inwait) {
@@ -221,8 +220,7 @@ void onquit(sig)
 /*
 ** Come here if a signal for a window size change is received
 */
-void chgwinsz(sig)
-        int sig;
+void chgwinsz(int sig)
 {
     struct winsize win;
 
@@ -244,8 +242,7 @@ void chgwinsz(sig)
 /*
 ** Clean up terminal state and exit. Also come here if interrupt signal received
 */
-void end_it (sig)
-        int sig;
+void end_it (int sig)
 {
     reset_tty ();
     if (clreol) {
@@ -265,8 +262,7 @@ void end_it (sig)
 /*
  * Come here when we get a suspend signal from the terminal
  */
-void onsusp (sig)
-        int sig;
+void onsusp (int sig)
 {
     /* ignore SIGTTOU so we don't get stopped if csh grabs the tty */
     signal(SIGTTOU, SIG_IGN);
@@ -287,9 +283,7 @@ void onsusp (sig)
 }
 
 int
-main(argc, argv)
-int argc;
-char *argv[];
+main(int argc, char *argv[])
 {
     register FILE	*f;
     register char	*s;
@@ -464,8 +458,7 @@ char *argv[];
 }
 
 void
-argscan(s)
-char *s;
+argscan(char* s)
 {
 	for (dlines = 0; *s != '\0'; s++)
 	{
@@ -508,9 +501,7 @@ char *s;
 ** access.  If it is, return the opened file. Otherwise return NULL.
 */
 FILE *
-checkf (fs, clearfirst)
-register char *fs;
-int *clearfirst;
+checkf (char* fs, int* clearfirst)
 {
     struct stat stbuf;
     register FILE *f;
@@ -567,9 +558,7 @@ int *clearfirst;
 #define STOP -10
 
 void
-screen (f, num_lines)
-register FILE *f;
-register int num_lines;
+screen (FILE *f, int num_lines)
 {
     register int c;
     register int nchars;
@@ -642,8 +631,7 @@ register int num_lines;
 }
 
 void
-copy_file(f)
-register FILE *f;
+copy_file(FILE *f)
 {
     register int c;
 
@@ -655,9 +643,7 @@ register FILE *f;
 static char *sptr;
 
 void
-scanstr (n, str)
-int n;
-char *str;
+scanstr (int n, char *str)
 {
     sptr = str;
     Sprintf (n);
@@ -665,8 +651,7 @@ char *str;
 }
 
 void
-Sprintf (n)
-register int n;
+Sprintf (int n)
 {
     register int a;
 
@@ -681,9 +666,7 @@ static char bell = ctrl('G');
 ** string "string"
 */
 int
-tailequ (path, string)
-char *path;
-register char *string;
+tailequ (char *path, char *string)
 {
 	register char *tail;
 
@@ -699,8 +682,7 @@ register char *string;
 }
 
 void
-prompt (filename)
-char *filename;
+prompt (char *filename)
 {
     if (clreol)
 	cleareol ();
@@ -739,9 +721,7 @@ char *filename;
 ** Get a logical line
 */
 int
-getline(f, length)
-register FILE *f;
-int *length;
+getline(FILE *f, int *length)
 {
     register int	c;
     register char	*p;
@@ -820,8 +800,7 @@ int *length;
 ** Erase the rest of the prompt, assuming we are starting at column col.
 */
 void
-erase (col)
-register int col;
+erase (int col)
 {
 
     if (promptlen == 0)
@@ -845,7 +824,7 @@ register int col;
 ** Erase the current line entirely
 */
 void
-kill_line ()
+kill_line (void)
 {
     erase (0);
     if (!eraseln || dumb) putchar ('\r');
@@ -855,13 +834,13 @@ kill_line ()
  * force clear to end of line
  */
 void
-cleareol()
+cleareol(void)
 {
     tputs(eraseln, 1, putchar);
 }
 
 void
-clreos()
+clreos(void)
 {
     tputs(EodClr, 1, putchar);
 }
@@ -870,8 +849,7 @@ clreos()
 **  Print string and return number of characters
 */
 int
-pr(s1)
-char	*s1;
+pr(char *s1)
 {
     register char	*s;
     register char	c;
@@ -884,9 +862,7 @@ char	*s1;
 
 /* Print a buffer of n characters */
 void
-prbuf (s, n)
-register char *s;
-register int n;
+prbuf (char *s, int n)
 {
     register char c;			/* next output character */
     register int state;			/* next output char's UL state */
@@ -926,7 +902,7 @@ register int n;
 **  Clear the screen
 */
 void
-doclear()
+doclear(void)
 {
     if (Clear && !hard) {
 	tputs(Clear, 1, putchar);
@@ -943,7 +919,7 @@ doclear()
  * Go to home position
  */
 void
-home()
+home(void)
 {
     tputs(Home, 1, putchar);
 }
@@ -957,8 +933,7 @@ char shell_line[132];
 ** returning the length of the print representation.
 */
 int
-printd (n)
-register int n;
+printd (int n)
 {
     register int a, nchars;
 
@@ -977,9 +952,7 @@ register int n;
 ** in the current file, zero is returned.
 */
 int
-command (filename, f)
-char *filename;
-register FILE *f;
+command (char *filename, FILE *f)
 {
     register int nlines;
     register int retval;
@@ -1210,10 +1183,7 @@ char ch;
  * more of the file to be printed.
  */
 int
-colon (filename, cmd, nlines)
-char *filename;
-int cmd;
-int nlines;
+colon (char *filename, int cmd, int nlines)
 {
 	if (cmd == 0)
 		ch = readch ();
@@ -1267,8 +1237,7 @@ int nlines;
 ** terminates the number.
 */
 int
-number(cmd)
-char *cmd;
+number(char *cmd)
 {
 	register int i;
 
@@ -1288,8 +1257,7 @@ char *cmd;
 }
 
 void
-do_shell (filename)
-char *filename;
+do_shell (char *filename)
 {
 	char cmdbuf[80];
 
@@ -1317,10 +1285,7 @@ char *filename;
 ** Search for nth ocurrence of regular expression contained in buf in the file
 */
 void
-search (buf, file, n)
-char buf[];
-FILE *file;
-register int n;
+search (char buf[], FILE *file, int n)
 {
     long startline = Ftell (file);
     register long line1 = startline;
@@ -1396,9 +1361,7 @@ register int n;
 }
 
 void
-execute (filename, cmd, args)
-char *filename;
-char *cmd, *args;
+execute (char *filename, char *cmd, char *args, ...)
 {
 	int id;
 	int n;
@@ -1437,9 +1400,7 @@ char *cmd, *args;
 ** Skip n lines in the file f
 */
 void
-skiplns (n, f)
-register int n;
-register FILE *f;
+skiplns (int n, FILE *f)
 {
     register char c;
 
@@ -1457,8 +1418,7 @@ register FILE *f;
 ** negative.
 */
 void
-skipf (nskip)
-register int nskip;
+skipf (int nskip)
 {
     if (nskip == 0) return;
     if (nskip > 0) {
@@ -1486,7 +1446,7 @@ register int nskip;
 
 /*----------------------------- Terminal I/O -------------------------------*/
 void
-initterm ()
+initterm (void)
 {
     char	buf[TBUFSIZ];
     static char	clearbuf[TBUFSIZ];
@@ -1603,7 +1563,7 @@ retry:
 }
 
 int
-readch ()
+readch (void)
 {
 	char ch;
 
@@ -1706,9 +1666,7 @@ ttyin (char buf[], int nmax, char pchar)
 }
 
 int
-expand (outbuf, inbuf)
-char *outbuf;
-char *inbuf;
+expand (char *outbuf, char *inbuf)
 {
     register char *instr;
     register char *outstr;
@@ -1765,8 +1723,7 @@ show (char ch)
 }
 
 void
-error (mess)
-char *mess;
+error (char *mess)
 {
     if (clreol)
 	cleareol ();
@@ -1794,7 +1751,7 @@ set_tty ()
 }
 
 void
-reset_tty ()
+reset_tty (void)
 {
     if (pstate) {
 	tputs(ULexit, 1, putchar);
@@ -1807,8 +1764,7 @@ reset_tty ()
 }
 
 void
-rdline (f)
-register FILE *f;
+rdline (FILE *f)
 {
     register char c;
     register char *p;

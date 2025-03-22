@@ -20,6 +20,8 @@
 #define C_BEACON		'*'
 #define C_CREDIT		'*'
 
+char *command(PLANE *pp);
+
 WINDOW	*radar, *cleanradar, *credit, *input, *planes;
 
 int getAChar()
@@ -271,7 +273,6 @@ void quit(int sig)
 void planewin()
 {
 	PLANE	*pp;
-	char	*command();
 	int	warning = 0;
 
 #ifdef BSD

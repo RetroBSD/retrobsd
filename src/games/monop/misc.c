@@ -31,8 +31,8 @@ static int	num_names	= sizeof shell_name / sizeof (char *);;
  * "yes or "no" answer is gotten.
  */
 int
-getyn(prompt)
-reg char	*prompt; {
+getyn(
+reg char	*prompt) {
 
 	reg int	com;
 
@@ -76,8 +76,8 @@ next_play() {
  * given prompt.
  */
 int
-get_int(prompt)
-reg char	*prompt; {
+get_int(
+reg char	*prompt) {
 
 	reg int		num;
 	reg char	*sp;
@@ -111,9 +111,9 @@ inter:
  *	This routine sets things up as if it is a new monopoly
  */
 static void
-is_monop(mp, pl)
-reg MON	*mp;
-int	pl; {
+is_monop(
+reg MON	*mp,
+int	pl) {
 
 	reg int		i;
 
@@ -128,8 +128,8 @@ int	pl; {
  *	This routine sets the monopoly flag from the list given.
  */
 void
-set_ownlist(pl)
-int	pl; {
+set_ownlist(
+int	pl) {
 
 	reg int	num;		/* general counter		*/
 	reg MON	*orig;		/* remember starting monop ptr	*/
@@ -225,8 +225,8 @@ int	pl; {
  *	This routine sets things up as if it is no longer a monopoly
  */
 void
-isnot_monop(mp)
-reg MON	*mp; {
+isnot_monop(
+reg MON	*mp) {
 
 	reg int		i;
 

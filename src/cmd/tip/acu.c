@@ -7,7 +7,8 @@
 
 static acu_t *acu = NOACU;
 static int conflag;
-static acu_t *acutype();
+static acu_t *
+acutype(register char *s);
 static jmp_buf jmpbuf;
 
 static void
@@ -132,8 +133,8 @@ connect()
     return (tried ? "call failed" : "missing phone number");
 }
 
-void disconnect(reason)
-    char *reason;
+void disconnect(
+    char *reason)
 {
     if (!conflag) {
         logent(value(HOST), "", DV, "call terminated");
@@ -149,8 +150,8 @@ void disconnect(reason)
 }
 
 static acu_t *
-acutype(s)
-    register char *s;
+acutype(
+    register char *s)
 {
     register acu_t *p;
     extern acu_t acutable[];

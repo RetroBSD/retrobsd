@@ -54,8 +54,6 @@ int main(int argc, char **argv)
 	/* handle ~user/file format */
 	if (dest[0] == '~') {
 		char *sl;
-		struct passwd *getpwnam();
-		char *index();
 		struct passwd *user;
 		char dnbuf[100];
 

@@ -36,7 +36,7 @@ extern int PicocExitBuf[];
 
 /* parse.c */
 void PicocParse(const char *FileName, const char *Source, int SourceLen, int RunIt, int CleanupNow, int CleanupSource, int EnableDebugger);
-void PicocParseInteractive();
+void PicocParseInteractive(void);
 
 /* platform.c */
 void PicocCallMain(int argc, char **argv);

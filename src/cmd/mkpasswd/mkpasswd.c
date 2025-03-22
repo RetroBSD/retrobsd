@@ -85,9 +85,9 @@ scanpw()
  * required the addition of a flag field to the dbm database to distinguish
  * between a record keyed by name, and one keyed by uid.
  */
-int main(argc, argv)
-	int argc;
-	char **argv;
+int main(
+	int argc,
+	char **argv)
 {
 	extern int errno, optind;
 	register char *flag, *p, *t;
@@ -195,8 +195,8 @@ bad:	(void)fprintf(stderr, "mkpasswd: dbm_store failed.\n");
 	exit(1);
 }
 
-void rmall(fname)
-	char *fname;
+void rmall(
+	char *fname)
 {
 	register char *p;
 	char buf[MAXPATHLEN];

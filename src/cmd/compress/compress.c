@@ -436,8 +436,8 @@ void writeerr()
     exit (1);
 }
 
-void cl_hash(hsize)		/* reset code table */
-	register count_int hsize;
+void cl_hash(		/* reset code table */
+	register count_int hsize)
 {
 #ifndef XENIX_16	/* Normal machine */
 	register count_int *htab_p = htab+hsize;
@@ -516,8 +516,8 @@ char_type lmask[9] = {0xff, 0xfe, 0xfc, 0xf8, 0xf0, 0xe0, 0xc0, 0x80, 0x00};
 char_type rmask[9] = {0x00, 0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f, 0x7f, 0xff};
 #endif /* vax */
 
-void output(code)
-    code_int  code;
+void output(
+    code_int  code)
 {
 #ifdef DEBUG
     static int col = 0;
@@ -635,9 +635,9 @@ void output(code)
     }
 }
 
-void prratio(stream, num, den)
-    FILE *stream;
-    long int num, den;
+void prratio(
+    FILE *stream,
+    long int num, long int den)
 {
     register int q;			/* Doesn't need to be long */
 
@@ -913,8 +913,8 @@ void decompress()
 	writeerr();
 }
 
-void copystat(ifname, ofname)
-    char *ifname, *ofname;
+void copystat(
+    char *ifname, char *ofname)
 {
     struct stat statbuf;
     int mode;
@@ -1000,9 +1000,9 @@ void copystat(ifname, ofname)
  * deterministic, and can be done on the fly.  Thus, the decompression
  * procedure needs no input table, but tracks the way the table was built.
  */
-int main (argc, argv)
-    register int argc;
-    char **argv;
+int main (
+    register int argc,
+    char **argv)
 {
     int overwrite = 0;	/* Do not overwrite unless given -f flag */
     char tempname[100];

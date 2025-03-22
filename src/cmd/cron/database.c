@@ -26,14 +26,14 @@
 #define TMAX(a,b) ((a)>(b)?(a):(b))
 
 
-static	void		process_crontab __P((char *, char *, char *,
+static	void		process_crontab(char *, char *, char *,
 					     struct stat *,
-					     cron_db *, cron_db *));
+					     cron_db *, cron_db *);
 
 
 void
-load_database(old_db)
-	cron_db		*old_db;
+load_database(
+	cron_db		*old_db)
 {
 	DIR		*dir;
 	struct stat	statbuf;
@@ -138,9 +138,9 @@ load_database(old_db)
 
 
 void
-link_user(db, u)
-	register cron_db	*db;
-	register user	*u;
+link_user(
+	register cron_db	*db,
+	register user	*u)
 {
 	if (db->head == NULL)
 		db->head = u;
@@ -153,9 +153,9 @@ link_user(db, u)
 
 
 void
-unlink_user(db, u)
-	register cron_db	*db;
-	register user	*u;
+unlink_user(
+	register cron_db	*db,
+	register user	*u)
 {
 	if (u->prev == NULL)
 		db->head = u->next;
@@ -170,11 +170,10 @@ unlink_user(db, u)
 
 
 user *
-find_user(db, name)
-	cron_db	*db;
-	register char	*name;
+find_user(
+	cron_db	*db,
+	register char	*name)
 {
-	char	*env_get();
 	register user	*u;
 
 	for (u = db->head;  u != NULL;  u = u->next)
@@ -185,13 +184,13 @@ find_user(db, name)
 
 
 static void
-process_crontab(uname, fname, tabname, statbuf, new_db, old_db)
-	char		*uname;
-	char		*fname;
-	char		*tabname;
-	struct stat	*statbuf;
-	cron_db		*new_db;
-	cron_db		*old_db;
+process_crontab(
+	char		*uname,
+	char		*fname,
+	char		*tabname,
+	struct stat	*statbuf,
+	cron_db		*new_db,
+	cron_db		*old_db)
 {
 	struct passwd	*pw = NULL;
 	int		crontab_fd = OK - 1;

@@ -72,8 +72,8 @@ int badblk, dupblk;
 struct  dinode  zino;
 
 char *
-unrawname(cp)
-    char *cp;
+unrawname(
+    char *cp)
 {
     char *dp = rindex(cp, '/');
     struct stat stb;
@@ -91,8 +91,8 @@ unrawname(cp)
 }
 
 char *
-rawname(cp)
-    char *cp;
+rawname(
+    char *cp)
 {
     static char rawbuf[32];
     char *dp = rindex(cp, '/');
@@ -108,8 +108,8 @@ rawname(cp)
 }
 
 char *
-blockcheck(name)
-    char *name;
+blockcheck(
+    char *name)
 {
     return name;
     struct stat stslash, stblock, stchar;
@@ -155,8 +155,8 @@ retry:
 }
 
 void
-checkfilesys(filesys)
-    char *filesys;
+checkfilesys(
+    char *filesys)
 {
     register ino_t *zp;
 
@@ -262,9 +262,9 @@ checkfilesys(filesys)
 }
 
 int
-main(argc, argv)
-    int argc;
-    char    *argv[];
+main(
+    int argc,
+    char    *argv[])
 {
     struct fstab *fsp;
     int pid, passno, anygtr, sumstatus;

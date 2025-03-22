@@ -36,11 +36,10 @@ uid_t uid;
 
 int copy(char *name, char *np, FILE *fp, struct passwd *pw);
 int makedb(char *file);
+char* getnewpasswd(register struct passwd *pw, char *temp);
 
 int
-main(argc, argv)
-	int argc;
-	char **argv;
+main(int argc, char **argv)
 {
 	extern int errno;
 	struct passwd *pw;
@@ -49,7 +48,6 @@ main(argc, argv)
 	int fd;
 	char *fend, *np, *passwd, *temp, *tend;
 	char from[MAXPATHLEN], to[MAXPATHLEN];
-	char *getnewpasswd();
 
 	uid = getuid();
 	switch(--argc) {
@@ -160,10 +158,10 @@ bad:		fprintf(stderr, "; password unchanged.\n");
 }
 
 int
-copy(name, np, fp, pw)
-	char *name, *np;
-	FILE *fp;
-	struct passwd *pw;
+copy(
+	char *name, char *np,
+	FILE *fp,
+	struct passwd *pw)
 {
 	register int done;
 	register char *p;
@@ -207,13 +205,12 @@ copy(name, np, fp, pw)
 }
 
 char *
-getnewpasswd(pw, temp)
-	register struct passwd *pw;
-	char *temp;
+getnewpasswd(
+	register struct passwd *pw,
+	char *temp)
 {
 	register char *p, *t;
-	char buf[10], salt[2], *crypt(), *getpass();
-	time_t time();
+	char buf[10], salt[2];
 
 	if (uid && pw->pw_passwd &&
 	    strcmp(crypt(getpass("Old password:"), pw->pw_passwd),
@@ -252,8 +249,8 @@ getnewpasswd(pw, temp)
 }
 
 int
-makedb(file)
-	char *file;
+makedb(
+	char *file)
 {
 	int status, pid, w;
 

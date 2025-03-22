@@ -152,6 +152,7 @@ static void qusort(char **a, char **l);
 static void disorder(char *s, char *t);
 static char *eol(char *p);
 static int number(char **ppa);
+char *skip(char *pp, struct field *fp, int j);
 
 int (*compare)(char *pa, char *pb) = cmpa;
 
@@ -557,7 +558,6 @@ void term(int sig)
 int cmp(char *i, char *j)
 {
     char *pa, *pb;
-    char *skip();
     char *code, *ignore;
     int a, b;
     int k;

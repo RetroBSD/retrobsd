@@ -29,8 +29,9 @@ static SCORE	Top[MAXSCORES];
  *	Compare two scores.
  */
 static int
-cmp_sc(a1, a2)
-const void *a1, *a2;
+cmp_sc(
+const void *a1,
+const void *a2)
 {
         const SCORE *s1 = a1;
         const SCORE *s2 = a2;
@@ -39,8 +40,8 @@ const void *a1, *a2;
 }
 
 static void
-set_name(scp)
-register SCORE	*scp;
+set_name(
+register SCORE	*scp)
 {
 	register PASSWD	*pp;
 

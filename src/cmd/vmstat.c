@@ -57,7 +57,7 @@ int *dr_select;
 int dk_ndrive;
 int ndrives = 0;
 char *defdrives[] = { "sd0", 0 };
-double stat1();
+double stat1(int row);
 int hz;
 
 struct {

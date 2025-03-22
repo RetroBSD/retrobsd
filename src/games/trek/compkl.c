@@ -43,8 +43,8 @@ sortkl()
 **	move.
 */
 void
-compkldist(f)
-        int	f;		/* set if new quadrant */
+compkldist(
+        int	f)		/* set if new quadrant */
 {
 	register int		i, dx, dy;
 	double			d;

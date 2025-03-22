@@ -39,7 +39,7 @@ int main(int argc, char **argv)
     if (argc > ParamCount && strcmp(argv[ParamCount], "-i") == 0)
     {
         PicocIncludeAllSystemHeaders();
-        PicocParseInteractive(TRUE);
+        PicocParseInteractive();
     }
     else
     {

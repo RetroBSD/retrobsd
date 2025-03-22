@@ -145,7 +145,7 @@ static void transfer(char *buf, int fd, char *eofchars)
  */
 void getfl(int c)
 {
-    char buf[256], *cp, *expand();
+    char buf[256], *cp;
 
     putchar(c);
     /*
@@ -198,7 +198,7 @@ static int args(char *buf, char *a[])
 void cu_take(char cc)
 {
     int fd, argc;
-    char line[BUFSIZ], *expand(), *cp;
+    char line[BUFSIZ], *cp;
 
     if (prompt("[take] ", copyname))
         return;
@@ -419,7 +419,6 @@ void sendfile(char cc)
 {
     FILE *fd;
     char *fnamex;
-    char *expand();
 
     putchar(cc);
     /*
@@ -453,7 +452,6 @@ void cu_put(int cc)
     FILE *fd;
     char line[BUFSIZ];
     int argc;
-    char *expand();
     char *cpynamex;
 
     if (prompt("[put] ", copyname))

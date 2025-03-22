@@ -93,7 +93,7 @@ int disc;            /* current tty discpline */
 void intprompt(int i);
 void timeout(int i);
 void cleanup(int i);
-char *sname();
+char * sname(register char *s);
 
 /*
  * ****TIPIN   TIPIN****
@@ -376,9 +376,9 @@ static  jmp_buf promptbuf;
  *  in from the terminal.  Handles signals & allows use of
  *  normal erase and kill characters.
  */
-int prompt(s, p)
-    char *s;
-    register char *p;
+int prompt(
+    char *s,
+    register char *p)
 {
     register char *b = p;
     sig_t oint;
@@ -437,8 +437,8 @@ int escape()
     return (gch);
 }
 
-int speed(n)
-    int n;
+int speed(
+    int n)
 {
     register int *p;
 
@@ -448,9 +448,9 @@ int speed(n)
     return (NULL);
 }
 
-int any(c, p)
-    register int c;
-    register char *p;
+int any(
+    register int c,
+    register char *p)
 {
     while (p && *p)
         if (*p++ == c)
@@ -458,8 +458,8 @@ int any(c, p)
     return (0);
 }
 
-int size(s)
-    register char   *s;
+int size(
+    register char   *s)
 {
     register int i = 0;
 
@@ -469,8 +469,8 @@ int size(s)
 }
 
 char *
-interp(s)
-    register char *s;
+interp(
+    register char *s)
 {
     static char buf[256];
     register char *p = buf, c, *q;
@@ -495,8 +495,8 @@ interp(s)
 }
 
 char *
-ctrl(c)
-    int c;
+ctrl(
+    int c)
 {
     static char s[3];
 
@@ -514,8 +514,8 @@ ctrl(c)
 /*
  * Help command
  */
-void help(c)
-    char c;
+void help(
+    char c)
 {
     register esctable_t *p;
     extern esctable_t etable[];
@@ -533,8 +533,8 @@ void help(c)
 /*
  * Set up the "remote" tty's state
  */
-void ttysetup(speed)
-    int speed;
+void ttysetup(
+    int speed)
 {
     unsigned bits = LDECCTQ;
 
@@ -551,8 +551,8 @@ void ttysetup(speed)
  * strip leading directories.
  */
 char *
-sname(s)
-    register char *s;
+sname(
+    register char *s)
 {
     register char *p = s;
 
@@ -569,10 +569,10 @@ static char partab[0200];
  * We are doing 8 bit wide output, so we just generate a character
  * with the right parity and output it.
  */
-void pwrite(fd, buf, n)
-    int fd;
-    char *buf;
-    register int n;
+void pwrite(
+    int fd,
+    char *buf,
+    register int n)
 {
     //register int i;
 //    register char *bp;
@@ -594,8 +594,8 @@ void pwrite(fd, buf, n)
 /*
  * Build a parity table with appropriate high-order bit.
  */
-void setparity(defparity)
-    char *defparity;
+void setparity(
+    char *defparity)
 {
     register int i;
     char *parity;

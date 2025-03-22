@@ -25,8 +25,8 @@ card() {
  * to a deck.
  */
 void
-ret_card(plr)
-reg PLAY	*plr; {
+ret_card(
+reg PLAY	*plr) {
 
 	plr->num_gojf--;
 	if (CC_D.gojf_used)
@@ -55,8 +55,9 @@ pay() {
  *	This routine deals with a move in jail
  */
 int
-move_jail(r1, r2)
-reg int	r1, r2; {
+move_jail(
+reg int	r1, 
+int r2) {
 
 	if (r1 != r2) {
 		printf("Sorry, that doesn't get you out\n");

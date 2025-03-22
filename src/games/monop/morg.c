@@ -56,8 +56,8 @@ set_mlist() {
  *	This routine actually mortgages the property.
  */
 static void
-m(prop)
-reg int	prop; {
+m(
+reg int	prop) {
 
 	reg int	price;
 
@@ -122,8 +122,8 @@ set_umlist() {
  *	This routine actually unmortgages the property
  */
 static void
-unm(prop)
-reg int	prop; {
+unm(
+reg int	prop) {
 
 	reg int	price;
 
@@ -167,8 +167,8 @@ unmortgage() {
  *	This routine is a special execute for the force_morg routine
  */
 static void
-fix_ex(com_num)
-reg int	com_num; {
+fix_ex(
+reg int	com_num) {
 
 	told_em = FALSE;
 	(*func[com_num])();

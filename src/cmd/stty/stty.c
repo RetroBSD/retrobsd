@@ -165,9 +165,9 @@ static void pit(struct special *sp);
 static int eq(char *string);
 
 int
-main(argc, argv)
-	int	argc;
-	register char	**argv;
+main(
+	int	argc,
+	register char	**argv)
 {
 	int i, fmt = 0, ch, zero = 0;
 	register struct special *sp;
@@ -334,8 +334,8 @@ done:
 }
 
 int
-eq(string)
-char *string;
+eq(
+char *string)
 {
 	if (!arg)
 		return(0);
@@ -351,8 +351,8 @@ char *string;
 	}
 
 void
-prmodes(all)
-	int	all;		/* 0 for short display, !0 for long display */
+prmodes(
+	int	all)		/* 0 for short display, !0 for long display */
 {
 	int m;
 	int any, i;
@@ -463,8 +463,8 @@ prmodes(all)
 }
 
 void
-pit(sp)
-	struct special *sp;
+pit(
+	struct special *sp)
 {
 	register int	c = *sp->cp & 0xff;
 	char	junk[6];

@@ -15,8 +15,8 @@ int LocalOnly = 0;
 #define	fork	vfork
 #endif
 
-void xuucico(rmtname)
-char *rmtname;
+void xuucico(
+char *rmtname)
 {
 	if (fork() == 0) {
 		/*  start uucico for rmtname system  */
@@ -81,8 +81,8 @@ void xuuxqt()
 	return;
 }
 
-void xuucp(str)
-char *str;
+void xuucp(
+char *str)
 {
 	char text[300];
 	if (fork() == 0) {

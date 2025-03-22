@@ -53,8 +53,8 @@ char *alph[] = {
 	0,
 };
 
-void print(s)
-        char *s;
+void print(
+        char *s)
 {
 	char *p;
 

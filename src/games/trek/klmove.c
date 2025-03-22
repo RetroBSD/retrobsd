@@ -28,8 +28,8 @@
 **	course around stars.
 */
 void
-klmove(fl)
-        int	fl;
+klmove(
+        int	fl)
 {
 	int			n;
 	register struct kling	*k;

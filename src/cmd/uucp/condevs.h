@@ -27,7 +27,8 @@ int dnopn(), dncls();
 #endif
 
 #ifdef HAYES
-int hyspopn(), hystopn();
+int hyspopn(char *telno, char *flds[],struct Devices *dev);
+int hystopn(char *telno, char *flds[], struct Devices *dev);
 int hyscls(int fd);
 #endif
 

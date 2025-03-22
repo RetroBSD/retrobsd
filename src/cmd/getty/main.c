@@ -409,7 +409,7 @@ void putf(char *cp)
 	char *ttyn, *slash;
 	char datebuffer[60];
 	extern char editedhost[];
-	extern char *ttyname(), *rindex();
+	extern char *ttyname(int), *rindex();
 
 	while (*cp) {
 		if (*cp != '%') {

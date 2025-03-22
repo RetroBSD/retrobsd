@@ -17,10 +17,11 @@ int		tv[ NTV ]	= { 8, 7, 9, 6, 11, 12, 13, 14, 10, 5 };
  * anysumto returns the index (0 <= i < n) of the card in hand that brings
  * the s up to t, or -1 if there is none
  */
-int anysumto( hand, n, s, t )
-    CARD		hand[];
-    int			n;
-    int			s,  t;
+int anysumto(
+    CARD		hand[],
+    int			n,
+    int			s,  
+	int			t)
 {
 	register  int		i;
 
@@ -33,10 +34,10 @@ int anysumto( hand, n, s, t )
 /*
  * return the number of cards in h having the given rank value
  */
-int numofval( h, n, v )
-    CARD		h[];
-    int			n;
-    int			v;
+int numofval(
+    CARD		h[],
+    int			n,
+    int			v)
 {
 	register  int		i, j;
 
@@ -51,10 +52,10 @@ int numofval( h, n, v )
  * computer chooses what to play in pegging...
  * only called if no playable card will score points
  */
-int cchose( h, n, s )
-    CARD	h[];
-    int		n;
-    int		s;
+int cchose(
+    CARD	h[],
+    int		n,
+    int		s)
 {
 	register  int		i, j, l;
 
@@ -108,9 +109,9 @@ int cchose( h, n, s )
  * plyrhand:
  *	Evaluate and score a player hand or crib
  */
-BOOLEAN plyrhand(hand, s)
-    CARD	hand[];
-    char	*s;
+BOOLEAN plyrhand(
+    CARD	hand[],
+    char	*s)
 {
     register int	i, j;
     register BOOLEAN	win;
@@ -145,9 +146,9 @@ BOOLEAN plyrhand(hand, s)
  * comphand:
  *	Handle scoring and displaying the computers hand
  */
-BOOLEAN comphand(h, s)
-    CARD	h[];
-    char	*s;
+BOOLEAN comphand(
+    CARD	h[],
+    char	*s)
 {
 	register int		j;
 
@@ -164,10 +165,10 @@ int	Lastscore[2] = {-1, -1};
  *	Put out the peg character on the score board and put the
  *	score up on the board.
  */
-void prpeg(score, peg, myturn)
-    register int    score;
-    char            peg;
-    BOOLEAN         myturn;
+void prpeg(
+    register int    score,
+    char            peg,
+    BOOLEAN         myturn)
 {
 	register int	y, x;
 
@@ -204,8 +205,9 @@ void prpeg(score, peg, myturn)
  *	Add inc to scr and test for > glimit, printing on the scoring
  *	board while we're at it.
  */
-BOOLEAN chkscr(scr, inc)
-    int *scr, inc;
+BOOLEAN chkscr(
+    int *scr, 
+	int inc)
 {
 	BOOLEAN		myturn;
 
@@ -224,8 +226,8 @@ BOOLEAN chkscr(scr, inc)
  * cdiscard -- the computer figures out what is the best discard for
  * the crib and puts the best two cards at the end
  */
-void cdiscard( mycrib )
-    BOOLEAN		mycrib;
+void cdiscard(
+    BOOLEAN		mycrib)
 {
 	CARD			d[ CARDS ],  h[ FULLHAND ],  cb[ 2 ];
 	register  int		i, j, k;
@@ -268,10 +270,10 @@ void cdiscard( mycrib )
 /*
  * returns true if some card in hand can be played without exceeding 31
  */
-BOOLEAN anymove( hand, n, sum )
-    CARD		hand[];
-    int			n;
-    int			sum;
+BOOLEAN anymove(
+    CARD		hand[],
+    int			n,
+    int			sum)
 {
 	register  int		i, j;
 
@@ -286,9 +288,9 @@ BOOLEAN anymove( hand, n, sum )
 /*
  * makeknown remembers all n cards in h for future recall
  */
-void makeknown( h, n )
-    CARD		h[];
-    int			n;
+void makeknown(
+    CARD		h[],
+    int			n)
 {
 	register  int		i;
 

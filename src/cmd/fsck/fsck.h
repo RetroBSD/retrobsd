@@ -86,7 +86,7 @@ enum fixstate {DONTKNOW, NOFIX, FIX};
 
 struct inodesc {
     enum fixstate id_fix;   /* policy on fixing errors */
-    int     (*id_func)();   /* function to be applied to blocks of inode */
+    int     (*id_func)(struct inodesc*);   /* function to be applied to blocks of inode */
     ino_t   id_number;      /* inode number described */
     ino_t   id_parent;      /* for DATA nodes, their parent */
     daddr_t id_blkno;       /* current block number being examined */

@@ -20,14 +20,14 @@
 #include <sys/signal.h>
 #include <sys/time.h>
 
-static	void	usage __P((void)),
-		run_reboot_jobs __P((cron_db *)),
-		cron_tick __P((cron_db *)),
-		cron_sync __P((void)),
-		cron_sleep __P((void)),
-		sigchld_handler __P((int)),
-		sighup_handler __P((int)),
-		parse_args __P((int c, char *v[]));
+static void usage(void);
+static void run_reboot_jobs(cron_db *);
+static void cron_tick(cron_db *);
+static void cron_sync(void);
+static void cron_sleep(void);
+static void sigchld_handler(int);
+static void sighup_handler(int);
+static void parse_args(int c, char *v[]);
 
 
 static void

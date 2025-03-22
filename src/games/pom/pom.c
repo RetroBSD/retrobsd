@@ -125,7 +125,7 @@ int main()
 	extern int errno;
 	struct timeval tp;
 	struct timezone tzp;
-	struct tm *GMT, *gmtime();
+	struct tm *GMT;
 	double days, today, tomorrow;
 	int cnt;
 	char *strerror();

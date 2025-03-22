@@ -94,15 +94,15 @@ long symcnt;				/* symbol count */
 long tsymlen;				/* total string length */
 int verbose;
 
-void error(name)
-	char *name;
+void error(
+	char *name)
 {
 	(void)fprintf(stderr, "ranlib: %s: %s\n", name, strerror(errno));
 	exit(1);
 }
 
-void *emalloc(len)
-	int len;
+void *emalloc(
+	int len)
 {
 	char *p;
 
@@ -112,10 +112,10 @@ void *emalloc(len)
 	return((void *)p);
 }
 
-int sgets(buf, n, fp)
-	char *buf;
-	int n;
-	register FILE *fp;
+int sgets(
+	char *buf,
+	int n,
+	register FILE *fp)
 {
 	register int i, c;
 
@@ -130,8 +130,8 @@ int sgets(buf, n, fp)
 	return(i + 1);
 }
 
-unsigned int fgetword (f)
-    register FILE *f;
+unsigned int fgetword (
+    register FILE *f)
 {
         register unsigned int h;
 
@@ -151,11 +151,11 @@ unsigned int fgetword (f)
  *  4 bytes: value
  *  N bytes: name
  */
-int fgetsym (fi, name, value, type)
-        register FILE *fi;
-        register char *name;
-        unsigned *value;
-        unsigned short *type;
+int fgetsym (
+        register FILE *fi,
+        register char *name,
+        unsigned *value,
+        unsigned short *type)
 {
         register int len;
         unsigned nbytes;
@@ -182,9 +182,9 @@ int fgetsym (fi, name, value, type)
 /*
  * Read the exec structure; ignore any files that don't look exactly right.
  */
-void rexec(rfd, wfd)
-	int rfd;
-	int wfd;
+void rexec(
+	int rfd,
+	int wfd)
 {
 	register RLIB *rp;
 	long nsyms;
@@ -259,7 +259,7 @@ bad1:	(void)lseek(rfd, (off_t)r_off, SEEK_SET);
  *	Write the symbol table into the archive, computing offsets as
  *	writing.
  */
-void symobj()
+void symobj(void)
 {
 	register RLIB *rp;
 	char hb[sizeof(struct ar_hdr) + 1 + 64];
@@ -312,8 +312,8 @@ void symobj()
 	(void)fflush(fp);
 }
 
-void settime(afd)
-	int afd;
+void settime(
+	int afd)
 {
 	struct ar_hdr *hdr;
 	off_t size;
@@ -327,7 +327,7 @@ void settime(afd)
 		error(archive);
 }
 
-int tmp()
+int tmp(void)
 {
 #ifndef CROSS
 	long set, oset;
@@ -352,7 +352,7 @@ int tmp()
 	return(fd);
 }
 
-int build()
+int build(void)
 {
 	CF cf;
 	int afd, tfd;
@@ -421,9 +421,9 @@ void usage()
 	exit(1);
 }
 
-int main(argc, argv)
-	int argc;
-	char **argv;
+int main(
+	int argc,
+	char **argv)
 {
 	int ch, eval, tflag;
 
@@ -455,8 +455,8 @@ int main(argc, argv)
 /*
  * For archive.c.
  */
-char *rname(path)
-	char *path;
+char *rname(
+	char *path)
 {
 	register char *ind;
 
@@ -466,7 +466,7 @@ char *rname(path)
 	return ind + 1;
 }
 
-void badfmt()
+void badfmt(void)
 {
 	errno = EINVAL;
 	error(archive);

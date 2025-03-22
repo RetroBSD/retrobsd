@@ -51,10 +51,27 @@ typedef struct {
 
 #define NUMSTATES	NUMELS(st)
 
-char	*setplane(), *circle(), *left(), *right(), *Left(), *Right(),
-	*beacon(), *ex_it(), *climb(), *descend(), *setalt(), *setrelalt(),
-	*benum(), *to_dir(), *rel_dir(), *delayb(), *mark(), *unmark(),
-	*airport(), *turn(), *ignore();
+char *setplane(int c);
+char *circle(int c);
+char *left(int c);
+char *right(int c);
+char *Left(int c);
+char *Right(int c);
+char *beacon(int c);
+char *ex_it(int c);
+char *climb(int c);
+char *descend(int c);
+char *setalt(int c);
+char *setrelalt(int c);
+char *benum(int c);
+char *to_dir(int c);
+char *rel_dir(int c);
+char *delayb(int c);
+char *mark(int c);
+char *unmark(int c);
+char *airport(int c);
+char *turn(int c);
+char *ignore(int c);
 
 RULE	state0[] = {	{ ALPHATOKEN,	1,	"%c:",		setplane},
 			{ RETTOKEN,	-1,	"",		NULL	},
@@ -213,7 +230,7 @@ int gettoken()
 #endif
 			if (fork() == 0)	/* child */
 			{
-				char *shell, *base, *getenv(), *strrchr();
+				char *shell, *base;
 
 				setuid(getuid()); /* turn off setuid bit */
 				done_screen();
@@ -268,7 +285,7 @@ void noise()
 int getcommand()
 {
 	int	c, i, done;
-	char	*s, *(*func)();
+	char	*s, *(*func)(int);
 	PLANE	*pp;
 
 	rezero();

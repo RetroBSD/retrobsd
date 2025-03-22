@@ -30,8 +30,8 @@ char	*Color[4] =
 };
 
 void
-srscan(f)
-        int	f;
+srscan(
+        int	f)
 {
 	register int		i, j;
 	register int		statinfo;

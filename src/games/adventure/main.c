@@ -14,9 +14,9 @@ struct game game;
 struct travlist *tkk;
 
 int
-main(argc, argv)
-int argc;
-char **argv;
+main(
+int argc,
+char **argv)
 {       register int i;
 	int rval;
 	struct text *kk;

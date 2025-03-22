@@ -32,8 +32,8 @@ char	*Losemsg[] =
 };
 
 void
-lose(why)
-        int	why;
+lose(
+        int	why)
 {
 	extern	jmp_buf	env;
 

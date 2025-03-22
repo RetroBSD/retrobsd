@@ -10,8 +10,8 @@
  *	Ask a question and get a yes or no answer.  Default is "no".
  */
 int
-query(prompt)
-char	*prompt;
+query(
+char	*prompt)
 {
 	register int	c, retval;
 	register int	y, x;

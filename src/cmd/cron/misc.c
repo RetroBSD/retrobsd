@@ -37,10 +37,10 @@
 static int		LogFD = ERR;
 
 int
-strcmp_until(left, right, until)
-	register char	*left;
-	register char	*right;
-	int	until;
+strcmp_until(
+	register char	*left,
+	register char	*right,
+	int	until)
 {
 	register int	diff;
 
@@ -63,8 +63,8 @@ strcmp_until(left, right, until)
 /* strdtb(s) - delete trailing blanks in string 's' and return new length
  */
 int
-strdtb(s)
-	register char	*s;
+strdtb(
+	register char	*s)
 {
 	register char	*x = s;
 
@@ -92,8 +92,8 @@ strdtb(s)
 
 
 int
-set_debug_flags(flags)
-	char	*flags;
+set_debug_flags(
+	char	*flags)
 {
 	/* debug flags are of the form    flag[,flag ...]
 	 *
@@ -228,8 +228,8 @@ set_cron_cwd()
  * it would be great if fflush() disassociated the file buffer.
  */
 void
-acquire_daemonlock(closeflag)
-	int closeflag;
+acquire_daemonlock(
+	int closeflag)
 {
 	static	FILE	*fp = NULL;
 
@@ -282,8 +282,8 @@ acquire_daemonlock(closeflag)
 /* get_char(file) : like getc() but increment LineNumber on newlines
  */
 int
-get_char(file)
-	register FILE	*file;
+get_char(
+	register FILE	*file)
 {
 	register int	ch;
 
@@ -297,9 +297,9 @@ get_char(file)
 /* unget_char(ch, file) : like ungetc but do LineNumber processing
  */
 void
-unget_char(ch, file)
-	register int	ch;
-	register FILE	*file;
+unget_char(
+	register int	ch,
+	register FILE	*file)
 {
 	ungetc(ch, file);
 	if (ch == '\n')
@@ -314,11 +314,11 @@ unget_char(ch, file)
  *		(4) returns EOF or terminating character, whichever
  */
 int
-get_string(string, size, file, terms)
-	register char	*string;
-	int	size;
-	FILE	*file;
-	char	*terms;
+get_string(
+	register char	*string,
+	int	size,
+	FILE	*file,
+	char	*terms)
 {
 	register int	ch;
 
@@ -339,8 +339,8 @@ get_string(string, size, file, terms)
 /* skip_comments(file) : read past comment (if any)
  */
 void
-skip_comments(file)
-	register FILE	*file;
+skip_comments(
+	register FILE	*file)
 {
 	register int	ch;
 
@@ -381,9 +381,9 @@ skip_comments(file)
  *	FALSE otherwise.
  */
 static int
-in_file(string, file)
-	char *string;
-	FILE *file;
+in_file(
+	char *string,
+	FILE *file)
 {
 	char line[MAX_TEMPSTR];
 
@@ -404,8 +404,8 @@ in_file(string, file)
  *	or (neither file exists but user=="root" so it's okay)
  */
 int
-allowed(username)
-	char *username;
+allowed(
+	char *username)
 {
 	static int	init = FALSE;
 	static FILE	*allow, *deny;
@@ -436,11 +436,11 @@ allowed(username)
 
 
 void
-log_it(username, xpid, event, detail)
-	char	*username;
-	int	xpid;
-	char	*event;
-	char	*detail;
+log_it(
+	char	*username,
+	int	xpid,
+	char	*event,
+	char	*detail)
 {
 	PID_T			pid = xpid;
 #if defined(LOG_FILE)
@@ -530,9 +530,9 @@ log_close() {
  *	(2) it returns a pointer to static storage
  */
 char *
-first_word(s, t)
-	register char *s;	/* string we want the first word of */
-	char *t;		/* terminators, implicitly including \0 */
+first_word(
+	register char *s,	/* string we want the first word of */
+	char *t)		/* terminators, implicitly including \0 */
 {
 	static char retbuf[2][MAX_TEMPSTR + 1];	/* sure wish C had GC */
 	static int retsel = 0;
@@ -563,10 +563,10 @@ first_word(s, t)
  *	heavily ascii-dependent.
  */
 void
-mkprint(dst, src, len)
-	register char *dst;
-	register unsigned char *src;
-	register int len;
+mkprint(
+	register char *dst,
+	register unsigned char *src,
+	register int len)
 {
 	while (len-- > 0)
 	{
@@ -593,9 +593,9 @@ mkprint(dst, src, len)
  *	returns a pointer to malloc'd storage, you must call free yourself.
  */
 char *
-mkprints(src, len)
-	unsigned char *src;
-	unsigned int len;
+mkprints(
+	unsigned char *src,
+	unsigned int len)
 {
 	register char *dst = (char *)malloc(len*4 + 1);
 

@@ -73,9 +73,9 @@ static struct statfs *getmntpt(char *name);
 static void mangle(char *options, int *argcp, char **argv);
 
 int
-main(argc, argv)
-	int argc;
-	register char *argv[];
+main(
+	int argc,
+	register char *argv[])
 {
 	char *mntonname, **vfslist, *vfstype;
 	register struct fstab *fs;
@@ -221,9 +221,14 @@ main(argc, argv)
 }
 
 int
-mountfs(vfstype, spec, name, flags, options, mntopts)
-	char *vfstype, *spec, *name, *options, *mntopts;
-	int flags;
+mountfs(
+	char *vfstype, 
+	char *spec,
+	char *name,
+	int flags,
+	char *options,
+	char *mntopts
+	)
 {
 	/* List of directories containing mount_xxx subcommands. */
 	static char *edirs[] = {
@@ -329,9 +334,10 @@ mountfs(vfstype, spec, name, flags, options, mntopts)
 }
 
 void
-prmount(spec, name, flags)
-	char *spec, *name;
-	int flags;
+prmount(
+	char *spec,
+	char *name,
+	int flags)
 {
 	register struct opt *o;
 	register int f;
@@ -348,8 +354,8 @@ prmount(spec, name, flags)
 }
 
 struct statfs *
-getmntpt(name)
-	char *name;
+getmntpt(
+	char *name)
 {
 	struct statfs *mntbuf;
 	register int i, mntsize;
@@ -363,9 +369,9 @@ getmntpt(name)
 }
 
 int
-badvfsname(vfsname, vfslist)
-	char *vfsname;
-	register char **vfslist;
+badvfsname(
+	char *vfsname,
+	register char **vfslist)
 {
 
 	if (vfslist == NULL)
@@ -379,9 +385,9 @@ badvfsname(vfsname, vfslist)
 }
 
 int
-badvfstype(vfstype, vfslist)
-	int vfstype;
-	register char **vfslist;
+badvfstype(
+	int vfstype,
+	register char **vfslist)
 {
 	static char *vfsnames[] = INITMOUNTNAMES;
 
@@ -392,8 +398,8 @@ badvfstype(vfstype, vfslist)
 }
 
 char **
-makevfslist(fslist)
-	char *fslist;
+makevfslist(
+	char *fslist)
 {
 	register char **av;
 	int i;
@@ -424,9 +430,9 @@ makevfslist(fslist)
 }
 
 char *
-catopt(s0, s1)
-	char *s0;
-	char *s1;
+catopt(
+	char *s0,
+	char *s1)
 {
 	size_t i;
 	char *cp;
@@ -445,10 +451,10 @@ catopt(s0, s1)
 }
 
 void
-mangle(options, argcp, argv)
-	char *options;
-	int *argcp;
-	register char **argv;
+mangle(
+	char *options,
+	int *argcp,
+	register char **argv)
 {
 	register char *p;
 	char *s;

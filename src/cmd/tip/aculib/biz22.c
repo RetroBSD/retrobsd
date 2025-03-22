@@ -30,8 +30,8 @@ void biz22_disconnect()
  *  pulse dialing (mod = "W")
  */
 static int
-biz_dialer(num, mod)
-    char *num, *mod;
+biz_dialer(
+    char *num, char *mod)
 {
     register int connected = 0;
     char cbuf[40];
@@ -82,14 +82,14 @@ biz_dialer(num, mod)
     return (connected);
 }
 
-int biz22w_dialer(num, acu)
-    char *num, *acu;
+int biz22w_dialer(
+    char *num, char *acu)
 {
     return (biz_dialer(num, "W"));
 }
 
-int biz22f_dialer(num, acu)
-    char *num, *acu;
+int biz22f_dialer(
+    char *num, char *acu)
 {
     return (biz_dialer(num, "V"));
 }
@@ -108,8 +108,8 @@ sigALRM(int i)
 }
 
 static int
-cmd(s)
-    register char *s;
+cmd(
+    register char *s)
 {
     char c;
     sig_t f;
@@ -129,8 +129,8 @@ cmd(s)
     return (c != '\r');
 }
 
-static int detect(s)
-    register char *s;
+static int detect(
+    register char *s)
 {
     char c;
     sig_t f;

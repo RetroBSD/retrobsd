@@ -12,14 +12,13 @@
 /*LINTLIBRARY*/
 
 char *
-cfgets(buf, siz, fil)
-register char *buf;
-int siz;
-FILE *fil;
+cfgets(
+register char *buf,
+int siz,
+FILE *fil)
 {
 	register char *s;
 	register int i, c, len;
-	char *fgets();
 
 	for (i = 0, s = buf; (i = (fgets(s, siz-i, fil) != NULL)); i = s - buf) {
 

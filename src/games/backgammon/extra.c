@@ -182,8 +182,8 @@ dblgood ()
 }
 
 int
-freemen (b)
-        int	b;
+freemen (
+        int	b)
 {
 	register int	i, inc, lim;
 
@@ -201,8 +201,8 @@ freemen (b)
 }
 
 int
-trapped (n, inc)
-        int	n, inc;
+trapped (
+        int	n, int inc)
 {
 	register int	i, j, k;
 	int		c, l, ct;

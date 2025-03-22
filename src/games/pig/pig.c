@@ -54,9 +54,9 @@ void pigout (char *, int);
 void usage (void);
 
 int
-main(argc, argv)
-	int argc;
-	char *argv[];
+main(
+	int argc,
+	char *argv[])
 {
 	register int len;
 	int ch;
@@ -90,9 +90,9 @@ main(argc, argv)
 }
 
 void
-pigout(buf, len)
-	char *buf;
-	int len;
+pigout(
+	char *buf,
+	int len)
 {
 	register int ch, start;
 	int olen;

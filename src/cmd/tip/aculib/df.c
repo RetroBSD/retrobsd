@@ -26,9 +26,9 @@ void df_disconnect()
     ioctl(FD, TIOCFLUSH, &rw);
 }
 
-int df_dialer(num, acu, df03)
-    char *num, *acu;
-    int df03;
+int df_dialer(
+    char *num, char *acu,
+    int df03)
 {
     register int f = FD;
     struct sgttyb buf;
@@ -75,14 +75,14 @@ int df_dialer(num, acu, df03)
     return (c == 'A');
 }
 
-int df02_dialer(num, acu)
-    char *num, *acu;
+int df02_dialer(
+    char *num, char *acu)
 {
     return (df_dialer(num, acu, 0));
 }
 
-int df03_dialer(num, acu)
-    char *num, *acu;
+int df03_dialer(
+    char *num, char *acu)
 {
     return (df_dialer(num, acu, 1));
 }

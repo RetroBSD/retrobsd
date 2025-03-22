@@ -21,12 +21,12 @@
 # include <syslog.h>
 #endif
 
-static void		child_process __P((entry *, user *));
+static void		child_process(entry *, user *);
 
 void
-do_command(e, u)
-	entry	*e;
-	user	*u;
+do_command(
+	entry	*e,
+	user	*u)
 {
 	Debug(DPROC, ("[%d] do_command(%s, (%s,%d,%d))\n",
 		getpid(), e->cmd, u->name, e->uid, e->gid))
@@ -58,9 +58,9 @@ do_command(e, u)
 
 
 static void
-child_process(e, u)
-	entry	*e;
-	user	*u;
+child_process(
+	entry	*e,
+	user	*u)
 {
 	int		stdin_pipe[2], stdout_pipe[2];
 	register char	*input_data;

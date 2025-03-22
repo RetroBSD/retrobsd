@@ -910,7 +910,7 @@ void PicocParseInteractiveNoStartPrompt(int EnableDebugger)
 }
 
 /* parse interactively, showing a startup message */
-void PicocParseInteractive()
+void PicocParseInteractive(void)
 {
     PlatformPrintf(INTERACTIVE_PROMPT_START);
     PicocParseInteractiveNoStartPrompt(TRUE);

@@ -41,8 +41,8 @@ static struct utmp	wtmp[2] = {
  *	convert user's time into number of seconds
  */
 static int
-gtime(ap)
-	register char	*ap;		/* user argument */
+gtime(
+	register char	*ap)		/* user argument */
 {
 	register int	year, month;
 	register char	*C;		/* pointer into time argument */
@@ -296,9 +296,9 @@ void fmttime(char *fmt, struct tm *tm)
 
 }
 
-int main(argc, argv)
-	int	argc;
-	char	**argv;
+int main(
+	int	argc,
+	char	**argv)
 {
 	static char	usage[] = "usage: date [-nu] [-d dst] [-t timezone] [yymmddhhmm[.ss]]\n";
 	struct timezone	tz;

@@ -19,7 +19,7 @@
 **	etc.
 */
 void
-capture()
+capture(int unused)
 {
 	register int		i;
 	register struct kling	*k;

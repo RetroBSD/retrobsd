@@ -65,9 +65,9 @@ static  int		pairpoints, runpoints;	/* globals from pairuns */
  * fifteens:
  *	Return number of fifteens in hand of n cards
  */
-int fifteens(hand, n)
-    register CARD	hand[];
-    int			n;
+int fifteens(
+    register CARD	hand[],
+    int			n)
 {
 	register int		*sp, *np;
 	register int		i;
@@ -107,9 +107,9 @@ int fifteens(hand, n)
  * this routine only works if n is strictly less than 6
  * sets the globals pairpoints and runpoints appropriately
  */
-int pairuns( h, n )
-    CARD	h[];
-    int		n;
+int pairuns(
+    CARD	h[],
+    int		n)
 {
 	register  int		i;
 	int			runlength, runmult, lastmult, curmult;
@@ -179,12 +179,12 @@ int pairuns( h, n )
  *	Score the given hand of n cards and the starter card.
  *	n must be <= 4
  */
-int scorehand(hand, starter, n, crb, do_explain)
-    register CARD	hand[];
-    CARD		starter;
-    int			n;
-    BOOLEAN		crb;		/* true if scoring crib */
-    BOOLEAN		do_explain;	/* true if must explain this hand */
+int scorehand(
+    register CARD	hand[],
+    CARD		starter,
+    int			n,
+    BOOLEAN		crb,		/* true if scoring crib */
+    BOOLEAN		do_explain)	/* true if must explain this hand */
 {
 	CARD			h[(CINHAND + 1)];
 	register int		i, k;
@@ -255,10 +255,11 @@ int scorehand(hand, starter, n, crb, do_explain)
  * pegscore tells how many points crd would get if played after
  * the n cards in tbl during pegging
  */
-int pegscore( crd, tbl, n, sum )
-    CARD	crd,  tbl[];
-    int		n;
-    int		sum;
+int pegscore(
+    CARD	crd,  
+	CARD	tbl[],
+    int		n,
+    int		sum)
 {
 	BOOLEAN			got[ RANKS ];
 	register  int		i, j, scr;
@@ -294,8 +295,9 @@ int pegscore( crd, tbl, n, sum )
  * and returns an adjusted normalized score for the number of
  * points such a crib will get.
  */
-int adjust( cb, tnv )
-    CARD	cb[], tnv;
+int adjust(
+    CARD	cb[], 
+	CARD	tnv)
 {
 	int			i,  c0,  c1;
 	long			scr;

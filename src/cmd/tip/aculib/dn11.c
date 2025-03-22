@@ -20,8 +20,8 @@ void alarmtr(int sig)
     longjmp(jmpbuf, 1);
 }
 
-int dn_dialer(num, acu)
-    char *num, *acu;
+int dn_dialer(
+    char *num, char *acu)
 {
     int lt, nw;
     register int timelim;

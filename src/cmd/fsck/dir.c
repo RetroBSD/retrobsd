@@ -27,9 +27,9 @@ struct  dirtemplate dirhead = { 0, 8, 1, {'.'}, 0, DIRBLKSIZ - 8, 2,
                 {'.', '.' }};
 
 void
-descend(parentino, inumber)
-    struct inodesc *parentino;
-    ino_t inumber;
+descend(
+    struct inodesc *parentino,
+    ino_t inumber)
 {
     register DINODE *dp;
     struct inodesc curino;
@@ -72,9 +72,9 @@ descend(parentino, inumber)
  * This is a superset of the checks made in the kernel.
  */
 int
-dircheck(idesc, dp)
-    struct inodesc *idesc;
-    register DIRECT *dp;
+dircheck(
+    struct inodesc *idesc,
+    register DIRECT *dp)
 {
     register int size;
     register char *cp;
@@ -104,8 +104,8 @@ dircheck(idesc, dp)
  * get next entry in a directory.
  */
 DIRECT *
-fsck_readdir(idesc)
-    register struct inodesc *idesc;
+fsck_readdir(
+    register struct inodesc *idesc)
 {
     register DIRECT *dp, *ndp;
     u_int size;
@@ -152,8 +152,8 @@ dpok:
 }
 
 int
-dirscan(idesc)
-    register struct inodesc *idesc;
+dirscan(
+    register struct inodesc *idesc)
 {
     register DIRECT *dp;
     int dsize, n;
@@ -190,9 +190,9 @@ dirscan(idesc)
 }
 
 void
-direrr(ino, s)
-    ino_t ino;
-    char *s;
+direrr(
+    ino_t ino,
+    char *s)
 {
     register DINODE *dp;
 
@@ -240,8 +240,8 @@ adjust(register struct inodesc *idesc, short lcnt)
 }
 
 int
-mkentry(idesc)
-    struct inodesc *idesc;
+mkentry(
+    struct inodesc *idesc)
 {
     register DIRECT *dirp = idesc->id_dirp;
     DIRECT newent;
@@ -266,8 +266,8 @@ mkentry(idesc)
 }
 
 int
-chgino(idesc)
-    struct inodesc *idesc;
+chgino(
+    struct inodesc *idesc)
 {
     register DIRECT *dirp = idesc->id_dirp;
 
@@ -281,8 +281,8 @@ chgino(idesc)
  * Attempt to expand the size of a directory
  */
 int
-expanddir(dp)
-    register DINODE *dp;
+expanddir(
+    register DINODE *dp)
 {
     daddr_t lastbn, newblk;
     char *cp, firstblk[DIRBLKSIZ];
@@ -336,9 +336,10 @@ bad:
  * make an entry in a directory
  */
 int
-makeentry(parent, ino, name)
-    ino_t parent, ino;
-    char *name;
+makeentry(
+    ino_t parent,
+    ino_t ino,
+    char *name)
 {
     DINODE *dp;
     struct inodesc idesc;
@@ -368,8 +369,8 @@ makeentry(parent, ino, name)
  * free a directory inode
  */
 void
-freedir(ino, parent)
-    ino_t ino, parent;
+freedir(
+    ino_t ino, ino_t parent)
 {
     DINODE *dp;
 
@@ -385,9 +386,9 @@ freedir(ino, parent)
  * generate a temporary name for the lost+found directory.
  */
 int
-lftempname(bufp, ino)
-    char *bufp;
-    ino_t ino;
+lftempname(
+    char *bufp,
+    ino_t ino)
 {
     register ino_t in;
     register char *cp;
@@ -408,9 +409,9 @@ lftempname(bufp, ino)
 }
 
 int
-linkup(orphan, pdir)
-    ino_t orphan;
-    ino_t pdir;
+linkup(
+    ino_t orphan,
+    ino_t pdir)
 {
     register DINODE *dp;
     int lostdir, len;
@@ -534,8 +535,9 @@ linkup(orphan, pdir)
  * allocate a new directory
  */
 int
-allocdir(parent, request)
-    ino_t parent, request;
+allocdir(
+    ino_t parent,
+    ino_t request)
 {
     ino_t ino;
     char *cp;

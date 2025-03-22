@@ -20,7 +20,7 @@ struct {
 } ml[ML];
 int mlx;
 
-long descend();
+long descend(char *base, char *name);
 
 #define kb(n) (howmany(n * DEV_BSIZE, 1024))
 

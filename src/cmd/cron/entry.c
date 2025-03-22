@@ -29,10 +29,10 @@ typedef	enum ecode {
 	e_cmd, e_timespec, e_username
 } ecode_e;
 
-static char	get_list __P((bitstr_t *, int, int, char *[], int, FILE *)),
-		get_range __P((bitstr_t *, int, int, char *[], int, FILE *)),
-		get_number __P((int *, int, char *[], int, FILE *));
-static int	set_element __P((bitstr_t *, int, int, int));
+static char get_list(bitstr_t *, int, int, char *[], int, FILE *);
+static char get_range(bitstr_t *, int, int, char *[], int, FILE *);
+static char get_number(int *, int, char *[], int, FILE *);
+static int	set_element(bitstr_t *, int, int, int);
 
 static char *ecodes[] =
 	{
@@ -49,8 +49,8 @@ static char *ecodes[] =
 
 
 void
-free_entry(e)
-	register entry	*e;
+free_entry(
+	register entry	*e)
 {
 	free(e->cmd);
 	env_free(e->envp);
@@ -62,11 +62,11 @@ free_entry(e)
  * otherwise return a pointer to a new entry.
  */
 entry *
-load_entry(file, error_func, pw, envp)
-	FILE		*file;
-	void		(*error_func)();
-	register struct passwd	*pw;
-	char		**envp;
+load_entry(
+	FILE		*file,
+	void		(*error_func)(char *msg),
+	register struct passwd	*pw,
+	char		**envp)
 {
 	/* this function reads one crontab entry -- the next -- from a file.
 	 * it skips any leading blank lines, ignores comments, and returns
@@ -297,12 +297,12 @@ load_entry(file, error_func, pw, envp)
 
 
 static char
-get_list(bits, low, high, names, ch, file)
-	bitstr_t	*bits;		/* one bit per flag, default=FALSE */
-	int		low, high;	/* bounds, impl. offset for bitstr */
-	char		*names[];	/* NULL or *[] of names for these elements */
-	int		ch;		/* current character being processed */
-	register FILE		*file;		/* file being read */
+get_list(
+	bitstr_t	*bits,		/* one bit per flag, default=FALSE */
+	int		low, int high,	/* bounds, impl. offset for bitstr */
+	char		*names[],	/* NULL or *[] of names for these elements */
+	int		ch,		/* current character being processed */
+	register FILE		*file)		/* file being read */
 {
 	register int	done;
 
@@ -345,12 +345,12 @@ get_list(bits, low, high, names, ch, file)
 
 
 static char
-get_range(bits, low, high, names, ch, file)
-	bitstr_t	*bits;		/* one bit per flag, default=FALSE */
-	int		low, high;	/* bounds, impl. offset for bitstr */
-	char		*names[];	/* NULL or names of elements */
-	register int	ch;		/* current character being processed */
-	FILE		*file;		/* file being read */
+get_range(
+	bitstr_t	*bits,		/* one bit per flag, default=FALSE */
+	int		low, int high,	/* bounds, impl. offset for bitstr */
+	char		*names[],	/* NULL or names of elements */
+	register int	ch,		/* current character being processed */
+	FILE		*file)		/* file being read */
 {
 	/* range = number | number "-" number [ "/" number ]
 	 */
@@ -430,12 +430,12 @@ get_range(bits, low, high, names, ch, file)
 
 
 static char
-get_number(numptr, low, names, ch, file)
-	int	*numptr;	/* where does the result go? */
-	int	low;		/* offset applied to result if symbolic enum used */
-	char	*names[];	/* symbolic names, if any, for enums */
-	register int	ch;	/* current character */
-	FILE	*file;		/* source */
+get_number(
+	int	*numptr,	/* where does the result go? */
+	int	low,		/* offset applied to result if symbolic enum used */
+	char	*names[],	/* symbolic names, if any, for enums */
+	register int	ch,	/* current character */
+	FILE	*file)		/* source */
 {
 	char	temp[MAX_TEMPSTR], *pc;
 	int	len, i, all_digits;
@@ -485,11 +485,11 @@ get_number(numptr, low, names, ch, file)
 
 
 static int
-set_element(bits, low, high, number)
-	bitstr_t	*bits; 		/* one bit per flag, default=FALSE */
-	int		low;
-	int		high;
-	int		number;
+set_element(
+	bitstr_t	*bits, 		/* one bit per flag, default=FALSE */
+	int		low,
+	int		high,
+	int		number)
 {
 	Debug(DPARS|DEXT, ("set_element(?,%d,%d,%d)\n", low, high, number))
 

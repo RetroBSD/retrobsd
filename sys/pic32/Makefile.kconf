@@ -51,7 +51,7 @@ SYSTEM_LD       = -@echo ${LD} ${LDFLAGS} '$${SYSTEM_OBJ}' vers.o -o $@; \
 SYSTEM_LD_TAIL  = ${SIZE} $@; \
                   $(OBJCOPY) -O ihex $@ $(basename $@).hex; \
                   $(OBJCOPY) -O binary -R .boot -R .config $@ $(basename $@).bin; \
-				  $(OBJCOPY) -O binary --only-section .boot $@ boot.bin; \
+                  $(OBJCOPY) -O binary --only-section .boot $@ boot.bin; \
                   $(OBJDUMP) -d -S $@ > $(basename $@).dis; \
                   $(NM) -n $@ > $(basename $@).nm
 

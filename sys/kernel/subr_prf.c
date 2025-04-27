@@ -13,6 +13,7 @@
 #include <sys/reboot.h>
 #include <sys/systm.h>
 #include <sys/syslog.h>
+#include <sys/cmn_err.h>
 
 #define TOCONS  0x1
 #define TOTTY   0x2
@@ -30,6 +31,16 @@ typedef __builtin_va_list va_list;
  * call to panic.
  */
 char    *panicstr;
+
+/*
+ * Boot options for panic
+ */
+int bootopt = RB_HALT | RB_DUMP;
+
+/*
+ * The panic level - needed by xcmn_err()
+ */
+static int panic_level = 0;
 
 /*
  * Print a character on console or users terminal.
@@ -591,8 +602,6 @@ log (int level, char *fmt, ...)
 void
 panic(char *s)
 {
-    int bootopt = RB_HALT | RB_DUMP;
-
     if (panicstr) {
         bootopt |= RB_NOSYNC;
     } else {
@@ -600,4 +609,51 @@ panic(char *s)
     }
     printf ("panic: %s\n", s);
     boot (rootdev, bootopt);
+}
+
+void
+cmn_err(int level, char *fmt, ... )
+{
+	xcmn_err(level, &fmt);
+}
+
+void
+xcmn_err(int level, char **fmtp)
+{
+	register char	*fmt = *fmtp;
+	register u_int	nextarg = (u_int) ((u_int *)fmtp + 1);
+
+	switch (level) {
+		case CE_CONT :
+			printf(fmt, nextarg) ;
+			break ;
+
+		case CE_NOTE :
+			printf("NOTICE: %s\n", fmt) ;
+			break ;
+
+		case CE_WARN :
+			printf("WARNING: %s\n", fmt) ;
+			break ;
+
+		case CE_PANIC :
+			switch (panic_level) {
+				case 0 :
+					panic_level = 1 ;
+					printf("PANIC: %s\n", fmt) ;
+					break;
+
+				case 1 :
+					panic_level = 2 ;
+					printf("DOUBLE PANIC: %s\n", fmt) ;
+                    bootopt |= RB_NOSYNC;
+					break;
+
+				default :
+					panic_level = 3 ;
+			}
+        boot(rootdev, bootopt);
+		default:
+			cmn_err(CE_PANIC, "unknown level: cmn_err(level=%d, msg=\"%s\")", level, fmt);
+	}
 }

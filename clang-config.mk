@@ -27,6 +27,12 @@ endif
 #   brew install clang@18
 # Newer versions are also OK.
 ifeq ($(LLVMBIN),)
+    LLVMBIN = $(dir $(wildcard /usr/local/Cellar/llvm@19/19.*/bin/clang-19))
+endif
+ifeq ($(LLVMBIN),)
+    LLVMBIN = $(dir $(wildcard /opt/homebrew/Cellar/llvm@19/19.*/bin/clang-19))
+endif
+ifeq ($(LLVMBIN),)
     LLVMBIN = $(dir $(wildcard /usr/local/Cellar/llvm@18/18.*/bin/clang-18))
 endif
 ifeq ($(LLVMBIN),)

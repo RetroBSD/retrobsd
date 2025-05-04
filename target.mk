@@ -11,7 +11,7 @@ CC		= $(LLVMBIN)clang -target mipsel -mcpu=mips32r2 -mabi=o32 -msoft-float \
                   -Wno-builtin-requires-header -Werror
 CXX             = $(LLVMBIN)clang++ -target mipsel -mcpu=mips32r2 -mabi=o32 -msoft-float \
                   -fomit-frame-pointer -finline-hint-functions -I$(TOPSRC)/include
-LD		= $(LLVMBIN)ld.lld -m elf32ltsmip
+LD		= ld.lld -m elf32ltsmip
 AR		= $(LLVMBIN)llvm-ar
 RANLIB          = $(LLVMBIN)llvm-ranlib
 SIZE            = $(LLVMBIN)llvm-size

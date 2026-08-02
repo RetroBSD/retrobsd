@@ -8,10 +8,10 @@ include $(TOPSRC)/clang-config.mk
 
 CC		= $(LLVMBIN)clang -target mipsel -mcpu=mips32r2 -mabi=o32 -msoft-float \
                   -fomit-frame-pointer -finline-hint-functions -I$(TOPSRC)/include \
-                  -Wno-builtin-requires-header -Werror
+                  -Wno-builtin-requires-header -fno-builtin-wcslen -Werror
 CXX             = $(LLVMBIN)clang++ -target mipsel -mcpu=mips32r2 -mabi=o32 -msoft-float \
                   -fomit-frame-pointer -finline-hint-functions -I$(TOPSRC)/include
-LD		= ld.lld -m elf32ltsmip
+LD		= $(LLD) -m elf32ltsmip
 AR		= $(LLVMBIN)llvm-ar
 RANLIB          = $(LLVMBIN)llvm-ranlib
 SIZE            = $(LLVMBIN)llvm-size

@@ -1,76 +1,41 @@
-# Clang compiler on Linux
-# ~~~~~~~~~~~~~~~~~~~~~~~
+# Find a Clang/LLVM toolchain able to generate MIPS code.
+#
 # Install by:
-#   sudo apt install clang-18
-# Newer versions are also OK.
+#   sudo apt install clang lld              -- on Linux
+#   brew install llvm lld                   -- on MacOS
+#
+# Any LLVM version from 14 up is fine.  When several are installed, the
+# newest one is used.  To select a particular toolchain, set LLVMBIN
+# explicitly, for example:
+#   make LLVMBIN=/opt/homebrew/opt/llvm@21/bin/
+#
+LLVM_VERSIONS = 22 21 20 19 18 17 16 15 14
+
 ifeq ($(LLVMBIN),)
-    LLVMBIN = $(dir $(wildcard /usr/lib/llvm-18/bin/clang))
-endif
-ifeq ($(LLVMBIN),)
-    LLVMBIN = $(dir $(wildcard /usr/lib/llvm-17/bin/clang))
-endif
-ifeq ($(LLVMBIN),)
-    # Default on Ubuntu 24.04
-    LLVMBIN = $(dir $(wildcard /usr/lib/llvm-16/bin/clang))
-endif
-ifeq ($(LLVMBIN),)
-    LLVMBIN = $(dir $(wildcard /usr/lib/llvm-15/bin/clang))
-endif
-ifeq ($(LLVMBIN),)
-    # Default on Debian 12 amd Ubuntu 22.04
-    LLVMBIN = $(dir $(wildcard /usr/lib/llvm-14/bin/clang))
+    # Homebrew on MacOS installs into /opt/homebrew (arm64) or /usr/local (x86).
+    # The unversioned formula is the newest one.  Probe the opt/ prefix, which
+    # Homebrew always creates, rather than versioned Cellar directories.
+    # On Linux, apt installs into /usr/lib/llvm-NN.
+    LLVM_SEARCH := /opt/homebrew/opt/llvm /usr/local/opt/llvm \
+        $(foreach v,$(LLVM_VERSIONS),/opt/homebrew/opt/llvm@$(v) /usr/local/opt/llvm@$(v)) \
+        $(foreach v,$(LLVM_VERSIONS),/usr/lib/llvm-$(v))
+
+    LLVMBIN := $(dir $(firstword $(wildcard $(addsuffix /bin/clang,$(LLVM_SEARCH)))))
 endif
 
-# Clang compiler on MacOS
-# ~~~~~~~~~~~~~~~~~~~~~~~
-# Install by:
-#   brew install clang@18
-# Newer versions are also OK.
+# Default Clang compiler.
+# Note: native clang on MacOS has no support for mips32.
 ifeq ($(LLVMBIN),)
-    LLVMBIN = $(dir $(wildcard /usr/local/Cellar/llvm@19/19.*/bin/clang-19))
-endif
-ifeq ($(LLVMBIN),)
-    LLVMBIN = $(dir $(wildcard /opt/homebrew/Cellar/llvm@19/19.*/bin/clang-19))
-endif
-ifeq ($(LLVMBIN),)
-    LLVMBIN = $(dir $(wildcard /usr/local/Cellar/llvm@18/18.*/bin/clang-18))
-endif
-ifeq ($(LLVMBIN),)
-    LLVMBIN = $(dir $(wildcard /opt/homebrew/Cellar/llvm@18/18.*/bin/clang-18))
-endif
-ifeq ($(LLVMBIN),)
-    LLVMBIN = $(dir $(wildcard /usr/local/Cellar/llvm@17/17.*/bin/clang-17))
-endif
-ifeq ($(LLVMBIN),)
-    LLVMBIN = $(dir $(wildcard /opt/homebrew/Cellar/llvm@17/17.*/bin/clang-17))
-endif
-ifeq ($(LLVMBIN),)
-    LLVMBIN = $(dir $(wildcard /usr/local/Cellar/llvm@16/16.*/bin/clang-16))
-endif
-ifeq ($(LLVMBIN),)
-    LLVMBIN = $(dir $(wildcard /opt/homebrew/Cellar/llvm@16/16.*/bin/clang-16))
-endif
-ifeq ($(LLVMBIN),)
-    LLVMBIN = $(dir $(wildcard /usr/local/Cellar/llvm@15/15.*/bin/clang-15))
-endif
-ifeq ($(LLVMBIN),)
-    LLVMBIN = $(dir $(wildcard /opt/homebrew/Cellar/llvm@15/15.*/bin/clang-15))
-endif
-ifeq ($(LLVMBIN),)
-    LLVMBIN = $(dir $(wildcard /usr/local/Cellar/llvm@14/14.*/bin/clang-14))
-endif
-ifeq ($(LLVMBIN),)
-    LLVMBIN = $(dir $(wildcard /opt/homebrew/Cellar/llvm@14/14.*/bin/clang-14))
-endif
-
-# Default Clang compiler
-# ~~~~~~~~~~~~~~~~~~~~~~
-ifeq ($(LLVMBIN),)
-    # Note: native clang on MacOS has no support for mips32.
     ifneq ($(shell uname -s),Darwin)
         LLVMBIN = $(dir $(wildcard /usr/bin/clang))
     endif
 endif
+
 ifeq ($(LLVMBIN),)
-    $(error Unable to find any CLANG toolchain!)
+    $(error Unable to find any CLANG toolchain! Install it by "brew install llvm lld" on MacOS \
+or "sudo apt install clang lld" on Linux, or set LLVMBIN=/path/to/llvm/bin/)
 endif
+
+# The LLVM linker.  Homebrew ships lld as a separate formula, so it is usually
+# absent from the LLVM directory: fall back to whatever ld.lld is on the PATH.
+LLD = $(if $(wildcard $(LLVMBIN)ld.lld),$(LLVMBIN))ld.lld

@@ -31,13 +31,13 @@ sudo apt-get install clang lld byacc bison flex groff-base libelf-dev
 macOS:
 
 ```shell
-brew install llvm@18 lld@18 byacc bison flex groff libelf
+brew install llvm lld byacc bison flex groff libelf
 ```
 
 > Apple's built-in Clang cannot generate MIPS code, so a Homebrew LLVM is required on macOS.
-> LLVM 14 through 19 all work. The build finds the compiler automatically; if it picks the wrong
-> one, point it at the right directory yourself:
-> `make LLVMBIN=/opt/homebrew/opt/llvm@19/bin/`
+> LLVM 14 through 22 all work. The build finds the newest installed compiler automatically; if it
+> picks the wrong one, point it at the right directory yourself:
+> `make LLVMBIN=/opt/homebrew/opt/llvm@21/bin/`
 
 ### 2. Build everything
 

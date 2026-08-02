@@ -235,7 +235,7 @@ int name(PLANE *p)
 
 int number(int l)
 {
-	if (l < 'a' && l > 'z' && l < 'A' && l > 'Z')
+	if ((l < 'a' || l > 'z') && (l < 'A' || l > 'Z'))
 		return (-1);
 	else if (l >= 'a' && l <= 'z')
 		return (l - 'a');

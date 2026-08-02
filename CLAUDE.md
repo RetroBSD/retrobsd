@@ -21,11 +21,14 @@ make clean        # object files in tools, lib, src, sys/pic32
 make cleanall     # also removes installed binaries in bin/ sbin/ libexec/ games/ and sdcard.img
 ```
 
-Toolchain: Clang/LLVM + `ld.lld` (14 through 19), `byacc`, `bison`, `flex`, `groff`, `libelf`,
-plus a host `gcc -m32` for the cross tools. [clang-config.mk](clang-config.mk) probes a fixed list
-of apt and Homebrew install paths for `LLVMBIN`; if it picks the wrong one or finds none, override
-it: `make LLVMBIN=/opt/homebrew/opt/llvm@19/bin/`. Note native Apple clang cannot target mips32, so
-on macOS a Homebrew LLVM is mandatory.
+Toolchain: Clang/LLVM + `ld.lld` (14 through 22), `byacc`, `bison`, `flex`, `groff`, `libelf`,
+plus a host `gcc -m32` for the cross tools. [clang-config.mk](clang-config.mk) searches
+`/opt/homebrew/opt/llvm*`, `/usr/local/opt/llvm*` and `/usr/lib/llvm-*` newest-first and sets
+`LLVMBIN` to the first hit; if it picks the wrong one or finds none, override it:
+`make LLVMBIN=/opt/homebrew/opt/llvm@21/bin/`. It also exports `LLD`, used for `LD` by both
+[target.mk](target.mk) and [sys/pic32/Makefile.kconf](sys/pic32/Makefile.kconf) — Homebrew keeps
+`lld` in a separate formula, so `LLD` falls back to whatever `ld.lld` is on `PATH`. Note native
+Apple clang cannot target mips32, so on macOS a Homebrew LLVM is mandatory.
 
 Local overrides go in `Makefile.user` (gitignored, `-include`d by the top Makefile) — e.g. `SDCARD`
 for `make installfs`.

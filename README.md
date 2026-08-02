@@ -1,78 +1,76 @@
-# This is the RetroBSD source directory.
+# RetroBSD
 
-## Source Roadmap
+**A real Unix that fits in 128 kbytes of RAM.**
 
-    bin         User commands.
-    etc         Template files for /etc.
-    include     System include files.
-    lib         System libraries.
-    libexec     System binaries.
-    sbin        System administration commands.
-    share       Shared resources.
-    sys         Kernel sources.
-    tools       Build tools and simulators.
+RetroBSD is [2.11BSD](https://en.wikipedia.org/wiki/History_of_the_Berkeley_Software_Distribution)
+ported to PIC32 microcontrollers — a multi-user, multi-tasking operating system with a kernel,
+a C compiler, shells, `vi`, man pages and a pile of BSD games, all running on a chip with no MMU
+and no external memory.
 
+* **Kernel** — under 128 kbytes of flash, fits in on-chip RAM.
+* **Userland** — up to 96 kbytes per process, swapped whole to the SD card.
+* **Storage** — a normal BSD filesystem on an SD card.
+* **Binaries** — classic BSD `a.out`, built by a Clang/LLVM cross toolchain on your host.
 
-## Supported hardware
+Documentation lives in the [project wiki](https://github.com/RetroBSD/retrobsd/wiki).
 
- * Olimex PIC32-RetroBSD board.
- * Microchip Explorer 16 board, with PIC32 CAN-USB plug-in module and SD & MMC pictail.
+## Quick start
 
+No hardware needed — you can build the system and boot it in a simulator in about five minutes.
 
-## Build
+### 1. Install the toolchain
 
-To compile everything from sources, you'll need some packages installed, namely:
-Clang compiler, LLVM linker, Berkeley YACC, GNU bison, flex, groff and ELF library.
-Under Ubuntu, for example, you can do it by command:
-```shell
-$ sudo apt-get install clang lld byacc bison flex groff-base libelf-dev
-```
+Clang, the LLVM linker, two YACCs, flex, groff and the ELF library.
 
-Under MacOS:
-```shell
-$ brew install llvm@18 lld@18 byacc bison flex groff libelf
-```
-
-Build everything with single-threaded make:
-```shell
-$ make -j1
-```
-
-A resulting root filesystem image is in file `sdcard.img`.
-A kernel is in file `unix.hex` in your target board subdirectory.
-
-
-### Filesystem image
-
-You can put the file system image on the SD card using the [balenaEtcher](https://etcher.balena.io) utility.
-
-### Install kernel
-
-Kernel image should be written to PIC32 flash memory.  The procedure depends
-on a board used.
-
-#### Olimex PIC32-RetroBSD board:
-Use the [pic32prog](https://github.com/sergev/pic32prog) utility and a USB cable
-to install the kernel:
+Ubuntu / Debian:
 
 ```shell
-$ pic32prog -d /dev/ttyUSB0 sys/pic32/olimex/unix.hex
+sudo apt-get install clang lld byacc bison flex groff-base libelf-dev
 ```
 
-#### Explorer 16 board:
-Use Pickit2 clone and [pic32prog](https://github.com/sergev/pic32prog) utility
-to install the kernel:
+macOS:
 
-``` shell
-$ pic32prog sys/pic32/explorer16/unix.hex
+```shell
+brew install llvm@18 lld@18 byacc bison flex groff libelf
 ```
 
-## Simulate
-RetroBSD can be simulated using [QEMU for pic32](https://github.com/sergev/qemu).
-Use kernel for Explorer 16 board. For example:
+> Apple's built-in Clang cannot generate MIPS code, so a Homebrew LLVM is required on macOS.
+> LLVM 14 through 19 all work. The build finds the compiler automatically; if it picks the wrong
+> one, point it at the right directory yourself:
+> `make LLVMBIN=/opt/homebrew/opt/llvm@19/bin/`
+
+### 2. Build everything
+
+```shell
+make -j1
 ```
-$ qemu-pic32 -machine pic32mx7-explorer16 -nographic -monitor none \
-    -serial vc -serial stdio -kernel unix.hex -sd sdcard.img
+
+Use `-j1` — the build is not parallel-safe. It produces:
+
+| File | What it is |
+| --- | --- |
+| `sdcard.img` | Root filesystem image (100 Mbyte, with swap partition) |
+| `sys/pic32/explorer16/unix.hex` | Kernel for the Microchip Explorer 16 board |
+| `sys/pic32/olimex/unix.hex` | Kernel for the Olimex PIC32-RetroBSD board |
+
+### 3. Boot it
+
+Install [QEMU for PIC32](https://github.com/sergev/qemu), then run the Explorer 16 kernel against
+the disk image:
+
+```shell
+qemu-pic32 -machine pic32mx7-explorer16 -nographic -monitor none \
+    -serial vc -serial stdio \
+    -kernel sys/pic32/explorer16/unix.hex -sd sdcard.img
+```
+
+You should get a `login:` prompt within a couple of seconds. Log in as `root` — the password is
+blank, so just press Enter.
+
+<details>
+<summary>Example boot log</summary>
+
+```
 Board: Microchip Explorer16
 Processor: M4K
 RAM size: 128 kbytes
@@ -114,3 +112,80 @@ RetroBSD (pic32) (console)
 
 login: _
 ```
+</details>
+
+## Running on real hardware
+
+Two boards are supported:
+
+| Board | Kernel | Console |
+| --- | --- | --- |
+| [Olimex PIC32-RetroBSD](https://github.com/RetroBSD/retrobsd/wiki/Board-Olimex-PIC32-RetroBSD) | `sys/pic32/olimex/unix.hex` | USB |
+| Microchip Explorer 16 — with PIC32 CAN-USB plug-in module and SD & MMC pictail | `sys/pic32/explorer16/unix.hex` | UART2 |
+
+### Write the filesystem to an SD card
+
+Use [balenaEtcher](https://etcher.balena.io) to flash `sdcard.img` to the card.
+
+Alternatively, set `SDCARD` in a `Makefile.user` file (for example `SDCARD = /dev/sdb`) and run:
+
+```shell
+make installfs
+```
+
+### Write the kernel to flash
+
+Both boards are programmed with the [pic32prog](https://github.com/sergev/pic32prog) utility.
+
+Olimex PIC32-RetroBSD, over a USB cable:
+
+```shell
+pic32prog -d /dev/ttyUSB0 sys/pic32/olimex/unix.hex
+```
+
+Explorer 16, using a PICkit 2 clone:
+
+```shell
+pic32prog sys/pic32/explorer16/unix.hex
+```
+
+## Source roadmap
+
+| Directory | Contents |
+| --- | --- |
+| `sys/kernel` | Machine-independent kernel: processes, signals, filesystem, tty |
+| `sys/pic32` | PIC32 support and drivers; one subdirectory per board |
+| `src/cmd` | User commands — shell, editors, compilers, `vi`, `awk`, and the rest |
+| `src/games` | BSD games, from `adventure` to `rogue` and `trek` |
+| `src/lib*` | Target libraries: libc, libm, curses, readline, termlib and friends |
+| `src/man` | Manual pages |
+| `include` | System include files for user programs |
+| `etc` | Template files for `/etc` |
+| `share` | Shared resources: dictionary, examples, man pages |
+| `tools` | Host-side build tools: `kconfig`, `fsutil`, `elf2aout` |
+
+Compiled programs are installed into `bin`, `sbin`, `libexec` and `games` in this tree, and are
+then packed into the disk image according to [rootfs.manifest](rootfs.manifest).
+
+## Rebuilding parts
+
+```shell
+make -C sys/pic32/explorer16          # just one kernel
+make -C src/cmd/ls                    # just one utility
+make fs                               # just repack sdcard.img
+make clean                            # object files
+make cleanall                         # also installed binaries and sdcard.img
+```
+
+Kernel configuration for each board is described by its `Config` file — devices, pins, clock
+speeds and options. After editing one, regenerate the board's makefile:
+
+```shell
+make -C sys/pic32/explorer16 reconfig
+```
+
+The file format is documented on the [kconfig wiki page](http://retrobsd.org/wiki/doku.php/doc/kconfig).
+
+## License
+
+BSD 2-clause style. See [LICENSE](LICENSE).

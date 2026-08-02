@@ -138,15 +138,15 @@ clean-all: clean
 
 reconfig: ioconf.c
 
-swapunix.c: Config ../../../tools/kconfig/kconfig | sys machine
-	../../../tools/kconfig/kconfig Config
-	$(MAKE) clean
-	rm -f *.hex
-
 ioconf.c: Config ../../../tools/kconfig/kconfig | sys machine
 	../../../tools/kconfig/kconfig Config
 	$(MAKE) clean
 	rm -f *.hex
+
+# Written by the same kconfig run as ioconf.c above.  Keep it a plain
+# dependency: two rules invoking kconfig would race under make -j.
+swapunix.c: ioconf.c
+	@:
 
 load:   unix.elf
 	pic32prog unix.hex

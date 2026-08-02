@@ -42,10 +42,10 @@ brew install llvm lld byacc bison flex groff libelf
 ### 2. Build everything
 
 ```shell
-make -j1
+make
 ```
 
-Use `-j1` — the build is not parallel-safe. It produces:
+Parallel builds are supported: add `-j8` or whatever suits your machine. It produces:
 
 | File | What it is |
 | --- | --- |

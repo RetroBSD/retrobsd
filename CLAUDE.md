@@ -16,7 +16,7 @@ A build produces two artifacts: `sdcard.img` (root filesystem) at the top level,
 ## Build
 
 ```shell
-make -j1          # everything: tools, kernel, userland, sdcard.img — parallel make is NOT safe
+make              # everything: tools, kernel, userland, sdcard.img — `-j` is safe
 make clean        # object files in tools, lib, src, sys/pic32
 make cleanall     # also removes installed binaries in bin/ sbin/ libexec/ games/ and sdcard.img
 ```

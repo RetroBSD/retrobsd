@@ -23,8 +23,3 @@ int isnanf (float x)
 	ul = 0x7f800000 - (u.s32 & 0x7fffffff);
 	return ul >> 31;
 }
-
-/*
- * For PIC32, double is the same as float.
- */
-int isnan (double x) __attribute__((alias ("isnanf")));

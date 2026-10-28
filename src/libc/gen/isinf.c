@@ -11,10 +11,15 @@
  */
 int isinf (double x)
 {
+	union {
+		double value;
+		unsigned long long bits;
+	} u;
 	long hx, lx;
 
-        lx = *(unsigned long long*) &x;
-        hx = (*(unsigned long long*) &x) >> 32;
+	u.value = x;
+	lx = u.bits;
+	hx = u.bits >> 32;
 
 	lx |= (hx & 0x7fffffff) ^ 0x7ff00000;
 	lx |= -lx;

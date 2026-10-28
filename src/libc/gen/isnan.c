@@ -14,10 +14,15 @@
  */
 int isnan (double x)
 {
+	union {
+		double value;
+		unsigned long long bits;
+	} u;
 	long hx, lx;
 
-        lx = *(unsigned long long*) &x;
-        hx = (*(unsigned long long*) &x) >> 32;
+	u.value = x;
+	lx = u.bits;
+	hx = u.bits >> 32;
 
 	hx &= 0x7fffffff;
 	hx |= (unsigned long) (lx | (-lx)) >> 31;

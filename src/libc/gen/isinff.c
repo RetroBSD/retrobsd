@@ -23,8 +23,3 @@ int isinff (float x)
 	v = (u.s32 & 0x7fffffff) ^ 0x7f800000;
 	return ~((v | -v) >> 31) & (u.s32 >> 30);
 }
-
-/*
- * For PIC32, double is the same as float.
- */
-int isinf (double x) __attribute__((alias ("isinff")));

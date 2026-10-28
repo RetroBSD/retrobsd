@@ -46,8 +46,3 @@ float modff (float fx, float *iptr)
         x.u32 = (x.u32 & ~0x80000000) | s;
         return x.f32;
 }
-
-/*
- * For PIC32, double is the same as float.
- */
-double modf (double x, double *iptr) __attribute__((alias ("modff")));

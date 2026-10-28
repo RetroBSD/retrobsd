@@ -51,7 +51,7 @@ to
 .Pi /2.
 .PP
 Acos returns the arc cosine in the range 0 to
-.Pi.
+.Pi .
 .PP
 Atan returns the arc tangent in the range
 .Pi /2 \-
@@ -116,11 +116,13 @@ should be computed thus:
 .if n \{\
 	r	:= hypot(x,y);	... := sqrt(x\(**x+y\(**y)
 	theta	:= atan2(y,x).
-.ta \}
+.ta
+.\}
 .if t \{\
 	r	:= hypot(x,y);	... := \(sr(x\u\s82\s10\d+y\u\s82\s10\d)
 	\(*h	:= atan2(y,x).
-.ta \}
+.ta
+.\}
 .fi
 .IP (3) \w'\0\0\0\0'u
 The foregoing formulas need not be altered to cope in a

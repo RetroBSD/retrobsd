@@ -89,7 +89,7 @@ _make_01: ${OBJS1}
 _make_02: ${OBJS2}
 
 eqn.0:
-	eqn eqn.1 | ${MANROFF} > $@
+	eqn -Tascii eqn.1 | ${MANROFF} -Tascii > $@
 
 clean: FRC
 	rm -f ${OBJS1}

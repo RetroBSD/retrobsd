@@ -111,7 +111,7 @@ Specifying
 lines up compound statements like this:
 .ne 4
 .nf
-.ft L
+.ft R
     if (...)
     {
         code
@@ -123,7 +123,7 @@ Specifying
 (the default) makes them look like this:
 .ne 3
 .nf
-.ft L
+.ft R
     if (...) {
         code
     }
@@ -142,7 +142,7 @@ is for these comments to start in the same column as those on code.
 Enables (disables) the placement of comment delimiters on blank lines.  With
 this option enabled, comments look like this:
 .nf
-.ft L
+.ft R
 .ne 3
 	/*
 	 * this is a comment
@@ -151,7 +151,7 @@ this option enabled, comments look like this:
 .fi
 Rather than like this:
 .nf
-.ft L
+.ft R
 	/* this is a comment */
 .ft R
 .fi
@@ -239,7 +239,7 @@ paren.  For example, here is how a piece of continued code looks with
 \fB\-nlp\fR in effect:
 .ne 2
 .nf
-.ft L
+.ft R
     p1 = first_procedure(second_procedure(p2, p3),
         third_procedure(p4, p5));
 .ft R
@@ -247,7 +247,7 @@ paren.  For example, here is how a piece of continued code looks with
 .ne 5
 With \fB\-lp\fR in effect (the default) the code looks somewhat clearer:
 .nf
-.ft L
+.ft R
 .ta \w'    p1 = first_procedure('u
     p1 = first_procedure(second_procedure(p2, p3),
 	third_procedure(p4, p5));
@@ -256,7 +256,7 @@ With \fB\-lp\fR in effect (the default) the code looks somewhat clearer:
 .ne 5
 Inserting two more newlines we get:
 .nf
-.ft L
+.ft R
 .ta \w'    p1 = first_procedure('u +\w'second_procedure('u
     p1 = first_procedure(second_procedure(p2,
 		p3),
@@ -393,7 +393,7 @@ compensate for the syntactic peculiarities introduced.
 has a `forgiving' parser.  It attempts to cope with the usual sorts of
 incomplete and misformed syntax.  In particular, the use of macros like:
 .nf
-.ft L
+.ft R
         #define forever for(;;)
 .ft R
 .fi
@@ -411,7 +411,7 @@ has even more switches than \fIls\fR.
 .ne 5
 A common mistake that often causes grief is typing:
 .nf
-.ft L
+.ft R
     indent *.c
 .ft R
 .fi

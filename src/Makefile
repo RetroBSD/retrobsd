@@ -23,7 +23,7 @@ $(SUBDIR):	FRC | $(LIBS)
 FRC:
 
 install:        elf32-mips.ld
-		-for i in $(SUBDIR); do \
+		-for i in $(LIBS) $(SUBDIR); do \
 			$(MAKE) -C $$i DESTDIR=$(DESTDIR) all && \
 			$(MAKE) -C $$i DESTDIR=$(DESTDIR) install; done
 #		cp -p elf32-mips.ld $(DESTDIR)/lib/elf32-mips.ld
